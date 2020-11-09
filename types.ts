@@ -13,10 +13,6 @@ export interface Config {
   DATADOG_API_KEY: string;
   DYNAMO_ENDPOINT: string | null;
 
-  API_KEYS_SECRET: string | null;
-  MAIN_DB_SECRET: string | null;
-  LOGGING_DB_SECRET: string | null;
-
   CODE_HANDLER_ENDPOINT: string;
   INTEGRATIONS_HANDLER_ENDPOINT: string;
   API_HANDLER_ENDPOINT: string;

@@ -15,13 +15,9 @@ const CONFIG: Config = {
   AWS_ACCESS_KEY_ID: optionalProcessEnv('AWS_ACCESS_KEY_ID'),
   AWS_SECRET_ACCESS_KEY: optionalProcessEnv('AWS_SECRET_ACCESS_KEY'),
   AWS_REGION: optionalProcessEnv('AWS_REGION'),
+
   AWS_ENDPOINT: optionalProcessEnv('AWS_ENDPOINT'),
-
   DYNAMO_ENDPOINT: optionalProcessEnv('DYNAMO_ENDPOINT'),
-
-  API_KEYS_SECRET: optionalProcessEnv('API_KEYS_SECRET'),
-  MAIN_DB_SECRET: optionalProcessEnv('MAIN_DB_SECRET'),
-  LOGGING_DB_SECRET: optionalProcessEnv('LOGGING_DB_SECRET'),
 
   CODE_HANDLER_ENDPOINT: getProcessEnv('CODE_HANDLER_ENDPOINT'),
   INTEGRATIONS_HANDLER_ENDPOINT: getProcessEnv('INTEGRATIONS_HANDLER_ENDPOINT'),
@@ -36,6 +32,7 @@ const CONFIG: Config = {
   // diagrams table
   SESSIONS_DYNAMO_TABLE: getProcessEnv('SESSIONS_DYNAMO_TABLE'),
 
+  // server-data-api endpoint and auth secret
   VF_DATA_ENDPOINT: getProcessEnv('VF_DATA_ENDPOINT'),
   VF_DATA_SECRET: getProcessEnv('VF_DATA_SECRET'),
 
