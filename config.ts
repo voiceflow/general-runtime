@@ -26,7 +26,7 @@ const CONFIG: Config = {
 
   // Secrets
   DATADOG_API_KEY: getProcessEnv('DATADOG_API_KEY'),
-  VF_DATA_SECRET: getProcessEnv('VF_DATA_SECRET'), // Server-data-api auth token
+  ADMIN_SERVER_DATA_API_TOKEN: getProcessEnv('ADMIN_SERVER_DATA_API_TOKEN'), // Server-data-api auth token
 
   AWS_ACCESS_KEY_ID: optionalProcessEnv('AWS_ACCESS_KEY_ID'),
   AWS_SECRET_ACCESS_KEY: optionalProcessEnv('AWS_SECRET_ACCESS_KEY'),

@@ -64,11 +64,6 @@ Add your VF-Project JSON file under `projects/`
 
 Also add the following files to the local repository:
 
-> ```
-> VF_DATA_SECRET: 'none'
-> DATADOG_API_KEY: 'none'
-> ```
-
 > `.env.local`
 >
 > ```
@@ -85,6 +80,8 @@ Also add the following files to the local repository:
 >
 > LOG_LEVEL="warn"
 > MIDDLEWARE_VERBOSITY="none"
+>
+> DATADOG_API_KEY="none"
 > ```
 
 Install a localhost tunnel tool such as [ngrok](https://ngrok.com/), [localtunnel](https://github.com/localtunnel/localtunnel), or [bespoken proxy](https://read.bespoken.io/cli/commands/#bst-proxy-http). This will allow you expose a localhost endpoint on the internet for Alexa to hit. For the purposes of this guide, we will implement `ngrok`

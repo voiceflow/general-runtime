@@ -25,8 +25,8 @@ class Server {
    * - Creates express app and services
    */
   async start() {
-    // Start services. This way if pubsub doesn't connect, it'll hang
-    // await this.serviceManager.start()
+    // Start services.
+    await this.serviceManager.start();
 
     const app = express();
     const server = http.createServer(app);

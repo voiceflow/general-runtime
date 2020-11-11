@@ -25,7 +25,7 @@ export interface Config {
 
   SESSIONS_DYNAMO_TABLE: string;
 
-  VF_DATA_SECRET: string;
+  ADMIN_SERVER_DATA_API_TOKEN: string;
   VF_DATA_ENDPOINT: string;
   // Logging
   LOG_LEVEL: string | null;
