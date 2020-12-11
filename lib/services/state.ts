@@ -14,14 +14,22 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> {
   async generate(versionID: string): Promise<State> {
     const { prototype, variables, rootDiagramID } = await this.services.dataAPI.getVersion(versionID);
 
+    const entities = prototype?.model.slots.map(({ name }) => name);
+
+    const DEFAULT_STACK = [{ programID: rootDiagramID, storage: {}, variables: {} }];
+
+    const stack =
+      prototype?.context.stack?.map((frame) => ({
+        ...frame,
+        storage: frame.storage || {},
+        variables: frame.variables || {},
+      })) || DEFAULT_STACK;
+
     return {
-      stack: prototype?.context.stack || [
-        {
-          programID: rootDiagramID,
-        },
-      ],
+      stack,
       variables: {
-        ..._.mapValues(prototype?.model.slots, 0),
+        // initialize all entities and variables to 0
+        ..._.mapValues(entities, 0),
         ..._.mapValues(variables, 0),
         ...prototype?.context.variables,
       },

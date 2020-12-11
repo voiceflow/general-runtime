@@ -8,7 +8,7 @@ import { FullServiceMap } from '../index';
 import { AbstractManager, Config, injectServices } from '../utils';
 import Handlers from './handlers';
 import { RESUME_PROGRAM_ID, ResumeDiagram } from './programs/resume';
-import { FrameType, SpeakFrame, StorageData, StorageType, TEST_VERSION_ID, TurnType, Variables } from './types';
+import { FrameType, SpeakFrame, StorageData, StorageType, TEST_VERSION_ID, TurnType } from './types';
 
 export const utils = {
   Client,
@@ -81,12 +81,6 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> {
     context.setEvent(EventType.handlerWillHandle, (event) =>
       context.trace.addTrace<BlockTraceFrame>({ type: GeneralTraceType.BLOCK, payload: { blockID: event.node.id } })
     );
-
-    context.turn.set(TurnType.REQUEST, request);
-    context.variables.set(Variables.TIMESTAMP, Math.floor(Date.now() / 1000));
-
-    context.turn.set(TurnType.PREVIOUS_OUTPUT, context.storage.get(StorageType.OUTPUT));
-    context.storage.set(StorageType.OUTPUT, '');
 
     await context.update();
 

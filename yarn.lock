@@ -1010,6 +1010,20 @@
     regenerator-runtime "^0.13.5"
     superstruct "^0.10.12"
 
+"@voiceflow/api-sdk@1.19.1":
+  version "1.19.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.19.1.tgz#310b70d69029a351936ffb6f4eeebecda3e44cca"
+  integrity sha512-YKyypv6L6WpiyG6a3qegJetYBfHD5RXBnjLJesXGsd4pD39URJeflrIIQsREr0OFV0mnuzC5sgfuFxOZkK1Mpg==
+  dependencies:
+    "@types/atob" "^2.1.2"
+    "@voiceflow/logger" "^1.1.10"
+    atob "^2.1.2"
+    axios "^0.19.2"
+    core-js "^3.6.5"
+    io-ts "^2.2.8"
+    regenerator-runtime "^0.13.5"
+    superstruct "^0.10.12"
+
 "@voiceflow/backend-utils@^2.1.1":
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/@voiceflow/backend-utils/-/backend-utils-2.1.1.tgz#8727feca0099ef360801232c69fd362f020da5e7"
@@ -1121,13 +1135,13 @@
   resolved "https://registry.yarnpkg.com/@voiceflow/prettier-config/-/prettier-config-1.0.4.tgz#fe3ef88f1370f326a844686b57ee15522fc03b02"
   integrity sha512-hVjP3v3uKEmbjen4dGjv4A8EEHjopvzEnNdg8KHFZnvvD1eYu4IvDAyKqoK3xGoacqcLlkBo3abyCzOaHOp0Dg==
 
-"@voiceflow/runtime@1.12.1":
-  version "1.12.1"
-  resolved "https://registry.yarnpkg.com/@voiceflow/runtime/-/runtime-1.12.1.tgz#b2b8acc2fd60335123466dbf87c24021b5038f4c"
-  integrity sha512-+miY1zbc7PtKJXDZz/KxdC0+tlxz5fMiPTMeb1PKhBua4d9UMh/Jounj7tBZKjjhCa7lVlUEn3xe9MAQZUCvTQ==
+"@voiceflow/runtime@1.12.2":
+  version "1.12.2"
+  resolved "https://registry.yarnpkg.com/@voiceflow/runtime/-/runtime-1.12.2.tgz#95909a6e8916ac844920fed1706966504b66523a"
+  integrity sha512-i6SLEM3TK7n24wv1G8vxnKAh+ZJVsrmwri81MqbNs5ycOW/9bgVCH+gK9SoLE1mYwEdEJuZAbmnF/FVEnCNMsQ==
   dependencies:
     "@types/safe-json-stringify" "^1.1.0"
-    "@voiceflow/api-sdk" "1.19.0"
+    "@voiceflow/api-sdk" "1.19.1"
     "@voiceflow/general-types" "1.12.0"
     axios "^0.19.0"
     bluebird "^3.7.2"

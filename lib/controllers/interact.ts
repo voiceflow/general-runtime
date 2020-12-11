@@ -5,7 +5,7 @@ import { AbstractController } from './utils';
 
 class InteractController extends AbstractController {
   async context(req: { params: { versionID: string } }) {
-    return this.services.context;
+    return this.services.state.generate(req.params.versionID);
   }
 
   async handler(req: { body: { state: State; request?: StateRequest } }) {
