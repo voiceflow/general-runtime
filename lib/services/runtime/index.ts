@@ -20,7 +20,7 @@ export const utils = {
 };
 
 @injectServices({ utils })
-class PrototypeManager extends AbstractManager<{ utils: typeof utils }> {
+class RuntimeManager extends AbstractManager<{ utils: typeof utils }> {
   private client: Client;
 
   private handlers: ReturnType<typeof Handlers>;
@@ -40,10 +40,6 @@ class PrototypeManager extends AbstractManager<{ utils: typeof utils }> {
   }
 
   private setup() {
-    this.client.setEvent(EventType.traceWillAdd, ({ context, stop }) => {
-      if (context.versionID !== TEST_VERSION_ID) stop();
-    });
-
     this.client.setEvent(EventType.stackDidChange, ({ context }) => {
       const programID = context.stack.top()?.getProgramID();
 
@@ -105,4 +101,4 @@ class PrototypeManager extends AbstractManager<{ utils: typeof utils }> {
   }
 }
 
-export default PrototypeManager;
+export default RuntimeManager;

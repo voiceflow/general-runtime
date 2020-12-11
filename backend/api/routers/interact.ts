@@ -8,7 +8,9 @@ export default (_: MiddlewareMap, controllers: ControllerMap) => {
   const router = express.Router();
 
   router.use(bodyParser.json({ limit: BODY_PARSER_SIZE_LIMIT }));
-  router.post('/', controllers.prototype.handler);
+  router.get('/:versionID/context', controllers.interact.context);
+
+  router.post('/:versionID', controllers.interact.handler);
 
   return router;
 };

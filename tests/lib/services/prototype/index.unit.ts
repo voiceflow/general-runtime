@@ -2,8 +2,8 @@ import { EventType } from '@voiceflow/runtime';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import PrototypeManager, { utils as defaultUtils } from '@/lib/services/prototype';
-import { TEST_VERSION_ID, TurnType, Variables } from '@/lib/services/prototype/types';
+import PrototypeManager, { utils as defaultUtils } from '@/lib/services/runtime';
+import { TEST_VERSION_ID, TurnType, Variables } from '@/lib/services/runtime/types';
 
 describe('prototype manager unit tests', () => {
   let clock: sinon.SinonFakeTimers;

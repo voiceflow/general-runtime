@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import Prototype from '@/lib/controllers/prototype';
+import Prototype from '@/lib/controllers/interact';
 
 describe('prototype controller unit tests', () => {
   describe('handler', () => {

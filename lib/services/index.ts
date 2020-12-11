@@ -1,10 +1,12 @@
 import { Config } from '@/types';
 
 import { ClientMap } from '../clients';
-import Prototype from './prototype';
+import Runtime from './runtime';
+import State from './state';
 
 export interface ServiceMap {
-  prototype: Prototype;
+  runtime: Runtime;
+  state: State;
 }
 
 export interface FullServiceMap extends ClientMap, ServiceMap {}
@@ -17,7 +19,8 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
     ...clients,
   } as FullServiceMap;
 
-  services.prototype = new Prototype(services, config);
+  services.runtime = new Runtime(services, config);
+  services.state = new State(services, config);
 
   return services;
 };
