@@ -1135,10 +1135,10 @@
   resolved "https://registry.yarnpkg.com/@voiceflow/prettier-config/-/prettier-config-1.0.4.tgz#fe3ef88f1370f326a844686b57ee15522fc03b02"
   integrity sha512-hVjP3v3uKEmbjen4dGjv4A8EEHjopvzEnNdg8KHFZnvvD1eYu4IvDAyKqoK3xGoacqcLlkBo3abyCzOaHOp0Dg==
 
-"@voiceflow/runtime@1.12.2":
-  version "1.12.2"
-  resolved "https://registry.yarnpkg.com/@voiceflow/runtime/-/runtime-1.12.2.tgz#95909a6e8916ac844920fed1706966504b66523a"
-  integrity sha512-i6SLEM3TK7n24wv1G8vxnKAh+ZJVsrmwri81MqbNs5ycOW/9bgVCH+gK9SoLE1mYwEdEJuZAbmnF/FVEnCNMsQ==
+"@voiceflow/runtime@1.13.0":
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/runtime/-/runtime-1.13.0.tgz#55ee87445732d774a5828e0f4059cc57fdc66037"
+  integrity sha512-XXUNfvuPkE3SpdjQBGBT0m1z+tqsv1ppshmvDON9ITnDjotAd1ZgLOjq4BJL+35TDcrm+GE1YXkPYgx/wi828A==
   dependencies:
     "@types/safe-json-stringify" "^1.1.0"
     "@voiceflow/api-sdk" "1.19.1"
