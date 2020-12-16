@@ -2,10 +2,12 @@ import { EventType } from '@voiceflow/runtime';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import PrototypeManager, { utils as defaultUtils } from '@/lib/services/runtime';
-import { TEST_VERSION_ID, TurnType, Variables } from '@/lib/services/runtime/types';
+import RuntimeManager, { utils as defaultUtils } from '@/lib/services/runtime';
+import { TurnType, Variables } from '@/lib/services/runtime/types';
 
-describe('prototype manager unit tests', () => {
+const VERSION_ID = 'version_id';
+
+describe('runtime manager unit tests', () => {
   let clock: sinon.SinonFakeTimers;
 
   beforeEach(() => {
@@ -16,12 +18,12 @@ describe('prototype manager unit tests', () => {
     sinon.restore();
   });
 
-  describe('invoke', () => {
+  describe('handle', () => {
     it('works correctly', async () => {
       const rawState = { foo: 'bar' };
       const trace = { foo1: 'bar1' };
 
-      const context = {
+      const runtime = {
         setEvent: sinon.stub(),
         turn: {
           get: sinon.stub().returns(false), // TurnType.END false
@@ -42,7 +44,7 @@ describe('prototype manager unit tests', () => {
 
       const client = {
         setEvent: sinon.stub(),
-        createContext: sinon.stub().returns(context),
+        createContext: sinon.stub().returns(runtime),
       };
 
       const services = {
@@ -56,14 +58,15 @@ describe('prototype manager unit tests', () => {
 
       const config = {};
 
-      const prototypeManager = new PrototypeManager({ ...services, utils: { ...defaultUtils, ...utils } } as any, config as any);
+      const runtimeManager = new RuntimeManager({ ...services, utils: { ...defaultUtils, ...utils } } as any, config as any);
 
       const state = { foo2: 'bar2' };
       const request = { foo3: 'bar3' };
-      expect(await prototypeManager.invoke(state as any, request as any)).to.eql({ ...rawState, trace });
+      const context = { state, request, versionID: VERSION_ID } as any;
+      expect(await runtimeManager.handle(context)).to.eql({ ...rawState, trace });
       expect(client.createContext.args).to.eql([
         [
-          TEST_VERSION_ID,
+          VERSION_ID,
           state,
           request,
           {
@@ -72,24 +75,24 @@ describe('prototype manager unit tests', () => {
           },
         ],
       ]);
-      expect(context.setEvent.args[0][0]).to.eql(EventType.handlerWillHandle);
-      const fn = context.setEvent.args[0][1];
-      const event = { context: { foo4: 'bar3' }, node: { id: 'node-id' } };
+      expect(runtime.setEvent.args[0][0]).to.eql(EventType.handlerWillHandle);
+      const fn = runtime.setEvent.args[0][1];
+      const event = { runtime: { foo4: 'bar3' }, node: { id: 'node-id' } };
       fn(event);
-      expect(context.trace.addTrace.args).to.eql([[{ type: 'block', payload: { blockID: event.node.id } }]]);
-      expect(context.turn.set.args).to.eql([
+      expect(runtime.trace.addTrace.args).to.eql([[{ type: 'block', payload: { blockID: event.node.id } }]]);
+      expect(runtime.turn.set.args).to.eql([
         [TurnType.REQUEST, request],
         [TurnType.PREVIOUS_OUTPUT, null],
       ]);
-      expect(context.variables.set.args).to.eql([[Variables.TIMESTAMP, Math.floor(clock.now / 1000)]]);
-      expect(context.update.callCount).to.eql(1);
+      expect(runtime.variables.set.args).to.eql([[Variables.TIMESTAMP, Math.floor(clock.now / 1000)]]);
+      expect(runtime.update.callCount).to.eql(1);
     });
 
     it('stack empty', async () => {
       const rawState = { foo: 'bar' };
       const trace = { foo1: 'bar1' };
 
-      const context = {
+      const runtime = {
         setEvent: sinon.stub(),
         turn: {
           set: sinon.stub(),
@@ -110,7 +113,7 @@ describe('prototype manager unit tests', () => {
 
       const client = {
         setEvent: sinon.stub(),
-        createContext: sinon.stub().returns(context),
+        createContext: sinon.stub().returns(runtime),
       };
 
       const services = {
@@ -124,11 +127,12 @@ describe('prototype manager unit tests', () => {
 
       const config = {};
 
-      const prototypeManager = new PrototypeManager({ ...services, utils: { ...defaultUtils, ...utils } } as any, config as any);
+      const runtimeManager = new RuntimeManager({ ...services, utils: { ...defaultUtils, ...utils } } as any, config as any);
 
-      expect(await prototypeManager.invoke({} as any, {} as any)).to.eql({ ...rawState, trace });
+      const context = { state: {}, request: {}, versionID: VERSION_ID } as any;
+      expect(await runtimeManager.handle(context)).to.eql({ ...rawState, trace });
       expect(utils.Handlers.callCount).to.eql(1);
-      expect(context.trace.addTrace.args[0]).to.eql([{ type: 'end' }]);
+      expect(runtime.trace.addTrace.args[0]).to.eql([{ type: 'end' }]);
     });
   });
 });

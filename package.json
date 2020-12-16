@@ -95,10 +95,10 @@
     "sinon": "^7.5.0",
     "source-map-support": "^0.5.16",
     "supertest": "^4.0.2",
-    "ts-mocha": "^6.0.0",
-    "ts-node": "^8.5.4",
+    "ts-mocha": "^7.0.0",
+    "ts-node": "^8.10.2",
     "tsconfig-paths": "^3.9.0",
-    "ttypescript": "^1.5.8",
+    "ttypescript": "^1.5.10",
     "typescript": "^3.9.7"
   },
   "homepage": "https://github.com/voiceflow/general-runtime#readme",

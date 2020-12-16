@@ -34,7 +34,11 @@
       "@/*": [
         "./*"
       ]
-    }
+    },
+    "typeRoots": [
+      "./node_modules/@types",
+      "./typings"
+    ]
   },
   "compileOnSave": false,
   "include": [

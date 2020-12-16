@@ -2,8 +2,7 @@ import Client from '@voiceflow/runtime';
 
 import { Context, ContextHandler } from '@/types';
 
-import { FullServiceMap } from '../index';
-import { AbstractManager, Config, injectServices } from '../utils';
+import { AbstractManager, Config, injectServices, Services } from '../utils';
 import Handlers from './handlers';
 import init from './init';
 
@@ -18,7 +17,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
 
   private handlers: ReturnType<typeof Handlers>;
 
-  constructor(services: FullServiceMap, config: Config) {
+  constructor(services: Services, config: Config) {
     super(services, config);
 
     this.handlers = this.services.utils.Handlers(config);

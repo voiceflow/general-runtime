@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import { Context, ContextHandler } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
