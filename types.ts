@@ -63,7 +63,15 @@ export type MiddlewareGroup = Record<string, Middleware>;
 export type Class<T, A extends any[]> = { new (...args: A): T };
 export type AnyClass = Class<any, any[]>;
 
-export type ContextRequest = {}; // TODO DEFINE REQUEST TYPE
+export enum ContextRequestType {
+  TEXT,
+  DATA,
+  INTENT,
+}
+
+// TODO DEFINE REQUEST TYPE
+export type ContextRequest = {};
+
 export type Context = Runtime.Context<ContextRequest>;
 export type ContextHandler = Runtime.ContextHandler<ContextRequest>;
 export type InitContextHandler = Runtime.InitContextHandler<ContextRequest>;
