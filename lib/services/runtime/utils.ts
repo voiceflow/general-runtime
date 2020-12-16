@@ -1,6 +1,6 @@
 import { SlotMapping } from '@voiceflow/api-sdk';
 import { IntentRequestSlot } from '@voiceflow/general-types';
-import { Context, formatIntentName, replaceVariables, Store, transformStringVariableToNumber } from '@voiceflow/runtime';
+import { formatIntentName, replaceVariables, Runtime, Store, transformStringVariableToNumber } from '@voiceflow/runtime';
 import _ from 'lodash';
 
 import { TurnType } from './types';
@@ -27,8 +27,8 @@ export const mapSlots = (mappings: SlotMapping[], slots: Partial<Record<string, 
   return variables;
 };
 
-export const addRepromptIfExists = <B extends { reprompt?: string }>(node: B, context: Context, variables: Store): void => {
+export const addRepromptIfExists = <B extends { reprompt?: string }>(node: B, runtime: Runtime, variables: Store): void => {
   if (node.reprompt) {
-    context.turn.set(TurnType.REPROMPT, replaceVariables(node.reprompt, variables.getState()));
+    runtime.turn.set(TurnType.REPROMPT, replaceVariables(node.reprompt, variables.getState()));
   }
 };

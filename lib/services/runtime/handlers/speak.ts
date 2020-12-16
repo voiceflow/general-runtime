@@ -7,7 +7,7 @@ import { FrameType, SpeakFrame, StorageType } from '../types';
 
 const SpeakHandler: HandlerFactory<Node> = () => ({
   canHandle: (node) => ('random_speak' in node ? !!node.random_speak : !!node.speak) || (_.isString(node.prompt) && node.prompt !== 'true'),
-  handle: (node, context, variables) => {
+  handle: (node, runtime, variables) => {
     let speak = '';
 
     // Pick a random part to speak
@@ -22,12 +22,12 @@ const SpeakHandler: HandlerFactory<Node> = () => ({
     if (_.isString(speak)) {
       const output = replaceVariables(speak, sanitizedVars);
 
-      context.storage.produce((draft) => {
+      runtime.storage.produce((draft) => {
         draft[StorageType.OUTPUT] += output;
       });
 
-      context.stack.top().storage.set<SpeakFrame>(FrameType.SPEAK, output);
-      context.trace.addTrace<TraceFrame>({ type: TraceType.SPEAK, payload: { message: output } });
+      runtime.stack.top().storage.set<SpeakFrame>(FrameType.SPEAK, output);
+      runtime.trace.addTrace<TraceFrame>({ type: TraceType.SPEAK, payload: { message: output } });
     }
 
     return node.nextId ?? null;

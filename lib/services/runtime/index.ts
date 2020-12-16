@@ -1,26 +1,19 @@
-import { BlockTraceFrame, StateRequest, TraceType as GeneralTraceType, TraceType } from '@voiceflow/general-types';
-import { TraceFrame as ExitTraceFrame } from '@voiceflow/general-types/build/nodes/exit';
-import { TraceFrame as FlowTraceFrame } from '@voiceflow/general-types/build/nodes/flow';
-import { TraceFrame as SpeakTraceFrame } from '@voiceflow/general-types/build/nodes/speak';
-import Client, { EventType, State } from '@voiceflow/runtime';
+import Client from '@voiceflow/runtime';
+
+import { Context, ContextHandler } from '@/types';
 
 import { FullServiceMap } from '../index';
 import { AbstractManager, Config, injectServices } from '../utils';
 import Handlers from './handlers';
-import { RESUME_PROGRAM_ID, ResumeDiagram } from './programs/resume';
-import { FrameType, SpeakFrame, StorageData, StorageType, TEST_VERSION_ID, TurnType } from './types';
+import init from './init';
 
 export const utils = {
   Client,
-  resume: {
-    ResumeDiagram,
-    RESUME_PROGRAM_ID,
-  },
   Handlers,
 };
 
 @injectServices({ utils })
-class RuntimeManager extends AbstractManager<{ utils: typeof utils }> {
+class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
   private client: Client;
 
   private handlers: ReturnType<typeof Handlers>;
@@ -36,61 +29,19 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> {
       handlers: this.handlers,
     });
 
-    this.setup();
+    init(this.client);
   }
 
-  private setup() {
-    this.client.setEvent(EventType.stackDidChange, ({ context }) => {
-      const programID = context.stack.top()?.getProgramID();
+  public async handle({ versionID, state, request }: Context) {
+    const runtime = this.client.createRuntime(versionID, state, request);
 
-      context.trace.addTrace<FlowTraceFrame>({
-        type: TraceType.FLOW,
-        payload: { diagramID: programID },
-      });
-    });
-
-    this.client.setEvent(EventType.frameDidFinish, ({ context }) => {
-      if (context.stack.top()?.storage.get(FrameType.CALLED_COMMAND)) {
-        context.stack.top().storage.delete(FrameType.CALLED_COMMAND);
-
-        const output = context.stack.top().storage.get<SpeakFrame>(FrameType.SPEAK);
-
-        if (output) {
-          context.storage.produce<StorageData>((draft) => {
-            draft[StorageType.OUTPUT] += output;
-          });
-
-          context.trace.addTrace<SpeakTraceFrame>({ type: TraceType.SPEAK, payload: { message: output } });
-        }
-      }
-    });
-
-    this.client.setEvent(EventType.programWillFetch, ({ programID, override }) => {
-      if (programID === this.services.utils.resume.RESUME_PROGRAM_ID) {
-        override(this.services.utils.resume.ResumeDiagram);
-      }
-    });
-  }
-
-  public async invoke(state: State, request?: StateRequest) {
-    const context = this.client.createContext(TEST_VERSION_ID, state, request, {
-      api: this.services.dataAPI,
-      handlers: this.handlers,
-    });
-
-    context.setEvent(EventType.handlerWillHandle, (event) =>
-      context.trace.addTrace<BlockTraceFrame>({ type: GeneralTraceType.BLOCK, payload: { blockID: event.node.id } })
-    );
-
-    await context.update();
-
-    if (context.stack.isEmpty() && !context.turn.get(TurnType.END)) {
-      context.trace.addTrace<ExitTraceFrame>({ type: GeneralTraceType.END });
-    }
+    await runtime.update();
 
     return {
-      ...context.getRawState(),
-      trace: context.trace.get(),
+      request,
+      versionID,
+      state: runtime.getFinalState(),
+      trace: runtime.trace.get(),
     };
   }
 }

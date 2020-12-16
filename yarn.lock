@@ -996,7 +996,7 @@
     regenerator-runtime "^0.13.5"
     superstruct "^0.10.12"
 
-"@voiceflow/api-sdk@1.19.0", "@voiceflow/api-sdk@^1.19.0":
+"@voiceflow/api-sdk@1.19.0":
   version "1.19.0"
   resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.19.0.tgz#99b9a55df30bf2875e93182de81f41abb6f32ee0"
   integrity sha512-FHcpjqSyfMEGGYFpjOmtDGxY3p/bN7aQ8oTVZPzqm1iZ/psFT8wwSBpxPkbwi+XEkYfuq10ZtloDURar+BkDSg==
@@ -1010,7 +1010,7 @@
     regenerator-runtime "^0.13.5"
     superstruct "^0.10.12"
 
-"@voiceflow/api-sdk@1.19.1":
+"@voiceflow/api-sdk@1.19.1", "@voiceflow/api-sdk@^1.19.1":
   version "1.19.1"
   resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.19.1.tgz#310b70d69029a351936ffb6f4eeebecda3e44cca"
   integrity sha512-YKyypv6L6WpiyG6a3qegJetYBfHD5RXBnjLJesXGsd4pD39URJeflrIIQsREr0OFV0mnuzC5sgfuFxOZkK1Mpg==

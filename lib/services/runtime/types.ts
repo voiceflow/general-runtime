@@ -1,7 +1,5 @@
 import { NodeID } from '@voiceflow/general-types';
 
-export const TEST_VERSION_ID = '__TEST__' as const;
-
 export enum StorageType {
   USER = 'user',
   OUTPUT = 'output',

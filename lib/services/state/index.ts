@@ -1,12 +1,14 @@
 import { State } from '@voiceflow/runtime';
 import _ from 'lodash';
 
-import { AbstractManager, injectServices } from './utils';
+import { Context, InitContextHandler } from '@/types';
+
+import { AbstractManager, injectServices } from '../utils';
 
 export const utils = {};
 
 @injectServices({ utils })
-class StateManager extends AbstractManager<{ utils: typeof utils }> {
+class StateManager extends AbstractManager<{ utils: typeof utils }> implements InitContextHandler {
   /**
    * generate a context for a new session
    * @param versionID - project version to generate the context for
@@ -36,6 +38,19 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> {
       storage: {
         ...prototype?.context.storage,
       },
+    };
+  }
+
+  async handle(context: Partial<Context>) {
+    if (!context.versionID) {
+      throw new Error('context versionID not defined');
+    }
+    return {
+      ...context,
+      versionID: context.versionID,
+      state: context.state || (await this.generate(context.versionID)),
+      request: context.request || {}, // TODO: default input if empty
+      trace: [],
     };
   }
 }

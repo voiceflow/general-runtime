@@ -10,10 +10,10 @@ const handlerUtils = {
 
 export const StreamHandler: HandlerFactory<Node, typeof handlerUtils> = (u) => ({
   canHandle: (node) => node.type === NodeType.STREAM && !!node.src,
-  handle: (node, context, variables) => {
+  handle: (node, runtime, variables) => {
     const variablesMap = variables.getState();
 
-    context.storage.set<StreamPlayStorage>(StorageType.STREAM_PLAY, {
+    runtime.storage.set<StreamPlayStorage>(StorageType.STREAM_PLAY, {
       src: u.replaceVariables(node.src, variablesMap),
       loop: node.loop,
       token: node.id,
@@ -25,20 +25,20 @@ export const StreamHandler: HandlerFactory<Node, typeof handlerUtils> = (u) => (
       previousID: node.previousID,
     });
 
-    const streamPause = context.storage.get<StreamPauseStorage>(StorageType.STREAM_PAUSE);
+    const streamPause = runtime.storage.get<StreamPauseStorage>(StorageType.STREAM_PAUSE);
 
     if (streamPause) {
       if (node.id === streamPause.id) {
-        context.storage.produce<StorageData>((draft) => {
+        runtime.storage.produce<StorageData>((draft) => {
           draft[StorageType.STREAM_PLAY]!.offset = streamPause.offset;
           draft[StorageType.STREAM_PLAY]!.action = StreamAction.PAUSE;
         });
       }
 
-      context.storage.delete(StorageType.STREAM_PAUSE);
+      runtime.storage.delete(StorageType.STREAM_PAUSE);
     }
 
-    context.end();
+    runtime.end();
 
     return null;
   },

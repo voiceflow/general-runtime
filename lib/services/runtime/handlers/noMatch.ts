@@ -1,7 +1,7 @@
 import { Node } from '@voiceflow/api-sdk';
 import { TraceType } from '@voiceflow/general-types';
 import { TraceFrame } from '@voiceflow/general-types/build/nodes/speak';
-import { Context, replaceVariables, sanitizeVariables, Store } from '@voiceflow/runtime';
+import { replaceVariables, Runtime, sanitizeVariables, Store } from '@voiceflow/runtime';
 import _ from 'lodash';
 
 import { NoMatchCounterStorage, StorageData, StorageType } from '../types';
@@ -13,15 +13,15 @@ export const EMPTY_AUDIO_STRING = '<audio src=""/>';
 const removeEmptyNoMatches = (noMatchArray?: string[]) => noMatchArray?.filter((noMatch) => noMatch != null && noMatch !== EMPTY_AUDIO_STRING);
 
 export const NoMatchHandler = () => ({
-  canHandle: (node: NoMatchNode, context: Context) => {
+  canHandle: (node: NoMatchNode, runtime: Runtime) => {
     const nonEmptyNoMatches = removeEmptyNoMatches(node.noMatches);
 
     return (
-      Array.isArray(nonEmptyNoMatches) && nonEmptyNoMatches.length > (context.storage.get<NoMatchCounterStorage>(StorageType.NO_MATCHES_COUNTER) ?? 0)
+      Array.isArray(nonEmptyNoMatches) && nonEmptyNoMatches.length > (runtime.storage.get<NoMatchCounterStorage>(StorageType.NO_MATCHES_COUNTER) ?? 0)
     );
   },
-  handle: (node: NoMatchNode, context: Context, variables: Store) => {
-    context.storage.produce<StorageData>((draft) => {
+  handle: (node: NoMatchNode, runtime: Runtime, variables: Store) => {
+    runtime.storage.produce<StorageData>((draft) => {
       const counter = draft[StorageType.NO_MATCHES_COUNTER];
 
       draft[StorageType.NO_MATCHES_COUNTER] = counter ? counter + 1 : 1;
@@ -31,16 +31,16 @@ export const NoMatchHandler = () => ({
     const speak =
       (node.randomize
         ? _.sample(nonEmptyNoMatches)
-        : nonEmptyNoMatches?.[context.storage.get<NoMatchCounterStorage>(StorageType.NO_MATCHES_COUNTER)! - 1]) || '';
+        : nonEmptyNoMatches?.[runtime.storage.get<NoMatchCounterStorage>(StorageType.NO_MATCHES_COUNTER)! - 1]) || '';
 
     const sanitizedVars = sanitizeVariables(variables.getState());
     const output = replaceVariables(speak, sanitizedVars);
 
-    context.storage.produce<StorageData>((draft) => {
+    runtime.storage.produce<StorageData>((draft) => {
       draft[StorageType.OUTPUT] += output;
     });
 
-    context.trace.addTrace<TraceFrame>({
+    runtime.trace.addTrace<TraceFrame>({
       type: TraceType.SPEAK,
       payload: { message: output },
     });
