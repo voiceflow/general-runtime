@@ -40,11 +40,12 @@ describe('runtime manager unit tests', () => {
         update: sinon.stub(),
         getRawState: sinon.stub().returns(rawState),
         trace: { get: sinon.stub().returns(trace), addTrace: sinon.stub() },
+        getFinalState: sinon.stub().returns(rawState),
       };
 
       const client = {
         setEvent: sinon.stub(),
-        createContext: sinon.stub().returns(runtime),
+        createRuntime: sinon.stub().returns(runtime),
       };
 
       const services = {
@@ -63,8 +64,8 @@ describe('runtime manager unit tests', () => {
       const state = { foo2: 'bar2' };
       const request = { foo3: 'bar3' };
       const context = { state, request, versionID: VERSION_ID } as any;
-      expect(await runtimeManager.handle(context)).to.eql({ ...rawState, trace });
-      expect(client.createContext.args).to.eql([
+      expect(await runtimeManager.handle(context)).to.eql({ state: rawState, trace, request, versionID: VERSION_ID });
+      expect(client.createRuntime.args).to.eql([
         [
           VERSION_ID,
           state,
@@ -109,11 +110,12 @@ describe('runtime manager unit tests', () => {
         update: sinon.stub(),
         getRawState: sinon.stub().returns(rawState),
         trace: { get: sinon.stub().returns(trace), addTrace: sinon.stub() },
+        getFinalState: sinon.stub().returns(rawState),
       };
 
       const client = {
         setEvent: sinon.stub(),
-        createContext: sinon.stub().returns(runtime),
+        createRuntime: sinon.stub().returns(runtime),
       };
 
       const services = {
@@ -130,7 +132,7 @@ describe('runtime manager unit tests', () => {
       const runtimeManager = new RuntimeManager({ ...services, utils: { ...defaultUtils, ...utils } } as any, config as any);
 
       const context = { state: {}, request: {}, versionID: VERSION_ID } as any;
-      expect(await runtimeManager.handle(context)).to.eql({ ...rawState, trace });
+      expect(await runtimeManager.handle(context)).to.eql({ state: rawState, trace, request: {}, versionID: VERSION_ID });
       expect(utils.Handlers.callCount).to.eql(1);
       expect(runtime.trace.addTrace.args[0]).to.eql([{ type: 'end' }]);
     });

@@ -34,5 +34,3 @@ export const injectServices = <S extends object>(injectedServiceMap: InjectedSer
       super({ ...services, ...injectedServices }, config, ...deps);
     }
   };
-
-export { FullServiceMap as Services, Config };
