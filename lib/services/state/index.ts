@@ -7,6 +7,12 @@ import { AbstractManager, injectServices } from '../utils';
 
 export const utils = {};
 
+const initializeStore = (variables: string[], defaultValue = 0) =>
+  variables.reduce<Record<string, any>>((acc, variable) => {
+    acc[variable] = defaultValue;
+    return acc;
+  }, {});
+
 @injectServices({ utils })
 class StateManager extends AbstractManager<{ utils: typeof utils }> implements InitContextHandler {
   /**
@@ -16,7 +22,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
   async generate(versionID: string): Promise<State> {
     const { prototype, variables, rootDiagramID } = await this.services.dataAPI.getVersion(versionID);
 
-    const entities = prototype?.model.slots.map(({ name }) => name);
+    const entities = prototype?.model.slots.map(({ name }) => name) || [];
 
     const DEFAULT_STACK = [{ programID: rootDiagramID, storage: {}, variables: {} }];
 
@@ -31,8 +37,8 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
       stack,
       variables: {
         // initialize all entities and variables to 0
-        ..._.mapValues(entities, 0),
-        ..._.mapValues(variables, 0),
+        ...initializeStore(entities),
+        ...initializeStore(variables),
         ...prototype?.context.variables,
       },
       storage: {
