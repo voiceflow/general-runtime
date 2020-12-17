@@ -7,11 +7,24 @@ import fixtures from './fixture';
 
 const tests = [
   {
-    method: 'post',
-    calledPath: '/state',
+    method: 'get',
+    calledPath: '/interact/:versionID/state',
     expected: {
       controllers: {
-        prototype: {
+        interact: {
+          state: 1,
+        },
+      },
+      middlewares: {},
+      validations: {},
+    },
+  },
+  {
+    method: 'post',
+    calledPath: '/interact/:versionID',
+    expected: {
+      controllers: {
+        interact: {
           handler: 1,
         },
       },
