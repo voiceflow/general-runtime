@@ -17,7 +17,7 @@ describe('interact controller unit tests', () => {
         tts: { handle: sinon.stub().resolves(output('tts')) },
         runtime: { handle: sinon.stub().resolves(output('runtime')) },
         dialog: { handle: sinon.stub().resolves(output('dialog')) },
-        metrics: { prototypeRequest: sinon.stub() },
+        metrics: { generalRequest: sinon.stub() },
       };
 
       const interactController = new Interact(services as any, null as any);
@@ -30,7 +30,7 @@ describe('interact controller unit tests', () => {
       expect(services.dialog.handle.args).to.eql([[output('nlu')]]);
       expect(services.runtime.handle.args).to.eql([[output('dialog')]]);
       expect(services.tts.handle.args).to.eql([[output('runtime')]]);
-      expect(services.metrics.prototypeRequest.callCount).to.eql(1);
+      expect(services.metrics.generalRequest.callCount).to.eql(1);
     });
   });
 });

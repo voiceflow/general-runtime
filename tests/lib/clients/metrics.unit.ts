@@ -27,19 +27,19 @@ describe('metrics client unit tests', () => {
       [
         {
           apiKey: 'key',
-          prefix: `vf_server.${NODE_ENV}.`,
+          prefix: `vf_general_runtime.${NODE_ENV}.`,
           flushIntervalSeconds: 5,
         },
       ],
     ]);
   });
 
-  it('prototypeRequest', () => {
+  it('generalRequest', () => {
     const metrics = MetricsClient({} as any);
     const increment = sinon.stub();
     _.set(metrics, 'client', { increment });
 
-    metrics.prototypeRequest();
-    expect(increment.args).to.eql([['test.request']]);
+    metrics.generalRequest();
+    expect(increment.args).to.eql([['general.request']]);
   });
 });

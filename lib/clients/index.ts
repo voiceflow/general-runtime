@@ -21,12 +21,11 @@ const buildClients = (config: Config): ClientMap => {
         { platform: 'general', adminToken: config.ADMIN_SERVER_DATA_API_TOKEN, dataEndpoint: config.VF_DATA_ENDPOINT },
         { axios: Static.axios }
       );
-  const metrics = Metrics(config);
 
   return {
     ...Static,
     dataAPI,
-    metrics,
+    metrics: Metrics(config),
   };
 };
 

@@ -982,20 +982,6 @@
     semver "^7.3.2"
     tsutils "^3.17.1"
 
-"@voiceflow/api-sdk@1.17.1":
-  version "1.17.1"
-  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.17.1.tgz#7843eec956ad8b4ad155fed17b4bbea1eb334360"
-  integrity sha512-0baZTNROfwYJoaAGphRePIAhMnr1C3P7yY/DYNd6THd0KvxI/3M623ZwLBfhaC49ioxE4Um7a5tXO++visR/Ng==
-  dependencies:
-    "@types/atob" "^2.1.2"
-    "@voiceflow/logger" "^1.1.10"
-    atob "^2.1.2"
-    axios "^0.19.2"
-    core-js "^3.6.5"
-    io-ts "^2.2.8"
-    regenerator-runtime "^0.13.5"
-    superstruct "^0.10.12"
-
 "@voiceflow/api-sdk@1.19.0":
   version "1.19.0"
   resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.19.0.tgz#99b9a55df30bf2875e93182de81f41abb6f32ee0"
@@ -1079,13 +1065,6 @@
     eslint-plugin-simple-import-sort "^3.1.1"
     eslint-plugin-sonarjs "^0.4.0"
     eslint-plugin-xss "^0.1.9"
-
-"@voiceflow/general-types@1.10.2":
-  version "1.10.2"
-  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.10.2.tgz#9853e42971967a9b7bd2d8bc0089cfe4648ffb60"
-  integrity sha512-oWIEtQdiFKb9te/YzpWUZLHl6o0igBipe4hb2tzXI64NcRGwzwqTRY4HS8/J8s9ZwhqsgbB3K3FleEqG7UPSaA==
-  dependencies:
-    "@voiceflow/api-sdk" "1.17.1"
 
 "@voiceflow/general-types@1.12.0":
   version "1.12.0"
