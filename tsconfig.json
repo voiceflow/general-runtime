@@ -26,7 +26,7 @@
     "listFiles": false,
     "pretty": true,
     "lib": [
-      "es2017"
+      "es2020"
     ],
     "outDir": "./build",
     "baseUrl": ".",

@@ -1,0 +1,61 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "node",
+      "env": {
+        "NODE_ENV": "local",
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+      },
+      "runtimeArgs": [
+        "--nolazy",
+        "-r",
+        "ts-node/register/transpile-only",
+        "-r",
+        "tsconfig-paths/register"
+      ],
+      "args": [
+        "start.ts"
+      ],
+      "cwd": "${workspaceRoot}",
+      "internalConsoleOptions": "openOnSessionStart",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ],
+      "skipFiles": [
+        "<node_internals>/**",
+        "node_modules/**"
+      ]
+    },
+    {
+      "name": "Run ts-mocha File",
+      "type": "node",
+      "request": "launch",
+      "env": {
+        "NODE_ENV": "test"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/ts-mocha",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ],
+      "runtimeArgs": [
+        "-r",
+        "tsconfig-paths/register",
+        "-r",
+        "source-map-support/register",
+        "--timeout 99999999",
+        "--use_strict",
+        "tests/setup.ts",
+        "${file}"
+      ],
+      "protocol": "inspector"
+    }
+  ]
+}

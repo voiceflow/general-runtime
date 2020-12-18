@@ -12,7 +12,7 @@
     }
   },
   "dependencies": {
-    "@voiceflow/api-sdk": "1.20.0",
+    "@voiceflow/api-sdk": "^1.20.0",
     "@voiceflow/backend-utils": "^2.1.1",
     "@voiceflow/common": "^6.2.0",
     "@voiceflow/general-types": "1.16.0",
@@ -28,6 +28,7 @@
     "cookie-parser": "^1.4.4",
     "core-js": "^3.4.8",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "datadog-metrics": "^0.8.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -133,8 +134,8 @@
     "deploy:staging": "git push origin $(git branch | grep \\* | cut -d ' ' -f2):staging -f",
     "gen-certs": "scripts/generate_certs.sh",
     "lint": "eslint \"./**/*.{js,ts}\"",
-    "local": "NODE_ENV=local ts-node --files -r tsconfig-paths/register start.ts",
-    "local:watch": "NODE_ENV=local forever --watch -c \"ts-node --files -r tsconfig-paths/register\" start.ts",
+    "local": "NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_ENV=local ts-node --files -r tsconfig-paths/register start.ts",
+    "local:watch": "NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_ENV=local forever --watch -c \"ts-node --files -r tsconfig-paths/register\" start.ts",
     "preview:check": "echo \"generalruntime\"",
     "preview:new": "scripts/deploy_dev_environments.sh",
     "start": "NODE_ENV=production node --max-old-space-size=8192 build/start.js",
