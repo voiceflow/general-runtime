@@ -12,6 +12,7 @@
     }
   },
   "dependencies": {
+    "@azure/cognitiveservices-luis-runtime": "^5.0.0",
     "@voiceflow/api-sdk": "^1.19.1",
     "@voiceflow/backend-utils": "^2.1.1",
     "@voiceflow/common": "^6.2.0",
