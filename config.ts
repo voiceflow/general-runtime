@@ -24,6 +24,8 @@ const CONFIG: Config = {
   SESSIONS_SOURCE: optionalProcessEnv('SESSIONS_SOURCE'),
   SESSIONS_DYNAMO_TABLE: getProcessEnv('SESSIONS_DYNAMO_TABLE'), // diagrams table
 
+  GENERAL_SERVICE_ENDPOINT: getProcessEnv('GENERAL_SERVICE_ENDPOINT'), // voiceflow nlu/tts services
+
   // Secrets
   DATADOG_API_KEY: getProcessEnv('DATADOG_API_KEY'),
   ADMIN_SERVER_DATA_API_TOKEN: getProcessEnv('ADMIN_SERVER_DATA_API_TOKEN'), // Server-data-api auth token

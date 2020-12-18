@@ -26,6 +26,8 @@ export interface Config {
 
   SESSIONS_DYNAMO_TABLE: string;
 
+  GENERAL_SERVICE_ENDPOINT: string;
+
   ADMIN_SERVER_DATA_API_TOKEN: string;
   VF_DATA_ENDPOINT: string;
   // Logging
