@@ -1,3 +1,4 @@
+import { IntentRequest, TextRequest } from '@voiceflow/general-types';
 import * as Runtime from '@voiceflow/runtime';
 import * as Express from 'express';
 import * as ExpressValidator from 'express-validator';
@@ -72,7 +73,7 @@ export enum ContextRequestType {
 }
 
 // TODO DEFINE REQUEST TYPE
-export type ContextRequest = {};
+export type ContextRequest = IntentRequest | TextRequest;
 
 export type Context = Runtime.Context<ContextRequest>;
 export type ContextHandler = Runtime.ContextHandler<ContextRequest>;
