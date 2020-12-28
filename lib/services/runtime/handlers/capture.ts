@@ -1,9 +1,6 @@
 import { Node } from '@voiceflow/general-types/build/nodes/capture';
-import { HandlerFactory } from '@voiceflow/runtime';
-import _ from 'lodash';
+import { Action, HandlerFactory } from '@voiceflow/runtime';
 import wordsToNumbers from 'words-to-numbers';
-
-import { Action } from '@/../runtime/build/lib/Runtime';
 
 import { isIntentRequest } from '../types';
 import { addRepromptIfExists } from '../utils';

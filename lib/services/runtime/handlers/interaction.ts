@@ -1,9 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 import { EventType, TraceType } from '@voiceflow/general-types';
 import { Node, TraceFrame } from '@voiceflow/general-types/build/nodes/interaction';
-import { HandlerFactory } from '@voiceflow/runtime';
-
-import { Action } from '@/../runtime/build/lib/Runtime';
+import { Action, HandlerFactory } from '@voiceflow/runtime';
 
 import { StorageType } from '../types';
 import { addRepromptIfExists } from '../utils';
