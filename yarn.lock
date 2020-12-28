@@ -1073,10 +1073,10 @@
   dependencies:
     "@voiceflow/api-sdk" "1.19.0"
 
-"@voiceflow/general-types@1.13.2":
-  version "1.13.2"
-  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.13.2.tgz#99dc52f1ec79f20ff1b792bd04ffd3c86c9cab10"
-  integrity sha512-AIFa4pnkG04f4ondc2TFnSZEZL8Q3FYRu03P0RS7quEtGLYR+iVZI+rxB1egOIoxidkp+3UovEdbfeTRMxQlbA==
+"@voiceflow/general-types@1.14.3":
+  version "1.14.3"
+  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.14.3.tgz#cfa3151cb1a092f22411f29635040a87e39150d0"
+  integrity sha512-uXwr6ra5upDmTbk/NdMPGh7YQ+e3DuFDDFv8X74hOzCm+uzrI68mZWODQfL4Qwby6aYG0Yz5YBy8TFtGnpjXWg==
   dependencies:
     "@voiceflow/api-sdk" "1.19.0"
 

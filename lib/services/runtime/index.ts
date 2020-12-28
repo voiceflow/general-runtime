@@ -6,6 +6,7 @@ import { FullServiceMap } from '../index';
 import { AbstractManager, injectServices } from '../utils';
 import Handlers from './handlers';
 import init from './init';
+import { isRuntimeRequest, RuntimeRequest } from './types';
 
 export const utils = {
   Client,
@@ -14,7 +15,7 @@ export const utils = {
 
 @injectServices({ utils })
 class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  private client: Client;
+  private client: Client<RuntimeRequest>;
 
   private handlers: ReturnType<typeof Handlers>;
 
@@ -33,6 +34,8 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
   }
 
   public async handle({ versionID, state, request }: Context) {
+    if (!isRuntimeRequest(request)) throw new Error(`invalid runtime request type: ${request}`);
+
     const runtime = this.client.createRuntime(versionID, state, request);
 
     await runtime.update();

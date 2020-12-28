@@ -1,14 +1,18 @@
-import { IntentName, IntentRequest, RepeatType } from '@voiceflow/general-types';
+import { IntentName, RepeatType } from '@voiceflow/general-types';
 import { Runtime } from '@voiceflow/runtime';
 
-import { FrameType, PreviousOutputTurn, SpeakFrame, StorageData, StorageType, TurnType } from '../types';
+import { FrameType, isIntentRequest, PreviousOutputTurn, SpeakFrame, StorageData, StorageType, TurnType } from '../types';
 
 const RepeatHandler = {
   canHandle: (runtime: Runtime): boolean => {
     const repeat = runtime.storage.get<RepeatType>(StorageType.REPEAT);
-    const request = runtime.turn.get<IntentRequest>(TurnType.REQUEST);
-
-    return request?.payload.intent.name === IntentName.REPEAT && !!repeat && [RepeatType.ALL, RepeatType.DIALOG].includes(repeat);
+    const request = runtime.getRequest();
+    return (
+      isIntentRequest(request) &&
+      request?.payload.intent.name === IntentName.REPEAT &&
+      !!repeat &&
+      [RepeatType.ALL, RepeatType.DIALOG].includes(repeat)
+    );
   },
   handle: (runtime: Runtime) => {
     const repeat = runtime.storage.get<RepeatType>(StorageType.REPEAT);

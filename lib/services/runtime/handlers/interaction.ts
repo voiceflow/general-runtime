@@ -1,34 +1,39 @@
-import { SlotMapping } from '@voiceflow/api-sdk';
-import { IntentRequest, StateRequestType, TraceType } from '@voiceflow/general-types';
+/* eslint-disable no-restricted-syntax */
+import { EventType, TraceType } from '@voiceflow/general-types';
 import { Node, TraceFrame } from '@voiceflow/general-types/build/nodes/interaction';
-import { formatIntentName, HandlerFactory } from '@voiceflow/runtime';
+import { HandlerFactory } from '@voiceflow/runtime';
 
-import { StorageType, TurnType } from '../types';
-import { addRepromptIfExists, mapSlots } from '../utils';
+import { Action } from '@/../runtime/build/lib/Runtime';
+
+import { StorageType } from '../types';
+import { addRepromptIfExists } from '../utils';
 import CommandHandler from './command';
+import { findEventMatcher } from './event';
 import NoMatchHandler from './noMatch';
 import RepeatHandler from './repeat';
 
 const utilsObj = {
-  mapSlots,
   repeatHandler: RepeatHandler(),
   commandHandler: CommandHandler(),
   noMatchHandler: NoMatchHandler(),
-  formatIntentName,
+  findEventMatcher,
   addRepromptIfExists,
 };
 
 export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => !!node.interactions,
   handle: (node, runtime, variables) => {
-    const request = runtime.turn.get<IntentRequest>(TurnType.REQUEST);
-
-    if (request?.type !== StateRequestType.INTENT) {
+    if (runtime.getAction() === Action.REQUEST) {
       utils.addRepromptIfExists(node, runtime, variables);
 
       runtime.trace.addTrace<TraceFrame>({
         type: TraceType.CHOICE,
-        payload: { choices: node.interactions.map(({ intent }) => ({ name: intent })) },
+        payload: {
+          choices: node.interactions.reduce<{ name: string }[]>((acc, interaction) => {
+            if (interaction.event.type === EventType.INTENT) acc.push({ name: interaction.event.intent });
+            return acc;
+          }, []),
+        },
       });
 
       // clean up no matches counter on new interaction
@@ -38,48 +43,34 @@ export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils)
       return node.id;
     }
 
-    let nextId: string | null | undefined;
-    let variableMap: SlotMapping[] | null = null;
+    // request for this turn has been processed, set action to response
+    runtime.setAction(Action.RESPONSE);
 
-    const { intent } = request.payload;
+    for (const interaction of node.interactions) {
+      const { event, nextId } = interaction;
 
-    // check if there is a choice in the node that fulfills intent
-    node.interactions.forEach((choice, i: number) => {
-      if (choice.intent && utils.formatIntentName(choice.intent) === intent.name) {
-        variableMap = choice.mappings ?? null;
-        nextId = node.nextIds[choice.nextIdIndex || choice.nextIdIndex === 0 ? choice.nextIdIndex : i];
-
-        runtime.trace.debug(`matched choice **${choice.intent}** - taking path ${i + 1}`);
-      }
-    });
-
-    if (variableMap && intent.slots) {
-      // map request mappings to variables
-      variables.merge(utils.mapSlots(variableMap, intent.slots));
-    }
-
-    // check if there is a command in the stack that fulfills intent
-    if (nextId === undefined) {
-      if (utils.commandHandler.canHandle(runtime)) {
-        return utils.commandHandler.handle(runtime, variables);
-      }
-      if (utils.repeatHandler.canHandle(runtime)) {
-        return utils.repeatHandler.handle(runtime);
+      const matcher = utils.findEventMatcher({ event, runtime, variables });
+      if (matcher) {
+        // allow handler to apply side effects
+        matcher.sideEffect();
+        return nextId || null;
       }
     }
 
-    // request for this turn has been processed, delete request
-    runtime.turn.delete(TurnType.REQUEST);
+    // check if there is a command in the stack that fulfills request
+    if (utils.commandHandler.canHandle(runtime)) {
+      return utils.commandHandler.handle(runtime, variables);
+    }
+    if (utils.repeatHandler.canHandle(runtime)) {
+      return utils.repeatHandler.handle(runtime);
+    }
 
     // check for noMatches to handle
-    if (nextId === undefined && utils.noMatchHandler.canHandle(node, runtime)) {
+    if (utils.noMatchHandler.canHandle(node, runtime)) {
       return utils.noMatchHandler.handle(node, runtime, variables);
     }
 
-    // clean up no matches counter
-    runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);
-
-    return (nextId !== undefined ? nextId : node.elseId) || null;
+    return node.elseId || null;
   },
 });
 

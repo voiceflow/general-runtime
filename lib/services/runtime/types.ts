@@ -1,4 +1,17 @@
-import { NodeID } from '@voiceflow/general-types';
+import { DataRequest, GeneralRequest, IntentRequest, NodeID, RequestType } from '@voiceflow/general-types';
+import { Runtime } from '@voiceflow/runtime';
+
+export type RuntimeRequest = IntentRequest | DataRequest;
+
+export type GeneralRuntime = Runtime<RuntimeRequest>;
+
+export const isIntentRequest = (request: GeneralRequest | null): request is IntentRequest => {
+  return !!(request?.type === RequestType.INTENT && request.payload?.intent?.name && Array.isArray(request.payload.entities));
+};
+
+export const isRuntimeRequest = (request: GeneralRequest | null): request is RuntimeRequest => {
+  return !!([RequestType.INTENT, RequestType.DATA].includes(request?.type!) && request!.payload);
+};
 
 export enum StorageType {
   USER = 'user',
@@ -59,7 +72,6 @@ export enum TurnType {
   END = 'end',
   TRACE = 'trace',
   AUDIO = 'play',
-  REQUEST = 'request',
   REPROMPT = 'reprompt',
   NEW_STACK = 'newStack',
   PREVIOUS_OUTPUT = 'lastOutput',

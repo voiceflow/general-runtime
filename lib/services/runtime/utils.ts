@@ -1,14 +1,22 @@
 import { SlotMapping } from '@voiceflow/api-sdk';
-import { IntentRequestSlot } from '@voiceflow/general-types';
+import { IntentRequest } from '@voiceflow/general-types';
 import { formatIntentName, replaceVariables, Runtime, Store, transformStringVariableToNumber } from '@voiceflow/runtime';
 import _ from 'lodash';
 
 import { TurnType } from './types';
 
-export const mapSlots = (mappings: SlotMapping[], slots: Partial<Record<string, IntentRequestSlot>>, overwrite = false): object => {
+export const mapEntities = (mappings: SlotMapping[], entities: IntentRequest['payload']['entities'] = [], overwrite = false): object => {
   const variables: Record<string, any> = {};
 
-  if (mappings && slots) {
+  const entityMap = entities.reduce<Record<string, string>>(
+    (acc, { name, value }) => ({
+      ...acc,
+      ...(name && value && { [name]: value }),
+    }),
+    {}
+  );
+
+  if (mappings && entities) {
     mappings.forEach((map: SlotMapping) => {
       if (!map.slot) return;
 
@@ -16,7 +24,7 @@ export const mapSlots = (mappings: SlotMapping[], slots: Partial<Record<string, 
       const fromSlot = formatIntentName(map.slot);
 
       // extract slot value from request
-      const fromSlotValue = slots[fromSlot]?.value || null;
+      const fromSlotValue = entityMap[fromSlot] || null;
 
       if (toVariable && (fromSlotValue || overwrite)) {
         variables[toVariable] = transformStringVariableToNumber(fromSlotValue);

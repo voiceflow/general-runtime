@@ -1,8 +1,10 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import { IntentName, IntentRequest, NodeID } from '@voiceflow/general-types';
+import { IntentName, NodeID } from '@voiceflow/general-types';
 import { HandlerFactory, replaceVariables } from '@voiceflow/runtime';
 
-import { StorageData, StorageType, StreamAction, StreamPauseStorage, StreamPlayStorage, TurnType } from '../../types';
+import { Action } from '@/../runtime/build/lib/Runtime';
+
+import { isIntentRequest, StorageData, StorageType, StreamAction, StreamPauseStorage, StreamPlayStorage } from '../../types';
 import CommandHandler from '../command';
 
 const utilsObj = {
@@ -14,10 +16,12 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
   canHandle: (_, runtime) =>
     !!runtime.storage.get(StorageType.STREAM_PLAY) && runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY)!.action !== StreamAction.END,
   handle: (_, runtime, variables) => {
-    const request = runtime.turn.get<IntentRequest>(TurnType.REQUEST);
     const streamPlay = runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY)!;
 
-    const intentName = request?.payload?.intent?.name || null;
+    // request for this turn has been processed, set action to response
+    runtime.setAction(Action.RESPONSE);
+    const request = runtime.getRequest();
+    const intentName = isIntentRequest(request) ? request.payload.intent.name : null;
 
     let nextId: NodeID = null;
 
@@ -91,9 +95,6 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
 
       runtime.end();
     }
-
-    // request for this turn has been processed, delete request
-    runtime.turn.delete(TurnType.REQUEST);
 
     return nextId ?? null;
   },
