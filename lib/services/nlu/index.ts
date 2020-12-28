@@ -6,12 +6,30 @@ import { AbstractManager, injectServices } from '../utils';
 
 export const utils = {};
 
+export const EMPTY_INTENT = '_empty';
+
 @injectServices({ utils })
 class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
   // TODO: implement NLU handler
   handle = async (context: Context) => {
-    if (context.request.type !== RequestType.TEXT) {
+    if (context.request?.type !== RequestType.TEXT) {
       return context;
+    }
+
+    // empty string input - we can also consider return request: null as well (this won't advance the conversation)
+    if (!context.request.payload) {
+      const request: IntentRequest = {
+        type: RequestType.INTENT,
+        payload: {
+          query: '',
+          intent: { name: EMPTY_INTENT },
+          entities: [],
+        },
+      };
+      return {
+        ...context,
+        request,
+      };
     }
 
     const version = await this.services.dataAPI.getVersion(context.versionID);

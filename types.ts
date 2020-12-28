@@ -66,6 +66,6 @@ export type MiddlewareGroup = Record<string, Middleware>;
 export type Class<T, A extends any[]> = { new (...args: A): T };
 export type AnyClass = Class<any, any[]>;
 
-export type Context = Runtime.Context<GeneralRequest>;
-export type ContextHandler = Runtime.ContextHandler<GeneralRequest>;
-export type InitContextHandler = Runtime.InitContextHandler<GeneralRequest>;
+export type Context = Runtime.Context<GeneralRequest | null>;
+export type ContextHandler = Runtime.ContextHandler<GeneralRequest | null>;
+export type InitContextHandler = Runtime.InitContextHandler<GeneralRequest | null>;

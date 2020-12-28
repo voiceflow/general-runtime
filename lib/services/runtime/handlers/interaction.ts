@@ -21,7 +21,7 @@ const utilsObj = {
 export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => !!node.interactions,
   handle: (node, runtime, variables) => {
-    if (runtime.getAction() === Action.REQUEST) {
+    if (runtime.getAction() === Action.RESPONSE) {
       utils.addRepromptIfExists(node, runtime, variables);
 
       runtime.trace.addTrace<TraceFrame>({

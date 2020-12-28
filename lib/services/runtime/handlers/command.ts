@@ -1,5 +1,5 @@
 import { CommandType, GeneralCommand } from '@voiceflow/general-types';
-import { extractFrameCommand, Frame, Store } from '@voiceflow/runtime';
+import { Action, extractFrameCommand, Frame, Store } from '@voiceflow/runtime';
 
 import { GeneralRuntime } from '@/lib/services/runtime/types';
 
@@ -24,9 +24,11 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
   canHandle: (runtime: GeneralRuntime): boolean => !!utils.getCommand(runtime),
   handle: (runtime: GeneralRuntime, variables: Store): string | null => {
     const res = utils.getCommand(runtime);
-    if (!res) return null;
 
-    const { command, index } = res;
+    // request for this turn has been processed, set action to response
+    runtime.setAction(Action.RESPONSE);
+
+    const { command, index } = res!;
     const { event } = command;
 
     // allow matcher to apply side effects
