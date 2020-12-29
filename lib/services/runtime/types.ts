@@ -5,11 +5,11 @@ export type RuntimeRequest = IntentRequest | DataRequest | null;
 
 export type GeneralRuntime = Runtime<RuntimeRequest>;
 
-export const isIntentRequest = (request: GeneralRequest | null): request is IntentRequest => {
+export const isIntentRequest = (request: GeneralRequest): request is IntentRequest => {
   return !!(request?.type === RequestType.INTENT && request.payload?.intent?.name && Array.isArray(request.payload.entities));
 };
 
-export const isRuntimeRequest = (request: GeneralRequest | null): request is RuntimeRequest => {
+export const isRuntimeRequest = (request: GeneralRequest): request is RuntimeRequest => {
   return !!([RequestType.INTENT, RequestType.DATA].includes(request?.type!) && request!.payload);
 };
 

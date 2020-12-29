@@ -15,11 +15,11 @@ class InteractController extends AbstractController {
     metrics.generalRequest();
 
     const {
-      body: { state, request },
+      body: { state, request = null },
       params: { versionID },
     } = req;
 
-    const turn = new TurnBuilder<GeneralRequest | null>(stateManager);
+    const turn = new TurnBuilder<GeneralRequest>(stateManager);
     turn.addHandlers(asr, nlu, dialog, runtime).addHandlers(tts);
 
     return turn.handle({ state, request, versionID });
