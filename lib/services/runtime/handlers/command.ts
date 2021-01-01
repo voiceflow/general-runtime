@@ -1,7 +1,7 @@
 import { CommandType, GeneralCommand } from '@voiceflow/general-types';
 import { Action, extractFrameCommand, Frame, Store } from '@voiceflow/runtime';
 
-import { GeneralRuntime } from '@/lib/services/runtime/types';
+import { FrameType, GeneralRuntime } from '@/lib/services/runtime/types';
 
 import { findEventMatcher, hasEventMatch } from './event';
 
@@ -52,6 +52,7 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
 
     // push command, adds a new frame
     if (command.type === CommandType.PUSH && command.diagramID) {
+      runtime.stack.top().storage.set(FrameType.CALLED_COMMAND, true);
       runtime.trace.debug(`matched command **${command.type}** - adding command flow`);
       // reset state to beginning of new diagram and store current line to the stack
       const newFrame = new utils.Frame({ programID: command.diagramID });

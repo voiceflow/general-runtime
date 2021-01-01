@@ -17,7 +17,7 @@
     "@voiceflow/common": "^6.2.0",
     "@voiceflow/general-types": "1.14.4",
     "@voiceflow/logger": "^1.4.0",
-    "@voiceflow/runtime": "1.13.0",
+    "@voiceflow/runtime": "1.14.0",
     "@voiceflow/verror": "^1.1.0",
     "axios": "^0.19.0",
     "bluebird": "^3.7.2",
