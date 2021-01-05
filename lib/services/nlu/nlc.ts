@@ -60,7 +60,7 @@ export const registerIntents = (nlc: NLC, { slots, intents }: PrototypeModel) =>
         utterances: samples,
       });
     } catch (err) {
-      logger.error('NLC Unable To Register Custom Intent', intent, err);
+      logger.debug('NLC Unable To Register Custom Intent', intent, err);
     }
   });
 };
