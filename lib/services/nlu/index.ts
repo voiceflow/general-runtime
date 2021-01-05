@@ -3,6 +3,7 @@ import { IntentRequest, RequestType } from '@voiceflow/general-types';
 import { Context, ContextHandler } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
+import { handleNLCCommand } from './nlc';
 
 export const utils = {};
 
@@ -10,6 +11,17 @@ export const EMPTY_INTENT = '_empty';
 
 @injectServices({ utils })
 class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
+  static getEmptyIntentRequest(): IntentRequest {
+    return {
+      type: RequestType.INTENT,
+      payload: {
+        query: '',
+        intent: { name: EMPTY_INTENT },
+        entities: [],
+      },
+    };
+  }
+
   // TODO: implement NLU handler
   handle = async (context: Context) => {
     if (context.request?.type !== RequestType.TEXT) {
@@ -18,24 +30,16 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
 
     // empty string input - we can also consider return request: null as well (this won't advance the conversation)
     if (!context.request.payload) {
-      const request: IntentRequest = {
-        type: RequestType.INTENT,
-        payload: {
-          query: '',
-          intent: { name: EMPTY_INTENT },
-          entities: [],
-        },
-      };
       return {
         ...context,
-        request,
+        request: NLU.getEmptyIntentRequest(),
       };
     }
 
     const version = await this.services.dataAPI.getVersion(context.versionID);
 
     if (!version) {
-      throw new Error();
+      throw new Error('Version not found!');
     }
 
     try {
@@ -46,8 +50,18 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       return { ...context, request: data };
     } catch (err) {
       // eslint-disable-next-line no-console
-      console.error(err);
-      throw err;
+      console.warn('Unable to predict query:', err);
+
+      if (!version.prototype?.model) {
+        throw new Error('Model not found!');
+      }
+
+      const request = await handleNLCCommand(context.request.payload, version.prototype.model);
+
+      return {
+        ...context,
+        request: request || NLU.getEmptyIntentRequest(),
+      };
     }
   };
 }
