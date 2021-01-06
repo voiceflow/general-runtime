@@ -58,7 +58,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
       trace: [] as GeneralTrace[],
       request: context.request || null,
       versionID: context.versionID,
-      data: context.data || {},
+      data: { ...context.data },
     };
   }
 }
