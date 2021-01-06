@@ -9,10 +9,11 @@ describe('tts manager unit tests', () => {
   });
 
   describe('handle', () => {
-    it('passing through', async () => {
-      const asr = new TTSManager({ utils: { ...defaultUtils } } as any, {} as any);
+    it('passes through if no speak', async () => {
+      const context = { random: 'random', trace: [{ type: 'different' }] };
+      const tts = new TTSManager({ utils: { ...defaultUtils } } as any, {} as any);
 
-      expect(asr.handle('a' as any)).to.eq('a');
+      expect(await tts.handle(context as any)).to.eql(context);
     });
   });
 });

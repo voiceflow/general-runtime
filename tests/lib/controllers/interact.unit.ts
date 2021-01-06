@@ -6,8 +6,8 @@ import Interact from '@/lib/controllers/interact';
 describe('interact controller unit tests', () => {
   describe('handler', () => {
     it('works correctly', async () => {
-      const req = { body: { state: { foo: 'bar' }, request: 'request' }, params: { versionID: 'versionID' } };
-      const context = { state: req.body.state, request: req.body.request, versionID: req.params.versionID };
+      const req = { body: { state: { foo: 'bar' }, request: 'request' }, params: { versionID: 'versionID' }, query: { locale: 'locale' } };
+      const context = { state: req.body.state, request: req.body.request, versionID: req.params.versionID, data: { locale: req.query.locale } };
       const output = (data: string) => ({ ...context, data, end: false });
 
       const services = {
