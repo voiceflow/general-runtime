@@ -11,11 +11,17 @@ export const utils = {};
 
 @injectServices({ utils })
 class TTS extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  fetchTTS = async (message: string): Promise<SpeakTrace[]> => {
+  fetchTTS = async (message: string, locale?: string): Promise<SpeakTrace[]> => {
     try {
-      const { data } = await this.services.axios.post<SpeakTrace['payload'][]>(`${this.config.GENERAL_SERVICE_ENDPOINT}/tts/convert`, {
-        ssml: message,
-      });
+      const { data } = await this.services.axios.post<SpeakTrace['payload'][]>(
+        `${this.config.GENERAL_SERVICE_ENDPOINT}/tts/convert`,
+        {
+          ssml: message,
+        },
+        {
+          params: { ...(locale && { locale }) },
+        }
+      );
 
       return data.map((payload) => ({ type: TraceType.SPEAK, payload }));
     } catch (error) {
@@ -30,7 +36,7 @@ class TTS extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     const trace = await Promise.all(
       context.trace.map(async (frame) => {
         if (frame.type === TraceType.SPEAK) {
-          return this.fetchTTS(frame.payload.message);
+          return this.fetchTTS(frame.payload.message, context.data.locale);
         }
         return frame;
       })

@@ -1,4 +1,4 @@
-import { GeneralTrace, RequestType } from '@voiceflow/general-types';
+import { GeneralTrace } from '@voiceflow/general-types';
 import { State } from '@voiceflow/runtime';
 import _ from 'lodash';
 
@@ -56,7 +56,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
       ...context,
       state: context.state || (await this.generate(context.versionID)),
       trace: [] as GeneralTrace[],
-      request: context.request || { type: RequestType.TEXT, payload: '' },
+      request: context.request || null,
       versionID: context.versionID,
       data: context.data || {},
     };

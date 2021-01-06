@@ -49,9 +49,6 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
 
       return { ...context, request: data };
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.warn('Unable to predict query:', err);
-
       if (!version.prototype?.model) {
         throw new Error('Model not found!');
       }
