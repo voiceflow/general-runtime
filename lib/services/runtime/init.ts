@@ -1,4 +1,4 @@
-import { BlockTraceFrame, TraceType as GeneralTraceType, TraceType } from '@voiceflow/general-types';
+import { BlockTrace, TraceType as GeneralTraceType, TraceType } from '@voiceflow/general-types';
 import { TraceFrame as ExitTraceFrame } from '@voiceflow/general-types/build/nodes/exit';
 import { TraceFrame as FlowTraceFrame } from '@voiceflow/general-types/build/nodes/flow';
 import { TraceFrame as SpeakTraceFrame } from '@voiceflow/general-types/build/nodes/speak';
@@ -41,7 +41,7 @@ const init = (client: Client) => {
   });
 
   client.setEvent(EventType.handlerWillHandle, ({ runtime, node }) =>
-    runtime.trace.addTrace<BlockTraceFrame>({ type: GeneralTraceType.BLOCK, payload: { blockID: node.id } })
+    runtime.trace.addTrace<BlockTrace>({ type: GeneralTraceType.BLOCK, payload: { blockID: node.id } })
   );
 
   client.setEvent(EventType.updateDidExecute, ({ runtime }) => {

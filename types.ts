@@ -1,4 +1,4 @@
-import { GeneralRequest } from '@voiceflow/general-types';
+import { GeneralRequest, GeneralTrace } from '@voiceflow/general-types';
 import * as Runtime from '@voiceflow/runtime';
 import * as Express from 'express';
 import * as ExpressValidator from 'express-validator';
@@ -66,6 +66,9 @@ export type MiddlewareGroup = Record<string, Middleware>;
 export type Class<T, A extends any[]> = { new (...args: A): T };
 export type AnyClass = Class<any, any[]>;
 
-export type Context = Runtime.Context<GeneralRequest>;
-export type ContextHandler = Runtime.ContextHandler<GeneralRequest>;
-export type InitContextHandler = Runtime.InitContextHandler<GeneralRequest>;
+export type ContextData = {
+  locale?: string;
+};
+export type Context = Runtime.Context<GeneralRequest, GeneralTrace, ContextData>;
+export type ContextHandler = Runtime.ContextHandler<Context>;
+export type InitContextHandler = Runtime.InitContextHandler<Context>;
