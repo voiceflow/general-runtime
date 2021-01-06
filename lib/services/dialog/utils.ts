@@ -27,12 +27,15 @@ export const getUnfulfilledEntity = (intentRequest: IntentRequest, model: Protot
 
 // Populates all entities in a given string
 export const fillStringEntities = (input = '', intentRequest: IntentRequest) => {
+  // create a dictionary of all entities from Entity[] => { [entity.name]: entity.value }
   const entityMap = intentRequest.payload.entities.reduce<Record<string, string>>(
     (acc, entity) => ({ ...acc, ...(entity.value && { [entity.name]: entity.value }) }),
     {}
   );
 
-  return input.replace(VF_ENTITY_REGEXP, (_match, inner) => (inner in entityMap ? entityMap[inner] : ''));
+  // replace all found entities with their value, if no value, empty string
+  // "inner" refers to the "slotname" of {{[slotname].slotid}}
+  return input.replace(VF_ENTITY_REGEXP, (_match, inner) => entityMap[inner] || '');
 };
 
 export const dmPrefix = (contents: string) =>
