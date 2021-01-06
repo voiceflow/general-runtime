@@ -7,20 +7,6 @@ import { Context } from '@/types';
 export const VF_DM_PREFIX = 'dm_';
 export const VF_ENTITY_REGEXP = /{{\[(\w{1,32})\]\.\w{1,32}}}/gi;
 
-// Create prompt response
-export const prompt = (msg: string, context: Context) => {
-  return {
-    ...context,
-    end: true,
-    trace: [
-      {
-        type: 'speak',
-        prompt: msg,
-      },
-    ],
-  };
-};
-
 export const getSlotNameByID = (id: string, model: PrototypeModel) => {
   return model.slots.find((lmEntity) => lmEntity.key === id)?.name;
 };
@@ -40,28 +26,13 @@ export const getUnfulfilledEntity = (intentRequest: IntentRequest, model: Protot
 };
 
 // Populates all entities in a given string
-export const fillStringEntities = (input: string, intentRequest: IntentRequest) => {
-  let output = input;
-  // Find and replace all occurences of {slotName} in input string with the actual slot value
-  let entityMatch: null | RegExpMatchArray = null;
+export const fillStringEntities = (input = '', intentRequest: IntentRequest) => {
+  const entityMap = intentRequest.payload.entities.reduce<Record<string, string>>(
+    (acc, entity) => ({ ...acc, ...(entity.value && { [entity.name]: entity.value }) }),
+    {}
+  );
 
-  do {
-    const entityMatches = [...output.matchAll(VF_ENTITY_REGEXP)];
-    [entityMatch] = entityMatches;
-    if (entityMatch) {
-      const entityName = entityMatch[1]; // slot name excluding opening and closing bracket
-      const extractedEntity = intentRequest.payload.entities.find((entity) => entity.name === entityName);
-      let entityValue = '';
-      if (extractedEntity) {
-        entityValue = extractedEntity.value;
-      }
-
-      // Replace the slots with the randomly selected value.
-      output = output.replace(entityMatch[0], entityValue);
-    }
-  } while (entityMatch);
-
-  return output;
+  return input.replace(VF_ENTITY_REGEXP, (_match, inner) => (inner in entityMap ? entityMap[inner] : ''));
 };
 
 export const dmPrefix = (contents: string) =>

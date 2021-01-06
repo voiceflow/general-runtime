@@ -168,7 +168,9 @@ describe('dialog manager unit tests', () => {
 
         const expectedTrace = {
           type: 'speak',
-          prompt: 'what flavor?',
+          payload: {
+            message: 'what flavor?',
+          },
         };
         expect(result.end).to.be.true;
         expect(result.trace?.length).to.be.equal(1);

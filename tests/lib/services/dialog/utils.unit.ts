@@ -4,7 +4,7 @@ import sinon from 'sinon';
 
 import * as utils from '@/lib/services/dialog/utils';
 
-import { mockFulfilledIntentRequest, mockLM, mockRegularContext, mockUnfulfilledIntentRequest } from './fixture';
+import { mockFulfilledIntentRequest, mockLM, mockUnfulfilledIntentRequest } from './fixture';
 
 describe('dialog manager utilities unit tests', () => {
   afterEach(() => {
@@ -18,27 +18,6 @@ describe('dialog manager utilities unit tests', () => {
       const result = utils.getDMPrefixIntentName(intentName);
 
       expect(result).to.equal(`${utils.VF_DM_PREFIX}${hash}_${intentName}`);
-    });
-  });
-
-  describe('prompt', () => {
-    it('creates a prompt message and preserves context', () => {
-      const message = 'dummy';
-
-      const result = utils.prompt(message, mockRegularContext);
-
-      const expectedResult = {
-        ...mockRegularContext,
-        end: true,
-        trace: [
-          {
-            type: 'speak',
-            prompt: message,
-          },
-        ],
-      };
-
-      expect(result).to.deep.equal(expectedResult);
     });
   });
 

@@ -1,5 +1,6 @@
 import { PrototypeModel } from '@voiceflow/api-sdk';
-import { IntentRequest } from '@voiceflow/general-types';
+import { IntentRequest, TraceType } from '@voiceflow/general-types';
+import { TraceFrame as SpeakTrace } from '@voiceflow/general-types/build/nodes/speak';
 
 import logger from '@/logger';
 import { Context, ContextHandler } from '@/types';
@@ -12,7 +13,6 @@ import {
   getDMPrefixIntentName,
   getIntentEntityList,
   getUnfulfilledEntity,
-  prompt,
   VF_DM_PREFIX,
 } from './utils';
 
@@ -93,10 +93,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
     const languageModel = version.prototype!.model;
     const incomingRequest = context.request as IntentRequest;
-    let dmStateStore: DMStore = {};
-    if (context.state.storage.dm) {
-      dmStateStore = { ...context.state.storage.dm };
-    }
+    const dmStateStore: DMStore = { ...context.state.storage.dm };
 
     if (dmStateStore?.intentRequest) {
       logger.debug('@DM - In dialog management context');
@@ -126,9 +123,18 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     if (unfulfilledEntity) {
       // There are unfulfilled required entities -> return dialog management prompt
       // Assemble return string by populating the inline entity values
-      // eslint-disable-next-line sonarjs/prefer-immediate-return
-      const result = prompt(fillStringEntities(unfulfilledEntity.dialog.prompt[0].text, dmStateStore!.intentRequest), context);
-      return result;
+      const promptTrace: SpeakTrace = {
+        type: TraceType.SPEAK,
+        payload: {
+          message: fillStringEntities(unfulfilledEntity.dialog.prompt[0].text, dmStateStore!.intentRequest),
+        },
+      };
+
+      return {
+        ...context,
+        end: true,
+        trace: [promptTrace],
+      };
     }
 
     // No more unfulfilled required entities -> populate the request object with the final intent and extracted entities from the DM state store
