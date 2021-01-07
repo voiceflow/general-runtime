@@ -64,7 +64,7 @@ describe('dialog manager unit tests', () => {
         dataAPI: { getVersion: sinon.stub().resolves() },
       };
       const dm = new DialogManager({ utils: { ...defaultUtils }, ...services } as any, {} as any);
-      const result = dm.handle('a' as any);
+      const result = dm.handle({ request: { type: 'intent', payload: { entities: [], intent: { name: 'intent_name' } } } } as any);
 
       await expect(result).to.eventually.be.rejected;
     });
