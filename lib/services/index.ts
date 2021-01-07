@@ -2,6 +2,7 @@ import { Config } from '@/types';
 
 import { ClientMap } from '../clients';
 import ASR from './asr';
+import Chips from './chips';
 import Dialog from './dialog';
 import NLU from './nlu';
 import Runtime from './runtime';
@@ -15,6 +16,7 @@ export interface ServiceMap {
   nlu: NLU;
   dialog: Dialog;
   tts: TTS;
+  chips: Chips;
 }
 
 export interface FullServiceMap extends ClientMap, ServiceMap {}
@@ -33,6 +35,7 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.nlu = new NLU(services, config);
   services.tts = new TTS(services, config);
   services.dialog = new Dialog(services, config);
+  services.chips = new Chips(services, config);
 
   return services;
 };
