@@ -5,6 +5,7 @@ import { TraceFrame as SpeakTrace } from '@voiceflow/general-types/build/nodes/s
 import logger from '@/logger';
 import { Context, ContextHandler } from '@/types';
 
+import { isIntentRequest } from '../runtime/types';
 import { AbstractManager, injectServices } from '../utils';
 import {
   dmPrefix,
@@ -86,13 +87,17 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
   };
 
   handle = async (context: Context) => {
+    if (!isIntentRequest(context.request)) {
+      return context;
+    }
+
     const version = await this.services.dataAPI.getVersion(context.versionID);
     if (!version) {
       throw new Error();
     }
 
     const languageModel = version.prototype!.model;
-    const incomingRequest = context.request as IntentRequest;
+    const incomingRequest = context.request;
     const dmStateStore: DMStore = { ...context.state.storage.dm };
 
     if (dmStateStore?.intentRequest) {
@@ -111,7 +116,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       logger.debug('@DM - In regular context');
       // Since we are in the regular context, we just set the intentRequest object in the DM state store as-is.
       // The downstream code will decide if further DM processing is needed.
-      dmStateStore!.intentRequest = incomingRequest;
+      dmStateStore.intentRequest = incomingRequest;
     }
 
     // Set the DM state store without modifying the source context
