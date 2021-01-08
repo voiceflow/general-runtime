@@ -66,6 +66,7 @@ export const mockDMContext: Context = {
   request: mockUnfulfilledIntentRequest,
   versionID: '5ff486b75b99f8b36505ecfd',
   trace: [],
+  data: {},
 };
 
 export const mockRegularContext: Context = {
@@ -78,6 +79,7 @@ export const mockRegularContext: Context = {
   request: mockUnfulfilledIntentRequest,
   versionID: '5ff486b75b99f8b36505ecfd',
   trace: [],
+  data: {},
 };
 
 export const mockLM = {

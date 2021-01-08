@@ -15,6 +15,7 @@ describe('interact controller unit tests', () => {
         asr: { handle: sinon.stub().resolves(output('asr')) },
         nlu: { handle: sinon.stub().resolves(output('nlu')) },
         tts: { handle: sinon.stub().resolves(output('tts')) },
+        chips: { handle: sinon.stub().resolves(output('chips')) },
         runtime: { handle: sinon.stub().resolves(output('runtime')) },
         dialog: { handle: sinon.stub().resolves(output('dialog')) },
         metrics: { generalRequest: sinon.stub() },
@@ -22,7 +23,7 @@ describe('interact controller unit tests', () => {
 
       const interactController = new Interact(services as any, null as any);
 
-      expect(await interactController.handler(req as any)).to.eql(output('tts'));
+      expect(await interactController.handler(req as any)).to.eql(output('chips'));
 
       expect(services.state.handle.args).to.eql([[context]]);
       expect(services.asr.handle.args).to.eql([[output('state')]]);
@@ -30,6 +31,7 @@ describe('interact controller unit tests', () => {
       expect(services.dialog.handle.args).to.eql([[output('nlu')]]);
       expect(services.runtime.handle.args).to.eql([[output('dialog')]]);
       expect(services.tts.handle.args).to.eql([[output('runtime')]]);
+      expect(services.chips.handle.args).to.eql([[output('tts')]]);
       expect(services.metrics.generalRequest.callCount).to.eql(1);
     });
   });

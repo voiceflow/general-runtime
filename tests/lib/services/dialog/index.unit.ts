@@ -166,15 +166,22 @@ describe('dialog manager unit tests', () => {
       it('returns the required entity prompt defined in the LM', async () => {
         const result = await dm.handle(mockRegularContext);
 
-        const expectedTrace = {
-          type: 'speak',
-          payload: {
-            message: 'what flavor?',
+        const expectedTrace = [
+          {
+            type: 'speak',
+            payload: {
+              message: 'what flavor?',
+            },
           },
-        };
+          {
+            type: 'choice',
+            payload: {
+              choices: [{ name: 'bbq' }, { name: 'spicy wings' }, { name: 'I want honey garlic' }],
+            },
+          },
+        ];
         expect(result.end).to.be.true;
-        expect(result.trace?.length).to.be.equal(1);
-        expect(result.trace![0]).to.be.deep.equal(expectedTrace);
+        expect(result.trace).to.eql(expectedTrace);
       });
     });
 
