@@ -27,8 +27,9 @@ export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils)
       runtime.trace.addTrace<TraceFrame>({
         type: TraceType.CHOICE,
         payload: {
-          choices: node.interactions.reduce<{ name: string }[]>((acc, interaction) => {
-            if (interaction.event.type === EventType.INTENT) acc.push({ name: interaction.event.intent });
+          choices: node.interactions.reduce<{ name: string; intent?: string }[]>((acc, interaction) => {
+            const { intent } = interaction.event;
+            if (interaction.event.type === EventType.INTENT) acc.push({ intent, name: intent });
             return acc;
           }, []),
         },

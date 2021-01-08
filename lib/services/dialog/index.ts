@@ -1,10 +1,11 @@
 import { PrototypeModel } from '@voiceflow/api-sdk';
-import { IntentRequest, TraceType } from '@voiceflow/general-types';
-import { TraceFrame as SpeakTrace } from '@voiceflow/general-types/build/nodes/speak';
+import { GeneralTrace, IntentRequest, TraceType } from '@voiceflow/general-types';
+import _ from 'lodash';
 
 import logger from '@/logger';
 import { Context, ContextHandler } from '@/types';
 
+import { generateVariations } from '../chips/utils';
 import { isIntentRequest } from '../runtime/types';
 import { AbstractManager, injectServices } from '../utils';
 import {
@@ -128,17 +129,28 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     if (unfulfilledEntity) {
       // There are unfulfilled required entities -> return dialog management prompt
       // Assemble return string by populating the inline entity values
-      const promptTrace: SpeakTrace = {
+      const trace: GeneralTrace[] = [];
+
+      trace.push({
         type: TraceType.SPEAK,
         payload: {
-          message: fillStringEntities(unfulfilledEntity.dialog.prompt[0].text, dmStateStore!.intentRequest),
+          message: fillStringEntities(_.sample(unfulfilledEntity.dialog.prompt)!.text, dmStateStore!.intentRequest),
         },
-      };
+      });
+
+      if (version.prototype?.model) {
+        trace.push({
+          type: TraceType.CHOICE,
+          payload: {
+            choices: generateVariations(unfulfilledEntity.dialog.utterances, version.prototype.model),
+          },
+        });
+      }
 
       return {
         ...context,
         end: true,
-        trace: [promptTrace],
+        trace,
       };
     }
 
