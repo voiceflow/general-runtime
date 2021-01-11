@@ -1,4 +1,3 @@
-import { PrototypeModel } from '@voiceflow/api-sdk';
 import { TraceType } from '@voiceflow/general-types';
 import _ from 'lodash';
 
@@ -16,14 +15,7 @@ class Chips extends AbstractManager<{ utils: typeof utils }> implements ContextH
   handle = async (context: Context) => {
     if (!context.trace) context.trace = [];
 
-    let model: PrototypeModel | undefined;
-    const getModel = async () => {
-      if (!model) {
-        const { prototype } = await this.services.dataAPI.getVersion(context.versionID);
-        model = prototype?.model || { intents: [], slots: [] };
-      }
-      return model!;
-    };
+    const model = (await context.data.api.getVersion(context.versionID))?.prototype?.model || { intents: [], slots: [] };
 
     const trace = await Promise.all(
       context.trace.map(async (frame) => {
@@ -33,7 +25,7 @@ class Chips extends AbstractManager<{ utils: typeof utils }> implements ContextH
         return {
           ...frame,
           payload: {
-            choices: getChoiceChips(frame.payload.choices, await getModel()),
+            choices: getChoiceChips(frame.payload.choices, model),
           },
         };
       })

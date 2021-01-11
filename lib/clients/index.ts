@@ -7,7 +7,7 @@ import RemoteDataAPI from './remoteDataAPI';
 import Static, { StaticType } from './static';
 
 export interface ClientMap extends StaticType {
-  dataAPI: DataAPI;
+  dataAPI: DataAPI<any, any>;
   metrics: MetricsType;
 }
 

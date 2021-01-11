@@ -92,7 +92,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       return context;
     }
 
-    const version = await this.services.dataAPI.getVersion(context.versionID);
+    const version = await context.data.api.getVersion(context.versionID);
     if (!version) {
       throw new Error();
     }

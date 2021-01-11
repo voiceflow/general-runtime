@@ -3,6 +3,8 @@ import * as Runtime from '@voiceflow/runtime';
 import * as Express from 'express';
 import * as ExpressValidator from 'express-validator';
 
+import CacheDataAPI from '@/lib/services/state/cacheDataAPI';
+
 export interface Config {
   NODE_ENV: string;
   PORT: string;
@@ -68,7 +70,9 @@ export type AnyClass = Class<any, any[]>;
 
 export type ContextData = {
   locale?: string;
+  api: CacheDataAPI;
 };
+
 export type Context = Runtime.Context<GeneralRequest, GeneralTrace, ContextData>;
 export type ContextHandler = Runtime.ContextHandler<Context>;
 export type InitContextHandler = Runtime.InitContextHandler<Context>;
