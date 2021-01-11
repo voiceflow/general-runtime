@@ -8,7 +8,8 @@ import { AbstractController } from './utils';
 
 class InteractController extends AbstractController {
   async state(req: { params: { versionID: string } }) {
-    return this.services.state.generate(req.params.versionID);
+    const version = await this.services.dataAPI.getVersion(req.params.versionID);
+    return this.services.state.generate(version);
   }
 
   async handler(req: Request<{ versionID: string }, null, { state?: State; request?: GeneralRequest }, { locale?: string }>) {
@@ -25,7 +26,7 @@ class InteractController extends AbstractController {
     const turn = new TurnBuilder<Context>(stateManager);
     turn.addHandlers(asr, nlu, dialog, runtime).addHandlers(tts, chips);
 
-    return turn.handle({ state, request, versionID, data: { locale } });
+    return turn.handle({ state, request, versionID, data: { locale } as any });
   }
 }
 
