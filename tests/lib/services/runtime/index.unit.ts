@@ -35,7 +35,7 @@ describe('runtime manager unit tests', () => {
       };
 
       const services = {
-        dataAPI: { getProgram: 'api' },
+        dataAPI: { getProgram: 'service-api' },
       };
 
       const utils = {
@@ -52,9 +52,15 @@ describe('runtime manager unit tests', () => {
         type: RequestType.INTENT,
         payload: {},
       };
-      const context = { state, request, versionID: VERSION_ID } as any;
-      expect(await runtimeManager.handle(context)).to.eql({ state: rawState, trace, request, versionID: VERSION_ID });
-      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request]]);
+      const context = { state, request, versionID: VERSION_ID, data: { api: { getProgram: 'api' } } } as any;
+      expect(await runtimeManager.handle(context)).to.eql({
+        state: rawState,
+        trace,
+        request,
+        versionID: VERSION_ID,
+        data: { api: { getProgram: 'api' } },
+      });
+      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request, { api: context.data.api }]]);
       expect(runtime.update.callCount).to.eql(1);
     });
 
@@ -74,7 +80,7 @@ describe('runtime manager unit tests', () => {
       };
 
       const services = {
-        dataAPI: { getProgram: 'api' },
+        dataAPI: { getProgram: 'service-api' },
       };
 
       const utils = {
@@ -90,8 +96,17 @@ describe('runtime manager unit tests', () => {
         type: RequestType.INTENT,
         payload: {},
       };
-      const context = { state: {}, request, versionID: VERSION_ID } as any;
-      expect(await runtimeManager.handle(context)).to.eql({ state: rawState, trace, request, versionID: VERSION_ID });
+      const state = { foo: 'bar' };
+      const context = { state, request, versionID: VERSION_ID, data: { api: { getProgram: 'api' } } } as any;
+
+      expect(await runtimeManager.handle(context)).to.eql({
+        state: rawState,
+        trace,
+        request,
+        versionID: VERSION_ID,
+        data: { api: { getProgram: 'api' } },
+      });
+      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request, { api: context.data.api }]]);
       expect(utils.Handlers.callCount).to.eql(1);
     });
   });

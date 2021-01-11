@@ -35,18 +35,20 @@ describe('nlu manager unit tests', () => {
         },
       };
       const services = {
-        dataAPI: {
-          getVersion: sinon.stub().resolves(version),
-        },
         axios: {
           post: sinon.stub().resolves({ data: newRequest }),
         },
       };
       const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
 
-      const context = { request: oldRequest, state: { foo: 'bar' }, versionID: version._id };
+      const context = {
+        request: oldRequest,
+        state: { foo: 'bar' },
+        versionID: version._id,
+        data: { api: { getVersion: sinon.stub().resolves(version) } },
+      };
       expect(await nlu.handle(context as any)).to.eql({ ...context, request: newRequest });
-      expect(services.dataAPI.getVersion.args).to.eql([[context.versionID]]);
+      expect(context.data.api.getVersion.args).to.eql([[context.versionID]]);
       expect(services.axios.post.args).to.eql([[`${GENERAL_SERVICE_ENDPOINT}/runtime/${version.projectID}/predict`, { query: oldRequest.payload }]]);
     });
 
@@ -56,18 +58,15 @@ describe('nlu manager unit tests', () => {
         payload: 'query',
       };
       const services = {
-        dataAPI: {
-          getVersion: sinon.stub().throws(),
-        },
         axios: {
           post: sinon.stub(),
         },
       };
       const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
 
-      const context = { request: oldRequest, state: { foo: 'bar' }, versionID: 'version-id' };
+      const context = { request: oldRequest, state: { foo: 'bar' }, versionID: 'version-id', data: { api: { getVersion: sinon.stub().throws() } } };
       await expect(nlu.handle(context as any)).to.eventually.be.rejectedWith();
-      expect(services.dataAPI.getVersion.args).to.eql([[context.versionID]]);
+      expect(context.data.api.getVersion.args).to.eql([[context.versionID]]);
       expect(services.axios.post.callCount).to.eql(0);
     });
 

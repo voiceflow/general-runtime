@@ -52,6 +52,8 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     if (!context.versionID) {
       throw new Error('context versionID not defined');
     }
+
+    // cache per interaction (save version call during request/response cycle)
     const api = new CacheDataAPI(this.services.dataAPI);
 
     return {

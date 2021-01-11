@@ -1,5 +1,7 @@
 import { IntentRequest, RequestType } from '@voiceflow/general-types';
+import sinon from 'sinon';
 
+import CacheDataAPI from '@/lib/services/state/cacheDataAPI';
 import { Context } from '@/types';
 
 export const mockUnfulfilledIntentRequest: IntentRequest = {
@@ -16,70 +18,6 @@ export const mockUnfulfilledIntentRequest: IntentRequest = {
       },
     ],
   },
-};
-
-export const mockFulfilledIntentRequest: IntentRequest = {
-  type: RequestType.INTENT,
-  payload: {
-    query: 'I want some spicy chicken wings',
-    intent: {
-      name: 'wings_order',
-    },
-    entities: [
-      {
-        name: 'flavor',
-        value: 'spicy',
-      },
-    ],
-  },
-};
-
-export const mockDMContext: Context = {
-  state: {
-    stack: [],
-    turn: {},
-    storage: {
-      dm: {
-        intentRequest: {
-          type: 'intent',
-          payload: {
-            query: 'I want a large pizza',
-            intent: {
-              name: 'pizza_order',
-            },
-            entities: [
-              {
-                name: 'size',
-                value: ['large'],
-              },
-              {
-                name: 'dm_b5c1b7fae5e4c5b87a39e68d8e27028f',
-                value: ['b5c1b7fae5e4c5b87a39e68d8e27028f'],
-              },
-            ],
-          },
-        },
-      },
-    },
-    variables: {},
-  },
-  request: mockUnfulfilledIntentRequest,
-  versionID: '5ff486b75b99f8b36505ecfd',
-  trace: [],
-  data: {},
-};
-
-export const mockRegularContext: Context = {
-  state: {
-    stack: [],
-    turn: {},
-    storage: {},
-    variables: {},
-  },
-  request: mockUnfulfilledIntentRequest,
-  versionID: '5ff486b75b99f8b36505ecfd',
-  trace: [],
-  data: {},
 };
 
 export const mockLM = {
@@ -462,5 +400,83 @@ export const mockDMPrefixedNonSubsetEntityResult: IntentRequest = {
         value: 'blue',
       },
     ],
+  },
+};
+
+export const mockVersion = {
+  prototype: {
+    model: mockLM,
+  },
+};
+
+export const mockDataAPI = ({
+  getVersion: sinon.stub().resolves(mockVersion),
+} as any) as CacheDataAPI;
+
+export const mockFulfilledIntentRequest: IntentRequest = {
+  type: RequestType.INTENT,
+  payload: {
+    query: 'I want some spicy chicken wings',
+    intent: {
+      name: 'wings_order',
+    },
+    entities: [
+      {
+        name: 'flavor',
+        value: 'spicy',
+      },
+    ],
+  },
+};
+
+export const mockDMContext: Context = {
+  state: {
+    stack: [],
+    turn: {},
+    storage: {
+      dm: {
+        intentRequest: {
+          type: 'intent',
+          payload: {
+            query: 'I want a large pizza',
+            intent: {
+              name: 'pizza_order',
+            },
+            entities: [
+              {
+                name: 'size',
+                value: ['large'],
+              },
+              {
+                name: 'dm_b5c1b7fae5e4c5b87a39e68d8e27028f',
+                value: ['b5c1b7fae5e4c5b87a39e68d8e27028f'],
+              },
+            ],
+          },
+        },
+      },
+    },
+    variables: {},
+  },
+  request: mockUnfulfilledIntentRequest,
+  versionID: '5ff486b75b99f8b36505ecfd',
+  trace: [],
+  data: {
+    api: mockDataAPI,
+  },
+};
+
+export const mockRegularContext: Context = {
+  state: {
+    stack: [],
+    turn: {},
+    storage: {},
+    variables: {},
+  },
+  request: mockUnfulfilledIntentRequest,
+  versionID: '5ff486b75b99f8b36505ecfd',
+  trace: [],
+  data: {
+    api: mockDataAPI,
   },
 };

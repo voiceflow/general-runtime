@@ -23,16 +23,7 @@ import {
 } from './fixture';
 
 const createDM = () => {
-  const mockVersion = {
-    prototype: {
-      model: mockLM,
-    },
-  };
-  const services = {
-    dataAPI: {
-      getVersion: () => mockVersion,
-    },
-  };
+  const services = {};
   return new DialogManager({ utils: { ...defaultUtils }, ...services } as any, {} as any);
 };
 
