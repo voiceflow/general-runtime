@@ -4,4 +4,4 @@
 --exit
 --recursive
 tests/setup.ts
-tests/**/*.{unit}.ts
+tests/**/*.unit.ts
