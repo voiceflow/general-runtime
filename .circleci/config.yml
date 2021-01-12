@@ -31,7 +31,7 @@ defaults:
 
 orbs:
   codecov: codecov/codecov@1.0.2
-  vfcommon: voiceflow/common@0.0.25
+  vfcommon: voiceflow/common@0.0.43
 
 # commands:
 #   clone_s3_assets:
@@ -48,14 +48,10 @@ jobs:
       - checkout
       - vfcommon/install_node_modules
       - vfcommon/setup_dynamodb
-      - run:
-          name: "Build package"
-          command: |
-            yarn build
-      - run:
-          name: "Run tests"
-          command: |
-            yarn test
+      - vfcommon/lint_source
+      - vfcommon/lint_dockerfile
+      - vfcommon/build
+      - vfcommon/unit_tests
       - codecov/upload:
           file: nyc_coverage/lcov.info
       # temp steps

@@ -134,12 +134,15 @@
     "deploy:staging": "git push origin $(git branch | grep \\* | cut -d ' ' -f2):staging -f",
     "gen-certs": "scripts/generate_certs.sh",
     "lint": "eslint \"./**/*.{js,ts}\"",
+    "lint:dockerfiles": "hadolint --ignore DL3018 ./Dockerfile",
+    "lint:quiet": "yarn lint --quiet",
     "local": "NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_ENV=local ts-node --files -r tsconfig-paths/register start.ts",
     "local:watch": "NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_ENV=local forever --watch -c \"ts-node --files -r tsconfig-paths/register\" start.ts",
     "preview:check": "echo \"generalruntime\"",
     "preview:new": "scripts/deploy_dev_environments.sh",
     "start": "NODE_ENV=production node --max-old-space-size=8192 build/start.js",
-    "test": "NODE_ENV=test nyc ts-mocha --paths --opts mocha.opts",
-    "test:single": "NODE_ENV=test ts-mocha --paths --opts mocha-single.opts"
+    "test": "yarn test:unit",
+    "test:single": "NODE_ENV=test ts-mocha --paths --opts mocha-single.opts",
+    "test:unit": "NODE_ENV=test nyc ts-mocha --paths --opts mocha.unit.opts"
   }
 }
