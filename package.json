@@ -141,7 +141,7 @@
     "preview:check": "echo \"generalruntime\"",
     "preview:new": "scripts/deploy_dev_environments.sh",
     "start": "NODE_ENV=production node --max-old-space-size=8192 build/start.js",
-    "test": "yarn test:unit && test:integration",
+    "test": "yarn test:unit && yarn test:integration && yarn test:single",
     "test:integration": "NODE_ENV=test nyc ts-mocha --paths --opts /config/tests/integration/mocha.it.opts",
     "test:single": "NODE_ENV=test ts-mocha --paths --opts ./config/tests/single/mocha.single.opts",
     "test:unit": "NODE_ENV=test nyc ts-mocha --paths --opts /config/tests/unit/mocha.unit.opts"
