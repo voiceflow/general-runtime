@@ -1,6 +1,6 @@
 import { Version } from '@voiceflow/api-sdk';
 import { GeneralTrace } from '@voiceflow/general-types';
-import { State } from '@voiceflow/runtime';
+import { PartialContext, State } from '@voiceflow/runtime';
 import _ from 'lodash';
 
 import { Context, InitContextHandler } from '@/types';
@@ -48,7 +48,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     };
   }
 
-  async handle(context: Partial<Context>) {
+  async handle(context: PartialContext<Context>) {
     if (!context.versionID) {
       throw new Error('context versionID not defined');
     }

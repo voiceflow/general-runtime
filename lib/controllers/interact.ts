@@ -26,7 +26,7 @@ class InteractController extends AbstractController {
     const turn = new TurnBuilder<Context>(stateManager);
     turn.addHandlers(asr, nlu, dialog, runtime).addHandlers(tts, chips);
 
-    return turn.handle({ state, request, versionID, data: { locale } as any });
+    return turn.handle({ state, request, versionID, data: { locale } });
   }
 }
 

@@ -1071,13 +1071,6 @@
     eslint-plugin-sonarjs "^0.4.0"
     eslint-plugin-xss "^0.1.9"
 
-"@voiceflow/general-types@1.15.0":
-  version "1.15.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.15.0.tgz#0df4b95b7259e9013f8fa4b0d4b01d562d3103d8"
-  integrity sha512-D9lP77tyZ46SjIIj4SEfJ7cioIMpsZlGJAlUM6mTZTfPdUj9F5I1WEPZgMhUcoPgEXo9WDH19/OkokhbJOmkWQ==
-  dependencies:
-    "@voiceflow/api-sdk" "1.20.0"
-
 "@voiceflow/general-types@1.16.1":
   version "1.16.1"
   resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.16.1.tgz#259356c5a079a6c4cc669e96638a409bacfbd703"
@@ -1166,14 +1159,14 @@
   resolved "https://registry.yarnpkg.com/@voiceflow/prettier-config/-/prettier-config-1.0.4.tgz#fe3ef88f1370f326a844686b57ee15522fc03b02"
   integrity sha512-hVjP3v3uKEmbjen4dGjv4A8EEHjopvzEnNdg8KHFZnvvD1eYu4IvDAyKqoK3xGoacqcLlkBo3abyCzOaHOp0Dg==
 
-"@voiceflow/runtime@1.17.1":
-  version "1.17.1"
-  resolved "https://registry.yarnpkg.com/@voiceflow/runtime/-/runtime-1.17.1.tgz#9aa96706537dfde112f10f5bfad4d726456ec16d"
-  integrity sha512-F+5nfxNXFP0ie9+2u/xuYUNH1jf3M+38FNcrfYBvgbRLTgPiVf0a9/wHmiJqEG2+Q4gnWNQE/9vMOzqOMR8O1g==
+"@voiceflow/runtime@1.18.4":
+  version "1.18.4"
+  resolved "https://registry.yarnpkg.com/@voiceflow/runtime/-/runtime-1.18.4.tgz#886d050dc1b0ba2255b0f0d6c397e799014437e2"
+  integrity sha512-Kxz+FKIOKHpgBzghxhop7zbSS0Jsvtsjs72uN5JmNa/WrcJ8vPiT1vsgs0xpHwg54JXhGnpaiPgZTZnbSusK7Q==
   dependencies:
     "@types/safe-json-stringify" "^1.1.0"
     "@voiceflow/api-sdk" "1.20.0"
-    "@voiceflow/general-types" "1.15.0"
+    "@voiceflow/general-types" "1.16.1"
     axios "^0.19.0"
     bluebird "^3.7.2"
     immer "^5.1.0"
