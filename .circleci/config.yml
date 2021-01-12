@@ -54,6 +54,11 @@ jobs:
       - vfcommon/unit_tests
       - codecov/upload:
           file: nyc_coverage/lcov.info
+          flags: unit
+      - vfcommon/integration_tests
+      - codecov/upload:
+          file: nyc_coverage/lcov.info
+          flags: integration
       # temp steps
       # - vfcommon/install_aws_cli
       # - clone_s3_assets
