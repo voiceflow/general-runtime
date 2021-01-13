@@ -135,6 +135,7 @@
     "gen-certs": "scripts/generate_certs.sh",
     "lint": "eslint \"./**/*.{js,ts}\"",
     "lint:dockerfiles": "hadolint --ignore DL3018 ./Dockerfile",
+    "lint:fix": "yarn lint --fix",
     "lint:quiet": "yarn lint --quiet",
     "local": "NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_ENV=local ts-node --files -r tsconfig-paths/register start.ts",
     "local:watch": "NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_ENV=local forever --watch -c \"ts-node --files -r tsconfig-paths/register\" start.ts",
