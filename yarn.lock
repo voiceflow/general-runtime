@@ -1015,10 +1015,10 @@
     regenerator-runtime "^0.13.5"
     superstruct "^0.10.12"
 
-"@voiceflow/backend-utils@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@voiceflow/backend-utils/-/backend-utils-2.1.1.tgz#8727feca0099ef360801232c69fd362f020da5e7"
-  integrity sha512-Y8pm7P2stXFNXyQaLDwIxDdJj9LcrKdSRb3eQ1ifoXUkGoTrVHRkuV5lQEEMSy+++KdNEps5/6f4b/GMov6MDA==
+"@voiceflow/backend-utils@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/backend-utils/-/backend-utils-2.2.0.tgz#d1a51a00103d7e4bbc8ccff5909a6e3d6437b84a"
+  integrity sha512-6XKwWEZ59seSZmTxP/F63Ow5V/gQ0pYXmblryL/mSmbS65ucWDk/xFbCFyjZ8xUg7G4inqjME0a3Jw80cN1uZA==
   dependencies:
     "@voiceflow/logger" "^1.1.10"
     "@voiceflow/verror" "^1.1.0"
