@@ -1,8 +1,12 @@
-import { PrototypeModel } from '@voiceflow/api-sdk';
+import { IntentInput, PrototypeModel } from '@voiceflow/api-sdk';
 import { IntentRequest, SLOT_REGEXP } from '@voiceflow/general-types';
 import * as crypto from 'crypto';
 
 export const VF_DM_PREFIX = 'dm_';
+
+export const inputToString = ({ text, voice }: IntentInput) => {
+  return voice?.trim() ? `<voice name="${voice}">${text}</voice>` : text;
+};
 
 export const getSlotNameByID = (id: string, model: PrototypeModel) => {
   return model.slots.find((lmEntity) => lmEntity.key === id)?.name;

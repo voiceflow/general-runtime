@@ -1001,10 +1001,24 @@
     semver "^7.3.2"
     tsutils "^3.17.1"
 
-"@voiceflow/api-sdk@1.20.0", "@voiceflow/api-sdk@^1.20.0":
+"@voiceflow/api-sdk@1.20.0":
   version "1.20.0"
   resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.20.0.tgz#dc22943b084f5a5419968d1c10a026cb0b081554"
   integrity sha512-2sCZB+wDYZCJV5O7zsKbARU10a/lmEXG5tenBcc8l/+E1Dii8jr2ox8mYLPAv8EqnL8UhPg56ncqZ+E7DpOqPA==
+  dependencies:
+    "@types/atob" "^2.1.2"
+    "@voiceflow/logger" "^1.1.10"
+    atob "^2.1.2"
+    axios "^0.19.2"
+    core-js "^3.6.5"
+    io-ts "^2.2.8"
+    regenerator-runtime "^0.13.5"
+    superstruct "^0.10.12"
+
+"@voiceflow/api-sdk@1.21.0", "@voiceflow/api-sdk@^1.21.0":
+  version "1.21.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.21.0.tgz#ec2a8a6968487d813b9ec05c03f916edd5f0a722"
+  integrity sha512-OIhQj2YStULsRzJaKb7XdZH2wOLocZMjdgFHTLjZEV8b0L/cfj+nsiksdwMwBCmvUd35WyxrYCxZZdR540BF5w==
   dependencies:
     "@types/atob" "^2.1.2"
     "@voiceflow/logger" "^1.1.10"
@@ -1077,6 +1091,13 @@
   integrity sha512-/P0Htzz8JMLMNSTYatTo72EUbaskCKQjcw6vYrwTDuyLvOVk6vOz3mQhZD+wEmqghs9PuLQfpLITlkCpB4xLSQ==
   dependencies:
     "@voiceflow/api-sdk" "1.20.0"
+
+"@voiceflow/general-types@1.16.2":
+  version "1.16.2"
+  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.16.2.tgz#eaf7c97416aed36bf854c61bd5f5734f82da09c7"
+  integrity sha512-NTQxEk949O5Oarl8FCzVC4p5HDchpZN1nUFoFZxwE9VpD8ygrMo5x9HFxeazLyjvGjzcNsGnjNiwhv5019wnAA==
+  dependencies:
+    "@voiceflow/api-sdk" "1.21.0"
 
 "@voiceflow/git-branch-check@^1.0.6":
   version "1.1.3"

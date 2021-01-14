@@ -10,7 +10,7 @@ import { handleNLCDialog } from '../nlu/nlc';
 import { getNoneIntentRequest, NONE_INTENT } from '../nlu/utils';
 import { isIntentRequest } from '../runtime/types';
 import { AbstractManager, injectServices } from '../utils';
-import { dmPrefix, fillStringEntities, getDMPrefixIntentName, getIntentEntityList, getUnfulfilledEntity, VF_DM_PREFIX } from './utils';
+import { dmPrefix, fillStringEntities, getDMPrefixIntentName, getIntentEntityList, getUnfulfilledEntity, inputToString, VF_DM_PREFIX } from './utils';
 
 export const utils = {};
 
@@ -143,7 +143,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       trace.push({
         type: TraceType.SPEAK,
         payload: {
-          message: fillStringEntities(_.sample(unfulfilledEntity.dialog.prompt)!.text, dmStateStore!.intentRequest),
+          message: fillStringEntities(inputToString(_.sample(unfulfilledEntity.dialog.prompt)!), dmStateStore!.intentRequest),
         },
       });
 
