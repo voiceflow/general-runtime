@@ -4,14 +4,14 @@ import { IntentRequest, RequestType } from '@voiceflow/general-types';
 import { Context, ContextHandler } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
-import { handleNLCCommand, handleNLCDialog } from './nlc';
+import { handleNLCCommand } from './nlc';
 import { getNoneIntentRequest } from './utils';
 
 export const utils = {};
 
 @injectServices({ utils })
 class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  async predict({ query, model, projectID, dmIntent }: { query: string; model?: PrototypeModel; projectID: string; dmIntent?: IntentRequest }) {
+  async predict({ query, model, projectID }: { query: string; model?: PrototypeModel; projectID: string }) {
     try {
       const { data } = await this.services.axios.post<IntentRequest>(`${this.config.GENERAL_SERVICE_ENDPOINT}/runtime/${projectID}/predict`, {
         query,
@@ -21,9 +21,6 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     } catch (err) {
       if (!model) {
         throw new Error('Model not found!');
-      }
-      if (dmIntent) {
-        return handleNLCDialog(query, dmIntent, model);
       }
 
       return handleNLCCommand(query, model);

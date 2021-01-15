@@ -82,15 +82,19 @@ const nlcToIntent = (intent: IIntentFullfilment | null, query = ''): IntentReque
     payload: {
       query,
       intent: { name: intent.intent },
-      entities: intent.slots.map(({ name, value }) => ({ name, value: value || name })),
+      // only add entity if value is defined
+      entities: intent.slots.reduce<{ name: string; value: string }[]>((acc, { name, value }) => {
+        if (value) acc.push({ name, value });
+        return acc;
+      }, []),
     },
   }) ||
-  getNoneIntentRequest();
+  getNoneIntentRequest(query);
 
 export const handleNLCCommand = (query: string, model: PrototypeModel): IntentRequest => {
   const nlc = createNLC(model);
 
-  return nlcToIntent(nlc.handleCommand(query));
+  return nlcToIntent(nlc.handleCommand(query), query);
 };
 
 export const handleNLCDialog = (query: string, dmRequest: IntentRequest, model: PrototypeModel): IntentRequest => {
@@ -102,7 +106,7 @@ export const handleNLCDialog = (query: string, dmRequest: IntentRequest, model: 
   // turn the dmRequest into IIntentFullfilment
   const fulfillment: IIntentFullfilment = {
     intent: intentName,
-    slots: filledEntities,
+    slots: filledEntities, // luckily payload.entities and ISlotFullfilment are compatible
     required: getRequired(nlc.getIntent(intentName)?.slots || [], filledEntities),
   };
 

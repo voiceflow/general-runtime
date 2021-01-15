@@ -6,7 +6,8 @@ import logger from '@/logger';
 import { Context, ContextHandler } from '@/types';
 
 import { generateVariations } from '../chips/utils';
-import { getNoneIntentRequest } from '../nlu/utils';
+import { handleNLCDialog } from '../nlu/nlc';
+import { getNoneIntentRequest, NONE_INTENT } from '../nlu/utils';
 import { isIntentRequest } from '../runtime/types';
 import { AbstractManager, injectServices } from '../utils';
 import { dmPrefix, fillStringEntities, getDMPrefixIntentName, getIntentEntityList, getUnfulfilledEntity, VF_DM_PREFIX } from './utils';
@@ -92,20 +93,29 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     if (dmStateStore?.intentRequest) {
       logger.debug('@DM - In dialog management context');
 
-      const dmPrefixedResult = await this.services.nlu.predict({
-        query: `${dmPrefix(dmStateStore.intentRequest.payload.intent.name)} ${incomingRequest.payload.query}`,
-        model: version.prototype.model,
-        projectID: version.projectID,
-        dmIntent: dmStateStore.intentRequest,
-      });
+      const { query } = incomingRequest.payload;
+      try {
+        const dmPrefixedResult = await this.services.nlu.predict({
+          query: `${dmPrefix(dmStateStore.intentRequest.payload.intent.name)} ${query}`,
+          projectID: version.projectID,
+        });
 
-      const isFallback = this.handleDMContext(dmStateStore, dmPrefixedResult, incomingRequest, version.prototype.model);
+        const isFallback = this.handleDMContext(dmStateStore, dmPrefixedResult, incomingRequest, version.prototype.model);
 
-      if (isFallback) {
-        return {
-          ...DialogManagement.setDMStore(context, undefined),
-          request: getNoneIntentRequest(context.request?.payload?.query),
-        };
+        if (isFallback) {
+          return {
+            ...DialogManagement.setDMStore(context, undefined),
+            request: getNoneIntentRequest(query),
+          };
+        }
+      } catch (err) {
+        const resultNLC = handleNLCDialog(query, dmStateStore.intentRequest, version.prototype.model);
+        if (resultNLC.payload.intent.name === NONE_INTENT)
+          return {
+            ...DialogManagement.setDMStore(context, undefined),
+            request: getNoneIntentRequest(query),
+          };
+        dmStateStore.intentRequest = resultNLC;
       }
     } else {
       logger.debug('@DM - In regular context');
