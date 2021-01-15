@@ -3,27 +3,15 @@ import { IntentRequest, RequestType } from '@voiceflow/general-types';
 
 import { Context, ContextHandler } from '@/types';
 
+import { getNoneIntentRequest } from '../dialog/utils';
 import { AbstractManager, injectServices } from '../utils';
 import { handleNLCCommand } from './nlc';
 
 export const utils = {};
 
-export const EMPTY_INTENT = '_empty';
-
 @injectServices({ utils })
 class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  static getEmptyIntentRequest(): IntentRequest {
-    return {
-      type: RequestType.INTENT,
-      payload: {
-        query: '',
-        intent: { name: EMPTY_INTENT },
-        entities: [],
-      },
-    };
-  }
-
-  async predict({ query, model, nlcQuery = query, projectID }: { query: string; model?: PrototypeModel; nlcQuery?: string; projectID: string }) {
+  async predict({ query, model, projectID }: { query: string; model?: PrototypeModel; projectID: string }) {
     try {
       const { data } = await this.services.axios.post<IntentRequest>(`${this.config.GENERAL_SERVICE_ENDPOINT}/runtime/${projectID}/predict`, {
         query,
@@ -34,10 +22,9 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       if (!model) {
         throw new Error('Model not found!');
       }
+      const request = await handleNLCCommand(query, model);
 
-      const request = await handleNLCCommand(nlcQuery, model);
-
-      return request || NLU.getEmptyIntentRequest();
+      return request || getNoneIntentRequest();
     }
   }
 
@@ -50,7 +37,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     if (!context.request.payload) {
       return {
         ...context,
-        request: NLU.getEmptyIntentRequest(),
+        request: getNoneIntentRequest(),
       };
     }
 

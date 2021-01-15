@@ -2,15 +2,12 @@ import { PrototypeModel } from '@voiceflow/api-sdk';
 import { IntentRequest, RequestType, SLOT_REGEXP } from '@voiceflow/general-types';
 import * as crypto from 'crypto';
 
-import { Context } from '@/types';
-
 export const VF_DM_PREFIX = 'dm_';
 
 export const getSlotNameByID = (id: string, model: PrototypeModel) => {
   return model.slots.find((lmEntity) => lmEntity.key === id)?.name;
 };
 
-// Find one unfulfilled entity (if exists) on the current classified intent with the DM stored state
 export const getUnfulfilledEntity = (intentRequest: IntentRequest, model: PrototypeModel) => {
   const intentModel = model.intents.find((intent) => intent.name === intentRequest.payload.intent.name);
   const extractedEntities = intentRequest.payload.entities;
@@ -50,24 +47,17 @@ export const getDMPrefixIntentName = (intentName: string) => {
   return `${VF_DM_PREFIX}${dmPrefix(intentName)}_${intentName}`;
 };
 
-export const fallbackIntent = (context: Context) => {
-  const incomingRequest = context.request as IntentRequest;
-  const intentRequest: IntentRequest = {
-    type: RequestType.INTENT,
-    payload: {
-      query: incomingRequest.payload.query,
-      intent: {
-        name: 'None',
-      },
-      entities: [],
+export const NONE_INTENT = 'None';
+export const getNoneIntentRequest = (query = ''): IntentRequest => ({
+  type: RequestType.INTENT,
+  payload: {
+    query,
+    intent: {
+      name: NONE_INTENT,
     },
-  };
-  return {
-    ...context,
-    request: intentRequest,
-    state: { ...context.state, storage: { ...context.state.storage, dm: undefined } },
-  };
-};
+    entities: [],
+  },
+});
 
 export const getIntentEntityList = (intentName: string, model: PrototypeModel) => {
   const intentModel = model.intents.find((intent) => intent.name === intentName);

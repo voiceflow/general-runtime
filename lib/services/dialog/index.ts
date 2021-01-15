@@ -1,4 +1,4 @@
-import { PrototypeModel } from '@voiceflow/api-sdk';
+import { PrototypeModel, Version } from '@voiceflow/api-sdk';
 import { GeneralTrace, IntentRequest, TraceType } from '@voiceflow/general-types';
 import _ from 'lodash';
 
@@ -9,11 +9,12 @@ import { generateVariations } from '../chips/utils';
 import { isIntentRequest } from '../runtime/types';
 import { AbstractManager, injectServices } from '../utils';
 import {
+  dmNLCModel,
   dmPrefix,
-  fallbackIntent,
   fillStringEntities,
   getDMPrefixIntentName,
   getIntentEntityList,
+  getNoneIntentRequest,
   getUnfulfilledEntity,
   VF_DM_PREFIX,
 } from './utils';
@@ -101,15 +102,16 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
       const dmPrefixedResult = await this.services.nlu.predict({
         query: `${dmPrefix(dmStateStore.intentRequest.payload.intent.name)} ${incomingRequest.payload.query}`,
-        model: version.prototype.model,
-        nlcQuery: incomingRequest.payload.query,
         projectID: version.projectID,
       });
 
       const isFallback = this.handleDMContext(dmStateStore, dmPrefixedResult, incomingRequest, version.prototype.model);
 
       if (isFallback) {
-        return fallbackIntent(context);
+        return {
+          ...DialogManagement.setDMStore(context, undefined),
+          request: getNoneIntentRequest(context.request?.payload?.query),
+        };
       }
     } else {
       logger.debug('@DM - In regular context');
