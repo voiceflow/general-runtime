@@ -47,18 +47,6 @@ export const getDMPrefixIntentName = (intentName: string) => {
   return `${VF_DM_PREFIX}${dmPrefix(intentName)}_${intentName}`;
 };
 
-export const NONE_INTENT = 'None';
-export const getNoneIntentRequest = (query = ''): IntentRequest => ({
-  type: RequestType.INTENT,
-  payload: {
-    query,
-    intent: {
-      name: NONE_INTENT,
-    },
-    entities: [],
-  },
-});
-
 export const getIntentEntityList = (intentName: string, model: PrototypeModel) => {
   const intentModel = model.intents.find((intent) => intent.name === intentName);
   const intentEntityIDs = intentModel?.slots?.map((entity) => entity.id);

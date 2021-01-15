@@ -1,10 +1,13 @@
 import { PrototypeModel } from '@voiceflow/api-sdk';
 import { utils } from '@voiceflow/common';
 import { IntentRequest, RequestType } from '@voiceflow/general-types';
-import NLC, { IIntentSlot } from '@voiceflow/natural-language-commander';
+import NLC, { IIntentFullfilment, IIntentSlot } from '@voiceflow/natural-language-commander';
+import { getRequired } from '@voiceflow/natural-language-commander/dist/lib/standardSlots';
 import _ from 'lodash';
 
 import logger from '@/logger';
+
+import { getNoneIntentRequest } from './utils';
 
 const { getUtterancesWithSlotNames } = utils.intent;
 
@@ -65,23 +68,43 @@ export const registerIntents = (nlc: NLC, { slots, intents }: PrototypeModel) =>
   });
 };
 
-export const handleNLCCommand = (query: string, model: PrototypeModel): null | IntentRequest => {
+const createNLC = (model: PrototypeModel) => {
   const nlc = new NLC();
-
   registerSlots(nlc, model);
-
   registerIntents(nlc, model);
 
-  const intent = nlc.handleCommand(query);
+  return nlc;
+};
 
-  return !intent
-    ? null
-    : {
-        type: RequestType.INTENT,
-        payload: {
-          query,
-          intent: { name: intent.intent },
-          entities: intent.slots.map(({ name, value }) => ({ name, value: value || name })),
-        },
-      };
+const nlcToIntent = (intent: IIntentFullfilment | null, query = ''): IntentRequest =>
+  (intent && {
+    type: RequestType.INTENT,
+    payload: {
+      query,
+      intent: { name: intent.intent },
+      entities: intent.slots.map(({ name, value }) => ({ name, value: value || name })),
+    },
+  }) ||
+  getNoneIntentRequest();
+
+export const handleNLCCommand = (query: string, model: PrototypeModel): IntentRequest => {
+  const nlc = createNLC(model);
+
+  return nlcToIntent(nlc.handleCommand(query));
+};
+
+export const handleNLCDialog = (query: string, dmRequest: IntentRequest, model: PrototypeModel): IntentRequest => {
+  const nlc = createNLC(model);
+
+  const intentName = dmRequest.payload.intent.name;
+  const filledEntities = dmRequest.payload.entities;
+
+  // turn the dmRequest into IIntentFullfilment
+  const fulfillment: IIntentFullfilment = {
+    intent: intentName,
+    slots: filledEntities,
+    required: getRequired(nlc.getIntent(intentName)?.slots || [], filledEntities),
+  };
+
+  return nlcToIntent(nlc.handleDialog(fulfillment, query), query);
 };

@@ -1,4 +1,4 @@
-import { PrototypeModel, Version } from '@voiceflow/api-sdk';
+import { PrototypeModel } from '@voiceflow/api-sdk';
 import { GeneralTrace, IntentRequest, TraceType } from '@voiceflow/general-types';
 import _ from 'lodash';
 
@@ -6,18 +6,11 @@ import logger from '@/logger';
 import { Context, ContextHandler } from '@/types';
 
 import { generateVariations } from '../chips/utils';
+import { handleNLCDialog } from '../nlu/nlc';
+import { getNoneIntentRequest } from '../nlu/utils';
 import { isIntentRequest } from '../runtime/types';
 import { AbstractManager, injectServices } from '../utils';
-import {
-  dmNLCModel,
-  dmPrefix,
-  fillStringEntities,
-  getDMPrefixIntentName,
-  getIntentEntityList,
-  getNoneIntentRequest,
-  getUnfulfilledEntity,
-  VF_DM_PREFIX,
-} from './utils';
+import { dmPrefix, fillStringEntities, getDMPrefixIntentName, getIntentEntityList, getUnfulfilledEntity, VF_DM_PREFIX } from './utils';
 
 export const utils = {};
 
@@ -102,7 +95,9 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
       const dmPrefixedResult = await this.services.nlu.predict({
         query: `${dmPrefix(dmStateStore.intentRequest.payload.intent.name)} ${incomingRequest.payload.query}`,
+        model: version.prototype.model,
         projectID: version.projectID,
+        dmIntent: dmStateStore.intentRequest,
       });
 
       const isFallback = this.handleDMContext(dmStateStore, dmPrefixedResult, incomingRequest, version.prototype.model);
