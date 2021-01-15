@@ -41,23 +41,6 @@ describe('dialog manager unit tests', () => {
     sinon.restore();
   });
 
-  describe('helpers', () => {
-    it('calls NLU runtime with appropriate prefix', async () => {
-      const stub = sinon.stub();
-      const services = {
-        axios: { post: stub.returns({ data: {} }) },
-      };
-      const dm = new DialogManager({ utils: { ...defaultUtils }, ...services } as any, {} as any);
-      const intentName = 'dummy_intent';
-      const queryText = 'some query text';
-
-      await dm.makeDMPrefixedInference(queryText, intentName, 'dummyID');
-
-      const correctResult = `${utils.dmPrefix(intentName)} ${queryText}`;
-      expect(stub.args[0][1].query).to.be.equal(correctResult);
-    });
-  });
-
   describe('general handler', () => {
     it('fails if version is not found', async () => {
       const services = {

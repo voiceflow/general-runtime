@@ -6,7 +6,6 @@ import logger from '@/logger';
 import { Context, ContextHandler } from '@/types';
 
 import { generateVariations } from '../chips/utils';
-import { handleNLCDialog } from '../nlu/nlc';
 import { getNoneIntentRequest } from '../nlu/utils';
 import { isIntentRequest } from '../runtime/types';
 import { AbstractManager, injectServices } from '../utils';
