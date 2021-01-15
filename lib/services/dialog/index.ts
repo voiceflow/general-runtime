@@ -6,17 +6,11 @@ import logger from '@/logger';
 import { Context, ContextHandler } from '@/types';
 
 import { generateVariations } from '../chips/utils';
+import { handleNLCDialog } from '../nlu/nlc';
+import { getNoneIntentRequest, NONE_INTENT } from '../nlu/utils';
 import { isIntentRequest } from '../runtime/types';
 import { AbstractManager, injectServices } from '../utils';
-import {
-  dmPrefix,
-  fallbackIntent,
-  fillStringEntities,
-  getDMPrefixIntentName,
-  getIntentEntityList,
-  getUnfulfilledEntity,
-  VF_DM_PREFIX,
-} from './utils';
+import { dmPrefix, fillStringEntities, getDMPrefixIntentName, getIntentEntityList, getUnfulfilledEntity, VF_DM_PREFIX } from './utils';
 
 export const utils = {};
 
@@ -99,17 +93,33 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     if (dmStateStore?.intentRequest) {
       logger.debug('@DM - In dialog management context');
 
-      const dmPrefixedResult = await this.services.nlu.predict({
-        query: `${dmPrefix(dmStateStore.intentRequest.payload.intent.name)} ${incomingRequest.payload.query}`,
-        model: version.prototype.model,
-        nlcQuery: incomingRequest.payload.query,
-        projectID: version.projectID,
-      });
+      const { query } = incomingRequest.payload;
 
-      const isFallback = this.handleDMContext(dmStateStore, dmPrefixedResult, incomingRequest, version.prototype.model);
+      try {
+        const dmPrefixedResult = await this.services.nlu.predict({
+          query: `${dmPrefix(dmStateStore.intentRequest.payload.intent.name)} ${query}`,
+          projectID: version.projectID,
+        });
 
-      if (isFallback) {
-        return fallbackIntent(context);
+        const isFallback = this.handleDMContext(dmStateStore, dmPrefixedResult, incomingRequest, version.prototype.model);
+
+        if (isFallback) {
+          return {
+            ...DialogManagement.setDMStore(context, undefined),
+            request: getNoneIntentRequest(query),
+          };
+        }
+      } catch (err) {
+        const resultNLC = handleNLCDialog(query, dmStateStore.intentRequest, version.prototype.model);
+
+        if (resultNLC.payload.intent.name === NONE_INTENT) {
+          return {
+            ...DialogManagement.setDMStore(context, undefined),
+            request: getNoneIntentRequest(query),
+          };
+        }
+
+        dmStateStore.intentRequest = resultNLC;
       }
     } else {
       logger.debug('@DM - In regular context');
@@ -124,6 +134,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     // Are there any unfulfilled required entities?
     // We need to use the stored DM state here to ensure that previously fulfilled entities are also considered!
     const unfulfilledEntity = getUnfulfilledEntity(dmStateStore!.intentRequest, version.prototype.model);
+
     if (unfulfilledEntity) {
       // There are unfulfilled required entities -> return dialog management prompt
       // Assemble return string by populating the inline entity values

@@ -1109,10 +1109,10 @@
     pino "6.8.0"
     pino-http "5.3.0"
 
-"@voiceflow/natural-language-commander@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/natural-language-commander/-/natural-language-commander-0.5.0.tgz#c64a28e6c772cd22dd4b20e87746158fe7827999"
-  integrity sha512-ONZjNW5O99BITyHOS+JcO1D59yrYnDBP2L8Vm7TYJS3pTGFQPKGAtbVVlRvqVteEd9uemYlm+Wu2+LMGJpR6TA==
+"@voiceflow/natural-language-commander@^0.5.1":
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/natural-language-commander/-/natural-language-commander-0.5.1.tgz#507436588afa60f1bf3aeb4d6b23a7db0947fa26"
+  integrity sha512-1c4hieLldz8/vJVVfBgY13HiTSpHNEyyrJug8+VCxGU7VXs4hKyonmCBoFI1/Y9zpdVPX8njveFuBdkvBuhcMw==
   dependencies:
     "@types/lodash" "^4.14.106"
     babel-runtime "^6.9.2"
