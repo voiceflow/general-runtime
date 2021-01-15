@@ -83,10 +83,7 @@ const nlcToIntent = (intent: IIntentFullfilment | null, query = ''): IntentReque
       query,
       intent: { name: intent.intent },
       // only add entity if value is defined
-      entities: intent.slots.reduce<{ name: string; value: string }[]>((acc, { name, value }) => {
-        if (value) acc.push({ name, value });
-        return acc;
-      }, []),
+      entities: intent.slots.reduce<{ name: string; value: string }[]>((acc, { name, value }) => (value ? [...acc, { name, value }] : acc), []),
     },
   }) ||
   getNoneIntentRequest(query);
