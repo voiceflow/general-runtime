@@ -1,5 +1,5 @@
 import { PrototypeModel } from '@voiceflow/api-sdk';
-import { GeneralTrace, IntentRequest, TraceType } from '@voiceflow/general-types';
+import { GeneralTrace, IntentRequest, Locale, TraceType } from '@voiceflow/general-types';
 import _ from 'lodash';
 
 import logger from '@/logger';
@@ -111,7 +111,12 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
           };
         }
       } catch (err) {
-        const resultNLC = handleNLCDialog(query, dmStateStore.intentRequest, version.prototype.model);
+        const resultNLC = handleNLCDialog({
+          query,
+          model: version.prototype.model,
+          locale: version.prototype.data!.locales[0] as Locale,
+          dmRequest: dmStateStore.intentRequest,
+        });
 
         if (resultNLC.payload.intent.name === NONE_INTENT) {
           return {

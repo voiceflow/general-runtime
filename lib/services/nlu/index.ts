@@ -1,5 +1,5 @@
 import { PrototypeModel } from '@voiceflow/api-sdk';
-import { IntentRequest, RequestType } from '@voiceflow/general-types';
+import { IntentRequest, Locale, RequestType } from '@voiceflow/general-types';
 
 import { Context, ContextHandler } from '@/types';
 
@@ -11,7 +11,7 @@ export const utils = {};
 
 @injectServices({ utils })
 class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  async predict({ query, model, projectID }: { query: string; model?: PrototypeModel; projectID: string }) {
+  async predict({ query, model, locale, projectID }: { query: string; model?: PrototypeModel; locale?: Locale; projectID: string }) {
     try {
       const { data } = await this.services.axios.post<IntentRequest>(`${this.config.GENERAL_SERVICE_ENDPOINT}/runtime/${projectID}/predict`, {
         query,
@@ -23,7 +23,11 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
         throw new Error('Model not found!');
       }
 
-      return handleNLCCommand(query, model);
+      if (!locale) {
+        throw new Error('Locale not found!');
+      }
+
+      return handleNLCCommand({ query, model, locale });
     }
   }
 
@@ -46,7 +50,12 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       throw new Error('Version not found!');
     }
 
-    const request = await this.predict({ query: context.request.payload, model: version.prototype?.model, projectID: version.projectID });
+    const request = await this.predict({
+      query: context.request.payload,
+      model: version.prototype?.model,
+      locale: version.prototype?.data.locales[0] as Locale,
+      projectID: version.projectID,
+    });
 
     return { ...context, request };
   };
