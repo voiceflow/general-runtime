@@ -68,9 +68,9 @@ export const registerIntents = (nlc: NLC, { slots, intents }: PrototypeModel) =>
   });
 };
 
-export const registerBuiltInIntents = (nlc: NLC, locale: Locale) => {
+export const registerBuiltInIntents = (nlc: NLC, locale = Locale.EN_US) => {
   const lang = locale.slice(0, 2);
-  const builtInIntents = DEFAULT_INTENTS_MAP[lang];
+  const builtInIntents = DEFAULT_INTENTS_MAP[lang] || DEFAULT_INTENTS_MAP.en;
 
   builtInIntents.forEach((intent) => {
     const { name, samples } = intent;
