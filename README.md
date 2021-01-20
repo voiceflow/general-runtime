@@ -1,8 +1,8 @@
-# general-client
+# general-runtime
 
-[![codecov](https://codecov.io/gh/voiceflow/general-client/branch/master/graph/badge.svg?token=WHYHNCC9FW)](https://codecov.io/gh/voiceflow/general-client)
+[![codecov](https://codecov.io/gh/voiceflow/general-runtime/branch/master/graph/badge.svg?token=WHYHNCC9FW)](https://codecov.io/gh/voiceflow/general-runtime)
 
-`general-client` is an http webhook service that handles voiceflow prototype requests and generates a response. It manages the state of the user based on the programs (flows) made on the Voiceflow Creator tool.
+`general-runtime` is an http webhook service that handles voiceflow prototype requests and generates a response. It manages the state of the user based on the programs (flows) made on the Voiceflow Creator tool.
 
 > ⚠️ **This repository is still undergoing active development**: Major breaking changes may be pushed periodically and the documentation may become outdated - a stable version has not been released
 
@@ -12,7 +12,7 @@
 
 ### anatomy of an interaction
 
-1. user says/types something to prototype tool, prototype tool uses regex to transcribe user intent, then sends it via webhook (along with other metadata i.e. _userID_) to `general-client`
+1. user says/types something to prototype tool, prototype tool uses regex to transcribe user intent, then sends it via webhook (along with other metadata i.e. _userID_) to `general-runtime`
 2. fetch user state (JSON format) from **end user session storage** based on a _userID_ identifier
 3. fetch project version data for initialization parameters from **Voiceflow API/Project File**
 4. fetch the current program (flow) that the user is on from **Voiceflow API/Project File**
@@ -25,7 +25,7 @@ repeat all steps each time a user speaks/types to the prototype tool, to perform
 
 ## environment variables
 
-`voiceflow/general-client` reads environment variables from a `.env.[environment]` file, where `[environment]` is either `local` or `production` depending on if you run `yarn local` or `yarn start`, respectively. (there is also an `.env.test` for integration tests)
+`voiceflow/general-runtime` reads environment variables from a `.env.[environment]` file, where `[environment]` is either `local` or `production` depending on if you run `yarn local` or `yarn start`, respectively. (there is also an `.env.test` for integration tests)
 
 ### types
 
@@ -36,7 +36,7 @@ repeat all steps each time a user speaks/types to the prototype tool, to perform
 | `SESSIONS_SOURCE`               | `local` \| `remote`          |           if `local` read/write sessions to memory, otherwise if `remote` or undefined read/write to DynamoDB` | NO |
 | `VF_DATA_ENDPOINT`              | `http://localhost:8200`      | cloud endpoint to read Voiceflow version and program metadata, doesn't matter if `PROJECT_SOURCE` is a defined file | YES      |
 | `CODE_HANDLER_ENDPOINT`         | `none`                       |                                                          stateless cloud service endpoint to execute the code block | YES      |
-| `INTEGRATIONS_HANDLER_ENDPOINT` | `http://localhost:8100`      |                    cloud endpoint for zapier/google blocks - not available if `general-client` is ran as standalone | YES      |
+| `INTEGRATIONS_HANDLER_ENDPOINT` | `http://localhost:8100`      |                   cloud endpoint for zapier/google blocks - not available if `general-runtime` is ran as standalone | YES      |
 | `API_HANDLER_ENDPOINT`          | `http://localhost:8803`      |                                                         stateless cloud endpoint for the API block to make requests | YES      |
 | `DATADOG_API_KEY`               | `none`                       |                                                                                datadog API key for logging purposes | YES      |
 | `LOG_LEVEL`                     | `none` \| `warn`             |                                                                                        logging verbosity and detail | NO       |
@@ -52,7 +52,7 @@ export your voiceflow project from the creator tool. Each time you update your p
 
 It should save a VF-Project JSON file from your browser that would be named similar to this: `VF-Project-nPDdD6qZJ9.json`
 
-fork `voiceflow/general-client` and clone to your local machine. Ensure `nodejs`, `npm`, and `yarn` are set up on your local machine. Run
+fork `voiceflow/general-runtime` and clone to your local machine. Ensure `nodejs`, `npm`, and `yarn` are set up on your local machine. Run
 
 ```
 yarn
@@ -86,7 +86,7 @@ Also add the following files to the local repository:
 
 Install a localhost tunnel tool such as [ngrok](https://ngrok.com/), [localtunnel](https://github.com/localtunnel/localtunnel), or [bespoken proxy](https://read.bespoken.io/cli/commands/#bst-proxy-http). This will allow you expose a localhost endpoint on the internet for Alexa to hit. For the purposes of this guide, we will implement `ngrok`
 
-Run your local instance of `voiceflow/general-client` with
+Run your local instance of `voiceflow/general-runtime` with
 
 ```
 yarn local
@@ -102,4 +102,14 @@ In your shell you will see a link similar to this - `https://e9g1335dd0ac.ngrok.
 
 # Notable Code Locations
 
-[lib/services/voiceflow/handlers](https://github.com/voiceflow/general-client/tree/master/lib/services/voiceflow/handlers) - handlers for all the various blocks and defining their behavior
+[lib/services/runtime/handlers](https://github.com/voiceflow/general-runtime/tree/master/lib/services/runtime/handlers) - handlers for all the various blocks and defining their behavior
+
+# Context Handlers
+
+On each request to `/interact/:versionID` a turn context is [initialized](https://github.com/voiceflow/general-runtime/blob/f0f653753da42d67033598d3c228e460b4655863/lib/controllers/interact.ts#L26). [Turn Context](https://github.com/voiceflow/runtime/blob/66e167e281eef019632b2ca6bf11305f032e807e/lib/Context/index.ts#L33) is a context with a lifespan of one request. It handles the request through its `handle` method. [handle](https://github.com/voiceflow/runtime/blob/66e167e281eef019632b2ca6bf11305f032e807e/lib/Context/index.ts#L16) passes the request through the Turn Context handlers.
+These handlers are added to the Turn Context after init [here](https://github.com/voiceflow/general-runtime/blob/f0f653753da42d67033598d3c228e460b4655863/lib/controllers/interact.ts#L27).
+The handlers are added to the context's [pipe system](https://github.com/voiceflow/runtime/blob/66e167e281eef019632b2ca6bf11305f032e807e/lib/Context/index.ts#L9). Each pipe is an ordered array of [Context Handlers](https://github.com/voiceflow/runtime/blob/058fdd208ece6d7361c2af8f0b7b291a37671b69/lib/Context/types.ts#L16). The pipes are executed in order, one after the other. To break early and not proceed to the next handler in the pipe or to the next pipe, a handler can set [`request.end = true`](https://github.com/voiceflow/runtime/blob/66e167e281eef019632b2ca6bf11305f032e807e/lib/Context/index.ts#L25). Here's a list of the handlers used in this project:
+
+## [ASR](https://github.com/voiceflow/general-runtime/blob/541c603064666c66c96d0b038a9f67890c7f1b24/lib/services/asr/index.ts#L8)
+
+The Automated Speech Recognition handler is currectly just a pass-through handler without an implementation. The implementation is left to the user according to their usecase.
