@@ -108,8 +108,34 @@ In your shell you will see a link similar to this - `https://e9g1335dd0ac.ngrok.
 
 On each request to `/interact/:versionID` a turn context is [initialized](https://github.com/voiceflow/general-runtime/blob/f0f653753da42d67033598d3c228e460b4655863/lib/controllers/interact.ts#L26). [Turn Context](https://github.com/voiceflow/runtime/blob/66e167e281eef019632b2ca6bf11305f032e807e/lib/Context/index.ts#L33) is a context with a lifespan of one request. It handles the request through its `handle` method. [handle](https://github.com/voiceflow/runtime/blob/66e167e281eef019632b2ca6bf11305f032e807e/lib/Context/index.ts#L16) passes the request through the Turn Context handlers.
 These handlers are added to the Turn Context after init [here](https://github.com/voiceflow/general-runtime/blob/f0f653753da42d67033598d3c228e460b4655863/lib/controllers/interact.ts#L27).
-The handlers are added to the context's [pipe system](https://github.com/voiceflow/runtime/blob/66e167e281eef019632b2ca6bf11305f032e807e/lib/Context/index.ts#L9). Each pipe is an ordered array of [Context Handlers](https://github.com/voiceflow/runtime/blob/058fdd208ece6d7361c2af8f0b7b291a37671b69/lib/Context/types.ts#L16). The pipes are executed in order, one after the other. To break early and not proceed to the next handler in the pipe or to the next pipe, a handler can set [`request.end = true`](https://github.com/voiceflow/runtime/blob/66e167e281eef019632b2ca6bf11305f032e807e/lib/Context/index.ts#L25). Here's a list of the handlers used in this project:
+The handlers are added to the context's [pipe system](https://github.com/voiceflow/runtime/blob/66e167e281eef019632b2ca6bf11305f032e807e/lib/Context/index.ts#L9). Each pipe is an ordered array of [Context Handlers](https://github.com/voiceflow/runtime/blob/058fdd208ece6d7361c2af8f0b7b291a37671b69/lib/Context/types.ts#L16). The pipes are executed in order, one after the other. To break early and not proceed to the next handler in the pipe or to the next pipe, a handler can set [`request.end = true`](https://github.com/voiceflow/runtime/blob/66e167e281eef019632b2ca6bf11305f032e807e/lib/Context/index.ts#L25) (example [here](https://github.com/voiceflow/general-runtime/blob/9727599fff72fb7a3114229732fffa5410c03a23/lib/services/dialog/index.ts#L167) the dialog managment needs to ask for additional info from the user to populate intent and entities).
+Here's a list of the handlers used in this project:
 
 ## [ASR](https://github.com/voiceflow/general-runtime/blob/541c603064666c66c96d0b038a9f67890c7f1b24/lib/services/asr/index.ts#L8)
 
 The Automated Speech Recognition handler is currectly just a pass-through handler without an implementation. The implementation is left to the user according to their usecase.
+
+## [NLU](https://github.com/voiceflow/general-runtime/blob/9727599fff72fb7a3114229732fffa5410c03a23/lib/services/nlu/index.ts#L13)
+
+The Natural Language Understanding handler matches the utterance in the request to an intent in the project interaction model. The current implementation uses one of our Voiceflow's internal services which exposes NLU capabilities.
+
+## [DIALOG](https://github.com/voiceflow/general-runtime/blob/9727599fff72fb7a3114229732fffa5410c03a23/lib/services/dialog/index.ts#L23)
+
+The Dialog Managment handler ensures the required entities in a slot are filled before sending the request to the next handler in the pipe. In case information is missing, the handler prompts the user for the missing entities and returns early from the pipes.
+
+## [RUNTIME](https://github.com/voiceflow/general-runtime/blob/f0f653753da42d67033598d3c228e460b4655863/lib/services/runtime/index.ts#L18)
+
+The Runtime Handler is responsible for executing the state machine transition between states, based on the diagrams designed by the user in the creator tool. The Runtime takes in the users previous session and their current request (with an intent already matched) and outputs an updated state and a trace which indicates what to speak or play next.<br/><br/>
+Everything before the `runtime` handler is about pre-processing the request to go from a text or audio utterance to a matched intent with filled entities.<br/>
+Everything after the `runtime` handler is about post-processing the traces object to transform it into audio or text to present to the end user.<br/><br/>
+
+Additional documentation can be found in the `runtime` [github repo](https://github.com/voiceflow/runtime).
+
+## [TTS](https://github.com/voiceflow/general-runtime/blob/88ebc7f2ac0f8b9ad4dd5f9a190e056d6fa8de8d/lib/services/tts/index.ts#L13)
+
+The Text to Speech handler transforms the traces text into audio with specific voices. The current implementation uses one of our Voiceflow's internal services which can be overriden to use a custom one.
+
+## [CHIPS](https://github.com/voiceflow/general-runtime/blob/f0f653753da42d67033598d3c228e460b4655863/lib/services/chips/index.ts#L14)
+
+The Chips handler adds possible choices in each trace frame for the user to choose from as a response to a question.
+The terminology comes from [suggestion chips in google actions](https://developers.google.com/assistant/conversational/df-asdk/rich-responses#suggestion_chips)
