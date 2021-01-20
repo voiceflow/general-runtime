@@ -480,3 +480,35 @@ export const mockRegularContext: Context = {
     api: mockDataAPI,
   },
 };
+
+export const mockEntitySynonymRequest: IntentRequest = {
+  type: RequestType.INTENT,
+  payload: {
+    query: 'I want some huge chicken wings',
+    intent: {
+      name: 'wings_order',
+    },
+    entities: [
+      {
+        name: 'size',
+        value: 'huge',
+      },
+    ],
+  },
+};
+
+export const mockEntityNonSynonymRequest: IntentRequest = {
+  type: RequestType.INTENT,
+  payload: {
+    query: 'I want some medium chicken wings',
+    intent: {
+      name: 'wings_order',
+    },
+    entities: [
+      {
+        name: 'size',
+        value: 'medium',
+      },
+    ],
+  },
+};

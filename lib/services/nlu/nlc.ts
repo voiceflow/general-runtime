@@ -1,10 +1,13 @@
 import { PrototypeModel } from '@voiceflow/api-sdk';
 import { utils } from '@voiceflow/common';
-import { IntentRequest, RequestType } from '@voiceflow/general-types';
-import NLC, { IIntentSlot } from '@voiceflow/natural-language-commander';
+import { DEFAULT_INTENTS_MAP, IntentRequest, Locale, RequestType } from '@voiceflow/general-types';
+import NLC, { IIntentFullfilment, IIntentSlot } from '@voiceflow/natural-language-commander';
+import { getRequired } from '@voiceflow/natural-language-commander/dist/lib/standardSlots';
 import _ from 'lodash';
 
 import logger from '@/logger';
+
+import { getNoneIntentRequest } from './utils';
 
 const { getUtterancesWithSlotNames } = utils.intent;
 
@@ -65,23 +68,71 @@ export const registerIntents = (nlc: NLC, { slots, intents }: PrototypeModel) =>
   });
 };
 
-export const handleNLCCommand = (query: string, model: PrototypeModel): null | IntentRequest => {
+export const registerBuiltInIntents = (nlc: NLC, locale = Locale.EN_US) => {
+  const lang = locale.slice(0, 2);
+  const builtInIntents = DEFAULT_INTENTS_MAP[lang] || DEFAULT_INTENTS_MAP.en;
+
+  builtInIntents.forEach((intent) => {
+    const { name, samples } = intent;
+
+    try {
+      nlc.registerIntent({ intent: name, utterances: samples });
+    } catch (err) {
+      logger.debug('NLC Unable To Register Built In Intent', err);
+    }
+  });
+};
+
+const createNLC = ({ model, locale }: { model: PrototypeModel; locale: Locale }) => {
   const nlc = new NLC();
 
   registerSlots(nlc, model);
-
   registerIntents(nlc, model);
+  registerBuiltInIntents(nlc, locale);
 
-  const intent = nlc.handleCommand(query);
+  return nlc;
+};
 
-  return !intent
-    ? null
-    : {
-        type: RequestType.INTENT,
-        payload: {
-          query,
-          intent: { name: intent.intent },
-          entities: intent.slots.map(({ name, value }) => ({ name, value: value || name })),
-        },
-      };
+const nlcToIntent = (intent: IIntentFullfilment | null, query = ''): IntentRequest =>
+  (intent && {
+    type: RequestType.INTENT,
+    payload: {
+      query,
+      intent: { name: intent.intent },
+      // only add entity if value is defined
+      entities: intent.slots.reduce<{ name: string; value: string }[]>((acc, { name, value }) => (value ? [...acc, { name, value }] : acc), []),
+    },
+  }) ||
+  getNoneIntentRequest(query);
+
+export const handleNLCCommand = ({ query, model, locale }: { query: string; model: PrototypeModel; locale: Locale }): IntentRequest => {
+  const nlc = createNLC({ model, locale });
+
+  return nlcToIntent(nlc.handleCommand(query), query);
+};
+
+export const handleNLCDialog = ({
+  query,
+  model,
+  locale,
+  dmRequest,
+}: {
+  query: string;
+  model: PrototypeModel;
+  locale: Locale;
+  dmRequest: IntentRequest;
+}): IntentRequest => {
+  const nlc = createNLC({ model, locale });
+
+  const intentName = dmRequest.payload.intent.name;
+  const filledEntities = dmRequest.payload.entities;
+
+  // turn the dmRequest into IIntentFullfilment
+  const fulfillment: IIntentFullfilment = {
+    intent: intentName,
+    slots: filledEntities, // luckily payload.entities and ISlotFullfilment are compatible
+    required: getRequired(nlc.getIntent(intentName)?.slots || [], filledEntities),
+  };
+
+  return nlcToIntent(nlc.handleDialog(fulfillment, query), query);
 };

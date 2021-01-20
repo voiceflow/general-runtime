@@ -1,22 +1,17 @@
 import { PrototypeModel } from '@voiceflow/api-sdk';
-import { GeneralTrace, IntentRequest, TraceType } from '@voiceflow/general-types';
+import { GeneralTrace, IntentRequest, Locale, TraceType } from '@voiceflow/general-types';
 import _ from 'lodash';
 
 import logger from '@/logger';
 import { Context, ContextHandler } from '@/types';
 
 import { generateVariations } from '../chips/utils';
+import { handleNLCDialog } from '../nlu/nlc';
+import { getNoneIntentRequest, NONE_INTENT } from '../nlu/utils';
 import { isIntentRequest } from '../runtime/types';
 import { AbstractManager, injectServices } from '../utils';
-import {
-  dmPrefix,
-  fallbackIntent,
-  fillStringEntities,
-  getDMPrefixIntentName,
-  getIntentEntityList,
-  getUnfulfilledEntity,
-  VF_DM_PREFIX,
-} from './utils';
+import { rectifyEntityValue } from './synonym';
+import { dmPrefix, fillStringEntities, getDMPrefixIntentName, getIntentEntityList, getUnfulfilledEntity, inputToString, VF_DM_PREFIX } from './utils';
 
 export const utils = {};
 
@@ -26,18 +21,9 @@ declare type DMStore = {
 
 @injectServices({ utils })
 class DialogManagement extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  makeDMPrefixedInference = async (query: string, intentName: string, projectID: string) => {
-    try {
-      const { data } = await this.services.axios.post<IntentRequest>(`${this.config.GENERAL_SERVICE_ENDPOINT}/runtime/${projectID}/predict`, {
-        query: `${dmPrefix(intentName)} ${query}`,
-      });
-
-      return data;
-    } catch (err) {
-      logger.error(err);
-      throw err;
-    }
-  };
+  static setDMStore(context: Context, store: DMStore | undefined) {
+    return { ...context, state: { ...context.state, storage: { ...context.state.storage, dm: store } } };
+  }
 
   handleDMContext = (dmStateStore: DMStore, dmPrefixedResult: IntentRequest, incomingRequest: IntentRequest, languageModel: PrototypeModel) => {
     const dmPrefixedResultName = dmPrefixedResult.payload.intent.name;
@@ -93,25 +79,53 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     }
 
     const version = await context.data.api.getVersion(context.versionID);
+
     if (!version) {
-      throw new Error();
+      throw new Error('Version not found!');
     }
 
-    const languageModel = version.prototype!.model;
+    if (!version.prototype?.model) {
+      throw new Error('Model not found!');
+    }
+
     const incomingRequest = context.request;
     const dmStateStore: DMStore = { ...context.state.storage.dm };
 
     if (dmStateStore?.intentRequest) {
       logger.debug('@DM - In dialog management context');
 
-      const dmPrefixedResult = await this.makeDMPrefixedInference(
-        incomingRequest.payload.query,
-        dmStateStore.intentRequest.payload.intent.name,
-        version.projectID
-      );
-      const isFallback = this.handleDMContext(dmStateStore, dmPrefixedResult, incomingRequest, languageModel);
-      if (isFallback) {
-        return fallbackIntent(context);
+      const { query } = incomingRequest.payload;
+
+      try {
+        const dmPrefixedResult = await this.services.nlu.predict({
+          query: `${dmPrefix(dmStateStore.intentRequest.payload.intent.name)} ${query}`,
+          projectID: version.projectID,
+        });
+
+        const isFallback = this.handleDMContext(dmStateStore, dmPrefixedResult, incomingRequest, version.prototype.model);
+
+        if (isFallback) {
+          return {
+            ...DialogManagement.setDMStore(context, undefined),
+            request: getNoneIntentRequest(query),
+          };
+        }
+      } catch (err) {
+        const resultNLC = handleNLCDialog({
+          query,
+          model: version.prototype.model,
+          locale: version.prototype.data!.locales[0] as Locale,
+          dmRequest: dmStateStore.intentRequest,
+        });
+
+        if (resultNLC.payload.intent.name === NONE_INTENT) {
+          return {
+            ...DialogManagement.setDMStore(context, undefined),
+            request: getNoneIntentRequest(query),
+          };
+        }
+
+        dmStateStore.intentRequest = resultNLC;
       }
     } else {
       logger.debug('@DM - In regular context');
@@ -121,11 +135,12 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     }
 
     // Set the DM state store without modifying the source context
-    context = { ...context, state: { ...context.state, storage: { ...context.state.storage, dm: dmStateStore } } };
+    context = DialogManagement.setDMStore(context, dmStateStore);
 
     // Are there any unfulfilled required entities?
     // We need to use the stored DM state here to ensure that previously fulfilled entities are also considered!
-    const unfulfilledEntity = getUnfulfilledEntity(dmStateStore!.intentRequest, languageModel);
+    const unfulfilledEntity = getUnfulfilledEntity(dmStateStore!.intentRequest, version.prototype.model);
+
     if (unfulfilledEntity) {
       // There are unfulfilled required entities -> return dialog management prompt
       // Assemble return string by populating the inline entity values
@@ -134,7 +149,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       trace.push({
         type: TraceType.SPEAK,
         payload: {
-          message: fillStringEntities(_.sample(unfulfilledEntity.dialog.prompt)!.text, dmStateStore!.intentRequest),
+          message: fillStringEntities(inputToString(_.sample(unfulfilledEntity.dialog.prompt)!), dmStateStore!.intentRequest),
         },
       });
 
@@ -155,8 +170,10 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     }
 
     // No more unfulfilled required entities -> populate the request object with the final intent and extracted entities from the DM state store
-    context.request = dmStateStore!.intentRequest;
-    return { ...context, state: { ...context.state, storage: { ...context.state.storage, dm: undefined } } }; // Clear the DM state store
+    context.request = rectifyEntityValue(dmStateStore!.intentRequest, version.prototype.model);
+
+    // Clear the DM state store
+    return DialogManagement.setDMStore(context, undefined);
   };
 }
 

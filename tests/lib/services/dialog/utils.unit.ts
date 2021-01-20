@@ -4,7 +4,7 @@ import sinon from 'sinon';
 
 import * as utils from '@/lib/services/dialog/utils';
 
-import { mockFulfilledIntentRequest, mockLM, mockUnfulfilledIntentRequest } from './fixture';
+import { mockEntityNonSynonymRequest, mockEntitySynonymRequest, mockFulfilledIntentRequest, mockLM, mockUnfulfilledIntentRequest } from './fixture';
 
 describe('dialog manager utilities unit tests', () => {
   afterEach(() => {

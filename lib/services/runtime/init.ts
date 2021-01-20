@@ -2,10 +2,11 @@ import { BlockTrace, TraceType as GeneralTraceType, TraceType } from '@voiceflow
 import { TraceFrame as ExitTraceFrame } from '@voiceflow/general-types/build/nodes/exit';
 import { TraceFrame as FlowTraceFrame } from '@voiceflow/general-types/build/nodes/flow';
 import { TraceFrame as SpeakTraceFrame } from '@voiceflow/general-types/build/nodes/speak';
+import { TraceFrame as StreamTraceFrame, TraceStreamAction } from '@voiceflow/general-types/build/nodes/stream';
 import Client, { EventType } from '@voiceflow/runtime';
 
 import { RESUME_PROGRAM_ID, ResumeDiagram } from './programs/resume';
-import { FrameType, SpeakFrame, StorageData, StorageType, TurnType } from './types';
+import { FrameType, SpeakFrame, StorageData, StorageType, StreamAction, StreamPlayStorage, TurnType } from './types';
 
 // initialize event behaviors for client
 const init = (client: Client) => {
@@ -45,6 +46,30 @@ const init = (client: Client) => {
   );
 
   client.setEvent(EventType.updateDidExecute, ({ runtime }) => {
+    const stream = runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY);
+
+    if (stream) {
+      const { action, src, token, loop } = stream;
+
+      switch (action) {
+        case StreamAction.START:
+        case StreamAction.RESUME:
+          runtime.trace.addTrace<StreamTraceFrame>({
+            type: TraceType.STREAM,
+            payload: { src, token, action: loop ? TraceStreamAction.LOOP : TraceStreamAction.PLAY },
+          });
+          break;
+        case StreamAction.PAUSE:
+          runtime.trace.addTrace<StreamTraceFrame>({
+            type: TraceType.STREAM,
+            payload: { src, token, action: TraceStreamAction.PAUSE },
+          });
+          break;
+        default:
+          break;
+      }
+    }
+
     if (runtime.stack.isEmpty() && !runtime.turn.get(TurnType.END)) {
       runtime.trace.addTrace<ExitTraceFrame>({ type: GeneralTraceType.END });
     }

@@ -1,12 +1,13 @@
 import { Node } from '@voiceflow/api-sdk';
-import { TraceType } from '@voiceflow/general-types';
+import { EventType, TraceType } from '@voiceflow/general-types';
+import { Node as ChoiceNode, TraceFrame as ChoiceTrace } from '@voiceflow/general-types/build/nodes/interaction';
 import { TraceFrame } from '@voiceflow/general-types/build/nodes/speak';
 import { replaceVariables, Runtime, sanitizeVariables, Store } from '@voiceflow/runtime';
 import _ from 'lodash';
 
 import { NoMatchCounterStorage, StorageData, StorageType } from '../types';
 
-type NoMatchNode = Node<any, { noMatches?: string[]; randomize?: boolean }>;
+type NoMatchNode = Partial<ChoiceNode> & Node<any, { noMatches?: string[]; randomize?: boolean }>;
 
 export const EMPTY_AUDIO_STRING = '<audio src=""/>';
 
@@ -44,6 +45,21 @@ export const NoMatchHandler = () => ({
       type: TraceType.SPEAK,
       payload: { message: output },
     });
+
+    if (Array.isArray(node.interactions)) {
+      runtime.trace.addTrace<ChoiceTrace>({
+        type: TraceType.CHOICE,
+        payload: {
+          choices: node.interactions.reduce<{ name: string; intent?: string }[]>((acc, interaction) => {
+            if (interaction?.event?.type === EventType.INTENT) {
+              const { intent } = interaction.event;
+              acc.push({ intent, name: intent });
+            }
+            return acc;
+          }, []),
+        },
+      });
+    }
 
     return node.id;
   },

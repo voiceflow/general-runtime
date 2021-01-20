@@ -6,6 +6,9 @@ import StateManager, { utils as defaultUtils } from '@/lib/services/state';
 const VERSION_ID = 'version_id';
 const version = {
   prototype: {
+    data: {
+      locales: ['en-US'],
+    },
     model: {
       slots: [{ name: 'slot1' }],
     },
@@ -72,6 +75,7 @@ describe('state manager unit tests', () => {
         trace: [],
         data: {
           ...context.data,
+          locale: version.prototype.data.locales[0],
           api: newContext.data.api,
         },
       });
