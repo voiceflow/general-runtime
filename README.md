@@ -107,13 +107,14 @@ In your shell you will see a link similar to this - `https://e9g1335dd0ac.ngrok.
 # Context Handlers
 
 On each request to `/interact/:versionID` a turn context is [initialized](https://github.com/voiceflow/general-runtime/blob/f0f653753da42d67033598d3c228e460b4655863/lib/controllers/interact.ts#L26). [Turn Context](https://github.com/voiceflow/runtime/blob/66e167e281eef019632b2ca6bf11305f032e807e/lib/Context/index.ts#L33) is a context with a lifespan of one request. It handles the request through its `handle` method. [handle](https://github.com/voiceflow/runtime/blob/66e167e281eef019632b2ca6bf11305f032e807e/lib/Context/index.ts#L16) passes the request through the Turn Context handlers.
-These handlers are added to the Turn Context after init [here](https://github.com/voiceflow/general-runtime/blob/f0f653753da42d67033598d3c228e460b4655863/lib/controllers/interact.ts#L27).
-The handlers are added to the context's [pipe system](https://github.com/voiceflow/runtime/blob/66e167e281eef019632b2ca6bf11305f032e807e/lib/Context/index.ts#L9). Each pipe is an ordered array of [Context Handlers](https://github.com/voiceflow/runtime/blob/058fdd208ece6d7361c2af8f0b7b291a37671b69/lib/Context/types.ts#L16). The pipes are executed in order, one after the other. To break early and not proceed to the next handler in the pipe or to the next pipe, a handler can set [`request.end = true`](https://github.com/voiceflow/runtime/blob/66e167e281eef019632b2ca6bf11305f032e807e/lib/Context/index.ts#L25) (example [here](https://github.com/voiceflow/general-runtime/blob/9727599fff72fb7a3114229732fffa5410c03a23/lib/services/dialog/index.ts#L167) the dialog managment needs to ask for additional info from the user to populate intent and entities).
+These handlers are added to the Turn Context after the class init [here](https://github.com/voiceflow/general-runtime/blob/f0f653753da42d67033598d3c228e460b4655863/lib/controllers/interact.ts#L27).
+They are added to the context [pipe system](https://github.com/voiceflow/runtime/blob/66e167e281eef019632b2ca6bf11305f032e807e/lib/Context/index.ts#L9). Each pipe is an ordered array of [Context Handlers](https://github.com/voiceflow/runtime/blob/058fdd208ece6d7361c2af8f0b7b291a37671b69/lib/Context/types.ts#L16). The pipes are executed in order, one after the other. To break early and not proceed to the next handler in the pipe or to the next pipe, a handler can set [`request.end = true`](https://github.com/voiceflow/runtime/blob/66e167e281eef019632b2ca6bf11305f032e807e/lib/Context/index.ts#L25) (i.e, [here](https://github.com/voiceflow/general-runtime/blob/9727599fff72fb7a3114229732fffa5410c03a23/lib/services/dialog/index.ts#L167) the dialog managment needs to ask for additional info from the user to populate intent and entities).
+The pipes are extensible and depending on the use case handlers can be added or removed.
 Here's a list of the handlers used in this project:
 
 ## [ASR](https://github.com/voiceflow/general-runtime/blob/541c603064666c66c96d0b038a9f67890c7f1b24/lib/services/asr/index.ts#L8)
 
-The Automated Speech Recognition handler is currectly just a pass-through handler without an implementation. The implementation is left to the user according to their usecase.
+The Automated Speech Recognition handler is currectly just a pass-through handler without an implementation. The implementation is left to the user according to their usecase. This project currently supports requests with utterances in text format only.
 
 ## [NLU](https://github.com/voiceflow/general-runtime/blob/9727599fff72fb7a3114229732fffa5410c03a23/lib/services/nlu/index.ts#L13)
 
@@ -121,7 +122,7 @@ The Natural Language Understanding handler matches the utterance in the request 
 
 ## [DIALOG](https://github.com/voiceflow/general-runtime/blob/9727599fff72fb7a3114229732fffa5410c03a23/lib/services/dialog/index.ts#L23)
 
-The Dialog Managment handler ensures the required entities in a slot are filled before sending the request to the next handler in the pipe. In case information is missing, the handler prompts the user for the missing entities and returns early from the pipes.
+The Dialog Managment handler ensures the required entities in an intent are filled before sending the request to the next handler in the pipe. In case information is missing, the handler prompts the user for the missing entities and returns [early](https://github.com/voiceflow/general-runtime/blob/9727599fff72fb7a3114229732fffa5410c03a23/lib/services/dialog/index.ts#L167) from the pipes flow.
 
 ## [RUNTIME](https://github.com/voiceflow/general-runtime/blob/f0f653753da42d67033598d3c228e460b4655863/lib/services/runtime/index.ts#L18)
 
