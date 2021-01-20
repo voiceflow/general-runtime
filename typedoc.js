@@ -8,4 +8,5 @@ module.exports = {
   excludePrivate: true,
   hideGenerator: true,
   media: './assets/media',
+  gitRemote: 'https://github.com/voiceflow/general-runtime',
 };
