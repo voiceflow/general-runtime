@@ -1,3 +1,8 @@
+/**
+ * [[include:runtime.md]]
+ * @packageDocumentation
+ */
+
 import { GeneralTrace } from '@voiceflow/general-types';
 import Client from '@voiceflow/runtime';
 

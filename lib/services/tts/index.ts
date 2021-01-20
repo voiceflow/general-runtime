@@ -1,3 +1,8 @@
+/**
+ * [[include:tts.md]]
+ * @packageDocumentation
+ */
+
 import { TraceType } from '@voiceflow/general-types';
 import { TraceFrame as SpeakTrace } from '@voiceflow/general-types/build/nodes/speak';
 import _ from 'lodash';
