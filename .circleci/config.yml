@@ -42,6 +42,7 @@ jobs:
       - vfcommon/install_node_modules
       - vfcommon/setup_dynamodb
       - vfcommon/lint_source
+      - vfcommon/lint_report
       - vfcommon/lint_dockerfile
       - vfcommon/build
       - vfcommon/unit_tests
@@ -52,7 +53,6 @@ jobs:
       - codecov/upload:
           file: nyc_coverage/lcov.info
           flags: integration
-      - vfcommon/lint_report
       - sonarcloud/scan
 
   build-push-image:
