@@ -18,7 +18,7 @@
     "@voiceflow/general-types": "1.16.2",
     "@voiceflow/logger": "^1.4.2",
     "@voiceflow/natural-language-commander": "^0.5.1",
-    "@voiceflow/runtime": "1.18.4",
+    "@voiceflow/runtime": "1.20.0",
     "@voiceflow/verror": "^1.1.0",
     "axios": "^0.19.0",
     "bluebird": "^3.7.2",
@@ -137,12 +137,17 @@
     "docs:gen": "typedoc ./lib",
     "gen-certs": "scripts/generate_certs.sh",
     "lint": "eslint \"./**/*.{js,ts}\"",
+    "lint:dockerfiles": "hadolint --ignore DL3018 ./Dockerfile",
+    "lint:fix": "yarn lint --fix",
+    "lint:quiet": "yarn lint --quiet",
     "local": "NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_ENV=local ts-node --files -r tsconfig-paths/register start.ts",
     "local:watch": "NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_ENV=local forever --watch -c \"ts-node --files -r tsconfig-paths/register\" start.ts",
     "preview:check": "echo \"generalruntime\"",
     "preview:new": "scripts/deploy_dev_environments.sh",
     "start": "NODE_ENV=production node --max-old-space-size=8192 build/start.js",
-    "test": "NODE_ENV=test nyc ts-mocha --paths --opts mocha.opts",
-    "test:single": "NODE_ENV=test ts-mocha --paths --opts mocha-single.opts"
+    "test": "NODE_ENV=test nyc ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.{unit,it}.ts'",
+    "test:integration": "NODE_ENV=test nyc ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.it.ts'",
+    "test:single": "NODE_ENV=test ts-mocha --paths --opts ./config/tests/mocha.opts",
+    "test:unit": "NODE_ENV=test nyc ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.unit.ts'"
   }
 }

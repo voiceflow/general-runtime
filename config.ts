@@ -15,10 +15,13 @@ const CONFIG: Config = {
 
   AWS_ENDPOINT: optionalProcessEnv('AWS_ENDPOINT'),
   DYNAMO_ENDPOINT: optionalProcessEnv('DYNAMO_ENDPOINT'),
+
+  // code block
   CODE_HANDLER_ENDPOINT: getProcessEnv('CODE_HANDLER_ENDPOINT'),
+  // integrations block
   INTEGRATIONS_HANDLER_ENDPOINT: getProcessEnv('INTEGRATIONS_HANDLER_ENDPOINT'),
+  // api-block
   API_HANDLER_ENDPOINT: getProcessEnv('API_HANDLER_ENDPOINT'),
-  VF_DATA_ENDPOINT: getProcessEnv('VF_DATA_ENDPOINT'), // server-data-api endpoint
 
   PROJECT_SOURCE: optionalProcessEnv('PROJECT_SOURCE'),
   SESSIONS_SOURCE: optionalProcessEnv('SESSIONS_SOURCE'),
@@ -28,7 +31,14 @@ const CONFIG: Config = {
 
   // Secrets
   DATADOG_API_KEY: getProcessEnv('DATADOG_API_KEY'),
-  ADMIN_SERVER_DATA_API_TOKEN: getProcessEnv('ADMIN_SERVER_DATA_API_TOKEN'), // Server-data-api auth token
+
+  // server-data-api config
+  VF_DATA_ENDPOINT: optionalProcessEnv('VF_DATA_ENDPOINT'), // server-data-api endpoint
+  ADMIN_SERVER_DATA_API_TOKEN: optionalProcessEnv('ADMIN_SERVER_DATA_API_TOKEN'), // Server-data-api auth token
+
+  // creator-api conifg
+  CREATOR_API_ENDPOINT: optionalProcessEnv('CREATOR_API_ENDPOINT'),
+  CREATOR_API_AUTHORIZATION: optionalProcessEnv('CREATOR_API_AUTHORIZATION'),
 
   AWS_ACCESS_KEY_ID: optionalProcessEnv('AWS_ACCESS_KEY_ID'),
   AWS_SECRET_ACCESS_KEY: optionalProcessEnv('AWS_SECRET_ACCESS_KEY'),

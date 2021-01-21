@@ -31,8 +31,11 @@ export interface Config {
 
   GENERAL_SERVICE_ENDPOINT: string;
 
-  ADMIN_SERVER_DATA_API_TOKEN: string;
-  VF_DATA_ENDPOINT: string;
+  CREATOR_API_ENDPOINT: string | null;
+  CREATOR_API_AUTHORIZATION: string | null;
+
+  ADMIN_SERVER_DATA_API_TOKEN: string | null;
+  VF_DATA_ENDPOINT: string | null;
   // Logging
   LOG_LEVEL: string | null;
   MIDDLEWARE_VERBOSITY: string | null;
