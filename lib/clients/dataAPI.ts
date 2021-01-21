@@ -18,7 +18,7 @@ export default (config: Config) => {
       { axios: Static.axios }
     );
   } else if (config.CREATOR_API_AUTHORIZATION && config.CREATOR_API_ENDPOINT) {
-    dataAPI = new CreatorDataApi({ endpoint: config.CREATOR_API_ENDPOINT, authorization: config.CREATOR_API_AUTHORIZATION });
+    dataAPI = new CreatorDataApi({ endpoint: `${config.CREATOR_API_ENDPOINT}/v2`, authorization: config.CREATOR_API_AUTHORIZATION });
   } else {
     throw new Error('no data API env configuration set');
   }
