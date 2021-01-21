@@ -9,17 +9,29 @@ import Static from './static';
  * Build all clients
  */
 export default (config: Config, API = { LocalDataApi, RemoteDataAPI, CreatorDataApi }) => {
+  const { PROJECT_SOURCE, ADMIN_SERVER_DATA_API_TOKEN, VF_DATA_ENDPOINT, CREATOR_API_AUTHORIZATION, CREATOR_API_ENDPOINT } = config;
   let dataAPI: DataAPI<any, any>;
-  if (config.PROJECT_SOURCE) {
-    dataAPI = new API.LocalDataApi({ projectSource: config.PROJECT_SOURCE }, { fs: Static.fs, path: Static.path });
-  } else if (config.ADMIN_SERVER_DATA_API_TOKEN && config.VF_DATA_ENDPOINT) {
+
+  // fetch from local VF file
+  if (PROJECT_SOURCE) {
+    dataAPI = new API.LocalDataApi({ projectSource: PROJECT_SOURCE }, { fs: Static.fs, path: Static.path });
+  }
+
+  // fetch from server-data-api
+  else if (ADMIN_SERVER_DATA_API_TOKEN && VF_DATA_ENDPOINT) {
     dataAPI = new API.RemoteDataAPI(
-      { platform: 'general', adminToken: config.ADMIN_SERVER_DATA_API_TOKEN, dataEndpoint: config.VF_DATA_ENDPOINT },
+      { platform: 'general', adminToken: ADMIN_SERVER_DATA_API_TOKEN, dataEndpoint: VF_DATA_ENDPOINT },
       { axios: Static.axios }
     );
-  } else if (config.CREATOR_API_AUTHORIZATION && config.CREATOR_API_ENDPOINT) {
-    dataAPI = new API.CreatorDataApi({ endpoint: `${config.CREATOR_API_ENDPOINT}/v2`, authorization: config.CREATOR_API_AUTHORIZATION });
-  } else {
+  }
+
+  // fetch from creator-api
+  else if (CREATOR_API_AUTHORIZATION && CREATOR_API_ENDPOINT) {
+    dataAPI = new API.CreatorDataApi({ endpoint: `${CREATOR_API_ENDPOINT}/v2`, authorization: CREATOR_API_AUTHORIZATION });
+  }
+
+  // configuration not set
+  else {
     throw new Error('no data API env configuration set');
   }
 
