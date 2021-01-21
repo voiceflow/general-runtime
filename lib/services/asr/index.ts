@@ -1,3 +1,8 @@
+/**
+ * [[include:asr.md]]
+ * @packageDocumentation
+ */
+
 import { Context, ContextHandler } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
