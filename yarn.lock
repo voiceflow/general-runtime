@@ -1001,20 +1001,6 @@
     semver "^7.3.2"
     tsutils "^3.17.1"
 
-"@voiceflow/api-sdk@1.20.0":
-  version "1.20.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.20.0.tgz#dc22943b084f5a5419968d1c10a026cb0b081554"
-  integrity sha512-2sCZB+wDYZCJV5O7zsKbARU10a/lmEXG5tenBcc8l/+E1Dii8jr2ox8mYLPAv8EqnL8UhPg56ncqZ+E7DpOqPA==
-  dependencies:
-    "@types/atob" "^2.1.2"
-    "@voiceflow/logger" "^1.1.10"
-    atob "^2.1.2"
-    axios "^0.19.2"
-    core-js "^3.6.5"
-    io-ts "^2.2.8"
-    regenerator-runtime "^0.13.5"
-    superstruct "^0.10.12"
-
 "@voiceflow/api-sdk@1.21.0", "@voiceflow/api-sdk@^1.21.0":
   version "1.21.0"
   resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.21.0.tgz#ec2a8a6968487d813b9ec05c03f916edd5f0a722"
@@ -1085,17 +1071,17 @@
     eslint-plugin-sonarjs "^0.4.0"
     eslint-plugin-xss "^0.1.9"
 
-"@voiceflow/general-types@1.16.1":
-  version "1.16.1"
-  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.16.1.tgz#259356c5a079a6c4cc669e96638a409bacfbd703"
-  integrity sha512-/P0Htzz8JMLMNSTYatTo72EUbaskCKQjcw6vYrwTDuyLvOVk6vOz3mQhZD+wEmqghs9PuLQfpLITlkCpB4xLSQ==
-  dependencies:
-    "@voiceflow/api-sdk" "1.20.0"
-
 "@voiceflow/general-types@1.16.2":
   version "1.16.2"
   resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.16.2.tgz#eaf7c97416aed36bf854c61bd5f5734f82da09c7"
   integrity sha512-NTQxEk949O5Oarl8FCzVC4p5HDchpZN1nUFoFZxwE9VpD8ygrMo5x9HFxeazLyjvGjzcNsGnjNiwhv5019wnAA==
+  dependencies:
+    "@voiceflow/api-sdk" "1.21.0"
+
+"@voiceflow/general-types@1.16.3":
+  version "1.16.3"
+  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.16.3.tgz#fe6507bb9c1711ea2ecb7ea0ccb0cd1fd64726db"
+  integrity sha512-g80szhpoozHn1rttq7R8hN5xcjF7SiaPnq6KiioBzaAXuMPxUuXM+YLHc/PYstllbgqYXox+uwJN6RoYcFTL4A==
   dependencies:
     "@voiceflow/api-sdk" "1.21.0"
 
@@ -1180,14 +1166,14 @@
   resolved "https://registry.yarnpkg.com/@voiceflow/prettier-config/-/prettier-config-1.0.4.tgz#fe3ef88f1370f326a844686b57ee15522fc03b02"
   integrity sha512-hVjP3v3uKEmbjen4dGjv4A8EEHjopvzEnNdg8KHFZnvvD1eYu4IvDAyKqoK3xGoacqcLlkBo3abyCzOaHOp0Dg==
 
-"@voiceflow/runtime@1.18.4":
-  version "1.18.4"
-  resolved "https://registry.yarnpkg.com/@voiceflow/runtime/-/runtime-1.18.4.tgz#886d050dc1b0ba2255b0f0d6c397e799014437e2"
-  integrity sha512-Kxz+FKIOKHpgBzghxhop7zbSS0Jsvtsjs72uN5JmNa/WrcJ8vPiT1vsgs0xpHwg54JXhGnpaiPgZTZnbSusK7Q==
+"@voiceflow/runtime@1.20.0":
+  version "1.20.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/runtime/-/runtime-1.20.0.tgz#0a61fd197006a8ef6126a8ff30625fcea6de2718"
+  integrity sha512-1OnwURxkWhlkuJC24vZt/MFiaeaNUNIWLyEJbrarn5NRD/n2z68OwEEDz3SW8OuriQnQSthLiCf1XZp1bWtqlQ==
   dependencies:
     "@types/safe-json-stringify" "^1.1.0"
-    "@voiceflow/api-sdk" "1.20.0"
-    "@voiceflow/general-types" "1.16.1"
+    "@voiceflow/api-sdk" "1.21.0"
+    "@voiceflow/general-types" "1.16.3"
     axios "^0.19.0"
     bluebird "^3.7.2"
     immer "^5.1.0"
