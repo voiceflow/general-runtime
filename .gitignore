@@ -58,3 +58,6 @@ build
 
 /projects/*
 !/projects/README.md
+
+#Sonar report
+sonar/
