@@ -1,3 +1,8 @@
+/**
+ * [[include:nlu.md]]
+ * @packageDocumentation
+ */
+
 import { PrototypeModel } from '@voiceflow/api-sdk';
 import { IntentRequest, Locale, RequestType } from '@voiceflow/general-types';
 
@@ -10,6 +15,9 @@ import { getNoneIntentRequest } from './utils';
 export const utils = {};
 
 @injectServices({ utils })
+/**
+ * random
+ */
 class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
   async predict({ query, model, locale, projectID }: { query: string; model?: PrototypeModel; locale?: Locale; projectID: string }) {
     try {

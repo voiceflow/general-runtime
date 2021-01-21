@@ -1,3 +1,8 @@
+/**
+ * [[include:dialog.md]]
+ * @packageDocumentation
+ */
+
 import { PrototypeModel } from '@voiceflow/api-sdk';
 import { GeneralTrace, IntentRequest, Locale, TraceType } from '@voiceflow/general-types';
 import _ from 'lodash';

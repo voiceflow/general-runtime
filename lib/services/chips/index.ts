@@ -1,3 +1,8 @@
+/**
+ * [[include:chips.md]]
+ * @packageDocumentation
+ */
+
 import { TraceType } from '@voiceflow/general-types';
 import _ from 'lodash';
 
