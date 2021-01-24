@@ -11,11 +11,14 @@ import { getNoneIntentRequest } from './utils';
 
 const { getUtterancesWithSlotNames } = utils.intent;
 
-export const registerSlots = (nlc: NLC, { slots }: PrototypeModel) => {
+export const registerSlots = (nlc: NLC, { slots }: PrototypeModel, openSlot: boolean) => {
   slots.forEach((slot) => {
     try {
-      if (slot.type?.value?.toLowerCase() !== 'custom') {
-        nlc.addSlotType({ type: slot.name, matcher: /[\S\s]*/ });
+      if (slot.type?.value?.toLowerCase() !== 'custom' || !slot.inputs?.length) {
+        if (openSlot) {
+          // register catch all slot
+          nlc.addSlotType({ type: slot.name, matcher: /[\S\s]*/ });
+        }
       } else {
         const matcher = _.flatten(slot.inputs.map((input) => input.split(',')))
           .map((value) => value.trim())
@@ -83,17 +86,17 @@ export const registerBuiltInIntents = (nlc: NLC, locale = Locale.EN_US) => {
   });
 };
 
-const createNLC = ({ model, locale }: { model: PrototypeModel; locale: Locale }) => {
+const createNLC = ({ model, locale, openSlot }: { model: PrototypeModel; locale: Locale; openSlot: boolean }) => {
   const nlc = new NLC();
 
-  registerSlots(nlc, model);
+  registerSlots(nlc, model, openSlot);
   registerIntents(nlc, model);
   registerBuiltInIntents(nlc, locale);
 
   return nlc;
 };
 
-const nlcToIntent = (intent: IIntentFullfilment | null, query = ''): IntentRequest =>
+const nlcToIntent = (intent: IIntentFullfilment | null, query = '', confidence?: number): IntentRequest =>
   (intent && {
     type: RequestType.INTENT,
     payload: {
@@ -101,14 +104,25 @@ const nlcToIntent = (intent: IIntentFullfilment | null, query = ''): IntentReque
       intent: { name: intent.intent },
       // only add entity if value is defined
       entities: intent.slots.reduce<{ name: string; value: string }[]>((acc, { name, value }) => (value ? [...acc, { name, value }] : acc), []),
+      confidence,
     },
   }) ||
   getNoneIntentRequest(query);
 
-export const handleNLCCommand = ({ query, model, locale }: { query: string; model: PrototypeModel; locale: Locale }): IntentRequest => {
-  const nlc = createNLC({ model, locale });
+export const handleNLCCommand = ({
+  query,
+  model,
+  locale,
+  openSlot = true,
+}: {
+  query: string;
+  model: PrototypeModel;
+  locale: Locale;
+  openSlot: boolean;
+}): IntentRequest => {
+  const nlc = createNLC({ model, locale, openSlot });
 
-  return nlcToIntent(nlc.handleCommand(query), query);
+  return nlcToIntent(nlc.handleCommand(query), query, openSlot ? undefined : 1);
 };
 
 export const handleNLCDialog = ({
@@ -122,7 +136,7 @@ export const handleNLCDialog = ({
   locale: Locale;
   dmRequest: IntentRequest;
 }): IntentRequest => {
-  const nlc = createNLC({ model, locale });
+  const nlc = createNLC({ model, locale, openSlot: true });
 
   const intentName = dmRequest.payload.intent.name;
   const filledEntities = dmRequest.payload.entities;
