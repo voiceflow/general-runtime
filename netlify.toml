@@ -4,5 +4,5 @@
 
 [[redirects]]
   from = "/*"
-  to = "runtime/index.html"
+  to = "general-runtime/index.html"
   status = 200
