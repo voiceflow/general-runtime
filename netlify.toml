@@ -1,0 +1,8 @@
+[build]
+ command = "yarn docs:gen"
+ publish = "docs"
+
+[[redirects]]
+  from = "/general-runtime/*"
+  to = "/:splat"
+  status = 200
