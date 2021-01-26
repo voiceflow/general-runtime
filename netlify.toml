@@ -1,0 +1,8 @@
+[build]
+ command = "yarn docs:gen
+ publish = "docs"
+
+[[redirects]]
+  from = "/*"
+  to = "runtime/index.html"
+  status = 200
