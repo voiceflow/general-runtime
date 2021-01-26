@@ -109,11 +109,8 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         });
 
         // Remove the dmPrefix from entity values that it has accidentally been attached to
-        const regExp = new RegExp(`${prefix} `, 'g');
         dmPrefixedResult.payload.entities.forEach((entity) => {
-          if (entity.name !== `dm_${prefix}`) {
-            entity.value = entity.value.replace(regExp, '');
-          }
+          entity.value = entity.value.replace(prefix, '').trim();
         });
 
         const isFallback = this.handleDMContext(dmStateStore, dmPrefixedResult, incomingRequest, version.prototype.model);
