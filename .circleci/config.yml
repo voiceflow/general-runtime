@@ -31,15 +31,9 @@ defaults:
 
 orbs:
   codecov: codecov/codecov@1.0.2
-  vfcommon: voiceflow/common@0.0.52
-
-# commands:
-#   clone_s3_assets:
-#     steps:
-#       - run:
-#           name: Clone s3 assets
-#           command: |
-#             aws s3 sync s3://com.voiceflow.ci.assets/general-runtime ~/project/tests/smokeTest/recordedSessions
+  vfcommon: voiceflow/common@0.0.54
+  sonarcloud: sonarsource/sonarcloud@1.0.2
+  validate-title: qventus/validate-title@0.0.4
 
 jobs:
   test:
@@ -49,6 +43,7 @@ jobs:
       - vfcommon/install_node_modules
       - vfcommon/setup_dynamodb
       - vfcommon/lint_source
+      - vfcommon/lint_report
       - vfcommon/lint_dockerfile
       - vfcommon/build
       - vfcommon/unit_tests
@@ -59,12 +54,7 @@ jobs:
       - codecov/upload:
           file: nyc_coverage/lcov.info
           flags: integration
-      # temp steps
-      # - vfcommon/install_aws_cli
-      # - clone_s3_assets
-      # - run:
-      #     name: Run smoke tests
-      #     command: yarn test:smoke
+      - sonarcloud/scan
 
   build-push-image:
     executor: vfcommon/build-executor
@@ -100,6 +90,19 @@ jobs:
 
 # When should each job run and what are their dependencies?
 workflows:
+  pr-checker:
+    jobs:
+      - validate-title/validate:
+          context: dev-test
+          regex: >-
+            $PR_REGEX
+          filters:
+            branches:
+              ignore:
+                - /env-.*/
+                - staging
+                - master
+
   # Staging
   build-deploy-staging:
     jobs:
