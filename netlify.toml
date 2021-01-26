@@ -1,5 +1,5 @@
 [build]
- command = "yarn docs:gen
+ command = "yarn docs:gen"
  publish = "docs"
 
 [[redirects]]
