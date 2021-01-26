@@ -10,7 +10,7 @@ import { Context, ContextHandler } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
 import { handleNLCCommand } from './nlc';
-import { getNoneIntentRequest } from './utils';
+import { getNoneIntentRequest, NONE_INTENT } from './utils';
 
 export const utils = {};
 
@@ -20,23 +20,32 @@ export const utils = {};
  */
 class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
   async predict({ query, model, locale, projectID }: { query: string; model?: PrototypeModel; locale?: Locale; projectID: string }) {
-    try {
-      const { data } = await this.services.axios.post<IntentRequest>(`${this.config.GENERAL_SERVICE_ENDPOINT}/runtime/${projectID}/predict`, {
-        query,
-      });
-
-      return data;
-    } catch (err) {
-      if (!model) {
-        throw new Error('Model not found!');
+    // 1. first try restricted regex (no open slots) - exact string match
+    if (model && locale) {
+      const intent = handleNLCCommand({ query, model, locale, openSlot: false });
+      if (intent.payload.intent.name !== NONE_INTENT) {
+        return intent;
       }
-
-      if (!locale) {
-        throw new Error('Locale not found!');
-      }
-
-      return handleNLCCommand({ query, model, locale });
     }
+
+    // 2. next try to resolve with luis NLP on general-service
+    const { data } = await this.services.axios
+      .post<IntentRequest | null>(`${this.config.GENERAL_SERVICE_ENDPOINT}/runtime/${projectID}/predict`, {
+        query,
+      })
+      .catch(() => ({ data: null }));
+    if (data) {
+      return data;
+    }
+
+    // 3. finally try open regex slot matching
+    if (!model) {
+      throw new Error('Model not found!');
+    }
+    if (!locale) {
+      throw new Error('Locale not found!');
+    }
+    return handleNLCCommand({ query, model, locale, openSlot: true });
   }
 
   handle = async (context: Context) => {

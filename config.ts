@@ -1,3 +1,8 @@
+/**
+ * [[include:env.md]]
+ * @packageDocumentation
+ */
+
 import './envSetup';
 
 import * as Common from '@voiceflow/common';
@@ -17,20 +22,19 @@ const CONFIG: Config = {
   DYNAMO_ENDPOINT: optionalProcessEnv('DYNAMO_ENDPOINT'),
 
   // code block
-  CODE_HANDLER_ENDPOINT: getProcessEnv('CODE_HANDLER_ENDPOINT'),
+  CODE_HANDLER_ENDPOINT: optionalProcessEnv('CODE_HANDLER_ENDPOINT') || 'none',
   // integrations block
-  INTEGRATIONS_HANDLER_ENDPOINT: getProcessEnv('INTEGRATIONS_HANDLER_ENDPOINT'),
+  INTEGRATIONS_HANDLER_ENDPOINT: optionalProcessEnv('INTEGRATIONS_HANDLER_ENDPOINT') || 'none',
   // api-block
-  API_HANDLER_ENDPOINT: getProcessEnv('API_HANDLER_ENDPOINT'),
+  API_HANDLER_ENDPOINT: optionalProcessEnv('API_HANDLER_ENDPOINT') || 'none',
 
   PROJECT_SOURCE: optionalProcessEnv('PROJECT_SOURCE'),
   SESSIONS_SOURCE: optionalProcessEnv('SESSIONS_SOURCE'),
-  SESSIONS_DYNAMO_TABLE: getProcessEnv('SESSIONS_DYNAMO_TABLE'), // diagrams table
 
   GENERAL_SERVICE_ENDPOINT: getProcessEnv('GENERAL_SERVICE_ENDPOINT'), // voiceflow nlu/tts services
 
   // Secrets
-  DATADOG_API_KEY: getProcessEnv('DATADOG_API_KEY'),
+  DATADOG_API_KEY: optionalProcessEnv('DATADOG_API_KEY') || 'none',
 
   // server-data-api config
   VF_DATA_ENDPOINT: optionalProcessEnv('VF_DATA_ENDPOINT'), // server-data-api endpoint

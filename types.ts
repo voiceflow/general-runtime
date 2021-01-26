@@ -27,8 +27,6 @@ export interface Config {
   SEM_VER: string | null;
   BUILD_URL: string | null;
 
-  SESSIONS_DYNAMO_TABLE: string;
-
   GENERAL_SERVICE_ENDPOINT: string;
 
   CREATOR_API_ENDPOINT: string | null;

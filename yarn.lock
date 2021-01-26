@@ -1015,6 +1015,20 @@
     regenerator-runtime "^0.13.5"
     superstruct "^0.10.12"
 
+"@voiceflow/api-sdk@1.22.0":
+  version "1.22.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.22.0.tgz#363396a2bd37ee541a498fb065d3fd5ffdc3fa85"
+  integrity sha512-1UxcX01Gp3T03EpBNHRnDKRKyziBZQnr6hK7YyKQKJ7TuWLukKeT2j4dWgKave7fcjQdm70CNG7RAOz83Ax/gA==
+  dependencies:
+    "@types/atob" "^2.1.2"
+    "@voiceflow/logger" "^1.1.10"
+    atob "^2.1.2"
+    axios "^0.19.2"
+    core-js "^3.6.5"
+    io-ts "^2.2.8"
+    regenerator-runtime "^0.13.5"
+    superstruct "^0.10.12"
+
 "@voiceflow/backend-utils@^2.2.0":
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@voiceflow/backend-utils/-/backend-utils-2.2.0.tgz#d1a51a00103d7e4bbc8ccff5909a6e3d6437b84a"
@@ -1074,19 +1088,20 @@
     eslint-plugin-xss "^0.1.9"
     typescript "^3.9.7"
 
-"@voiceflow/general-types@1.16.2":
-  version "1.16.2"
-  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.16.2.tgz#eaf7c97416aed36bf854c61bd5f5734f82da09c7"
-  integrity sha512-NTQxEk949O5Oarl8FCzVC4p5HDchpZN1nUFoFZxwE9VpD8ygrMo5x9HFxeazLyjvGjzcNsGnjNiwhv5019wnAA==
-  dependencies:
-    "@voiceflow/api-sdk" "1.21.0"
-
 "@voiceflow/general-types@1.16.3":
   version "1.16.3"
   resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.16.3.tgz#fe6507bb9c1711ea2ecb7ea0ccb0cd1fd64726db"
   integrity sha512-g80szhpoozHn1rttq7R8hN5xcjF7SiaPnq6KiioBzaAXuMPxUuXM+YLHc/PYstllbgqYXox+uwJN6RoYcFTL4A==
   dependencies:
     "@voiceflow/api-sdk" "1.21.0"
+
+
+"@voiceflow/general-types@1.18.1":
+  version "1.18.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.18.1.tgz#b64f140b3405ac8c5827981555be7f816a2861e6"
+  integrity sha512-1JnDoVp8MxpP799cYPKTBFKFQxiQCy/Svxv7FQ3oTyeF8ljWvxFbpr2hO9tEqL+dDKvJFZf2hFokKiZ/8ZdNGg==
+  dependencies:
+    "@voiceflow/api-sdk" "1.22.0"
 
 "@voiceflow/git-branch-check@^1.1.3":
   version "1.1.3"
@@ -9670,6 +9685,11 @@ typedoc-default-themes@^0.12.4:
   version "0.12.4"
   resolved "https://registry.yarnpkg.com/typedoc-default-themes/-/typedoc-default-themes-0.12.4.tgz#5cbb79c1d6421f1274e86b1b542934eb557abd4f"
   integrity sha512-EZiXBUpogsYWe0dLgy47J8yRZCd+HAn9woGzO28XJxxSCSwZRYGKeQiw1KjyIcm3cBtLWUXiPD5+Bgx24GgZjg==
+
+typedoc-plugin-sourcefile-url@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/typedoc-plugin-sourcefile-url/-/typedoc-plugin-sourcefile-url-1.0.6.tgz#e0199806616fe6370b3cb7889f647df698438b96"
+  integrity sha512-xHq9DzkoQywS7FyPneMm2/Hr9GRoCpjSQXkVN0W6SCJKP7fguqg2tasgh+8l5/mW6YSYvqCqEbkSYLbuD4Y6gA==
 
 typedoc@^0.20.16:
   version "0.20.16"
