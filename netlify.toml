@@ -4,5 +4,5 @@
 
 [[redirects]]
   from = "/*"
-  to = "general-runtime/index.html"
+  to = "general-runtime/:splat"
   status = 200
