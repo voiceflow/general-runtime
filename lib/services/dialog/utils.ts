@@ -43,9 +43,10 @@ export const fillStringEntities = (input = '', intentRequest: IntentRequest) => 
 
 export const dmPrefix = (contents: string) =>
   crypto
-    .createHash('md5')
+    .createHash('sha1')
     .update(contents)
-    .digest('hex');
+    .digest('hex')
+    .slice(-10);
 
 export const getDMPrefixIntentName = (intentName: string) => {
   return `${VF_DM_PREFIX}${dmPrefix(intentName)}_${intentName}`;
