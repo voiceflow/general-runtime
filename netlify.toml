@@ -3,6 +3,6 @@
  publish = "docs"
 
 [[redirects]]
-  from = "/runtime/*"
+  from = "/general-runtime/*"
   to = "/:splat"
   status = 200
