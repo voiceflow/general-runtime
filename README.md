@@ -1,6 +1,8 @@
 # general-runtime
 
+[![circle ci](https://circleci.com/gh/voiceflow/general-runtime/tree/master.svg?style=shield&circle-token=a041e74a416dfed4c1777c27c9867306c2f50824)](https://circleci.com/gh/voiceflow/general-runtime/tree/master)
 [![codecov](https://codecov.io/gh/voiceflow/general-runtime/branch/master/graph/badge.svg?token=WHYHNCC9FW)](https://codecov.io/gh/voiceflow/general-runtime)
+[![sonar quality gate](https://sonarcloud.io/api/project_badges/measure?project=voiceflow_general-runtime&metric=alert_status)](https://sonarcloud.io/dashboard?id=voiceflow_general-runtime)
 
 `general-runtime` is an http webhook service that handles voiceflow prototype requests and generates a response. It manages the state of the user based on the programs (flows) made on the Voiceflow Creator tool.
 
