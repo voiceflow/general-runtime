@@ -31,7 +31,7 @@ defaults:
 
 orbs:
   codecov: codecov/codecov@1.0.2
-  vfcommon: voiceflow/common@0.0.54
+  vfcommon: voiceflow/common@0.0.55
   sonarcloud: sonarsource/sonarcloud@1.0.2
   validate-title: qventus/validate-title@0.0.4
 
@@ -145,6 +145,14 @@ workflows:
           context: dev-test
           requires:
             - test
+          filters:
+            branches:
+              only: master
+      - vfcommon/generate_technical_documentation:
+          context: dev-test
+          requires:
+            - test
+            - vfcommon/release
           filters:
             branches:
               only: master
