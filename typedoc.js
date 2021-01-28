@@ -11,4 +11,6 @@ module.exports = {
   gitRemote: 'https://github.com/voiceflow/general-runtime',
   includes: './documentation',
   'sourcefile-url-prefix': 'https://github.com/voiceflow/general-runtime/blob/master/',
+  gaID: 'G-HW8Q78BB28',
+  gaSite: 'General Runtime Dev Docs',
 };
