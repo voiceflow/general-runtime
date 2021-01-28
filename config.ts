@@ -5,58 +5,54 @@
 
 import './envSetup';
 
-import * as Common from '@voiceflow/common';
+import { getOptionalProcessEnv, getRequiredProcessEnv } from '@voiceflow/common';
 
 import { Config } from './types';
 
-const { getProcessEnv, hasProcessEnv } = Common.utils.general;
-
-const optionalProcessEnv = (name: string) => (hasProcessEnv(name) ? getProcessEnv(name) : null);
-
 const CONFIG: Config = {
   // Configs
-  NODE_ENV: getProcessEnv('NODE_ENV'),
-  PORT: getProcessEnv('PORT'),
+  NODE_ENV: getRequiredProcessEnv('NODE_ENV'),
+  PORT: getRequiredProcessEnv('PORT'),
 
-  AWS_ENDPOINT: optionalProcessEnv('AWS_ENDPOINT'),
-  DYNAMO_ENDPOINT: optionalProcessEnv('DYNAMO_ENDPOINT'),
+  AWS_ENDPOINT: getOptionalProcessEnv('AWS_ENDPOINT'),
+  DYNAMO_ENDPOINT: getOptionalProcessEnv('DYNAMO_ENDPOINT'),
 
   // code block
-  CODE_HANDLER_ENDPOINT: optionalProcessEnv('CODE_HANDLER_ENDPOINT') || 'none',
+  CODE_HANDLER_ENDPOINT: getOptionalProcessEnv('CODE_HANDLER_ENDPOINT') || 'none',
   // integrations block
-  INTEGRATIONS_HANDLER_ENDPOINT: optionalProcessEnv('INTEGRATIONS_HANDLER_ENDPOINT') || 'none',
+  INTEGRATIONS_HANDLER_ENDPOINT: getOptionalProcessEnv('INTEGRATIONS_HANDLER_ENDPOINT') || 'none',
   // api-block
-  API_HANDLER_ENDPOINT: optionalProcessEnv('API_HANDLER_ENDPOINT') || 'none',
+  API_HANDLER_ENDPOINT: getOptionalProcessEnv('API_HANDLER_ENDPOINT') || 'none',
 
-  PROJECT_SOURCE: optionalProcessEnv('PROJECT_SOURCE'),
-  SESSIONS_SOURCE: optionalProcessEnv('SESSIONS_SOURCE'),
+  PROJECT_SOURCE: getOptionalProcessEnv('PROJECT_SOURCE'),
+  SESSIONS_SOURCE: getOptionalProcessEnv('SESSIONS_SOURCE'),
 
-  GENERAL_SERVICE_ENDPOINT: getProcessEnv('GENERAL_SERVICE_ENDPOINT'), // voiceflow nlu/tts services
+  GENERAL_SERVICE_ENDPOINT: getRequiredProcessEnv('GENERAL_SERVICE_ENDPOINT'), // voiceflow nlu/tts services
 
   // Secrets
-  DATADOG_API_KEY: optionalProcessEnv('DATADOG_API_KEY') || 'none',
+  DATADOG_API_KEY: getOptionalProcessEnv('DATADOG_API_KEY') || 'none',
 
   // server-data-api config
-  VF_DATA_ENDPOINT: optionalProcessEnv('VF_DATA_ENDPOINT'), // server-data-api endpoint
-  ADMIN_SERVER_DATA_API_TOKEN: optionalProcessEnv('ADMIN_SERVER_DATA_API_TOKEN'), // Server-data-api auth token
+  VF_DATA_ENDPOINT: getOptionalProcessEnv('VF_DATA_ENDPOINT'), // server-data-api endpoint
+  ADMIN_SERVER_DATA_API_TOKEN: getOptionalProcessEnv('ADMIN_SERVER_DATA_API_TOKEN'), // Server-data-api auth token
 
   // creator-api conifg
-  CREATOR_API_ENDPOINT: optionalProcessEnv('CREATOR_API_ENDPOINT'),
-  CREATOR_API_AUTHORIZATION: optionalProcessEnv('CREATOR_API_AUTHORIZATION'),
+  CREATOR_API_ENDPOINT: getOptionalProcessEnv('CREATOR_API_ENDPOINT'),
+  CREATOR_API_AUTHORIZATION: getOptionalProcessEnv('CREATOR_API_AUTHORIZATION'),
 
-  AWS_ACCESS_KEY_ID: optionalProcessEnv('AWS_ACCESS_KEY_ID'),
-  AWS_SECRET_ACCESS_KEY: optionalProcessEnv('AWS_SECRET_ACCESS_KEY'),
-  AWS_REGION: optionalProcessEnv('AWS_REGION'),
+  AWS_ACCESS_KEY_ID: getOptionalProcessEnv('AWS_ACCESS_KEY_ID'),
+  AWS_SECRET_ACCESS_KEY: getOptionalProcessEnv('AWS_SECRET_ACCESS_KEY'),
+  AWS_REGION: getOptionalProcessEnv('AWS_REGION'),
 
   // Release information
-  GIT_SHA: optionalProcessEnv('GIT_SHA'),
-  BUILD_NUM: optionalProcessEnv('BUILD_NUM'),
-  SEM_VER: optionalProcessEnv('SEM_VER'),
-  BUILD_URL: optionalProcessEnv('BUILD_URL'),
+  GIT_SHA: getOptionalProcessEnv('GIT_SHA'),
+  BUILD_NUM: getOptionalProcessEnv('BUILD_NUM'),
+  SEM_VER: getOptionalProcessEnv('SEM_VER'),
+  BUILD_URL: getOptionalProcessEnv('BUILD_URL'),
 
   // Logging
-  LOG_LEVEL: optionalProcessEnv('LOG_LEVEL'),
-  MIDDLEWARE_VERBOSITY: optionalProcessEnv('MIDDLEWARE_VERBOSITY'),
+  LOG_LEVEL: getOptionalProcessEnv('LOG_LEVEL'),
+  MIDDLEWARE_VERBOSITY: getOptionalProcessEnv('MIDDLEWARE_VERBOSITY'),
 };
 
 export default CONFIG;

@@ -1,5 +1,6 @@
 import { IntentInput, PrototypeModel } from '@voiceflow/api-sdk';
-import { IntentRequest, SLOT_REGEXP } from '@voiceflow/general-types';
+import { IntentRequest } from '@voiceflow/general-types';
+import { SLOT_REGEXP } from '@voiceflow/common';
 import * as crypto from 'crypto';
 
 export const VF_DM_PREFIX = 'dm_';
@@ -27,7 +28,7 @@ export const getUnfulfilledEntity = (intentRequest: IntentRequest, model: Protot
 
 // replace all found entities with their value, if no value, empty string
 // "inner" refers to the "slotname" of {{[slotname].slotid}}
-export const replaceVariables = (input: string, variables: Record<string, string>) =>
+export const replaceSlots = (input: string, variables: Record<string, string>) =>
   input.replace(SLOT_REGEXP, (_match, inner) => variables[inner] || '');
 
 // Populates all entities in a given string
@@ -38,7 +39,7 @@ export const fillStringEntities = (input = '', intentRequest: IntentRequest) => 
     {}
   );
 
-  return replaceVariables(input, entityMap);
+  return replaceSlots(input, entityMap);
 };
 
 export const dmPrefix = (contents: string) =>

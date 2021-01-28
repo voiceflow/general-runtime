@@ -1,7 +1,7 @@
 import { PrototypeModel } from '@voiceflow/api-sdk';
 import _ from 'lodash';
 
-import { replaceVariables } from '../dialog/utils';
+import { replaceSlots } from '../dialog/utils';
 
 type Chip = { intent?: string; name: string };
 type Utterance = { text: string; slots?: string[] };
@@ -27,7 +27,7 @@ export const sampleUtterance = (utterances: Utterance[], model: PrototypeModel, 
       });
     })?.text;
 
-  return utterance ? replaceVariables(utterance, slotMap).trim() : '';
+  return utterance ? replaceSlots(utterance, slotMap).trim() : '';
 };
 
 // generate multiple chips with slot variations from provided utterances

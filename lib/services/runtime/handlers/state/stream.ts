@@ -1,6 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import { IntentName, NodeID } from '@voiceflow/general-types';
-import { Action, HandlerFactory, replaceVariables } from '@voiceflow/runtime';
+import { Action, HandlerFactory } from '@voiceflow/runtime';
+import { replaceVariables } from '@voiceflow/common';
 
 import { isIntentRequest, StorageData, StorageType, StreamAction, StreamPauseStorage, StreamPlayStorage } from '../../types';
 import CommandHandler from '../command';

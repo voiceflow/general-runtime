@@ -1,5 +1,5 @@
 import { PrototypeModel } from '@voiceflow/api-sdk';
-import { utils } from '@voiceflow/common';
+import { getUtterancesWithSlotNames } from '@voiceflow/common';
 import { DEFAULT_INTENTS_MAP, IntentRequest, Locale, RequestType } from '@voiceflow/general-types';
 import NLC, { IIntentFullfilment, IIntentSlot } from '@voiceflow/natural-language-commander';
 import { getRequired } from '@voiceflow/natural-language-commander/dist/lib/standardSlots';
@@ -9,7 +9,7 @@ import logger from '@/logger';
 
 import { getNoneIntentRequest } from './utils';
 
-const { getUtterancesWithSlotNames } = utils.intent;
+
 
 export const registerSlots = (nlc: NLC, { slots }: PrototypeModel, openSlot: boolean) => {
   slots.forEach((slot) => {
@@ -34,7 +34,7 @@ export const registerSlots = (nlc: NLC, { slots }: PrototypeModel, openSlot: boo
 
 export const registerIntents = (nlc: NLC, { slots, intents }: PrototypeModel) => {
   intents.forEach((intent) => {
-    const samples = getUtterancesWithSlotNames(intent.inputs, slots)
+    const samples = getUtterancesWithSlotNames({ slots, utterances: intent.inputs })
       .map((value) => value.trim())
       .filter(Boolean);
 
