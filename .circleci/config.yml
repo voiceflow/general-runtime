@@ -31,7 +31,7 @@ defaults:
 
 orbs:
   codecov: codecov/codecov@1.0.2
-  vfcommon: voiceflow/common@0.0.63
+  vfcommon: voiceflow/common@0.0.64
   sonarcloud: sonarsource/sonarcloud@1.0.2
   validate-title: qventus/validate-title@0.0.4
 
