@@ -1,5 +1,6 @@
+import { formatIntentName } from '@voiceflow/common';
 import { EventType, GeneralEvent, IntentEvent, IntentRequest } from '@voiceflow/general-types';
-import { formatIntentName, Runtime, Store } from '@voiceflow/runtime';
+import { Runtime, Store } from '@voiceflow/runtime';
 
 import { GeneralRuntime, isIntentRequest } from '@/lib/services/runtime/types';
 

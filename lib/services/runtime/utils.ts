@@ -1,6 +1,6 @@
 import { SlotMapping } from '@voiceflow/api-sdk';
-import { IntentRequest } from '@voiceflow/general-types';
 import { formatIntentName, replaceVariables, transformStringVariableToNumber } from '@voiceflow/common';
+import { IntentRequest } from '@voiceflow/general-types';
 import { Runtime, Store } from '@voiceflow/runtime';
 import _ from 'lodash';
 
