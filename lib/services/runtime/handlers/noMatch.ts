@@ -1,10 +1,9 @@
 import { Node } from '@voiceflow/api-sdk';
+import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { EventType, TraceType } from '@voiceflow/general-types';
 import { Node as ChoiceNode, TraceFrame as ChoiceTrace } from '@voiceflow/general-types/build/nodes/interaction';
 import { TraceFrame } from '@voiceflow/general-types/build/nodes/speak';
 import { Runtime, Store } from '@voiceflow/runtime';
-import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
-
 import _ from 'lodash';
 
 import { NoMatchCounterStorage, StorageData, StorageType } from '../types';

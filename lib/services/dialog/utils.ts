@@ -1,6 +1,6 @@
 import { IntentInput, PrototypeModel } from '@voiceflow/api-sdk';
-import { IntentRequest } from '@voiceflow/general-types';
 import { SLOT_REGEXP } from '@voiceflow/common';
+import { IntentRequest } from '@voiceflow/general-types';
 import * as crypto from 'crypto';
 
 export const VF_DM_PREFIX = 'dm_';

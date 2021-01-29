@@ -9,8 +9,6 @@ import logger from '@/logger';
 
 import { getNoneIntentRequest } from './utils';
 
-
-
 export const registerSlots = (nlc: NLC, { slots }: PrototypeModel, openSlot: boolean) => {
   slots.forEach((slot) => {
     try {
