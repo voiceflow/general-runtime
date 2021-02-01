@@ -22,7 +22,7 @@ const CONFIG: Config = {
   // integrations block
   INTEGRATIONS_HANDLER_ENDPOINT: getOptionalProcessEnv('INTEGRATIONS_HANDLER_ENDPOINT') || 'none',
   // api-block
-  API_HANDLER_ENDPOINT: getOptionalProcessEnv('API_HANDLER_ENDPOINT') || 'none',
+  API_HANDLER_ENDPOINT: getOptionalProcessEnv('API_HANDLER_ENDPOINT'),
 
   PROJECT_SOURCE: getOptionalProcessEnv('PROJECT_SOURCE'),
   SESSIONS_SOURCE: getOptionalProcessEnv('SESSIONS_SOURCE'),

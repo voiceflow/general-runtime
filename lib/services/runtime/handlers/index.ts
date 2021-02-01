@@ -1,4 +1,5 @@
 import {
+  APIHandler,
   CodeHandler,
   EndHandler,
   FlowHandler,
@@ -30,7 +31,8 @@ export default ({ API_HANDLER_ENDPOINT, INTEGRATIONS_HANDLER_ENDPOINT, CODE_HAND
   EndHandler(),
   FlowHandler(),
   IfHandler(),
-  IntegrationsHandler({ customAPIEndpoint: API_HANDLER_ENDPOINT, integrationsLambdaEndpoint: INTEGRATIONS_HANDLER_ENDPOINT }),
+  APIHandler({ customAPIEndpoint: API_HANDLER_ENDPOINT }),
+  IntegrationsHandler({ integrationsEndpoint: INTEGRATIONS_HANDLER_ENDPOINT }),
   RandomHandler(),
   SetHandler(),
   StartHandler(),

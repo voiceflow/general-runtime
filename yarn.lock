@@ -1158,10 +1158,10 @@
   resolved "https://registry.yarnpkg.com/@voiceflow/prettier-config/-/prettier-config-1.0.5.tgz#307caf65040ae0c0539ecb8531b9e403381f11ab"
   integrity sha512-yM35E7UI0fD8yMgL7JImljvMLZVU+jCz/latc2s2e7Nlbr9kiMpO0FArjkaXVIghhcUeQ0y04lsFUHRu3kMzmA==
 
-"@voiceflow/runtime@1.21.0":
-  version "1.21.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/runtime/-/runtime-1.21.0.tgz#e47de25a4eaa4dd4d8b755215195b430c7f9b384"
-  integrity sha512-NcK5sZjRNq3sMrkpHTkqWSvahjbaRD00uYxw5fstv7nTB24ZY0ncoteSQVnIKYjOzWc2vfW/iwngBcsdsnql/Q==
+"@voiceflow/runtime@1.22.0":
+  version "1.22.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/runtime/-/runtime-1.22.0.tgz#20b478c150a51dcd90a74626989cc65df6d5f77f"
+  integrity sha512-ojfAaPHzYSoCrwvmhwLDr0XBdzreHkrKEK0i4KS8p9/it6UEAkr3e67eJ7J33RK0W7ZZ5ebEXxIgt3SkhLj2FA==
   dependencies:
     "@types/safe-json-stringify" "^1.1.0"
     "@voiceflow/api-sdk" "1.22.0"
@@ -1169,9 +1169,11 @@
     "@voiceflow/general-types" "1.22.0"
     axios "^0.19.0"
     bluebird "^3.7.2"
+    form-data "^3.0.0"
     immer "^5.1.0"
     lodash "^4.17.19"
     mathjs "^6.5.0"
+    querystring "^0.2.0"
     safe-json-stringify "^1.2.0"
     workerpool "^5.0.4"
 
@@ -2241,7 +2243,7 @@ columnify@~1.5.4:
     strip-ansi "^3.0.0"
     wcwidth "^1.0.0"
 
-combined-stream@^1.0.6, combined-stream@~1.0.6:
+combined-stream@^1.0.6, combined-stream@^1.0.8, combined-stream@~1.0.6:
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/combined-stream/-/combined-stream-1.0.8.tgz#c3d45a8b34fd730631a110a8a2520682b31d5a7f"
   integrity sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==
@@ -4077,6 +4079,15 @@ form-data@^2.3.1:
   dependencies:
     asynckit "^0.4.0"
     combined-stream "^1.0.6"
+    mime-types "^2.1.12"
+
+form-data@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/form-data/-/form-data-3.0.0.tgz#31b7e39c85f1355b7139ee0c647cf0de7f83c682"
+  integrity sha512-CKMFDglpbMi6PyN+brwB9Q/GOw0eAnsrEZDgcsH5Krhz5Od/haKHAX0NmQfha2zPPz0JpWzA7GJHGSnvCRLWsg==
+  dependencies:
+    asynckit "^0.4.0"
+    combined-stream "^1.0.8"
     mime-types "^2.1.12"
 
 form-data@~2.3.2:
@@ -7957,6 +7968,11 @@ query-string@^6.8.2:
     decode-uri-component "^0.2.0"
     split-on-first "^1.0.0"
     strict-uri-encode "^2.0.0"
+
+querystring@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/querystring/-/querystring-0.2.0.tgz#b209849203bb25df820da756e747005878521620"
+  integrity sha1-sgmEkgO7Jd+CDadW50cAWHhSFiA=
 
 quick-format-unescaped@^3.0.3:
   version "3.0.3"

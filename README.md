@@ -111,7 +111,6 @@ Add the following file to the local repository:
 >
 > CODE_HANDLER_ENDPOINT="none"
 > INTEGRATIONS_HANDLER_ENDPOINT="none"
-> API_HANDLER_ENDPOINT="none"
 >
 > CREATOR_API_ENDPOINT='https://api.voiceflow.com'
 > CREATOR_API_AUTHORIZATION='[YOUR JWT TOKEN HERE]'
