@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 
-import { GeneralRequest } from '@voiceflow/general-types';
+import { Config, GeneralRequest } from '@voiceflow/general-types';
 import { State, TurnBuilder } from '@voiceflow/runtime';
 import { Request } from 'express';
 
@@ -17,19 +17,25 @@ class InteractController extends AbstractController {
     return this.services.state.generate(version);
   }
 
-  async handler(req: Request<{ versionID: string }, null, { state?: State; request?: GeneralRequest }, { locale?: string }>) {
+  async handler(req: Request<{ versionID: string }, null, { state?: State; request?: GeneralRequest; config?: Config }, { locale?: string }>) {
     const { runtime, metrics, nlu, tts, chips, dialog, asr, state: stateManager } = this.services;
 
     metrics.generalRequest();
 
     const {
-      body: { state, request = null },
+      body: { state, request = null, config },
       params: { versionID },
       query: { locale },
     } = req;
 
     const turn = new TurnBuilder<Context>(stateManager);
-    turn.addHandlers(asr, nlu, dialog, runtime).addHandlers(tts, chips);
+
+    turn.addHandlers(asr, nlu, dialog, runtime);
+    if (config?.tts) {
+      turn.addHandlers(tts, chips);
+    } else {
+      turn.addHandlers(chips);
+    }
 
     return turn.handle({ state, request, versionID, data: { locale } });
   }
