@@ -31,7 +31,7 @@ class InteractController extends AbstractController {
     const turn = new TurnBuilder<Context>(stateManager);
 
     turn.addHandlers(asr, nlu, dialog, runtime);
-    if (config?.tts) {
+    if (config?.tts !== false) {
       turn.addHandlers(tts, chips);
     } else {
       turn.addHandlers(chips);
