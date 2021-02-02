@@ -37,6 +37,6 @@ export default ({ API_HANDLER_ENDPOINT, INTEGRATIONS_HANDLER_ENDPOINT, CODE_HAND
   RandomHandler(),
   SetHandler(),
   StartHandler(),
-  NextHandler(),
   VisualHandler(),
+  NextHandler(),
 ];
