@@ -6,6 +6,7 @@
 import { Config, GeneralRequest } from '@voiceflow/general-types';
 import { State, TurnBuilder } from '@voiceflow/runtime';
 import { Request } from 'express';
+import _ from 'lodash';
 
 import { Context } from '@/types';
 
@@ -23,7 +24,7 @@ class InteractController extends AbstractController {
     metrics.generalRequest();
 
     const {
-      body: { state, request = null, config },
+      body: { state, request = null, config = {} },
       params: { versionID },
       query: { locale },
     } = req;
@@ -31,7 +32,7 @@ class InteractController extends AbstractController {
     const turn = new TurnBuilder<Context>(stateManager);
 
     turn.addHandlers(asr, nlu, dialog, runtime);
-    if (config?.tts !== false) {
+    if (_.isUndefined(config.tts) || config.tts) {
       turn.addHandlers(tts, chips);
     } else {
       turn.addHandlers(chips);
