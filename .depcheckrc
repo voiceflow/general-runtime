@@ -9,6 +9,8 @@
     "prettier-eslint-cli",
     "source-map-support",
     "fixpack",
+    "husky",
+    "lint-staged",
     "crypto"
   ]
 }
