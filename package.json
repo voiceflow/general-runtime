@@ -27,7 +27,6 @@
     "cookie-parser": "^1.4.4",
     "core-js": "^3.4.8",
     "cors": "^2.8.5",
-    "crypto": "^1.0.1",
     "datadog-metrics": "^0.8.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",

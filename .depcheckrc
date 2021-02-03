@@ -10,7 +10,6 @@
     "source-map-support",
     "fixpack",
     "husky",
-    "lint-staged",
-    "crypto"
+    "lint-staged"
   ]
 }
