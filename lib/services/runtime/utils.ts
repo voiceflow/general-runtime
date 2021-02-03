@@ -57,3 +57,5 @@ export const addChipsIfExists = <N extends { chips?: Chip[] }>(node: N, runtime:
   });
   return true;
 };
+
+export const getReadableConfidence = (confidence?: number) => ((confidence ?? 1) * 100).toFixed(2);
