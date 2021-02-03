@@ -45,6 +45,8 @@ jobs:
       - vfcommon/lint_source
       - vfcommon/lint_report
       - vfcommon/lint_dockerfile
+      - vfcommon/dependency_tests:
+          step_name: Dependency Tests
       - vfcommon/build
       - vfcommon/unit_tests
       - codecov/upload:
