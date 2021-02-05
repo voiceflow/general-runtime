@@ -60,14 +60,4 @@ describe('Capture handler', () => {
 
     expect(handler.canHandle({ ...deps.node, variable: null }, deps.runtime, deps.variables, null as any)).to.eql(false);
   });
-
-  it('matched intent debug message ', async () => {
-    const deps = getMockDependencies();
-
-    const handler = CaptureHandler(deps.utils);
-
-    handler.handle(deps.node, deps.runtime, deps.variables, null as any);
-
-    expect(deps.runtime.trace.debug.args).to.eql([['matched intent **name** - confidence interval _86.12%_']]);
-  });
 });

@@ -12,7 +12,8 @@ import { FullServiceMap } from '../index';
 import { AbstractManager, injectServices } from '../utils';
 import Handlers from './handlers';
 import init from './init';
-import { isRuntimeRequest, RuntimeRequest } from './types';
+import { isIntentRequest, isRuntimeRequest, RuntimeRequest } from './types';
+import { getReadableConfidence } from './utils';
 
 export const utils = {
   Client,
@@ -43,6 +44,12 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     if (!isRuntimeRequest(request)) throw new Error(`invalid runtime request type: ${JSON.stringify(request)}`);
 
     const runtime = this.client.createRuntime(versionID, state, request, { api: context.data.api });
+
+    if (isIntentRequest(request)) {
+      runtime.trace.debug(
+        `matched intent **${request.payload.intent.name}** - confidence interval _${getReadableConfidence(request.payload.confidence)}%_`
+      );
+    }
 
     await runtime.update();
 

@@ -109,5 +109,50 @@ describe('runtime manager unit tests', () => {
       expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request, { api: context.data.api }]]);
       expect(utils.Handlers.callCount).to.eql(1);
     });
+
+    it('matched intent debug trace', async () => {
+      const rawState = { foo: 'bar' };
+      const trace = { foo1: 'bar1' };
+      const runtime = {
+        update: sinon.stub(),
+        getRawState: sinon.stub().returns(rawState),
+        trace: { get: sinon.stub().returns(trace), addTrace: sinon.stub(), debug: sinon.stub() },
+        getFinalState: sinon.stub().returns(rawState),
+      };
+
+      const client = {
+        setEvent: sinon.stub(),
+        createRuntime: sinon.stub().returns(runtime),
+      };
+
+      const services = {
+        dataAPI: { getProgram: 'service-api' },
+      };
+
+      const utils = {
+        Client: sinon.stub().returns(client),
+        Handlers: sinon.stub().returns([]),
+      };
+
+      const config = {};
+
+      const runtimeManager = new RuntimeManager({ ...services, utils: { ...defaultUtils, ...utils } } as any, config as any);
+
+      const request = {
+        type: RequestType.INTENT,
+        payload: {
+          query: '',
+          intent: { name: 'name' },
+          entities: [],
+          confidence: 0.86123,
+        },
+      };
+      const state = { foo: 'bar' };
+      const context = { state, request, versionID: VERSION_ID, data: { api: { getProgram: 'api' } } } as any;
+
+      await runtimeManager.handle(context);
+
+      expect(runtime.trace.debug.args).to.eql([['matched intent **name** - confidence interval _86.12%_']]);
+    });
   });
 });

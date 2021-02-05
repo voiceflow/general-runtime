@@ -3,7 +3,7 @@ import { Action, HandlerFactory } from '@voiceflow/runtime';
 import wordsToNumbers from 'words-to-numbers';
 
 import { isIntentRequest } from '../types';
-import { addChipsIfExists, addRepromptIfExists, getReadableConfidence } from '../utils';
+import { addChipsIfExists, addRepromptIfExists } from '../utils';
 import CommandHandler from './command';
 import RepeatHandler from './repeat';
 
@@ -25,14 +25,6 @@ export const CaptureHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => 
       return node.id;
     }
 
-    const request = runtime.getRequest();
-
-    if (isIntentRequest(request)) {
-      runtime.trace.debug(
-        `matched intent **${request.payload.intent.name}** - confidence interval _${getReadableConfidence(request.payload.confidence)}%_`
-      );
-    }
-
     // request for this turn has been processed, set action to response
     runtime.setAction(Action.RESPONSE);
 
@@ -40,9 +32,12 @@ export const CaptureHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => 
     if (utils.commandHandler.canHandle(runtime)) {
       return utils.commandHandler.handle(runtime, variables);
     }
+
     if (utils.repeatHandler.canHandle(runtime)) {
       return utils.repeatHandler.handle(runtime);
     }
+
+    const request = runtime.getRequest();
 
     if (isIntentRequest(request)) {
       const { query } = request.payload;

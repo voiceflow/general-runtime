@@ -3,8 +3,8 @@ import { EventType, TraceType } from '@voiceflow/general-types';
 import { Node, TraceFrame } from '@voiceflow/general-types/build/nodes/interaction';
 import { Action, HandlerFactory } from '@voiceflow/runtime';
 
-import { isIntentRequest, StorageType } from '../types';
-import { addChipsIfExists, addRepromptIfExists, getReadableConfidence } from '../utils';
+import { StorageType } from '../types';
+import { addChipsIfExists, addRepromptIfExists } from '../utils';
 import CommandHandler from './command';
 import { findEventMatcher } from './event';
 import NoMatchHandler from './noMatch';
@@ -45,14 +45,6 @@ export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils)
 
       // quit cycleStack without ending session by stopping on itself
       return node.id;
-    }
-
-    const request = runtime.getRequest();
-
-    if (isIntentRequest(request)) {
-      runtime.trace.debug(
-        `matched intent **${request.payload.intent.name}** - confidence interval _${getReadableConfidence(request.payload.confidence)}%_`
-      );
     }
 
     // request for this turn has been processed, set action to response
