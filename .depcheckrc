@@ -1,0 +1,15 @@
+{
+  "specials": ["bin", "eslint", "lint-staged", "istanbul", "commitizen", "husky", "prettier", "ttypescript"],
+  "ignores": [
+    "@commitlint/*",
+    "@types/*",
+    "@voiceflow/commitlint-config",
+    "@voiceflow/git-branch-check",
+    "typedoc-plugin-sourcefile-url",
+    "prettier-eslint-cli",
+    "source-map-support",
+    "fixpack",
+    "husky",
+    "lint-staged"
+  ]
+}

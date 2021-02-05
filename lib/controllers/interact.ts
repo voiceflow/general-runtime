@@ -39,7 +39,7 @@ class InteractController extends AbstractController {
 
     turn.addHandlers(chips);
 
-    return turn.handle({ state, request, versionID, data: { locale } });
+    return turn.resolve({ state, request, versionID, data: { locale } });
   }
 }
 

@@ -11,7 +11,6 @@ PORT=4000
 LOG_LEVEL="info"
 MIDDLEWARE_VERBOSITY="none"
 
-CODE_HANDLER_ENDPOINT="none"
 INTEGRATIONS_HANDLER_ENDPOINT="none"
 
 GENERAL_SERVICE_ENDPOINT='https://general-service.voiceflow.com'
@@ -61,5 +60,5 @@ Add your VF-Project JSON file under `projects/`
 External services needed to run certain blocks (API, Zapier, Google Docs, Code)
 
 - `INTEGRATIONS_HANDLER_ENDPOINT` - cloud endpoint for zapier/google blocks - not available if `general-runtime` is ran as standalone
-- `CODE_HANDLER_ENDPOINT` - stateless cloud service endpoint to execute the code block. Contact a Voiceflow representative to get an endpoint
+- `CODE_HANDLER_ENDPOINT` - stateless cloud service endpoint to execute the code block. Leave undefined to run custom code locally
 - `API_HANDLER_ENDPOINT` - stateless cloud endpoint for the API block to make requests. Leave undefined to make requests locally

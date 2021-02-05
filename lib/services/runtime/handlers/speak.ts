@@ -21,7 +21,8 @@ const SpeakHandler: HandlerFactory<Node> = () => ({
     const sanitizedVars = sanitizeVariables(variables.getState());
 
     if (_.isString(speak)) {
-      const output = replaceVariables(speak, sanitizedVars);
+      // in case a variable's value is a text containing another variable (i.e text2="say {text}")
+      const output = replaceVariables(replaceVariables(speak, sanitizedVars), sanitizedVars);
 
       runtime.storage.produce((draft) => {
         draft[StorageType.OUTPUT] += output;

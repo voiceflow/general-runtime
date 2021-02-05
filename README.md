@@ -109,7 +109,6 @@ Add the following file to the local repository:
 >
 > GENERAL_SERVICE_ENDPOINT='https://general-service.voiceflow.com'
 >
-> CODE_HANDLER_ENDPOINT="none"
 > INTEGRATIONS_HANDLER_ENDPOINT="none"
 >
 > CREATOR_API_ENDPOINT='https://api.voiceflow.com'
