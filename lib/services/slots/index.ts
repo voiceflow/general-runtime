@@ -30,7 +30,7 @@ interface Slot {
 class SlotsService extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
   // Combines the NATO/APCO words identified by LUIS together with their first letters.
   // entity.rawValue contains the words to parse and entity.value will store the result.
-  // Ex: rawValue: [['November'],['India'],['Charlie'],['Echo']] -> value: 'NICE'
+  // Ex: rawValue: [['November'],['India'],['Charlie'],['Echo']] -> value: 'NICE'.
   // (The only exceptions to taking the first letter of the strings is '00' and '000').
   natoApcoConverter = (entities: Entity[], slots: Slot[]) => {
     entities.forEach((entity) => {
