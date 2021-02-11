@@ -30,6 +30,7 @@ describe('interact controller unit tests', () => {
         state: { handle: sinon.stub().resolves(output('state')) },
         asr: { handle: sinon.stub().resolves(output('asr')) },
         nlu: { handle: sinon.stub().resolves(output('nlu')) },
+        slots: { handle: sinon.stub().resolves(output('slots')) },
         tts: { handle: sinon.stub().resolves(output('tts')) },
         chips: { handle: sinon.stub().resolves(output('chips', { trace: 'trace' })) },
         runtime: { handle: sinon.stub().resolves(output('runtime')) },
@@ -48,7 +49,8 @@ describe('interact controller unit tests', () => {
       expect(services.state.handle.args).to.eql([[context]]);
       expect(services.asr.handle.args).to.eql([[output('state')]]);
       expect(services.nlu.handle.args).to.eql([[output('asr')]]);
-      expect(services.dialog.handle.args).to.eql([[output('nlu')]]);
+      expect(services.slots.handle.args).to.eql([[output('nlu')]]);
+      expect(services.dialog.handle.args).to.eql([[output('slots')]]);
       expect(services.runtime.handle.args).to.eql([[output('dialog')]]);
       expect(services.tts.handle.args).to.eql([[output('runtime')]]);
       expect(services.chips.handle.args).to.eql([[output('tts')]]);
@@ -69,6 +71,7 @@ describe('interact controller unit tests', () => {
         state: { handle: sinon.stub().resolves(output('state')) },
         asr: { handle: sinon.stub().resolves(output('asr')) },
         nlu: { handle: sinon.stub().resolves(output('nlu')) },
+        slots: { handle: sinon.stub().resolves(output('slots')) },
         tts: { handle: sinon.stub().resolves(output('tts')) },
         chips: { handle: sinon.stub().resolves(output('chips', { trace: 'trace' })) },
         runtime: { handle: sinon.stub().resolves(output('runtime')) },
@@ -103,6 +106,7 @@ describe('interact controller unit tests', () => {
       state: { handle: sinon.stub().resolves(output('state')) },
       asr: { handle: sinon.stub().resolves(output('asr')) },
       nlu: { handle: sinon.stub().resolves(output('nlu')) },
+      slots: { handle: sinon.stub().resolves(output('slots')) },
       tts: { handle: sinon.stub().resolves(output('tts')) },
       chips: { handle: sinon.stub().resolves(output('chips', { trace: 'trace' })) },
       runtime: { handle: sinon.stub().resolves(output('runtime')) },
@@ -133,6 +137,7 @@ describe('interact controller unit tests', () => {
       state: { handle: sinon.stub().resolves(output('state')) },
       asr: { handle: sinon.stub().resolves(output('asr')) },
       nlu: { handle: sinon.stub().resolves(output('nlu')) },
+      slots: { handle: sinon.stub().resolves(output('slots')) },
       tts: { handle: sinon.stub().resolves(output('tts')) },
       chips: { handle: sinon.stub().resolves(output('chips', { trace: 'trace' })) },
       runtime: { handle: sinon.stub().resolves(output('runtime')) },
