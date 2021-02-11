@@ -957,11 +957,11 @@
     "@voiceflow/api-sdk" "1.22.0"
 
 "@voiceflow/general-types@^1.25.2":
-  version "1.25.2"
-  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.25.2.tgz#fca14bd452b4102e47bafd3bb9218a1c19b1654e"
-  integrity sha512-drx3ijuLB62QFe3FhOsdWW95v7Yf5g9ljgWe973SUAoaGjBM/EpqUhR6fCWGR8FQBHIkAYCpGEBvKYwCW9n46g==
+  version "1.28.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.28.1.tgz#84ce708c2b22d0e146953cdf31e0248bcf581aef"
+  integrity sha512-oiuC11+61Sg1BloLXNdidjJNIX4sb28e2+uVZ8OkmGx3BSLrYkksACdex6sRRgf7nmv0Siaz5BZ9M24GZbgNNA==
   dependencies:
-    "@voiceflow/api-sdk" "1.22.0"
+    "@voiceflow/api-sdk" "1.24.1"
 
 "@voiceflow/git-branch-check@^1.1.3":
   version "1.1.3"
