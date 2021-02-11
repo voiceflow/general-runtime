@@ -4,7 +4,7 @@
  */
 
 import { TraceType } from '@voiceflow/general-types';
-import { TraceFrame as SpeakTrace } from '@voiceflow/general-types/build/nodes/speak';
+import { SpeakType, TraceFrame as SpeakTrace } from '@voiceflow/general-types/build/nodes/speak';
 import _ from 'lodash';
 
 import log from '@/logger';
@@ -31,7 +31,7 @@ class TTS extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       return data.map((payload) => ({ type: TraceType.SPEAK, payload }));
     } catch (error) {
       log.error(error);
-      return [{ type: TraceType.SPEAK, payload: { message, type: 'speak' } }];
+      return [{ type: TraceType.SPEAK, payload: { message, type: SpeakType.AUDIO } }];
     }
   };
 
