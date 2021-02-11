@@ -1,6 +1,6 @@
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { TraceType } from '@voiceflow/general-types';
-import { Node, TraceFrame } from '@voiceflow/general-types/build/nodes/speak';
+import { Node, SpeakType, TraceFrame } from '@voiceflow/general-types/build/nodes/speak';
 import { HandlerFactory } from '@voiceflow/runtime';
 import _ from 'lodash';
 
@@ -29,7 +29,7 @@ const SpeakHandler: HandlerFactory<Node> = () => ({
       });
 
       runtime.stack.top().storage.set<SpeakFrame>(FrameType.SPEAK, output);
-      runtime.trace.addTrace<TraceFrame>({ type: TraceType.SPEAK, payload: { message: output } });
+      runtime.trace.addTrace<TraceFrame>({ type: TraceType.SPEAK, payload: { message: output, type: SpeakType.MESSAGE } });
     }
 
     return node.nextId ?? null;

@@ -1,7 +1,7 @@
 import { BlockTrace, TraceType as GeneralTraceType, TraceType } from '@voiceflow/general-types';
 import { TraceFrame as ExitTraceFrame } from '@voiceflow/general-types/build/nodes/exit';
 import { TraceFrame as FlowTraceFrame } from '@voiceflow/general-types/build/nodes/flow';
-import { TraceFrame as SpeakTraceFrame } from '@voiceflow/general-types/build/nodes/speak';
+import { SpeakType, TraceFrame as SpeakTraceFrame } from '@voiceflow/general-types/build/nodes/speak';
 import { TraceFrame as StreamTraceFrame, TraceStreamAction } from '@voiceflow/general-types/build/nodes/stream';
 import Client, { EventType } from '@voiceflow/runtime';
 
@@ -30,7 +30,7 @@ const init = (client: Client) => {
           draft[StorageType.OUTPUT] += output;
         });
 
-        runtime.trace.addTrace<SpeakTraceFrame>({ type: TraceType.SPEAK, payload: { message: output } });
+        runtime.trace.addTrace<SpeakTraceFrame>({ type: TraceType.SPEAK, payload: { message: output, type: SpeakType.MESSAGE } });
       }
     }
   });

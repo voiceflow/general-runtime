@@ -2,7 +2,7 @@ import { Node } from '@voiceflow/api-sdk';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { EventType, TraceType } from '@voiceflow/general-types';
 import { Node as ChoiceNode, TraceFrame as ChoiceTrace } from '@voiceflow/general-types/build/nodes/interaction';
-import { TraceFrame } from '@voiceflow/general-types/build/nodes/speak';
+import { SpeakType, TraceFrame } from '@voiceflow/general-types/build/nodes/speak';
 import { Runtime, Store } from '@voiceflow/runtime';
 import _ from 'lodash';
 
@@ -44,7 +44,7 @@ export const NoMatchHandler = () => ({
 
     runtime.trace.addTrace<TraceFrame>({
       type: TraceType.SPEAK,
-      payload: { message: output },
+      payload: { message: output, type: SpeakType.MESSAGE },
     });
 
     if (Array.isArray(node.interactions)) {
