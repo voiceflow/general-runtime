@@ -1,5 +1,6 @@
-import VError from '@voiceflow/verror';
 import { NextFunction, Request, Response } from 'express';
+
+import log from '@/logger';
 
 import { AbstractMiddleware } from './utils';
 
@@ -9,8 +10,10 @@ class RateLimit extends AbstractMiddleware {
       !this.config.PROJECT_SOURCE &&
       (!this.config.CREATOR_APP_ORIGIN || req.headers.origin !== this.config.CREATOR_APP_ORIGIN) &&
       !req.headers.authorization
-    )
-      throw new VError('Auth Key Required', VError.HTTP_STATUS.UNAUTHORIZED);
+    ) {
+      // throw new VError('Auth Key Required', VError.HTTP_STATUS.UNAUTHORIZED);
+      log.info(`unauthenticated call: ${req.ip} ${req.headers.origin}`);
+    }
 
     next();
   }

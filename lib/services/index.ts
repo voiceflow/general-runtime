@@ -7,6 +7,7 @@ import Dialog from './dialog';
 import NLU from './nlu';
 import RateLimit from './rateLimit';
 import Runtime from './runtime';
+import Slots from './slots';
 import State from './state';
 import TTS from './tts';
 
@@ -19,6 +20,7 @@ export interface ServiceMap {
   tts: TTS;
   chips: Chips;
   rateLimit: RateLimit;
+  slots: Slots;
 }
 
 export interface FullServiceMap extends ClientMap, ServiceMap {}
@@ -39,6 +41,7 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.dialog = new Dialog(services, config);
   services.chips = new Chips(services, config);
   services.rateLimit = new RateLimit(services, config);
+  services.slots = new Slots(services, config);
 
   return services;
 };
