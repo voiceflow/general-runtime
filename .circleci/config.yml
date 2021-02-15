@@ -28,10 +28,18 @@ defaults:
         ignore: /.*/
       tags:
         only: /^v[0-9]*(\.[0-9]*)*$/
+  slack-fail-post-step: &slack-fail-post-step
+    post-steps:
+      - vfcommon/notify_slack:
+          channel: dev_general
+          event: fail
+          mentions: "@eng_runtime"
+          template: basic_fail_1
+          branch_pattern: master
 
 orbs:
   codecov: codecov/codecov@1.0.2
-  vfcommon: voiceflow/common@0.0.64
+  vfcommon: voiceflow/common@0.0.66
   sonarcloud: sonarsource/sonarcloud@1.0.2
   validate-title: qventus/validate-title@0.0.4
 
@@ -137,6 +145,7 @@ workflows:
   test-and-release-app:
     jobs:
       - test:
+          <<: *slack-fail-post-step
           context: dev-test
           filters:
             branches:
@@ -144,6 +153,7 @@ workflows:
                 - /env-.*/
                 - staging
       - vfcommon/release:
+          <<: *slack-fail-post-step
           context: dev-test
           requires:
             - test
@@ -151,6 +161,7 @@ workflows:
             branches:
               only: master
       - vfcommon/generate_technical_documentation:
+          <<: *slack-fail-post-step
           context: dev-test
           requires:
             - test
