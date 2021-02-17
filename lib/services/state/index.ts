@@ -59,9 +59,18 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
 
     const locale = context.data?.locale || version.prototype?.data?.locales?.[0];
 
+    let { state } = context;
+
+    if (!state) {
+      state = this.generate(version);
+    } else if (!state.stack.length) {
+      // if stack is empty, repopulate the stack
+      state = { ...state, stack: this.generate(version).stack };
+    }
+
     return {
       ...context,
-      state: context.state || this.generate(version),
+      state,
       trace: [] as GeneralTrace[],
       request: context.request || null,
       versionID: context.versionID,
