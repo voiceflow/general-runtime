@@ -22,7 +22,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
    * generate a context for a new session
    * @param versionID - project version to generate the context for
    */
-  generate({ prototype, variables, rootDiagramID }: Version<any>): State {
+  generate({ prototype, variables, rootDiagramID }: Version<any>, state?: State): State {
     const entities = prototype?.model.slots.map(({ name }) => name) || [];
 
     const DEFAULT_STACK = [{ programID: rootDiagramID, storage: {}, variables: {} }];
@@ -41,9 +41,11 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
         ...initializeStore(entities),
         ...initializeStore(variables),
         ...prototype?.context.variables,
+        ...state?.variables,
       },
       storage: {
         ...prototype?.context.storage,
+        ...state?.storage,
       },
     };
   }
@@ -65,7 +67,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
       state = this.generate(version);
     } else if (!state.stack.length) {
       // if stack is empty, repopulate the stack
-      state = { ...state, stack: this.generate(version).stack };
+      state = this.generate(version, state);
     }
 
     return {
