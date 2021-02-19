@@ -32,6 +32,8 @@ export interface Config {
   CREATOR_API_ENDPOINT: string | null;
   CREATOR_API_AUTHORIZATION: string | null;
 
+  CREATOR_APP_ENDPOINT: string | null;
+
   ADMIN_SERVER_DATA_API_TOKEN: string | null;
   VF_DATA_ENDPOINT: string | null;
   // Logging
