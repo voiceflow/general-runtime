@@ -31,7 +31,7 @@ class ServiceManager {
    * Start services
    */
   async start() {
-    await initClients(this.clients);
+    await initClients();
   }
 
   /**

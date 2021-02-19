@@ -14,7 +14,7 @@ import { AbstractController } from './utils';
 
 class InteractController extends AbstractController {
   async state(req: { headers: { authorization?: string; origin?: string }; params: { versionID: string } }) {
-    const api = this.services.dataAPI.get(req.headers.authorization, req.headers.origin);
+    const api = await this.services.dataAPI.get(req.headers.authorization, req.headers.origin);
     const version = await api.getVersion(req.params.versionID);
     return this.services.state.generate(version);
   }
