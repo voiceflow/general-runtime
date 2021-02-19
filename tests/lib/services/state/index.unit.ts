@@ -38,16 +38,18 @@ describe('state manager unit tests', () => {
 
   describe('generate', () => {
     it('works', async () => {
+      const getVersionStub = sinon.stub().resolves(version);
       const services = {
         dataAPI: {
-          getVersion: sinon.stub(),
+          get: sinon.stub().returns({ getVersion: getVersionStub }),
         },
       };
 
       const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
 
       expect(await stateManager.generate(version as any)).to.eql({ ...state, variables: { variable1: 1, variable2: 2 } });
-      expect(services.dataAPI.getVersion.callCount).to.eql(0);
+      expect(services.dataAPI.get.callCount).to.eql(0);
+      expect(getVersionStub.callCount).to.eql(0);
     });
   });
 
@@ -68,9 +70,10 @@ describe('state manager unit tests', () => {
 
   describe('handle', () => {
     it('works', async () => {
+      const getVersionStub = sinon.stub().resolves(version);
       const services = {
         dataAPI: {
-          getVersion: sinon.stub().resolves(version),
+          get: sinon.stub().returns({ getVersion: getVersionStub }),
         },
       };
 
@@ -95,7 +98,7 @@ describe('state manager unit tests', () => {
         },
       });
       expect(await newContext.data.api.getVersion(VERSION_ID)).to.eql(version);
-      expect(services.dataAPI.getVersion.args).to.eql([[VERSION_ID]]);
+      expect(getVersionStub.args).to.eql([[VERSION_ID]]);
     });
   });
 });

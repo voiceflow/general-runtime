@@ -7,11 +7,21 @@ describe('interact controller unit tests', () => {
   describe('handler', () => {
     it('works correctly', async () => {
       const req = {
+        headers: { authorization: 'auth', origin: 'origin' },
         body: { state: { foo: 'bar' }, request: 'request', config: { tts: true } },
         params: { versionID: 'versionID' },
         query: { locale: 'locale' },
       };
-      const context = { state: req.body.state, request: req.body.request, versionID: req.params.versionID, data: { locale: req.query.locale } };
+      const context = {
+        state: req.body.state,
+        request: req.body.request,
+        versionID: req.params.versionID,
+        data: {
+          authorization: req.headers.authorization,
+          locale: req.query.locale,
+          origin: req.headers.origin,
+        },
+      };
       const output = (state: string, params?: any) => ({ ...context, ...params, state, end: false });
 
       const services = {
@@ -46,6 +56,7 @@ describe('interact controller unit tests', () => {
     it('omits TTS if specified in config', async () => {
       const req = {
         body: { state: { foo: 'bar' }, request: 'request', config: { tts: false } },
+        headers: {},
         params: { versionID: 'versionID' },
         query: { locale: 'locale' },
       };
@@ -79,6 +90,7 @@ describe('interact controller unit tests', () => {
   it('includes TTS if config is unspecified', async () => {
     const req = {
       body: { state: { foo: 'bar' }, request: 'request' },
+      headers: {},
       params: { versionID: 'versionID' },
       query: { locale: 'locale' },
     };
@@ -108,6 +120,7 @@ describe('interact controller unit tests', () => {
   it('includes TTS if tts is unspecified', async () => {
     const req = {
       body: { state: { foo: 'bar' }, request: 'request', config: {} },
+      headers: {},
       params: { versionID: 'versionID' },
       query: { locale: 'locale' },
     };
