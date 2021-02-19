@@ -41,7 +41,7 @@ const CONFIG: Config = {
   CREATOR_API_AUTHORIZATION: getOptionalProcessEnv('CREATOR_API_AUTHORIZATION'),
 
   // creator-app config
-  CREATOR_APP_ENDPOINT: getOptionalProcessEnv('CREATOR_APP_ENDPOINT'),
+  CREATOR_APP_ORIGIN: getOptionalProcessEnv('CREATOR_APP_ORIGIN'),
 
   AWS_ACCESS_KEY_ID: getOptionalProcessEnv('AWS_ACCESS_KEY_ID'),
   AWS_SECRET_ACCESS_KEY: getOptionalProcessEnv('AWS_SECRET_ACCESS_KEY'),

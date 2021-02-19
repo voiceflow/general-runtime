@@ -24,10 +24,10 @@ class DataAPI {
       VF_DATA_ENDPOINT,
       CREATOR_API_AUTHORIZATION,
       CREATOR_API_ENDPOINT,
-      CREATOR_APP_ENDPOINT,
+      CREATOR_APP_ORIGIN,
     } = config;
 
-    this.creatorAppEndpoint = CREATOR_APP_ENDPOINT ?? '';
+    this.creatorAppEndpoint = CREATOR_APP_ORIGIN ?? '';
 
     // fetch from local VF file
     if (PROJECT_SOURCE) {

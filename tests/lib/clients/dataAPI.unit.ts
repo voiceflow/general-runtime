@@ -23,7 +23,7 @@ describe('dataAPI client unit tests', () => {
       VF_DATA_ENDPOINT: 'endpoint',
       CREATOR_API_AUTHORIZATION: 'creator auth',
       CREATOR_API_ENDPOINT: 'creator endpoint',
-      CREATOR_APP_ENDPOINT: 'voiceflow.com',
+      CREATOR_APP_ORIGIN: 'voiceflow.com',
     };
 
     expect(new DataAPI(config as any, API as any).get()).to.eql({ type: 'local' });
@@ -44,7 +44,7 @@ describe('dataAPI client unit tests', () => {
       VF_DATA_ENDPOINT: 'endpoint',
       CREATOR_API_AUTHORIZATION: 'creator auth',
       CREATOR_API_ENDPOINT: 'creator endpoint',
-      CREATOR_APP_ENDPOINT: 'voiceflow.com',
+      CREATOR_APP_ORIGIN: 'voiceflow.com',
     };
 
     const origin = 'voiceflow.com';
@@ -74,7 +74,7 @@ describe('dataAPI client unit tests', () => {
       VF_DATA_ENDPOINT: 'endpoint',
       CREATOR_API_AUTHORIZATION: 'creator auth',
       CREATOR_API_ENDPOINT: 'creator endpoint',
-      CREATOR_APP_ENDPOINT: 'voiceflow.com',
+      CREATOR_APP_ORIGIN: 'voiceflow.com',
     };
 
     const origin = 'other-site.com';
@@ -104,7 +104,7 @@ describe('dataAPI client unit tests', () => {
     const config = {
       CREATOR_API_AUTHORIZATION: 'creator auth',
       CREATOR_API_ENDPOINT: 'creator endpoint',
-      CREATOR_APP_ENDPOINT: 'voiceflow.com',
+      CREATOR_APP_ORIGIN: 'voiceflow.com',
     };
 
     const origin = 'voiceflow.com';
@@ -122,7 +122,7 @@ describe('dataAPI client unit tests', () => {
     const config = {
       ADMIN_SERVER_DATA_API_TOKEN: 'token',
       VF_DATA_ENDPOINT: 'endpoint',
-      CREATOR_APP_ENDPOINT: 'voiceflow.com',
+      CREATOR_APP_ORIGIN: 'voiceflow.com',
     };
 
     const origin = 'other-site.com';
