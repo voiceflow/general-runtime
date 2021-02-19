@@ -20,8 +20,8 @@ const buildClients = (config: Config): ClientMap => {
   };
 };
 
-export const initClients = async () => {
-  // no-op
+export const initClients = async (clients: ClientMap) => {
+  await clients.dataAPI.init();
 };
 
 export default buildClients;

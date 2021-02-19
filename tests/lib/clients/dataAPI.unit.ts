@@ -11,9 +11,8 @@ describe('dataAPI client unit tests', () => {
   });
 
   it('local api', async () => {
-    const initStub = sinon.stub();
     const API = {
-      LocalDataApi: sinon.stub().returns({ type: 'local', init: initStub }),
+      LocalDataApi: sinon.stub().returns({ type: 'local' }),
       RemoteDataAPI: sinon.stub().returns({ type: 'remote' }),
       CreatorDataApi: sinon.stub().returns({ type: 'creator' }),
     };
@@ -27,18 +26,16 @@ describe('dataAPI client unit tests', () => {
       CREATOR_APP_ORIGIN: 'voiceflow.com',
     };
 
-    expect(await new DataAPI(config as any, API as any).get()).to.eql({ type: 'local', init: initStub });
+    expect(await new DataAPI(config as any, API as any).get()).to.eql({ type: 'local' });
     expect(API.LocalDataApi.args).to.eql([[{ projectSource: config.PROJECT_SOURCE }, { fs: Static.fs, path: Static.path }]]);
-    expect(initStub.callCount).to.eql(1);
     expect(API.CreatorDataApi.callCount).to.eql(0);
-    expect(API.RemoteDataAPI.callCount).to.eql(0);
+    expect(API.RemoteDataAPI.callCount).to.eql(1);
   });
 
   it('remote api', async () => {
-    const initStub = sinon.stub();
     const API = {
       LocalDataApi: sinon.stub().returns({ type: 'local' }),
-      RemoteDataAPI: sinon.stub().returns({ type: 'remote', init: initStub }),
+      RemoteDataAPI: sinon.stub().returns({ type: 'remote' }),
       CreatorDataApi: sinon.stub().returns({ type: 'creator' }),
     };
 
@@ -52,11 +49,10 @@ describe('dataAPI client unit tests', () => {
 
     const origin = 'voiceflow.com';
 
-    expect(await new DataAPI(config as any, API as any).get('', origin)).to.eql({ type: 'remote', init: initStub });
+    expect(await new DataAPI(config as any, API as any).get('', origin)).to.eql({ type: 'remote' });
     expect(API.RemoteDataAPI.args).to.eql([
       [{ platform: 'general', adminToken: config.ADMIN_SERVER_DATA_API_TOKEN, dataEndpoint: config.VF_DATA_ENDPOINT }, { axios: Static.axios }],
     ]);
-    expect(initStub.callCount).to.eql(1);
     expect(API.CreatorDataApi.callCount).to.eql(0);
     expect(API.LocalDataApi.callCount).to.eql(0);
   });
@@ -84,7 +80,7 @@ describe('dataAPI client unit tests', () => {
     expect(API.CreatorDataApi.args).to.eql([[{ endpoint: `${config.CREATOR_API_ENDPOINT}/v2`, authorization: config.CREATOR_API_AUTHORIZATION }]]);
     expect(initStub.callCount).to.eql(1);
     expect(API.LocalDataApi.callCount).to.eql(0);
-    expect(API.RemoteDataAPI.callCount).to.eql(0);
+    expect(API.RemoteDataAPI.callCount).to.eql(1);
 
     expect(await dataAPI.get('new auth', origin)).to.eql({ type: 'creator', init: initStub });
     expect(API.CreatorDataApi.secondCall.args).to.eql([{ endpoint: `${config.CREATOR_API_ENDPOINT}/v2`, authorization: 'new auth' }]);
