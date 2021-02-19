@@ -17,9 +17,11 @@ describe('interact controller unit tests', () => {
         request: req.body.request,
         versionID: req.params.versionID,
         data: {
-          authorization: req.headers.authorization,
           locale: req.query.locale,
-          origin: req.headers.origin,
+          reqHeaders: {
+            authorization: req.headers.authorization,
+            origin: req.headers.origin,
+          },
         },
       };
       const output = (state: string, params?: any) => ({ ...context, ...params, state, end: false });
