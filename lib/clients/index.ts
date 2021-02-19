@@ -1,5 +1,3 @@
-import { DataAPI as DataAPIType } from '@voiceflow/runtime';
-
 import { Config } from '@/types';
 
 import DataAPI from './dataAPI';
@@ -7,7 +5,7 @@ import Metrics, { MetricsType } from './metrics';
 import Static, { StaticType } from './static';
 
 export interface ClientMap extends StaticType {
-  dataAPI: DataAPIType<any, any>;
+  dataAPI: DataAPI;
   metrics: MetricsType;
 }
 
@@ -17,7 +15,7 @@ export interface ClientMap extends StaticType {
 const buildClients = (config: Config): ClientMap => {
   return {
     ...Static,
-    dataAPI: DataAPI(config),
+    dataAPI: new DataAPI(config),
     metrics: Metrics(config),
   };
 };

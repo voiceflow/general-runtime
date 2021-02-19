@@ -74,6 +74,8 @@ export type AnyClass = Class<any, any[]>;
 export type ContextData = {
   locale?: string;
   api: CacheDataAPI;
+  authorization?: string;
+  origin?: string;
 };
 
 export type Context = Runtime.Context<GeneralRequest, GeneralTrace, ContextData>;

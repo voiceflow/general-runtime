@@ -13,8 +13,9 @@ import { Context } from '@/types';
 import { AbstractController } from './utils';
 
 class InteractController extends AbstractController {
-  async state(req: { params: { versionID: string } }) {
-    const version = await this.services.dataAPI.getVersion(req.params.versionID);
+  async state(req: { headers: { authorization?: string; origin?: string }; params: { versionID: string } }) {
+    const api = this.services.dataAPI.get(req.headers.authorization, req.headers.origin);
+    const version = await api.getVersion(req.params.versionID);
     return this.services.state.generate(version);
   }
 
@@ -22,11 +23,11 @@ class InteractController extends AbstractController {
     const { runtime, metrics, nlu, tts, chips, dialog, asr, state: stateManager } = this.services;
 
     metrics.generalRequest();
-
     const {
       body: { state, request = null, config = {} },
       params: { versionID },
       query: { locale },
+      headers: { authorization, origin },
     } = req;
 
     const turn = new TurnBuilder<Context>(stateManager);
@@ -39,7 +40,7 @@ class InteractController extends AbstractController {
 
     turn.addHandlers(chips);
 
-    return turn.resolve({ state, request, versionID, data: { locale } });
+    return turn.resolve({ state, request, versionID, data: { locale, authorization, origin } });
   }
 }
 
