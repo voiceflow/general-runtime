@@ -12,7 +12,7 @@
     }
   },
   "dependencies": {
-    "@voiceflow/api-sdk": "1.22.0",
+    "@voiceflow/api-sdk": "v1.27.0",
     "@voiceflow/backend-utils": "^2.2.0",
     "@voiceflow/common": "6.5.0",
     "@voiceflow/general-types": "^1.25.2",
