@@ -60,9 +60,13 @@ const CONFIG: Config = {
   REDIS_CLUSTER_HOST: getRequiredProcessEnv('REDIS_CLUSTER_HOST'),
   REDIS_CLUSTER_PORT: Number(getRequiredProcessEnv('REDIS_CLUSTER_PORT')),
 
+  // rate limiting
+  // 1000 request per minute
+  RATE_LIMITER_POINTS_PUBLIC: Number(getOptionalProcessEnv('RATE_LIMITER_POINTS_PUBLIC', '1000')),
+  RATE_LIMITER_DURATION_PUBLIC: Number(getOptionalProcessEnv('RATE_LIMITER_DURATION_PUBLIC', '60')),
   // 500 requests per minute
-  RATE_LIMITER_POINTS: Number(getOptionalProcessEnv('RATE_LIMITER_POINTS', '500')),
-  RATE_LIMITER_DURATION: Number(getOptionalProcessEnv('RATE_LIMITER_DURATION', '60')),
+  RATE_LIMITER_POINTS_PRIVATE: Number(getOptionalProcessEnv('RATE_LIMITER_POINTS_PRIVATE', '500')),
+  RATE_LIMITER_DURATION_PRIVATE: Number(getOptionalProcessEnv('RATE_LIMITER_DURATION_PRIVATE', '60')),
 };
 
 export default CONFIG;

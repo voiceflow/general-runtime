@@ -9,11 +9,10 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
 
   router.use(bodyParser.json({ limit: BODY_PARSER_SIZE_LIMIT }));
   router.use(middlewares.rateLimit.verify);
-  router.use(middlewares.rateLimit.consume);
 
-  router.get('/:versionID/state', controllers.interact.state);
+  router.get('/:versionID/state', middlewares.rateLimit.consume, controllers.interact.state);
 
-  router.post('/:versionID', controllers.interact.handler);
+  router.post('/:versionID', middlewares.rateLimit.consume, controllers.interact.handler);
 
   return router;
 };
