@@ -13,7 +13,7 @@ class DataAPI {
 
   remoteDataApi: RemoteDataAPI | undefined;
 
-  creatorAppEndpoint: string;
+  creatorAppOrigin: string | null;
 
   creatorAPIEndpoint: string | null;
 
@@ -35,7 +35,7 @@ class DataAPI {
       CREATOR_APP_ORIGIN,
     } = config;
 
-    this.creatorAppEndpoint = CREATOR_APP_ORIGIN ?? '';
+    this.creatorAppOrigin = CREATOR_APP_ORIGIN;
     this.creatorAPIEndpoint = CREATOR_API_ENDPOINT;
     this.creatorAPIAuthorization = CREATOR_API_AUTHORIZATION ?? '';
     this.api = API;
@@ -68,7 +68,7 @@ class DataAPI {
     if (this.localDataApi) {
       return this.localDataApi;
     }
-    if (origin === this.creatorAppEndpoint) {
+    if (this.creatorAPIAuthorization && origin === this.creatorAppOrigin) {
       if (!this.remoteDataApi) {
         throw new Error('no remote data API env configuration set');
       }
