@@ -68,7 +68,7 @@ class DataAPI {
     if (this.localDataApi) {
       return this.localDataApi;
     }
-    if (this.creatorAPIAuthorization && origin === this.creatorAppOrigin) {
+    if (this.creatorAppOrigin && origin === this.creatorAppOrigin) {
       if (!this.remoteDataApi) {
         throw new Error('no remote data API env configuration set');
       }
