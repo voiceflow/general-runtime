@@ -56,6 +56,13 @@ const CONFIG: Config = {
   // Logging
   LOG_LEVEL: getOptionalProcessEnv('LOG_LEVEL'),
   MIDDLEWARE_VERBOSITY: getOptionalProcessEnv('MIDDLEWARE_VERBOSITY'),
+
+  REDIS_CLUSTER_HOST: getRequiredProcessEnv('REDIS_CLUSTER_HOST'),
+  REDIS_CLUSTER_PORT: Number(getRequiredProcessEnv('REDIS_CLUSTER_PORT')),
+
+  // 500 requests per minute
+  RATE_LIMITER_POINTS: Number(getOptionalProcessEnv('RATE_LIMITER_POINTS', '500')),
+  RATE_LIMITER_DURATION: Number(getOptionalProcessEnv('RATE_LIMITER_DURATION', '60')),
 };
 
 export default CONFIG;

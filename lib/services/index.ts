@@ -5,6 +5,7 @@ import ASR from './asr';
 import Chips from './chips';
 import Dialog from './dialog';
 import NLU from './nlu';
+import RateLimit from './rateLimit';
 import Runtime from './runtime';
 import State from './state';
 import TTS from './tts';
@@ -17,6 +18,7 @@ export interface ServiceMap {
   dialog: Dialog;
   tts: TTS;
   chips: Chips;
+  rateLimit: RateLimit;
 }
 
 export interface FullServiceMap extends ClientMap, ServiceMap {}
@@ -36,6 +38,7 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.tts = new TTS(services, config);
   services.dialog = new Dialog(services, config);
   services.chips = new Chips(services, config);
+  services.rateLimit = new RateLimit(services, config);
 
   return services;
 };
