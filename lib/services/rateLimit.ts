@@ -20,11 +20,11 @@ class RateLimit extends AbstractManager {
     try {
       const rateLimiterRes = await rateLimiterClient.consume(resource!);
 
-      this.services.rateLimit.setHeaders(res, rateLimiterRes, maxPoints);
+      this.setHeaders(res, rateLimiterRes, maxPoints);
     } catch (rateLimiterRes) {
       res.setHeader('Retry-After', Math.floor(rateLimiterRes.msBeforeNext / 1000));
 
-      this.services.rateLimit.setHeaders(res, rateLimiterRes, maxPoints);
+      this.setHeaders(res, rateLimiterRes, maxPoints);
 
       throw new VError('Too Many Request', VError.HTTP_STATUS.TOO_MANY_REQUESTS);
     }

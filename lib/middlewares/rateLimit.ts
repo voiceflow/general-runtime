@@ -5,7 +5,11 @@ import { AbstractMiddleware } from './utils';
 
 class RateLimit extends AbstractMiddleware {
   async verify(req: Request<{}>, _res: Response, next: NextFunction) {
-    if (!this.config.PROJECT_SOURCE && req.headers.origin !== this.config.CREATOR_APP_ORIGIN && !req.headers.authorization)
+    if (
+      !this.config.PROJECT_SOURCE &&
+      (!this.config.CREATOR_APP_ORIGIN || req.headers.origin !== this.config.CREATOR_APP_ORIGIN) &&
+      !req.headers.authorization
+    )
       throw new VError('Auth Key Required', VError.HTTP_STATUS.UNAUTHORIZED);
 
     next();

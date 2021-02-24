@@ -15,7 +15,12 @@ const tests = [
           state: 1,
         },
       },
-      middlewares: {},
+      middlewares: {
+        rateLimit: {
+          verify: 1,
+          consume: 1,
+        },
+      },
       validations: {},
     },
   },
@@ -28,7 +33,12 @@ const tests = [
           handler: 1,
         },
       },
-      middlewares: {},
+      middlewares: {
+        rateLimit: {
+          verify: 1,
+          consume: 1,
+        },
+      },
       validations: {},
     },
   },
