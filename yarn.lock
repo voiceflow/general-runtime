@@ -876,7 +876,7 @@
     regenerator-runtime "^0.13.5"
     superstruct "^0.10.12"
 
-"@voiceflow/api-sdk@v1.27.0":
+"@voiceflow/api-sdk@1.27.0", "@voiceflow/api-sdk@v1.27.0":
   version "1.27.0"
   resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.27.0.tgz#d128a3e6c39406e4087dc16eee00bc448e9e610a"
   integrity sha512-kAYOEhA1zdHRHWz9onPC4g/ikAUiUaR/VFw12LFR+WzxXniwQ/J4qpcaJqCj9x+AEQ9AeC2QvEGICVu4JOaeXw==
@@ -1037,13 +1037,13 @@
   resolved "https://registry.yarnpkg.com/@voiceflow/prettier-config/-/prettier-config-1.0.5.tgz#307caf65040ae0c0539ecb8531b9e403381f11ab"
   integrity sha512-yM35E7UI0fD8yMgL7JImljvMLZVU+jCz/latc2s2e7Nlbr9kiMpO0FArjkaXVIghhcUeQ0y04lsFUHRu3kMzmA==
 
-"@voiceflow/runtime@1.24.0":
-  version "1.24.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/runtime/-/runtime-1.24.0.tgz#ab96022c3a4134e15974fb53fb59a983e28ce4e5"
-  integrity sha512-LKVswUQPqiN+G92aGDZSLJq+S6w+kgwW2HfSS2CWLI5fvs4U8XQEUMsAxO64QRke/ZGRNs6tlQsdiPTJdbK1Og==
+"@voiceflow/runtime@1.24.1":
+  version "1.24.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/runtime/-/runtime-1.24.1.tgz#579d3bfce6f91e18390a7dff268a8d43c6c1ffbe"
+  integrity sha512-FzDhiWqPnN1vEvoT6ge2BM4/F2pEoH+RKMxmqN/wUQITGxSw3g1/6zipSVPsgDfCYO4fz5CQm2g8vIdXENsBPA==
   dependencies:
     "@types/safe-json-stringify" "^1.1.0"
-    "@voiceflow/api-sdk" "1.22.0"
+    "@voiceflow/api-sdk" "1.27.0"
     "@voiceflow/common" "6.5.0"
     "@voiceflow/general-types" "1.24.0"
     axios "^0.19.0"
