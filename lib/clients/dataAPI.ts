@@ -9,36 +9,25 @@ import Static from './static';
  * Build all clients
  */
 class DataAPI {
-  localDataApi: LocalDataApi<any, any> | undefined;
+  localDataApi?: LocalDataApi<any, any>;
 
-  remoteDataApi: RemoteDataAPI | undefined;
+  remoteDataApi?: RemoteDataAPI;
 
-  creatorAppOrigin: string | null;
+  creatorAPIAuthorization?: string;
 
-  creatorAPIEndpoint: string | null;
-
-  creatorAPIAuthorization: string;
-
-  api: {
-    LocalDataApi: typeof LocalDataApi;
-    RemoteDataAPI: typeof RemoteDataAPI;
-    CreatorDataApi: typeof CreatorDataApi;
-  };
+  creatorDataApi?: (authorization: string) => CreatorDataApi<any, any, any>;
 
   constructor(config: Config, API = { LocalDataApi, RemoteDataAPI, CreatorDataApi }) {
-    const {
-      PROJECT_SOURCE,
-      ADMIN_SERVER_DATA_API_TOKEN,
-      VF_DATA_ENDPOINT,
-      CREATOR_API_AUTHORIZATION,
-      CREATOR_API_ENDPOINT,
-      CREATOR_APP_ORIGIN,
-    } = config;
+    const { PROJECT_SOURCE, ADMIN_SERVER_DATA_API_TOKEN, VF_DATA_ENDPOINT, CREATOR_API_AUTHORIZATION, CREATOR_API_ENDPOINT } = config;
 
-    this.creatorAppOrigin = CREATOR_APP_ORIGIN;
-    this.creatorAPIEndpoint = CREATOR_API_ENDPOINT;
-    this.creatorAPIAuthorization = CREATOR_API_AUTHORIZATION ?? '';
-    this.api = API;
+    if (CREATOR_API_ENDPOINT) {
+      this.creatorAPIAuthorization = CREATOR_API_AUTHORIZATION || '';
+      this.creatorDataApi = (authorization) =>
+        new API.CreatorDataApi({
+          endpoint: `${CREATOR_API_ENDPOINT}/v2`,
+          authorization,
+        });
+    }
 
     // fetch from local VF file
     if (PROJECT_SOURCE) {
@@ -64,29 +53,22 @@ class DataAPI {
     await this.remoteDataApi?.init();
   }
 
-  public async get(authorization?: string, origin?: string) {
+  public async get(authorization = this.creatorAPIAuthorization) {
+    if (this.creatorDataApi && authorization) {
+      const dataApi = this.creatorDataApi(authorization);
+      await dataApi.init();
+      return dataApi;
+    }
+
     if (this.localDataApi) {
       return this.localDataApi;
     }
-    if (this.creatorAppOrigin && origin === this.creatorAppOrigin) {
-      if (!this.remoteDataApi) {
-        throw new Error('no remote data API env configuration set');
-      }
 
+    if (this.remoteDataApi) {
       return this.remoteDataApi;
     }
 
-    // fetch from creator-api
-    if (!this.creatorAPIEndpoint) {
-      throw new Error('no creator data API env configuration set');
-    }
-
-    const dataApi = new this.api.CreatorDataApi({
-      endpoint: `${this.creatorAPIEndpoint}/v2`,
-      authorization: authorization || this.creatorAPIAuthorization,
-    });
-    await dataApi.init();
-    return dataApi;
+    throw new Error('no data API env configuration set');
   }
 }
 
