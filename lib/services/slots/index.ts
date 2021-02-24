@@ -1,9 +1,3 @@
-/**
- * [[include:chips.md]]
- * @packageDocumentation
- */
-
-// import { TraceType } from '@voiceflow/general-types';
 import _ from 'lodash';
 
 import { Context, ContextHandler } from '@/types';
@@ -16,7 +10,7 @@ export const utils = {};
 interface Entity {
   name: string;
   value: string;
-  rawValue?: string | string[][];
+  rawValue?: string[] | string[][];
 }
 
 interface Slot {
@@ -25,6 +19,8 @@ interface Slot {
   };
   name: string;
 }
+
+const natoApcoExceptions = ['00', '000'];
 
 @injectServices({ utils })
 class SlotsService extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
@@ -36,9 +32,11 @@ class SlotsService extends AbstractManager<{ utils: typeof utils }> implements C
     entities.forEach((entity) => {
       slots.forEach((slot) => {
         if (entity.name === slot.name && slot.type.value === 'VF.NATOAPCO') {
-          if (Array.isArray(entity.rawValue)) {
-            entity.value = entity.rawValue.reduce((acc, cur) => (cur[0] === '00' || cur[0] === '000' ? acc + cur[0] : acc + cur[0][0]), '');
-          }
+          // entity.rawValue is always string[][] for NATO/APCO slots
+          entity.value = (entity.rawValue as string[][]).reduce(
+            (acc, cur) => (natoApcoExceptions.includes(cur[0]) ? acc + cur[0] : acc + cur[0][0]),
+            ''
+          );
         }
       });
     });

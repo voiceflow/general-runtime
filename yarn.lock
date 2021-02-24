@@ -883,6 +883,17 @@
     regenerator-runtime "^0.13.5"
     superstruct "^0.10.12"
 
+"@voiceflow/api-sdk@1.24.1":
+  version "1.24.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.24.1.tgz#5ac1837205b4d7b064c385cc51c25517f993751f"
+  integrity sha512-KTVN/yRcyq8UgWLT76C1x4hNGmXRv7oftbpj2RnD8n1PQOQCDwudrn5yRCwBUVBhngm95SPwKvJnTqlQ4Bi+rQ==
+  dependencies:
+    "@types/atob" "^2.1.2"
+    "@voiceflow/logger" "^1.4.2"
+    atob "^2.1.2"
+    axios "^0.21.1"
+    superstruct "^0.10.12"
+
 "@voiceflow/api-sdk@1.27.0", "@voiceflow/api-sdk@v1.27.0":
   version "1.27.0"
   resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.27.0.tgz#d128a3e6c39406e4087dc16eee00bc448e9e610a"
