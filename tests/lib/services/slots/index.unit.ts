@@ -1,7 +1,7 @@
+import { RequestType } from '@voiceflow/general-types/build';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { RequestType } from '@/../general-types/build';
 import SlotsManager, { utils as defaultUtils } from '@/lib/services/slots';
 
 describe('slots manager unit tests', () => {
