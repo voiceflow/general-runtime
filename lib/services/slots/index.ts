@@ -1,3 +1,4 @@
+import { SlotType } from '@voiceflow/general-types';
 import _ from 'lodash';
 
 import { Context, ContextHandler } from '@/types';
@@ -31,12 +32,14 @@ class SlotsService extends AbstractManager<{ utils: typeof utils }> implements C
   natoApcoConverter = (entities: Entity[], slots: Slot[]) => {
     entities.forEach((entity) => {
       slots.forEach((slot) => {
-        if (entity.name === slot.name && slot.type.value === 'VF.NATOAPCO') {
-          // entity.rawValue is always string[][] for NATO/APCO slots
-          entity.value = (entity.rawValue as string[][]).reduce(
-            (acc, cur) => (natoApcoExceptions.includes(cur[0]) ? acc + cur[0] : acc + cur[0][0]),
-            ''
-          );
+        if (entity.name === slot.name && slot.type.value === SlotType.NATOAPCO) {
+          // if using regex raw value will not be populated
+          if (!Array.isArray(entity.rawValue)) {
+            entity.rawValue = entity.value.split(' ').map((value) => [value]);
+          }
+          entity.value = (entity.rawValue as string[][])
+            .reduce((acc, cur) => (natoApcoExceptions.includes(cur[0]) ? acc + cur[0] : acc + cur[0][0]), '')
+            .toUpperCase();
         }
       });
     });
@@ -48,13 +51,16 @@ class SlotsService extends AbstractManager<{ utils: typeof utils }> implements C
     }
 
     const version = await context.data.api.getVersion(context.versionID);
+    const slots = version.prototype?.model.slots;
 
     if (!version) {
       throw new Error('Version not found!');
     }
+    if (!slots) {
+      return context;
+    }
 
-    this.natoApcoConverter(context.request?.payload.entities, version.platformData.slots);
-
+    this.natoApcoConverter(context.request?.payload.entities, slots);
     return context;
   };
 }

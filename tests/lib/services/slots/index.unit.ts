@@ -12,21 +12,23 @@ describe('slots manager unit tests', () => {
   describe('handle', () => {
     it('reduces NATOAPCO slot type values correctly', async () => {
       const version = {
-        platformData: {
-          slots: [
-            {
-              name: 'natoSlot',
-              type: {
-                value: 'VF.NATOAPCO',
+        prototype: {
+          model: {
+            slots: [
+              {
+                name: 'natoSlot',
+                type: {
+                  value: 'VF.NATOAPCO',
+                },
               },
-            },
-            {
-              name: 'otherSlot',
-              type: {
-                value: 'VF.NUMBER',
+              {
+                name: 'otherSlot',
+                type: {
+                  value: 'VF.NUMBER',
+                },
               },
-            },
-          ],
+            ],
+          },
         },
       };
 
