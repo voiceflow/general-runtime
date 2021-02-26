@@ -43,8 +43,8 @@ export interface Config {
   PROJECT_SOURCE: string | null;
   SESSIONS_SOURCE: string | null;
 
-  REDIS_CLUSTER_HOST: string;
-  REDIS_CLUSTER_PORT: number;
+  REDIS_CLUSTER_HOST: string | null;
+  REDIS_CLUSTER_PORT: number | null;
 
   RATE_LIMITER_POINTS_PUBLIC: number;
   RATE_LIMITER_DURATION_PUBLIC: number;

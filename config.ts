@@ -57,8 +57,8 @@ const CONFIG: Config = {
   LOG_LEVEL: getOptionalProcessEnv('LOG_LEVEL'),
   MIDDLEWARE_VERBOSITY: getOptionalProcessEnv('MIDDLEWARE_VERBOSITY'),
 
-  REDIS_CLUSTER_HOST: getRequiredProcessEnv('REDIS_CLUSTER_HOST'),
-  REDIS_CLUSTER_PORT: Number(getRequiredProcessEnv('REDIS_CLUSTER_PORT')),
+  REDIS_CLUSTER_HOST: getOptionalProcessEnv('REDIS_CLUSTER_HOST'),
+  REDIS_CLUSTER_PORT: getOptionalProcessEnv('REDIS_CLUSTER_PORT'),
 
   // rate limiting
   // 1000 request per minute
