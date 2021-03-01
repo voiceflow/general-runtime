@@ -32,6 +32,8 @@ export interface Config {
   CREATOR_API_ENDPOINT: string | null;
   CREATOR_API_AUTHORIZATION: string | null;
 
+  CREATOR_APP_ORIGIN: string | null;
+
   ADMIN_SERVER_DATA_API_TOKEN: string | null;
   VF_DATA_ENDPOINT: string | null;
   // Logging
@@ -40,6 +42,14 @@ export interface Config {
 
   PROJECT_SOURCE: string | null;
   SESSIONS_SOURCE: string | null;
+
+  REDIS_CLUSTER_HOST: string | null;
+  REDIS_CLUSTER_PORT: number | null;
+
+  RATE_LIMITER_POINTS_PUBLIC: number;
+  RATE_LIMITER_DURATION_PUBLIC: number;
+  RATE_LIMITER_POINTS_PRIVATE: number;
+  RATE_LIMITER_DURATION_PRIVATE: number;
 }
 
 export interface Request<P extends {} = {}> extends Express.Request<P> {
@@ -72,6 +82,10 @@ export type AnyClass = Class<any, any[]>;
 export type ContextData = {
   locale?: string;
   api: CacheDataAPI;
+  reqHeaders?: {
+    authorization?: string;
+    origin?: string;
+  };
 };
 
 export type Context = Runtime.Context<GeneralRequest, GeneralTrace, ContextData>;

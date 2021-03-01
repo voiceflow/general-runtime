@@ -9,10 +9,11 @@ import Client from '@voiceflow/runtime';
 import { Config, Context, ContextHandler } from '@/types';
 
 import { FullServiceMap } from '../index';
+import CacheDataAPI from '../state/cacheDataAPI';
 import { AbstractManager, injectServices } from '../utils';
 import Handlers from './handlers';
 import init from './init';
-import { isIntentRequest, isRuntimeRequest, RuntimeRequest } from './types';
+import { isIntentRequest, isRuntimeRequest } from './types';
 import { getReadableConfidence } from './utils';
 
 export const utils = {
@@ -22,28 +23,29 @@ export const utils = {
 
 @injectServices({ utils })
 class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  private client: Client<RuntimeRequest>;
-
   private handlers: ReturnType<typeof Handlers>;
 
   constructor(services: FullServiceMap, config: Config) {
     super(services, config);
-
     this.handlers = this.services.utils.Handlers(config);
+  }
 
-    this.client = new this.services.utils.Client({
-      api: services.dataAPI,
-      services,
+  createClient(api: CacheDataAPI) {
+    const client = new this.services.utils.Client({
+      api,
+      services: this.services,
       handlers: this.handlers,
     });
 
-    init(this.client);
+    init(client);
+
+    return client;
   }
 
   public async handle({ versionID, state, request, ...context }: Context) {
     if (!isRuntimeRequest(request)) throw new Error(`invalid runtime request type: ${JSON.stringify(request)}`);
 
-    const runtime = this.client.createRuntime(versionID, state, request, { api: context.data.api });
+    const runtime = this.createClient(context.data.api).createRuntime(versionID, state, request);
 
     if (isIntentRequest(request)) {
       runtime.trace.debug(

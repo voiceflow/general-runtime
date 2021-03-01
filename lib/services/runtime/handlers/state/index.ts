@@ -1,3 +1,4 @@
+import oneShotHandler from './oneShot';
 import streamStateHandler from './stream';
 
-export default () => [streamStateHandler()];
+export default () => [streamStateHandler(), oneShotHandler()];

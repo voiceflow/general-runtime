@@ -5,6 +5,7 @@
 
 import { PrototypeModel } from '@voiceflow/api-sdk';
 import { GeneralTrace, IntentRequest, Locale, TraceType } from '@voiceflow/general-types';
+import { SpeakType } from '@voiceflow/general-types/build/nodes/speak';
 import _ from 'lodash';
 
 import logger from '@/logger';
@@ -110,7 +111,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
         // Remove the dmPrefix from entity values that it has accidentally been attached to
         dmPrefixedResult.payload.entities.forEach((entity) => {
-          entity.value = entity.value.replace(prefix, '').trim();
+          entity.value = _.isString(entity.value) ? entity.value.replace(prefix, '').trim() : entity.value;
         });
 
         const isFallback = this.handleDMContext(dmStateStore, dmPrefixedResult, incomingRequest, version.prototype.model);
@@ -161,6 +162,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         type: TraceType.SPEAK,
         payload: {
           message: fillStringEntities(inputToString(_.sample(unfulfilledEntity.dialog.prompt)!), dmStateStore!.intentRequest),
+          type: SpeakType.MESSAGE,
         },
       });
 

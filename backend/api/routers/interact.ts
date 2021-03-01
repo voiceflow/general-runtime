@@ -4,13 +4,15 @@ import express from 'express';
 import { BODY_PARSER_SIZE_LIMIT } from '@/backend/constants';
 import { ControllerMap, MiddlewareMap } from '@/lib';
 
-export default (_: MiddlewareMap, controllers: ControllerMap) => {
+export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   const router = express.Router();
 
   router.use(bodyParser.json({ limit: BODY_PARSER_SIZE_LIMIT }));
-  router.get('/:versionID/state', controllers.interact.state);
+  router.use(middlewares.rateLimit.verify);
 
-  router.post('/:versionID', controllers.interact.handler);
+  router.get('/:versionID/state', middlewares.rateLimit.consume, controllers.interact.state);
+
+  router.post('/:versionID', middlewares.rateLimit.consume, controllers.interact.handler);
 
   return router;
 };

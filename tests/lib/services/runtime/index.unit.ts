@@ -60,7 +60,8 @@ describe('runtime manager unit tests', () => {
         versionID: VERSION_ID,
         data: { api: { getProgram: 'api' } },
       });
-      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request, { api: context.data.api }]]);
+      expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
+      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request]]);
       expect(runtime.update.callCount).to.eql(1);
     });
 
@@ -106,7 +107,8 @@ describe('runtime manager unit tests', () => {
         versionID: VERSION_ID,
         data: { api: { getProgram: 'api' } },
       });
-      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request, { api: context.data.api }]]);
+      expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
+      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request]]);
       expect(utils.Handlers.callCount).to.eql(1);
     });
 
