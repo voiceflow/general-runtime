@@ -1,0 +1,15 @@
+name: PR Title validation
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  pr-validation:
+    name: Checks if the PR title is valid
+    runs-on: ubuntu-latest
+    steps:
+      - uses: deepakputhraya/action-pr-title@master
+        with:
+          regex: ${{ secrets.PR_TITLE_REGEX }} # Regex the title should match.
+          github_token: ${{ secrets.GH_SA_TOKEN }}
