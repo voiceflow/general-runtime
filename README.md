@@ -105,7 +105,9 @@ The simplified example **response** `Context`
 Notice that the text `request` got processed by the NLP handler to become an intent type `request`.
 The `state` is updated, and a `trace` is generated.
 
-# setup
+To use the endpoint without the creator app prototype tool or the [Runtime Client JavaScript SDK](https://github.com/voiceflow/runtime-client-js), you can start a conversation by hitting the `/interact/{VERSION_ID}` with no request body. This will generate the state for you, which you can save. To move the conversation forward, you can create a `GeneralRequest` object with your request and pass it in the response body to `/interact/{VERSION_ID}` along with the state and optionally a `Config` object. This will return an updated `State`, a processed `GeneralRequest`, and the `GeneralTrace[]` list containing the traces to display.
+
+# Setup
 
 run `yarn` in command line to install all dependencies.
 
