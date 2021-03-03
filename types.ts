@@ -1,4 +1,4 @@
-import { GeneralRequest, GeneralTrace } from '@voiceflow/general-types';
+import { Config as RequestConfig, GeneralRequest, GeneralTrace } from '@voiceflow/general-types';
 import * as Runtime from '@voiceflow/runtime';
 import * as Express from 'express';
 import * as ExpressValidator from 'express-validator';
@@ -82,6 +82,7 @@ export type AnyClass = Class<any, any[]>;
 export type ContextData = {
   locale?: string;
   api: CacheDataAPI;
+  config?: RequestConfig;
   reqHeaders?: {
     authorization?: string;
     origin?: string;
