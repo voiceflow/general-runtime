@@ -4,6 +4,7 @@ import { ClientMap } from '../clients';
 import ASR from './asr';
 import Chips from './chips';
 import Dialog from './dialog';
+import Filter from './filter';
 import NLU from './nlu';
 import RateLimit from './rateLimit';
 import Runtime from './runtime';
@@ -21,6 +22,7 @@ export interface ServiceMap {
   chips: Chips;
   rateLimit: RateLimit;
   slots: Slots;
+  filter: Filter;
 }
 
 export interface FullServiceMap extends ClientMap, ServiceMap {}
@@ -42,6 +44,7 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.chips = new Chips(services, config);
   services.rateLimit = new RateLimit(services, config);
   services.slots = new Slots(services, config);
+  services.filter = new Filter(services, config);
 
   return services;
 };
