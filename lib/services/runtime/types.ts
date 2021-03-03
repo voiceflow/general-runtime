@@ -10,7 +10,7 @@ export const isIntentRequest = (request: GeneralRequest): request is IntentReque
 };
 
 export const isRuntimeRequest = (request: GeneralRequest): request is RuntimeRequest => {
-  return request === null || !!([RequestType.INTENT, RequestType.DATA].includes(request?.type!) && request!.payload);
+  return request === null || !!([RequestType.INTENT, RequestType.DATA, RequestType.TRACE].includes(request?.type!) && request!.payload);
 };
 
 export enum StorageType {
