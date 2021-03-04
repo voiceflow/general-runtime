@@ -1,8 +1,8 @@
 import { formatIntentName } from '@voiceflow/common';
-import { EventType, GeneralEvent, IntentEvent, IntentRequest } from '@voiceflow/general-types';
+import { EventRequest, EventType, GeneralEvent, IntentEvent, IntentRequest, TraceEvent } from '@voiceflow/general-types';
 import { Runtime, Store } from '@voiceflow/runtime';
 
-import { GeneralRuntime, isIntentRequest } from '@/lib/services/runtime/types';
+import { GeneralRuntime, isEventRequest, isIntentRequest } from '@/lib/services/runtime/types';
 
 import { mapEntities } from '../../utils';
 
@@ -21,7 +21,21 @@ export const intentEventMatcher = {
   },
 };
 
-const EventMatchers = [intentEventMatcher];
+export const traceEventMatcher = {
+  match: (context: { runtime: GeneralRuntime; event: GeneralEvent | null }): context is { runtime: Runtime<EventRequest>; event: TraceEvent } => {
+    const request = context.runtime.getRequest();
+    if (!isEventRequest(request)) return false;
+    if (context.event?.type !== EventType.TRACE) return false;
+    if (context.event.name !== request?.payload.name) return false;
+    return true;
+  },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  sideEffect: (_context: { runtime: Runtime<IntentRequest>; event: TraceEvent; variables: Store }) => {
+    // to-do: trace event side effect management
+  },
+};
+
+const EventMatchers = [intentEventMatcher, traceEventMatcher];
 
 export const findEventMatcher = (context: { event: GeneralEvent | null; runtime: GeneralRuntime; variables: Store }) => {
   const matcher = EventMatchers.find((m) => m.match(context));

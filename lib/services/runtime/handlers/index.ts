@@ -19,6 +19,7 @@ import InteractionHandler from './interaction';
 import SpeakHandler from './speak';
 import StateHandlers from './state';
 import StreamHandler from './stream';
+import TraceHandler from './trace';
 import VisualHandler from './visual';
 
 export default ({ API_HANDLER_ENDPOINT, INTEGRATIONS_HANDLER_ENDPOINT, CODE_HANDLER_ENDPOINT }: Config) => [
@@ -39,4 +40,5 @@ export default ({ API_HANDLER_ENDPOINT, INTEGRATIONS_HANDLER_ENDPOINT, CODE_HAND
   StartHandler(),
   VisualHandler(),
   NextHandler(),
+  TraceHandler(),
 ];

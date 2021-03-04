@@ -1,7 +1,7 @@
-import { DataRequest, GeneralRequest, IntentRequest, NodeID, RequestType } from '@voiceflow/general-types';
+import { DataRequest, EventRequest, GeneralRequest, IntentRequest, NodeID, RequestType } from '@voiceflow/general-types';
 import { Runtime } from '@voiceflow/runtime';
 
-export type RuntimeRequest = IntentRequest | DataRequest | null;
+export type RuntimeRequest = IntentRequest | DataRequest | EventRequest | null;
 
 export type GeneralRuntime = Runtime<RuntimeRequest>;
 
@@ -10,7 +10,11 @@ export const isIntentRequest = (request: GeneralRequest): request is IntentReque
 };
 
 export const isRuntimeRequest = (request: GeneralRequest): request is RuntimeRequest => {
-  return request === null || !!([RequestType.INTENT, RequestType.DATA, RequestType.TRACE].includes(request?.type!) && request!.payload);
+  return request === null || !!([RequestType.INTENT, RequestType.DATA, RequestType.EVENT].includes(request?.type!) && request!.payload);
+};
+
+export const isEventRequest = (request: GeneralRequest | null): request is EventRequest => {
+  return request?.type === RequestType.EVENT;
 };
 
 export enum StorageType {
