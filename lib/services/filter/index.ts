@@ -3,8 +3,9 @@
  * @packageDocumentation
  */
 
-import { TraceType } from '@/../general-types/build';
-import { SpeakType } from '@/../general-types/build/nodes/speak';
+import { TraceType } from '@voiceflow/general-types';
+import { SpeakType } from '@voiceflow/general-types/build/nodes/speak';
+
 import { Context, ContextHandler } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
