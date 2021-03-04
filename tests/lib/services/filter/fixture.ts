@@ -1,6 +1,6 @@
-import { BlockTrace, ChoiceTrace, DebugTrace, SpeakTrace, TraceType } from '@/../general-types/build';
-import { SpeakType } from '@/../general-types/build/nodes/speak';
-import { Context, PartialContext } from '@/../runtime/build';
+import { BlockTrace, ChoiceTrace, DebugTrace, SpeakTrace, TraceType } from '@voiceflow/general-types/build';
+import { SpeakType } from '@voiceflow/general-types/build/nodes/speak';
+import { Context, PartialContext } from '@voiceflow/runtime/build';
 
 export const BLOCK_TRACE_START: BlockTrace = {
   type: TraceType.BLOCK,
