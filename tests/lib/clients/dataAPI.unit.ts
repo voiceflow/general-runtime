@@ -80,39 +80,4 @@ describe('dataAPI client unit tests', () => {
   it('fails if no data API env configuration set', () => {
     expect(() => new DataAPI({} as any, {} as any)).to.throw('no data API env configuration set');
   });
-
-  it('fails if origin matches but no remote data API env configuration set', async () => {
-    const API = {
-      LocalDataApi: sinon.stub().returns({ type: 'local' }),
-      RemoteDataAPI: sinon.stub().returns({ type: 'remote' }),
-      CreatorDataApi: sinon.stub().returns({ type: 'creator' }),
-    };
-
-    const config = {
-      CREATOR_API_AUTHORIZATION: 'creator auth',
-      CREATOR_API_ENDPOINT: 'creator endpoint',
-    };
-
-    const dataAPI = new DataAPI(config as any, API as any);
-
-    return expect(dataAPI.get()).to.be.rejectedWith('no remote data API env configuration set');
-  });
-
-  it('fails if no PROJECT_SOURCE and origin does not match but no creator data API env configuration set', async () => {
-    const API = {
-      LocalDataApi: sinon.stub().returns({ type: 'local' }),
-      RemoteDataAPI: sinon.stub().returns({ type: 'remote' }),
-      CreatorDataApi: sinon.stub().returns({ type: 'creator' }),
-    };
-
-    const config = {
-      ADMIN_SERVER_DATA_API_TOKEN: 'token',
-      VF_DATA_ENDPOINT: 'endpoint',
-      CREATOR_APP_ORIGIN: 'voiceflow.com',
-    };
-
-    const dataAPI = new DataAPI(config as any, API as any);
-
-    return expect(dataAPI.get()).to.be.rejectedWith('no creator data API env configuration set');
-  });
 });

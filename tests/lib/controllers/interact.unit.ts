@@ -3,6 +3,21 @@ import sinon from 'sinon';
 
 import Interact from '@/lib/controllers/interact';
 
+const output = (context: any, state: string, params?: any) => ({ ...context, ...params, state, end: false });
+
+const buildServices = (context: any) => ({
+  state: { handle: sinon.stub().resolves(output(context, 'state')) },
+  asr: { handle: sinon.stub().resolves(output(context, 'asr')) },
+  nlu: { handle: sinon.stub().resolves(output(context, 'nlu')) },
+  slots: { handle: sinon.stub().resolves(output(context, 'slots')) },
+  tts: { handle: sinon.stub().resolves(output(context, 'tts')) },
+  runtime: { handle: sinon.stub().resolves(output(context, 'runtime')) },
+  dialog: { handle: sinon.stub().resolves(output(context, 'dialog')) },
+  chips: { handle: sinon.stub().resolves(output(context, 'chips')) },
+  filter: { handle: sinon.stub().resolves(output(context, 'filter', { trace: 'trace' })) },
+  metrics: { generalRequest: sinon.stub() },
+});
+
 describe('interact controller unit tests', () => {
   describe('handler', () => {
     it('works correctly', async () => {
@@ -18,42 +33,34 @@ describe('interact controller unit tests', () => {
         versionID: req.params.versionID,
         data: {
           locale: req.query.locale,
+          config: {
+            tts: true,
+          },
           reqHeaders: {
             authorization: req.headers.authorization,
             origin: req.headers.origin,
           },
         },
       };
-      const output = (state: string, params?: any) => ({ ...context, ...params, state, end: false });
 
-      const services = {
-        state: { handle: sinon.stub().resolves(output('state')) },
-        asr: { handle: sinon.stub().resolves(output('asr')) },
-        nlu: { handle: sinon.stub().resolves(output('nlu')) },
-        slots: { handle: sinon.stub().resolves(output('slots')) },
-        tts: { handle: sinon.stub().resolves(output('tts')) },
-        chips: { handle: sinon.stub().resolves(output('chips', { trace: 'trace' })) },
-        runtime: { handle: sinon.stub().resolves(output('runtime')) },
-        dialog: { handle: sinon.stub().resolves(output('dialog')) },
-        metrics: { generalRequest: sinon.stub() },
-      };
+      const services = buildServices(context);
 
       const interactController = new Interact(services as any, null as any);
 
       expect(await interactController.handler(req as any)).to.eql({
-        state: 'chips',
+        state: 'filter',
         request: context.request,
         trace: 'trace',
       });
 
       expect(services.state.handle.args).to.eql([[context]]);
-      expect(services.asr.handle.args).to.eql([[output('state')]]);
-      expect(services.nlu.handle.args).to.eql([[output('asr')]]);
-      expect(services.slots.handle.args).to.eql([[output('nlu')]]);
-      expect(services.dialog.handle.args).to.eql([[output('slots')]]);
-      expect(services.runtime.handle.args).to.eql([[output('dialog')]]);
-      expect(services.tts.handle.args).to.eql([[output('runtime')]]);
-      expect(services.chips.handle.args).to.eql([[output('tts')]]);
+      expect(services.asr.handle.args).to.eql([[output(context, 'state')]]);
+      expect(services.nlu.handle.args).to.eql([[output(context, 'asr')]]);
+      expect(services.slots.handle.args).to.eql([[output(context, 'nlu')]]);
+      expect(services.dialog.handle.args).to.eql([[output(context, 'slots')]]);
+      expect(services.runtime.handle.args).to.eql([[output(context, 'dialog')]]);
+      expect(services.tts.handle.args).to.eql([[output(context, 'runtime')]]);
+      expect(services.chips.handle.args).to.eql([[output(context, 'tts')]]);
       expect(services.metrics.generalRequest.callCount).to.eql(1);
     });
 
@@ -65,30 +72,19 @@ describe('interact controller unit tests', () => {
         query: { locale: 'locale' },
       };
       const context = { state: req.body.state, request: req.body.request, versionID: req.params.versionID, data: { locale: req.query.locale } };
-      const output = (state: string, params?: any) => ({ ...context, ...params, state, end: false });
 
-      const services = {
-        state: { handle: sinon.stub().resolves(output('state')) },
-        asr: { handle: sinon.stub().resolves(output('asr')) },
-        nlu: { handle: sinon.stub().resolves(output('nlu')) },
-        slots: { handle: sinon.stub().resolves(output('slots')) },
-        tts: { handle: sinon.stub().resolves(output('tts')) },
-        chips: { handle: sinon.stub().resolves(output('chips', { trace: 'trace' })) },
-        runtime: { handle: sinon.stub().resolves(output('runtime')) },
-        dialog: { handle: sinon.stub().resolves(output('dialog')) },
-        metrics: { generalRequest: sinon.stub() },
-      };
+      const services = buildServices(context);
 
       const interactController = new Interact(services as any, null as any);
 
       expect(await interactController.handler(req as any)).to.eql({
-        state: 'chips',
+        state: 'filter',
         request: context.request,
         trace: 'trace',
       });
 
       expect(services.tts.handle.callCount).to.eql(0);
-      expect(services.chips.handle.args).to.eql([[output('runtime')]]);
+      expect(services.chips.handle.args).to.eql([[output(context, 'runtime')]]);
     });
   });
 
@@ -100,23 +96,12 @@ describe('interact controller unit tests', () => {
       query: { locale: 'locale' },
     };
     const context = { state: req.body.state, request: req.body.request, versionID: req.params.versionID, data: { locale: req.query.locale } };
-    const output = (state: string, params?: any) => ({ ...context, ...params, state, end: false });
 
-    const services = {
-      state: { handle: sinon.stub().resolves(output('state')) },
-      asr: { handle: sinon.stub().resolves(output('asr')) },
-      nlu: { handle: sinon.stub().resolves(output('nlu')) },
-      slots: { handle: sinon.stub().resolves(output('slots')) },
-      tts: { handle: sinon.stub().resolves(output('tts')) },
-      chips: { handle: sinon.stub().resolves(output('chips', { trace: 'trace' })) },
-      runtime: { handle: sinon.stub().resolves(output('runtime')) },
-      dialog: { handle: sinon.stub().resolves(output('dialog')) },
-      metrics: { generalRequest: sinon.stub() },
-    };
+    const services = buildServices(context);
 
     const interactController = new Interact(services as any, null as any);
     expect(await interactController.handler(req as any)).to.eql({
-      state: 'chips',
+      state: 'filter',
       request: context.request,
       trace: 'trace',
     });
@@ -131,23 +116,12 @@ describe('interact controller unit tests', () => {
       query: { locale: 'locale' },
     };
     const context = { state: req.body.state, request: req.body.request, versionID: req.params.versionID, data: { locale: req.query.locale } };
-    const output = (state: string, params?: any) => ({ ...context, ...params, state, end: false });
 
-    const services = {
-      state: { handle: sinon.stub().resolves(output('state')) },
-      asr: { handle: sinon.stub().resolves(output('asr')) },
-      nlu: { handle: sinon.stub().resolves(output('nlu')) },
-      slots: { handle: sinon.stub().resolves(output('slots')) },
-      tts: { handle: sinon.stub().resolves(output('tts')) },
-      chips: { handle: sinon.stub().resolves(output('chips', { trace: 'trace' })) },
-      runtime: { handle: sinon.stub().resolves(output('runtime')) },
-      dialog: { handle: sinon.stub().resolves(output('dialog')) },
-      metrics: { generalRequest: sinon.stub() },
-    };
+    const services = buildServices(context);
 
     const interactController = new Interact(services as any, null as any);
     expect(await interactController.handler(req as any)).to.eql({
-      state: 'chips',
+      state: 'filter',
       request: context.request,
       trace: 'trace',
     });
