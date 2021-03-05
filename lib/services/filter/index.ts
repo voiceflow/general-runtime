@@ -26,7 +26,7 @@ class Filter extends AbstractManager<{ utils: typeof utils }> implements Context
       context = {
         ...context,
         trace: context.trace?.map((trace) =>
-          !(trace.type === TraceType.SPEAK && trace.payload.type === SpeakType.MESSAGE)
+          !(trace.type === TraceType.SPEAK && (trace.payload.type === SpeakType.MESSAGE || trace.payload.type === SpeakType.AUDIO))
             ? trace
             : {
                 ...trace,
