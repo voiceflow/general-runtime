@@ -1,0 +1,254 @@
+import { Action } from '@voiceflow/runtime';
+import { expect } from 'chai';
+import sinon from 'sinon';
+
+import { TraceHandler } from '@/lib/services/runtime/handlers/trace';
+
+describe('Trace handler unit tests', () => {
+  describe('canHandle', () => {
+    it('false', () => {
+      expect(TraceHandler({} as any).canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
+    });
+
+    it('true', () => {
+      expect(TraceHandler({} as any).canHandle({ _v: 1 } as any, null as any, null as any, null as any)).to.eql(true);
+    });
+  });
+
+  describe('handle', () => {
+    describe('action not request', () => {
+      describe('stop true', () => {
+        it('works', () => {
+          const node = {
+            id: 'node-id',
+            type: 'trace',
+            stop: true,
+            data: { foo: 'bar' },
+            paths: [
+              { event: {}, nextID: '1' },
+              { event: {}, nextID: '2' },
+            ],
+          };
+          const runtime = {
+            getAction: sinon.stub().returns(Action.RESPONSE),
+            trace: { addTrace: sinon.stub() },
+          };
+          const handler = TraceHandler({} as any);
+
+          expect(handler.handle(node as any, runtime as any, null as any, null as any)).to.eql(node.id);
+          expect(runtime.trace.addTrace.args).to.eql([
+            [
+              {
+                type: node.type,
+                payload: { data: node.data, paths: node.paths },
+              },
+            ],
+          ]);
+        });
+      });
+
+      describe('stop false', () => {
+        it('no default path', () => {
+          const node = {
+            id: 'node-id',
+            type: 'trace',
+            stop: false,
+            data: { foo: 'bar' },
+            paths: [
+              { event: {}, nextID: '1' },
+              { event: {}, nextID: '2' },
+            ],
+          };
+          const runtime = {
+            getAction: sinon.stub().returns(Action.RESPONSE),
+            trace: { addTrace: sinon.stub() },
+          };
+          const handler = TraceHandler({} as any);
+
+          expect(handler.handle(node as any, runtime as any, null as any, null as any)).to.eql(null);
+          expect(runtime.trace.addTrace.args).to.eql([
+            [
+              {
+                type: node.type,
+                payload: { data: node.data, paths: node.paths },
+              },
+            ],
+          ]);
+        });
+
+        it('no port for default path', () => {
+          const node = {
+            id: 'node-id',
+            type: 'trace',
+            stop: false,
+            data: { foo: 'bar' },
+            defaultPath: 3,
+            paths: [
+              { event: {}, nextID: '1' },
+              { event: {}, nextID: '2' },
+            ],
+          };
+          const runtime = {
+            getAction: sinon.stub().returns(Action.RESPONSE),
+            trace: { addTrace: sinon.stub() },
+          };
+          const handler = TraceHandler({} as any);
+
+          expect(handler.handle(node as any, runtime as any, null as any, null as any)).to.eql(null);
+          expect(runtime.trace.addTrace.args).to.eql([
+            [
+              {
+                type: node.type,
+                payload: { data: node.data, paths: node.paths },
+              },
+            ],
+          ]);
+        });
+
+        it('return default port', () => {
+          const node = {
+            id: 'node-id',
+            type: 'trace',
+            stop: false,
+            data: { foo: 'bar' },
+            defaultPath: 1,
+            paths: [
+              { event: {}, nextID: '1' },
+              { event: {}, nextID: '2' },
+            ],
+          };
+          const runtime = {
+            getAction: sinon.stub().returns(Action.RESPONSE),
+            trace: { addTrace: sinon.stub() },
+          };
+          const handler = TraceHandler({} as any);
+
+          expect(handler.handle(node as any, runtime as any, null as any, null as any)).to.eql('2');
+          expect(runtime.trace.addTrace.args).to.eql([
+            [
+              {
+                type: node.type,
+                payload: { data: node.data, paths: node.paths },
+              },
+            ],
+          ]);
+        });
+      });
+    });
+
+    describe('action request', () => {
+      it('no match', () => {
+        const node = {
+          id: 'node-id',
+          type: 'trace',
+          stop: true,
+          data: { foo: 'bar' },
+          paths: [],
+        };
+        const commandHandler = { canHandle: sinon.stub().returns(false) };
+        const runtime = {
+          getAction: sinon.stub().returns(Action.REQUEST),
+          setAction: sinon.stub(),
+          trace: { addTrace: sinon.stub() },
+        };
+        const handler = TraceHandler({ commandHandler } as any);
+
+        expect(handler.handle(node as any, runtime as any, null as any, null as any)).to.eql(null);
+        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
+        expect(commandHandler.canHandle.args).to.eql([[runtime]]);
+      });
+
+      it('command match', () => {
+        const node = {
+          id: 'node-id',
+          type: 'trace',
+          stop: true,
+          data: { foo: 'bar' },
+          paths: [{ event: {}, nextID: 'next-id' }],
+        };
+        const commandHandler = { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns('command-id') };
+        const findEventMatcher = sinon.stub().returns(null);
+        const runtime = {
+          getAction: sinon.stub().returns(Action.REQUEST),
+          setAction: sinon.stub(),
+          trace: { addTrace: sinon.stub() },
+        };
+        const variables = { var1: 'val1' };
+        const handler = TraceHandler({ commandHandler, findEventMatcher } as any);
+
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('command-id');
+        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
+        expect(commandHandler.canHandle.args).to.eql([[runtime]]);
+        expect(commandHandler.handle.args).to.eql([[runtime, variables]]);
+        expect(findEventMatcher.args).to.eql([[{ event: node.paths[0].event, runtime, variables }]]);
+      });
+
+      it('path match', () => {
+        const node = {
+          id: 'node-id',
+          type: 'trace',
+          stop: true,
+          data: { foo: 'bar' },
+          paths: [
+            { event: { name: 'event1' }, nextID: 'next-id' },
+            { event: { name: 'event2' }, nextID: 'next-id2' },
+          ],
+        };
+        const matcher = { sideEffect: sinon.stub() };
+        const findEventMatcher = sinon
+          .stub()
+          .onFirstCall()
+          .returns(null)
+          .onSecondCall()
+          .returns(matcher);
+        const runtime = {
+          getAction: sinon.stub().returns(Action.REQUEST),
+          setAction: sinon.stub(),
+          trace: { addTrace: sinon.stub() },
+        };
+        const variables = { var1: 'val1' };
+        const handler = TraceHandler({ findEventMatcher } as any);
+
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('next-id2');
+        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
+        expect(findEventMatcher.args).to.eql([
+          [{ event: node.paths[0].event, runtime, variables }],
+          [{ event: node.paths[1].event, runtime, variables }],
+        ]);
+        expect(matcher.sideEffect.args).to.eql([[]]);
+      });
+
+      it('path match but no nextID', () => {
+        const node = {
+          id: 'node-id',
+          type: 'trace',
+          stop: true,
+          data: { foo: 'bar' },
+          paths: [{ event: { name: 'event1' }, nextID: 'next-id' }, { event: { name: 'event2' } }],
+        };
+        const matcher = { sideEffect: sinon.stub() };
+        const findEventMatcher = sinon
+          .stub()
+          .onFirstCall()
+          .returns(null)
+          .onSecondCall()
+          .returns(matcher);
+        const runtime = {
+          getAction: sinon.stub().returns(Action.REQUEST),
+          setAction: sinon.stub(),
+          trace: { addTrace: sinon.stub() },
+        };
+        const variables = { var1: 'val1' };
+        const handler = TraceHandler({ findEventMatcher } as any);
+
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
+        expect(findEventMatcher.args).to.eql([
+          [{ event: node.paths[0].event, runtime, variables }],
+          [{ event: node.paths[1].event, runtime, variables }],
+        ]);
+        expect(matcher.sideEffect.args).to.eql([[]]);
+      });
+    });
+  });
+});

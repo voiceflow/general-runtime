@@ -11,13 +11,16 @@ const utilsObj = {
   findEventMatcher,
 };
 
-const TraceHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
+export const TraceHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => !!node._v,
   handle: (node, runtime, variables) => {
     const defaultPath = node.paths[node.defaultPath!]?.nextID || null;
 
     // process req if not process before (action == REQUEST)
     if (runtime.getAction() === Action.REQUEST) {
+      // request for this turn has been processed, set action to response
+      runtime.setAction(Action.RESPONSE);
+
       for (const traceEvent of node.paths) {
         const { event, nextID } = traceEvent;
 

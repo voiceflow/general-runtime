@@ -26,7 +26,7 @@ export const traceEventMatcher = {
     const request = context.runtime.getRequest();
     if (!isEventRequest(request)) return false;
     if (context.event?.type !== EventType.TRACE) return false;
-    if (context.event.name !== request?.payload.name) return false;
+    if (context.event.name !== request.payload.name) return false;
     return true;
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
