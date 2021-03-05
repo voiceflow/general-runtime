@@ -1,7 +1,6 @@
 import { GeneralTrace, TraceType } from '@voiceflow/general-types';
 import { SpeakType, TraceFrame as SpeakTrace } from '@voiceflow/general-types/build/nodes/speak';
 import htmlParse from 'html-parse-stringify';
-import _ from 'lodash';
 
 import { Context, ContextHandler } from '@/types';
 
