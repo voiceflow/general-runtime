@@ -2,18 +2,18 @@ import { SpeakType } from '@voiceflow/general-types/build/nodes/speak';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import AudioManager, { utils as defaultUtils } from '@/lib/services/audio';
+import SpeakManager, { utils as defaultUtils } from '@/lib/services/speak';
 
 import { audioUrl, context, DB_VISUAL_TRACE, malformedTrace1, malformedTrace2 } from './fixture';
 
-describe('audio manager unit tests', () => {
+describe('speak manager unit tests', () => {
   afterEach(() => {
     sinon.restore();
   });
 
   it('sets audio src and types correctly', () => {
-    const audio = new AudioManager({ utils: { ...defaultUtils } } as any, {} as any);
-    const result = audio.handle(context as any);
+    const speak = new SpeakManager({ utils: { ...defaultUtils } } as any, {} as any);
+    const result = speak.handle(context as any);
 
     expect(result).to.eql({
       ...context,
@@ -30,7 +30,6 @@ describe('audio manager unit tests', () => {
           ...malformedTrace2,
           payload: {
             ...malformedTrace2.payload,
-            message: '',
             type: SpeakType.MESSAGE,
           },
         },

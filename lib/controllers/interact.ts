@@ -20,7 +20,7 @@ class InteractController extends AbstractController {
   }
 
   async handler(req: Request<{ versionID: string }, null, { state?: State; request?: GeneralRequest; config?: Config }, { locale?: string }>) {
-    const { runtime, metrics, nlu, tts, chips, dialog, asr, audio, slots, state: stateManager, filter } = this.services;
+    const { runtime, metrics, nlu, tts, chips, dialog, asr, speak, slots, state: stateManager, filter } = this.services;
 
     metrics.generalRequest();
     const {
@@ -38,7 +38,7 @@ class InteractController extends AbstractController {
       turn.addHandlers(tts);
     }
 
-    turn.addHandlers(audio, chips, filter);
+    turn.addHandlers(speak, chips, filter);
 
     return turn.resolve({ state, request, versionID, data: { locale, config, reqHeaders: { authorization, origin } } });
   }

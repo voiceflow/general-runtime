@@ -9,8 +9,8 @@ import { AbstractManager, injectServices } from '../utils';
 export const utils = {};
 
 @injectServices({ utils })
-class Audio extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  parseAudioStepSrc = (trace: GeneralTrace): GeneralTrace => {
+class Speak extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
+  parseSpeakTraces = (trace: GeneralTrace): GeneralTrace => {
     if (trace.type !== TraceType.SPEAK) {
       return trace;
     }
@@ -42,9 +42,9 @@ class Audio extends AbstractManager<{ utils: typeof utils }> implements ContextH
 
     return {
       ...context,
-      trace: context.trace.map(this.parseAudioStepSrc),
+      trace: context.trace.map(this.parseSpeakTraces),
     };
   };
 }
 
-export default Audio;
+export default Speak;
