@@ -1,20 +1,20 @@
-import { DataRequest, EventRequest, GeneralRequest, IntentRequest, NodeID, RequestType } from '@voiceflow/general-types';
+import { IntentRequest, NodeID, Request, RequestType } from '@voiceflow/general-types';
 import { Runtime } from '@voiceflow/runtime';
 
-export type RuntimeRequest = IntentRequest | DataRequest | EventRequest | null;
+export type RuntimeRequest = Request | null;
 
 export type GeneralRuntime = Runtime<RuntimeRequest>;
 
-export const isIntentRequest = (request: GeneralRequest): request is IntentRequest => {
-  return !!(request?.type === RequestType.INTENT && request.payload?.intent?.name && Array.isArray(request.payload.entities));
+export const isIntentRequest = (request: RuntimeRequest): request is IntentRequest => {
+  return !!(request?.type === RequestType.INTENT && (request as IntentRequest).payload?.intent?.name && Array.isArray(request.payload.entities));
 };
 
-export const isRuntimeRequest = (request: GeneralRequest): request is RuntimeRequest => {
-  return request === null || !!([RequestType.INTENT, RequestType.DATA, RequestType.EVENT].includes(request?.type!) && request!.payload);
+export const isRuntimeRequest = (request: any): request is RuntimeRequest => {
+  return request === null || !!(typeof request.type === 'string' && !!request.type && request.payload);
 };
 
-export const isEventRequest = (request: GeneralRequest | null): request is EventRequest => {
-  return request?.type === RequestType.EVENT;
+export const isGeneralRequest = (request: RuntimeRequest): request is Request<string, { name: string }> => {
+  return !!request?.payload.name;
 };
 
 export enum StorageType {

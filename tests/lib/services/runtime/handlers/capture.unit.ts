@@ -1,4 +1,4 @@
-import { GeneralRequest, IntentRequest, NodeType, RequestType } from '@voiceflow/general-types';
+import { IntentRequest, NodeType, Request, RequestType } from '@voiceflow/general-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -16,7 +16,7 @@ const intentRequest: IntentRequest = {
   },
 };
 
-const getMockDependencies = ({ request = intentRequest }: { request?: GeneralRequest } = {}) => ({
+const getMockDependencies = ({ request = intentRequest }: { request?: Request } = {}) => ({
   node: {
     type: NodeType.CAPTURE,
     variable: 'var',

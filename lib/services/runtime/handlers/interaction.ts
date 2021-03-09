@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-syntax */
-import { EventType, TraceType } from '@voiceflow/general-types';
+import { EventType, IntentEvent, TraceType } from '@voiceflow/general-types';
 import { Node, TraceFrame } from '@voiceflow/general-types/build/nodes/interaction';
 import { Action, HandlerFactory } from '@voiceflow/runtime';
 
@@ -31,7 +31,7 @@ export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils)
           payload: {
             choices: node.interactions.reduce<{ name: string; intent?: string }[]>((acc, interaction) => {
               if (interaction?.event?.type === EventType.INTENT) {
-                const { intent } = interaction.event;
+                const { intent } = interaction.event as IntentEvent;
                 acc.push({ intent, name: intent });
               }
               return acc;

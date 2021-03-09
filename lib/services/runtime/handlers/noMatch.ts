@@ -1,6 +1,6 @@
 import { Node } from '@voiceflow/api-sdk';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
-import { EventType, TraceType } from '@voiceflow/general-types';
+import { EventType, IntentEvent, TraceType } from '@voiceflow/general-types';
 import { Node as ChoiceNode, TraceFrame as ChoiceTrace } from '@voiceflow/general-types/build/nodes/interaction';
 import { SpeakType, TraceFrame } from '@voiceflow/general-types/build/nodes/speak';
 import { Runtime, Store } from '@voiceflow/runtime';
@@ -53,7 +53,7 @@ export const NoMatchHandler = () => ({
         payload: {
           choices: node.interactions.reduce<{ name: string; intent?: string }[]>((acc, interaction) => {
             if (interaction?.event?.type === EventType.INTENT) {
-              const { intent } = interaction.event;
+              const { intent } = interaction.event as IntentEvent;
               acc.push({ intent, name: intent });
             }
             return acc;

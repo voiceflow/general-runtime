@@ -69,7 +69,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     }
 
     const request = await this.predict({
-      query: context.request.payload,
+      query: (context.request.payload as unknown) as string,
       model: version.prototype?.model,
       locale: version.prototype?.data.locales[0] as Locale,
       projectID: version.projectID,

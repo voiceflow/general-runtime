@@ -1,14 +1,14 @@
 import { Program, Project, Version } from '@voiceflow/api-sdk';
-import { GeneralCommand, GeneralNodes, GeneralVersionData } from '@voiceflow/general-types';
+import { Command, GeneralNodes, GeneralVersionData } from '@voiceflow/general-types';
 import { DataAPI } from '@voiceflow/runtime';
 
 // cache any versions or project it comes across
-class CacheDataAPI implements DataAPI<Program<GeneralNodes, GeneralCommand>, Version<GeneralVersionData>> {
+class CacheDataAPI implements DataAPI<Program<GeneralNodes, Command>, Version<GeneralVersionData>> {
   private projects: Record<string, Project<any, any>> = {};
 
   private versions: Record<string, Version<GeneralVersionData>> = {};
 
-  constructor(private api: DataAPI<Program<GeneralNodes, GeneralCommand>, Version<GeneralVersionData>>) {}
+  constructor(private api: DataAPI<Program<GeneralNodes, Command>, Version<GeneralVersionData>>) {}
 
   async getProgram(programID: string) {
     return this.api.getProgram(programID);

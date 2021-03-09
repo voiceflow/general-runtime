@@ -1,8 +1,9 @@
-import { Config as RequestConfig, GeneralRequest, GeneralTrace } from '@voiceflow/general-types';
+import { Config as RequestConfig, GeneralTrace } from '@voiceflow/general-types';
 import * as Runtime from '@voiceflow/runtime';
 import * as Express from 'express';
 import * as ExpressValidator from 'express-validator';
 
+import { RuntimeRequest } from '@/lib/services/runtime/types';
 import CacheDataAPI from '@/lib/services/state/cacheDataAPI';
 
 export interface Config {
@@ -89,6 +90,6 @@ export type ContextData = {
   };
 };
 
-export type Context = Runtime.Context<GeneralRequest, GeneralTrace, ContextData>;
+export type Context = Runtime.Context<RuntimeRequest, GeneralTrace, ContextData>;
 export type ContextHandler = Runtime.ContextHandler<Context>;
 export type InitContextHandler = Runtime.InitContextHandler<Context>;

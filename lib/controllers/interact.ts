@@ -3,11 +3,12 @@
  * @packageDocumentation
  */
 
-import { Config, GeneralRequest } from '@voiceflow/general-types';
+import { Config } from '@voiceflow/general-types';
 import { State, TurnBuilder } from '@voiceflow/runtime';
 import { Request } from 'express';
 import _ from 'lodash';
 
+import { RuntimeRequest } from '@/lib/services/runtime/types';
 import { Context } from '@/types';
 
 import { AbstractController } from './utils';
@@ -19,7 +20,7 @@ class InteractController extends AbstractController {
     return this.services.state.generate(version);
   }
 
-  async handler(req: Request<{ versionID: string }, null, { state?: State; request?: GeneralRequest; config?: Config }, { locale?: string }>) {
+  async handler(req: Request<{ versionID: string }, null, { state?: State; request?: RuntimeRequest; config?: Config }, { locale?: string }>) {
     const { runtime, metrics, nlu, tts, chips, dialog, asr, speak, slots, state: stateManager, filter } = this.services;
 
     metrics.generalRequest();
