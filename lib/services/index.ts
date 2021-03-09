@@ -9,6 +9,7 @@ import NLU from './nlu';
 import RateLimit from './rateLimit';
 import Runtime from './runtime';
 import Slots from './slots';
+import Speak from './speak';
 import State from './state';
 import TTS from './tts';
 
@@ -16,6 +17,7 @@ export interface ServiceMap {
   runtime: Runtime;
   state: State;
   asr: ASR;
+  speak: Speak;
   nlu: NLU;
   dialog: Dialog;
   tts: TTS;
@@ -38,6 +40,7 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.runtime = new Runtime(services, config);
   services.state = new State(services, config);
   services.asr = new ASR(services, config);
+  services.speak = new Speak(services, config);
   services.nlu = new NLU(services, config);
   services.tts = new TTS(services, config);
   services.dialog = new Dialog(services, config);

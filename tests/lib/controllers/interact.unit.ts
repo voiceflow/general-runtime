@@ -11,6 +11,7 @@ const buildServices = (context: any) => ({
   nlu: { handle: sinon.stub().resolves(output(context, 'nlu')) },
   slots: { handle: sinon.stub().resolves(output(context, 'slots')) },
   tts: { handle: sinon.stub().resolves(output(context, 'tts')) },
+  speak: { handle: sinon.stub().resolves(output(context, 'speak')) },
   runtime: { handle: sinon.stub().resolves(output(context, 'runtime')) },
   dialog: { handle: sinon.stub().resolves(output(context, 'dialog')) },
   chips: { handle: sinon.stub().resolves(output(context, 'chips')) },
@@ -60,7 +61,8 @@ describe('interact controller unit tests', () => {
       expect(services.dialog.handle.args).to.eql([[output(context, 'slots')]]);
       expect(services.runtime.handle.args).to.eql([[output(context, 'dialog')]]);
       expect(services.tts.handle.args).to.eql([[output(context, 'runtime')]]);
-      expect(services.chips.handle.args).to.eql([[output(context, 'tts')]]);
+      expect(services.speak.handle.args).to.eql([[output(context, 'tts')]]);
+      expect(services.chips.handle.args).to.eql([[output(context, 'speak')]]);
       expect(services.metrics.generalRequest.callCount).to.eql(1);
     });
 
@@ -84,7 +86,7 @@ describe('interact controller unit tests', () => {
       });
 
       expect(services.tts.handle.callCount).to.eql(0);
-      expect(services.chips.handle.args).to.eql([[output(context, 'runtime')]]);
+      expect(services.speak.handle.args).to.eql([[output(context, 'runtime')]]);
     });
   });
 

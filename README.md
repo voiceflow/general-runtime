@@ -10,6 +10,13 @@
 
 # How interaction works
 
+A `Context` can consist of the `request`, the `state`, the `config`, and the `trace`.
+
+- `request` is an object representing something the user has done
+- `state` is the user metadata - what block they are currently on, what flow they are on, their variables
+- `config` contains options for what should be returned
+- `trace` is an list of things for whatever client is calling the `general-runtime` to show
+
 The `general-runtime` receives a `Context` without `trace`, and responds with a `Context` with `trace`. Here's what it looks like from the Voiceflow creator app prototype tool:
 
 1. User says/types something to the client, add the `request` to the `Context` and sends it via webhook to `general-runtime`
@@ -99,10 +106,11 @@ A `Context` can consist of the `request`, the `state`, the `config`, and the `tr
 | `GeneralRequest` | An object representing something the user has done.                                           | <pre>TextRequest \| IntentRequest<br>\| DataRequest \| null</pre>                                                                                                       | <pre>{<br>&nbsp;&nbsp;"type": "text",<br>&nbsp;&nbsp;"payload": "What is my balance?"<br>}</pre>                                                                                                                                                                                                     |
 | `State`          | The user metadata - what block they are currently on, what flow they are on, their variables. | <pre>{<br>&nbsp;&nbsp;turn?: StorageState;<br>&nbsp;&nbsp;stack: FrameState[];<br>&nbsp;&nbsp;storage: StorageState;<br>&nbsp;&nbsp;variables: StorageState;<br>}</pre> | <pre>{<br>&nbsp;&nbsp;"stack": [{<br>&nbsp;&nbsp;&nbsp;&nbsp;programID: "home flow",<br>&nbsp;&nbsp;&nbsp;&nbsp;nodeID: "prompt node"<br>&nbsp;&nbsp;}],<br>&nbsp;&nbsp;"storage": {},<br>&nbsp;&nbsp;"variables": {<br>&nbsp;&nbsp;&nbsp;&nbsp;"chequing_balance": null<br>&nbsp;&nbsp;}<br>}</pre> |
 | `Config`         | Contains options for what should be returned.                                                 | <pre>{<br>&nbsp;&nbsp;tts?: boolean;<br>}</pre>                                                                                                                         | <pre>{<br>&nbsp;&nbsp;tts: false;<br>}</pre>                                                                                                                                                                                                                                                         |
-| `GeneralTrace`   | Things that the client is calling `general-runtime` to show.                                  | <pre>BlockTrace \| ChoiceTrace<br>\| DebugTrace \| EndTrace<br>\| FlowTrace \| AudioTrace<br>\| SpeakTrace \| VisualTrace</pre>                                         | <pre>{<br>&nbsp;&nbsp;"type": "speak",<br>&nbsp;&nbsp;"payload": {<br>&nbsp;&nbsp;&nbsp;&nbsp;"type": "message",<br>&nbsp;&nbsp;&nbsp;&nbsp;"message": "your balance is 0 dollars."<br>&nbsp;&nbsp;}<br>}</pre>                                                                                      |
+| `GeneralTrace`   | Things that the client is calling `general-runtime` to show.                                  | <pre>BlockTrace \| ChoiceTrace<br>\| DebugTrace \| EndTrace<br>\| FlowTrace \| AudioTrace<br>\| SpeakTrace \| VisualTrace</pre>                                         | <pre>{<br>&nbsp;&nbsp;"type": "speak",<br>&nbsp;&nbsp;"payload": {<br>&nbsp;&nbsp;&nbsp;&nbsp;"type": "message",<br>&nbsp;&nbsp;&nbsp;&nbsp;"message": "your balance is 0 dollars."<br>&nbsp;&nbsp;}<br>}</pre>
 
 # Interact endpoint
 
+To make requests to these endpoints, an API key will need to be passed in the `Authorization` request header. For instructions on how to create an API key, see [here](https://github.com/voiceflow/runtime-client-js/blob/master/docs/setting-up-vf-app.md).
 | Endpoint                           | Request Payload                                                                                                          | Response Payload                                                                                                             |
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
 | GET `/interact/{VERSION_ID}/state` | <pre>{}</pre>                                                                                                            | <pre>{<br>&nbsp;&nbsp;...state: State;<br>}</pre>                                                                            |

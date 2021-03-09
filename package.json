@@ -33,6 +33,7 @@
     "express": "^4.17.1",
     "express-validator": "^6.3.0",
     "helmet": "^3.21.2",
+    "html-parse-stringify": "^1.0.3",
     "ioredis": "^4.22.0",
     "lodash": "^4.17.15",
     "rate-limiter-flexible": "^2.2.1",
