@@ -86,8 +86,10 @@ class SlotsService extends AbstractManager<{ utils: typeof utils }> implements C
                 // Word was not detected by LUIS, check if it was missed and should be included
                 if (word.rawText.match(/^[0-9]+$/)) {
                   entity.value += word.rawText;
+                  word.isNatoApco = true;
                 } else if (natoApcoExceptions.has(word.rawText)) {
                   entity.value += natoApcoExceptions.get(word.rawText);
+                  word.isNatoApco = true;
                 }
               }
             });

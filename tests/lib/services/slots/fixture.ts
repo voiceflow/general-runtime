@@ -136,3 +136,32 @@ export const NATO_REQUEST_2 = {
     },
   },
 };
+
+export const NATO_REQUEST_3 = {
+  request: {
+    type: RequestType.INTENT,
+    payload: {
+      intent: {
+        name: 'foo',
+      },
+      entities: [
+        {
+          name: 'natoSlot',
+          verboseValue: [
+            {
+              rawText: 'Alpha',
+              canonicalText: 'Alfa',
+              startIndex: 0,
+            },
+            {
+              rawText: 'Bravo',
+              canonicalText: 'Bravo',
+              startIndex: 22,
+            },
+          ],
+        },
+      ],
+      query: 'Alpha 12 to 34 for 56 Bravo',
+    },
+  },
+};
