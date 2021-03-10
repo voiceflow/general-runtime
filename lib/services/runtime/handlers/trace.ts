@@ -12,7 +12,7 @@ const utilsObj = {
 };
 
 export const TraceHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
-  canHandle: (node) => !!node._v,
+  canHandle: (node) => node._v === 1,
   handle: (node, runtime, variables) => {
     const defaultPath = node.paths[node.defaultPath!]?.nextID || null;
 

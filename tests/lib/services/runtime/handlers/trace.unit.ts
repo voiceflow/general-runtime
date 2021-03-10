@@ -8,6 +8,7 @@ describe('Trace handler unit tests', () => {
   describe('canHandle', () => {
     it('false', () => {
       expect(TraceHandler({} as any).canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
+      expect(TraceHandler({} as any).canHandle({ _v: 2 } as any, null as any, null as any, null as any)).to.eql(false);
     });
 
     it('true', () => {
