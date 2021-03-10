@@ -117,22 +117,22 @@ export const NATO_REQUEST_2 = {
             {
               rawText: '3',
               canonicalText: '3',
-              startIndex: 49,
+              startIndex: 52,
             },
             {
               rawText: 'Bravo',
               canonicalText: 'Bravo',
-              startIndex: 51,
+              startIndex: 58,
             },
             {
               rawText: 'Charlie',
               canonicalText: 'Charlie',
-              startIndex: 60,
+              startIndex: 67,
             },
           ],
         },
       ],
-      query: 'It is March 10 and the license plate is 12 Alpha 3 Bravo 45 Charlie 67',
+      query: 'It is March 10 and the license plate is 12 Alpha to 3 for Bravo 45 Charlie 67',
     },
   },
 };

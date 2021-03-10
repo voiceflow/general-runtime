@@ -25,7 +25,7 @@ describe('slots manager unit tests', () => {
       expect(newEntities[1].value).to.eql('unchanged');
     });
 
-    it('catches multi-number inputs in between LUIS-returned NATOAPCO slots', async () => {
+    it('catches multi-number inputs and exceptions in between LUIS-returned NATOAPCO slots', async () => {
       const slots = new SlotsManager({ utils: { ...defaultUtils } } as any, {} as any);
 
       const input = {
@@ -35,7 +35,7 @@ describe('slots manager unit tests', () => {
 
       const newContext = await slots.handle(input as any);
       const newEntities = (newContext.request?.payload as any).entities;
-      expect(newEntities[0].value).to.eql('12A3B45C67');
+      expect(newEntities[0].value).to.eql('12A234B45C67');
     });
   });
 });
