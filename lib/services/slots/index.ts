@@ -9,12 +9,6 @@ import { AbstractManager, injectServices } from '../utils';
 
 export const utils = {};
 
-interface Entity {
-  name: string;
-  value: string;
-  rawValue?: string[] | string[][];
-}
-
 interface Slot {
   type: {
     value?: string | undefined;
@@ -67,20 +61,37 @@ class SlotsService extends AbstractManager<{ utils: typeof utils }> implements C
   };
 
   // Combines the NATO/APCO words identified by LUIS together with their first letters.
-  // entity.rawValue contains the words to parse and entity.value will store the result.
-  // Ex: rawValue: [['November'],['India'],['Charlie'],['Echo']] -> value: 'NICE'.
-  // (The only exceptions to taking the first letter of the strings is '00' and '000').
-  natoApcoConverter = (entities: Entity[], slots: Slot[]) => {
+  // entity.verboseValue contains the words to parse and entity.value will store the result.
+  // The only exceptions to taking the first letter of the strings is '00' and '000'.
+  // This function also adds multi-digit numbers and other exceptions to entity.value if
+  // they are between detected NATO/APCO words.
+  natoApcoConverter = (entities: Entity[], slots: Slot[], query: string) => {
     entities.forEach((entity) => {
       slots.forEach((slot) => {
         if (entity.name === slot.name && slot.type.value === SlotType.NATOAPCO) {
           // if using regex raw value will not be populated
-          if (!Array.isArray(entity.rawValue)) {
-            entity.rawValue = entity.value.split(' ').map((value) => [value]);
+          if (!Array.isArray(entity.verboseValue)) {
+            const splitValue = entity.value.split(' ').map((value) => [value]);
+            entity.value = splitValue
+              .reduce((acc, cur) => (firstLetterExpections.includes(cur[0]) ? acc + cur[0] : acc + cur[0][0]), '')
+              .toUpperCase();
+          } else {
+            const processedQuery = this.processQuery(query, entity.verboseValue);
+            entity.value = '';
+            processedQuery.forEach((word, i) => {
+              if (word.isNatoApco) {
+                // Word was detected by LUIS successfully
+                entity.value += firstLetterExpections.includes(word.canonicalText) ? word.canonicalText : word.canonicalText[0];
+              } else if ((i > 0 && processedQuery[i - 1].isNatoApco) || (i < processedQuery.length - 1 && processedQuery[i + 1].isNatoApco)) {
+                // Word was not detected by LUIS, check if it was missed and should be included
+                if (word.rawText.match(/^[0-9]+$/)) {
+                  entity.value += word.rawText;
+                } else if (natoApcoExceptions.has(word.rawText)) {
+                  entity.value += natoApcoExceptions.get(word.rawText);
+                }
+              }
+            });
           }
-          entity.value = (entity.rawValue as string[][])
-            .reduce((acc, cur) => (natoApcoExceptions.includes(cur[0]) ? acc + cur[0] : acc + cur[0][0]), '')
-            .toUpperCase();
         }
       });
     });
@@ -101,7 +112,9 @@ class SlotsService extends AbstractManager<{ utils: typeof utils }> implements C
       return context;
     }
 
-    this.natoApcoConverter(context.request?.payload.entities, slots);
+    const payload = context.request?.payload;
+    this.natoApcoConverter(payload.entities, slots, payload.query);
+
     return context;
   };
 }
