@@ -4,8 +4,9 @@
  */
 
 import { PrototypeModel } from '@voiceflow/api-sdk';
-import { IntentRequest, Locale, RequestType } from '@voiceflow/general-types';
+import { IntentRequest, Locale } from '@voiceflow/general-types';
 
+import { isTextRequest } from '@/lib/services/runtime/types';
 import { Context, ContextHandler } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
@@ -50,7 +51,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
   }
 
   handle = async (context: Context) => {
-    if (context.request?.type !== RequestType.TEXT) {
+    if (!isTextRequest(context.request)) {
       return context;
     }
 
@@ -69,7 +70,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     }
 
     const request = await this.predict({
-      query: (context.request.payload as unknown) as string,
+      query: context.request.payload,
       model: version.prototype?.model,
       locale: version.prototype?.data.locales[0] as Locale,
       projectID: version.projectID,

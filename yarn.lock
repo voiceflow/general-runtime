@@ -981,10 +981,10 @@
   dependencies:
     "@voiceflow/api-sdk" "1.22.0"
 
-"@voiceflow/general-types@1.34.1":
-  version "1.34.1"
-  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.34.1.tgz#90282152babb499822aac8e7038eb6a65d1566c9"
-  integrity sha512-K2HiOZmQHC6czWtZ2wKGk4auYBhbdsEne1EH5ShRxaguUBBpAzLfNFHYz8Yy72F+9yZNN8DFeU33LZgHHMydOA==
+"@voiceflow/general-types@1.34.2":
+  version "1.34.2"
+  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.34.2.tgz#32f6a05bed35c097fffc90fdd354a81fee692d26"
+  integrity sha512-Cd9kGe0Tu5RN+ncVKMoYHFg6gg7bckYbusXqYYhqUu0Qexdu7qGJusmJElYNzXc08Bize9AFVnaFz6ZrjJq1vA==
   dependencies:
     "@voiceflow/api-sdk" "1.27.1"
 

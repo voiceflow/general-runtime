@@ -1,12 +1,20 @@
-import { IntentRequest, NodeID, Request, RequestType } from '@voiceflow/general-types';
+import { IntentRequest, NodeID, Request, RequestType, TextRequest } from '@voiceflow/general-types';
 import { Runtime } from '@voiceflow/runtime';
 
 export type RuntimeRequest = Request | null;
 
 export type GeneralRuntime = Runtime<RuntimeRequest>;
 
+export const isTextRequest = (request: RuntimeRequest): request is TextRequest => {
+  return !!(request?.type === RequestType.TEXT && typeof request.payload === 'string');
+};
+
 export const isIntentRequest = (request: RuntimeRequest): request is IntentRequest => {
-  return !!(request?.type === RequestType.INTENT && (request as IntentRequest).payload?.intent?.name && Array.isArray(request.payload.entities));
+  return !!(
+    request?.type === RequestType.INTENT &&
+    (request as IntentRequest).payload?.intent?.name &&
+    Array.isArray((request as IntentRequest).payload.entities)
+  );
 };
 
 export const isRuntimeRequest = (request: any): request is RuntimeRequest => {
@@ -14,7 +22,7 @@ export const isRuntimeRequest = (request: any): request is RuntimeRequest => {
 };
 
 export const isGeneralRequest = (request: RuntimeRequest): request is Request<string, { name: string }> => {
-  return !!request?.payload.name;
+  return !!(request as Request<string, { name: string }>)?.payload.name;
 };
 
 export enum StorageType {
