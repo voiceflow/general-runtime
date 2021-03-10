@@ -1,4 +1,5 @@
 import { SlotType } from '@voiceflow/general-types';
+import { Entity, VerboseValue } from '@voiceflow/general-types/lib';
 import _ from 'lodash';
 
 import { Context, ContextHandler } from '@/types';
@@ -21,10 +22,50 @@ interface Slot {
   name: string;
 }
 
-const natoApcoExceptions = ['00', '000'];
+interface QueryWord {
+  rawText: string;
+  canonicalText: string;
+  startIndex: number;
+  isNatoApco: boolean;
+}
+
+const firstLetterExpections = ['00', '000'];
+const natoApcoExceptions = new Map([
+  ['to', 2],
+  ['for', 4],
+]);
 
 @injectServices({ utils })
 class SlotsService extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
+  processQuery = (query: string, entityVerboseValue: VerboseValue[]): QueryWord[] => {
+    const splitQuery = query.split(' ');
+    const processed: QueryWord[] = [];
+    let startIndex = 0;
+
+    // Parse QueryWords from string
+    for (let i = 0; i < splitQuery.length; ++i) {
+      processed.push({
+        rawText: splitQuery[i],
+        startIndex,
+        isNatoApco: false,
+        canonicalText: '',
+      });
+      startIndex += splitQuery[i].length + 1;
+    }
+
+    // Determine which QueryWords are NATO/APCO and set canonical text by comparing to entityVerboseValue
+    let i = 0;
+    for (let j = 0; j < entityVerboseValue.length; ++j) {
+      while (processed[i].startIndex !== entityVerboseValue[j].startIndex) {
+        ++i;
+      }
+      processed[i].isNatoApco = true;
+      processed[i].canonicalText = entityVerboseValue[j].canonicalText;
+    }
+
+    return processed;
+  };
+
   // Combines the NATO/APCO words identified by LUIS together with their first letters.
   // entity.rawValue contains the words to parse and entity.value will store the result.
   // Ex: rawValue: [['November'],['India'],['Charlie'],['Echo']] -> value: 'NICE'.
