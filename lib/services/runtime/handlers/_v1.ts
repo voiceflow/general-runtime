@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 
-import { Node, TraceFrame } from '@voiceflow/general-types/build/nodes/trace';
+import { Node, TraceFrame } from '@voiceflow/general-types/build/nodes/_v1';
 import { Action, HandlerFactory } from '@voiceflow/runtime';
 
 import CommandHandler from './command';
@@ -11,7 +11,7 @@ const utilsObj = {
   findEventMatcher,
 };
 
-export const TraceHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
+export const _V1Handler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => node._v === 1,
   handle: (node, runtime, variables) => {
     const defaultPath = node.paths[node.defaultPath!]?.nextID || null;
@@ -22,7 +22,7 @@ export const TraceHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
       runtime.setAction(Action.RESPONSE);
 
       for (const traceEvent of node.paths) {
-        const { event, nextID } = traceEvent;
+        const { event = null, nextID } = traceEvent;
 
         const matcher = utils.findEventMatcher({ event, runtime, variables });
         if (matcher) {
@@ -42,7 +42,7 @@ export const TraceHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
 
     runtime.trace.addTrace<TraceFrame>({
       type: node.type,
-      payload: { data: node.data, paths: node.paths },
+      payload: { data: node.payload, paths: node.paths },
     });
 
     // if !stop continue to defaultPath otherwise
@@ -51,4 +51,4 @@ export const TraceHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
   },
 });
 
-export default () => TraceHandler(utilsObj);
+export default () => _V1Handler(utilsObj);
