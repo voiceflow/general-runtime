@@ -15,7 +15,7 @@
     "@voiceflow/api-sdk": "1.27.1",
     "@voiceflow/backend-utils": "2.2.1",
     "@voiceflow/common": "6.5.0",
-    "@voiceflow/general-types": "1.34.4",
+    "@voiceflow/general-types": "1.34.5",
     "@voiceflow/logger": "1.5.2",
     "@voiceflow/natural-language-commander": "^0.5.1",
     "@voiceflow/runtime": "1.24.1",
