@@ -933,6 +933,11 @@
   resolved "https://registry.yarnpkg.com/@voiceflow/common/-/common-6.5.0.tgz#68659641bf7e868b4594a640d63072f573b62f1e"
   integrity sha512-6czuZhUs3dGT/5IWI2ejTf/y69BmzG3/PCS0o1YoE0wxGxXPpfBUdelK9ZKCVgk6s89WnuDKYLKmgNWpln2dkw==
 
+"@voiceflow/common@6.5.1":
+  version "6.5.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/common/-/common-6.5.1.tgz#f2a4e54268360e9b6273b7370115ebb050a9490f"
+  integrity sha512-2fC4QTUSftx1uG9b/Lwe4aTpgTvxAI9peQdWvIx848bxneH8QKd6E+BVbhpobW9LACLe2oxoj4PZWNB6qX9d7Q==
+
 "@voiceflow/eslint-config@^2.0.5":
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/@voiceflow/eslint-config/-/eslint-config-2.0.5.tgz#7c167fbb703dddd9db7a10b335ec34d8aeafad76"
