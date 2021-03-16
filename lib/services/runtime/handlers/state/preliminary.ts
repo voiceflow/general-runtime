@@ -11,7 +11,7 @@ const utilsObj = {
 };
 
 /**
- * If request comes in but runtime nodeID is not a node that handles events (interaction, _v1, etc..) =>
+ * If request comes in but runtime nodeID is not a node that handles events (i.e, interaction, capture, _v1, etc..) =>
  * Handle it here
  */
 export const PreliminaryHandler: HandlerFactory<Node<any, any>, typeof utilsObj> = (utils) => ({
@@ -19,8 +19,8 @@ export const PreliminaryHandler: HandlerFactory<Node<any, any>, typeof utilsObj>
     const request = runtime.getRequest();
     return (
       (isIntentRequest(request) || isGeneralRequest(request)) &&
-      !eventHandlers.find((h) => h.canHandle(node, runtime, variables, program)) &&
-      runtime.getAction() === Action.REQUEST
+      runtime.getAction() === Action.REQUEST &&
+      !utils.eventHandlers.find((h) => h.canHandle(node, runtime, variables, program))
     );
   },
   handle: (node, runtime, variables) => {
