@@ -21,7 +21,7 @@ export const isRuntimeRequest = (request: any): request is RuntimeRequest => {
   return request === null || !!(typeof request.type === 'string' && !!request.type && request.payload);
 };
 
-export const isGeneralRequest = (request: RuntimeRequest): request is Request<string, { name: string }> => {
+export const isGeneralRequest = (request: RuntimeRequest): request is Request<string, { name: string; stops?: Array<string> }> => {
   return !!(request as Request<string, { name: string }>)?.payload.name;
 };
 
@@ -36,6 +36,7 @@ export enum StorageType {
   STREAM_PAUSE = 'streamPause',
   STREAM_FINISHED = 'streamFinished',
   NO_MATCHES_COUNTER = 'noMatchesCounter',
+  STOP_TYPES = 'stopTypes',
 }
 
 export enum StreamAction {

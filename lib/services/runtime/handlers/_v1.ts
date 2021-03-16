@@ -3,6 +3,7 @@
 import { Node, TraceFrame } from '@voiceflow/general-types/build/nodes/_v1';
 import { Action, HandlerFactory } from '@voiceflow/runtime';
 
+import { StorageType } from '../types';
 import CommandHandler from './command';
 import { findEventMatcher } from './event';
 
@@ -45,9 +46,10 @@ export const _V1Handler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
       payload: { data: node.payload, paths: node.paths },
     });
 
+    const stop = runtime.storage.get(StorageType.STOP_TYPES) ?? node.stop;
     // if !stop continue to defaultPath otherwise
     // quit cycleStack without ending session by stopping on itself
-    return !node.stop ? defaultPath : node.id;
+    return !stop ? defaultPath : node.id;
   },
 });
 

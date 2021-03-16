@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { _V1Handler } from '@/lib/services/runtime/handlers/_v1';
+import { StorageType } from '@/lib/services/runtime/types';
 
 describe('Trace handler unit tests', () => {
   describe('canHandle', () => {
@@ -33,6 +34,7 @@ describe('Trace handler unit tests', () => {
           const runtime = {
             getAction: sinon.stub().returns(Action.RESPONSE),
             trace: { addTrace: sinon.stub() },
+            storage: { get: sinon.stub().returns(null) },
           };
           const handler = _V1Handler({} as any);
 
@@ -45,6 +47,7 @@ describe('Trace handler unit tests', () => {
               },
             ],
           ]);
+          expect(runtime.storage.get.args).to.eql([[StorageType.STOP_TYPES]]);
         });
       });
 
@@ -53,7 +56,7 @@ describe('Trace handler unit tests', () => {
           const node = {
             id: 'node-id',
             type: 'trace',
-            stop: false,
+            stop: true,
             payload: { foo: 'bar' },
             paths: [
               { event: {}, nextID: '1' },
@@ -63,6 +66,7 @@ describe('Trace handler unit tests', () => {
           const runtime = {
             getAction: sinon.stub().returns(Action.RESPONSE),
             trace: { addTrace: sinon.stub() },
+            storage: { get: sinon.stub().returns(false) },
           };
           const handler = _V1Handler({} as any);
 
@@ -75,6 +79,7 @@ describe('Trace handler unit tests', () => {
               },
             ],
           ]);
+          expect(runtime.storage.get.args).to.eql([[StorageType.STOP_TYPES]]);
         });
 
         it('no port for default path', () => {
@@ -92,6 +97,7 @@ describe('Trace handler unit tests', () => {
           const runtime = {
             getAction: sinon.stub().returns(Action.RESPONSE),
             trace: { addTrace: sinon.stub() },
+            storage: { get: sinon.stub().returns(null) },
           };
           const handler = _V1Handler({} as any);
 
@@ -104,6 +110,7 @@ describe('Trace handler unit tests', () => {
               },
             ],
           ]);
+          expect(runtime.storage.get.args).to.eql([[StorageType.STOP_TYPES]]);
         });
 
         it('return default port', () => {
@@ -121,6 +128,7 @@ describe('Trace handler unit tests', () => {
           const runtime = {
             getAction: sinon.stub().returns(Action.RESPONSE),
             trace: { addTrace: sinon.stub() },
+            storage: { get: sinon.stub().returns(false) },
           };
           const handler = _V1Handler({} as any);
 
@@ -133,6 +141,7 @@ describe('Trace handler unit tests', () => {
               },
             ],
           ]);
+          expect(runtime.storage.get.args).to.eql([[StorageType.STOP_TYPES]]);
         });
       });
     });
