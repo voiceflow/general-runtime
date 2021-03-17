@@ -30,7 +30,7 @@ export const generalEventMatcher = {
     const request = context.runtime.getRequest();
     if (!isGeneralRequest(request)) return false;
     if (!context.event?.type) return false;
-    if ((context.event as GeneralEvent).name !== request.payload.name) return false;
+    if ((context.event as GeneralEvent).type !== request.type) return false;
 
     return true;
   },

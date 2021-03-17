@@ -10,8 +10,9 @@ describe('runtime types unit tests', () => {
 
   it('isEventRequest', () => {
     expect(isGeneralRequest(null)).to.eql(false);
-    expect(isGeneralRequest({ type: 'random', payload: {} } as any)).to.eql(false);
     expect(isGeneralRequest({ type: 'random', payload: { name: '' } } as any)).to.eql(false);
-    expect(isGeneralRequest({ type: 'random', payload: { name: 'here' } } as any)).to.eql(true);
+    expect(isGeneralRequest({ type: 'random' } as any)).to.eql(true);
+    expect(isGeneralRequest({ type: 'random', payload: null } as any)).to.eql(true);
+    expect(isGeneralRequest({ type: 'random', payload: {} } as any)).to.eql(true);
   });
 });

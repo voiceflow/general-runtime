@@ -43,7 +43,7 @@ describe('Trace handler unit tests', () => {
             [
               {
                 type: node.type,
-                payload: { data: node.payload, paths: node.paths },
+                payload: { data: node.payload, paths: node.paths, defaultPath: undefined, stop: node.stop },
               },
             ],
           ]);
@@ -56,7 +56,7 @@ describe('Trace handler unit tests', () => {
           const node = {
             id: 'node-id',
             type: 'trace',
-            stop: true,
+            stop: false,
             payload: { foo: 'bar' },
             paths: [
               { event: {}, nextID: '1' },
@@ -66,7 +66,7 @@ describe('Trace handler unit tests', () => {
           const runtime = {
             getAction: sinon.stub().returns(Action.RESPONSE),
             trace: { addTrace: sinon.stub() },
-            storage: { get: sinon.stub().returns(false) },
+            storage: { get: sinon.stub().returns(undefined) },
           };
           const handler = _V1Handler({} as any);
 
@@ -75,7 +75,7 @@ describe('Trace handler unit tests', () => {
             [
               {
                 type: node.type,
-                payload: { data: node.payload, paths: node.paths },
+                payload: { data: node.payload, paths: node.paths, stop: node.stop, defaultPath: undefined },
               },
             ],
           ]);
@@ -106,7 +106,7 @@ describe('Trace handler unit tests', () => {
             [
               {
                 type: node.type,
-                payload: { data: node.payload, paths: node.paths },
+                payload: { data: node.payload, paths: node.paths, stop: node.stop, defaultPath: node.defaultPath },
               },
             ],
           ]);
@@ -137,7 +137,7 @@ describe('Trace handler unit tests', () => {
             [
               {
                 type: node.type,
-                payload: { data: node.payload, paths: node.paths },
+                payload: { data: node.payload, paths: node.paths, stop: node.stop, defaultPath: node.defaultPath },
               },
             ],
           ]);
