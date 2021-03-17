@@ -49,6 +49,36 @@ describe('Trace handler unit tests', () => {
           ]);
           expect(runtime.storage.get.args).to.eql([[StorageType.STOP_TYPES]]);
         });
+
+        it('works with stop types', () => {
+          const node = {
+            id: 'node-id',
+            type: 'trace',
+            stop: false, // will be overriden by stop types
+            payload: { foo: 'bar', name: 'the trace block' },
+            paths: [
+              { event: {}, nextID: '1' },
+              { event: {}, nextID: '2' },
+            ],
+          };
+          const runtime = {
+            getAction: sinon.stub().returns(Action.RESPONSE),
+            trace: { addTrace: sinon.stub() },
+            storage: { get: sinon.stub().returns(['type1', 'the trace block', 'type3']) },
+          };
+          const handler = _V1Handler({} as any);
+
+          expect(handler.handle(node as any, runtime as any, null as any, null as any)).to.eql(node.id);
+          expect(runtime.trace.addTrace.args).to.eql([
+            [
+              {
+                type: node.type,
+                payload: { data: node.payload, paths: node.paths, defaultPath: undefined, stop: node.stop },
+              },
+            ],
+          ]);
+          expect(runtime.storage.get.args).to.eql([[StorageType.STOP_TYPES]]);
+        });
       });
 
       describe('stop false', () => {
