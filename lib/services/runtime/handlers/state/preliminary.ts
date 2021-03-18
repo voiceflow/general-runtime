@@ -1,9 +1,13 @@
 import { Node } from '@voiceflow/api-sdk';
 import { Action, HandlerFactory } from '@voiceflow/runtime';
 
-import { eventHandlers } from '..';
+import _V1Handler from '../_v1';
 import { isGeneralRequest, isIntentRequest } from '../../types';
+import CaptureHandler from '../capture';
 import CommandHandler from '../command';
+import InteractionHandler from '../interaction';
+
+export const eventHandlers = [CaptureHandler(), InteractionHandler(), _V1Handler()];
 
 const utilsObj = {
   commandHandler: CommandHandler(),
