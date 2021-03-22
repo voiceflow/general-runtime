@@ -28,7 +28,7 @@ export const generalEventMatcher = {
     event: Event | null;
   }): context is { runtime: Runtime<Request>; event: Event<string, GeneralEvent> } => {
     const request = context.runtime.getRequest();
-    if (!request) return false;
+    if (!request || isIntentRequest(request)) return false;
     if (!context.event?.type) return false;
     if ((context.event as GeneralEvent).type !== request.type) return false;
 

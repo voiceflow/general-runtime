@@ -1,4 +1,3 @@
-import { EventType, RequestType } from '@voiceflow/general-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
