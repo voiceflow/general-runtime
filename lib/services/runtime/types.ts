@@ -1,6 +1,5 @@
 import { IntentRequest, NodeID, Request, RequestType, TextRequest } from '@voiceflow/general-types';
 import { Runtime } from '@voiceflow/runtime';
-import _ from 'lodash';
 
 export type RuntimeRequest = Request | null;
 
@@ -20,11 +19,6 @@ export const isIntentRequest = (request: RuntimeRequest): request is IntentReque
 
 export const isRuntimeRequest = (request: any): request is RuntimeRequest => {
   return request === null || !!(typeof request.type === 'string' && !!request.type);
-};
-
-type GeneralRequest = Request<string, undefined | {}>;
-export const isGeneralRequest = (request: RuntimeRequest): request is GeneralRequest => {
-  return !!(request as GeneralRequest)?.type && (!(request as GeneralRequest).payload || _.isEmpty((request as GeneralRequest).payload));
 };
 
 export enum StorageType {
