@@ -2,7 +2,6 @@ import { Node } from '@voiceflow/api-sdk';
 import { Action, HandlerFactory } from '@voiceflow/runtime';
 
 import _V1Handler from '../_v1';
-import { isGeneralRequest, isIntentRequest } from '../../types';
 import CaptureHandler from '../capture';
 import CommandHandler from '../command';
 import InteractionHandler from '../interaction';
@@ -21,11 +20,7 @@ const utilsObj = {
 export const PreliminaryHandler: HandlerFactory<Node<any, any>, typeof utilsObj> = (utils) => ({
   canHandle: (node, runtime, variables, program) => {
     const request = runtime.getRequest();
-    return (
-      (isIntentRequest(request) || isGeneralRequest(request)) &&
-      runtime.getAction() === Action.REQUEST &&
-      !utils.eventHandlers.find((h) => h.canHandle(node, runtime, variables, program))
-    );
+    return !!request && runtime.getAction() === Action.REQUEST && !utils.eventHandlers.find((h) => h.canHandle(node, runtime, variables, program));
   },
   handle: (node, runtime, variables) => {
     runtime.setAction(Action.RESPONSE);

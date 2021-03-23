@@ -2,7 +2,7 @@ import { formatIntentName } from '@voiceflow/common';
 import { Event, EventType, IntentEvent, IntentRequest, Request } from '@voiceflow/general-types';
 import { Runtime, Store } from '@voiceflow/runtime';
 
-import { GeneralRuntime, isGeneralRequest, isIntentRequest } from '@/lib/services/runtime/types';
+import { GeneralRuntime, isIntentRequest } from '@/lib/services/runtime/types';
 
 import { mapEntities } from '../../utils';
 
@@ -28,9 +28,9 @@ export const generalEventMatcher = {
     event: Event | null;
   }): context is { runtime: Runtime<Request>; event: Event<string, GeneralEvent> } => {
     const request = context.runtime.getRequest();
-    if (!isGeneralRequest(request)) return false;
+    if (!request || isIntentRequest(request)) return false;
     if (!context.event?.type) return false;
-    if ((context.event as GeneralEvent).name !== request.payload.name) return false;
+    if ((context.event as GeneralEvent).type !== request.type) return false;
 
     return true;
   },
