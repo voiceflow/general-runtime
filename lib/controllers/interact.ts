@@ -23,13 +23,17 @@ class InteractController extends AbstractController {
   async handler(req: Request<{ versionID: string }, null, { state?: State; request?: RuntimeRequest; config?: Config }, { locale?: string }>) {
     const { runtime, metrics, nlu, tts, chips, dialog, asr, speak, slots, state: stateManager, filter } = this.services;
 
-    metrics.generalRequest();
     const {
       body: { state, request = null, config = {} },
       params: { versionID },
       query: { locale },
       headers: { authorization, origin },
     } = req;
+
+    metrics.generalRequest();
+    if (authorization?.startsWith('VF.')) {
+      metrics.sdkRequest();
+    }
 
     const turn = new TurnBuilder<Context>(stateManager);
 

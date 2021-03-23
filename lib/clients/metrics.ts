@@ -16,6 +16,10 @@ export class Metrics {
   generalRequest() {
     this.client.increment('general.request');
   }
+
+  sdkRequest() {
+    this.client.increment('sdk.request');
+  }
 }
 
 const MetricsClient = (config: Config) => new Metrics(config, BufferedMetricsLogger);
