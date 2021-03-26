@@ -1,3 +1,4 @@
+import VError from '@voiceflow/verror';
 import compression from 'compression';
 import timeout from 'connect-timeout';
 import cookieParser from 'cookie-parser';
@@ -40,8 +41,15 @@ class ExpressMiddleware {
 
     app.use(log.logMiddleware());
 
-    app.use(timeout(String(ERROR_RESPONSE_MS)));
-    app.use((req, _res, next) => !req.timedout && next());
+    app.use(timeout(String(ERROR_RESPONSE_MS), { respond: false }));
+    app.use((req, res, next) => {
+      req.on('timeout', () => {
+        log.warn('response timeout');
+        res.status(VError.HTTP_STATUS.REQUEST_TIMEOUT).send('response timeout');
+      });
+
+      return !req.timedout && next();
+    });
 
     // All valid routes handled here
     app.use(api(middlewares, controllers));
