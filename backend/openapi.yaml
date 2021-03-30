@@ -69,13 +69,18 @@ paths:
                     - $ref: '#/components/schemas/TextRequest'
                     - $ref: '#/components/schemas/IntentRequest'
                     - type: 'null'
+                  description: 'the user intention, use Intent Request to skip the Voiceflow built-in NLP'
                 config:
                   type: object
                   properties:
                     tts:
                       type: boolean
+                      default: false
+                      description: send back a text-to-speech mp3 audio snippet for every speak block
                     stripSSML:
                       type: boolean
+                      default: true
+                      description: remove all SSML tags in the response message
             examples:
               Text Request:
                 value:
@@ -109,11 +114,10 @@ externalDocs:
   url: 'http://swagger.io'
 components:
   securitySchemes:
-    Authorization:
-      name: API Key
+    API Key:
       type: apiKey
       in: header
-      description: Generate API key under your Voiceflow Workspace Settings -> Developer
+      name: Authorization
   schemas:
     IntentRequest:
       title: IntentRequest
