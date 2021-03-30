@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import Interact from '@/lib/controllers/interact';
+import Interact from '@/lib/services/interact';
 
 const output = (context: any, state: string, params?: any) => ({ ...context, ...params, state, end: false });
 
@@ -19,36 +19,36 @@ const buildServices = (context: any) => ({
   metrics: { generalRequest: sinon.stub() },
 });
 
-describe('interact controller unit tests', () => {
+describe('interact service unit tests', () => {
   describe('handler', () => {
     it('works correctly', async () => {
-      const req = {
+      const data = {
         headers: { authorization: 'auth', origin: 'origin' },
         body: { state: { foo: 'bar' }, request: 'request', config: { tts: true } },
         params: { versionID: 'versionID' },
         query: { locale: 'locale' },
       };
       const context = {
-        state: req.body.state,
-        request: req.body.request,
-        versionID: req.params.versionID,
+        state: data.body.state,
+        request: data.body.request,
+        versionID: data.params.versionID,
         data: {
-          locale: req.query.locale,
+          locale: data.query.locale,
           config: {
             tts: true,
           },
           reqHeaders: {
-            authorization: req.headers.authorization,
-            origin: req.headers.origin,
+            authorization: data.headers.authorization,
+            origin: data.headers.origin,
           },
         },
       };
 
       const services = buildServices(context);
 
-      const interactController = new Interact(services as any, null as any);
+      const interactManager = new Interact(services as any, null as any);
 
-      expect(await interactController.handler(req as any)).to.eql({
+      expect(await interactManager.handler(data as any)).to.eql({
         state: 'filter',
         request: context.request,
         trace: 'trace',
@@ -67,19 +67,19 @@ describe('interact controller unit tests', () => {
     });
 
     it('omits TTS if specified in config', async () => {
-      const req = {
+      const data = {
         body: { state: { foo: 'bar' }, request: 'request', config: { tts: false } },
         headers: {},
         params: { versionID: 'versionID' },
         query: { locale: 'locale' },
       };
-      const context = { state: req.body.state, request: req.body.request, versionID: req.params.versionID, data: { locale: req.query.locale } };
+      const context = { state: data.body.state, request: data.body.request, versionID: data.params.versionID, data: { locale: data.query.locale } };
 
       const services = buildServices(context);
 
       const interactController = new Interact(services as any, null as any);
 
-      expect(await interactController.handler(req as any)).to.eql({
+      expect(await interactController.handler(data as any)).to.eql({
         state: 'filter',
         request: context.request,
         trace: 'trace',
@@ -91,18 +91,18 @@ describe('interact controller unit tests', () => {
   });
 
   it('includes TTS if config is unspecified', async () => {
-    const req = {
+    const data = {
       body: { state: { foo: 'bar' }, request: 'request' },
       headers: {},
       params: { versionID: 'versionID' },
       query: { locale: 'locale' },
     };
-    const context = { state: req.body.state, request: req.body.request, versionID: req.params.versionID, data: { locale: req.query.locale } };
+    const context = { state: data.body.state, request: data.body.request, versionID: data.params.versionID, data: { locale: data.query.locale } };
 
     const services = buildServices(context);
 
     const interactController = new Interact(services as any, null as any);
-    expect(await interactController.handler(req as any)).to.eql({
+    expect(await interactController.handler(data as any)).to.eql({
       state: 'filter',
       request: context.request,
       trace: 'trace',
@@ -111,18 +111,18 @@ describe('interact controller unit tests', () => {
   });
 
   it('includes TTS if tts is unspecified', async () => {
-    const req = {
+    const data = {
       body: { state: { foo: 'bar' }, request: 'request', config: {} },
       headers: {},
       params: { versionID: 'versionID' },
       query: { locale: 'locale' },
     };
-    const context = { state: req.body.state, request: req.body.request, versionID: req.params.versionID, data: { locale: req.query.locale } };
+    const context = { state: data.body.state, request: data.body.request, versionID: data.params.versionID, data: { locale: data.query.locale } };
 
     const services = buildServices(context);
 
     const interactController = new Interact(services as any, null as any);
-    expect(await interactController.handler(req as any)).to.eql({
+    expect(await interactController.handler(data as any)).to.eql({
       state: 'filter',
       request: context.request,
       trace: 'trace',

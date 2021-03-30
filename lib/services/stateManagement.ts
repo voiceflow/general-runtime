@@ -1,27 +1,34 @@
+import { Config } from '@voiceflow/general-types';
 import { State } from '@voiceflow/runtime';
-import { Request } from 'express';
+
+import { RuntimeRequest } from '@/lib/services/runtime/types';
 
 import { AbstractManager } from './utils';
 
 class StateManagement extends AbstractManager {
-  async interact(req: Request<{ versionID: string; userID: string }>) {
-    let state = await this.services.session.getFromDb<State>(req.params.userID);
+  async interact(data: {
+    params: { versionID: string; userID: string };
+    body: { state?: State; request?: RuntimeRequest; config?: Config };
+    query: { locale?: string };
+    headers: { authorization?: string; origin?: string };
+  }) {
+    let state = await this.services.session.getFromDb<State>(data.params.userID);
     if (!state) {
-      state = await this.reset(req);
+      state = await this.reset(data);
     }
 
-    req.body.state = state;
+    data.body.state = state;
 
-    const { state: updatedState, trace } = await this.services.interact.handler(req);
+    const { state: updatedState, trace } = await this.services.interact.handler(data);
 
-    await this.services.session.saveToDb(req.params.userID, updatedState);
+    await this.services.session.saveToDb(data.params.userID, updatedState);
 
     return trace;
   }
 
-  async reset(req: Request<{ versionID: string; userID: string }>) {
-    const state = await this.services.interact.state(req);
-    await this.services.session.saveToDb(req.params.userID, state);
+  async reset(data: { headers: { authorization?: string; origin?: string }; params: { versionID: string; userID: string } }) {
+    const state = await this.services.interact.state(data);
+    await this.services.session.saveToDb(data.params.userID, state);
     return state;
   }
 }
