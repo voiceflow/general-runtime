@@ -25,7 +25,6 @@ const CONFIG: Config = {
   API_HANDLER_ENDPOINT: getOptionalProcessEnv('API_HANDLER_ENDPOINT'),
 
   PROJECT_SOURCE: getOptionalProcessEnv('PROJECT_SOURCE'),
-  SESSIONS_SOURCE: getOptionalProcessEnv('SESSIONS_SOURCE'),
 
   GENERAL_SERVICE_ENDPOINT: getRequiredProcessEnv('GENERAL_SERVICE_ENDPOINT'), // voiceflow nlu/tts services
 
@@ -67,6 +66,11 @@ const CONFIG: Config = {
   // 500 requests per minute
   RATE_LIMITER_POINTS_PRIVATE: Number(getOptionalProcessEnv('RATE_LIMITER_POINTS_PRIVATE', '500')),
   RATE_LIMITER_DURATION_PRIVATE: Number(getOptionalProcessEnv('RATE_LIMITER_DURATION_PRIVATE', '60')),
+
+  // SESSIONS SOURCE
+  SESSIONS_SOURCE: getOptionalProcessEnv('SESSIONS_SOURCE'),
+  MONGO_URI: getOptionalProcessEnv('MONGO_URI'),
+  MONGO_DB: getOptionalProcessEnv('MONGO_DB'),
 };
 
 export default CONFIG;

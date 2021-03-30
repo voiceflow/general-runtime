@@ -42,7 +42,6 @@ export interface Config {
   MIDDLEWARE_VERBOSITY: string | null;
 
   PROJECT_SOURCE: string | null;
-  SESSIONS_SOURCE: string | null;
 
   REDIS_CLUSTER_HOST: string | null;
   REDIS_CLUSTER_PORT: number | null;
@@ -51,6 +50,10 @@ export interface Config {
   RATE_LIMITER_DURATION_PUBLIC: number;
   RATE_LIMITER_POINTS_PRIVATE: number;
   RATE_LIMITER_DURATION_PRIVATE: number;
+
+  SESSIONS_SOURCE: string | null;
+  MONGO_URI: string | null;
+  MONGO_DB: string | null;
 }
 
 export interface Request<P extends {} = {}> extends Express.Request<P> {
