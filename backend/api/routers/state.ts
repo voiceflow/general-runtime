@@ -12,9 +12,9 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
 
   router.post('/:versionID/user/:userID/interact', middlewares.rateLimit.consume, controllers.stateManagement.interact);
 
-  router.get('/:versionID/user/:userID', middlewares.rateLimit.consume, controllers.stateManagement.get);
+  router.get('/:versionID/user/:userID', middlewares.rateLimit.consume, middlewares.version.hasPermission, controllers.stateManagement.get);
 
-  router.put('/:versionID/user/:userID', middlewares.rateLimit.consume, controllers.stateManagement.update);
+  router.put('/:versionID/user/:userID', middlewares.rateLimit.consume, middlewares.version.hasPermission, controllers.stateManagement.update);
 
   router.post('/:versionID/user/:userID', middlewares.rateLimit.consume, controllers.stateManagement.reset);
 

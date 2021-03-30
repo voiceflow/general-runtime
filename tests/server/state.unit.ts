@@ -38,6 +38,9 @@ const tests = [
           verify: 1,
           consume: 1,
         },
+        version: {
+          hasPermission: 1,
+        },
       },
       validations: {},
     },
@@ -55,6 +58,9 @@ const tests = [
         rateLimit: {
           verify: 1,
           consume: 1,
+        },
+        version: {
+          hasPermission: 1,
         },
       },
       validations: {},

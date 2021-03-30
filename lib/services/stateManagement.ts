@@ -11,7 +11,7 @@ class StateManagement extends AbstractManager {
     params: { versionID: string; userID: string };
     body: { state?: State; request?: RuntimeRequest; config?: Config };
     query: { locale?: string };
-    headers: { authorization?: string; origin?: string };
+    headers: { authorization?: string };
   }) {
     let state = await this.services.session.getFromDb<State>(data.params.userID);
     if (_.isEmpty(state)) {
@@ -27,7 +27,7 @@ class StateManagement extends AbstractManager {
     return trace;
   }
 
-  async reset(data: { headers: { authorization?: string; origin?: string }; params: { versionID: string; userID: string } }) {
+  async reset(data: { headers: { authorization?: string }; params: { versionID: string; userID: string } }) {
     const state = await this.services.interact.state(data);
     await this.services.session.saveToDb(data.params.userID, state);
     return state;
