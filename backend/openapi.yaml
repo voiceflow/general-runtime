@@ -1,0 +1,392 @@
+openapi: 3.0.0
+info:
+  description: 'This API will allows your Voiceflow project to be integrated into any interface: chatbot, voice assistant, IVR, web chat, etc.'
+  version: 1.0.0
+  title: Voiceflow Runtime API
+  contact:
+    email: tyler@voiceflow.com
+    name: Tyler Han
+    url: 'https://voiceflow.com'
+tags:
+  - name: state
+    description: Voiceflow managed user state *(easier implementation)*
+paths:
+  '/state/{versionID}/user/{userID}':
+    post:
+      tags:
+        - state
+      summary: resolve a conversation turn
+      description: |-
+        Ensure userID is consistent every time the same user calls this endpoint. Generate the user ID yourself - it should be something unique that easily references the person on the session - such as an username, email, deviceID, or phone number.
+        (*e.g. `user54646`, `user@gmail.com`, `1-647-424-4242`, etc.*)
+
+        Send out a request, get back a response to act on.
+      operationId: stateInteract
+      parameters:
+        - name: versionID
+          in: path
+          description: voiceflow project version ID
+          required: true
+          schema:
+            type: string
+        - name: userID
+          in: path
+          description: unique user ID (create this yourself)
+          required: true
+          schema:
+            type: string
+        - in: header
+          name: Authorization
+          description: voiceflow API key
+          required: true
+          schema:
+            type: string
+            example: VF.6063709377e568001c098380.XXXXXXXXX.....
+        - schema:
+            type: string
+            example: user@gmail.com
+          in: query
+          name: userID
+          required: true
+          description: unique user ID (create this yourself)
+        - schema:
+            type: string
+            example: 60632e8273294f86ab619eaa
+          in: query
+          name: versionID
+          description: voiceflow project versionID
+          required: true
+      requestBody:
+        description: info and config required for an interaction
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                request:
+                  oneOf:
+                    - $ref: '#/components/schemas/TextRequest'
+                    - $ref: '#/components/schemas/IntentRequest'
+                    - type: 'null'
+                config:
+                  type: object
+                  properties:
+                    tts:
+                      type: boolean
+                    stripSSML:
+                      type: boolean
+            examples:
+              Text Request:
+                value:
+                  request:
+                    type: text
+                    payload: can I order a large pepperoni pizza
+              Empty Request:
+                value:
+                  request: null
+              Intent Request:
+                value:
+                  request:
+                    type: intent
+                    payload:
+                      query: I want a large pepperoni pizza
+                      intent:
+                        name: order_pizza_intent
+                      entities:
+                        - name: size
+                          value: large
+                        - name: type
+                          value: pepperoni
+                      confidence: 0.5
+      responses:
+        '200':
+          $ref: '#/components/responses/Trace'
+        '404':
+          description: Not Found
+externalDocs:
+  description: Find out more about Swagger
+  url: 'http://swagger.io'
+components:
+  securitySchemes:
+    Authorization:
+      name: API Key
+      type: apiKey
+      in: header
+      description: Generate API key under your Voiceflow Workspace Settings -> Developer
+  schemas:
+    IntentRequest:
+      title: IntentRequest
+      type: object
+      x-examples:
+        Order Pizza:
+          type: intent
+          payload:
+            intent:
+              name: order_pizza_intent
+            query: I want a huge pepperoni pizza
+            entities:
+              - name: size
+                value: large
+                query: huge
+              - name: topping
+                value: pepperoni
+            confidence: 0.5
+      properties:
+        type:
+          type: string
+          enum:
+            - intent
+          example: intent
+        payload:
+          type: object
+          required:
+            - intent
+            - entities
+          properties:
+            intent:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: order_pizza_intent
+            query:
+              type: string
+              example: I want a large pepperoni pizza
+            entities:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: size
+                  value:
+                    type: string
+                    example: large
+                  query:
+                    type: string
+                required:
+                  - name
+                  - value
+            confidence:
+              type: number
+      required:
+        - type
+        - payload
+    TextRequest:
+      title: TextRequest
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - text
+        payload:
+          type: string
+          example: I would like to order a huge pepperoni pizza
+      x-examples:
+        example-1:
+          type: text
+          payload: I would like to order a huge pepperoni pizza
+    SpeakTrace:
+      title: TraceSpeak
+      type: object
+      x-examples:
+        Pizza Response:
+          type: speak
+          payload:
+            type: message
+            message: one large pepperoni pizza is that correct?
+        Audio Speak:
+          type: speak
+          payload:
+            message: "<audio src='https://voiceflow.com/play.mp3'/>"
+            src: 'https://voiceflow.com/play.mp3'
+            type: audio
+      properties:
+        type:
+          type: string
+          enum:
+            - speak
+          example: speak
+        payload:
+          type: object
+          required:
+            - message
+            - type
+          properties:
+            message:
+              type: string
+              example: one large pepperoni pizza is that correct?
+            src:
+              type: string
+            type:
+              type: string
+              example: message
+              enum:
+                - message
+                - audio
+      required:
+        - type
+        - payload
+      description: Generated by the Speak Step
+    ChoiceTrace:
+      title: ChoiceTrace
+      type: object
+      x-examples:
+        Example Choice:
+          type: choice
+          payload:
+            choices:
+              - name: 'yes'
+              - name: 'no'
+      properties:
+        type:
+          type: string
+          example: choice
+          enum:
+            - choice
+        payload:
+          type: object
+          required:
+            - choices
+          properties:
+            choices:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: 'yes'
+                  intent:
+                    type: string
+                    example: YesIntent
+                required:
+                  - name
+      required:
+        - type
+        - payload
+      description: Generated by a Choice Step
+    VisualTrace:
+      title: VisualTrace
+      type: object
+      properties:
+        type:
+          type: string
+          example: visual
+          enum:
+            - visual
+        payload:
+          type: object
+          properties:
+            image:
+              type: string
+              example: 'https://voiceflow.com/logo.png'
+      required:
+        - type
+        - payload
+      x-examples:
+        Visual Trace Example:
+          type: visual
+          payload:
+            image: 'https://voiceflow.com/logo.png'
+      description: Generated by the Visuals Step
+    CustomTrace:
+      description: ''
+      type: object
+      x-examples:
+        Example Custom Trace:
+          type: string
+          payload:
+            data:
+              name: Send Email
+              body: "{ 'sender': 'user@gmail', 'body': 'great message' }"
+            paths:
+              - event:
+                  name: sendStuff
+                nextID: 6062631246b44d80a8a345b4
+            stop: true
+            defaultPath: 0
+      properties:
+        type:
+          type: string
+          minLength: 1
+        payload:
+          type: object
+          required:
+            - data
+          properties:
+            data:
+              type: object
+              required:
+                - name
+                - body
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                body:
+                  type: string
+            paths:
+              type: array
+              uniqueItems: true
+              minItems: 1
+              items:
+                type: object
+                properties:
+                  nextID:
+                    type: string
+                    minLength: 1
+                  event:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+            stop:
+              type: boolean
+            defaultPath:
+              type: number
+      required:
+        - type
+        - payload
+  responses:
+    Trace:
+      description: A sequential array of response "traces" to display back to the user. They can take a variety of types - common types are defined here.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              trace:
+                type: array
+                items:
+                  anyOf:
+                    - $ref: '#/components/schemas/SpeakTrace'
+                    - $ref: '#/components/schemas/ChoiceTrace'
+                    - type: object
+                      properties:
+                        type:
+                          type: string
+                        payload: {}
+                    - $ref: '#/components/schemas/VisualTrace'
+                    - $ref: '#/components/schemas/CustomTrace'
+          examples:
+            Sample Trace:
+              value:
+                trace:
+                  - type: speak
+                    payload:
+                      type: message
+                      message: one large pepperoni pizza is that correct?
+                  - type: speak
+                    payload:
+                      type: audio
+                      src: 'https://voiceflow.com/chime.mp3'
+                      message: "<audio src='https://voiceflow.com/chime.mp3'/>"
+                  - type: visual
+                    payload:
+                      image: 'https://voiceflow.com/splash.mp3'
+servers:
+  - url: 'https://general-runtime.voiceflow.com'
