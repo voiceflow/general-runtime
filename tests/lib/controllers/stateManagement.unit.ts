@@ -12,6 +12,7 @@ describe('stateManagement controller unit tests', () => {
 
       const req = { headers: {}, params: {}, body: {} };
       expect(await controller.interact(req as any)).to.eql(output);
+      expect(services.stateManagement.interact.args).to.eql([[req]]);
     });
   });
 
@@ -21,19 +22,20 @@ describe('stateManagement controller unit tests', () => {
       const services = { session: { getFromDb: sinon.stub().resolves(output) } };
       const controller = new StateManagement(services as any, {} as any);
 
-      const req = { headers: {}, params: {}, body: {} };
+      const req = { headers: {}, params: { userID: 'user-id' }, body: {} };
       expect(await controller.get(req as any)).to.eql(output);
+      expect(services.session.getFromDb.args).to.eql([[req.params.userID]]);
     });
   });
 
   describe('update', () => {
     it('works', async () => {
-      const output = { foo: 'bar' };
-      const services = { session: { saveToDb: sinon.stub().resolves(output) } };
+      const services = { session: { saveToDb: sinon.stub().resolves() } };
       const controller = new StateManagement(services as any, {} as any);
 
-      const req = { headers: {}, params: {}, body: {} };
-      expect(await controller.update(req as any)).to.eql(output);
+      const req = { headers: {}, params: { userID: 'user-id' }, body: { state: { foo: 'bar' } } };
+      expect(await controller.update(req as any)).to.eql(req.body.state);
+      expect(services.session.saveToDb.args).to.eql([[req.params.userID, req.body.state]]);
     });
   });
 
@@ -45,6 +47,7 @@ describe('stateManagement controller unit tests', () => {
 
       const req = { headers: {}, params: {}, body: {} };
       expect(await controller.reset(req as any)).to.eql(output);
+      expect(services.stateManagement.reset.args).to.eql([[req]]);
     });
   });
 });

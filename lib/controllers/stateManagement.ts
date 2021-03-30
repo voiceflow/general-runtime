@@ -13,7 +13,8 @@ class StateManagementController extends AbstractController {
   }
 
   async update(req: Request<{ versionID: string; userID: string }, null, { state: State }>) {
-    return this.services.session.saveToDb(req.params.userID, req.body.state);
+    await this.services.session.saveToDb(req.params.userID, req.body.state);
+    return req.body.state;
   }
 
   async reset(req: Request<{ versionID: string; userID: string }>) {

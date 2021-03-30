@@ -12,6 +12,7 @@ describe('interact controller unit tests', () => {
 
       const req = { headers: {}, params: {}, body: {} };
       expect(await controller.state(req as any)).to.eql(output);
+      expect(services.interact.state.args).to.eql([[req]]);
     });
   });
 
@@ -23,6 +24,7 @@ describe('interact controller unit tests', () => {
 
       const req = { headers: {}, params: {}, body: {} };
       expect(await controller.handler(req as any)).to.eql(output);
+      expect(services.interact.handler.args).to.eql([[req]]);
     });
   });
 });
