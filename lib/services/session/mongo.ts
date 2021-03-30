@@ -6,7 +6,7 @@ import { AbstractManager } from '../utils';
 import { Source } from './constants';
 
 class SessionManager extends AbstractManager {
-  static GACTION_SESSIONS_DYNAMO_PREFIX = 'gactions.user';
+  static GENERAL_SESSIONS_MONGO_PREFIX = 'general-platform.user';
 
   private collectionName = 'runtime-sessions';
 
@@ -17,7 +17,7 @@ class SessionManager extends AbstractManager {
   async saveToDb(userId: string, state: State) {
     const { mongo } = this.services;
 
-    const id = `${SessionManager.GACTION_SESSIONS_DYNAMO_PREFIX}.${userId}`;
+    const id = `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${userId}`;
 
     const {
       result: { ok },
@@ -35,7 +35,7 @@ class SessionManager extends AbstractManager {
       return {} as T;
     }
 
-    const id = `${SessionManager.GACTION_SESSIONS_DYNAMO_PREFIX}.${userId}`;
+    const id = `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${userId}`;
 
     const session = await mongo!.db.collection(this.collectionName).findOne<{ attributes: object }>({ id });
 

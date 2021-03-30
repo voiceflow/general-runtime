@@ -1,5 +1,6 @@
 import { Config } from '@voiceflow/general-types';
 import { State } from '@voiceflow/runtime';
+import _ from 'lodash';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
 
@@ -13,7 +14,7 @@ class StateManagement extends AbstractManager {
     headers: { authorization?: string; origin?: string };
   }) {
     let state = await this.services.session.getFromDb<State>(data.params.userID);
-    if (!state) {
+    if (_.isEmpty(state)) {
       state = await this.reset(data);
     }
 

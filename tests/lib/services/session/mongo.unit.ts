@@ -27,7 +27,7 @@ describe('mongo sessionManager unit tests', async () => {
       const stateObj = { foo: 'bar' };
       await state.saveToDb(userID, stateObj as any);
 
-      const id = `${SessionManager.GACTION_SESSIONS_DYNAMO_PREFIX}.${userID}`;
+      const id = `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${userID}`;
       expect(updateOne.args).to.eql([[{ id }, { $set: { id, attributes: stateObj } }, { upsert: true }]]);
     });
   });
