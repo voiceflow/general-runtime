@@ -7,12 +7,48 @@ import fixtures from './fixture';
 
 const tests = [
   {
-    method: 'get',
-    calledPath: '/interact/:versionID/state',
+    method: 'post',
+    calledPath: '/state/:versionID/user/:userID/interact',
     expected: {
       controllers: {
-        interact: {
-          state: 1,
+        stateManagement: {
+          interact: 1,
+        },
+      },
+      middlewares: {
+        rateLimit: {
+          verify: 1,
+          consume: 1,
+        },
+      },
+      validations: {},
+    },
+  },
+  {
+    method: 'get',
+    calledPath: '/state/:versionID/user/:userID',
+    expected: {
+      controllers: {
+        stateManagement: {
+          get: 1,
+        },
+      },
+      middlewares: {
+        rateLimit: {
+          verify: 1,
+          consume: 1,
+        },
+      },
+      validations: {},
+    },
+  },
+  {
+    method: 'put',
+    calledPath: '/state/:versionID/user/:userID',
+    expected: {
+      controllers: {
+        stateManagement: {
+          update: 1,
         },
       },
       middlewares: {
@@ -26,11 +62,11 @@ const tests = [
   },
   {
     method: 'post',
-    calledPath: '/interact/:versionID',
+    calledPath: '/state/:versionID/user/:userID',
     expected: {
       controllers: {
-        interact: {
-          handler: 1,
+        stateManagement: {
+          reset: 1,
         },
       },
       middlewares: {
@@ -44,7 +80,7 @@ const tests = [
   },
 ];
 
-describe('interact route unit tests', () => {
+describe('state route unit tests', () => {
   let app;
   let server;
 
