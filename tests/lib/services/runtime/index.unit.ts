@@ -156,7 +156,7 @@ describe('runtime manager unit tests', () => {
       await runtimeManager.handle(context);
 
       expect(runtime.trace.debug.args).to.eql([['matched intent **name** - confidence interval _86.12%_']]);
-      expect(runtime.variables.set.args).to.eql([[86.12]]);
+      expect(runtime.variables.set.args).to.eql([['intent_confidence', 86.12]]);
     });
   });
 });
