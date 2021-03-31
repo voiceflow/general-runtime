@@ -1,33 +1,134 @@
 openapi: 3.0.0
 info:
-  description: 'This API will allows your Voiceflow project to be integrated into any interface: chatbot, voice assistant, IVR, web chat, etc.'
+  description: |
+    # Overview
+    The Runtime API is an HTTP API served by Voiceflow's Runtime server.
+    It allows your Voiceflow project to be easily integrated into any interface: chatbot, voice assistant, IVR, web chat, and more - without the hassle of implementing the conversational flow using code.
+
+    By sending a request of what a user wants to do, you can use your Voiceflow project to generate the response.
+
+    <img src="https://uploads-ssl.webflow.com/5bddf05642686caf6d17eb58/6036dc95761e92262c2f4bd6_IVR%20(3)-p-1080.png" alt="Voiceflow IVR Integration" style="zoom:50%;"/>
+
+    # Quick Start
+    For developers eager to get started without worrying about the details, here are a few quick steps to make your first call with the API.
+    1. **Create a project**. You need to first build a conversational project on *[Voiceflow Creator](https://creator.voiceflow.com)*.
+    2. **Create API Key**. If you are an admin of a Voiceflow workspace, create and manage API Keys under *Workspace Settings / Developers*.
+    3. **Get Version ID**. On your project, it is in the URL: *https://creator.voiceflow.com/project/<b>{versionID}</b>/canvas/...*
+    4. **Make a test call**. Use the examples below to make an API call. Make subsequent calls to the same endpoint, 
+      changing the `payload` to reflect what the user might say. See how the response trace changes based on where in the project the user is.<br/>
+      *Make sure to replace the `{apiKey}` and `{versionID}` with what you've gathered on steps 2 and 3*.
+    5. **Implement your application**. Get familiar with the API by reading the rest of this documentation, and power the next conversation with your Voiceflow project!
+
+    <details>
+      <summary><b>View API Call Examples</b></summary>
+      <details>
+        <summary>cURL command line</summary>
+
+        curl --request POST 'https://general-runtime.voiceflow.com/state/{versionID}/user/steve' \
+             --header "Authorization: {apiKey}" \
+             --header 'Content-Type: application/json' \
+             --data-raw '{
+                "request": { "type": "text", "payload": "hello" }
+             }'
+
+      </details>
+      <details>
+        <summary>Node.js</summary>
+
+        /* Example in Node.js ES6 using axios */
+
+        const axios = require('axios');
+
+        const requestOptions = {
+          method: 'post',
+          uri: 'https://general-runtime.voiceflow.com/state/{versionID}/user/steve',
+          headers: {
+            Authorization: '{apiKey}'
+          },
+          data: {
+            request: {
+              type: "text",
+              payload: "hello"
+            }
+          }
+        };
+
+        axios(requestOptions).then(response => {
+          console.log('API call response:', response.data);
+        }).catch((err) => {
+          console.log('API call error:', err.message);
+        });
+
+      </details>
+      <details>
+        <summary>Python</summary>
+
+        /* Example in Python 3 using requests library */
+        import requests
+
+        url = 'https://general-runtime.voiceflow.com/state/{versionID}/user/steve'
+        request = { 'type': 'text', 'payload': 'hello' }
+        headers = {'Authorization': '{apiKey}'}
+
+        response = requests.post(url, json={ 'request': request }, headers=headers )
+        print(response.json())
+
+      </details>
+    </details>
+
+    # Endpoint
+    The standard URL base for all Runtime API calls - this will be different if you are self-hosting or on a private cloud.
+    ```
+    https://general-runtime.voiceflow.com
+    ```
   version: 1.0.0
   title: Voiceflow Runtime API
-  contact:
-    email: tyler@voiceflow.com
-    name: Tyler Han
-    url: 'https://voiceflow.com'
 tags:
   - name: state
-    description: Voiceflow managed user state *(easier implementation)*
-  - name: interact
+    description: |
+      Voiceflow managed user state *(easier implementation)* - **interact** is the only essential endpoint
+
+      All endpoints take in two parameters in the URL: `{versionID}` and `{userID}`.
+
+      `{versionID}` is in the URL on your project: *https://creator.voiceflow.com/project/<b>{versionID}</b>/canvas/...*
+
+      `{userID}` will need be generated yourself - it should be something unique that easily references the person on the session - such as an username, email, deviceID, or phone number.
+      (*e.g.* `user54646`, `user@gmail.com`, `1-647-424-4242`, etc.).<br/> If you're not sure what to call it just for testing purposes, you can just pick a random `{userID}` like *steve*.
+      For example <i>".../user/<b>steve</b>/interact"</i> is going to have a distinct conversation from <i>".../user/<b>alice</b>/interact"</i><br/>
+      *Ensure `{userID}` is consistent every time the same user calls these endpoints.*
+  - name: stateless
     description: Stateless webhook
-  - name: user
-    description: Operations about user
-    externalDocs:
-      description: Find out more about our store
-      url: 'http://swagger.io'
 paths:
   '/state/{versionID}/user/{userID}/interact':
     post:
       tags:
         - state
-      summary: resolve a conversation turn
+      summary: interact
       description: |-
-        Ensure userID is consistent every time the same user calls this endpoint. Generate the user ID yourself - it should be something unique that easily references the person on the session - such as an username, email, deviceID, or phone number.
-        (*e.g. `user54646`, `user@gmail.com`, `1-647-424-4242`, etc.*)
+        Resolve a conversation turn.
+        Every time a request is sent you will get a unique response based on where the user is currently on in the Voiceflow project.
 
-        Send out a request, get back a response to act on.
+        Send out a request with a `type` and `payload`, and get back a response with a `trace` array to act on.
+
+        ```
+        // -> request body, send user intention or event
+        {
+          "request": {
+            "type": "text",
+            "payload": "can I order a large pepperoni pizza"
+          }
+        }
+        // <- response body, an array of "traces"
+        {
+          "trace": [{
+            "type": "speak",
+            "payload": {
+              "type": "message",
+              "message": "would you like fries with that?"
+            }
+          }]
+        }
+        ```
       operationId: stateInteract
       parameters:
         - name: versionID
@@ -64,7 +165,7 @@ paths:
                     - $ref: '#/components/schemas/LaunchRequest'
                     - type: 'null'
                       properties: {}
-                  description: 'pass user intention, use Intent Request to skip the Voiceflow built-in NLP'
+                  description: 'user intention or event'
                 config:
                   type: object
                   description: optional settings
@@ -150,7 +251,8 @@ paths:
           example: VF.6063709377e568001c098380.XXXXXXXXX.....
     get:
       summary: fetch state
-      tags: []
+      tags:
+        - state
       responses:
         '200':
           description: OK
@@ -175,7 +277,8 @@ paths:
       description: Fetch the user's current state
     post:
       summary: update state
-      tags: []
+      tags:
+        - state
       operationId: postState
       responses:
         '200':
@@ -220,7 +323,8 @@ paths:
         description: valid new user state
     delete:
       summary: delete state
-      tags: []
+      tags:
+        - state
       operationId: deleteState
       responses:
         '200':
@@ -235,6 +339,8 @@ components:
       type: apiKey
       in: header
       name: Authorization
+      description: |
+        All HTTP requests made to the Runtime API must be validated with an API Key. If you are an admin of a Voiceflow workspace, create and manage API Keys under *Workspace Settings / Developers*.
   schemas:
     IntentRequest:
       title: IntentRequest
