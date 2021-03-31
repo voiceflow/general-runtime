@@ -63,6 +63,35 @@ const tests = [
           hasPermission: 1,
         },
       },
+      validations: {
+        controllers: {
+          stateManagement: {
+            update: {
+              BODY_UPDATE_SESSION: 1,
+            },
+          },
+        },
+      },
+    },
+  },
+  {
+    method: 'delete',
+    calledPath: '/state/:versionID/user/:userID',
+    expected: {
+      controllers: {
+        stateManagement: {
+          delete: 1,
+        },
+      },
+      middlewares: {
+        rateLimit: {
+          verify: 1,
+          consume: 1,
+        },
+        version: {
+          hasPermission: 1,
+        },
+      },
       validations: {},
     },
   },

@@ -52,7 +52,7 @@ class Interact extends AbstractManager {
 
     return turn.resolve({
       state,
-      request: isLaunchRequest ? request : null,
+      request: !isLaunchRequest ? request : null,
       versionID,
       data: { locale, config, reqHeaders: { authorization, origin } },
     });

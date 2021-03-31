@@ -16,34 +16,29 @@ describe('mongo sessionManager unit tests', async () => {
       const updateOne = sinon.stub().resolves({ result: { ok: false } });
       const state = new SessionManager({ mongo: { db: { collection: sinon.stub().returns({ updateOne }) } } } as any, {} as any);
 
-      await expect(state.saveToDb('user-id', { foo: 'bar' } as any)).to.eventually.rejectedWith('store runtime session error');
+      await expect(state.saveToDb('version-id', 'user-id', { foo: 'bar' } as any)).to.eventually.rejectedWith('store runtime session error');
     });
 
     it('works', async () => {
       const updateOne = sinon.stub().resolves({ result: { ok: true } });
       const state = new SessionManager({ mongo: { db: { collection: sinon.stub().returns({ updateOne }) } } } as any, {} as any);
 
+      const versionID = 'version-id';
       const userID = 'user-id';
       const stateObj = { foo: 'bar' };
-      await state.saveToDb(userID, stateObj as any);
+      await state.saveToDb(versionID, userID, stateObj as any);
 
-      const id = `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${userID}`;
-      expect(updateOne.args).to.eql([[{ id }, { $set: { id, attributes: stateObj } }, { upsert: true }]]);
+      const id = `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${versionID}.${userID}`;
+      expect(updateOne.args).to.eql([[{ id }, { $set: { id, versionID, attributes: stateObj } }, { upsert: true }]]);
     });
   });
 
   describe('getFromDb', () => {
-    it('no user id', async () => {
-      const state = new SessionManager({ mongo: {} } as any, {} as any);
-
-      expect(await state.getFromDb(null as any)).to.eql({});
-    });
-
     it('not found', async () => {
       const findOne = sinon.stub().resolves(null);
       const state = new SessionManager({ mongo: { db: { collection: sinon.stub().returns({ findOne }) } } } as any, {} as any);
 
-      expect(await state.getFromDb('user-id')).to.eql({});
+      expect(await state.getFromDb('version-id', 'user-id')).to.eql({});
     });
 
     it('works', async () => {
@@ -51,7 +46,10 @@ describe('mongo sessionManager unit tests', async () => {
       const findOne = sinon.stub().resolves({ attributes });
       const state = new SessionManager({ mongo: { db: { collection: sinon.stub().returns({ findOne }) } } } as any, {} as any);
 
-      expect(await state.getFromDb('user-id')).to.eql(attributes);
+      const versionID = 'version-id';
+      const userID = 'user-id';
+      expect(await state.getFromDb(versionID, userID)).to.eql(attributes);
+      expect(findOne.args).to.eql([[{ id: `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${versionID}.${userID}` }]]);
     });
   });
 });
