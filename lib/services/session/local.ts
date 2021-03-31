@@ -5,16 +5,20 @@ import { AbstractManager } from '../utils';
 class SessionManager extends AbstractManager {
   public table: Record<string, any> = {};
 
-  async saveToDb(userId: string, state: State) {
-    this.table[userId] = state;
+  private getSessionID(versionID: string, userID: string) {
+    return `${versionID}.${userID}`;
   }
 
-  async getFromDb<T extends Record<string, any> = Record<string, any>>(userId: string) {
-    return (this.table[userId] || {}) as T;
+  async saveToDb(versionID: string, userID: string, state: State) {
+    this.table[this.getSessionID(versionID, userID)] = state;
   }
 
-  async deleteFromDb(userId: string) {
-    delete this.table[userId];
+  async getFromDb<T extends Record<string, any> = Record<string, any>>(versionID: string, userID: string) {
+    return (this.table[this.getSessionID(versionID, userID)] || {}) as T;
+  }
+
+  async deleteFromDb(versionID: string, userID: string) {
+    delete this.table[this.getSessionID(versionID, userID)];
   }
 }
 
