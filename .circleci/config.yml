@@ -3,7 +3,7 @@ version: 2.1
 parameters:
   npm-repo:
     type: string
-    default: "@voiecflow/general-runtime"
+    default: "@voiceflow/general-runtime"
   container-image-url:
     type: string
     default: "168387678261.dkr.ecr.us-east-1.amazonaws.com/general-runtime"

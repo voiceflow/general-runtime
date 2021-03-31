@@ -119,6 +119,7 @@ describe('runtime manager unit tests', () => {
         update: sinon.stub(),
         getRawState: sinon.stub().returns(rawState),
         trace: { get: sinon.stub().returns(trace), addTrace: sinon.stub(), debug: sinon.stub() },
+        variables: { set: sinon.stub() },
         getFinalState: sinon.stub().returns(rawState),
       };
 
@@ -155,6 +156,7 @@ describe('runtime manager unit tests', () => {
       await runtimeManager.handle(context);
 
       expect(runtime.trace.debug.args).to.eql([['matched intent **name** - confidence interval _86.12%_']]);
+      expect(runtime.variables.set.args).to.eql([['intent_confidence', 86.12]]);
     });
   });
 });

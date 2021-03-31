@@ -48,9 +48,11 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     const runtime = this.createClient(context.data.api).createRuntime(versionID, state, request);
 
     if (isIntentRequest(request)) {
-      runtime.trace.debug(
-        `matched intent **${request.payload.intent.name}** - confidence interval _${getReadableConfidence(request.payload.confidence)}%_`
-      );
+      const confidence = getReadableConfidence(request.payload.confidence);
+
+      runtime.trace.debug(`matched intent **${request.payload.intent.name}** - confidence interval _${confidence}%_`);
+
+      runtime.variables.set('intent_confidence', Number(confidence));
     }
 
     await runtime.update();
