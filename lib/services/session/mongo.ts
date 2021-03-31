@@ -41,6 +41,19 @@ class SessionManager extends AbstractManager {
 
     return (session?.attributes || {}) as T;
   }
+
+  async deleteFromDb(userId: string) {
+    const { mongo } = this.services;
+    const id = `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${userId}`;
+
+    const {
+      result: { ok },
+    } = await mongo!.db.collection(this.collectionName).deleteOne({ id });
+
+    if (!ok) {
+      throw Error('delete runtime session error');
+    }
+  }
 }
 
 export default SessionManager;

@@ -16,6 +16,8 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
 
   router.put('/:versionID/user/:userID', middlewares.rateLimit.consume, middlewares.version.hasPermission, controllers.stateManagement.update);
 
+  router.delete('/:versionID/user/:userID', middlewares.rateLimit.consume, middlewares.version.hasPermission, controllers.stateManagement.delete);
+
   router.post('/:versionID/user/:userID', middlewares.rateLimit.consume, controllers.stateManagement.reset);
 
   return router;

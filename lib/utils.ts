@@ -1,7 +1,9 @@
 import { ResponseBuilder } from '@voiceflow/backend-utils';
+import Ajv from 'ajv';
 import { ValidationChain } from 'express-validator';
 import { Middleware } from 'express-validator/src/base';
 
+import logger from '@/logger';
 import { AnyClass } from '@/types';
 
 import { ControllerMap } from './controllers';
@@ -15,6 +17,17 @@ export const validate = (validations: Validations) => (_target: object, _key: st
   descriptor.value = Object.assign(descriptor.value, { validations });
 
   return descriptor;
+};
+
+export const customAJV = (schema: object) => (value: any) => {
+  const ajv = new Ajv({ useDefaults: true, allErrors: true, verbose: true });
+  const valid = ajv.validate(schema, value);
+  if (!valid) {
+    logger.error(`@customAJV:validation - error:for: ${value} ${ajv.errorsText()}`);
+    throw new Error(ajv.errorsText());
+  }
+
+  return true;
 };
 
 export const factory = () => (_target: () => Middleware, _key: string, descriptor: PropertyDescriptor) => {
