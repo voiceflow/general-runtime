@@ -21,17 +21,17 @@ class StateManagementController extends AbstractController {
   }
 
   async get(req: Request<{ versionID: string; userID: string }>) {
-    return this.services.session.getFromDb(req.params.userID);
+    return this.services.session.getFromDb(req.params.versionID, req.params.userID);
   }
 
   @validate({ BODY_UPDATE_SESSION: VALIDATIONS.BODY.UPDATE_SESSION })
   async update(req: Request<{ versionID: string; userID: string }, null, { state: State }>) {
-    await this.services.session.saveToDb(req.params.userID, req.body.state);
+    await this.services.session.saveToDb(req.params.versionID, req.params.userID, req.body.state);
     return req.body.state;
   }
 
   async delete(req: Request<{ versionID: string; userID: string }>) {
-    return this.services.session.deleteFromDb(req.params.userID);
+    return this.services.session.deleteFromDb(req.params.versionID, req.params.userID);
   }
 
   async reset(req: Request<{ versionID: string; userID: string }>) {

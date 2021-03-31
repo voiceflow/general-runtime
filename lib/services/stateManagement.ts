@@ -13,7 +13,7 @@ class StateManagement extends AbstractManager {
     query: { locale?: string };
     headers: { authorization?: string };
   }) {
-    let state = await this.services.session.getFromDb<State>(data.params.userID);
+    let state = await this.services.session.getFromDb<State>(data.params.versionID, data.params.userID);
     if (_.isEmpty(state)) {
       state = await this.reset(data);
     }
@@ -22,14 +22,14 @@ class StateManagement extends AbstractManager {
 
     const { state: updatedState, trace } = await this.services.interact.handler(data);
 
-    await this.services.session.saveToDb(data.params.userID, updatedState);
+    await this.services.session.saveToDb(data.params.versionID, data.params.userID, updatedState);
 
     return trace;
   }
 
   async reset(data: { headers: { authorization?: string }; params: { versionID: string; userID: string } }) {
     const state = await this.services.interact.state(data);
-    await this.services.session.saveToDb(data.params.userID, state);
+    await this.services.session.saveToDb(data.params.versionID, data.params.userID, state);
     return state;
   }
 }

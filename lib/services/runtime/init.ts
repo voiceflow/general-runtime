@@ -71,7 +71,7 @@ const init = (client: Client) => {
     }
 
     if (runtime.stack.isEmpty() && !runtime.turn.get(TurnType.END)) {
-      runtime.trace.addTrace<ExitTraceFrame>({ type: GeneralTraceType.END });
+      runtime.trace.addTrace<ExitTraceFrame>({ type: GeneralTraceType.END, payload: undefined });
     }
   });
 };
