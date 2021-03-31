@@ -1,4 +1,4 @@
-import { Config } from '@voiceflow/general-types';
+import { Config, RequestType } from '@voiceflow/general-types';
 import { State, TurnBuilder } from '@voiceflow/runtime';
 import _ from 'lodash';
 
@@ -29,6 +29,12 @@ class Interact extends AbstractManager {
       headers: { authorization, origin },
     } = req;
 
+    const isLaunchRequest = request?.type === RequestType.LAUNCH;
+    if (isLaunchRequest && state) {
+      state.stack = [];
+      state.storage = {};
+    }
+
     metrics.generalRequest();
     if (authorization?.startsWith('VF.')) {
       metrics.sdkRequest();
@@ -44,7 +50,12 @@ class Interact extends AbstractManager {
 
     turn.addHandlers(speak, chips, filter);
 
-    return turn.resolve({ state, request, versionID, data: { locale, config, reqHeaders: { authorization, origin } } });
+    return turn.resolve({
+      state,
+      request: isLaunchRequest ? request : null,
+      versionID,
+      data: { locale, config, reqHeaders: { authorization, origin } },
+    });
   }
 }
 
