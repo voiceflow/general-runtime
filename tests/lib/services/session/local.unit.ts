@@ -36,4 +36,19 @@ describe('local sessionManager unit tests', async () => {
       expect(await state.getFromDb(projectID, userID)).to.eql(stateObj);
     });
   });
+
+  describe('deleteFromDb', () => {
+    it('works', async () => {
+      const projectID = 'project-id';
+      const userID = 'user-id';
+      const stateObj = { foo: 'bar' };
+      const state = new SessionManager({} as any, {} as any);
+      state.table.foo = 'bar';
+      state.table[`${projectID}.${userID}`] = stateObj;
+
+      expect(state.table).to.eql({ foo: 'bar', [`${projectID}.${userID}`]: stateObj });
+      await state.deleteFromDb(projectID, userID);
+      expect(state.table).to.eql({ foo: 'bar' });
+    });
+  });
 });

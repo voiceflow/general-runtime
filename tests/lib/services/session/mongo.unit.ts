@@ -52,4 +52,39 @@ describe('mongo sessionManager unit tests', async () => {
       expect(findOne.args).to.eql([[{ id: `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${projectID}.${userID}` }]]);
     });
   });
+
+  describe('deleteFromDb', () => {
+    it('not ok', async () => {
+      const deleteOne = sinon.stub().resolves({ result: { ok: false } });
+      const state = new SessionManager({ mongo: { db: { collection: sinon.stub().returns({ deleteOne }) } } } as any, {} as any);
+
+      const projectID = 'project-id';
+      const userID = 'user-id';
+
+      await expect(state.deleteFromDb(projectID, userID)).to.eventually.rejectedWith('delete runtime session error');
+      expect(deleteOne.args).to.eql([[{ id: `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${projectID}.${userID}` }]]);
+    });
+
+    it('not deleted', async () => {
+      const deleteOne = sinon.stub().resolves({ result: { ok: true }, deletedCount: 0 });
+      const state = new SessionManager({ mongo: { db: { collection: sinon.stub().returns({ deleteOne }) } } } as any, {} as any);
+
+      const projectID = 'project-id';
+      const userID = 'user-id';
+
+      await expect(state.deleteFromDb(projectID, userID)).to.eventually.rejectedWith('delete runtime session error');
+      expect(deleteOne.args).to.eql([[{ id: `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${projectID}.${userID}` }]]);
+    });
+
+    it('works', async () => {
+      const deleteOne = sinon.stub().resolves({ result: { ok: true }, deletedCount: 1 });
+      const state = new SessionManager({ mongo: { db: { collection: sinon.stub().returns({ deleteOne }) } } } as any, {} as any);
+
+      const projectID = 'project-id';
+      const userID = 'user-id';
+
+      await state.deleteFromDb(projectID, userID);
+      expect(deleteOne.args).to.eql([[{ id: `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${projectID}.${userID}` }]]);
+    });
+  });
 });

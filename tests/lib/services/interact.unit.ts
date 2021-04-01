@@ -1,3 +1,4 @@
+import { RequestType } from '@voiceflow/general-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -31,6 +32,51 @@ describe('interact service unit tests', () => {
       const context = {
         state: data.body.state,
         request: data.body.request,
+        versionID: data.params.versionID,
+        data: {
+          locale: data.query.locale,
+          config: {
+            tts: true,
+          },
+          reqHeaders: {
+            authorization: data.headers.authorization,
+            origin: data.headers.origin,
+          },
+        },
+      };
+
+      const services = buildServices(context);
+
+      const interactManager = new Interact(services as any, null as any);
+
+      expect(await interactManager.handler(data as any)).to.eql({
+        state: 'filter',
+        request: context.request,
+        trace: 'trace',
+      });
+
+      expect(services.state.handle.args).to.eql([[context]]);
+      expect(services.asr.handle.args).to.eql([[output(context, 'state')]]);
+      expect(services.nlu.handle.args).to.eql([[output(context, 'asr')]]);
+      expect(services.slots.handle.args).to.eql([[output(context, 'nlu')]]);
+      expect(services.dialog.handle.args).to.eql([[output(context, 'slots')]]);
+      expect(services.runtime.handle.args).to.eql([[output(context, 'dialog')]]);
+      expect(services.tts.handle.args).to.eql([[output(context, 'runtime')]]);
+      expect(services.speak.handle.args).to.eql([[output(context, 'tts')]]);
+      expect(services.chips.handle.args).to.eql([[output(context, 'speak')]]);
+      expect(services.metrics.generalRequest.callCount).to.eql(1);
+    });
+
+    it('launch request', async () => {
+      const data = {
+        headers: { authorization: 'auth', origin: 'origin' },
+        body: { state: { foo: 'bar', stack: [{}, {}], storage: { foo: 'bar' } }, request: { type: RequestType.LAUNCH }, config: { tts: true } },
+        params: { versionID: 'versionID' },
+        query: { locale: 'locale' },
+      };
+      const context = {
+        state: { ...data.body.state, stack: [], storage: {} },
+        request: null,
         versionID: data.params.versionID,
         data: {
           locale: data.query.locale,
