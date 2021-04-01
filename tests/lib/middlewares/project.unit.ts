@@ -3,8 +3,8 @@ import sinon from 'sinon';
 
 import Project from '@/lib/middlewares/project';
 
-describe('version middleware unit tests', () => {
-  describe('hasPermission', () => {
+describe('proejct middleware unit tests', () => {
+  describe('attachID', () => {
     it('throws', async () => {
       const api = { getVersion: sinon.stub().throws() };
       const services = { dataAPI: { get: sinon.stub().resolves(api) } };
@@ -17,7 +17,8 @@ describe('version middleware unit tests', () => {
     });
 
     it('calls next', async () => {
-      const api = { getVersion: sinon.stub().resolves() };
+      const version = { projectID: 'project-id' };
+      const api = { getVersion: sinon.stub().resolves(version) };
       const services = { dataAPI: { get: sinon.stub().resolves(api) } };
       const middleware = new Project(services as any, {} as any);
 
@@ -28,6 +29,7 @@ describe('version middleware unit tests', () => {
       expect(next.callCount).to.eql(1);
       expect(services.dataAPI.get.args).to.eql([[req.headers.authorization]]);
       expect(api.getVersion.args).to.eql([[req.params.versionID]]);
+      expect(req.headers).to.eql({ authorization: req.headers.authorization, projectID: version.projectID });
     });
   });
 });
