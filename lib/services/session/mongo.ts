@@ -14,37 +14,37 @@ class SessionManager extends AbstractManager {
     return config.SESSIONS_SOURCE === Source.MONGO;
   }
 
-  private getSessionID(versionID: string, userID: string) {
-    return `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${versionID}.${userID}`;
+  private getSessionID(projectID: string, userID: string) {
+    return `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${projectID}.${userID}`;
   }
 
-  async saveToDb(versionID: string, userID: string, state: State) {
+  async saveToDb(projectID: string, userID: string, state: State) {
     const { mongo } = this.services;
 
-    const id = this.getSessionID(versionID, userID);
+    const id = this.getSessionID(projectID, userID);
 
     const {
       result: { ok },
-    } = await mongo!.db.collection(this.collectionName).updateOne({ id }, { $set: { id, versionID, attributes: state } }, { upsert: true });
+    } = await mongo!.db.collection(this.collectionName).updateOne({ id }, { $set: { id, projectID, attributes: state } }, { upsert: true });
 
     if (!ok) {
       throw Error('store runtime session error');
     }
   }
 
-  async getFromDb<T extends Record<string, any> = Record<string, any>>(versionID: string, userID: string) {
+  async getFromDb<T extends Record<string, any> = Record<string, any>>(projectID: string, userID: string) {
     const { mongo } = this.services;
 
-    const id = this.getSessionID(versionID, userID);
+    const id = this.getSessionID(projectID, userID);
 
     const session = await mongo!.db.collection(this.collectionName).findOne<{ attributes: object }>({ id });
 
     return (session?.attributes || {}) as T;
   }
 
-  async deleteFromDb(versionID: string, userID: string) {
+  async deleteFromDb(projectID: string, userID: string) {
     const { mongo } = this.services;
-    const id = this.getSessionID(versionID, userID);
+    const id = this.getSessionID(projectID, userID);
 
     const {
       result: { ok },
