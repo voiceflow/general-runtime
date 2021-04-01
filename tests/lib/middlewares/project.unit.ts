@@ -29,7 +29,7 @@ describe('proejct middleware unit tests', () => {
       expect(next.callCount).to.eql(1);
       expect(services.dataAPI.get.args).to.eql([[req.headers.authorization]]);
       expect(api.getVersion.args).to.eql([[req.params.versionID]]);
-      expect(req.headers).to.eql({ authorization: req.headers.authorization, projectID: version.projectID });
+      expect(req.headers).to.eql({ authorization: req.headers.authorization, project_id: version.projectID });
     });
   });
 });

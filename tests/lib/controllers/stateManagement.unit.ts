@@ -22,9 +22,9 @@ describe('stateManagement controller unit tests', () => {
       const services = { session: { getFromDb: sinon.stub().resolves(output) } };
       const controller = new StateManagement(services as any, {} as any);
 
-      const req = { headers: { projectID: 'project-id' }, params: { userID: 'user-id', versionID: 'version-id' }, body: {} };
+      const req = { headers: { project_id: 'project-id' }, params: { userID: 'user-id', versionID: 'version-id' }, body: {} };
       expect(await controller.get(req as any)).to.eql(output);
-      expect(services.session.getFromDb.args).to.eql([[req.headers.projectID, req.params.userID]]);
+      expect(services.session.getFromDb.args).to.eql([[req.headers.project_id, req.params.userID]]);
     });
   });
 
@@ -33,9 +33,9 @@ describe('stateManagement controller unit tests', () => {
       const services = { session: { saveToDb: sinon.stub().resolves() } };
       const controller = new StateManagement(services as any, {} as any);
 
-      const req = { headers: { projectID: 'project-id' }, params: { userID: 'user-id', versionID: 'version-id' }, body: { state: { foo: 'bar' } } };
-      expect(await controller.update(req as any)).to.eql(req.body.state);
-      expect(services.session.saveToDb.args).to.eql([[req.headers.projectID, req.params.userID, req.body.state]]);
+      const req = { headers: { project_id: 'project-id' }, params: { userID: 'user-id', versionID: 'version-id' }, body: { foo: 'bar' } };
+      expect(await controller.update(req as any)).to.eql(req.body);
+      expect(services.session.saveToDb.args).to.eql([[req.headers.project_id, req.params.userID, req.body]]);
     });
   });
 
@@ -45,9 +45,9 @@ describe('stateManagement controller unit tests', () => {
       const services = { session: { deleteFromDb: sinon.stub().resolves(output) } };
       const controller = new StateManagement(services as any, {} as any);
 
-      const req = { headers: { projectID: 'project-id' }, params: { userID: 'user-id', versionID: 'version-id' }, body: {} };
+      const req = { headers: { project_id: 'project-id' }, params: { userID: 'user-id', versionID: 'version-id' }, body: {} };
       expect(await controller.delete(req as any)).to.eql(output);
-      expect(services.session.deleteFromDb.args).to.eql([[req.headers.projectID, req.params.userID]]);
+      expect(services.session.deleteFromDb.args).to.eql([[req.headers.project_id, req.params.userID]]);
     });
   });
 
