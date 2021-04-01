@@ -11,11 +11,11 @@ describe('local sessionManager unit tests', async () => {
       const state = new SessionManager({} as any, {} as any);
 
       const userID = 'user-id';
-      const versionID = 'version-id';
+      const projectID = 'project-id';
       const stateObj = { foo: 'bar' };
-      await state.saveToDb(versionID, userID, stateObj as any);
+      await state.saveToDb(projectID, userID, stateObj as any);
 
-      expect(state.table).to.eql({ [`${versionID}.${userID}`]: stateObj });
+      expect(state.table).to.eql({ [`${projectID}.${userID}`]: stateObj });
     });
   });
 
@@ -23,17 +23,17 @@ describe('local sessionManager unit tests', async () => {
     it('not found', async () => {
       const state = new SessionManager({} as any, {} as any);
 
-      expect(await state.getFromDb('version-id', 'user-id')).to.eql({});
+      expect(await state.getFromDb('project-id', 'user-id')).to.eql({});
     });
 
     it('works', async () => {
-      const versionID = 'version-id';
+      const projectID = 'project-id';
       const userID = 'user-id';
       const stateObj = { foo: 'bar' };
       const state = new SessionManager({} as any, {} as any);
-      state.table[`${versionID}.${userID}`] = stateObj;
+      state.table[`${projectID}.${userID}`] = stateObj;
 
-      expect(await state.getFromDb(versionID, userID)).to.eql(stateObj);
+      expect(await state.getFromDb(projectID, userID)).to.eql(stateObj);
     });
   });
 });
