@@ -1,4 +1,4 @@
-import { Config } from '@voiceflow/general-types';
+import { Config, RequestType } from '@voiceflow/general-types';
 import { State, TurnBuilder } from '@voiceflow/runtime';
 import _ from 'lodash';
 
@@ -23,11 +23,21 @@ class Interact extends AbstractManager {
     const { runtime, metrics, nlu, tts, chips, dialog, asr, speak, slots, state: stateManager, filter } = this.services;
 
     const {
-      body: { state, request = null, config = {} },
+      body: { state, config = {} },
       params: { versionID },
       query: { locale },
       headers: { authorization, origin },
     } = req;
+
+    let {
+      body: { request = null },
+    } = req;
+
+    if (request?.type === RequestType.LAUNCH && state) {
+      state.stack = [];
+      state.storage = {};
+      request = null;
+    }
 
     metrics.generalRequest();
     if (authorization?.startsWith('VF.')) {

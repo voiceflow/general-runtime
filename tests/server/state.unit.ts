@@ -20,8 +20,27 @@ const tests = [
           verify: 1,
           consume: 1,
         },
+        project: {
+          attachID: 1,
+        },
       },
-      validations: {},
+      validations: {
+        middlewares: {
+          project: {
+            attachID: {
+              PARAMS_VERSION_ID: 1,
+              HEADERS_AUTHORIZATION: 1,
+            },
+          },
+        },
+        controllers: {
+          stateManagement: {
+            interact: {
+              HEADERS_PROJECT_ID: 1,
+            },
+          },
+        },
+      },
     },
   },
   {
@@ -38,11 +57,27 @@ const tests = [
           verify: 1,
           consume: 1,
         },
-        version: {
-          hasPermission: 1,
+        project: {
+          attachID: 1,
         },
       },
-      validations: {},
+      validations: {
+        controllers: {
+          stateManagement: {
+            get: {
+              HEADERS_PROJECT_ID: 1,
+            },
+          },
+        },
+        middlewares: {
+          project: {
+            attachID: {
+              PARAMS_VERSION_ID: 1,
+              HEADERS_AUTHORIZATION: 1,
+            },
+          },
+        },
+      },
     },
   },
   {
@@ -59,11 +94,65 @@ const tests = [
           verify: 1,
           consume: 1,
         },
-        version: {
-          hasPermission: 1,
+        project: {
+          attachID: 1,
         },
       },
-      validations: {},
+      validations: {
+        controllers: {
+          stateManagement: {
+            update: {
+              BODY_UPDATE_SESSION: 1,
+              HEADERS_PROJECT_ID: 1,
+            },
+          },
+        },
+        middlewares: {
+          project: {
+            attachID: {
+              PARAMS_VERSION_ID: 1,
+              HEADERS_AUTHORIZATION: 1,
+            },
+          },
+        },
+      },
+    },
+  },
+  {
+    method: 'delete',
+    calledPath: '/state/:versionID/user/:userID',
+    expected: {
+      controllers: {
+        stateManagement: {
+          delete: 1,
+        },
+      },
+      middlewares: {
+        rateLimit: {
+          verify: 1,
+          consume: 1,
+        },
+        project: {
+          attachID: 1,
+        },
+      },
+      validations: {
+        middlewares: {
+          project: {
+            attachID: {
+              PARAMS_VERSION_ID: 1,
+              HEADERS_AUTHORIZATION: 1,
+            },
+          },
+        },
+        controllers: {
+          stateManagement: {
+            delete: {
+              HEADERS_PROJECT_ID: 1,
+            },
+          },
+        },
+      },
     },
   },
   {
@@ -80,8 +169,27 @@ const tests = [
           verify: 1,
           consume: 1,
         },
+        project: {
+          attachID: 1,
+        },
       },
-      validations: {},
+      validations: {
+        middlewares: {
+          project: {
+            attachID: {
+              PARAMS_VERSION_ID: 1,
+              HEADERS_AUTHORIZATION: 1,
+            },
+          },
+        },
+        controllers: {
+          stateManagement: {
+            reset: {
+              HEADERS_PROJECT_ID: 1,
+            },
+          },
+        },
+      },
     },
   },
 ];

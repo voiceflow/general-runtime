@@ -1,9 +1,10 @@
 /* eslint-disable no-restricted-syntax */
-import { Node, TraceFrame } from '@voiceflow/general-types/build/nodes/_v1';
+import { Node } from '@voiceflow/general-types/build/nodes/_v1';
+import { TraceFrame } from '@voiceflow/general-types/build/nodes/types';
 import { Action, HandlerFactory } from '@voiceflow/runtime';
 import _ from 'lodash';
 
-import { StorageType } from '../types';
+import { TurnType } from '../types';
 import CommandHandler from './command';
 import { findEventMatcher } from './event';
 
@@ -41,12 +42,14 @@ export const _V1Handler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
       return null;
     }
 
-    runtime.trace.addTrace<TraceFrame>({
+    runtime.trace.addTrace<TraceFrame<string, unknown>>({
       type: node.type,
-      payload: { data: node.payload, paths: node.paths, stop: node.stop, defaultPath: node.defaultPath },
+      payload: node.payload,
+      defaultPath: node.defaultPath,
+      paths: node.paths.map((path) => ({ event: path.event! })),
     });
 
-    const stopTypes = runtime.storage.get<string[]>(StorageType.STOP_TYPES) || [];
+    const stopTypes = runtime.turn.get<string[]>(TurnType.STOP_TYPES) || [];
 
     const stop = stopTypes.includes(_.get(node.payload, 'name')) || node.stop;
     // if !stop continue to defaultPath otherwise

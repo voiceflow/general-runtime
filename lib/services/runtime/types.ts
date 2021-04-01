@@ -32,7 +32,6 @@ export enum StorageType {
   STREAM_PAUSE = 'streamPause',
   STREAM_FINISHED = 'streamFinished',
   NO_MATCHES_COUNTER = 'noMatchesCounter',
-  STOP_TYPES = 'stopTypes',
 }
 
 export enum StreamAction {
@@ -84,6 +83,7 @@ export enum TurnType {
   REPROMPT = 'reprompt',
   NEW_STACK = 'newStack',
   PREVIOUS_OUTPUT = 'lastOutput',
+  STOP_TYPES = 'stopTypes',
 }
 
 export type PreviousOutputTurn = string;

@@ -13,7 +13,7 @@ import CacheDataAPI from '../state/cacheDataAPI';
 import { AbstractManager, injectServices } from '../utils';
 import Handlers from './handlers';
 import init from './init';
-import { isIntentRequest, isRuntimeRequest } from './types';
+import { isIntentRequest, isRuntimeRequest, TurnType } from './types';
 import { getReadableConfidence } from './utils';
 
 export const utils = {
@@ -53,6 +53,10 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
       runtime.trace.debug(`matched intent **${request.payload.intent.name}** - confidence interval _${confidence}%_`);
 
       runtime.variables.set('intent_confidence', Number(confidence));
+    }
+
+    if (context.data.config?.stopTypes) {
+      runtime.turn.set(TurnType.STOP_TYPES, context.data.config.stopTypes);
     }
 
     await runtime.update();

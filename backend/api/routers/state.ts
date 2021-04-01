@@ -10,13 +10,15 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.use(bodyParser.json({ limit: BODY_PARSER_SIZE_LIMIT }));
   router.use(middlewares.rateLimit.verify);
 
-  router.post('/:versionID/user/:userID/interact', middlewares.rateLimit.consume, controllers.stateManagement.interact);
+  router.post('/:versionID/user/:userID/interact', middlewares.rateLimit.consume, middlewares.project.attachID, controllers.stateManagement.interact);
 
-  router.get('/:versionID/user/:userID', middlewares.rateLimit.consume, middlewares.version.hasPermission, controllers.stateManagement.get);
+  router.get('/:versionID/user/:userID', middlewares.rateLimit.consume, middlewares.project.attachID, controllers.stateManagement.get);
 
-  router.put('/:versionID/user/:userID', middlewares.rateLimit.consume, middlewares.version.hasPermission, controllers.stateManagement.update);
+  router.put('/:versionID/user/:userID', middlewares.rateLimit.consume, middlewares.project.attachID, controllers.stateManagement.update);
 
-  router.post('/:versionID/user/:userID', middlewares.rateLimit.consume, controllers.stateManagement.reset);
+  router.delete('/:versionID/user/:userID', middlewares.rateLimit.consume, middlewares.project.attachID, controllers.stateManagement.delete);
+
+  router.post('/:versionID/user/:userID', middlewares.rateLimit.consume, middlewares.project.attachID, controllers.stateManagement.reset);
 
   return router;
 };
