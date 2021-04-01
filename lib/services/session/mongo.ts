@@ -1,4 +1,5 @@
 import { State } from '@voiceflow/runtime';
+import { ObjectId } from 'mongodb';
 
 import { Config } from '@/types';
 
@@ -6,7 +7,7 @@ import { AbstractManager } from '../utils';
 import { Source } from './constants';
 
 class SessionManager extends AbstractManager {
-  static GENERAL_SESSIONS_MONGO_PREFIX = 'general-platform.user';
+  static GENERAL_SESSIONS_MONGO_PREFIX = 'general-platform.session';
 
   private collectionName = 'runtime-sessions';
 
@@ -25,7 +26,9 @@ class SessionManager extends AbstractManager {
 
     const {
       result: { ok },
-    } = await mongo!.db.collection(this.collectionName).updateOne({ id }, { $set: { id, projectID, attributes: state } }, { upsert: true });
+    } = await mongo!.db
+      .collection(this.collectionName)
+      .updateOne({ id }, { $set: { id, projectID: new ObjectId(projectID), attributes: state } }, { upsert: true });
 
     if (!ok) {
       throw Error('store runtime session error');

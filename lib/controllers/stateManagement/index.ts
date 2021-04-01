@@ -13,7 +13,7 @@ const VALIDATIONS = {
     UPDATE_SESSION: body().custom(customAJV(UpdateSchema)),
   },
   HEADERS: {
-    PROJECT_ID: header('projectID')
+    PROJECT_ID: header('project_id')
       .exists()
       .isString(),
   },
@@ -23,28 +23,28 @@ class StateManagementController extends AbstractController {
   static VALIDATIONS = VALIDATIONS;
 
   @validate({ HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID })
-  async interact(req: Request<{ userID: string; versionID: string }, any, { projectID: string; authorization: string }>) {
+  async interact(req: Request<{ userID: string; versionID: string }, any, { project_id: string; authorization: string }>) {
     return this.services.stateManagement.interact(req);
   }
 
   @validate({ HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID })
-  async get(req: Request<{ userID: string; versionID: string }, any, { projectID: string }>) {
-    return this.services.session.getFromDb(req.headers.projectID, req.params.userID);
+  async get(req: Request<{ userID: string; versionID: string }, any, { project_id: string }>) {
+    return this.services.session.getFromDb(req.headers.project_id, req.params.userID);
   }
 
   @validate({ BODY_UPDATE_SESSION: VALIDATIONS.BODY.UPDATE_SESSION, HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID })
-  async update(req: Request<{ versionID: string; userID: string }, { state: State }, { projectID: string }>) {
-    await this.services.session.saveToDb(req.headers.projectID, req.params.userID, req.body.state);
-    return req.body.state;
+  async update(req: Request<{ versionID: string; userID: string }, State, { project_id: string }>) {
+    await this.services.session.saveToDb(req.headers.project_id, req.params.userID, req.body);
+    return req.body;
   }
 
   @validate({ HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID })
-  async delete(req: Request<{ userID: string; versionID: string }, any, { projectID: string }>) {
-    return this.services.session.deleteFromDb(req.headers.projectID, req.params.userID);
+  async delete(req: Request<{ userID: string; versionID: string }, any, { project_id: string }>) {
+    return this.services.session.deleteFromDb(req.headers.project_id, req.params.userID);
   }
 
   @validate({ HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID })
-  async reset(req: Request<{ userID: string; versionID: string }, any, { projectID: string; authorization: string }>) {
+  async reset(req: Request<{ userID: string; versionID: string }, any, { project_id: string; authorization: string }>) {
     return this.services.stateManagement.reset(req);
   }
 }

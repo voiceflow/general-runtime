@@ -26,8 +26,8 @@ class Project extends AbstractMiddleware {
   async attachID(req: Request<{ versionID: string }>, _res: Response, next: NextFunction) {
     const api = await this.services.dataAPI.get(req.headers.authorization);
     try {
-      const version = await api.getVersion(req.params.versionID);
-      req.headers.projectID = version.projectID;
+      const { projectID } = await api.getVersion(req.params.versionID);
+      req.headers.project_id = projectID;
       return next();
     } catch (err) {
       throw new VError('no permissions for this version');
