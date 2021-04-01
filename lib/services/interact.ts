@@ -23,16 +23,20 @@ class Interact extends AbstractManager {
     const { runtime, metrics, nlu, tts, chips, dialog, asr, speak, slots, state: stateManager, filter } = this.services;
 
     const {
-      body: { state, request = null, config = {} },
+      body: { state, config = {} },
       params: { versionID },
       query: { locale },
       headers: { authorization, origin },
     } = req;
 
-    const isLaunchRequest = request?.type === RequestType.LAUNCH;
-    if (isLaunchRequest && state) {
+    let {
+      body: { request = null },
+    } = req;
+
+    if (request?.type === RequestType.LAUNCH && state) {
       state.stack = [];
       state.storage = {};
+      request = null;
     }
 
     metrics.generalRequest();
@@ -52,7 +56,7 @@ class Interact extends AbstractManager {
 
     return turn.resolve({
       state,
-      request: !isLaunchRequest ? request : null,
+      request,
       versionID,
       data: { locale, config, reqHeaders: { authorization, origin } },
     });

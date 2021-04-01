@@ -19,7 +19,6 @@ export const UpdateSchema = {
   additionalProperties: false,
   required: ['stack', 'storage', 'variables'],
   properties: {
-    turn: ObjectField('turn'),
     stack: ArrayField('stack', RecordField('stackFrame', StackFrame)),
     storage: ObjectField('storage'),
     variables: ObjectField('variables'),

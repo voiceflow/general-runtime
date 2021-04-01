@@ -15,13 +15,13 @@ class SessionManager extends AbstractManager {
   }
 
   private getSessionID(versionID: string, userID: string) {
-    return `${versionID}.${userID}`;
+    return `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${versionID}.${userID}`;
   }
 
   async saveToDb(versionID: string, userID: string, state: State) {
     const { mongo } = this.services;
 
-    const id = `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${this.getSessionID(versionID, userID)}`;
+    const id = this.getSessionID(versionID, userID);
 
     const {
       result: { ok },
@@ -35,7 +35,7 @@ class SessionManager extends AbstractManager {
   async getFromDb<T extends Record<string, any> = Record<string, any>>(versionID: string, userID: string) {
     const { mongo } = this.services;
 
-    const id = `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${this.getSessionID(versionID, userID)}`;
+    const id = this.getSessionID(versionID, userID);
 
     const session = await mongo!.db.collection(this.collectionName).findOne<{ attributes: object }>({ id });
 
@@ -44,7 +44,7 @@ class SessionManager extends AbstractManager {
 
   async deleteFromDb(versionID: string, userID: string) {
     const { mongo } = this.services;
-    const id = `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${this.getSessionID(versionID, userID)}`;
+    const id = this.getSessionID(versionID, userID);
 
     const {
       result: { ok },
