@@ -86,7 +86,7 @@ info:
     https://general-runtime.voiceflow.com
     ```
 tags:
-  - name: State
+  - name: State API
     description: |
       Voiceflow managed user state - **interact** is the only essential endpoint
 
@@ -106,7 +106,7 @@ tags:
       - `state` is the user metadata - what block they are currently on, what flow they are on, their variables
       - `request` is an object representing a user's action or event
       - `trace` is an list of things for whatever client is calling the API to show
-  - name: Stateless
+  - name: Stateless API
     description: |
       The dialog management **stateless** API is very similar to the **state** API - with one difference:<br/>
       the `state` that is saved and managed by Voiceflow is passed in the request and response instead. This means there is no longer any need for the `{userID}` in the path parameters - the token used to retrieve the state.
@@ -119,79 +119,11 @@ tags:
       - `state` is the user metadata - what block they are currently on, what flow they are on, their variables
       - `request` is an object representing a user's action or event
       - `trace` is an list of things for whatever client is calling the API to show
-
-      The stateless API receives a request with `request` + `state`, and responds with a new `state` + `trace`. Here's what it looks like from the Voiceflow creator app prototype tool:
-
-      1. User says/types something, take user's text request and current `state` and sends it via webhook to the Dialog Management API.
-      2. Dialog Management goes through each block/flow and updates the user `state`.
-      3. Generate a `trace` and new `state` of the user, send back response.
-      4. Client interprets API response, and saves the new `state` to use with the next response.
-
-      Repeat all steps each time a user speaks/types to the prototype tool, to perform a conversation.
-
-      Let's take a look at this interaction: the blue user text is the request.
-      <img src="https://user-images.githubusercontent.com/5643574/105523483-6c894d80-5cac-11eb-900c-076ed15c1486.png" />
-
-      The simplified example stateless **request**
-
-      ```
-      {
-        "request": {
-          "type": "text",
-          "payload": "What is the balance in my chequing account"
-        },
-        "state": {
-          "stack": [{
-            "programID": "home flow",
-            "nodeID": "prompt node"
-          }],
-          "storage": {},
-          "variables": {
-            "chequing_balance": null
-          }
-        }
-      }
-      ```
-
-      The simplified example **response**
-
-      ```
-      {
-        "state": {
-          "stack": [{
-            "programID": "home flow",
-            "nodeID": "yes no choice node"
-          }],
-          "storage": {},
-          "variables": {
-            "balance": 0
-          }
-        },
-        "trace": [{
-          "type": "speak",
-          "payload": {
-            "type": "message",
-            "message": "the balance in your chequing account is 0 dollars, is that all?"
-          },
-        }, {
-          "type": "choice",
-          "payload": {
-            "choices": [{"name": "yes"}, {"name": "no"}]
-          }
-        }],
-      }
-      ```
-
-      Notice that the `type: text` request got processed by the NLP handler to become an `type: intent` request.
-      The `state` is updated, and a `trace` is generated in the API response.
-
-      To move the conversation forward, you can create a request object and pass it in the response body to `/interact/{versionID}` along with the state and optionally a `config` object. This will return an updated `state`, an updated request, and the trace array containing the traces to display.
-
 paths:
-  '/state/{versionID}/user/{userID}/interact':
+  '/state/user/{userID}/interact/{versionID}':
     post:
       tags:
-        - State
+        - State API
       summary: interact
       description: |-
         Resolve a conversation turn.
@@ -237,12 +169,14 @@ paths:
           required: true
           schema:
             type: string
+            example: 5eb039bf90821520c2068cea
         - name: userID
           in: path
           description: unique user ID (create this yourself)
           required: true
           schema:
             type: string
+            example: user@gmail.com
         - in: header
           name: Authorization
           description: voiceflow API key
@@ -259,32 +193,11 @@ paths:
               type: object
               properties:
                 request:
-                  oneOf:
-                    - $ref: '#/components/schemas/TextRequest'
-                    - $ref: '#/components/schemas/IntentRequest'
-                    - $ref: '#/components/schemas/LaunchRequest'
-                    - type: 'null'
-                      properties: {}
-                  description: user intention or event
+                  $ref: '#/components/schemas/Request'
                 config:
-                  type: object
-                  description: optional settings
-                  properties:
-                    tts:
-                      type: boolean
-                      default: false
-                      description: send back a text-to-speech mp3 audio snippet for every speak block
-                    stripSSML:
-                      type: boolean
-                      default: true
-                      description: remove all SSML tags in the response message
-                    stopTypes:
-                      type: array
-                      description: 'which trace types to return prematurely on, define your own path'
-                      items:
-                        type: string
-                        example: '["Pay Credit Card"]'
-                        default: '[]'
+                  $ref: '#/components/schemas/Config'
+              required:
+                - request
             examples:
               Text Request:
                 value:
@@ -324,10 +237,69 @@ paths:
                       - Pay Credit Card
       responses:
         '200':
-          $ref: '#/components/responses/Trace'
+          description: A sequential array of response "traces" to display back to the user. They can take a variety of types - common types are defined here.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trace:
+                    $ref: '#/components/schemas/Trace'
+              examples:
+                Dialog Example:
+                  value:
+                    trace:
+                      - type: speak
+                        payload:
+                          type: message
+                          message: one large pepperoni pizza is that correct?
+                      - type: speak
+                        payload:
+                          type: audio
+                          src: 'https://voiceflow.com/chime.mp3'
+                          message: "<audio src='https://voiceflow.com/chime.mp3'/>"
+                      - type: visual
+                        payload:
+                          image: 'https://voiceflow.com/splash.mp3'
+                      - type: choice
+                        payload:
+                          choices:
+                            - name: 'yes'
+                            - name: 'no'
+                Custom Trace:
+                  value:
+                    trace:
+                      - type: speak
+                        payload:
+                          type: message
+                          message: charging payment now!
+                      - type: Pay Credit Card
+                        payload: "{ 'sender': 'user@gmail', 'type': 'visa' }"
+                        paths:
+                          - event:
+                              name: success
+                          - event:
+                              name: denied
+                          - event:
+                              name: pending
+                        defaultPath: 0
         '404':
           description: Not Found
-    parameters: []
+    parameters:
+      - schema:
+          type: string
+          example: user@gmail.com
+        name: userID
+        in: path
+        required: true
+        description: unique user ID (create this yourself)
+      - schema:
+          type: string
+          example: 5eb039bf90821520c2068cea
+        name: versionID
+        in: path
+        required: true
+        description: voiceflow project version ID
   '/state/{versionID}/user/{userID}':
     parameters:
       - name: versionID
@@ -336,12 +308,14 @@ paths:
         required: true
         schema:
           type: string
+          example: 5eb039bf90821520c2068cea
       - name: userID
         in: path
         description: unique user ID (create this yourself)
         required: true
         schema:
           type: string
+          example: user@gmail.com
       - in: header
         name: Authorization
         description: voiceflow API key
@@ -352,7 +326,7 @@ paths:
     get:
       summary: fetch state
       tags:
-        - State
+        - State API
       responses:
         '200':
           description: OK
@@ -378,7 +352,7 @@ paths:
     post:
       summary: update state
       tags:
-        - State
+        - State API
       operationId: postState
       responses:
         '200':
@@ -424,12 +398,280 @@ paths:
     delete:
       summary: delete state
       tags:
-        - State
+        - State API
       operationId: deleteState
       responses:
         '200':
           description: OK
       description: Delete all state and session data for user.
+  '/interact/{versionID}':
+    parameters:
+      - name: versionID
+        schema:
+          type: string
+          example: 5eb039bf90821520c2068cea
+        in: path
+        description: voiceflow project version ID
+        required: true
+      - in: header
+        name: Authorization
+        description: voiceflow API key
+        required: true
+        schema:
+          type: string
+          example: VF.6063709377e568001c098380.XXXXXXXXX.....
+    post:
+      summary: interact
+      tags:
+        - Stateless API
+      operationId: statelessInteract
+      description: |
+        The stateless API receives a request with `request` + `state`, and responds with a new `state` + `trace`. Here's what it looks like from the Voiceflow creator app prototype tool:
+
+        1. User says/types something, take user's text request and current `state` and sends it via webhook to the Dialog Management API.
+        2. Dialog Management goes through each block/flow and updates the user `state`.
+        3. Generate a `trace` and new `state` of the user, send back response.
+        4. Client interprets API response, and saves the new `state` to use with the next response.
+
+        Repeat all steps each time a user speaks/types to the prototype tool, to perform a conversation.
+
+        Let's take a look at this interaction: the blue user text is the request.
+        <img src="https://user-images.githubusercontent.com/5643574/105523483-6c894d80-5cac-11eb-900c-076ed15c1486.png" />
+
+        The simplified example stateless **request**
+
+        ```
+        {
+          "request": {
+            "type": "text",
+            "payload": "What is the balance in my chequing account"
+          },
+          "state": {
+            "stack": [{
+              "programID": "home flow",
+              "nodeID": "prompt node"
+            }],
+            "storage": {},
+            "variables": {
+              "chequing_balance": null
+            }
+          }
+        }
+        ```
+
+        The simplified example **response**
+
+        ```
+        {
+          "state": {
+            "stack": [{
+              "programID": "home flow",
+              "nodeID": "yes no choice node"
+            }],
+            "storage": {},
+            "variables": {
+              "balance": 0
+            }
+          },
+          "trace": [{
+            "type": "speak",
+            "payload": {
+              "type": "message",
+              "message": "the balance in your chequing account is 0 dollars, is that all?"
+            },
+          }, {
+            "type": "choice",
+            "payload": {
+              "choices": [{"name": "yes"}, {"name": "no"}]
+            }
+          }],
+        }
+        ```
+
+        Notice that the `type: text` request got processed by the NLP handler to become an `type: intent` request.
+        The `state` is updated, and a `trace` is generated in the API response.
+
+        To move the conversation forward, you can create a request object and pass it in the response body to `/interact/{versionID}` along with the state and optionally a `config` object. 
+        This will return an updated `state`, an updated `request` (not shown in examples), and the trace array containing the traces to display.
+
+        if `state` is undefined/empty, it will automatically use the **default state** (starting from the first block).
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                request:
+                  $ref: '#/components/schemas/Request'
+                state:
+                  $ref: '#/components/schemas/State'
+                config:
+                  $ref: '#/components/schemas/Config'
+              required:
+                - request
+            examples:
+              Text Request:
+                value:
+                  request:
+                    type: text
+                    payload: I would like to order a huge pepperoni pizza
+                  state:
+                    stack:
+                      - programID: 6062631246b44d80a8a345b4
+                        nodeID: 60626307fd9a230006a5e289
+                        variables: {}
+                        storage: {}
+                        commands:
+                          - type: push
+                            event: {}
+                    storage: {}
+                    variables: {}
+              Launch Request:
+                value:
+                  request:
+                    type: launch
+              With Config:
+                value:
+                  request:
+                    type: text
+                    payload: I would like to order a huge pepperoni pizza
+                  state:
+                    stack:
+                      - programID: 6062631246b44d80a8a345b4
+                        nodeID: 60626307fd9a230006a5e289
+                        variables: {}
+                        storage: {}
+                        commands:
+                          - type: push
+                            event: {}
+                    storage: {}
+                    variables: {}
+                  config:
+                    tts: false
+                    stripSSML: true
+                    stopTypes:
+                      - Pay Credit Card
+      responses:
+        '200':
+          description: A sequential array of response "traces" to display back to the user. They can take a variety of types - common types are defined here.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trace:
+                    $ref: '#/components/schemas/Trace'
+                  state:
+                    $ref: '#/components/schemas/State'
+                  request:
+                    $ref: '#/components/schemas/Request'
+                required:
+                  - trace
+              examples:
+                Dialog Example:
+                  value:
+                    trace:
+                      - type: speak
+                        payload:
+                          type: message
+                          message: one large pepperoni pizza is that correct?
+                      - type: speak
+                        payload:
+                          type: audio
+                          src: 'https://voiceflow.com/chime.mp3'
+                          message: "<audio src='https://voiceflow.com/chime.mp3'/>"
+                      - type: visual
+                        payload:
+                          image: 'https://voiceflow.com/splash.mp3'
+                      - type: choice
+                        payload:
+                          choices:
+                            - name: 'yes'
+                            - name: 'no'
+                    state:
+                      stack:
+                        - programID: 6062631246b44d80a8a345b4
+                          nodeID: 60626307fd9a230006a5e289
+                          variables: {}
+                          storage: {}
+                          commands:
+                            - type: push
+                              event: {}
+                      storage: {}
+                      variables: {}
+                Custom Example:
+                  value:
+                    trace:
+                      - type: speak
+                        payload:
+                          type: message
+                          message: charging payment now!
+                      - type: Pay Credit Card
+                        payload: "{ 'sender': 'user@gmail', 'type': 'visa' }"
+                        paths:
+                          - event:
+                              name: success
+                          - event:
+                              name: denied
+                          - event:
+                              name: pending
+                        defaultPath: 0
+                    state:
+                      stack:
+                        - programID: 6062631246b44d80a8a345b4
+                          nodeID: 60626307fd9a230006a5e289
+                          variables: {}
+                          storage: {}
+                          commands:
+                            - type: push
+                              event: {}
+                      storage: {}
+                      variables: {}
+  '/interact/{versionID}/state':
+    parameters:
+      - schema:
+          type: string
+          example: 5eb039bf90821520c2068cea
+        name: versionID
+        in: path
+        required: true
+        description: voiceflow project version ID
+      - in: header
+        name: Authorization
+        description: voiceflow API key
+        required: true
+        schema:
+          type: string
+          example: VF.6063709377e568001c098380.XXXXXXXXX.....
+    get:
+      summary: default state
+      description: |
+        The default state as if the user was on the first block on the home flow, with all variables uninitialized.
+        This is useful if you want to define variables before starting the conversation.
+      tags:
+        - Stateless API
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/State'
+              examples:
+                Default State:
+                  value:
+                    stack:
+                      - programID: home flow
+                        nodeID: start block
+                        variables: {}
+                        storage: {}
+                        commands: []
+                    storage: {}
+                    variables:
+                      size: 0
+                      sessions: 0
+                      payment: 0
+      operationId: defaultState
 externalDocs:
   description: Find out more about Swagger
   url: 'http://swagger.io'
@@ -724,6 +966,7 @@ components:
         - stack
         - storage
         - variables
+      description: 'user metadata - what block they are currently on, what flow they are on, their variables'
     LaunchRequest:
       title: LaunchRequest
       type: object
@@ -735,6 +978,55 @@ components:
             - launch
       required:
         - type
+    Request:
+      title: Request
+      oneOf:
+        - $ref: '#/components/schemas/TextRequest'
+        - $ref: '#/components/schemas/LaunchRequest'
+        - $ref: '#/components/schemas/IntentRequest'
+        - type: 'null'
+          properties: {}
+      description: an object representing a user's action or event
+    Config:
+      title: Config
+      type: object
+      description: optional settings
+      properties:
+        tts:
+          type: boolean
+          default: false
+          description: send back a text-to-speech mp3 audio snippet for every speak block
+        stripSSML:
+          type: boolean
+          default: true
+          description: remove all SSML tags in the response message
+        stopTypes:
+          type: array
+          description: 'which trace types to return prematurely on, define your own path'
+          items:
+            type: string
+            example: Pay Credit Card
+            default: '[]'
+      x-examples:
+        example-1:
+          tts: false
+          stripSSML: true
+          stopTypes:
+            - Pay Credit Card
+    Trace:
+      title: Trace
+      type: array
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/SpeakTrace'
+          - $ref: '#/components/schemas/ChoiceTrace'
+          - $ref: '#/components/schemas/VisualTrace'
+          - $ref: '#/components/schemas/CustomTrace'
+          - type: object
+            properties:
+              type:
+                type: string
+              payload: {}
   responses:
     Trace:
       description: A sequential array of response "traces" to display back to the user. They can take a variety of types - common types are defined here.
