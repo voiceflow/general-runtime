@@ -106,15 +106,15 @@ A `Context` can consist of the `request`, the `state`, the `config`, and the `tr
 | `GeneralRequest` | An object representing something the user has done.                                           | <pre>TextRequest \| IntentRequest<br>\| DataRequest \| null</pre>                                                                                                       | <pre>{<br>&nbsp;&nbsp;"type": "text",<br>&nbsp;&nbsp;"payload": "What is my balance?"<br>}</pre>                                                                                                                                                                                                     |
 | `State`          | The user metadata - what block they are currently on, what flow they are on, their variables. | <pre>{<br>&nbsp;&nbsp;turn?: StorageState;<br>&nbsp;&nbsp;stack: FrameState[];<br>&nbsp;&nbsp;storage: StorageState;<br>&nbsp;&nbsp;variables: StorageState;<br>}</pre> | <pre>{<br>&nbsp;&nbsp;"stack": [{<br>&nbsp;&nbsp;&nbsp;&nbsp;programID: "home flow",<br>&nbsp;&nbsp;&nbsp;&nbsp;nodeID: "prompt node"<br>&nbsp;&nbsp;}],<br>&nbsp;&nbsp;"storage": {},<br>&nbsp;&nbsp;"variables": {<br>&nbsp;&nbsp;&nbsp;&nbsp;"chequing_balance": null<br>&nbsp;&nbsp;}<br>}</pre> |
 | `Config`         | Contains options for what should be returned.                                                 | <pre>{<br>&nbsp;&nbsp;tts?: boolean;<br>}</pre>                                                                                                                         | <pre>{<br>&nbsp;&nbsp;tts: false;<br>}</pre>                                                                                                                                                                                                                                                         |
-| `GeneralTrace`   | Things that the client is calling `general-runtime` to show.                                  | <pre>BlockTrace \| ChoiceTrace<br>\| DebugTrace \| EndTrace<br>\| FlowTrace \| AudioTrace<br>\| SpeakTrace \| VisualTrace</pre>                                         | <pre>{<br>&nbsp;&nbsp;"type": "speak",<br>&nbsp;&nbsp;"payload": {<br>&nbsp;&nbsp;&nbsp;&nbsp;"type": "message",<br>&nbsp;&nbsp;&nbsp;&nbsp;"message": "your balance is 0 dollars."<br>&nbsp;&nbsp;}<br>}</pre>
+| `GeneralTrace`   | Things that the client is calling `general-runtime` to show.                                  | <pre>BlockTrace \| ChoiceTrace<br>\| DebugTrace \| EndTrace<br>\| FlowTrace \| AudioTrace<br>\| SpeakTrace \| VisualTrace</pre>                                         | <pre>{<br>&nbsp;&nbsp;"type": "speak",<br>&nbsp;&nbsp;"payload": {<br>&nbsp;&nbsp;&nbsp;&nbsp;"type": "message",<br>&nbsp;&nbsp;&nbsp;&nbsp;"message": "your balance is 0 dollars."<br>&nbsp;&nbsp;}<br>}</pre>                                                                                      |
 
 # Interact endpoint
 
 To make requests to these endpoints, an API key will need to be passed in the `Authorization` request header. For instructions on how to create an API key, see [here](https://github.com/voiceflow/runtime-client-js/blob/master/docs/setting-up-vf-app.md).
-| Endpoint                           | Request Payload                                                                                                          | Response Payload                                                                                                             |
+| Endpoint | Request Payload | Response Payload |
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| GET `/interact/{VERSION_ID}/state` | <pre>{}</pre>                                                                                                            | <pre>{<br>&nbsp;&nbsp;...state: State;<br>}</pre>                                                                            |
-| POST `/interact/{VERSION_ID}`      | <pre>{<br>&nbsp;&nbsp;state?: State;<br>&nbsp;&nbsp;request?: GeneralRequest;<br>&nbsp;&nbsp;config?: Config;<br>}</pre> | <pre>{<br>&nbsp;&nbsp;state: State;<br>&nbsp;&nbsp;request: GeneralRequest;<br>&nbsp;&nbsp;trace: GeneralTrace[];<br>}</pre> |
+| GET `/interact/{VERSION_ID}/state` | <pre>{}</pre> | <pre>{<br>&nbsp;&nbsp;...state: State;<br>}</pre> |
+| POST `/interact/{VERSION_ID}` | <pre>{<br>&nbsp;&nbsp;state?: State;<br>&nbsp;&nbsp;request?: GeneralRequest;<br>&nbsp;&nbsp;config?: Config;<br>}</pre> | <pre>{<br>&nbsp;&nbsp;state: State;<br>&nbsp;&nbsp;request: GeneralRequest;<br>&nbsp;&nbsp;trace: GeneralTrace[];<br>}</pre> |
 
 # Setup
 
@@ -141,6 +141,30 @@ Add the following file to the local repository:
 > ```
 >
 > For more info on [Environment Variables](https://developer.voiceflow.com/general-runtime/modules/config.html)
+
+# API Documentation (Open API)
+
+Documentation for all API Endpoints on this service.
+It is critical to make sure our OpenAPI docs are up to date:
+
+https://github.com/voiceflow/general-runtime/tree/master/backend/docs/openapi.yaml
+
+Whenever any of the paths change, or new ones get added, or if any of the behaviors documented change, be sure to update the Open API doc.
+We recommend using an editor like [Swagger Editor](https://editor.swagger.io/) or [Stoplight](stoplight.io) to help construct your YAML file, and then fine tune things on local.
+
+## Local Setup
+
+Run `npm i -g redoc-cli` to install as command.
+
+While on the root of this repository, run
+
+```
+redoc-cli serve backend/docs/openapi.yaml --ssr --watch
+```
+
+to see it locally - note: this will not load the local CSS file.
+
+If your browser autoresolves http://localhost to https://localhost, you might want to open the local link in incognito or a different browser.
 
 # Notable Code Locations
 

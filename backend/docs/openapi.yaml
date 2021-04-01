@@ -1,0 +1,1090 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Voiceflow Dialog Management API
+  description: |
+    # Overview
+    The Dialog Management API is an HTTP API served by Voiceflow's dialog management server.
+    It allows your Voiceflow project to be easily integrated into any interface: chatbot, voice assistant, IVR, web chat, and more - without the hassle of implementing the conversational flow using code.
+
+    By sending a request of what a user wants to do, you can use your Voiceflow project to generate the response.
+
+    <img src="https://uploads-ssl.webflow.com/5bddf05642686caf6d17eb58/6036dc95761e92262c2f4bd6_IVR%20(3)-p-1080.png" alt="Voiceflow IVR Integration" style="zoom:50%;"/>
+
+    # Quick Start
+    For developers eager to get started without worrying about the details, here are a few quick steps to make your first call with the API.
+    1. **Create a project**. You need to first build a conversational project on *[Voiceflow Creator](https://creator.voiceflow.com)*.
+    2. **Create API Key**. If you are an admin of a Voiceflow workspace, create and manage API Keys under *Workspace Settings / Developers*.
+    3. **Get Version ID**. On your project, it is in the URL: `https://creator.voiceflow.com/project/{versionID}/canvas/...`
+    4. **Make a test call**. Use the examples below to make an API call. Make subsequent calls to the same endpoint, 
+      changing the `payload` to reflect what the user might say. See how the response trace changes based on where in the project the user is.<br/>
+      *Make sure to replace the `{apiKey}` and `{versionID}` with what you've gathered on steps 2 and 3*.
+    5. **Implement your application**. Get familiar with the API by reading the rest of this documentation, and power the next conversation with your Voiceflow project!
+
+    The **state** API is the *easier implementation* compared to the **stateless** API. But they both achieve the same function.
+
+    <details>
+      <summary><b>View API Call Examples</b></summary>
+      <details>
+        <summary>cURL command line</summary>
+
+        curl --request POST 'https://general-runtime.voiceflow.com/state/{versionID}/user/steve' \
+             --header "Authorization: {apiKey}" \
+             --header 'Content-Type: application/json' \
+             --data-raw '{
+                "request": { "type": "text", "payload": "hello" }
+             }'
+
+      </details>
+      <details>
+        <summary>Node.js</summary>
+
+        /* Example in Node.js ES6 using axios */
+
+        const axios = require('axios');
+
+        const requestOptions = {
+          method: 'post',
+          uri: 'https://general-runtime.voiceflow.com/state/{versionID}/user/steve',
+          headers: {
+            Authorization: '{apiKey}'
+          },
+          data: {
+            request: {
+              type: "text",
+              payload: "hello"
+            }
+          }
+        };
+
+        axios(requestOptions).then(response => {
+          console.log('API call response:', response.data);
+        }).catch((err) => {
+          console.log('API call error:', err.message);
+        });
+
+      </details>
+      <details>
+        <summary>Python</summary>
+
+        /* Example in Python 3 using requests library */
+        import requests
+
+        url = 'https://general-runtime.voiceflow.com/state/{versionID}/user/steve'
+        request = { 'type': 'text', 'payload': 'hello' }
+        headers = {'Authorization': '{apiKey}'}
+
+        response = requests.post(url, json={ 'request': request }, headers=headers )
+        print(response.json())
+
+      </details>
+    </details>
+
+    # Endpoint
+    The standard URL base for all Dialog Management API calls - this will be different if you are self-hosting or on a private cloud.
+    ```
+    https://general-runtime.voiceflow.com
+    ```
+tags:
+  - name: State API
+    description: |
+      Voiceflow managed user state - **interact** is the only essential endpoint
+
+      All endpoints take in two parameters in the URL: `{versionID}` and `{userID}`.
+
+      ### versionID
+      `{versionID}` is in the URL on your project: `https://creator.voiceflow.com/project/{versionID}/canvas/...`
+
+      ### userID
+      `{userID}` will need be generated yourself - it should be something unique that easily references the person on the session - such as an username, email, deviceID, or phone number.
+      (*e.g.* `user54646`, `user@gmail.com`, `1-647-424-4242`, etc.).<br/> If you're not sure what to call it just for testing purposes, you can just pick a random `{userID}` like *steve*.
+
+      For example <i>".../user/<b>steve</b>/interact"</i> is going to have a distinct conversation from <i>".../user/<b>alice</b>/interact"</i><br/>
+      *Ensure `{userID}` is consistent every time the same user calls these endpoints.*
+
+      ### Nomenclature
+      - `state` is the user metadata - what block they are currently on, what flow they are on, their variables
+      - `request` is an object representing a user's action or event
+      - `trace` is an list of things for whatever client is calling the API to show
+  - name: Stateless API
+    description: |
+      The dialog management **stateless** API is very similar to the **state** API - with one difference:<br/>
+      the `state` that is saved and managed by Voiceflow is passed in the request and response instead. This means there is no longer any need for the `{userID}` in the path parameters - the token used to retrieve the state.
+
+      The same request will *always* produce the same response
+
+      The API works by passing `state` back and forth, with Voiceflow never storing user session data in the process.
+
+      ### Nomenclature
+      - `state` is the user metadata - what block they are currently on, what flow they are on, their variables
+      - `request` is an object representing a user's action or event
+      - `trace` is an list of things for whatever client is calling the API to show
+paths:
+  '/state/user/{userID}/interact/{versionID}':
+    post:
+      tags:
+        - State API
+      summary: interact
+      description: |-
+        Resolve a conversation turn.
+        Every time a request is sent you will get a unique response based on where the user is currently on in the Voiceflow project.
+
+        Send out a request with a `type` and `payload`, and get back a response with a `trace` array to act on.
+
+        ```
+        // -> request body, send user intention or event
+        {
+          "request": {
+            "type": "text",
+            "payload": "can I order a large pepperoni pizza"
+          }
+        }
+        // <- response body, an array of "traces"
+        {
+          "trace": [{
+            "type": "speak",
+            "payload": {
+              "type": "message",
+              "message": "would you like fries with that?"
+            }
+          }, {
+            "type": "visual",
+            "payload": {
+              "image": "https://voiceflow.com/pizza.png"
+            }
+          }]
+        }
+        ```
+        Common request types are `launch`, `text`, `intent` - reference the **Request Samples** on the right panel for examples.
+
+        Use a `launch` request to reset the user and start from the first block in your Voiceflow project.
+
+        Common response traces include `speak`, `visual`, `choice`, with custom types available - reference **Responses Samples** on the right panel for examples.
+        Each trace gets produced by a particular block on your Voiceflow project.
+      operationId: stateInteract
+      parameters:
+        - name: versionID
+          in: path
+          description: voiceflow project version ID
+          required: true
+          schema:
+            type: string
+            example: 5eb039bf90821520c2068cea
+        - name: userID
+          in: path
+          description: unique user ID (create this yourself)
+          required: true
+          schema:
+            type: string
+            example: user@gmail.com
+        - in: header
+          name: Authorization
+          description: voiceflow API key
+          required: true
+          schema:
+            type: string
+            example: VF.6063709377e568001c098380.XXXXXXXXX.....
+      requestBody:
+        description: info and config required for an interaction
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                request:
+                  $ref: '#/components/schemas/Request'
+                config:
+                  $ref: '#/components/schemas/Config'
+              required:
+                - request
+            examples:
+              Text Request:
+                value:
+                  request:
+                    type: text
+                    payload: can I order a large pepperoni pizza
+              Empty Request:
+                value:
+                  request: null
+              Intent Request:
+                value:
+                  request:
+                    type: intent
+                    payload:
+                      query: I want a large pepperoni pizza
+                      intent:
+                        name: order_pizza_intent
+                      entities:
+                        - name: size
+                          value: large
+                        - name: type
+                          value: pepperoni
+                      confidence: 0.5
+              Launch Request:
+                value:
+                  request:
+                    type: launch
+              With Config:
+                value:
+                  request:
+                    type: text
+                    payload: I would like to order a huge pepperoni pizza
+                  config:
+                    tts: false
+                    stripSSML: true
+                    stopTypes:
+                      - Pay Credit Card
+      responses:
+        '200':
+          description: A sequential array of response "traces" to display back to the user. They can take a variety of types - common types are defined here.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trace:
+                    $ref: '#/components/schemas/Trace'
+              examples:
+                Dialog Example:
+                  value:
+                    trace:
+                      - type: speak
+                        payload:
+                          type: message
+                          message: one large pepperoni pizza is that correct?
+                      - type: speak
+                        payload:
+                          type: audio
+                          src: 'https://voiceflow.com/chime.mp3'
+                          message: "<audio src='https://voiceflow.com/chime.mp3'/>"
+                      - type: visual
+                        payload:
+                          image: 'https://voiceflow.com/splash.mp3'
+                      - type: choice
+                        payload:
+                          choices:
+                            - name: 'yes'
+                            - name: 'no'
+                Custom Trace:
+                  value:
+                    trace:
+                      - type: speak
+                        payload:
+                          type: message
+                          message: charging payment now!
+                      - type: Pay Credit Card
+                        payload: "{ 'sender': 'user@gmail', 'type': 'visa' }"
+                        paths:
+                          - event:
+                              name: success
+                          - event:
+                              name: denied
+                          - event:
+                              name: pending
+                        defaultPath: 0
+        '404':
+          description: Not Found
+    parameters:
+      - schema:
+          type: string
+          example: user@gmail.com
+        name: userID
+        in: path
+        required: true
+        description: unique user ID (create this yourself)
+      - schema:
+          type: string
+          example: 5eb039bf90821520c2068cea
+        name: versionID
+        in: path
+        required: true
+        description: voiceflow project version ID
+  '/state/{versionID}/user/{userID}':
+    parameters:
+      - name: versionID
+        in: path
+        description: voiceflow project version ID
+        required: true
+        schema:
+          type: string
+          example: 5eb039bf90821520c2068cea
+      - name: userID
+        in: path
+        description: unique user ID (create this yourself)
+        required: true
+        schema:
+          type: string
+          example: user@gmail.com
+      - in: header
+        name: Authorization
+        description: voiceflow API key
+        required: true
+        schema:
+          type: string
+          example: VF.6063709377e568001c098380.XXXXXXXXX.....
+    get:
+      summary: fetch state
+      tags:
+        - State API
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/State'
+                  - type: 'null'
+              examples:
+                Example State:
+                  value:
+                    stack:
+                      - programID: 6062631246b44d80a8a345b4
+                        nodeID: 60626307fd9a230006a5e289
+                    storage: {}
+                    variables:
+                      pizza_type: pepperoni
+                      sessions: 5
+                      payment: credit
+      operationId: getState
+      description: Fetch the user's current state
+    put:
+      summary: update state
+      tags:
+        - State API
+      operationId: postState
+      responses:
+        '200':
+          description: successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/State'
+              examples:
+                Example State:
+                  value:
+                    stack:
+                      - programID: 6062631246b44d80a8a345b4
+                        nodeID: 60626307fd9a230006a5e289
+                    storage: {}
+                    variables:
+                      pizza_type: pepperoni
+                      sessions: 5
+                      payment: credit
+      description: "Update the user's current state, useful for externally updating the user's variables or resetting everything."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/State'
+            examples:
+              Example State:
+                value:
+                  stack:
+                    - programID: 6062631246b44d80a8a345b4
+                      nodeID: 60626307fd9a230006a5e289
+                  storage: {}
+                  variables:
+                    pizza_type: pepperoni
+                    sessions: 5
+                    payment: credit
+              Empty State:
+                value:
+                  stack: []
+                  storage: {}
+                  variables: {}
+        description: valid new user state
+    delete:
+      summary: delete state
+      tags:
+        - State API
+      operationId: deleteState
+      responses:
+        '200':
+          description: OK
+      description: Delete all state and session data for user.
+  '/interact/{versionID}':
+    parameters:
+      - name: versionID
+        schema:
+          type: string
+          example: 5eb039bf90821520c2068cea
+        in: path
+        description: voiceflow project version ID
+        required: true
+      - in: header
+        name: Authorization
+        description: voiceflow API key
+        required: true
+        schema:
+          type: string
+          example: VF.6063709377e568001c098380.XXXXXXXXX.....
+    post:
+      summary: interact
+      tags:
+        - Stateless API
+      operationId: statelessInteract
+      description: |
+        The stateless API receives a request with `request` + `state`, and responds with a new `state` + `trace`. Here's what it looks like from the Voiceflow creator app prototype tool:
+
+        1. User says/types something, take user's text request and current `state` and sends it via webhook to the Dialog Management API.
+        2. Dialog Management goes through each block/flow and updates the user `state`.
+        3. Generate a `trace` and new `state` of the user, send back response.
+        4. Client interprets API response, and saves the new `state` to use with the next response.
+
+        Repeat all steps each time a user speaks/types to the prototype tool, to perform a conversation.
+
+        Let's take a look at this interaction: the blue user text is the request.
+        <img src="https://user-images.githubusercontent.com/5643574/105523483-6c894d80-5cac-11eb-900c-076ed15c1486.png" />
+
+        The simplified example stateless **request**
+
+        ```
+        {
+          "request": {
+            "type": "text",
+            "payload": "What is the balance in my chequing account"
+          },
+          "state": {
+            "stack": [{
+              "programID": "home flow",
+              "nodeID": "prompt node"
+            }],
+            "storage": {},
+            "variables": {
+              "chequing_balance": null
+            }
+          }
+        }
+        ```
+
+        The simplified example **response**
+
+        ```
+        {
+          "state": {
+            "stack": [{
+              "programID": "home flow",
+              "nodeID": "yes no choice node"
+            }],
+            "storage": {},
+            "variables": {
+              "balance": 0
+            }
+          },
+          "trace": [{
+            "type": "speak",
+            "payload": {
+              "type": "message",
+              "message": "the balance in your chequing account is 0 dollars, is that all?"
+            },
+          }, {
+            "type": "choice",
+            "payload": {
+              "choices": [{"name": "yes"}, {"name": "no"}]
+            }
+          }],
+        }
+        ```
+
+        Notice that the `type: text` request got processed by the NLP handler to become an `type: intent` request.
+        The `state` is updated, and a `trace` is generated in the API response.
+
+        To move the conversation forward, you can create a request object and pass it in the response body to `/interact/{versionID}` along with the state and optionally a `config` object. 
+        This will return an updated `state`, an updated `request` (not shown in examples), and the trace array containing the traces to display.
+
+        if `state` is undefined/empty, it will automatically use the **default state** (starting from the first block).
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                request:
+                  $ref: '#/components/schemas/Request'
+                state:
+                  $ref: '#/components/schemas/State'
+                config:
+                  $ref: '#/components/schemas/Config'
+              required:
+                - request
+            examples:
+              Text Request:
+                value:
+                  request:
+                    type: text
+                    payload: I would like to order a huge pepperoni pizza
+                  state:
+                    stack:
+                      - programID: 6062631246b44d80a8a345b4
+                        nodeID: 60626307fd9a230006a5e289
+                        variables: {}
+                        storage: {}
+                        commands:
+                          - type: push
+                            event: {}
+                    storage: {}
+                    variables: {}
+              Launch Request:
+                value:
+                  request:
+                    type: launch
+              With Config:
+                value:
+                  request:
+                    type: text
+                    payload: I would like to order a huge pepperoni pizza
+                  state:
+                    stack:
+                      - programID: 6062631246b44d80a8a345b4
+                        nodeID: 60626307fd9a230006a5e289
+                        variables: {}
+                        storage: {}
+                        commands:
+                          - type: push
+                            event: {}
+                    storage: {}
+                    variables: {}
+                  config:
+                    tts: false
+                    stripSSML: true
+                    stopTypes:
+                      - Pay Credit Card
+      responses:
+        '200':
+          description: A sequential array of response "traces" to display back to the user. They can take a variety of types - common types are defined here.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trace:
+                    $ref: '#/components/schemas/Trace'
+                  state:
+                    $ref: '#/components/schemas/State'
+                  request:
+                    $ref: '#/components/schemas/Request'
+                required:
+                  - trace
+              examples:
+                Dialog Example:
+                  value:
+                    trace:
+                      - type: speak
+                        payload:
+                          type: message
+                          message: one large pepperoni pizza is that correct?
+                      - type: speak
+                        payload:
+                          type: audio
+                          src: 'https://voiceflow.com/chime.mp3'
+                          message: "<audio src='https://voiceflow.com/chime.mp3'/>"
+                      - type: visual
+                        payload:
+                          image: 'https://voiceflow.com/splash.mp3'
+                      - type: choice
+                        payload:
+                          choices:
+                            - name: 'yes'
+                            - name: 'no'
+                    state:
+                      stack:
+                        - programID: 6062631246b44d80a8a345b4
+                          nodeID: 60626307fd9a230006a5e289
+                          variables: {}
+                          storage: {}
+                          commands:
+                            - type: push
+                              event: {}
+                      storage: {}
+                      variables: {}
+                Custom Example:
+                  value:
+                    trace:
+                      - type: speak
+                        payload:
+                          type: message
+                          message: charging payment now!
+                      - type: Pay Credit Card
+                        payload: "{ 'sender': 'user@gmail', 'type': 'visa' }"
+                        paths:
+                          - event:
+                              name: success
+                          - event:
+                              name: denied
+                          - event:
+                              name: pending
+                        defaultPath: 0
+                    state:
+                      stack:
+                        - programID: 6062631246b44d80a8a345b4
+                          nodeID: 60626307fd9a230006a5e289
+                          variables: {}
+                          storage: {}
+                          commands:
+                            - type: push
+                              event: {}
+                      storage: {}
+                      variables: {}
+  '/interact/{versionID}/state':
+    parameters:
+      - schema:
+          type: string
+          example: 5eb039bf90821520c2068cea
+        name: versionID
+        in: path
+        required: true
+        description: voiceflow project version ID
+      - in: header
+        name: Authorization
+        description: voiceflow API key
+        required: true
+        schema:
+          type: string
+          example: VF.6063709377e568001c098380.XXXXXXXXX.....
+    get:
+      summary: default state
+      description: |
+        The default state as if the user was on the first block on the home flow, with all variables uninitialized.
+        This is useful if you want to define variables before starting the conversation.
+      tags:
+        - Stateless API
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/State'
+              examples:
+                Default State:
+                  value:
+                    stack:
+                      - programID: home flow
+                        nodeID: start block
+                        variables: {}
+                        storage: {}
+                        commands: []
+                    storage: {}
+                    variables:
+                      size: 0
+                      sessions: 0
+                      payment: 0
+      operationId: defaultState
+externalDocs:
+  description: Find out more about Swagger
+  url: 'http://swagger.io'
+components:
+  securitySchemes:
+    API Key:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: |
+        All HTTP requests made to the Runtime API must be validated with an API Key. If you are an admin of a Voiceflow workspace, create and manage API Keys under *Workspace Settings / Developers*.
+  schemas:
+    IntentRequest:
+      title: IntentRequest
+      type: object
+      x-examples:
+        Order Pizza:
+          type: intent
+          payload:
+            intent:
+              name: order_pizza_intent
+            query: I want a huge pepperoni pizza
+            entities:
+              - name: size
+                value: large
+                query: huge
+              - name: topping
+                value: pepperoni
+            confidence: 0.5
+      properties:
+        type:
+          type: string
+          enum:
+            - intent
+          example: intent
+        payload:
+          type: object
+          required:
+            - intent
+            - entities
+          properties:
+            intent:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: order_pizza_intent
+            query:
+              type: string
+              example: I want a large pepperoni pizza
+            entities:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: size
+                  value:
+                    type: string
+                    example: large
+                  query:
+                    type: string
+                required:
+                  - name
+                  - value
+            confidence:
+              type: number
+      required:
+        - type
+        - payload
+    TextRequest:
+      title: TextRequest
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - text
+        payload:
+          type: string
+          example: I would like to order a huge pepperoni pizza
+      x-examples:
+        example-1:
+          type: text
+          payload: I would like to order a huge pepperoni pizza
+    SpeakTrace:
+      title: SpeakTrace
+      type: object
+      x-examples:
+        Pizza Response:
+          type: speak
+          payload:
+            type: message
+            message: one large pepperoni pizza is that correct?
+        Audio Speak:
+          type: speak
+          payload:
+            message: "<audio src='https://voiceflow.com/play.mp3'/>"
+            src: 'https://voiceflow.com/play.mp3'
+            type: audio
+      properties:
+        type:
+          type: string
+          enum:
+            - speak
+          example: speak
+        payload:
+          type: object
+          required:
+            - message
+            - type
+          properties:
+            message:
+              type: string
+              example: one large pepperoni pizza is that correct?
+            src:
+              type: string
+            type:
+              type: string
+              example: message
+              enum:
+                - message
+                - audio
+      required:
+        - type
+        - payload
+      description: Generated by the Speak Step
+    ChoiceTrace:
+      title: ChoiceTrace
+      type: object
+      x-examples:
+        Example Choice:
+          type: choice
+          payload:
+            choices:
+              - name: 'yes'
+              - name: 'no'
+      properties:
+        type:
+          type: string
+          example: choice
+          enum:
+            - choice
+        payload:
+          type: object
+          required:
+            - choices
+          properties:
+            choices:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: 'yes'
+                  intent:
+                    type: string
+                    example: YesIntent
+                required:
+                  - name
+      required:
+        - type
+        - payload
+      description: Generated by a Choice Step
+    VisualTrace:
+      title: VisualTrace
+      type: object
+      properties:
+        type:
+          type: string
+          example: visual
+          enum:
+            - visual
+        payload:
+          type: object
+          properties:
+            image:
+              type: string
+              example: 'https://voiceflow.com/logo.png'
+      required:
+        - type
+        - payload
+      x-examples:
+        Visual Trace Example:
+          type: visual
+          payload:
+            image: 'https://voiceflow.com/logo.png'
+      description: Generated by the Visuals Step
+    CustomTrace:
+      description: Generated by the Trace Block
+      type: object
+      x-examples:
+        Custom Trace Example:
+          type: Pay Credit Card
+          payload: "{ 'sender': 'user@gmail', 'body': 'great message' }"
+          paths:
+            - event:
+                name: success
+            - event:
+                name: denied
+            - event:
+                name: pending
+          defaultPath: 0
+      properties:
+        type:
+          type: string
+          minLength: 1
+          example: Pay Credit Card
+        payload:
+          type: string
+          minLength: 1
+          example: "{ 'sender': 'user@gmail', 'body': 'great message' }"
+        paths:
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              event:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    minLength: 1
+                    example: success
+                required:
+                  - name
+        defaultPath:
+          type: number
+          example: 0
+      required:
+        - type
+        - payload
+        - paths
+        - defaultPath
+    State:
+      title: State
+      type: object
+      x-examples:
+        Example State:
+          stack:
+            - programID: 6062631246b44d80a8a345b4
+              nodeID: 60626307fd9a230006a5e289
+          storage: {}
+          variables:
+            pizza_type: pepperoni
+            sessions: 5
+            payment: credit
+      properties:
+        stack:
+          type: array
+          description: all the flows the user current has active
+          items:
+            type: object
+            properties:
+              programID:
+                type: string
+                description: flow user has on the stack
+                example: 6062631246b44d80a8a345b4
+              nodeID:
+                type: string
+                nullable: true
+                description: current block this flow is on
+                example: 60626307fd9a230006a5e289
+              variables:
+                type: object
+                description: flow scoped variables
+              storage:
+                type: object
+                description: internal flow parameters for runtime
+              commands:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                        - push
+                        - jump
+                    event:
+                      type: object
+            required:
+              - programID
+        storage:
+          type: object
+        variables:
+          type: object
+      required:
+        - stack
+        - storage
+        - variables
+      description: 'user metadata - what block they are currently on, what flow they are on, their variables'
+    LaunchRequest:
+      title: LaunchRequest
+      type: object
+      properties:
+        type:
+          type: string
+          example: launch
+          enum:
+            - launch
+      required:
+        - type
+    Request:
+      title: Request
+      oneOf:
+        - $ref: '#/components/schemas/TextRequest'
+        - $ref: '#/components/schemas/LaunchRequest'
+        - $ref: '#/components/schemas/IntentRequest'
+        - type: 'null'
+          properties: {}
+      description: an object representing a user's action or event
+    Config:
+      title: Config
+      type: object
+      description: optional settings
+      properties:
+        tts:
+          type: boolean
+          default: false
+          description: send back a text-to-speech mp3 audio snippet for every speak block
+        stripSSML:
+          type: boolean
+          default: true
+          description: remove all SSML tags in the response message
+        stopTypes:
+          type: array
+          description: 'which trace types to return prematurely on, define your own path'
+          items:
+            type: string
+            example: Pay Credit Card
+            default: '[]'
+      x-examples:
+        example-1:
+          tts: false
+          stripSSML: true
+          stopTypes:
+            - Pay Credit Card
+    Trace:
+      title: Trace
+      type: array
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/SpeakTrace'
+          - $ref: '#/components/schemas/ChoiceTrace'
+          - $ref: '#/components/schemas/VisualTrace'
+          - $ref: '#/components/schemas/CustomTrace'
+          - type: object
+            properties:
+              type:
+                type: string
+              payload: {}
+  responses:
+    Trace:
+      description: A sequential array of response "traces" to display back to the user. They can take a variety of types - common types are defined here.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              trace:
+                type: array
+                items:
+                  anyOf:
+                    - $ref: '#/components/schemas/SpeakTrace'
+                    - $ref: '#/components/schemas/ChoiceTrace'
+                    - $ref: '#/components/schemas/VisualTrace'
+                    - $ref: '#/components/schemas/CustomTrace'
+                    - type: object
+                      properties:
+                        type:
+                          type: string
+                        payload: {}
+          examples:
+            Dialog Example:
+              value:
+                trace:
+                  - type: speak
+                    payload:
+                      type: message
+                      message: one large pepperoni pizza is that correct?
+                  - type: speak
+                    payload:
+                      type: audio
+                      src: 'https://voiceflow.com/chime.mp3'
+                      message: "<audio src='https://voiceflow.com/chime.mp3'/>"
+                  - type: visual
+                    payload:
+                      image: 'https://voiceflow.com/splash.mp3'
+                  - type: choice
+                    payload:
+                      choices:
+                        - name: 'yes'
+                        - name: 'no'
+            Custom Trace:
+              value:
+                trace:
+                  - type: speak
+                    payload:
+                      type: message
+                      message: charging payment now!
+                  - type: Pay Credit Card
+                    payload: "{ 'sender': 'user@gmail', 'type': 'visa' }"
+                    paths:
+                      - event:
+                          name: success
+                      - event:
+                          name: denied
+                      - event:
+                          name: pending
+                    defaultPath: 0
+servers:
+  - url: 'https://general-runtime.voiceflow.com'

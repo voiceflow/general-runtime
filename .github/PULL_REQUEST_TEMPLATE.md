@@ -14,7 +14,6 @@
 
 <!-- Notes regarding local environment. These should note any new configurations, new environment variables, etc. -->
 
-
 ### Deployment Notes
 
 <!-- Notes regarding deployment the contained body of work. These should note any db migrations, etc. -->
@@ -31,6 +30,7 @@
 ### Checklist
 
 - [ ] title of PR reflects the branch name
+- [ ] API documention is up to date
 - [ ] all commits adhere to conventional commits
 - [ ] appropriate tests have been written
 - [ ] all the dependendencies are upgraded
