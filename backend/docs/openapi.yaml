@@ -349,7 +349,7 @@ paths:
                       payment: credit
       operationId: getState
       description: Fetch the user's current state
-    post:
+    put:
       summary: update state
       tags:
         - State API
