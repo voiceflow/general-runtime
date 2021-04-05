@@ -55,9 +55,9 @@ describe('Trace handler unit tests', () => {
         it('works with stop types', () => {
           const node = {
             id: 'node-id',
-            type: 'trace',
+            type: 'the trace block',
             stop: false, // will be overriden by stop types
-            payload: { foo: 'bar', name: 'the trace block' },
+            payload: { foo: 'bar' },
             paths: [
               { event: {}, nextID: '1' },
               { event: {}, nextID: '2' },

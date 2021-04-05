@@ -2,7 +2,6 @@
 import { Node } from '@voiceflow/general-types/build/nodes/_v1';
 import { TraceFrame } from '@voiceflow/general-types/build/nodes/types';
 import { Action, HandlerFactory } from '@voiceflow/runtime';
-import _ from 'lodash';
 
 import { TurnType } from '../types';
 import CommandHandler from './command';
@@ -51,7 +50,7 @@ export const _V1Handler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
 
     const stopTypes = runtime.turn.get<string[]>(TurnType.STOP_TYPES) || [];
 
-    const stop = stopTypes.includes(_.get(node.payload, 'name')) || node.stop;
+    const stop = stopTypes.includes(node.type) || node.stop;
     // if !stop continue to defaultPath otherwise
     // quit cycleStack without ending session by stopping on itself
     return !stop ? defaultPath : node.id;
