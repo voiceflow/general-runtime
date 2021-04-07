@@ -83,6 +83,7 @@ export enum TurnType {
   REPROMPT = 'reprompt',
   NEW_STACK = 'newStack',
   PREVIOUS_OUTPUT = 'lastOutput',
+  STOP_ALL = 'stopAll',
   STOP_TYPES = 'stopTypes',
 }
 

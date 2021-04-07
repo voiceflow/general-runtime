@@ -50,7 +50,7 @@ export const _V1Handler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
 
     const stopTypes = runtime.turn.get<string[]>(TurnType.STOP_TYPES) || [];
 
-    const stop = stopTypes.includes(node.type) || node.stop;
+    const stop = runtime.turn.get(TurnType.STOP_ALL) || stopTypes.includes(node.type) || node.stop;
     // if !stop continue to defaultPath otherwise
     // quit cycleStack without ending session by stopping on itself
     return !stop ? defaultPath : node.id;
