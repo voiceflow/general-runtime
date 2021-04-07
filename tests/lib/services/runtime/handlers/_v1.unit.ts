@@ -49,7 +49,7 @@ describe('Trace handler unit tests', () => {
               },
             ],
           ]);
-          expect(runtime.turn.get.args).to.eql([[TurnType.STOP_TYPES]]);
+          expect(runtime.turn.get.args).to.eql([[TurnType.STOP_TYPES], [TurnType.STOP_ALL]]);
         });
 
         it('works with stop types', () => {
@@ -81,7 +81,7 @@ describe('Trace handler unit tests', () => {
               },
             ],
           ]);
-          expect(runtime.turn.get.args).to.eql([[TurnType.STOP_TYPES]]);
+          expect(runtime.turn.get.args).to.eql([[TurnType.STOP_TYPES], [TurnType.STOP_ALL]]);
         });
       });
 
@@ -115,7 +115,7 @@ describe('Trace handler unit tests', () => {
               },
             ],
           ]);
-          expect(runtime.turn.get.args).to.eql([[TurnType.STOP_TYPES]]);
+          expect(runtime.turn.get.args).to.eql([[TurnType.STOP_TYPES], [TurnType.STOP_ALL]]);
         });
 
         it('no port for default path', () => {
@@ -148,7 +148,7 @@ describe('Trace handler unit tests', () => {
               },
             ],
           ]);
-          expect(runtime.turn.get.args).to.eql([[TurnType.STOP_TYPES]]);
+          expect(runtime.turn.get.args).to.eql([[TurnType.STOP_TYPES], [TurnType.STOP_ALL]]);
         });
 
         it('return default port', () => {
@@ -181,7 +181,7 @@ describe('Trace handler unit tests', () => {
               },
             ],
           ]);
-          expect(runtime.turn.get.args).to.eql([[TurnType.STOP_TYPES]]);
+          expect(runtime.turn.get.args).to.eql([[TurnType.STOP_TYPES], [TurnType.STOP_ALL]]);
         });
       });
     });

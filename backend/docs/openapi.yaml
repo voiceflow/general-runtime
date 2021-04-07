@@ -1000,6 +1000,10 @@ components:
           type: boolean
           default: true
           description: remove all SSML tags in the response message
+        stopAll:
+          type: boolean
+          default: true
+          description: stop on all custom traces
         stopTypes:
           type: array
           description: 'which trace types to return prematurely on, define your own path'
