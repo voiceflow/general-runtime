@@ -9,7 +9,7 @@ const RepeatHandler = {
     const request = runtime.getRequest();
     return (
       isIntentRequest(request) &&
-      request?.payload.intent.name === IntentName.REPEAT &&
+      request.payload.intent.name === IntentName.REPEAT &&
       !!repeat &&
       [RepeatType.ALL, RepeatType.DIALOG].includes(repeat)
     );
