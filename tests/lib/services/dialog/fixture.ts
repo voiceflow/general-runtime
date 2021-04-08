@@ -407,6 +407,11 @@ export const mockVersion = {
   prototype: {
     model: mockLM,
   },
+  platformData: {
+    settings: {
+      defaultVoice: 'Default voice',
+    },
+  },
 };
 
 export const mockDataAPI = ({
