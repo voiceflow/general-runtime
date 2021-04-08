@@ -144,7 +144,7 @@ describe('dialog manager unit tests', () => {
           {
             type: 'speak',
             payload: {
-              message: 'what flavor?',
+              message: '<voice name="Default voice">what flavor?</voice>',
               type: 'message',
             },
           },

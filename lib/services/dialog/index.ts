@@ -158,10 +158,12 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       // Assemble return string by populating the inline entity values
       const trace: GeneralTrace[] = [];
 
+      const prompt = _.sample(unfulfilledEntity.dialog.prompt)!;
+
       trace.push({
         type: TraceType.SPEAK,
         payload: {
-          message: fillStringEntities(inputToString(_.sample(unfulfilledEntity.dialog.prompt)!), dmStateStore!.intentRequest),
+          message: fillStringEntities(inputToString(prompt, version.platformData.settings.defaultVoice), dmStateStore!.intentRequest),
           type: SpeakType.MESSAGE,
         },
       });
