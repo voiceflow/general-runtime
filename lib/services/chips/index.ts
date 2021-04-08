@@ -4,7 +4,6 @@
  */
 
 import { TraceType } from '@voiceflow/general-types';
-import _ from 'lodash';
 
 import { Context, ContextHandler } from '@/types';
 
@@ -30,7 +29,7 @@ class Chips extends AbstractManager<{ utils: typeof utils }> implements ContextH
         return {
           ...frame,
           payload: {
-            choices: getChoiceChips(frame.payload.choices, model),
+            choices: this.services.utils.getChoiceChips(frame.payload.choices, model),
           },
         };
       })
