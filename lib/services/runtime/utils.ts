@@ -1,5 +1,5 @@
 import { SlotMapping } from '@voiceflow/api-sdk';
-import { formatIntentName, replaceVariables, SLOT_REGEXP, transformStringVariableToNumber } from '@voiceflow/common';
+import { formatIntentName, replaceVariables, transformStringVariableToNumber } from '@voiceflow/common';
 import { Chip, IntentRequest, TraceType } from '@voiceflow/general-types';
 import { TraceFrame as ChoiceFrame } from '@voiceflow/general-types/build/nodes/interaction';
 import { Runtime, Store } from '@voiceflow/runtime';
