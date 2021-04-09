@@ -84,7 +84,7 @@ export const registerBuiltInIntents = (nlc: NLC, locale = Locale.EN_US) => {
   });
 };
 
-const createNLC = ({ model, locale, openSlot }: { model: PrototypeModel; locale: Locale; openSlot: boolean }) => {
+export const createNLC = ({ model, locale, openSlot }: { model: PrototypeModel; locale: Locale; openSlot: boolean }) => {
   const nlc = new NLC();
 
   registerSlots(nlc, model, openSlot);
@@ -94,7 +94,7 @@ const createNLC = ({ model, locale, openSlot }: { model: PrototypeModel; locale:
   return nlc;
 };
 
-const nlcToIntent = (intent: IIntentFullfilment | null, query = '', confidence?: number): IntentRequest =>
+export const nlcToIntent = (intent: IIntentFullfilment | null, query = '', confidence?: number): IntentRequest =>
   (intent && {
     type: RequestType.INTENT,
     payload: {
