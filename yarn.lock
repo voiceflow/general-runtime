@@ -976,9 +976,9 @@
     "@voiceflow/api-sdk" "1.28.2"
 
 "@voiceflow/git-branch-check@^1.1.3":
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/@voiceflow/git-branch-check/-/git-branch-check-1.1.3.tgz#13bb13b7f8ee3b77cec3a0f2e9303f9d615bc253"
-  integrity sha512-+u6hecCseDXGePpU7H2KgUwZ/dHWGUNjNCAe6rOCUcMXu7sYIn2ioo++/QgnVaXsvanf3GDIdXBZimYgOSW7jQ==
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/git-branch-check/-/git-branch-check-1.2.0.tgz#773e07c5e4558283b8f94a0e7e05b88e637bc3d0"
+  integrity sha512-t+c50h+brJHwXbPDNoOT9Q2WYKWGd7usHNsp0B8qI0IBJLdH/CKTAsV+4gxO2IS8jMXVNxcyE2r25tHO3zRsFQ==
   dependencies:
     current-git-branch "^1.1.0"
 
