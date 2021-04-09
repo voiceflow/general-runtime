@@ -30,7 +30,7 @@ export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils)
           type: TraceType.CHOICE,
           payload: {
             choices: node.interactions.reduce<{ name: string; intent?: string }[]>((acc, interaction) => {
-              if (interaction?.event?.type === EventType.INTENT) {
+              if (interaction.event?.type === EventType.INTENT) {
                 const { intent } = interaction.event as IntentEvent;
                 acc.push({ intent, name: intent });
               }

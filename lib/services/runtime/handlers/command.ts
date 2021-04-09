@@ -14,6 +14,7 @@ export const getCommand = (runtime: GeneralRuntime, extractFrame: typeof extract
 const utilsObj = {
   Frame,
   getCommand: (runtime: GeneralRuntime) => getCommand(runtime, extractFrameCommand),
+  findEventMatcher,
 };
 
 /**
@@ -32,7 +33,7 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
     const { event } = command;
 
     // allow matcher to apply side effects
-    const matcher = findEventMatcher({ event, runtime, variables });
+    const matcher = utils.findEventMatcher({ event, runtime, variables });
     if (matcher) matcher.sideEffect();
 
     // interrupting command where it jumps to a node in the existing stack

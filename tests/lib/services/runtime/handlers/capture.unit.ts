@@ -1,63 +1,238 @@
+/* eslint-disable max-nested-callbacks */
 import { IntentRequest, NodeType, Request, RequestType } from '@voiceflow/general-types';
+import { Action } from '@voiceflow/runtime';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { CaptureHandler } from '@/lib/services/runtime/handlers/capture';
 
-const intentRequest: IntentRequest = {
-  type: RequestType.INTENT,
-  payload: {
-    query: '',
-    intent: {
-      name: 'name',
-    },
-    entities: [],
-    confidence: 0.86123,
-  },
-};
-
-const getMockDependencies = ({ request = intentRequest }: { request?: Request } = {}) => ({
-  node: {
-    type: NodeType.CAPTURE,
-    variable: 'var',
-  } as any,
-  runtime: {
-    trace: {
-      debug: sinon.stub().resolves(),
-      addTrace: sinon.stub().resolves(),
-    },
-    getAction: sinon.stub().returns(null),
-    setAction: sinon.stub(),
-    getRequest: sinon.stub().returns(request),
-  } as any,
-  variables: {
-    set: sinon.stub().resolves(),
-  } as any,
-
-  utils: {
-    repeatHandler: {
-      canHandle: sinon.stub().returns(false),
-    },
-    commandHandler: {
-      canHandle: sinon.stub().returns(false),
-    },
-  } as any,
-});
-
 describe('Capture handler', () => {
-  it('can handle', async () => {
-    const deps = getMockDependencies();
+  describe('canHandle', () => {
+    it('false', () => {
+      expect(CaptureHandler(null as any).canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
+    });
 
-    const handler = CaptureHandler(deps.utils);
-
-    expect(handler.canHandle(deps.node, deps.runtime, deps.variables, null as any)).to.eql(true);
+    it('true', () => {
+      expect(CaptureHandler(null as any).canHandle({ variables: {} } as any, null as any, null as any, null as any)).to.eql(false);
+    });
   });
 
-  it("can't handle", async () => {
-    const deps = getMockDependencies();
+  describe('handle', () => {
+    it('action is response', () => {
+      const utils = {
+        addRepromptIfExists: sinon.stub(),
+        addChipsIfExists: sinon.stub(),
+      };
+      const handler = CaptureHandler(utils as any);
 
-    const handler = CaptureHandler(deps.utils);
+      const node = { id: 'node-id' };
+      const runtime = { getAction: sinon.stub().returns(Action.RESPONSE) };
+      const variables = { var1: 'val1' };
+      expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
+    });
 
-    expect(handler.canHandle({ ...deps.node, variable: null }, deps.runtime, deps.variables, null as any)).to.eql(false);
+    describe('action is not response', () => {
+      it('command can handle', () => {
+        const output = 'next-id';
+        const utils = {
+          commandHandler: {
+            canHandle: sinon.stub().returns(true),
+            handle: sinon.stub().returns(output),
+          },
+        };
+        const handler = CaptureHandler(utils as any);
+
+        const node = { id: 'node-id' };
+        const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub() };
+        const variables = { var1: 'val1' };
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(output);
+
+        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
+        expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
+        expect(utils.commandHandler.handle.args).to.eql([[runtime, variables]]);
+      });
+
+      it('repeat can handle', () => {
+        const output = 'next-id';
+        const utils = {
+          commandHandler: {
+            canHandle: sinon.stub().returns(false),
+          },
+          repeatHandler: {
+            canHandle: sinon.stub().returns(true),
+            handle: sinon.stub().returns(output),
+          },
+        };
+        const handler = CaptureHandler(utils as any);
+
+        const node = { id: 'node-id' };
+        const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub() };
+        const variables = { var1: 'val1' };
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(output);
+
+        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
+        expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
+        expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
+        expect(utils.repeatHandler.handle.args).to.eql([[runtime]]);
+      });
+
+      describe('command and repeat can not handle', () => {
+        describe('not intent request', () => {
+          it('with nextID', () => {
+            const utils = {
+              commandHandler: {
+                canHandle: sinon.stub().returns(false),
+              },
+              repeatHandler: {
+                canHandle: sinon.stub().returns(false),
+              },
+            };
+            const handler = CaptureHandler(utils as any);
+
+            const node = { id: 'node-id', nextId: 'next-id' };
+            const request = { foo: 'bar' };
+            const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), getRequest: sinon.stub().returns(request) };
+            const variables = { var1: 'val1' };
+            expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
+
+            expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
+            expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
+            expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
+            expect(runtime.getRequest.callCount).to.eql(1);
+          });
+
+          it('without nextID', () => {
+            const utils = {
+              commandHandler: {
+                canHandle: sinon.stub().returns(false),
+              },
+              repeatHandler: {
+                canHandle: sinon.stub().returns(false),
+              },
+            };
+            const handler = CaptureHandler(utils as any);
+
+            const node = { id: 'node-id' };
+            const request = { foo: 'bar' };
+            const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), getRequest: sinon.stub().returns(request) };
+            const variables = { var1: 'val1' };
+            expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+
+            expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
+            expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
+            expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
+            expect(runtime.getRequest.callCount).to.eql(1);
+          });
+        });
+
+        describe('intent request', () => {
+          it('no query', () => {
+            const utils = {
+              commandHandler: {
+                canHandle: sinon.stub().returns(false),
+              },
+              repeatHandler: {
+                canHandle: sinon.stub().returns(false),
+              },
+            };
+            const handler = CaptureHandler(utils as any);
+
+            const node = { id: 'node-id' };
+            const request = { type: RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [] } };
+            const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), getRequest: sinon.stub().returns(request) };
+            const variables = { var1: 'val1' };
+            expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+
+            expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
+            expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
+            expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
+            expect(runtime.getRequest.callCount).to.eql(1);
+          });
+
+          describe('query not number', () => {
+            it('string', () => {
+              const utils = {
+                wordsToNumbers: sinon.stub().returns('str'),
+                commandHandler: {
+                  canHandle: sinon.stub().returns(false),
+                },
+                repeatHandler: {
+                  canHandle: sinon.stub().returns(false),
+                },
+              };
+              const handler = CaptureHandler(utils as any);
+
+              const node = { id: 'node-id', variable: 'var' };
+              const request = { type: RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [], query: 'q' } };
+              const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), getRequest: sinon.stub().returns(request) };
+              const variables = { var1: 'val1', set: sinon.stub() };
+              expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+
+              expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
+              expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
+              expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
+              expect(runtime.getRequest.callCount).to.eql(1);
+              expect(utils.wordsToNumbers.args).to.eql([[request.payload.query]]);
+              expect(variables.set.args).to.eql([[node.variable, request.payload.query]]);
+            });
+
+            it('NaN', () => {
+              const utils = {
+                wordsToNumbers: sinon.stub().returns(NaN),
+                commandHandler: {
+                  canHandle: sinon.stub().returns(false),
+                },
+                repeatHandler: {
+                  canHandle: sinon.stub().returns(false),
+                },
+              };
+              const handler = CaptureHandler(utils as any);
+
+              const node = { id: 'node-id', variable: 'var' };
+              const request = { type: RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [], query: 'q' } };
+              const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), getRequest: sinon.stub().returns(request) };
+              const variables = { var1: 'val1', set: sinon.stub() };
+              expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+
+              expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
+              expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
+              expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
+              expect(runtime.getRequest.callCount).to.eql(1);
+              expect(utils.wordsToNumbers.args).to.eql([[request.payload.query]]);
+              expect(variables.set.args).to.eql([[node.variable, request.payload.query]]);
+            });
+          });
+
+          describe('query is number', () => {
+            it('works', () => {
+              const num = 5;
+              const utils = {
+                wordsToNumbers: sinon.stub().returns(num),
+                commandHandler: {
+                  canHandle: sinon.stub().returns(false),
+                },
+                repeatHandler: {
+                  canHandle: sinon.stub().returns(false),
+                },
+              };
+              const handler = CaptureHandler(utils as any);
+
+              const node = { id: 'node-id', variable: 'var' };
+              const request = { type: RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [], query: 'q' } };
+              const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), getRequest: sinon.stub().returns(request) };
+              const variables = { var1: 'val1', set: sinon.stub() };
+              expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+
+              expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
+              expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
+              expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
+              expect(runtime.getRequest.callCount).to.eql(1);
+              expect(utils.wordsToNumbers.args).to.eql([[request.payload.query]]);
+              expect(variables.set.args).to.eql([[node.variable, num]]);
+            });
+          });
+        });
+      });
+    });
   });
 });
