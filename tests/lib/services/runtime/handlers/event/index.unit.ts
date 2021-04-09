@@ -1,9 +1,15 @@
+import { EventType, RequestType } from '@voiceflow/general-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { generalEventMatcher } from '@/lib/services/runtime/handlers/event';
+import { findEventMatcher, generalEventMatcher, hasEventMatch, intentEventMatcher } from '@/lib/services/runtime/handlers/event';
+import * as utils from '@/lib/services/runtime/utils';
 
 describe('event handlers unit tests', () => {
+  afterEach(() => {
+    sinon.restore();
+  });
+
   describe('generalEventMatcher', () => {
     describe('match', () => {
       it('no request', async () => {
@@ -45,6 +51,119 @@ describe('event handlers unit tests', () => {
         const event = { type: 'event1', name: 'event1' };
         expect(generalEventMatcher.match({ runtime, event } as any)).to.eql(true);
       });
+    });
+  });
+
+  describe('intentEventMatcher', () => {
+    describe('match', () => {
+      it('no request', () => {
+        expect(intentEventMatcher.match({ runtime: { getRequest: sinon.stub().returns(null) } } as any)).to.eql(false);
+      });
+
+      it('no event', () => {
+        expect(
+          intentEventMatcher.match({
+            runtime: { getRequest: sinon.stub().returns({ type: RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [] } }) },
+          } as any)
+        ).to.eql(false);
+      });
+
+      it('event type not intent', () => {
+        expect(
+          intentEventMatcher.match({
+            event: { type: 'random' },
+            runtime: { getRequest: sinon.stub().returns({ type: RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [] } }) },
+          } as any)
+        ).to.eql(false);
+      });
+
+      it('name does not match', () => {
+        expect(
+          intentEventMatcher.match({
+            event: { type: EventType.INTENT, intent: 'different_name' },
+            runtime: { getRequest: sinon.stub().returns({ type: RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [] } }) },
+          } as any)
+        ).to.eql(false);
+      });
+
+      it('match', () => {
+        expect(
+          intentEventMatcher.match({
+            event: { type: EventType.INTENT, intent: 'intent_name' },
+            runtime: { getRequest: sinon.stub().returns({ type: RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [] } }) },
+          } as any)
+        ).to.eql(true);
+      });
+    });
+
+    describe('sideEffect', () => {
+      it('no entities and mappings', () => {
+        const mapEntitiesOutput = { foo: 'bar' };
+        const mapEntitiesStub = sinon.stub(utils, 'mapEntities').returns(mapEntitiesOutput);
+
+        const request = { payload: {} };
+        const context = { event: {}, runtime: { getRequest: sinon.stub().returns(request) }, variables: { merge: sinon.stub() } };
+
+        intentEventMatcher.sideEffect(context as any);
+
+        expect(context.runtime.getRequest.callCount).to.eql(1);
+        expect(mapEntitiesStub.args).to.eql([[[], []]]);
+        expect(context.variables.merge.args).to.eql([[mapEntitiesOutput]]);
+      });
+
+      it('entities and mappings', () => {
+        const mapEntitiesOutput = { foo: 'bar' };
+        const mapEntitiesStub = sinon.stub(utils, 'mapEntities').returns(mapEntitiesOutput);
+
+        const request = { payload: { entities: ['e1', 'e2'] } };
+        const context = {
+          event: { mappings: ['m1', 'm2'] },
+          runtime: { getRequest: sinon.stub().returns(request) },
+          variables: { merge: sinon.stub() },
+        };
+
+        intentEventMatcher.sideEffect(context as any);
+
+        expect(context.runtime.getRequest.callCount).to.eql(1);
+        expect(mapEntitiesStub.args).to.eql([[context.event.mappings, request.payload.entities]]);
+        expect(context.variables.merge.args).to.eql([[mapEntitiesOutput]]);
+      });
+    });
+  });
+
+  describe('hasEventMatch', () => {
+    it('false', () => {
+      expect(hasEventMatch(null, { getRequest: sinon.stub().returns(null) } as any)).to.eql(false);
+    });
+
+    it('true', () => {
+      expect(
+        hasEventMatch(
+          { type: EventType.INTENT, intent: 'intent_name' } as any,
+          {
+            getRequest: sinon.stub().returns({ type: RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [] } }),
+          } as any
+        )
+      ).to.eql(true);
+    });
+  });
+
+  describe('findEventMatcher', () => {
+    it('not found', () => {
+      expect(findEventMatcher({ event: null, runtime: { getRequest: sinon.stub().returns(null) } } as any)).to.eql(null);
+    });
+
+    it('found', () => {
+      expect(
+        Object.keys(
+          findEventMatcher({
+            event: { type: EventType.INTENT, intent: 'intent_name' },
+            runtime: {
+              getRequest: sinon.stub().returns({ type: RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [] } }),
+            },
+          } as any)!
+        )
+      ).to.eql(['match', 'sideEffect']);
     });
   });
 });
