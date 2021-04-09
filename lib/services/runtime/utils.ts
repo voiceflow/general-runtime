@@ -3,7 +3,6 @@ import { formatIntentName, replaceVariables, SLOT_REGEXP, transformStringVariabl
 import { Chip, IntentRequest, TraceType } from '@voiceflow/general-types';
 import { TraceFrame as ChoiceFrame } from '@voiceflow/general-types/build/nodes/interaction';
 import { Runtime, Store } from '@voiceflow/runtime';
-import _ from 'lodash';
 
 import { TurnType } from './types';
 
@@ -42,9 +41,6 @@ export const addRepromptIfExists = <N extends { reprompt?: string }>(node: N, ru
     runtime.turn.set(TurnType.REPROMPT, replaceVariables(node.reprompt, variables.getState()));
   }
 };
-
-export const replaceIDVariables = (input: string, variables: Record<string, string>) =>
-  input.replace(SLOT_REGEXP, (_match, inner) => variables[inner] || inner);
 
 export const addChipsIfExists = <N extends { chips?: Chip[] }>(node: N, runtime: Runtime, variables: Store): boolean => {
   if (!node.chips?.length) return false;
