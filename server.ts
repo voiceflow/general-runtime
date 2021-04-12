@@ -6,17 +6,11 @@ import http from 'http';
 import https from 'https';
 
 import { ExpressMiddleware, ServiceManager } from './backend';
+import log from './logger';
 import pjson from './package.json';
 import { Config } from './types';
 
 const name = pjson.name.replace(/^@[a-zA-Z0-9-]+\//g, '');
-const KEY_PATH = './certs/localhost.key';
-const CERT_PATH = './certs/localhost.crt';
-
-enum Protocol {
-  HTTPS = 'https',
-  HTTP = 'http',
-}
 
 /**
  * @class
@@ -36,33 +30,29 @@ class Server {
     // Start services.
     await this.serviceManager.start();
 
-    const app = express();
+    this.app = express();
+
+    if (process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'e2e') {
+      this.server = https.createServer(
+        {
+          key: fs.readFileSync('./certs/localhost.key'),
+          cert: fs.readFileSync('./certs/localhost.crt'),
+          requestCert: false,
+          rejectUnauthorized: false,
+        },
+        this.app
+      );
+    } else {
+      this.server = http.createServer(this.app);
+    }
 
     const { middlewares, controllers } = this.serviceManager;
 
-    this.app = app;
-
-    const protocol = process.env.NODE_ENV === 'local' && fs.existsSync(KEY_PATH) && fs.existsSync(CERT_PATH) ? Protocol.HTTPS : Protocol.HTTP;
-
-    this.server =
-      protocol === Protocol.HTTPS
-        ? https.createServer(
-            {
-              key: fs.readFileSync(KEY_PATH),
-              cert: fs.readFileSync(CERT_PATH),
-              requestCert: false,
-              rejectUnauthorized: false,
-            },
-            this.app
-          )
-        : http.createServer(this.app);
-
-    ExpressMiddleware.attach(app, middlewares, controllers);
+    ExpressMiddleware.attach(this.app, middlewares, controllers);
 
     await Promise.fromCallback((cb: any) => this.server!.listen(this.config.PORT, cb));
 
-    // eslint-disable-next-line no-console
-    console.log(`${name} listening on ${protocol} port ${this.config.PORT}`);
+    log.info(`${name} listening on port ${this.config.PORT}`);
   }
 
   /**
