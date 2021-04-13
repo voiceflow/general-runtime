@@ -103,5 +103,5 @@ jobs:
         uses: thollander/actions-comment-pull-request@master
         if: steps.newEnvLabel.outputs.hasLabel == 'true' && steps.envNameLabel.outputs.label == ''
         with:
-          message: "https://${{ steps.createNewEnv.outputs.endpoint }}"
+          message: "Preview environment available at: https://${{ steps.createNewEnv.outputs.endpoint }}"
           GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}
