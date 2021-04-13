@@ -2,7 +2,7 @@ name: PR-label -> clean-up dev env
 
 on:
   pull_request:
-    types: [closed, unlabeled]
+    types: [closed]
 
 jobs:
   preview:
@@ -10,89 +10,53 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true # Ignore errors
     steps:
-      - name: Set common vars
-        id: vars
-        run: |
-          PR_NUM=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-          REPO_NAME=$(echo "${GITHUB_REPOSITORY}" | sed 's:.*/::')
-          FILE_NAME_PREFIX="${REPO_NAME}-${PR_NUM}" 
-          S3_BUCKET="com.voiceflow.ci.states"
-          S3_PATH_PREFIX="github-actions/dev-env"
-
-          echo -e "::set-output name=filePrefix::${FILE_NAME_PREFIX}"
-          echo -e "::set-output name=s3Bucket::${S3_BUCKET}"
-          echo -e "::set-output name=s3PathPrefix::${S3_PATH_PREFIX}"
-
-      - name: Get state
-        id: getState
-        env:
-          ENVCLI_API_KEY: ${{ secrets.ENVCLI_API_KEY }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: "us-east-1"
-        run: |
-          FILE_NAME="${{ steps.vars.outputs.filePrefix}}.json" 
-          aws s3 cp s3://com.voiceflow.ci.states/github-actions/dev-env/$FILE_NAME $FILE_NAME
-          ENV_NAME=$( cat $FILE_NAME | jq -r '.env' )
-          echo -e "::set-output name=envName::${ENV_NAME}"
-          echo -e "::set-output name=fileName::${FILE_NAME}"
+      - name: Check PR env labels
+        uses: voiceflow/pr-label-match@master
+        if: github.event.action == 'closed'
+        with:
+          regex: env-
+        id: envNameLabel
 
       - name: Remove environment label
         uses: buildsville/add-remove-label@v1
         if: github.event.action == 'closed'
         with:
           token: ${{secrets.GH_SA_TOKEN}}
-          label: ${{ steps.getState.outputs.envName}}
+          label: ${{ steps.envNameLabel.outputs.label}}
           type: remove
 
-      # - name: Check PR env labels
-      #   uses: voiceflow/pr-label-match@master
-      #   if: github.event.action != 'closed'
-      #   with:
-      #     regex: env-
-      #   id: envNameLabel
+      - name: Install vfcli
+        if: github.event.action == 'closed' && steps.envNameLabel.outputs.label != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}
+        run: |
+          API_URL="https://$GITHUB_TOKEN:@api.github.com/repos/voiceflow/vfcli"
+          ASSET_ID=$(curl $API_URL/releases/latest | jq -r '.assets[3].id')
+          curl -J -L -H "Accept: application/octet-stream" "$API_URL/releases/assets/$ASSET_ID" --output vfcli.tar.gz
+          tar -xf vfcli.tar.gz
 
-      # - name: Check for existence of the specific env name label
-      #   uses: Dreamcodeio/pr-has-label-action@master
-      #   if: github.event.action != 'closed'
-      #   id: newEnvLabel
-      #   with:
-      #     label: new-env
+      - name: Delete the dev env if PR closed not creating and the label exists
+        if: github.event.action == 'closed' && steps.envNameLabel.outputs.label != ''
+        id: deleteEnv
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "us-east-1"
+        run: |
+          echo "Initializating vfcli..."
+          ./vfcli init --interactive false
 
-      # - name: Install envcli
-      #   if: github.event.action != 'closed'
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}
-      #   run: |
-      #     API_URL="https://$GITHUB_TOKEN:@api.github.com/repos/voiceflow/envcli"
-      #     ASSET_ID=$(curl $API_URL/releases/latest | jq -r '.assets[2].id')
-      #     curl -J -L -H "Accept: application/octet-stream" "$API_URL/releases/assets/$ASSET_ID" --output envcli.tar.gz
-      #     tar -xf envcli.tar.gz
+          # Remove environmnet
+          ENV_NAME=${{ steps.envNameLabel.outputs.label}}
+          ENV_NAME=$(sed 's|env-||g' <<< $ENV_NAME)
 
-      # - name: Delete the dev env if PR closed not creating and the label no longer exists
-      #   if: github.event.action != 'closed' && steps.envNameLabel.outputs.label == '' && steps.newEnvLabel.outputs.hasLabel != true
-      #   id: deleteEnv
-      #   env:
-      #     ENVCLI_API_KEY: ${{ secrets.ENVCLI_API_KEY }}
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     AWS_DEFAULT_REGION: "us-east-1"
-      #   run: |
-      #     LOCKFILE="${{steps.vars.outputs.s3PathPrefix}}/${{steps.vars.outputs.filePrefix}}-new.json"
-      #     set +e
-      #     aws s3api head-object --bucket ${{steps.vars.outputs.s3Bucket}} --key $LOCKFILE || not_exist=true
-      #     set -e
+          ./vfcli env delete -n ${ENV_NAME} --interactive false --no-telepresence
+          echo -e "::set-output name=deleted::true"
+          echo -e "::set-output name=envName::${ENV_NAME}"
 
-      #     if [ $not_exist ]; then
-      #       # Only delete if the environment is not still creating
-      #       NON_INTERACTIVE=true ./envcli delete env -n ${{ steps.getState.outputs.envName}}
-      #       aws s3 rm s3://com.voiceflow.ci.states/github-actions/dev-env/${{ steps.getState.outputs.fileName }}
-      #       echo -e "::set-output name=deleted::true"
-      #     fi
-
-      # - name: Comment PR
-      #   uses: thollander/actions-comment-pull-request@master
-      #   if: steps.deleteEnv.outputs.deleted == 'true'
-      #   with:
-      #     message: "Dev environment ${{ steps.getState.outputs.envName }} destroyed!"
-      #     GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@master
+        if: steps.deleteEnv.outputs.deleted == 'true'
+        with:
+          message: "Dev environment ${{ steps.deleteEnv.outputs.envName}} destroyed!"
+          GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}

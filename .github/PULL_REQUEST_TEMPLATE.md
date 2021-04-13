@@ -33,4 +33,4 @@
 - [ ] API documention is up to date
 - [ ] all commits adhere to conventional commits
 - [ ] appropriate tests have been written
-- [ ] all the dependendencies are upgraded
+- [ ] all the dependencies are upgraded

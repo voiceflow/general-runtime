@@ -16,9 +16,9 @@ parameters:
   ssh-fingerprint:
     type: string
     default: "61:71:13:8f:00:5f:da:63:a8:0c:6d:f3:b4:b1:17:b3"
-  dev-env-component:
+  track-component:
     type: string
-    default: "generalruntime"
+    default: "general-runtime"
 
 # Reusable YAML chunks
 defaults:
@@ -29,13 +29,11 @@ defaults:
       tags:
         only: /^v[0-9]*(\.[0-9]*)*$/
 
-  ignore_dev_env_autorebase_staging_filters:
-    &ignore_dev_env_autorebase_staging_filters
+  ignore_autorebase_staging_filters: &ignore_autorebase_staging_filters
     branches:
       ignore:
         - /rebase-pull-request-.*/
         - /cherry-pick-rebase-pull-request-.*/
-        - /env-.*/
         - staging
 
   slack-fail-post-step: &slack-fail-post-step
@@ -49,7 +47,7 @@ defaults:
 
 orbs:
   codecov: codecov/codecov@1.0.2
-  vfcommon: voiceflow/common@0.0.72
+  vfcommon: voiceflow/common@0.0.85
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
@@ -99,13 +97,12 @@ jobs:
           target: << pipeline.parameters.k8s-asset >>
           tagged: true
 
-  build-deploy-dev-env:
+  update-track:
     executor: vfcommon/build-executor
     steps:
-      - vfcommon/build_deploy_dev_env:
+      - vfcommon/update_track:
           image_repo: << pipeline.parameters.container-image-url >>
-          component: << pipeline.parameters.dev-env-component >>
-          ssh_key: << pipeline.parameters.ssh-fingerprint >>
+          component: << pipeline.parameters.track-component >>
 
 # When should each job run and what are their dependencies?
 workflows:
@@ -127,15 +124,14 @@ workflows:
               only:
                 - staging
 
-  # Development environments
-  build-deploy-environment:
+  # Update tracks, avoiding tags
+  update-track:
     jobs:
-      - build-deploy-dev-env:
+      - update-track:
           context: dev-test
           filters:
-            branches:
-              only:
-                - /env-.*/
+            tags:
+              ignore: /.*/
 
   # Master (production)
   test-and-release-app:
@@ -144,7 +140,7 @@ workflows:
           <<: *slack-fail-post-step
           context: dev-test
           filters:
-            <<: *ignore_dev_env_autorebase_staging_filters
+            <<: *ignore_autorebase_staging_filters
 
       - vfcommon/release:
           <<: *slack-fail-post-step
