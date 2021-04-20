@@ -1059,6 +1059,10 @@ components:
             type: string
             example: Pay Credit Card
             default: '[]'
+        excludeTypes:
+          type: array
+          default: [block, debug, flow]
+          description: trace types to not include in the response
       x-examples:
         example-1:
           tts: false
