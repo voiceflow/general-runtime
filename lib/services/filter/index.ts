@@ -22,24 +22,29 @@ class Filter extends AbstractManager<{ utils: typeof utils }> implements Context
       data: { config = {} },
     } = context;
 
-    if (config.stripSSML) {
-      context = {
-        ...context,
-        trace: context.trace?.map((trace) =>
-          !(trace.type === TraceType.SPEAK && (trace.payload.type === SpeakType.MESSAGE || trace.payload.type === SpeakType.AUDIO))
-            ? trace
-            : {
-                ...trace,
-                payload: {
-                  ...trace.payload,
-                  message: sanitizeSSML(trace.payload.message),
-                },
-              }
-        ),
-      };
+    let traces = context.trace || [];
+
+    const excludeTypes = config.excludeTypes || [TraceType.BLOCK, TraceType.DEBUG, TraceType.FLOW];
+    traces = traces.filter((trace) => !excludeTypes.includes(trace.type));
+
+    if (config.stripSSML !== false) {
+      traces = traces?.map((trace) =>
+        !(trace.type === TraceType.SPEAK && (trace.payload.type === SpeakType.MESSAGE || trace.payload.type === SpeakType.AUDIO))
+          ? trace
+          : {
+              ...trace,
+              payload: {
+                ...trace.payload,
+                message: sanitizeSSML(trace.payload.message),
+              },
+            }
+      );
     }
 
-    return context;
+    return {
+      ...context,
+      trace: traces,
+    };
   }
 }
 

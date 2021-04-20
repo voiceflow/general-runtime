@@ -21,7 +21,7 @@ describe('filter manager unit tests', () => {
 
     expect(result).to.eql({
       ...input,
-      trace: [BLOCK_TRACE_START, DEBUG_TRACE, BLOCK_TRACE_MIDDLE, SPEAK_TRACE_NO_SSML, SPEAK_TRACE_SSML, CHOICE_TRACE],
+      trace: [SPEAK_TRACE_NO_SSML, SPEAK_TRACE_NO_SSML, CHOICE_TRACE],
     });
   });
 
@@ -36,7 +36,7 @@ describe('filter manager unit tests', () => {
 
     expect(result).to.eql({
       ...input,
-      trace: [BLOCK_TRACE_START, DEBUG_TRACE, BLOCK_TRACE_MIDDLE, SPEAK_TRACE_NO_SSML, SPEAK_TRACE_SSML, CHOICE_TRACE],
+      trace: [SPEAK_TRACE_NO_SSML, SPEAK_TRACE_NO_SSML, CHOICE_TRACE],
     });
   });
 
@@ -46,6 +46,36 @@ describe('filter manager unit tests', () => {
     const input = {
       ...context,
       data: { config: { stripSSML: true } },
+    };
+    const result = filter.handle(input as any);
+
+    expect(result).to.eql({
+      ...input,
+      trace: [SPEAK_TRACE_NO_SSML, SPEAK_TRACE_NO_SSML, CHOICE_TRACE],
+    });
+  });
+
+  it('keeps ssml', () => {
+    const filter = new Filter({} as any, {} as any);
+
+    const input = {
+      ...context,
+      data: { config: { stripSSML: false } },
+    };
+    const result = filter.handle(input as any);
+
+    expect(result).to.eql({
+      ...input,
+      trace: [SPEAK_TRACE_NO_SSML, SPEAK_TRACE_SSML, CHOICE_TRACE],
+    });
+  });
+
+  it('no exclude types', () => {
+    const filter = new Filter({} as any, {} as any);
+
+    const input = {
+      ...context,
+      data: { config: { excludeTypes: [] } },
     };
     const result = filter.handle(input as any);
 
