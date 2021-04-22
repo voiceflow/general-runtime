@@ -1,4 +1,3 @@
-import { NodeType } from '@voiceflow/general-types';
 import { Action } from '@voiceflow/runtime';
 import { expect } from 'chai';
 import sinon from 'sinon';
