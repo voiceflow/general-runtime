@@ -11,34 +11,10 @@ describe('Trace handler unit tests', () => {
     it('false', () => {
       expect(_V1Handler({} as any).canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
       expect(_V1Handler({} as any).canHandle({ _v: 2 } as any, null as any, null as any, null as any)).to.eql(false);
-      expect(
-        _V1Handler({} as any).canHandle(
-          { type: NodeType.IF_V2 } as any,
-          { turn: { get: sinon.stub().returns(null) } } as any,
-          null as any,
-          null as any
-        )
-      ).to.eql(false);
-      expect(
-        _V1Handler({} as any).canHandle(
-          { type: NodeType.IF_V2 } as any,
-          { turn: { get: sinon.stub().returns(['random']) } } as any,
-          null as any,
-          null as any
-        )
-      ).to.eql(false);
     });
 
     it('true', () => {
       expect(_V1Handler({} as any).canHandle({ _v: 1 } as any, null as any, null as any, null as any)).to.eql(true);
-      expect(
-        _V1Handler({} as any).canHandle(
-          { type: NodeType.IF_V2 } as any,
-          { turn: { get: sinon.stub().returns([NodeType.IF_V2]) } } as any,
-          null as any,
-          null as any
-        )
-      ).to.eql(true);
     });
   });
 
