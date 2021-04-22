@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import { Node } from '@voiceflow/general-types/build/nodes/_v1';
-import { NodeType, TraceFrame } from '@voiceflow/general-types/build/nodes/types';
+import { TraceFrame } from '@voiceflow/general-types/build/nodes/types';
 import { Action, HandlerFactory } from '@voiceflow/runtime';
 
 import { TurnType } from '../types';
@@ -13,8 +13,7 @@ const utilsObj = {
 };
 
 export const _V1Handler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
-  canHandle: (node, runtime) =>
-    node._v === 1 || (node.type === NodeType.IF_V2 && (runtime.turn.get<string[]>(TurnType.STOP_TYPES) || []).includes(NodeType.IF_V2)),
+  canHandle: (node) => node._v === 1,
   handle: (node, runtime, variables) => {
     const defaultPath = node.paths[node.defaultPath!]?.nextID || null;
 

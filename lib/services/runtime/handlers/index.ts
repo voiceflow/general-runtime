@@ -24,6 +24,8 @@ import StateHandlers from './state';
 import StreamHandler from './stream';
 import VisualHandler from './visual';
 
+const _v1Handler = _V1Handler();
+
 export default ({ API_HANDLER_ENDPOINT, INTEGRATIONS_HANDLER_ENDPOINT, CODE_HANDLER_ENDPOINT }: Config) => [
   ...StateHandlers(),
   SpeakHandler(),
@@ -35,14 +37,14 @@ export default ({ API_HANDLER_ENDPOINT, INTEGRATIONS_HANDLER_ENDPOINT, CODE_HAND
   EndHandler(),
   FlowHandler(),
   IfHandler(),
-  IfV2Handler({ endpoint: CODE_HANDLER_ENDPOINT }),
+  IfV2Handler({ _v1: _v1Handler }),
   APIHandler({ customAPIEndpoint: API_HANDLER_ENDPOINT }),
   IntegrationsHandler({ integrationsEndpoint: INTEGRATIONS_HANDLER_ENDPOINT }),
   RandomHandler(),
   SetHandler(),
-  SetV2Handler({ endpoint: CODE_HANDLER_ENDPOINT }),
+  SetV2Handler(),
   StartHandler(),
   VisualHandler(),
   NextHandler(),
-  _V1Handler(),
+  _v1Handler,
 ];
