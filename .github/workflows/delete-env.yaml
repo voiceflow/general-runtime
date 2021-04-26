@@ -2,7 +2,7 @@ name: PR-label -> clean-up dev env
 
 on:
   pull_request:
-    types: [closed]
+    types: [closed, unlabeled]
 
 jobs:
   preview:
@@ -12,21 +12,40 @@ jobs:
     steps:
       - name: Check PR env labels
         uses: voiceflow/pr-label-match@master
-        if: github.event.action == 'closed'
         with:
           regex: env-
         id: envNameLabel
 
+      - name: Find Comment Created
+        uses: peter-evans/find-comment@v1
+        id: commentCreated
+        with:
+          token: ${{ secrets.GH_SA_TOKEN }}
+          comment-author: vf-service-account
+          issue-number: ${{ github.event.number }}
+          body-includes: https://creator-
+          direction: last
+
+      - name: Find Comment Destroyed
+        uses: peter-evans/find-comment@v1
+        id: commentDestroyed
+        with:
+          token: ${{ secrets.GH_SA_TOKEN }}
+          comment-author: vf-service-account
+          issue-number: ${{ github.event.number }}
+          body-includes: destroyed!
+          direction: last
+
       - name: Remove environment label
         uses: buildsville/add-remove-label@v1
-        if: github.event.action == 'closed'
+        if: (github.event.action == 'closed' && steps.envNameLabel.outputs.label != '')
         with:
-          token: ${{secrets.GH_SA_TOKEN}}
+          token: ${{ secrets.GH_SA_TOKEN }}
           label: ${{ steps.envNameLabel.outputs.label}}
           type: remove
 
       - name: Install vfcli
-        if: github.event.action == 'closed' && steps.envNameLabel.outputs.label != ''
+        if: (github.event.action == 'closed' && steps.envNameLabel.outputs.label != '') || (github.event.action == 'unlabeled' && steps.envNameLabel.outputs.label == '' && steps.commentCreated.outputs.comment-body != '')
         env:
           GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}
         run: |
@@ -36,7 +55,7 @@ jobs:
           tar -xf vfcli.tar.gz
 
       - name: Delete the dev env if PR closed not creating and the label exists
-        if: github.event.action == 'closed' && steps.envNameLabel.outputs.label != ''
+        if: (github.event.action == 'closed' && steps.envNameLabel.outputs.label != '') || (github.event.action == 'unlabeled' && steps.envNameLabel.outputs.label == '' && steps.commentCreated.outputs.comment-body != '')
         id: deleteEnv
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -46,9 +65,23 @@ jobs:
           echo "Initializating vfcli..."
           ./vfcli init --interactive false
 
-          # Remove environmnet
-          ENV_NAME=${{ steps.envNameLabel.outputs.label}}
-          ENV_NAME=$(sed 's|env-||g' <<< $ENV_NAME)
+          # Remove environment
+          LABEL=${{ steps.envNameLabel.outputs.label }} 
+          if [[ $LABEL != "" ]]
+          then
+            ENV_NAME=$LABEL
+            ENV_NAME=$(sed 's|env-||g' <<< $ENV_NAME)
+          else
+            ENV_NAME=$(sed 's|https://creator-||g' <<< ${{ steps.commentCreated.outputs.comment-body }})
+            ENV_NAME=$(echo $ENV_NAME | cut -d. -f1)
+            LAST_COMMENT_DESTROYED="${{ steps.commentDestroyed.outputs.comment-body }}"
+            # if it is already destroyed, do now continue
+            if [[ $LAST_COMMENT_DESTROYED == *"$ENV_NAME"* ]]
+            then
+              echo "Environment $ENV_NAME already deleted"
+              exit 0
+            fi
+          fi
 
           ./vfcli env delete -n ${ENV_NAME} --interactive false --no-telepresence
           echo -e "::set-output name=deleted::true"
@@ -62,7 +95,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}
 
       - name: Remove track if exists
-        if: github.event.action == 'closed'
+        if: steps.deleteEnv.outputs.deleted == 'true'
         id: deleteTrack
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
