@@ -17,9 +17,20 @@ import { getNoneIntentRequest, NONE_INTENT } from '../nlu/utils';
 import { isIntentRequest } from '../runtime/types';
 import { AbstractManager, injectServices } from '../utils';
 import { rectifyEntityValue } from './synonym';
-import { dmPrefix, fillStringEntities, getDMPrefixIntentName, getIntentEntityList, getUnfulfilledEntity, inputToString, VF_DM_PREFIX } from './utils';
+import {
+  dmPrefix,
+  fillStringEntities,
+  getDMPrefixIntentName,
+  getIntentEntityList,
+  getUnfulfilledEntity,
+  inputToString,
+  isIntentInScope,
+  VF_DM_PREFIX,
+} from './utils';
 
-export const utils = {};
+export const utils = {
+  isIntentInScope,
+};
 
 declare type DMStore = {
   intentRequest?: IntentRequest;
@@ -81,6 +92,10 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
   handle = async (context: Context) => {
     if (!isIntentRequest(context.request)) {
+      return context;
+    }
+
+    if (!(await utils.isIntentInScope(context))) {
       return context;
     }
 

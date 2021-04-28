@@ -1,7 +1,12 @@
 import { IntentInput, PrototypeModel } from '@voiceflow/api-sdk';
 import { SLOT_REGEXP } from '@voiceflow/common';
 import { IntentRequest } from '@voiceflow/general-types';
+import Client, { Action, Store } from '@voiceflow/runtime';
 import * as crypto from 'crypto';
+
+import CommandHandler from '@/lib/services/runtime/handlers/command';
+import { findEventMatcher } from '@/lib/services/runtime/handlers/event';
+import { Context } from '@/types';
 
 export const VF_DM_PREFIX = 'dm_';
 
@@ -59,4 +64,37 @@ export const getIntentEntityList = (intentName: string, model: PrototypeModel) =
   const intentModel = model.intents.find((intent) => intent.name === intentName);
   const intentEntityIDs = intentModel?.slots?.map((entity) => entity.id);
   return intentEntityIDs?.map((id) => model.slots.find((entity) => entity.key === id));
+};
+
+export const isIntentInScope = async ({ data: { api }, versionID, state, request }: Context) => {
+  const client = new Client({
+    api,
+  });
+
+  const runtime = client.createRuntime(versionID, state, request);
+
+  const currentFrame = runtime.stack.top();
+  const program = await runtime.getProgram(currentFrame.getProgramID());
+  const node = program.getNode(currentFrame.getNodeID());
+  const variables = Store.merge(runtime.variables, currentFrame.variables);
+
+  if (runtime.getAction() === Action.RESPONSE) return false;
+  if (!node?.interactions) return false;
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const interaction of node.interactions as any) {
+    const { event } = interaction;
+
+    const matcher = findEventMatcher({ event, runtime, variables });
+    if (matcher) {
+      return true;
+    }
+  }
+
+  // check if there is a command in the stack that fulfills request
+  if (CommandHandler().canHandle(runtime)) {
+    return true;
+  }
+
+  return false;
 };
