@@ -81,9 +81,9 @@ export const isIntentInScope = async ({ data: { api }, versionID, state, request
   const node = program.getNode(currentFrame.getNodeID());
   const variables = Store.merge(runtime.variables, currentFrame.variables);
 
-  if (runtime.getAction() === Action.RESPONSE) return false;
+  if (runtime.getAction() === Action.RESPONSE || !node) return false;
   // if no event handler can handle, intent req is out of scope => no dialog management required
-  if (!node || !eventHandlers.find((h) => h.canHandle(node as any, runtime, variables, program))) return false;
+  if (!eventHandlers.find((h) => h.canHandle(node as any, runtime, variables, program))) return false;
 
   for (const interaction of (node.interactions || []) as any) {
     const { event } = interaction;
