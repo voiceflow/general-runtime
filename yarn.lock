@@ -1038,7 +1038,7 @@
   resolved "https://registry.yarnpkg.com/@voiceflow/prettier-config/-/prettier-config-1.0.5.tgz#307caf65040ae0c0539ecb8531b9e403381f11ab"
   integrity sha512-yM35E7UI0fD8yMgL7JImljvMLZVU+jCz/latc2s2e7Nlbr9kiMpO0FArjkaXVIghhcUeQ0y04lsFUHRu3kMzmA==
 
-"@voiceflow/runtime@1.28.0":
+"@voiceflow/runtime@^1.28.0":
   version "1.28.0"
   resolved "https://registry.yarnpkg.com/@voiceflow/runtime/-/runtime-1.28.0.tgz#47d028e47605811613cf158aa348c0c78c6f95cb"
   integrity sha512-AnsrD3yYsJ8kbUcIUfOLrfBV199tqBP7IGG3QnLe/qprBIiYZzQ55BNbuV0jWbPrqx+INGhKTJo2V848DBSCaQ==

@@ -2,7 +2,8 @@
 import { IntentInput, PrototypeModel } from '@voiceflow/api-sdk';
 import { SLOT_REGEXP } from '@voiceflow/common';
 import { IntentRequest } from '@voiceflow/general-types';
-import Client, { Action, Store } from '@voiceflow/runtime';
+import { Action, Store } from '@voiceflow/runtime';
+import Client from '@voiceflow/runtime/build/lib/Client';
 import * as crypto from 'crypto';
 
 import CommandHandler from '@/lib/services/runtime/handlers/command';

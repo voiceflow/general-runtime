@@ -1,8 +1,12 @@
 /* eslint-disable no-unused-expressions */
+import * as RuntimeModule from '@voiceflow/runtime';
+import * as Client from '@voiceflow/runtime/build/lib/Client';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import * as utils from '@/lib/services/dialog/utils';
+import * as CommandHandler from '@/lib/services/runtime/handlers/command';
+import * as eventUtils from '@/lib/services/runtime/handlers/event';
 
 import { mockEntityNonSynonymRequest, mockEntitySynonymRequest, mockFulfilledIntentRequest, mockLM, mockUnfulfilledIntentRequest } from './fixture';
 
@@ -63,6 +67,178 @@ describe('dialog manager utilities unit tests', () => {
       const result = utils.getUnfulfilledEntity(mockFulfilledIntentRequest, mockLM);
 
       expect(result).to.be.undefined;
+    });
+  });
+
+  describe('isIntentInScope', () => {
+    it('action response', async () => {
+      const programID = 'program-id';
+      const nodeID = 'node-id';
+      const node = { nodeID };
+      const program = { getNode: sinon.stub().returns(node) };
+      const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
+      const runtime = {
+        stack: { top: sinon.stub().returns(currentFrame) },
+        getProgram: sinon.stub().returns(program),
+        variables: { var1: 'val1' },
+        getAction: sinon.stub().returns(RuntimeModule.Action.RESPONSE),
+      };
+      const client = { createRuntime: sinon.stub().returns(runtime) };
+      const ClientStub = sinon.stub(Client, 'default');
+      const mergeStub = sinon.stub(RuntimeModule.Store, 'merge');
+      const combinedVars = { var1: 'val1', var2: 'val2' };
+      mergeStub.returns(combinedVars as any);
+      ClientStub.returns(client);
+
+      const { isIntentInScope } = utils;
+
+      const context = { data: { api: 'api' }, versionID: 'versionID', state: 'state', request: 'request' };
+      expect(await isIntentInScope(context as any)).to.eql(false);
+      expect(client.createRuntime.args).to.eql([[context.versionID, context.state, context.request]]);
+      expect(runtime.stack.top.callCount).to.eql(1);
+      expect(currentFrame.getProgramID.args).to.eql([[]]);
+      expect(runtime.getProgram.args).to.eql([[programID]]);
+      expect(currentFrame.getNodeID.args).to.eql([[]]);
+      expect(program.getNode.args).to.eql([[nodeID]]);
+      expect(mergeStub.args).to.eql([[runtime.variables, currentFrame.variables]]);
+      expect(runtime.getAction.args).to.eql([[]]);
+    });
+
+    it('no node', async () => {
+      const programID = 'program-id';
+      const nodeID = 'node-id';
+      const program = { getNode: sinon.stub().returns(null) };
+      const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
+      const runtime = {
+        stack: { top: sinon.stub().returns(currentFrame) },
+        getProgram: sinon.stub().returns(program),
+        variables: { var1: 'val1' },
+        getAction: sinon.stub().returns(RuntimeModule.Action.REQUEST),
+      };
+      const client = { createRuntime: sinon.stub().returns(runtime) };
+      const ClientStub = sinon.stub(Client, 'default');
+      const mergeStub = sinon.stub(RuntimeModule.Store, 'merge');
+      const combinedVars = { var1: 'val1', var2: 'val2' };
+      mergeStub.returns(combinedVars as any);
+      ClientStub.returns(client);
+
+      const { isIntentInScope } = utils;
+
+      const context = { data: { api: 'api' }, versionID: 'versionID', state: 'state', request: 'request' };
+      expect(await isIntentInScope(context as any)).to.eql(false);
+    });
+
+    it('event handlers no match', async () => {
+      const programID = 'program-id';
+      const nodeID = 'node-id';
+      const node = { nodeID };
+      const program = { getNode: sinon.stub().returns(node) };
+      const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
+      const runtime = {
+        stack: { top: sinon.stub().returns(currentFrame) },
+        getProgram: sinon.stub().returns(program),
+        variables: { var1: 'val1' },
+        getAction: sinon.stub().returns(RuntimeModule.Action.REQUEST),
+      };
+      const client = { createRuntime: sinon.stub().returns(runtime) };
+      const ClientStub = sinon.stub(Client, 'default');
+      const mergeStub = sinon.stub(RuntimeModule.Store, 'merge');
+      const combinedVars = { var1: 'val1', var2: 'val2' };
+      mergeStub.returns(combinedVars as any);
+      ClientStub.returns(client);
+
+      const { isIntentInScope } = utils;
+
+      const context = { data: { api: 'api' }, versionID: 'versionID', state: 'state', request: 'request' };
+      expect(await isIntentInScope(context as any)).to.eql(false);
+    });
+
+    it('intent match', async () => {
+      const programID = 'program-id';
+      const nodeID = 'node-id';
+      const node = { nodeID, interactions: [{ event: 'event' }] };
+      const program = { getNode: sinon.stub().returns(node) };
+      const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
+      const runtime = {
+        stack: { top: sinon.stub().returns(currentFrame) },
+        getProgram: sinon.stub().returns(program),
+        variables: { var1: 'val1' },
+        getAction: sinon.stub().returns(RuntimeModule.Action.REQUEST),
+      };
+      const client = { createRuntime: sinon.stub().returns(runtime) };
+      const ClientStub = sinon.stub(Client, 'default');
+      const mergeStub = sinon.stub(RuntimeModule.Store, 'merge');
+      const combinedVars = { var1: 'val1', var2: 'val2' };
+      mergeStub.returns(combinedVars as any);
+      ClientStub.returns(client);
+      const findEventMatcherStub = sinon.stub(eventUtils, 'findEventMatcher');
+      findEventMatcherStub.returns(true as any);
+
+      const { isIntentInScope } = utils;
+
+      const context = { data: { api: 'api' }, versionID: 'versionID', state: 'state', request: 'request' };
+      expect(await isIntentInScope(context as any)).to.eql(true);
+      expect(findEventMatcherStub.args).to.eql([[{ event: node.interactions[0].event, runtime, variables: combinedVars }]]);
+    });
+
+    it('command match', async () => {
+      const programID = 'program-id';
+      const nodeID = 'node-id';
+      const node = { nodeID, interactions: [{ event: 'event' }] };
+      const program = { getNode: sinon.stub().returns(node) };
+      const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
+      const runtime = {
+        stack: { top: sinon.stub().returns(currentFrame) },
+        getProgram: sinon.stub().returns(program),
+        variables: { var1: 'val1' },
+        getAction: sinon.stub().returns(RuntimeModule.Action.REQUEST),
+      };
+      const client = { createRuntime: sinon.stub().returns(runtime) };
+      const ClientStub = sinon.stub(Client, 'default');
+      const mergeStub = sinon.stub(RuntimeModule.Store, 'merge');
+      const combinedVars = { var1: 'val1', var2: 'val2' };
+      mergeStub.returns(combinedVars as any);
+      ClientStub.returns(client);
+      const findEventMatcherStub = sinon.stub(eventUtils, 'findEventMatcher');
+      findEventMatcherStub.returns(false as any);
+      const CommandHandlerStub = sinon.stub(CommandHandler, 'default');
+      const commandCanHandle = sinon.stub().returns(true);
+      CommandHandlerStub.returns({ canHandle: commandCanHandle } as any);
+
+      const { isIntentInScope } = utils;
+
+      const context = { data: { api: 'api' }, versionID: 'versionID', state: 'state', request: 'request' };
+      expect(await isIntentInScope(context as any)).to.eql(true);
+      expect(commandCanHandle.args).to.eql([[runtime]]);
+    });
+
+    it('no match', async () => {
+      const programID = 'program-id';
+      const nodeID = 'node-id';
+      const node = { nodeID, variable: 'var1' };
+      const program = { getNode: sinon.stub().returns(node) };
+      const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
+      const runtime = {
+        stack: { top: sinon.stub().returns(currentFrame) },
+        getProgram: sinon.stub().returns(program),
+        variables: { var1: 'val1' },
+        getAction: sinon.stub().returns(RuntimeModule.Action.REQUEST),
+      };
+      const client = { createRuntime: sinon.stub().returns(runtime) };
+      const ClientStub = sinon.stub(Client, 'default');
+      const mergeStub = sinon.stub(RuntimeModule.Store, 'merge');
+      const combinedVars = { var1: 'val1', var2: 'val2' };
+      mergeStub.returns(combinedVars as any);
+      ClientStub.returns(client);
+      const findEventMatcherStub = sinon.stub(eventUtils, 'findEventMatcher');
+      findEventMatcherStub.returns(false as any);
+      const CommandHandlerStub = sinon.stub(CommandHandler, 'default');
+      CommandHandlerStub.returns({ canHandle: sinon.stub().returns(false) } as any);
+
+      const { isIntentInScope } = utils;
+
+      const context = { data: { api: 'api' }, versionID: 'versionID', state: 'state', request: 'request' };
+      expect(await isIntentInScope(context as any)).to.eql(false);
     });
   });
 });
