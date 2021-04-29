@@ -85,6 +85,7 @@ export const isIntentInScope = async ({ data: { api }, versionID, state, request
   // if no event handler can handle, intent req is out of scope => no dialog management required
   if (!eventHandlers.find((h) => h.canHandle(node as any, runtime, variables, program))) return false;
 
+  // if interaction node - check if req intent matches one of the node intents
   for (const interaction of (node.interactions || []) as any) {
     const { event } = interaction;
 

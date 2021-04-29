@@ -24,7 +24,7 @@ import {
 
 const createDM = () => {
   const services = {};
-  return new DialogManager({ utils: { ...defaultUtils }, ...services } as any, {} as any);
+  return new DialogManager({ utils: { ...defaultUtils, isIntentInScope: sinon.stub().resolves(true) }, ...services } as any, {} as any);
 };
 
 describe('dialog manager unit tests', () => {
@@ -41,6 +41,17 @@ describe('dialog manager unit tests', () => {
       const result = dm.handle({ request: { type: 'intent', payload: { entities: [], intent: { name: 'intent_name' } } } } as any);
 
       await expect(result).to.eventually.be.rejected;
+    });
+
+    it('exits early if intent not in scope', async () => {
+      const services = {
+        dataAPI: { getVersion: sinon.stub().resolves() },
+      };
+      const dm = new DialogManager({ utils: { ...defaultUtils, isIntentInScope: sinon.stub().resolves(false) }, ...services } as any, {} as any);
+      const context = { request: { type: 'intent', payload: { entities: [], intent: { name: 'intent_name' } } } };
+      const result = await dm.handle(context as any);
+
+      expect(result).to.eql(context);
     });
   });
 

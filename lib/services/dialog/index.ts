@@ -95,7 +95,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       return context;
     }
 
-    if (!(await utils.isIntentInScope(context))) {
+    if (!(await this.services.utils.isIntentInScope(context))) {
       return context;
     }
 
