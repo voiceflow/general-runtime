@@ -10,89 +10,112 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true # Ignore errors
     steps:
-      - name: Set common vars
-        id: vars
-        run: |
-          PR_NUM=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-          REPO_NAME=$(echo "${GITHUB_REPOSITORY}" | sed 's:.*/::')
-          FILE_NAME_PREFIX="${REPO_NAME}-${PR_NUM}" 
-          S3_BUCKET="com.voiceflow.ci.states"
-          S3_PATH_PREFIX="github-actions/dev-env"
+      - name: Check PR env labels
+        uses: voiceflow/pr-label-match@master
+        with:
+          regex: env-
+        id: envNameLabel
 
-          echo -e "::set-output name=filePrefix::${FILE_NAME_PREFIX}"
-          echo -e "::set-output name=s3Bucket::${S3_BUCKET}"
-          echo -e "::set-output name=s3PathPrefix::${S3_PATH_PREFIX}"
+      - name: Find Comment Created
+        uses: peter-evans/find-comment@v1
+        id: commentCreated
+        with:
+          token: ${{ secrets.GH_SA_TOKEN }}
+          comment-author: vf-service-account
+          issue-number: ${{ github.event.number }}
+          body-includes: https://creator-
+          direction: last
 
-      - name: Get state
-        id: getState
+      - name: Find Comment Destroyed
+        uses: peter-evans/find-comment@v1
+        id: commentDestroyed
+        with:
+          token: ${{ secrets.GH_SA_TOKEN }}
+          comment-author: vf-service-account
+          issue-number: ${{ github.event.number }}
+          body-includes: destroyed!
+          direction: last
+
+      - name: Remove environment label
+        uses: buildsville/add-remove-label@v1
+        if: (github.event.action == 'closed' && steps.envNameLabel.outputs.label != '')
+        with:
+          token: ${{ secrets.GH_SA_TOKEN }}
+          label: ${{ steps.envNameLabel.outputs.label}}
+          type: remove
+
+      - name: Install vfcli
+        if: (github.event.action == 'closed' && steps.envNameLabel.outputs.label != '') || (github.event.action == 'unlabeled' && steps.envNameLabel.outputs.label == '' && steps.commentCreated.outputs.comment-body != '')
         env:
-          ENVCLI_API_KEY: ${{ secrets.ENVCLI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}
+        run: |
+          API_URL="https://$GITHUB_TOKEN:@api.github.com/repos/voiceflow/vfcli"
+          ASSET_ID=$(curl $API_URL/releases/latest | jq -r '.assets[3].id')
+          curl -J -L -H "Accept: application/octet-stream" "$API_URL/releases/assets/$ASSET_ID" --output vfcli.tar.gz
+          tar -xf vfcli.tar.gz
+
+      - name: Delete the dev env if PR closed not creating and the label exists
+        if: (github.event.action == 'closed' && steps.envNameLabel.outputs.label != '') || (github.event.action == 'unlabeled' && steps.envNameLabel.outputs.label == '' && steps.commentCreated.outputs.comment-body != '')
+        id: deleteEnv
+        env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: "us-east-1"
         run: |
-          FILE_NAME="${{ steps.vars.outputs.filePrefix}}.json" 
-          aws s3 cp s3://com.voiceflow.ci.states/github-actions/dev-env/$FILE_NAME $FILE_NAME
-          ENV_NAME=$( cat $FILE_NAME | jq -r '.env' )
+          echo "Initializating vfcli..."
+          ./vfcli init --interactive false
+
+          # Remove environment
+          LABEL=${{ steps.envNameLabel.outputs.label }} 
+          if [[ $LABEL != "" ]]
+          then
+            ENV_NAME=$LABEL
+            ENV_NAME=$(sed 's|env-||g' <<< $ENV_NAME)
+          else
+            ENV_NAME=$(sed 's|https://creator-||g' <<< ${{ steps.commentCreated.outputs.comment-body }})
+            ENV_NAME=$(echo $ENV_NAME | cut -d. -f1)
+            LAST_COMMENT_DESTROYED="${{ steps.commentDestroyed.outputs.comment-body }}"
+            # if it is already destroyed, do now continue
+            if [[ $LAST_COMMENT_DESTROYED == *"$ENV_NAME"* ]]
+            then
+              echo "Environment $ENV_NAME already deleted"
+              exit 0
+            fi
+          fi
+
+          ./vfcli env delete -n ${ENV_NAME} --interactive false --no-telepresence
+          echo -e "::set-output name=deleted::true"
           echo -e "::set-output name=envName::${ENV_NAME}"
-          echo -e "::set-output name=fileName::${FILE_NAME}"
 
-      - name: Remove environment label
-        uses: buildsville/add-remove-label@v1
-        if: github.event.action == 'closed'
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@master
+        if: steps.deleteEnv.outputs.deleted == 'true'
         with:
-          token: ${{secrets.GH_SA_TOKEN}}
-          label: ${{ steps.getState.outputs.envName}}
-          type: remove
+          message: "Dev environment ${{ steps.deleteEnv.outputs.envName}} destroyed!"
+          GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}
 
-      # - name: Check PR env labels
-      #   uses: voiceflow/pr-label-match@master
-      #   if: github.event.action != 'closed'
-      #   with:
-      #     regex: env-
-      #   id: envNameLabel
+      - name: Remove track if exists
+        if: steps.deleteEnv.outputs.deleted == 'true'
+        id: deleteTrack
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "us-east-1"
+        run: |
+          COMPONENT=$(echo "${GITHUB_REPOSITORY}" | sed 's:.*/::')
+          BRANCH="$(echo ${GITHUB_HEAD_REF#refs/heads/})"
+          TRACK="tracks/$COMPONENT/$BRANCH"
+          BUCKET="com.voiceflow.ci.assets"
+          echo $TRACK
+          set +e
+          aws s3 cp s3://$BUCKET/$TRACK /tmp/$TRACK
+          SEARCH_TRACK_RESULT=$?
+          set -e
 
-      # - name: Check for existence of the specific env name label
-      #   uses: Dreamcodeio/pr-has-label-action@master
-      #   if: github.event.action != 'closed'
-      #   id: newEnvLabel
-      #   with:
-      #     label: new-env
-
-      # - name: Install envcli
-      #   if: github.event.action != 'closed'
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}
-      #   run: |
-      #     API_URL="https://$GITHUB_TOKEN:@api.github.com/repos/voiceflow/envcli"
-      #     ASSET_ID=$(curl $API_URL/releases/latest | jq -r '.assets[2].id')
-      #     curl -J -L -H "Accept: application/octet-stream" "$API_URL/releases/assets/$ASSET_ID" --output envcli.tar.gz
-      #     tar -xf envcli.tar.gz
-
-      # - name: Delete the dev env if PR closed not creating and the label no longer exists
-      #   if: github.event.action != 'closed' && steps.envNameLabel.outputs.label == '' && steps.newEnvLabel.outputs.hasLabel != true
-      #   id: deleteEnv
-      #   env:
-      #     ENVCLI_API_KEY: ${{ secrets.ENVCLI_API_KEY }}
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     AWS_DEFAULT_REGION: "us-east-1"
-      #   run: |
-      #     LOCKFILE="${{steps.vars.outputs.s3PathPrefix}}/${{steps.vars.outputs.filePrefix}}-new.json"
-      #     set +e
-      #     aws s3api head-object --bucket ${{steps.vars.outputs.s3Bucket}} --key $LOCKFILE || not_exist=true
-      #     set -e
-
-      #     if [ $not_exist ]; then
-      #       # Only delete if the environment is not still creating
-      #       NON_INTERACTIVE=true ./envcli delete env -n ${{ steps.getState.outputs.envName}}
-      #       aws s3 rm s3://com.voiceflow.ci.states/github-actions/dev-env/${{ steps.getState.outputs.fileName }}
-      #       echo -e "::set-output name=deleted::true"
-      #     fi
-
-      # - name: Comment PR
-      #   uses: thollander/actions-comment-pull-request@master
-      #   if: steps.deleteEnv.outputs.deleted == 'true'
-      #   with:
-      #     message: "Dev environment ${{ steps.getState.outputs.envName }} destroyed!"
-      #     GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}
+          # Store the result on a file in tmp folder to use in future steps
+          if [[ $SEARCH_TRACK_RESULT -eq 0 ]]; then 
+            echo "Track $TRACK exists. Removing.." 
+            aws s3 rm s3://$BUCKET/$TRACK
+          else
+            echo "Track $TRACK does not exist"
+          fi
