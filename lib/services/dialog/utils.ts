@@ -77,28 +77,28 @@ export const isIntentInScope = async ({ data: { api }, versionID, state, request
 
   const runtime = client.createRuntime(versionID, state, request);
 
+  // check if there is a command in the stack that fulfills request
+  if (CommandHandler().canHandle(runtime)) {
+    return true;
+  }
+
   const currentFrame = runtime.stack.top();
-  const program = await runtime.getProgram(currentFrame.getProgramID());
-  const node = program.getNode(currentFrame.getNodeID());
+  const program = await runtime.getProgram(currentFrame?.getProgramID()).catch(() => null);
+  const node = program?.getNode(currentFrame.getNodeID());
   const variables = Store.merge(runtime.variables, currentFrame.variables);
 
   if (runtime.getAction() === Action.RESPONSE || !node) return false;
+
   // if no event handler can handle, intent req is out of scope => no dialog management required
-  if (!eventHandlers.find((h) => h.canHandle(node as any, runtime, variables, program))) return false;
+  if (!eventHandlers.find((h) => h.canHandle(node as any, runtime, variables, program!))) return false;
 
   // if interaction node - check if req intent matches one of the node intents
   for (const interaction of (node.interactions || []) as any) {
     const { event } = interaction;
 
-    const matcher = findEventMatcher({ event, runtime, variables });
-    if (matcher) {
+    if (findEventMatcher({ event, runtime, variables })) {
       return true;
     }
-  }
-
-  // check if there is a command in the stack that fulfills request
-  if (CommandHandler().canHandle(runtime)) {
-    return true;
   }
 
   return false;

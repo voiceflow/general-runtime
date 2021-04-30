@@ -8,7 +8,7 @@ import * as utils from '@/lib/services/dialog/utils';
 import * as CommandHandler from '@/lib/services/runtime/handlers/command';
 import * as eventUtils from '@/lib/services/runtime/handlers/event';
 
-import { mockEntityNonSynonymRequest, mockEntitySynonymRequest, mockFulfilledIntentRequest, mockLM, mockUnfulfilledIntentRequest } from './fixture';
+import { mockFulfilledIntentRequest, mockLM, mockUnfulfilledIntentRequest } from './fixture';
 
 describe('dialog manager utilities unit tests', () => {
   afterEach(() => {
@@ -79,7 +79,7 @@ describe('dialog manager utilities unit tests', () => {
       const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
       const runtime = {
         stack: { top: sinon.stub().returns(currentFrame) },
-        getProgram: sinon.stub().returns(program),
+        getProgram: sinon.stub().resolves(program),
         variables: { var1: 'val1' },
         getAction: sinon.stub().returns(RuntimeModule.Action.RESPONSE),
       };
@@ -89,6 +89,10 @@ describe('dialog manager utilities unit tests', () => {
       const combinedVars = { var1: 'val1', var2: 'val2' };
       mergeStub.returns(combinedVars as any);
       ClientStub.returns(client);
+
+      const CommandHandlerStub = sinon.stub(CommandHandler, 'default');
+      const commandCanHandle = sinon.stub().returns(false);
+      CommandHandlerStub.returns({ canHandle: commandCanHandle } as any);
 
       const { isIntentInScope } = utils;
 
@@ -102,6 +106,7 @@ describe('dialog manager utilities unit tests', () => {
       expect(program.getNode.args).to.eql([[nodeID]]);
       expect(mergeStub.args).to.eql([[runtime.variables, currentFrame.variables]]);
       expect(runtime.getAction.args).to.eql([[]]);
+      expect(commandCanHandle.args).to.eql([[runtime]]);
     });
 
     it('no node', async () => {
@@ -111,7 +116,7 @@ describe('dialog manager utilities unit tests', () => {
       const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
       const runtime = {
         stack: { top: sinon.stub().returns(currentFrame) },
-        getProgram: sinon.stub().returns(program),
+        getProgram: sinon.stub().resolves(program),
         variables: { var1: 'val1' },
         getAction: sinon.stub().returns(RuntimeModule.Action.REQUEST),
       };
@@ -121,11 +126,15 @@ describe('dialog manager utilities unit tests', () => {
       const combinedVars = { var1: 'val1', var2: 'val2' };
       mergeStub.returns(combinedVars as any);
       ClientStub.returns(client);
+      const CommandHandlerStub = sinon.stub(CommandHandler, 'default');
+      const commandCanHandle = sinon.stub().returns(false);
+      CommandHandlerStub.returns({ canHandle: commandCanHandle } as any);
 
       const { isIntentInScope } = utils;
 
       const context = { data: { api: 'api' }, versionID: 'versionID', state: 'state', request: 'request' };
       expect(await isIntentInScope(context as any)).to.eql(false);
+      expect(commandCanHandle.args).to.eql([[runtime]]);
     });
 
     it('event handlers no match', async () => {
@@ -136,7 +145,7 @@ describe('dialog manager utilities unit tests', () => {
       const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
       const runtime = {
         stack: { top: sinon.stub().returns(currentFrame) },
-        getProgram: sinon.stub().returns(program),
+        getProgram: sinon.stub().resolves(program),
         variables: { var1: 'val1' },
         getAction: sinon.stub().returns(RuntimeModule.Action.REQUEST),
       };
@@ -146,11 +155,15 @@ describe('dialog manager utilities unit tests', () => {
       const combinedVars = { var1: 'val1', var2: 'val2' };
       mergeStub.returns(combinedVars as any);
       ClientStub.returns(client);
+      const CommandHandlerStub = sinon.stub(CommandHandler, 'default');
+      const commandCanHandle = sinon.stub().returns(false);
+      CommandHandlerStub.returns({ canHandle: commandCanHandle } as any);
 
       const { isIntentInScope } = utils;
 
       const context = { data: { api: 'api' }, versionID: 'versionID', state: 'state', request: 'request' };
       expect(await isIntentInScope(context as any)).to.eql(false);
+      expect(commandCanHandle.args).to.eql([[runtime]]);
     });
 
     it('intent match', async () => {
@@ -161,7 +174,7 @@ describe('dialog manager utilities unit tests', () => {
       const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
       const runtime = {
         stack: { top: sinon.stub().returns(currentFrame) },
-        getProgram: sinon.stub().returns(program),
+        getProgram: sinon.stub().resolves(program),
         variables: { var1: 'val1' },
         getAction: sinon.stub().returns(RuntimeModule.Action.REQUEST),
       };
@@ -173,12 +186,16 @@ describe('dialog manager utilities unit tests', () => {
       ClientStub.returns(client);
       const findEventMatcherStub = sinon.stub(eventUtils, 'findEventMatcher');
       findEventMatcherStub.returns(true as any);
+      const CommandHandlerStub = sinon.stub(CommandHandler, 'default');
+      const commandCanHandle = sinon.stub().returns(false);
+      CommandHandlerStub.returns({ canHandle: commandCanHandle } as any);
 
       const { isIntentInScope } = utils;
 
       const context = { data: { api: 'api' }, versionID: 'versionID', state: 'state', request: 'request' };
       expect(await isIntentInScope(context as any)).to.eql(true);
       expect(findEventMatcherStub.args).to.eql([[{ event: node.interactions[0].event, runtime, variables: combinedVars }]]);
+      expect(commandCanHandle.args).to.eql([[runtime]]);
     });
 
     it('command match', async () => {
@@ -189,7 +206,7 @@ describe('dialog manager utilities unit tests', () => {
       const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
       const runtime = {
         stack: { top: sinon.stub().returns(currentFrame) },
-        getProgram: sinon.stub().returns(program),
+        getProgram: sinon.stub().resolves(program),
         variables: { var1: 'val1' },
         getAction: sinon.stub().returns(RuntimeModule.Action.REQUEST),
       };
@@ -220,7 +237,7 @@ describe('dialog manager utilities unit tests', () => {
       const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
       const runtime = {
         stack: { top: sinon.stub().returns(currentFrame) },
-        getProgram: sinon.stub().returns(program),
+        getProgram: sinon.stub().resolves(program),
         variables: { var1: 'val1' },
         getAction: sinon.stub().returns(RuntimeModule.Action.REQUEST),
       };
