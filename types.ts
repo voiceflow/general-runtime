@@ -35,6 +35,7 @@ export interface Config {
   CREATOR_API_AUTHORIZATION: string | null;
 
   CREATOR_APP_ORIGIN: string | null;
+  DISABLE_ORIGIN_CHECK: boolean;
 
   ADMIN_SERVER_DATA_API_TOKEN: string | null;
   VF_DATA_ENDPOINT: string | null;

@@ -9,6 +9,7 @@ class RateLimit extends AbstractMiddleware {
   async verify(req: Request<{}>, _res: Response, next: NextFunction) {
     if (
       !this.config.PROJECT_SOURCE &&
+      !this.config.DISABLE_ORIGIN_CHECK &&
       ![this.config.CREATOR_APP_ORIGIN, LOCAL_DEVELOPEMENT].includes(req.headers.origin || 'no-origin') &&
       !req.headers.authorization
     ) {
