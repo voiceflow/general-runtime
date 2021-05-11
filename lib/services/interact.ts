@@ -1,6 +1,5 @@
 import { Config, RequestType } from '@voiceflow/general-types';
 import { State, TurnBuilder } from '@voiceflow/runtime';
-import _ from 'lodash';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
 import { Context } from '@/types';
