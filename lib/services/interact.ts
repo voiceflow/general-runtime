@@ -48,7 +48,7 @@ class Interact extends AbstractManager {
 
     turn.addHandlers(asr, nlu, slots, dialog, runtime);
 
-    if (_.isUndefined(config.tts) || config.tts) {
+    if (config.tts) {
       turn.addHandlers(tts);
     }
 

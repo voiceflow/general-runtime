@@ -136,7 +136,7 @@ describe('interact service unit tests', () => {
     });
   });
 
-  it('includes TTS if config is unspecified', async () => {
+  it('omits TTS if config is unspecified', async () => {
     const data = {
       body: { state: { foo: 'bar' }, request: 'request' },
       headers: {},
@@ -153,10 +153,10 @@ describe('interact service unit tests', () => {
       request: context.request,
       trace: 'trace',
     });
-    expect(services.tts.handle.callCount).to.eql(1);
+    expect(services.tts.handle.callCount).to.eql(0);
   });
 
-  it('includes TTS if tts is unspecified', async () => {
+  it('omits TTS if tts is unspecified', async () => {
     const data = {
       body: { state: { foo: 'bar' }, request: 'request', config: {} },
       headers: {},
@@ -173,6 +173,6 @@ describe('interact service unit tests', () => {
       request: context.request,
       trace: 'trace',
     });
-    expect(services.tts.handle.callCount).to.eql(1);
+    expect(services.tts.handle.callCount).to.eql(0);
   });
 });
