@@ -322,10 +322,15 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  trace:
-                    $ref: '#/components/schemas/Trace'
+                oneOf:
+                  - type: object
+                    description: Verbose response, only returned if you enabled the `verbose` parameter
+                    properties:
+                      state:
+                        $ref: '#/components/schemas/State'
+                      trace:
+                        $ref: '#/components/schemas/Trace'
+                  - $ref: '#/components/schemas/Trace'
               examples:
                 Dialog Example:
                   value:
