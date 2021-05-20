@@ -7,7 +7,7 @@ import { customAJV, validate } from '../../utils';
 import { AbstractController } from '../utils';
 import { UpdateSchema } from './requests';
 
-const { body, header } = Validator;
+const { body, header, query } = Validator;
 const VALIDATIONS = {
   BODY: {
     UPDATE_SESSION: body().custom(customAJV(UpdateSchema)),
@@ -17,13 +17,19 @@ const VALIDATIONS = {
       .exists()
       .isString(),
   },
+  QUERY: {
+    VERBOSE: query('verbose')
+      .isBoolean()
+      .optional()
+      .toBoolean(),
+  },
 };
 
 class StateManagementController extends AbstractController {
   static VALIDATIONS = VALIDATIONS;
 
-  @validate({ HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID })
-  async interact(req: Request<{ userID: string; versionID: string }, any, { project_id: string; authorization: string }>) {
+  @validate({ HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID, QUERY_VERBOSE: VALIDATIONS.QUERY.VERBOSE })
+  async interact(req: Request<{ userID: string; versionID: string }, any, { project_id: string; authorization: string }, { verbose?: boolean }>) {
     return this.services.stateManagement.interact(req);
   }
 

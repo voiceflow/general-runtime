@@ -37,6 +37,7 @@ const tests = [
           stateManagement: {
             interact: {
               HEADERS_PROJECT_ID: 1,
+              QUERY_VERBOSE: 1,
             },
           },
         },

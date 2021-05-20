@@ -178,6 +178,7 @@ paths:
         Every time a request is sent you will get a unique response based on where the user is currently on in the Voiceflow project.
 
         Send out a request with a `type` and `payload`, and get back a response with a `trace` array to act on.
+        If you've enabled the verbose response parameter you will receive an object with the `trace` array and the user's state.
 
         ```
         // -> request body, send user intention or event
@@ -188,7 +189,31 @@ paths:
           }
         }
         // <- response body, an array of "traces"
+        [{
+          "type": "speak",
+          "payload": {
+            "type": "message",
+            "message": "would you like fries with that?"
+          }
+        }, {
+          "type": "visual",
+          "payload": {
+            "image": "https://voiceflow.com/pizza.png"
+          }
+        }]
+
+        // <- verbose response body
         {
+          "state": {
+            "stack": [{
+              "programID": "home flow",
+              "nodeID": "yes no choice node"
+            }],
+            "storage": {},
+            "variables": {
+              "pizza_type": "pepperoni"
+            }
+          },
           "trace": [{
             "type": "speak",
             "payload": {
@@ -225,6 +250,14 @@ paths:
           schema:
             type: string
             example: user@gmail.com
+        - name: verbose
+          in: query
+          description: enable verbose responses
+          optional: false
+          default: false
+          schema:
+            type: boolean
+            example: false
         - in: header
           name: Authorization
           description: voiceflow API key
