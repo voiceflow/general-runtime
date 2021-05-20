@@ -178,7 +178,7 @@ paths:
         Every time a request is sent you will get a unique response based on where the user is currently on in the Voiceflow project.
 
         Send out a request with a `type` and `payload`, and get back a response with a `trace` array to act on.
-        If you've enabled the verbose response parameter you will receive an object with the `trace` array and the user's state.
+        If you've enabled the verbose response parameter you will receive the [same kind of response as the stateless interact route](https://www.voiceflow.com/api/dialog-manager#operation/statelessInteract).
 
         ```
         // -> request body, send user intention or event
@@ -202,7 +202,7 @@ paths:
           }
         }]
 
-        // <- verbose response body
+        // <- simplified verbose response body
         {
           "state": {
             "stack": [{
@@ -326,10 +326,14 @@ paths:
                   - type: object
                     description: Verbose response, only returned if you enabled the `verbose` parameter
                     properties:
-                      state:
-                        $ref: '#/components/schemas/State'
                       trace:
                         $ref: '#/components/schemas/Trace'
+                      state:
+                        $ref: '#/components/schemas/State'
+                      request:
+                        $ref: '#/components/schemas/Request'
+                    required:
+                      - trace
                   - $ref: '#/components/schemas/Trace'
               examples:
                 Dialog Example:

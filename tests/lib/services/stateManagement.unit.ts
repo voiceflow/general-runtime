@@ -54,7 +54,7 @@ describe('stateManagement manager unit tests', () => {
 
     it('with state, verbose response', async () => {
       const session = { foo: 'bar' };
-      const handlerResult = { state: { foo: 'bar2' }, trace: ['trace1', 'trace2', 'trace3'] };
+      const handlerResult = { state: { foo: 'bar2' }, trace: ['trace1', 'trace2', 'trace3'], request: { foo: 'bar3' } };
       const services = {
         session: { getFromDb: sinon.stub().resolves(session), saveToDb: sinon.stub() },
         interact: { handler: sinon.stub().resolves(handlerResult) },
@@ -79,7 +79,7 @@ describe('stateManagement manager unit tests', () => {
     it('no state, verbose response', async () => {
       const session = {};
       const newSession = { foo: 'bar' };
-      const handlerResult = { state: { foo: 'bar2' }, trace: ['trace1', 'trace2', 'trace3'] };
+      const handlerResult = { state: { foo: 'bar2' }, trace: ['trace1', 'trace2', 'trace3'], request: { foo: 'bar3' } };
       const services = {
         session: { getFromDb: sinon.stub().resolves(session), saveToDb: sinon.stub() },
         interact: { handler: sinon.stub().resolves(handlerResult) },
