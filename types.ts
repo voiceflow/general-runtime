@@ -1,13 +1,13 @@
+import { RateLimitConfig, Validator } from '@voiceflow/backend-utils';
 import { Config as RequestConfig, GeneralTrace } from '@voiceflow/general-types';
 import * as Runtime from '@voiceflow/runtime';
 import * as Express from 'express';
-import * as ExpressValidator from 'express-validator';
 import http from 'http';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
 import CacheDataAPI from '@/lib/services/state/cacheDataAPI';
 
-export interface Config {
+export interface Config extends RateLimitConfig {
   NODE_ENV: string;
   PORT: string;
 
@@ -48,11 +48,6 @@ export interface Config {
   REDIS_CLUSTER_HOST: string | null;
   REDIS_CLUSTER_PORT: number | null;
 
-  RATE_LIMITER_POINTS_PUBLIC: number;
-  RATE_LIMITER_DURATION_PUBLIC: number;
-  RATE_LIMITER_POINTS_PRIVATE: number;
-  RATE_LIMITER_DURATION_PRIVATE: number;
-
   SESSIONS_SOURCE: string | null;
   MONGO_URI: string | null;
   MONGO_DB: string | null;
@@ -69,7 +64,7 @@ export type Next = () => void;
 export interface Route<P = {}, T = void> {
   (req: Request<P>): Promise<T>;
 
-  validations?: ExpressValidator.ValidationChain[];
+  validations?: Validator.ValidationChain[];
   callback?: boolean;
   route?: unknown;
 }

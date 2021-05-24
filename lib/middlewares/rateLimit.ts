@@ -1,11 +1,13 @@
-import VError from '@voiceflow/verror';
+import { RateLimitMiddleware } from '@voiceflow/backend-utils';
 import { NextFunction, Request, Response } from 'express';
 
-import { AbstractMiddleware } from './utils';
+import { Config } from '@/types';
+
+import { FullServiceMap } from '../services';
 
 const LOCAL_DEVELOPEMENT = 'https://creator-local.development.voiceflow.com:3002';
 
-class RateLimit extends AbstractMiddleware {
+class RateLimit extends RateLimitMiddleware<FullServiceMap, Config> {
   async verify(req: Request<{}>, _res: Response, next: NextFunction) {
     if (
       !this.config.PROJECT_SOURCE &&
@@ -13,7 +15,7 @@ class RateLimit extends AbstractMiddleware {
       ![this.config.CREATOR_APP_ORIGIN, LOCAL_DEVELOPEMENT].includes(req.headers.origin || 'no-origin') &&
       !req.headers.authorization
     ) {
-      throw new VError('Auth Key Required', VError.HTTP_STATUS.UNAUTHORIZED);
+      RateLimitMiddleware.throwAuthError();
     }
 
     next();

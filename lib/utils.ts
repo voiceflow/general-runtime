@@ -1,7 +1,6 @@
-import { ResponseBuilder } from '@voiceflow/backend-utils';
+import { ResponseBuilder, Validator } from '@voiceflow/backend-utils';
 import Ajv from 'ajv';
-import { ValidationChain } from 'express-validator';
-import { Middleware } from 'express-validator/src/base';
+import { RequestHandler } from 'express';
 
 import logger from '@/logger';
 import { AnyClass } from '@/types';
@@ -11,7 +10,7 @@ import { AbstractController } from './controllers/utils';
 import { MiddlewareMap } from './middlewares';
 import { AbstractMiddleware } from './middlewares/utils';
 
-type Validations = Record<string, ValidationChain>;
+type Validations = Record<string, Validator.ValidationChain>;
 
 export const validate = (validations: Validations) => (_target: object, _key: string, descriptor: PropertyDescriptor) => {
   descriptor.value = Object.assign(descriptor.value, { validations });
@@ -30,7 +29,7 @@ export const customAJV = (schema: object) => (value: any) => {
   return true;
 };
 
-export const factory = () => (_target: () => Middleware, _key: string, descriptor: PropertyDescriptor) => {
+export const factory = () => (_target: () => RequestHandler, _key: string, descriptor: PropertyDescriptor) => {
   descriptor.value = Object.assign(descriptor.value, { callback: true });
 
   return descriptor;

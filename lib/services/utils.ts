@@ -1,16 +1,11 @@
-/* eslint-disable import/prefer-default-export */
+import { AbstractManager as BaseAbstractManager } from '@voiceflow/backend-utils';
+
 import { isConstructor } from '@/lib/utils';
 import { Config } from '@/types';
 
 import { FullServiceMap } from '.';
 
-export abstract class AbstractManager<T = {}> {
-  public services: FullServiceMap & T;
-
-  constructor(services: FullServiceMap, public config: Config) {
-    this.services = services as FullServiceMap & T;
-  }
-}
+export abstract class AbstractManager<T = {}> extends BaseAbstractManager<FullServiceMap, Config, T> {}
 
 type InjectedServiceMap<S extends object> = { [K in keyof S]: { new (services: FullServiceMap, config: Config): S[K] } };
 

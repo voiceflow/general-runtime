@@ -10,6 +10,7 @@
     "source-map-support",
     "fixpack",
     "husky",
-    "lint-staged"
+    "lint-staged",
+    "http-status"
   ]
 }

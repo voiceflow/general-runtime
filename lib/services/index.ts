@@ -1,3 +1,5 @@
+import { RateLimitManager } from '@voiceflow/backend-utils';
+
 import { Config } from '@/types';
 
 import { ClientMap } from '../clients';
@@ -7,7 +9,6 @@ import Dialog from './dialog';
 import Filter from './filter';
 import Interact from './interact';
 import NLU from './nlu';
-import RateLimit from './rateLimit';
 import Runtime from './runtime';
 import { LocalSession, MongoSession, Session } from './session';
 import { Source } from './session/constants';
@@ -26,7 +27,7 @@ export interface ServiceMap {
   dialog: Dialog;
   tts: TTS;
   chips: Chips;
-  rateLimit: RateLimit;
+  rateLimit: RateLimitManager<Config>;
   slots: Slots;
   filter: Filter;
   session: Session;
@@ -52,7 +53,7 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.tts = new TTS(services, config);
   services.dialog = new Dialog(services, config);
   services.chips = new Chips(services, config);
-  services.rateLimit = new RateLimit(services, config);
+  services.rateLimit = new RateLimitManager(services, config);
   services.slots = new Slots(services, config);
   services.filter = new Filter(services, config);
   services.interact = new Interact(services, config);
