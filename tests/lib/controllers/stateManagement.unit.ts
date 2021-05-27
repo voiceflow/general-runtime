@@ -62,4 +62,20 @@ describe('stateManagement controller unit tests', () => {
       expect(services.stateManagement.reset.args).to.eql([[req]]);
     });
   });
+
+  describe('updateVariables', () => {
+    it('works', async () => {
+      const output = { foo: 'bar', variables: { a: 1, b: 2 } };
+      const services = { session: { getFromDb: sinon.stub().resolves(output), saveToDb: sinon.stub().resolves() } };
+      const controller = new StateManagement(services as any, {} as any);
+
+      const body = { b: 3, c: 4 };
+      const req = { headers: { project_id: 'project-id' }, params: { userID: 'user-id', versionID: 'version-id' }, body };
+
+      const expectedState = { ...output, variables: { ...output.variables, ...body } };
+      expect(await controller.updateVariables(req as any)).to.eql(expectedState);
+      expect(services.session.getFromDb.args).to.eql([[req.headers.project_id, req.params.userID]]);
+      expect(services.session.saveToDb.args).to.eql([[req.headers.project_id, req.params.userID, expectedState]]);
+    });
+  });
 });

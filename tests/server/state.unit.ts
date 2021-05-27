@@ -193,6 +193,44 @@ const tests = [
       },
     },
   },
+  {
+    method: 'patch',
+    calledPath: '/state/:versionID/user/:userID/variables',
+    expected: {
+      controllers: {
+        stateManagement: {
+          updateVariables: 1,
+        },
+      },
+      middlewares: {
+        rateLimit: {
+          verify: 1,
+          consume: 1,
+        },
+        project: {
+          attachID: 1,
+        },
+      },
+      validations: {
+        controllers: {
+          stateManagement: {
+            updateVariables: {
+              HEADERS_PROJECT_ID: 1,
+              BODY_UPDATE_VARIABLES: 1,
+            },
+          },
+        },
+        middlewares: {
+          project: {
+            attachID: {
+              PARAMS_VERSION_ID: 1,
+              HEADERS_AUTHORIZATION: 1,
+            },
+          },
+        },
+      },
+    },
+  },
 ];
 
 describe('state route unit tests', () => {

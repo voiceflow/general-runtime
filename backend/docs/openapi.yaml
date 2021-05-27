@@ -462,7 +462,7 @@ paths:
                       pizza_type: pepperoni
                       sessions: 5
                       payment: credit
-      description: "Update the user's current state, useful for externally updating the user's variables or resetting everything."
+      description: "Update the user's current state, useful for externally updating the user's state, or for resetting everything."
       requestBody:
         content:
           application/json:
@@ -494,6 +494,65 @@ paths:
         '200':
           description: OK
       description: Delete all state and session data for user.
+  '/state/{versionID}/user/{userID}/variables':
+    parameters:
+      - name: versionID
+        in: path
+        description: voiceflow project version ID
+        required: true
+        schema:
+          type: string
+          example: 5eb039bf90821520c2068cea
+      - name: userID
+        in: path
+        description: unique user ID (create this yourself)
+        required: true
+        schema:
+          type: string
+          example: user@gmail.com
+      - in: header
+        name: Authorization
+        description: voiceflow API key
+        required: true
+        schema:
+          type: string
+          example: VF.6063709377e568001c098380.XXXXXXXXX.....
+    patch:
+      summary: update variables
+      tags:
+        - State API
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/State'
+                  - type: 'null'
+              examples:
+                Example State:
+                  value:
+                    stack:
+                      - programID: 6062631246b44d80a8a345b4
+                        nodeID: 60626307fd9a230006a5e289
+                    storage: {}
+                    variables:
+                      pizza_type: pepperoni
+                      sessions: 5
+                      payment: credit
+                      score: 200
+      operationId: updateStateVariables
+      description: updates the variables in the user's state, merges the provided properties in the request body
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                pizza_type: pepperoni
+                sessions: 5
+        description: object full of variables to update
   '/interact/{versionID}':
     parameters:
       - name: versionID

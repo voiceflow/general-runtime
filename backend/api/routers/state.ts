@@ -20,5 +20,12 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
 
   router.post('/:versionID/user/:userID', middlewares.rateLimit.consume, middlewares.project.attachID, controllers.stateManagement.reset);
 
+  router.patch(
+    '/:versionID/user/:userID/variables',
+    middlewares.rateLimit.consume,
+    middlewares.project.attachID,
+    controllers.stateManagement.updateVariables
+  );
+
   return router;
 };

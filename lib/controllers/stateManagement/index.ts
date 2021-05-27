@@ -11,6 +11,7 @@ const { body, header, query } = Validator;
 const VALIDATIONS = {
   BODY: {
     UPDATE_SESSION: body().custom(customAJV(UpdateSchema)),
+    OBJECT: body().exists(),
   },
   HEADERS: {
     PROJECT_ID: header('project_id')
@@ -52,6 +53,20 @@ class StateManagementController extends AbstractController {
   @validate({ HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID })
   async reset(req: Request<{ userID: string; versionID: string }, any, { project_id: string; authorization: string }>) {
     return this.services.stateManagement.reset(req);
+  }
+
+  @validate({ BODY_UPDATE_VARIABLES: VALIDATIONS.BODY.OBJECT, HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID })
+  async updateVariables(req: Request<{ versionID: string; userID: string }, Record<string, any>, { project_id: string }>) {
+    const state = await this.services.session.getFromDb<State>(req.headers.project_id, req.params.userID);
+
+    const newState = {
+      ...state,
+      variables: { ...state.variables, ...req.body },
+    };
+
+    await this.services.session.saveToDb(req.headers.project_id, req.params.userID, newState);
+
+    return newState;
   }
 }
 
