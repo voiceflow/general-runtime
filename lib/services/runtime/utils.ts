@@ -1,5 +1,5 @@
 import { SlotMapping } from '@voiceflow/api-sdk';
-import { formatIntentName, replaceVariables, transformStringVariableToNumber } from '@voiceflow/common';
+import { replaceVariables, transformStringVariableToNumber } from '@voiceflow/common';
 import { Chip, IntentRequest, TraceType } from '@voiceflow/general-types';
 import { TraceFrame as ChoiceFrame } from '@voiceflow/general-types/build/nodes/interaction';
 import { Runtime, Store } from '@voiceflow/runtime';
@@ -22,7 +22,7 @@ export const mapEntities = (mappings: SlotMapping[], entities: IntentRequest['pa
       if (!map.slot) return;
 
       const toVariable = map.variable;
-      const fromSlot = formatIntentName(map.slot);
+      const fromSlot = map.slot;
 
       // extract slot value from request
       const fromSlotValue = entityMap[fromSlot] || null;

@@ -1,4 +1,3 @@
-import { formatIntentName } from '@voiceflow/common';
 import { Event, EventType, IntentEvent, IntentRequest, Request } from '@voiceflow/general-types';
 import { Runtime, Store } from '@voiceflow/runtime';
 
@@ -11,7 +10,7 @@ export const intentEventMatcher = {
     const request = context.runtime.getRequest();
     if (!isIntentRequest(request)) return false;
     if (context.event?.type !== EventType.INTENT) return false;
-    if (formatIntentName((context.event as IntentEvent).intent) !== formatIntentName(request.payload.intent.name)) return false;
+    if ((context.event as IntentEvent).intent !== request.payload.intent.name) return false;
     return true;
   },
   sideEffect: (context: { runtime: Runtime<IntentRequest>; event: IntentEvent; variables: Store }) => {
