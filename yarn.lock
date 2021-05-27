@@ -907,6 +907,16 @@
     axios "^0.21.1"
     superstruct "^0.10.12"
 
+"@voiceflow/api-sdk@1.31.11", "@voiceflow/api-sdk@^1.31.11":
+  version "1.31.11"
+  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.31.11.tgz#945164cd8594fe40a5ed182adfe3a890430a7cf9"
+  integrity sha512-0JJq2EPHXhz3S1JKb4fx5fql1yi0x4wZkO1H+UkQx9ORAZ+D7L4PhrPalEaH3L7dpjdQVAUGUVdN6lDW3gQceA==
+  dependencies:
+    "@types/atob" "^2.1.2"
+    atob "^2.1.2"
+    axios "^0.21.1"
+    superstruct "^0.10.12"
+
 "@voiceflow/backend-utils@2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@voiceflow/backend-utils/-/backend-utils-2.2.1.tgz#11bd9e2102bbfd04b48d662e1906c06fcda4b22d"
@@ -960,12 +970,12 @@
     eslint-plugin-xss "^0.1.9"
     typescript "^3.9.7"
 
-"@voiceflow/general-types@1.45.1":
-  version "1.45.1"
-  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.45.1.tgz#411440a85df2db7902fcb098b11ea764691112ea"
-  integrity sha512-cXfABd+jsQUF2b8Kclk01rXRvHAarGtyzInmZD4vY4nF8cpchegzNZoMoE1iXo7oT3KHFgidiv223lNBgPhabQ==
+"@voiceflow/general-types@1.48.2":
+  version "1.48.2"
+  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.48.2.tgz#3c0f86f1860ac123b24f186b344645ae9fff66d2"
+  integrity sha512-f85uH0A71g0pgOVuC1O683Mmipv5uWQ+IQJ6Stpd7MxMLLpcd836xTsXoIlV4tPdXSo8MWQqg/DqpwgBloj5mQ==
   dependencies:
-    "@voiceflow/api-sdk" "1.30.0"
+    "@voiceflow/api-sdk" "^1.31.11"
 
 "@voiceflow/general-types@^1.45.1":
   version "1.45.2"

@@ -2,7 +2,6 @@
   "name": "@voiceflow/general-runtime",
   "description": "voiceflow general runtime",
   "version": "0.1.0",
-  "private": true,
   "author": "Voiceflow",
   "bugs": {
     "url": "https://github.com/voiceflow/general-runtime/issues"
@@ -13,10 +12,10 @@
     }
   },
   "dependencies": {
-    "@voiceflow/api-sdk": "1.30.0",
+    "@voiceflow/api-sdk": "1.31.11",
     "@voiceflow/backend-utils": "2.2.1",
     "@voiceflow/common": "6.5.0",
-    "@voiceflow/general-types": "1.45.1",
+    "@voiceflow/general-types": "1.48.2",
     "@voiceflow/logger": "1.5.2",
     "@voiceflow/natural-language-commander": "^0.5.1",
     "@voiceflow/runtime": "1.29.0",
@@ -112,6 +111,7 @@
   "license": "ISC",
   "main": "build/start.js",
   "prettier": "@voiceflow/prettier-config",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/voiceflow/general-runtime.git"
