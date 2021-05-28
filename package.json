@@ -110,7 +110,7 @@
   "license": "ISC",
   "main": "build/start.js",
   "prettier": "@voiceflow/prettier-config",
-  "private": true,
+  "private": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/voiceflow/general-runtime.git"
