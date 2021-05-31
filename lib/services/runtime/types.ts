@@ -1,5 +1,6 @@
 import { IntentRequest, NodeID, Request, RequestType, TextRequest } from '@voiceflow/general-types';
-import { Runtime } from '@voiceflow/runtime';
+
+import { Runtime } from '@/runtime';
 
 export type RuntimeRequest = Request | null;
 

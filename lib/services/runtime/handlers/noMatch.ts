@@ -3,8 +3,9 @@ import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { EventType, IntentEvent, TraceType } from '@voiceflow/general-types';
 import { Node as ChoiceNode, TraceFrame as ChoiceTrace } from '@voiceflow/general-types/build/nodes/interaction';
 import { SpeakType, TraceFrame } from '@voiceflow/general-types/build/nodes/speak';
-import { Runtime, Store } from '@voiceflow/runtime';
 import _ from 'lodash';
+
+import { Runtime, Store } from '@/runtime';
 
 import { NoMatchCounterStorage, StorageData, StorageType } from '../types';
 

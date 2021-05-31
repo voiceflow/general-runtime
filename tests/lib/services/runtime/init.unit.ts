@@ -1,11 +1,11 @@
 import { TraceType } from '@voiceflow/general-types';
 import { SpeakType } from '@voiceflow/general-types/build/nodes/speak';
-import { EventType } from '@voiceflow/runtime';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import init from '@/lib/services/runtime/init';
 import { FrameType, StorageType } from '@/lib/services/runtime/types';
+import { EventType } from '@/runtime';
 
 describe('runtime init service unit tests', () => {
   afterEach(() => {

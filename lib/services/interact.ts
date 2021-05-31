@@ -1,7 +1,7 @@
 import { Config, RequestType } from '@voiceflow/general-types';
-import { State, TurnBuilder } from '@voiceflow/runtime';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
+import { State, TurnBuilder } from '@/runtime';
 import { Context } from '@/types';
 
 import { AbstractManager } from './utils';

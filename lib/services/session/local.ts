@@ -1,4 +1,4 @@
-import { State } from '@voiceflow/runtime';
+import { State } from '@/runtime';
 
 import { AbstractManager } from '../utils';
 

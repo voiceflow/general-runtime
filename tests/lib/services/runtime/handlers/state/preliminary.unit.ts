@@ -1,8 +1,8 @@
-import { Action } from '@voiceflow/runtime';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { PreliminaryHandler as PreliminaryHandlerFactory } from '@/lib/services/runtime/handlers/state/preliminary';
+import { Action } from '@/runtime';
 
 describe('preliminary handler unit tests', () => {
   describe('canHandle', () => {

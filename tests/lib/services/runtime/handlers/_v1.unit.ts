@@ -1,9 +1,9 @@
-import { Action } from '@voiceflow/runtime';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { _V1Handler } from '@/lib/services/runtime/handlers/_v1';
 import { TurnType } from '@/lib/services/runtime/types';
+import { Action } from '@/runtime';
 
 describe('Trace handler unit tests', () => {
   describe('canHandle', () => {

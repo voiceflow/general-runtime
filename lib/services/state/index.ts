@@ -1,8 +1,8 @@
 import { Version } from '@voiceflow/api-sdk';
 import { GeneralTrace } from '@voiceflow/general-types';
-import { PartialContext, State } from '@voiceflow/runtime';
 import _ from 'lodash';
 
+import { PartialContext, State } from '@/runtime';
 import { Context, InitContextHandler } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';

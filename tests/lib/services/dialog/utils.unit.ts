@@ -1,12 +1,12 @@
 /* eslint-disable no-unused-expressions */
-import * as RuntimeModule from '@voiceflow/runtime';
-import * as Client from '@voiceflow/runtime/build/lib/Client';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import * as utils from '@/lib/services/dialog/utils';
 import * as CommandHandler from '@/lib/services/runtime/handlers/command';
 import * as eventUtils from '@/lib/services/runtime/handlers/event';
+import * as RuntimeModule from '@/runtime';
+import * as Client from '@/runtime/lib/Client';
 
 import { mockFulfilledIntentRequest, mockLM, mockUnfulfilledIntentRequest } from './fixture';
 

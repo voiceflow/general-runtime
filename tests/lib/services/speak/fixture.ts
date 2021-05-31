@@ -1,6 +1,7 @@
 import { DeviceType, SpeakTrace, TraceType, VisualTrace } from '@voiceflow/general-types';
 import { CanvasVisibility, VisualType } from '@voiceflow/general-types/build/nodes/visual';
-import { Context, PartialContext } from '@voiceflow/runtime/build';
+
+import { Context, PartialContext } from '@/runtime';
 
 export const audioUrl = 'http://localhost:8000/audio.local/1613583846532-mixaund-tech-corporate.mp3';
 

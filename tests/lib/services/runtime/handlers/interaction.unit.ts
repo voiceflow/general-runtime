@@ -1,11 +1,11 @@
 /* eslint-disable max-nested-callbacks */
 import { EventType, IntentRequest, NodeType, Request, RequestType, TraceType } from '@voiceflow/general-types';
-import { Action } from '@voiceflow/runtime';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { InteractionHandler } from '@/lib/services/runtime/handlers/interaction';
 import { StorageType } from '@/lib/services/runtime/types';
+import { Action } from '@/runtime';
 
 describe('Interaction handler', () => {
   describe('canHandle', () => {

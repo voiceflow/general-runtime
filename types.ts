@@ -1,11 +1,12 @@
 import { RateLimitConfig, Validator } from '@voiceflow/backend-utils';
 import { Config as RequestConfig, GeneralTrace } from '@voiceflow/general-types';
-import * as Runtime from '@voiceflow/runtime';
 import * as Express from 'express';
 import http from 'http';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
 import CacheDataAPI from '@/lib/services/state/cacheDataAPI';
+
+import * as Runtime from './runtime';
 
 export interface Config extends RateLimitConfig {
   NODE_ENV: string;

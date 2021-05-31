@@ -1,7 +1,7 @@
 import { Event, EventType, IntentEvent, IntentRequest, Request } from '@voiceflow/general-types';
-import { Runtime, Store } from '@voiceflow/runtime';
 
 import { GeneralRuntime, isIntentRequest } from '@/lib/services/runtime/types';
+import { Runtime, Store } from '@/runtime';
 
 import { mapEntities } from '../../utils';
 

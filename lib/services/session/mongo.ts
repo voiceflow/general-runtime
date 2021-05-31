@@ -1,6 +1,6 @@
-import { State } from '@voiceflow/runtime';
 import { ObjectId } from 'mongodb';
 
+import { State } from '@/runtime';
 import { Config } from '@/types';
 
 import { AbstractManager } from '../utils';

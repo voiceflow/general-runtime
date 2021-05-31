@@ -1,7 +1,8 @@
 import { replaceVariables } from '@voiceflow/common';
 import { NodeType } from '@voiceflow/general-types';
 import { Node } from '@voiceflow/general-types/build/nodes/stream';
-import { HandlerFactory } from '@voiceflow/runtime';
+
+import { HandlerFactory } from '@/runtime';
 
 import { StorageData, StorageType, StreamAction, StreamPauseStorage, StreamPlayStorage } from '../types';
 

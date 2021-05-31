@@ -1,8 +1,9 @@
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { TraceType } from '@voiceflow/general-types';
 import { Node, SpeakType, TraceFrame } from '@voiceflow/general-types/build/nodes/speak';
-import { HandlerFactory } from '@voiceflow/runtime';
 import _ from 'lodash';
+
+import { HandlerFactory } from '@/runtime';
 
 import { FrameType, SpeakFrame, StorageType } from '../types';
 

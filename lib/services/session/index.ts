@@ -1,4 +1,4 @@
-import { State } from '@voiceflow/runtime';
+import { State } from '@/runtime';
 
 export { default as MongoSession } from './mongo';
 export { default as LocalSession } from './local';

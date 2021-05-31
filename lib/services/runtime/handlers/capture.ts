@@ -1,6 +1,7 @@
 import { Node } from '@voiceflow/general-types/build/nodes/capture';
-import { Action, HandlerFactory } from '@voiceflow/runtime';
 import wordsToNumbers from 'words-to-numbers';
+
+import { Action, HandlerFactory } from '@/runtime';
 
 import { isIntentRequest } from '../types';
 import { addChipsIfExists, addRepromptIfExists } from '../utils';

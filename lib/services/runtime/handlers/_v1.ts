@@ -1,7 +1,8 @@
 /* eslint-disable no-restricted-syntax */
 import { Node } from '@voiceflow/general-types/build/nodes/_v1';
 import { TraceFrame } from '@voiceflow/general-types/build/nodes/types';
-import { Action, HandlerFactory } from '@voiceflow/runtime';
+
+import { Action, HandlerFactory } from '@/runtime';
 
 import { TurnType } from '../types';
 import CommandHandler from './command';

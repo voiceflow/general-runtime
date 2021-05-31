@@ -1,5 +1,6 @@
 import { IntentName, RepeatType } from '@voiceflow/general-types';
-import { Runtime } from '@voiceflow/runtime';
+
+import { Runtime } from '@/runtime';
 
 import { FrameType, isIntentRequest, PreviousOutputTurn, SpeakFrame, StorageData, StorageType, TurnType } from '../types';
 

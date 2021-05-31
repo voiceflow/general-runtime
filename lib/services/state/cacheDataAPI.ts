@@ -1,6 +1,7 @@
 import { Program, Project, Version } from '@voiceflow/api-sdk';
 import { Command, GeneralNodes, GeneralVersionData } from '@voiceflow/general-types';
-import { DataAPI } from '@voiceflow/runtime';
+
+import { DataAPI } from '@/runtime';
 
 // cache any versions or project it comes across
 class CacheDataAPI implements DataAPI<Program<GeneralNodes, Command>, Version<GeneralVersionData>> {

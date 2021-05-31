@@ -1,0 +1,170 @@
+import Handler from '@/runtime/lib/Handler';
+import Lifecycle, { AbstractLifecycle, Event, EventType } from '@/runtime/lib/Lifecycle';
+import cycleStack from '@/runtime/lib/Runtime/cycleStack';
+
+import { DataAPI } from '../DataAPI';
+import Stack, { FrameState } from './Stack';
+import Store, { State as StorageState } from './Store';
+import Trace from './Trace';
+import ProgramManager from './utils/programManager';
+
+export interface Options<DA extends DataAPI = DataAPI> {
+  api: DA;
+  handlers?: Handler[];
+  services?: Record<string, any>;
+}
+
+export interface State {
+  turn?: StorageState;
+  stack: FrameState[];
+  storage: StorageState;
+  variables: StorageState;
+}
+
+export enum Action {
+  IDLE,
+  REQUEST,
+  RESPONSE,
+  END,
+}
+
+class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends AbstractLifecycle {
+  public turn: Store;
+
+  public stack: Stack;
+
+  // storage variables
+  public storage: Store;
+
+  // global variables
+  public variables: Store;
+
+  public trace: Trace;
+
+  // services
+  public services: Record<string, any>;
+
+  public api: DA;
+
+  private action: Action = Action.IDLE;
+
+  private handlers: Handler[];
+
+  private programManager: ProgramManager;
+
+  constructor(
+    public versionID: string,
+    state: State,
+    private request: R | null = null,
+    { services = {}, handlers = [], api }: Options<DA>,
+    events: Lifecycle
+  ) {
+    super(events);
+
+    const createEvent = <K extends EventType>(type: K) => (event: Event<K>) => this.callEvent(type, event);
+
+    this.services = services;
+    this.handlers = handlers;
+    this.api = api;
+
+    this.stack = new Stack(state.stack, {
+      willChange: createEvent(EventType.stackWillChange),
+      didChange: createEvent(EventType.stackDidChange),
+    });
+
+    this.turn = new Store(state.turn, {
+      didUpdate: createEvent(EventType.turnDidUpdate),
+      willUpdate: createEvent(EventType.turnWillUpdate),
+    });
+
+    this.storage = new Store(state.storage, {
+      didUpdate: createEvent(EventType.storageDidUpdate),
+      willUpdate: createEvent(EventType.storageWillUpdate),
+    });
+
+    this.variables = new Store(state.variables, {
+      didUpdate: createEvent(EventType.variablesDidUpdate),
+      willUpdate: createEvent(EventType.variablesWillUpdate),
+    });
+
+    this.trace = new Trace(this);
+
+    this.programManager = new ProgramManager(this);
+  }
+
+  getRequest(): R | null {
+    return this.request;
+  }
+
+  public setAction(type: Action): void {
+    this.action = type;
+  }
+
+  public getAction(): Action {
+    return this.action;
+  }
+
+  public end(): void {
+    this.setAction(Action.END);
+  }
+
+  public hasEnded(): boolean {
+    return this.getAction() === Action.END;
+  }
+
+  public async callEvent<K extends EventType>(type: K, event: Event<K>) {
+    await super.callEvent<K>(type, event, this);
+  }
+
+  public getProgram(programID: string) {
+    return this.programManager.get(programID);
+  }
+
+  public async update(): Promise<void> {
+    try {
+      await this.callEvent(EventType.updateWillExecute, {});
+
+      if (this.action !== Action.IDLE) {
+        throw new Error('runtime updated twice');
+      }
+
+      this.setAction(this.request ? Action.REQUEST : Action.RESPONSE);
+      await cycleStack(this);
+
+      await this.callEvent(EventType.updateDidExecute, {});
+    } catch (error) {
+      await this.callEvent(EventType.updateDidCatch, { error });
+    }
+  }
+
+  public getFinalState(): State {
+    if (this.action === Action.IDLE) {
+      throw new Error('runtime not updated');
+    }
+
+    return {
+      stack: this.stack.getState(),
+      storage: this.storage.getState(),
+      variables: this.variables.getState(),
+    };
+  }
+
+  public getRawState(): State {
+    return {
+      turn: this.turn.getState(),
+      stack: this.stack.getState(),
+      storage: this.storage.getState(),
+      variables: this.variables.getState(),
+    };
+  }
+
+  public getHandlers(): Handler[] {
+    return this.handlers;
+  }
+
+  public getVersionID() {
+    return this.versionID;
+  }
+}
+
+export default Runtime;

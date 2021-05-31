@@ -1,6 +1,7 @@
 import { NodeType, TraceType } from '@voiceflow/general-types';
 import { Node } from '@voiceflow/general-types/build/nodes/visual';
-import { HandlerFactory } from '@voiceflow/runtime';
+
+import { HandlerFactory } from '@/runtime';
 
 const VisualHandler: HandlerFactory<Node> = () => ({
   canHandle: (node) => node.type === NodeType.VISUAL && !!node.data,

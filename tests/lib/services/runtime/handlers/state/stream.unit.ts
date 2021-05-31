@@ -1,10 +1,10 @@
 import { IntentName, RequestType } from '@voiceflow/general-types';
-import { Action } from '@voiceflow/runtime';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { StreamStateHandler } from '@/lib/services/runtime/handlers/state/stream';
 import { StorageType, StreamAction } from '@/lib/services/runtime/types';
+import { Action } from '@/runtime';
 
 describe('stream state handler unit tests', () => {
   describe('canHandle', () => {

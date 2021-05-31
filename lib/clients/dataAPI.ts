@@ -1,5 +1,4 @@
-import { CreatorDataApi, LocalDataApi } from '@voiceflow/runtime';
-
+import { CreatorDataApi, LocalDataApi } from '@/runtime';
 import { Config } from '@/types';
 
 import RemoteDataAPI from './remoteDataAPI';

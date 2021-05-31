@@ -1,8 +1,8 @@
 import { Config } from '@voiceflow/general-types';
-import { State } from '@voiceflow/runtime';
 import _ from 'lodash';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
+import { State } from '@/runtime';
 
 import { AbstractManager } from './utils';
 

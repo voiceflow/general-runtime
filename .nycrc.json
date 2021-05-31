@@ -1,6 +1,6 @@
 {
   "extends": "@istanbuljs/nyc-config-typescript",
-  "include": ["backend/**", "lib/**"],
+  "include": ["backend/**", "lib/**", "runtime/**"],
   "exclude": ["lib/utils.ts"],
   "reporter": ["html", "text", "text-summary", "lcov"],
   "report-dir": "nyc_coverage",

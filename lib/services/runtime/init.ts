@@ -3,7 +3,8 @@ import { TraceFrame as ExitTraceFrame } from '@voiceflow/general-types/build/nod
 import { TraceFrame as FlowTraceFrame } from '@voiceflow/general-types/build/nodes/flow';
 import { SpeakType, TraceFrame as SpeakTraceFrame } from '@voiceflow/general-types/build/nodes/speak';
 import { TraceFrame as StreamTraceFrame, TraceStreamAction } from '@voiceflow/general-types/build/nodes/stream';
-import Client, { EventType } from '@voiceflow/runtime';
+
+import Client, { EventType } from '@/runtime';
 
 import { RESUME_PROGRAM_ID, ResumeDiagram } from './programs/resume';
 import { FrameType, SpeakFrame, StorageData, StorageType, StreamAction, StreamPlayStorage, TurnType } from './types';

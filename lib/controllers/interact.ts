@@ -4,10 +4,10 @@
  */
 
 import { Config } from '@voiceflow/general-types';
-import { State } from '@voiceflow/runtime';
 import { Request } from 'express';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
+import { State } from '@/runtime';
 
 import { AbstractController } from './utils';
 

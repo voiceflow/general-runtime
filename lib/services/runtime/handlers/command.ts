@@ -1,7 +1,7 @@
 import { Command, CommandType } from '@voiceflow/general-types';
-import { Action, extractFrameCommand, Frame, Store } from '@voiceflow/runtime';
 
 import { FrameType, GeneralRuntime } from '@/lib/services/runtime/types';
+import { Action, extractFrameCommand, Frame, Store } from '@/runtime';
 
 import { findEventMatcher, hasEventMatch } from './event';
 

@@ -1,6 +1,6 @@
 import { Validator } from '@voiceflow/backend-utils';
-import { State } from '@voiceflow/runtime';
 
+import { State } from '@/runtime';
 import { Request } from '@/types';
 
 import { customAJV, validate } from '../../utils';

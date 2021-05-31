@@ -1,11 +1,11 @@
 /* eslint-disable max-nested-callbacks */
 import { CommandType } from '@voiceflow/general-types';
-import { Action } from '@voiceflow/runtime';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { CommandHandler, getCommand as GetCommand } from '@/lib/services/runtime/handlers/command';
 import { FrameType } from '@/lib/services/runtime/types';
+import { Action } from '@/runtime';
 
 describe('Command handler', () => {
   describe('getCommand', () => {

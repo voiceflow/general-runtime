@@ -1,6 +1,7 @@
 import { NodeType } from '@voiceflow/general-types';
 import { Node } from '@voiceflow/general-types/build/nodes/start';
-import { Action, HandlerFactory } from '@voiceflow/runtime';
+
+import { Action, HandlerFactory } from '@/runtime';
 
 import { isIntentRequest } from '../../types';
 import CommandHandler from '../command';

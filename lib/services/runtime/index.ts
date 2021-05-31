@@ -4,8 +4,8 @@
  */
 
 import { GeneralTrace } from '@voiceflow/general-types';
-import Client from '@voiceflow/runtime';
 
+import Client from '@/runtime';
 import { Config, Context, ContextHandler } from '@/types';
 
 import { FullServiceMap } from '../index';

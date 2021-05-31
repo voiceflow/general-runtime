@@ -1,10 +1,10 @@
 /* eslint-disable max-nested-callbacks */
 import { IntentRequest, NodeType, Request, RequestType } from '@voiceflow/general-types';
-import { Action } from '@voiceflow/runtime';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { CaptureHandler } from '@/lib/services/runtime/handlers/capture';
+import { Action } from '@/runtime';
 
 describe('Capture handler', () => {
   describe('canHandle', () => {
