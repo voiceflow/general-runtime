@@ -3,7 +3,7 @@
     "target": "es2017",
     "moduleResolution": "node",
     "module": "commonjs",
-    "declaration": false,
+    "declaration": true,
     "sourceMap": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
@@ -31,21 +31,10 @@
     "outDir": "./build",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ]
-    },
-    "typeRoots": [
-      "./node_modules/@types",
-      "./typings"
-    ]
+      "@/*": ["./*"]
+    }
   },
   "compileOnSave": false,
-  "include": [
-    "**/*.ts",
-    "typings/**/*.d.ts"
-  ],
-  "exclude": [
-    "node_modules/**"
-  ]
+  "include": ["**/*.ts", "typings/**/*.d.ts"],
+  "exclude": ["node_modules/**"]
 }
