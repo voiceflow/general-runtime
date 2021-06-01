@@ -46,7 +46,7 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@0.0.135
+  vfcommon: voiceflow/common@0.0.136
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
@@ -73,19 +73,10 @@ jobs:
           image_repo: << pipeline.parameters.container-image-url >>
           release_pkg: << pipeline.parameters.npm-repo >>
 
-  deploy-image:
+  post-image-push-actions:
     executor: vfcommon/build-executor
     steps:
-      - vfcommon/deploy_image:
-          image_repo: << pipeline.parameters.container-image-url >>
-          namespace: << pipeline.parameters.k8s-namespace >>
-          target: << pipeline.parameters.k8s-asset >>
-
-  deploy-on-tag:
-    executor: vfcommon/build-executor
-    steps:
-      - vfcommon/deploy_image:
-          image_repo: << pipeline.parameters.container-image-url >>
+      - vfcommon/post_image_push_actions:
           namespace: << pipeline.parameters.k8s-namespace >>
           target: << pipeline.parameters.k8s-asset >>
           tagged: true
@@ -140,7 +131,7 @@ workflows:
       - build-push-image:
           <<: *prod_deploy_filters
           context: dev-test
-      - deploy-on-tag:
+      - post-image-push-actions:
           <<: *prod_deploy_filters
           context: dev-test
           requires:
