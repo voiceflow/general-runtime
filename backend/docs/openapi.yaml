@@ -241,7 +241,7 @@ paths:
       parameters:
         - name: versionID
           in: path
-          description: voiceflow project version ID
+          description: Voiceflow project version ID
           required: true
           schema:
             type: string
@@ -397,7 +397,7 @@ paths:
     parameters:
       - name: versionID
         in: path
-        description: voiceflow project version ID
+        description: Voiceflow project version ID
         required: true
         schema:
           type: string
@@ -503,7 +503,7 @@ paths:
     parameters:
       - name: versionID
         in: path
-        description: voiceflow project version ID
+        description: Voiceflow project version ID
         required: true
         schema:
           type: string
@@ -561,7 +561,7 @@ paths:
           type: string
           example: 5eb039bf90821520c2068cea
         in: path
-        description: voiceflow project version ID
+        description: Voiceflow project version ID
         required: true
     post:
       summary: interact
