@@ -1,8 +1,8 @@
-import { TraceFrame } from '@voiceflow/general-types';
+import { BaseTraceFrame } from '@voiceflow/general-types';
 
 import { State } from '@/runtime/lib/Runtime';
 
-export type Context<R = Record<string, unknown>, T = TraceFrame, D = Record<string, unknown>> = {
+export type Context<R = Record<string, unknown>, T = BaseTraceFrame, D = Record<string, unknown>> = {
   request: R;
   state: Omit<State, 'trace'>;
   versionID: string;

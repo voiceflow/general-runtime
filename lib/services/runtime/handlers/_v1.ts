@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import { Node } from '@voiceflow/general-types/build/nodes/_v1';
-import { TraceFrame } from '@voiceflow/general-types/build/nodes/types';
+import { BaseTraceFrame } from '@voiceflow/general-types/build/nodes/types';
 
 import { Action, HandlerFactory } from '@/runtime';
 
@@ -42,7 +42,7 @@ export const _V1Handler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
       return null;
     }
 
-    runtime.trace.addTrace<TraceFrame<string, unknown>>({
+    runtime.trace.addTrace<BaseTraceFrame<unknown>>({
       type: node.type,
       payload: node.payload,
       defaultPath: node.defaultPath,

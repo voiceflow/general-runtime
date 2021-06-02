@@ -1,4 +1,4 @@
-import { Event, EventType, IntentEvent, IntentRequest, Request } from '@voiceflow/general-types';
+import { BaseEvent, BaseRequest, EventType, IntentEvent, IntentRequest } from '@voiceflow/general-types';
 
 import { GeneralRuntime, isIntentRequest } from '@/lib/services/runtime/types';
 import { Runtime, Store } from '@/runtime';
@@ -6,7 +6,7 @@ import { Runtime, Store } from '@/runtime';
 import { mapEntities } from '../../utils';
 
 export const intentEventMatcher = {
-  match: (context: { runtime: GeneralRuntime; event: Event | null }): context is { runtime: Runtime<IntentRequest>; event: IntentEvent } => {
+  match: (context: { runtime: GeneralRuntime; event: BaseEvent | null }): context is { runtime: Runtime<IntentRequest>; event: IntentEvent } => {
     const request = context.runtime.getRequest();
     if (!isIntentRequest(request)) return false;
     if (context.event?.type !== EventType.INTENT) return false;
@@ -20,16 +20,16 @@ export const intentEventMatcher = {
   },
 };
 
-type GeneralEvent = Event<string, { name: string }>;
+export interface GeneralEvent extends BaseEvent {
+  name: string;
+}
+
 export const generalEventMatcher = {
-  match: (context: {
-    runtime: GeneralRuntime;
-    event: Event | null;
-  }): context is { runtime: Runtime<Request>; event: Event<string, GeneralEvent> } => {
+  match: (context: { runtime: GeneralRuntime; event: BaseEvent | null }): context is { runtime: Runtime<BaseRequest>; event: GeneralEvent } => {
     const request = context.runtime.getRequest();
     if (!request || isIntentRequest(request)) return false;
     if (!context.event?.type) return false;
-    if ((context.event as GeneralEvent).type !== request.type) return false;
+    if (context.event.type !== request.type) return false;
 
     return true;
   },
@@ -41,11 +41,11 @@ export const generalEventMatcher = {
 
 const EventMatchers = [intentEventMatcher, generalEventMatcher];
 
-export const findEventMatcher = (context: { event: Event | null; runtime: GeneralRuntime; variables: Store }) => {
+export const findEventMatcher = (context: { event: BaseEvent | null; runtime: GeneralRuntime; variables: Store }) => {
   const matcher = EventMatchers.find((m) => m.match(context));
 
   if (!matcher) return null;
   return { ...matcher, sideEffect: () => matcher.sideEffect(context as any) };
 };
 
-export const hasEventMatch = (event: Event | null, runtime: GeneralRuntime) => !!EventMatchers.find((m) => m.match({ event, runtime }));
+export const hasEventMatch = (event: BaseEvent | null, runtime: GeneralRuntime) => !!EventMatchers.find((m) => m.match({ event, runtime }));

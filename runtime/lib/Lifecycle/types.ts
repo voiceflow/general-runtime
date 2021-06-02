@@ -1,5 +1,5 @@
 import { Node } from '@voiceflow/api-sdk';
-import { DebugTrace, TraceFrame } from '@voiceflow/general-types';
+import { BaseTraceFrame, DebugTrace } from '@voiceflow/general-types';
 
 import Program from '../Program';
 import Runtime from '../Runtime';
@@ -76,7 +76,7 @@ interface FrameDidFinishEvent extends BaseEvent {
   frame?: Frame;
 }
 
-interface TraceWillAddEvent<TF extends TraceFrame> extends BaseEvent {
+interface TraceWillAddEvent<TF extends BaseTraceFrame> extends BaseEvent {
   stop: () => void;
   frame: TF;
 }
@@ -89,7 +89,7 @@ interface StackDidChangeEvent extends BaseEvent {
   prevFrames: Frame[];
 }
 
-export interface EventMap<TF extends TraceFrame> {
+export interface EventMap<TF extends BaseTraceFrame> {
   [EventType.updateWillExecute]: BaseEvent;
   [EventType.updateDidExecute]: BaseEvent;
   [EventType.updateDidCatch]: UpdateDidCatchEvent;
@@ -121,7 +121,7 @@ export interface EventMap<TF extends TraceFrame> {
   [EventType.traceWillAdd]: TraceWillAddEvent<TF | DebugTrace>;
 }
 
-export type Event<K extends EventType, TF extends TraceFrame = TraceFrame> = EventMap<TF>[K];
-export type CallbackEvent<K extends EventType, TF extends TraceFrame = TraceFrame> = Event<K, TF> & { runtime: Runtime };
-export type EventCallback<K extends EventType, TF extends TraceFrame = TraceFrame> = (event: CallbackEvent<K, TF>) => void | Promise<void>;
-export type EventCallbackMap<TF extends TraceFrame = TraceFrame> = { [key in EventType]: EventCallback<key, TF> };
+export type Event<K extends EventType, TF extends BaseTraceFrame = BaseTraceFrame> = EventMap<TF>[K];
+export type CallbackEvent<K extends EventType, TF extends BaseTraceFrame = BaseTraceFrame> = Event<K, TF> & { runtime: Runtime };
+export type EventCallback<K extends EventType, TF extends BaseTraceFrame = BaseTraceFrame> = (event: CallbackEvent<K, TF>) => void | Promise<void>;
+export type EventCallbackMap<TF extends BaseTraceFrame = BaseTraceFrame> = { [key in EventType]: EventCallback<key, TF> };

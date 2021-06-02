@@ -1,15 +1,15 @@
-import { TraceFrame, TraceType } from '@voiceflow/general-types';
+import { BaseTraceFrame, TraceType } from '@voiceflow/general-types';
 
 import { EventType } from '@/runtime/lib/Lifecycle';
 
 import Runtime from '..';
 
 export default class Trace {
-  private trace: TraceFrame[] = [];
+  private trace: BaseTraceFrame[] = [];
 
   constructor(private runtime: Runtime) {}
 
-  addTrace<TF extends TraceFrame>(frame: TF) {
+  addTrace<TF extends BaseTraceFrame>(frame: TF) {
     let stop = false;
 
     this.runtime.callEvent(EventType.traceWillAdd, {
@@ -24,7 +24,7 @@ export default class Trace {
     this.trace = [...this.trace, frame];
   }
 
-  get<TF extends TraceFrame>(): TF[] {
+  get<TF extends BaseTraceFrame>(): TF[] {
     return this.trace as TF[];
   }
 
