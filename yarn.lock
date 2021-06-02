@@ -979,10 +979,10 @@
     semver "^7.3.2"
     tsutils "^3.17.1"
 
-"@voiceflow/api-sdk@1.31.11", "@voiceflow/api-sdk@^1.31.11":
-  version "1.31.11"
-  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.31.11.tgz#945164cd8594fe40a5ed182adfe3a890430a7cf9"
-  integrity sha512-0JJq2EPHXhz3S1JKb4fx5fql1yi0x4wZkO1H+UkQx9ORAZ+D7L4PhrPalEaH3L7dpjdQVAUGUVdN6lDW3gQceA==
+"@voiceflow/api-sdk@1.32.0", "@voiceflow/api-sdk@^1.32.0":
+  version "1.32.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.32.0.tgz#e84edbf0affdb5b99fb31bf3f867718f204ec5cd"
+  integrity sha512-WB7m7IlYWTj9/iazVjdxLjuDxk94XpYaZR+3EVcBTP+n9HuWn8Jd4rWkTfosId++dQw46CWk65ouFuBB+HrgJQ==
   dependencies:
     "@types/atob" "^2.1.2"
     atob "^2.1.2"
@@ -1050,12 +1050,12 @@
     eslint-plugin-xss "^0.1.9"
     typescript "^3.9.7"
 
-"@voiceflow/general-types@1.48.2":
-  version "1.48.2"
-  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.48.2.tgz#3c0f86f1860ac123b24f186b344645ae9fff66d2"
-  integrity sha512-f85uH0A71g0pgOVuC1O683Mmipv5uWQ+IQJ6Stpd7MxMLLpcd836xTsXoIlV4tPdXSo8MWQqg/DqpwgBloj5mQ==
+"@voiceflow/general-types@1.49.0":
+  version "1.49.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.49.0.tgz#4e0eebf25e64dba701cce20d7c6d286d415af4d6"
+  integrity sha512-ptAYaDd8/Du3HZUUBuVXDpM1tK2LbgUlAL2yJ/Pp+BPCOZW5pxuwDupQ172DDVEveK/3CXFuYYZ+DVCDvfBj0g==
   dependencies:
-    "@voiceflow/api-sdk" "^1.31.11"
+    "@voiceflow/api-sdk" "^1.32.0"
 
 "@voiceflow/git-branch-check@^1.2.0":
   version "1.2.0"
