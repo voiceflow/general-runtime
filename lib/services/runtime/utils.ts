@@ -1,6 +1,6 @@
 import { SlotMapping } from '@voiceflow/api-sdk';
 import { replaceVariables, transformStringVariableToNumber } from '@voiceflow/common';
-import { Chip, IntentRequest, TraceType } from '@voiceflow/general-types';
+import { IntentRequest, NodeWithButtons, NodeWithReprompt, TraceType } from '@voiceflow/general-types';
 import { TraceFrame as ChoiceFrame } from '@voiceflow/general-types/build/nodes/interaction';
 
 import { Runtime, Store } from '@/runtime';
@@ -37,13 +37,13 @@ export const mapEntities = (mappings: SlotMapping[], entities: IntentRequest['pa
   return variables;
 };
 
-export const addRepromptIfExists = <N extends { reprompt?: string }>(node: N, runtime: Runtime, variables: Store): void => {
+export const addRepromptIfExists = <N extends NodeWithReprompt>(node: N, runtime: Runtime, variables: Store): void => {
   if (node.reprompt) {
     runtime.turn.set(TurnType.REPROMPT, replaceVariables(node.reprompt, variables.getState()));
   }
 };
 
-export const addChipsIfExists = <N extends { chips?: Chip[] }>(node: N, runtime: Runtime, variables: Store): boolean => {
+export const addChipsIfExists = <N extends NodeWithButtons>(node: N, runtime: Runtime, variables: Store): boolean => {
   if (!node.chips?.length) return false;
 
   runtime.trace.addTrace<ChoiceFrame>({
