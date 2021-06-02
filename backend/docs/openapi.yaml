@@ -1,9 +1,10 @@
-openapi: 3.0.0
+openapi: '3.0.3'
 info:
   version: 1.0.0
   title: Voiceflow Dialog Management API
   description: |
     # Overview
+
     The Dialog Management API is an HTTP API served by Voiceflow's dialog management server.
     It allows your Voiceflow project to be easily integrated into any interface: chatbot, voice assistant, IVR, web chat, and more - without the hassle of implementing the conversational flow using code.
 
@@ -12,9 +13,11 @@ info:
     <img src="https://uploads-ssl.webflow.com/5bddf05642686caf6d17eb58/6036dc95761e92262c2f4bd6_IVR%20(3)-p-1080.png" alt="Voiceflow IVR Integration" style="zoom:50%;"/>
 
     # Quick Start
-    For developers eager to get started without worrying about the details, here are a few quick steps to make your first call with the API.
+
+    For developers eager to get started without worrying about the details, here are a few quick steps to make your first call with the API:
+
     1. **Create a project**. You need to first build a conversational project on *[Voiceflow Creator](https://creator.voiceflow.com)*.
-    2. **Create API Key**. If you are an admin of a Voiceflow workspace, create and manage API Keys under *Workspace Settings / Developers*.
+    2. **Create API Key**. An admin of your Voiceflow workspace can create and manage API Keys under *Workspace Settings / Developers*.
     3. **Get Version ID**. On your project, it is in the URL: `https://creator.voiceflow.com/project/{versionID}/canvas/...`
     4. **Make a test call**. Use the examples below to make an API call. Make subsequent calls to the same endpoint,
       changing the `payload` to reflect what the user might say. See how the response trace changes based on where in the project the user is.<br/>
@@ -39,9 +42,9 @@ info:
       <details>
         <summary>Node.js</summary>
 
-        /* Example in Node.js ES6 using axios */
-
         const axios = require('axios');
+        // or
+        import axios from 'axios';
 
         const requestOptions = {
           method: 'post',
@@ -57,17 +60,19 @@ info:
           }
         };
 
-        axios(requestOptions).then(response => {
+        try {
+          const response = await axios(requestOptions);
+
           console.log('API call response:', response.data);
-        }).catch((err) => {
-          console.log('API call error:', err.message);
-        });
+        } catch (error) {
+          console.error('API call error:', error);
+        }
 
       </details>
       <details>
         <summary>Python</summary>
 
-        /* Example in Python 3 using requests library */
+        # Example in Python 3 using requests library
         import requests
 
         url = 'https://general-runtime.voiceflow.com/state/{versionID}/user/steve/interact'
@@ -81,7 +86,10 @@ info:
     </details>
 
     # Endpoint
-    The standard URL base for all Dialog Management API calls - this will be different if you are self-hosting or on a private cloud.
+
+    The standard URL base for all Dialog Management API calls:
+    *Note: This will be different if you are self-hosting or on a private cloud.*
+
     ```
     https://general-runtime.voiceflow.com
     ```
@@ -96,37 +104,40 @@ tags:
       `{versionID}` is in the URL on your project: `https://creator.voiceflow.com/project/{versionID}/canvas/...`
 
       ### userID
-      `{userID}` will need be generated yourself - it should be something unique that easily references the person on the session - such as an username, email, deviceID, or phone number.
-      (*e.g.* `user54646`, `user@gmail.com`, `1-647-424-4242`, etc.).<br/> If you're not sure what to call it just for testing purposes, you can just pick a random `{userID}` like *steve*.
+      `{userID}` will need be generated yourself - it should be something unique that easily references the person on the session - such as an username, email, device ID, or phone number.
+      (*e.g.* `user54646`, `user@gmail.com`, `1-647-424-4242`, etc.).
+      If you're not sure what to call it just for testing purposes, you can just pick a random `{userID}` like *steve*.
 
-      For example <i>".../user/<b>steve</b>/interact"</i> is going to have a distinct conversation from <i>".../user/<b>alice</b>/interact"</i><br/>
+      For example _".../user/**steve**/interact"_ is going to have a distinct conversation from _".../user/**alice**/interact"_
+
       *Ensure `{userID}` is consistent every time the same user calls these endpoints.*
 
       ### Nomenclature
       - `state` is the user metadata - what block they are currently on, what flow they are on, their variables
       - `request` is an object representing a user's action or event
-      - `trace` is an list of things for whatever client is calling the API to show
+      - `trace` is an array of actions to take based on the request that the user made
   - name: Stateless API
     description: |
-      The dialog management **stateless** API is very similar to the **state** API - with one difference:<br/>
-      the `state` that is saved and managed by Voiceflow is passed in the request and response instead. This means there is no longer any need for the `{userID}` in the path parameters - the token used to retrieve the state.
+      The dialog management **stateless** API is very similar to the **state** API - with one difference:
 
-      The same request will *always* produce the same response
+      Instead of passing `{userID}` in the path parameters to retrieve the state, the entire state is passed in each request and response.
 
-      The API works by passing `state` back and forth, with Voiceflow never storing user session data in the process.
+      The same request will *always* produce the same response.
+
+      The API works by passing `state` back and forth, Voiceflow will never store user session data in the process.
 
       ### Nomenclature
       - `state` is the user metadata - what block they are currently on, what flow they are on, their variables
       - `request` is an object representing a user's action or event
-      - `trace` is an list of things for whatever client is calling the API to show
+      - `trace` is an array of actions to take based on the request that the user made
   - name: Custom Actions
     description: |
-      Take advantage of the Custom Action step to allow you Voiceflow project to repeatably perform any kind of integration action/side effect.
+      Take advantage of the **Custom Action step** to allow you Voiceflow project to perform any kind of integration action.
 
       Examples can include triggering navigation your website or app, processing a credit card payment,
-      opening the windows on a car, handing off to a human on a phone call, and much much more.
+      opening the windows on a car, handing off to a human on a phone call, or anything else your app can support.
 
-      Let's take a look at an example Custom Action step where we want to use a third party integration like *stripe* for actually charging a credit card:
+      Let's take a look at an example Custom Action step where we want to use a third party integration like *Stripe* for actually charging a credit card:
       ![Credit Card Custom Action](https://user-images.githubusercontent.com/5643574/115419275-333b7d80-a1c8-11eb-9a70-30398f4c9358.png)
 
       In your request body call, you can specific which Custom Actions to **stop** on in the `config.stopTypes` field:
@@ -157,18 +168,39 @@ tags:
         }
       ]
       ```
-      Now whenever we come across a `Pay Credit Card` trace, we can actually trigger a side effect such as the stripe API and perform the action.
+      Now whenever we come across a `Pay Credit Card` trace, we can actually trigger a side effect such as the Stripe API and perform the action.
       Depending on the result of that, we can now select which path we want to go down. In the subsequent request body, you simply have to do this:
 
-      `"request": { "type": "success" }`
+      ```
+      {
+        "request": { "type": "success" }
+      }
+      ```
 
       Where the `type` of the request is the same as the name of the path you've labelled in Voiceflow.
       If the next request is an invalid path, your project will simply behave as if there were no lines coming out of the Custom Action step.
 
-      In summary - all that is happening is we send out a request saying to stop on certain types of Custom Actions,
-      we get a response stopping on it, and in the next request, we specify the path to go down.
+      In summary, here's what's happening:
+      1. We send a request saying to stop on our Custom Action
+      2. We get a response which stopped on it
+      3. In the next request we specify which path to go down
 paths:
   '/state/{versionID}/user/{userID}/interact':
+    parameters:
+      - schema:
+          type: string
+          example: user@gmail.com
+        name: userID
+        in: path
+        required: true
+        description: unique user ID (create this yourself)
+      - schema:
+          type: string
+          example: 5eb039bf90821520c2068cea
+        name: versionID
+        in: path
+        required: true
+        description: Voiceflow project version ID
     post:
       tags:
         - State API
@@ -256,18 +288,11 @@ paths:
         - name: verbose
           in: query
           description: enable verbose responses
-          optional: false
+          required: false
           default: false
           schema:
             type: boolean
             example: false
-        - in: header
-          name: Authorization
-          description: voiceflow API key
-          required: true
-          schema:
-            type: string
-            example: VF.6063709377e568001c098380.XXXXXXXXX.....
       requestBody:
         description: info and config required for an interaction
         required: true
@@ -378,21 +403,6 @@ paths:
                         defaultPath: 0
         '404':
           description: Not Found
-    parameters:
-      - schema:
-          type: string
-          example: user@gmail.com
-        name: userID
-        in: path
-        required: true
-        description: unique user ID (create this yourself)
-      - schema:
-          type: string
-          example: 5eb039bf90821520c2068cea
-        name: versionID
-        in: path
-        required: true
-        description: voiceflow project version ID
   '/state/{versionID}/user/{userID}':
     parameters:
       - name: versionID
@@ -816,7 +826,7 @@ paths:
       operationId: defaultState
 externalDocs:
   description: Find out more about Swagger
-  url: 'http://swagger.io'
+  url: 'https://swagger.io/docs/specification/about/'
 components:
   securitySchemes:
     API Key:
@@ -824,7 +834,8 @@ components:
       in: header
       name: Authorization
       description: |
-        All HTTP requests made to the Runtime API must be validated with an API Key. If you are an admin of a Voiceflow workspace, create and manage API Keys under *Workspace Settings / Developers*.
+        All requests made to the Dialog Management API must be validated with an API Key.
+        An admin of your Voiceflow workspace can create and manage API Keys under *Workspace Settings / Developers*.
   schemas:
     IntentRequest:
       title: IntentRequest
