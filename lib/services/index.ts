@@ -63,6 +63,8 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
     services.session = new LocalSession(services, config);
   } else if (config.SESSIONS_SOURCE === Source.MONGO) {
     services.session = new MongoSession(services, config);
+  } else {
+    throw new Error('No Session Source Defined');
   }
 
   return services;
