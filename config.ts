@@ -69,7 +69,7 @@ const CONFIG: Config = {
   RATE_LIMITER_DURATION_PRIVATE: Number(getOptionalProcessEnv('RATE_LIMITER_DURATION_PRIVATE', '60')),
 
   // SESSIONS SOURCE
-  SESSIONS_SOURCE: getOptionalProcessEnv('SESSIONS_SOURCE'),
+  SESSIONS_SOURCE: getRequiredProcessEnv('SESSIONS_SOURCE'),
   MONGO_URI: getOptionalProcessEnv('MONGO_URI'),
   MONGO_DB: getOptionalProcessEnv('MONGO_DB'),
 };

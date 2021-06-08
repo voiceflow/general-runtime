@@ -39,7 +39,7 @@
     "html-parse-stringify": "^1.0.3",
     "immer": "^5.1.0",
     "ioredis": "^4.22.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "mathjs": "^6.5.0",
     "mongodb": "^3.6.5",
     "regenerator-runtime": "^0.13.3",
