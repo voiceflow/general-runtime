@@ -49,7 +49,7 @@ export interface Config extends RateLimitConfig {
   REDIS_CLUSTER_HOST: string | null;
   REDIS_CLUSTER_PORT: number | null;
 
-  SESSIONS_SOURCE: string | null;
+  SESSIONS_SOURCE: string;
   MONGO_URI: string | null;
   MONGO_DB: string | null;
 }
