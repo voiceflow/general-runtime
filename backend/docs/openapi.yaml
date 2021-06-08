@@ -104,7 +104,7 @@ tags:
       `{versionID}` is in the URL on your project: `https://creator.voiceflow.com/project/{versionID}/canvas/...`
 
       ### userID
-      `{userID}` will need be generated yourself - it should be something unique that easily references the person on the session - such as an username, email, device ID, or phone number.
+      `{userID}` will need to be generated yourself - it should be something unique that easily references the person on the session - such as an username, email, device ID, or phone number.
       (*e.g.* `user54646`, `user@gmail.com`, `1-647-424-4242`, etc.).
       If you're not sure what to call it just for testing purposes, you can just pick a random `{userID}` like *steve*.
 
