@@ -1,8 +1,10 @@
-import { Node } from '@voiceflow/api-sdk';
+import { BaseNode } from '@voiceflow/api-sdk';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
-export type NextNode = Node<'next', { nextId?: string }>;
+export interface NextNode extends BaseNode {
+  nextId?: string;
+}
 
 const NextHandler: HandlerFactory<NextNode> = () => ({
   canHandle: (node) => !!node.nextId,

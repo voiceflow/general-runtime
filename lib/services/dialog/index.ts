@@ -11,7 +11,7 @@ import _ from 'lodash';
 import logger from '@/logger';
 import { Context, ContextHandler } from '@/types';
 
-import { generateVariations } from '../chips/utils';
+import { generateVariations } from '../buttons/utils';
 import { handleNLCDialog } from '../nlu/nlc';
 import { getNoneIntentRequest, NONE_INTENT } from '../nlu/utils';
 import { isIntentRequest } from '../runtime/types';

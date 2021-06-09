@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 
-import { Command } from '@voiceflow/api-sdk';
+import { BaseCommand } from '@voiceflow/api-sdk';
 
 import ProgramModel from '@/runtime/lib/Program';
 
@@ -14,7 +14,7 @@ export interface State {
   programID: string;
 
   storage: StoreState;
-  commands?: Command[];
+  commands?: BaseCommand[];
   variables: StoreState;
 }
 
@@ -23,7 +23,7 @@ export interface Options {
   programID: string;
 
   storage?: StoreState;
-  commands?: Command[];
+  commands?: BaseCommand[];
   variables?: StoreState;
 
   // deprecated
@@ -40,7 +40,7 @@ class Frame {
 
   private programID: string;
 
-  private commands: Command[] = [];
+  private commands: BaseCommand[] = [];
 
   public storage: Store;
 
@@ -132,8 +132,8 @@ class Frame {
     this.programID = programID;
   }
 
-  public getCommands(): Command[] {
-    return this.commands;
+  public getCommands<T extends BaseCommand = BaseCommand>(): T[] {
+    return this.commands as T[];
   }
 }
 

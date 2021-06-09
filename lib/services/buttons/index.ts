@@ -1,5 +1,5 @@
 /**
- * [[include:chips.md]]
+ * [[include:buttons.md]]
  * @packageDocumentation
  */
 
@@ -8,14 +8,14 @@ import { TraceType } from '@voiceflow/general-types';
 import { Context, ContextHandler } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
-import { getChoiceChips } from './utils';
+import { getChoiceButtons } from './utils';
 
 export const utils = {
-  getChoiceChips,
+  getChoiceButtons,
 };
 
 @injectServices({ utils })
-class Chips extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
+class Buttons extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
   handle = async (context: Context) => {
     if (!context.trace) context.trace = [];
 
@@ -29,7 +29,7 @@ class Chips extends AbstractManager<{ utils: typeof utils }> implements ContextH
         return {
           ...frame,
           payload: {
-            choices: this.services.utils.getChoiceChips(frame.payload.choices, model),
+            choices: this.services.utils.getChoiceButtons(frame.payload.choices, model),
           },
         };
       })
@@ -42,4 +42,4 @@ class Chips extends AbstractManager<{ utils: typeof utils }> implements ContextH
   };
 }
 
-export default Chips;
+export default Buttons;

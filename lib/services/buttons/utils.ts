@@ -3,11 +3,19 @@ import _ from 'lodash';
 
 import { replaceSlots } from '../dialog/utils';
 
-type Chip = { intent?: string; name: string };
-type Utterance = { text: string; slots?: string[] };
+export interface Button {
+  name: string;
+  intent?: string;
+}
+
+interface Utterance {
+  text: string;
+  slots?: string[];
+}
 
 export const sampleUtterance = (utterances: Utterance[], model: PrototypeModel, index = 0) => {
   let slotMap: Record<string, string> = {};
+
   const utterance =
     // ensure every slot in the utterance can be filled with a dummy value
     utterances.find(({ slots = [] }) => {
@@ -30,29 +38,30 @@ export const sampleUtterance = (utterances: Utterance[], model: PrototypeModel, 
   return utterance ? replaceSlots(utterance, slotMap).trim() : '';
 };
 
-// generate multiple chips with slot variations from provided utterances
-export const generateVariations = (utterances: Utterance[], model: PrototypeModel, variations = 3): Chip[] => {
-  const chips: Chip[] = [];
+// generate multiple buttons with slot variations from provided utterances
+export const generateVariations = (utterances: Utterance[], model: PrototypeModel, variations = 3): Button[] => {
+  const buttons: Button[] = [];
 
   for (let i = 0; i < variations; i++) {
     const utterance = utterances[i % utterances.length];
+
     if (utterance) {
       const name = sampleUtterance([utterance], model, i);
 
       if (name) {
-        chips.push({ name });
+        buttons.push({ name });
       }
     }
   }
 
-  return _.uniqBy(chips, (chip) => chip.name);
+  return _.uniqBy(buttons, (button) => button.name);
 };
 
-export const getChoiceChips = (rawChoices: Chip[], model: PrototypeModel): Chip[] => {
-  const chips: Chip[] = [];
+export const getChoiceButtons = (rawChoices: Button[], model: PrototypeModel): Button[] => {
+  const buttons: Button[] = [];
 
   rawChoices.forEach((choice) => {
-    const chip: Chip = { ...choice };
+    const button: Button = { ...choice };
 
     // use intent to generate a sample utterance
     if (choice.intent) {
@@ -63,13 +72,13 @@ export const getChoiceChips = (rawChoices: Chip[], model: PrototypeModel): Chip[
       const utterances = intent.inputs.sort((a, b) => (a.slots?.length || 0) - (b.slots?.length || 0));
 
       // find an utterance can have slots filled
-      chip.name = sampleUtterance(utterances, model);
+      button.name = sampleUtterance(utterances, model);
     }
 
-    if (chip.name) {
-      chips.push(chip);
+    if (button.name) {
+      buttons.push(button);
     }
   });
 
-  return _.uniqBy(chips, (chip) => chip.name);
+  return _.uniqBy(buttons, (button) => button.name);
 };

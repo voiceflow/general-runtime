@@ -23,7 +23,7 @@ describe('Capture handler', () => {
     it('action is response', () => {
       const utils = {
         addRepromptIfExists: sinon.stub(),
-        addChipsIfExists: sinon.stub(),
+        addButtonsIfExists: sinon.stub(),
       };
       const handler = CaptureHandler(utils as any);
 

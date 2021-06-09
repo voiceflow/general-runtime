@@ -1,13 +1,13 @@
-import { Command, Node, Program } from '@voiceflow/api-sdk';
+import { BaseCommand, BaseNode, Program } from '@voiceflow/api-sdk';
 
 type MinimalProgram = Partial<Program> & Pick<Program, 'id' | 'lines' | 'startId'>;
 
 export class ProgramModel {
   private id: string;
 
-  private nodes: Record<string, Node>;
+  private nodes: Record<string, BaseNode>;
 
-  private commands: Command[] = [];
+  private commands: BaseCommand[] = [];
 
   private variables: string[] = [];
 
@@ -25,7 +25,7 @@ export class ProgramModel {
     return this.id;
   }
 
-  public getNode(nodeID?: string | null): Node | null {
+  public getNode(nodeID?: string | null): BaseNode | null {
     // eslint-disable-next-line no-prototype-builtins
     if (!(nodeID && this.nodes.hasOwnProperty(nodeID))) {
       return null;
@@ -37,8 +37,8 @@ export class ProgramModel {
     };
   }
 
-  public getCommands(): Command[] {
-    return this.commands;
+  public getCommands<T extends BaseCommand = BaseCommand>(): T[] {
+    return this.commands as T[];
   }
 
   public getStartNodeID(): string {

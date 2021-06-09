@@ -43,16 +43,35 @@ export const addRepromptIfExists = <N extends NodeWithReprompt>(node: N, runtime
   }
 };
 
-export const addChipsIfExists = <N extends NodeWithButtons>(node: N, runtime: Runtime, variables: Store): boolean => {
-  if (!node.chips?.length) return false;
+export const addButtonsIfExists = <N extends NodeWithButtons>(node: N, runtime: Runtime, variables: Store): boolean => {
+  if (node.buttons?.length) {
+    runtime.trace.addTrace<ChoiceFrame>({
+      type: TraceType.CHOICE,
+      payload: {
+        choices: node.buttons.map(({ name, payload }) => ({
+          name: replaceVariables(name, variables.getState()),
+          intent: payload.intentID ?? undefined,
+        })),
+      },
+    });
 
-  runtime.trace.addTrace<ChoiceFrame>({
-    type: TraceType.CHOICE,
-    payload: {
-      choices: node.chips.map(({ label }) => ({ name: replaceVariables(label, variables.getState()) })),
-    },
-  });
-  return true;
+    return true;
+  }
+
+  if (node.chips?.length) {
+    runtime.trace.addTrace<ChoiceFrame>({
+      type: TraceType.CHOICE,
+      payload: {
+        choices: node.chips.map(({ label }) => ({
+          name: replaceVariables(label, variables.getState()),
+        })),
+      },
+    });
+
+    return true;
+  }
+
+  return false;
 };
 
 export const getReadableConfidence = (confidence?: number) => ((confidence ?? 1) * 100).toFixed(2);

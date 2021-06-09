@@ -5,7 +5,7 @@ import { Node, TraceFrame } from '@voiceflow/general-types/build/nodes/interacti
 import { Action, HandlerFactory } from '@/runtime';
 
 import { StorageType } from '../types';
-import { addChipsIfExists, addRepromptIfExists } from '../utils';
+import { addButtonsIfExists, addRepromptIfExists } from '../utils';
 import CommandHandler from './command';
 import { findEventMatcher } from './event';
 import NoMatchHandler from './noMatch';
@@ -16,7 +16,7 @@ const utilsObj = {
   commandHandler: CommandHandler(),
   noMatchHandler: NoMatchHandler(),
   findEventMatcher,
-  addChipsIfExists,
+  addButtonsIfExists,
   addRepromptIfExists,
 };
 
@@ -26,7 +26,7 @@ export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils)
     if (runtime.getAction() === Action.RESPONSE) {
       utils.addRepromptIfExists(node, runtime, variables);
 
-      if (!utils.addChipsIfExists(node, runtime, variables)) {
+      if (!utils.addButtonsIfExists(node, runtime, variables)) {
         runtime.trace.addTrace<TraceFrame>({
           type: TraceType.CHOICE,
           payload: {

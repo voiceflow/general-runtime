@@ -4,7 +4,7 @@ import wordsToNumbers from 'words-to-numbers';
 import { Action, HandlerFactory } from '@/runtime';
 
 import { isIntentRequest } from '../types';
-import { addChipsIfExists, addRepromptIfExists } from '../utils';
+import { addButtonsIfExists, addRepromptIfExists } from '../utils';
 import CommandHandler from './command';
 import RepeatHandler from './repeat';
 
@@ -13,7 +13,7 @@ const utilsObj = {
   wordsToNumbers,
   commandHandler: CommandHandler(),
   addRepromptIfExists,
-  addChipsIfExists,
+  addButtonsIfExists,
 };
 
 export const CaptureHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
@@ -21,7 +21,7 @@ export const CaptureHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => 
   handle: (node, runtime, variables) => {
     if (runtime.getAction() === Action.RESPONSE) {
       utils.addRepromptIfExists(node, runtime, variables);
-      utils.addChipsIfExists(node, runtime, variables);
+      utils.addButtonsIfExists(node, runtime, variables);
       // quit cycleStack without ending session by stopping on itself
       return node.id;
     }

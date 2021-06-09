@@ -1,9 +1,9 @@
-import { BasePlatformData, Command, Node, Program, Project, Version, VersionPlatformData } from '@voiceflow/api-sdk';
+import { BaseCommand, BaseNode, BasePlatformData, Program, Project, Version, VersionPlatformData } from '@voiceflow/api-sdk';
 
 export type Display = { document?: string };
 
 export interface DataAPI<
-  P extends Program<any, any> = Program<Node, Command>,
+  P extends Program<any, any> = Program<BaseNode, BaseCommand>,
   V extends Version<any> = Version<VersionPlatformData>,
   PJ extends Project<any, any> = Project<BasePlatformData, BasePlatformData>
 > {

@@ -2,69 +2,69 @@ import { TraceType } from '@voiceflow/general-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import ChipsManager from '@/lib/services/chips';
+import ButtonsManager from '@/lib/services/buttons';
 
-describe('chips manager unit tests', () => {
+describe('buttons manager unit tests', () => {
   describe('handle', () => {
     it('no trace', async () => {
-      const chips = new ChipsManager({} as any, {} as any);
+      const buttons = new ButtonsManager({} as any, {} as any);
 
       const context = { data: { api: { getVersion: sinon.stub().resolves(null) } } };
-      expect(await chips.handle(context as any)).to.eql({ ...context, trace: [] });
+      expect(await buttons.handle(context as any)).to.eql({ ...context, trace: [] });
     });
 
     it('no version', async () => {
-      const getChoiceChips = sinon.stub().returns(['getChoiceChipsOutput']);
-      const chips = new ChipsManager({ utils: { getChoiceChips } } as any, {} as any);
+      const getChoiceButtons = sinon.stub().returns(['getChoiceButtonsOutput']);
+      const buttons = new ButtonsManager({ utils: { getChoiceButtons } } as any, {} as any);
 
       const context = {
         data: { api: { getVersion: sinon.stub().resolves(null) } },
         trace: [{ type: 'random' }, { type: TraceType.CHOICE, payload: { choices: ['one', 'two'], foo: 'bar' } }],
       };
-      expect(await chips.handle(context as any)).to.eql({
+      expect(await buttons.handle(context as any)).to.eql({
         ...context,
-        trace: [{ type: 'random' }, { type: TraceType.CHOICE, payload: { choices: ['getChoiceChipsOutput'] } }],
+        trace: [{ type: 'random' }, { type: TraceType.CHOICE, payload: { choices: ['getChoiceButtonsOutput'] } }],
       });
-      expect(getChoiceChips.args).to.eql([[context.trace[1].payload?.choices, { intents: [], slots: [] }]]);
+      expect(getChoiceButtons.args).to.eql([[context.trace[1].payload?.choices, { intents: [], slots: [] }]]);
     });
 
     it('no prototype', async () => {
-      const getChoiceChips = sinon.stub().returns(['getChoiceChipsOutput']);
-      const chips = new ChipsManager({ utils: { getChoiceChips } } as any, {} as any);
+      const getChoiceButtons = sinon.stub().returns(['getChoiceButtonsOutput']);
+      const buttons = new ButtonsManager({ utils: { getChoiceButtons } } as any, {} as any);
 
       const context = {
         versionID: 'version-id',
         data: { api: { getVersion: sinon.stub().resolves({}) } },
         trace: [{ type: 'random' }, { type: TraceType.CHOICE, payload: { choices: ['one', 'two'], foo: 'bar' } }],
       };
-      expect(await chips.handle(context as any)).to.eql({
+      expect(await buttons.handle(context as any)).to.eql({
         ...context,
-        trace: [{ type: 'random' }, { type: TraceType.CHOICE, payload: { choices: ['getChoiceChipsOutput'] } }],
+        trace: [{ type: 'random' }, { type: TraceType.CHOICE, payload: { choices: ['getChoiceButtonsOutput'] } }],
       });
       expect(context.data.api.getVersion.args).to.eql([[context.versionID]]);
-      expect(getChoiceChips.args).to.eql([[context.trace[1].payload?.choices, { intents: [], slots: [] }]]);
+      expect(getChoiceButtons.args).to.eql([[context.trace[1].payload?.choices, { intents: [], slots: [] }]]);
     });
 
     it('no model', async () => {
-      const getChoiceChips = sinon.stub().returns(['getChoiceChipsOutput']);
-      const chips = new ChipsManager({ utils: { getChoiceChips } } as any, {} as any);
+      const getChoiceButtons = sinon.stub().returns(['getChoiceButtonsOutput']);
+      const buttons = new ButtonsManager({ utils: { getChoiceButtons } } as any, {} as any);
 
       const context = {
         versionID: 'version-id',
         data: { api: { getVersion: sinon.stub().resolves({ prototype: {} }) } },
         trace: [{ type: 'random' }, { type: TraceType.CHOICE, payload: { choices: ['one', 'two'], foo: 'bar' } }],
       };
-      expect(await chips.handle(context as any)).to.eql({
+      expect(await buttons.handle(context as any)).to.eql({
         ...context,
-        trace: [{ type: 'random' }, { type: TraceType.CHOICE, payload: { choices: ['getChoiceChipsOutput'] } }],
+        trace: [{ type: 'random' }, { type: TraceType.CHOICE, payload: { choices: ['getChoiceButtonsOutput'] } }],
       });
       expect(context.data.api.getVersion.args).to.eql([[context.versionID]]);
-      expect(getChoiceChips.args).to.eql([[context.trace[1].payload?.choices, { intents: [], slots: [] }]]);
+      expect(getChoiceButtons.args).to.eql([[context.trace[1].payload?.choices, { intents: [], slots: [] }]]);
     });
 
     it('works', async () => {
-      const getChoiceChips = sinon.stub().returns(['getChoiceChipsOutput']);
-      const chips = new ChipsManager({ utils: { getChoiceChips } } as any, {} as any);
+      const getChoiceButtons = sinon.stub().returns(['getChoiceButtonsOutput']);
+      const buttons = new ButtonsManager({ utils: { getChoiceButtons } } as any, {} as any);
 
       const model = { foo: 'bar' };
       const context = {
@@ -72,12 +72,12 @@ describe('chips manager unit tests', () => {
         data: { api: { getVersion: sinon.stub().resolves({ prototype: { model } }) } },
         trace: [{ type: 'random' }, { type: TraceType.CHOICE, payload: { choices: ['one', 'two'], foo: 'bar' } }],
       };
-      expect(await chips.handle(context as any)).to.eql({
+      expect(await buttons.handle(context as any)).to.eql({
         ...context,
-        trace: [{ type: 'random' }, { type: TraceType.CHOICE, payload: { choices: ['getChoiceChipsOutput'] } }],
+        trace: [{ type: 'random' }, { type: TraceType.CHOICE, payload: { choices: ['getChoiceButtonsOutput'] } }],
       });
       expect(context.data.api.getVersion.args).to.eql([[context.versionID]]);
-      expect(getChoiceChips.args).to.eql([[context.trace[1].payload?.choices, model]]);
+      expect(getChoiceButtons.args).to.eql([[context.trace[1].payload?.choices, model]]);
     });
   });
 });

@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/api-sdk';
+import { BaseNode } from '@voiceflow/api-sdk';
 import { BaseTraceFrame, DebugTrace } from '@voiceflow/general-types';
 
 import Program from '../Program';
@@ -49,12 +49,12 @@ interface ProgramDidFetchEvent extends BaseEvent {
 }
 
 interface HandlerWillHandleEvent extends BaseEvent {
-  node: Node;
+  node: BaseNode;
   variables: Storage;
 }
 
 interface HandlerDidHandleEvent extends BaseEvent {
-  node: Node;
+  node: BaseNode;
   variables: Storage;
 }
 

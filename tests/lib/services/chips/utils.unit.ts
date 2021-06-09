@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import * as utils from '@/lib/services/chips/utils';
-import { generateVariations, getChoiceChips, sampleUtterance } from '@/lib/services/chips/utils';
+import * as utils from '@/lib/services/buttons/utils';
+import { generateVariations, getChoiceButtons, sampleUtterance } from '@/lib/services/buttons/utils';
 import * as dialogUtils from '@/lib/services/dialog/utils';
 
-describe('chips utils unit tests', () => {
+describe('buttons utils unit tests', () => {
   afterEach(() => {
     sinon.restore();
   });
@@ -62,13 +62,13 @@ describe('chips utils unit tests', () => {
     });
   });
 
-  describe('getChoiceChips', () => {
+  describe('getChoiceButtons', () => {
     it('no raw choices', () => {
-      expect(getChoiceChips([], null as any)).to.eql([]);
+      expect(getChoiceButtons([], null as any)).to.eql([]);
     });
 
     it('no intent in choices', () => {
-      expect(getChoiceChips([{}] as any, null as any)).to.eql([]);
+      expect(getChoiceButtons([{}] as any, null as any)).to.eql([]);
     });
 
     it('works', () => {
@@ -89,7 +89,7 @@ describe('chips utils unit tests', () => {
         slots: [],
       };
 
-      expect(getChoiceChips(rawChoices as any, model as any)).to.eql([{ name: 'name1', intent: 'intent1' }]);
+      expect(getChoiceButtons(rawChoices as any, model as any)).to.eql([{ name: 'name1', intent: 'intent1' }]);
       expect(sampleUtteranceStub.args).to.eql([
         [[{ slots: [{}, {}] }, { slots: [{}, {}, {}] }], model], // len=2 before len=3 because of sorting on line 63
         [[{}, {}, { slots: [{}] }], model],

@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/api-sdk';
+import { BaseNode } from '@voiceflow/api-sdk';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { EventType, IntentEvent, TraceType } from '@voiceflow/general-types';
 import { Node as ChoiceNode, TraceFrame as ChoiceTrace } from '@voiceflow/general-types/build/nodes/interaction';
@@ -9,7 +9,9 @@ import { Runtime, Store } from '@/runtime';
 
 import { NoMatchCounterStorage, StorageData, StorageType } from '../types';
 
-type NoMatchNode = Partial<ChoiceNode> & Node<any, { noMatches?: string[]; randomize?: boolean }>;
+export interface NoMatchNode extends BaseNode, Partial<Pick<ChoiceNode, 'noMatches' | 'interactions'>> {
+  randomize?: boolean;
+}
 
 export const EMPTY_AUDIO_STRING = '<audio src=""/>';
 

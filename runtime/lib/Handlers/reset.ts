@@ -1,8 +1,10 @@
-import { Node } from '@voiceflow/api-sdk';
+import { BaseNode } from '@voiceflow/api-sdk';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
-export type ResetNode = Node<any, { reset?: boolean }>;
+export interface ResetNode extends BaseNode {
+  reset?: boolean;
+}
 
 /**
  * reset the entire stack to the first flow and it's first node

@@ -1,11 +1,11 @@
-import { Command } from '@voiceflow/api-sdk';
+import { BaseCommand } from '@voiceflow/api-sdk';
 
 import Stack from '@/runtime/lib/Runtime/Stack';
 
-export type CommandMatcher<C extends Command = Command> = (command: C, match?: any) => boolean;
+export type CommandMatcher<C extends BaseCommand = BaseCommand> = (command: C, match?: any) => boolean;
 
 // eslint-disable-next-line import/prefer-default-export
-export const extractFrameCommand = <C extends Command = Command>(
+export const extractFrameCommand = <C extends BaseCommand = BaseCommand>(
   stack: Stack,
   matcher: CommandMatcher<C>,
   match?: any
@@ -15,7 +15,7 @@ export const extractFrameCommand = <C extends Command = Command>(
   for (let index = frames.length - 1; index >= 0; index--) {
     const frame = frames[index];
 
-    const matched = frame.getCommands().find((command) => matcher(command as C, match)) as C;
+    const matched = frame.getCommands<C>().find((command) => matcher(command, match));
 
     if (matched) {
       return { index, command: matched };

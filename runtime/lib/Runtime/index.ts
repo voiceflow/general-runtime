@@ -10,7 +10,7 @@ import ProgramManager from './utils/programManager';
 
 export interface Options<DA extends DataAPI = DataAPI> {
   api: DA;
-  handlers?: Handler[];
+  handlers?: Handler<any>[];
   services?: Record<string, any>;
 }
 
@@ -158,8 +158,8 @@ class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends Abstrac
     };
   }
 
-  public getHandlers(): Handler[] {
-    return this.handlers;
+  public getHandlers<T extends Handler = Handler>(): T[] {
+    return this.handlers as T[];
   }
 
   public getVersionID() {

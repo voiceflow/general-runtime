@@ -22,10 +22,10 @@ describe('Interaction handler', () => {
 
   describe('handle', () => {
     describe('action is response', () => {
-      it('chips exist', () => {
+      it('buttons exist', () => {
         const utils = {
           addRepromptIfExists: sinon.stub(),
-          addChipsIfExists: sinon.stub().returns(true),
+          addButtonsIfExists: sinon.stub().returns(true),
         };
 
         const node = { id: 'node-id' };
@@ -36,14 +36,14 @@ describe('Interaction handler', () => {
         expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
         expect(runtime.getAction.callCount).to.eql(1);
         expect(utils.addRepromptIfExists.args).to.eql([[node, runtime, variables]]);
-        expect(utils.addChipsIfExists.args).to.eql([[node, runtime, variables]]);
+        expect(utils.addButtonsIfExists.args).to.eql([[node, runtime, variables]]);
         expect(runtime.storage.delete.args).to.eql([[StorageType.NO_MATCHES_COUNTER]]);
       });
 
-      it('no chips', () => {
+      it('no buttons', () => {
         const utils = {
           addRepromptIfExists: sinon.stub(),
-          addChipsIfExists: sinon.stub().returns(false),
+          addButtonsIfExists: sinon.stub().returns(false),
         };
 
         const node = {
@@ -57,7 +57,7 @@ describe('Interaction handler', () => {
         expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
         expect(runtime.getAction.callCount).to.eql(1);
         expect(utils.addRepromptIfExists.args).to.eql([[node, runtime, variables]]);
-        expect(utils.addChipsIfExists.args).to.eql([[node, runtime, variables]]);
+        expect(utils.addButtonsIfExists.args).to.eql([[node, runtime, variables]]);
         expect(runtime.trace.addTrace.args).to.eql([
           [{ type: TraceType.CHOICE, payload: { choices: [{ intent: 'intent-name', name: 'intent-name' }] } }],
         ]);
