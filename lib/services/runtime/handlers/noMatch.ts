@@ -1,6 +1,6 @@
 import { BaseNode } from '@voiceflow/api-sdk';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
-import { EventType, IntentEvent, TraceType } from '@voiceflow/general-types';
+import { EventType, IntentEvent, IntentRequestButton, RequestType, TraceType } from '@voiceflow/general-types';
 import { Node as ChoiceNode, TraceFrame as ChoiceTrace } from '@voiceflow/general-types/build/nodes/interaction';
 import { SpeakType, TraceFrame } from '@voiceflow/general-types/build/nodes/speak';
 import _ from 'lodash';
@@ -58,11 +58,26 @@ export const NoMatchHandler = () => ({
       runtime.trace.addTrace<ChoiceTrace>({
         type: TraceType.CHOICE,
         payload: {
-          choices: node.interactions.reduce<{ name: string; intent?: string }[]>((acc, interaction) => {
+          buttons: node.interactions.reduce<IntentRequestButton[]>((acc, interaction) => {
             if (interaction.event?.type === EventType.INTENT) {
               const { intent } = interaction.event as IntentEvent;
-              acc.push({ intent, name: intent });
+
+              return [
+                ...acc,
+                {
+                  name: '', // will be filled in the buttons service
+                  request: {
+                    type: RequestType.INTENT,
+                    payload: {
+                      query: '',
+                      intent: { name: intent },
+                      entities: [],
+                    },
+                  },
+                },
+              ];
             }
+
             return acc;
           }, []),
         },

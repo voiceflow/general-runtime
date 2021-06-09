@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-syntax */
-import { EventType, IntentEvent, TraceType } from '@voiceflow/general-types';
+import { EventType, IntentEvent, IntentRequestButton, RequestType, TraceType } from '@voiceflow/general-types';
 import { Node, TraceFrame } from '@voiceflow/general-types/build/nodes/interaction';
 
 import { Action, HandlerFactory } from '@/runtime';
@@ -30,11 +30,26 @@ export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils)
         runtime.trace.addTrace<TraceFrame>({
           type: TraceType.CHOICE,
           payload: {
-            choices: node.interactions.reduce<{ name: string; intent?: string }[]>((acc, interaction) => {
+            buttons: node.interactions.reduce<IntentRequestButton[]>((acc, interaction) => {
               if (interaction.event?.type === EventType.INTENT) {
                 const { intent } = interaction.event as IntentEvent;
-                acc.push({ intent, name: intent });
+
+                return [
+                  ...acc,
+                  {
+                    name: '', // will be filled in the buttons service
+                    request: {
+                      type: RequestType.INTENT,
+                      payload: {
+                        query: '',
+                        intent: { name: intent },
+                        entities: [],
+                      },
+                    },
+                  },
+                ];
               }
+
               return acc;
             }, []),
           },

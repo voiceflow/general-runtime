@@ -188,7 +188,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         trace.push({
           type: TraceType.CHOICE,
           payload: {
-            choices: generateVariations(unfulfilledEntity.dialog.utterances, version.prototype.model),
+            buttons: generateVariations(unfulfilledEntity.dialog.utterances, version.prototype.model),
           },
         });
       }

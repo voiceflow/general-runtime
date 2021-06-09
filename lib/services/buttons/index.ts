@@ -30,7 +30,7 @@ class Buttons extends AbstractManager<{ utils: typeof utils }> implements Contex
         return {
           ...frame,
           payload: {
-            choices: this.services.utils.getChoiceButtons(frame.payload.choices, model),
+            buttons: this.services.utils.getChoiceButtons(frame.payload.buttons, model),
           },
         };
       })

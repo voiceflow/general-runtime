@@ -1,6 +1,6 @@
 import { SlotMapping } from '@voiceflow/api-sdk';
 import { replaceVariables, transformStringVariableToNumber } from '@voiceflow/common';
-import { IntentRequest, NodeWithButtons, NodeWithReprompt, TraceType } from '@voiceflow/general-types';
+import { IntentRequest, isTextRequest, NodeWithButtons, NodeWithReprompt, RequestType, TraceType } from '@voiceflow/general-types';
 import { TraceFrame as ChoiceFrame } from '@voiceflow/general-types/build/nodes/interaction';
 
 import { Runtime, Store } from '@/runtime';
@@ -48,10 +48,26 @@ export const addButtonsIfExists = <N extends NodeWithButtons>(node: N, runtime: 
     runtime.trace.addTrace<ChoiceFrame>({
       type: TraceType.CHOICE,
       payload: {
-        choices: node.buttons.map(({ name, payload }) => ({
-          name: replaceVariables(name, variables.getState()),
-          intent: payload.intentID ?? undefined,
-        })),
+        buttons: node.buttons.map(({ name, request }) => {
+          return isTextRequest(request)
+            ? {
+                name: replaceVariables(name, variables.getState()),
+                request: {
+                  ...request,
+                  payload: replaceVariables(request.payload, variables.getState()),
+                },
+              }
+            : {
+                name: replaceVariables(name, variables.getState()),
+                request: {
+                  ...request,
+                  payload: {
+                    ...request.payload,
+                    query: replaceVariables(request.payload.query, variables.getState()),
+                  },
+                },
+              };
+        }),
       },
     });
 
@@ -62,9 +78,11 @@ export const addButtonsIfExists = <N extends NodeWithButtons>(node: N, runtime: 
     runtime.trace.addTrace<ChoiceFrame>({
       type: TraceType.CHOICE,
       payload: {
-        choices: node.chips.map(({ label }) => ({
-          name: replaceVariables(label, variables.getState()),
-        })),
+        buttons: node.chips.map(({ label }) => {
+          const name = replaceVariables(label, variables.getState());
+
+          return { name, request: { type: RequestType.TEXT, payload: name } };
+        }),
       },
     });
 

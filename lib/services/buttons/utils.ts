@@ -1,14 +1,8 @@
 import { PrototypeModel } from '@voiceflow/api-sdk';
-import { IntentRequest, RequestType } from '@voiceflow/general-types';
-import { TraceFrameChoice } from '@voiceflow/general-types/build/nodes/interaction';
+import { AnyRequestButton, IntentRequestButton, isIntentRequest, RequestType } from '@voiceflow/general-types';
 import _ from 'lodash';
 
 import { replaceSlots } from '../dialog/utils';
-
-export interface ChoiceButton {
-  name: string;
-  request?: IntentRequest;
-}
 
 interface Utterance {
   text: string;
@@ -41,8 +35,8 @@ export const sampleUtterance = (utterances: Utterance[], model: PrototypeModel, 
 };
 
 // generate multiple buttons with slot variations from provided utterances
-export const generateVariations = (utterances: Utterance[], model: PrototypeModel, variations = 3): ChoiceButton[] => {
-  const buttons: ChoiceButton[] = [];
+export const generateVariations = (utterances: Utterance[], model: PrototypeModel, variations = 3): AnyRequestButton[] => {
+  const buttons: AnyRequestButton[] = [];
 
   for (let i = 0; i < variations; i++) {
     const utterance = utterances[i % utterances.length];
@@ -51,7 +45,7 @@ export const generateVariations = (utterances: Utterance[], model: PrototypeMode
       const name = sampleUtterance([utterance], model, i);
 
       if (name) {
-        buttons.push({ name });
+        buttons.push({ name, request: { type: RequestType.TEXT, payload: name } });
       }
     }
   }
@@ -59,52 +53,31 @@ export const generateVariations = (utterances: Utterance[], model: PrototypeMode
   return _.uniqBy(buttons, (button) => button.name);
 };
 
-export const getChoiceButtons = (rawButtons: TraceFrameChoice[], model: PrototypeModel): ChoiceButton[] => {
-  const buttons: ChoiceButton[] = [];
+export const getChoiceButtons = (rawButtons: AnyRequestButton[], model: PrototypeModel): AnyRequestButton[] => {
+  const buttons: AnyRequestButton[] = [];
 
   rawButtons.forEach((rawButton) => {
-    let intent = model.intents.find(({ key }) => key === rawButton.intent);
+    const { name, request } = rawButton;
 
-    // process buttons wth intents
-    if (intent) {
-      buttons.push({
-        name: rawButton.name,
-        request: {
-          type: RequestType.INTENT,
-          payload: {
-            query: rawButton.name,
-            intent: { name: intent.name },
-            entities: [],
-          },
-        },
-      });
+    // add all non-intent buttons or intent buttons with names
+    if (!isIntentRequest(request) || name) {
+      buttons.push(rawButton);
 
       return;
     }
 
-    // fallback to the choice/button name
-    const button: ChoiceButton = { name: rawButton.name };
+    const button: IntentRequestButton = { name, request };
 
-    // use intent to generate a sample utterance
-    if (rawButton.intent) {
-      intent = model.intents.find(({ name }) => name === rawButton.intent);
+    const intent = model.intents.find(({ name: intentName }) => intentName === request.payload.intent.name);
 
-      if (!intent) return;
+    if (!intent) return;
 
-      // order utterances by least number of slots
-      const utterances = intent.inputs.sort((a, b) => (a.slots?.length || 0) - (b.slots?.length || 0));
+    // order utterances by least number of slots
+    const utterances = intent.inputs.sort((a, b) => (a.slots?.length || 0) - (b.slots?.length || 0));
 
-      // find an utterance can have slots filled
-      button.name = sampleUtterance(utterances, model);
-      button.request = {
-        type: RequestType.INTENT,
-        payload: {
-          query: button.name,
-          intent: { name: intent.name },
-          entities: [],
-        },
-      };
-    }
+    // find an utterance can have slots filled
+    button.name = sampleUtterance(utterances, model);
+    button.request.payload.query = button.name;
 
     if (button.name) {
       buttons.push(button);
