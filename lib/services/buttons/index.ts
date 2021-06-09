@@ -26,6 +26,7 @@ class Buttons extends AbstractManager<{ utils: typeof utils }> implements Contex
         if (frame.type !== TraceType.CHOICE) {
           return frame;
         }
+
         return {
           ...frame,
           payload: {
