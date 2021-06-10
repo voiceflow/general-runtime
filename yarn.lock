@@ -979,10 +979,20 @@
     semver "^7.3.2"
     tsutils "^3.17.1"
 
-"@voiceflow/api-sdk@1.32.0", "@voiceflow/api-sdk@^1.32.0":
+"@voiceflow/api-sdk@1.32.0":
   version "1.32.0"
   resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.32.0.tgz#e84edbf0affdb5b99fb31bf3f867718f204ec5cd"
   integrity sha512-WB7m7IlYWTj9/iazVjdxLjuDxk94XpYaZR+3EVcBTP+n9HuWn8Jd4rWkTfosId++dQw46CWk65ouFuBB+HrgJQ==
+  dependencies:
+    "@types/atob" "^2.1.2"
+    atob "^2.1.2"
+    axios "^0.21.1"
+    superstruct "^0.10.12"
+
+"@voiceflow/api-sdk@^1.32.0":
+  version "1.32.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.32.1.tgz#f98562c71fb19d75378733a11c23d9d94e932139"
+  integrity sha512-pBtEAjg+43GC+tgTLtf9smCCSWXDveJQv5cEDYjTXf8eRjUhT2xFA7jIXEUHuyVT7ey45fVwiCfZSJeGD4Dfjg==
   dependencies:
     "@types/atob" "^2.1.2"
     atob "^2.1.2"

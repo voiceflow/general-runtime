@@ -53,6 +53,10 @@ export const CaptureHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => 
       }
     }
 
+    runtime.trace.addTrace<any>({
+      type: 'path',
+      path: 'capture',
+    });
     return node.nextId || null;
   },
 });

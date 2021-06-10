@@ -38,6 +38,10 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
 
     // interrupting command where it jumps to a node in the existing stack
     if (command.type === CommandType.JUMP) {
+      runtime.trace.addTrace<any>({
+        type: 'path',
+        path: 'jump',
+      });
       if (index < runtime.stack.getSize() - 1) {
         // destructive and pop off everything before the command node
         runtime.stack.popTo(index + 1);
@@ -53,6 +57,10 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
 
     // push command, adds a new frame
     if (command.type === CommandType.PUSH && command.diagramID) {
+      runtime.trace.addTrace<any>({
+        type: 'path',
+        path: 'push',
+      });
       runtime.stack.top().storage.set(FrameType.CALLED_COMMAND, true);
       runtime.trace.debug(`matched command **${command.type}** - adding command flow`);
       // reset state to beginning of new diagram and store current line to the stack

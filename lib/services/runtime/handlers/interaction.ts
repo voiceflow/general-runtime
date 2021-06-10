@@ -51,13 +51,17 @@ export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils)
     // request for this turn has been processed, set action to response
     runtime.setAction(Action.RESPONSE);
 
-    for (const interaction of node.interactions) {
-      const { event, nextId } = interaction;
+    for (let i = 0; i < node.interactions.length; i++) {
+      const { event, nextId } = node.interactions[i];
 
       const matcher = utils.findEventMatcher({ event, runtime, variables });
       if (matcher) {
         // allow handler to apply side effects
         matcher.sideEffect();
+        runtime.trace.addTrace<any>({
+          type: 'path',
+          path: `choice:${i}`,
+        });
         return nextId || null;
       }
     }
@@ -75,6 +79,10 @@ export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils)
       return utils.noMatchHandler.handle(node, runtime, variables);
     }
 
+    runtime.trace.addTrace<any>({
+      type: 'path',
+      path: 'choice:else',
+    });
     return node.elseId || null;
   },
 });
