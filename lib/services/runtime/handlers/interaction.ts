@@ -60,7 +60,7 @@ export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils)
         matcher.sideEffect();
         runtime.trace.addTrace<any>({
           type: 'path',
-          path: `choice:${i + 1}`,
+          payload: { path: `choice:${i + 1}` },
         });
         return nextId || null;
       }
@@ -81,7 +81,7 @@ export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils)
 
     runtime.trace.addTrace<any>({
       type: 'path',
-      path: 'choice:else',
+      payload: { path: 'choice:else' },
     });
     return node.elseId || null;
   },

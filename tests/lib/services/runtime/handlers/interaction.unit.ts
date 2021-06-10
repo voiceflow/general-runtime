@@ -1,5 +1,5 @@
 /* eslint-disable max-nested-callbacks */
-import { EventType, IntentRequest, NodeType, Request, RequestType, TraceType } from '@voiceflow/general-types';
+import { EventType, TraceType } from '@voiceflow/general-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -7,7 +7,7 @@ import { InteractionHandler } from '@/lib/services/runtime/handlers/interaction'
 import { StorageType } from '@/lib/services/runtime/types';
 import { Action } from '@/runtime';
 
-const ElsePathTrace = { type: 'path', path: 'choice:else' };
+const ElsePathTrace = { type: 'path', payload: { path: 'choice:else' } };
 
 describe('Interaction handler', () => {
   describe('canHandle', () => {
@@ -213,7 +213,7 @@ describe('Interaction handler', () => {
             expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
             expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime, variables }]]);
             expect(sideEffect.callCount).to.eql(1);
-            expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', path: 'choice:1' }]]);
+            expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', payload: { path: 'choice:1' } }]]);
           });
 
           it('iterate events', () => {
@@ -243,7 +243,7 @@ describe('Interaction handler', () => {
             expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
             expect(utils.findEventMatcher.args[3]).to.eql([{ event: node.interactions[3].event, runtime, variables }]);
             expect(sideEffect.callCount).to.eql(1);
-            expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', path: 'choice:4' }]]);
+            expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', payload: { path: 'choice:4' } }]]);
           });
 
           it('without nextId', () => {
@@ -262,7 +262,7 @@ describe('Interaction handler', () => {
             expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
             expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime, variables }]]);
             expect(sideEffect.callCount).to.eql(1);
-            expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', path: 'choice:1' }]]);
+            expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', payload: { path: 'choice:1' } }]]);
           });
         });
       });

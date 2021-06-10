@@ -40,7 +40,7 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
     if (command.type === CommandType.JUMP) {
       runtime.trace.addTrace<any>({
         type: 'path',
-        path: 'jump',
+        payload: { path: 'jump' },
       });
       if (index < runtime.stack.getSize() - 1) {
         // destructive and pop off everything before the command node
@@ -59,7 +59,7 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
     if (command.type === CommandType.PUSH && command.diagramID) {
       runtime.trace.addTrace<any>({
         type: 'path',
-        path: 'push',
+        payload: { path: 'push' },
       });
       runtime.stack.top().storage.set(FrameType.CALLED_COMMAND, true);
       runtime.trace.debug(`matched command **${command.type}** - adding command flow`);

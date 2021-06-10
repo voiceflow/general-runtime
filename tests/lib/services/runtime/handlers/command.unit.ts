@@ -7,8 +7,8 @@ import { CommandHandler, getCommand as GetCommand } from '@/lib/services/runtime
 import { FrameType } from '@/lib/services/runtime/types';
 import { Action } from '@/runtime';
 
-const JumpPathTrace = { type: 'path', path: 'jump' };
-const PushPathTrace = { type: 'path', path: 'push' };
+const JumpPathTrace = { type: 'path', payload: { path: 'jump' } };
+const PushPathTrace = { type: 'path', payload: { path: 'push' } };
 
 describe('Command handler', () => {
   describe('getCommand', () => {

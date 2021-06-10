@@ -55,7 +55,7 @@ export const CaptureHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => 
 
     runtime.trace.addTrace<any>({
       type: 'path',
-      path: 'capture',
+      payload: { path: 'capture' },
     });
     return node.nextId || null;
   },

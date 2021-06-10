@@ -6,7 +6,7 @@ import sinon from 'sinon';
 import { CaptureHandler } from '@/lib/services/runtime/handlers/capture';
 import { Action } from '@/runtime';
 
-const CapturePathTrace = { type: 'path', path: 'capture' };
+const CapturePathTrace = { type: 'path', payload: { path: 'capture' } };
 
 describe('Capture handler', () => {
   describe('canHandle', () => {
