@@ -1,9 +1,10 @@
 /* eslint-disable no-restricted-syntax */
 import { BaseNode, IntentInput, PrototypeModel } from '@voiceflow/api-sdk';
 import { SLOT_REGEXP } from '@voiceflow/common';
-import { IntentRequest } from '@voiceflow/general-types';
+import { AnyRequestButton, IntentRequest, RequestType } from '@voiceflow/general-types';
 import { NodeInteraction } from '@voiceflow/general-types/build/nodes/interaction';
 import * as crypto from 'crypto';
+import _ from 'lodash';
 
 import CommandHandler from '@/lib/services/runtime/handlers/command';
 import { findEventMatcher } from '@/lib/services/runtime/handlers/event';
@@ -72,7 +73,7 @@ export const getIntentEntityList = (intentName: string, model: PrototypeModel) =
 };
 
 export const isInteractionsInNode = (node: BaseNode & { interactions?: NodeInteraction[] }): node is BaseNode & { interactions: NodeInteraction[] } =>
-  'interactions' in node && Array.isArray(node.interactions);
+  Array.isArray(node.interactions);
 
 export const isIntentInScope = async ({ data: { api }, versionID, state, request }: Context) => {
   const client = new Client({
@@ -108,4 +109,53 @@ export const isIntentInScope = async ({ data: { api }, versionID, state, request
   }
 
   return false;
+};
+
+interface Utterance {
+  text: string;
+  slots?: string[];
+}
+
+export const sampleUtterance = (utterances: Utterance[], model: PrototypeModel, index = 0) => {
+  let slotMap: Record<string, string> = {};
+
+  const utterance =
+    // ensure every slot in the utterance can be filled with a dummy value
+    utterances.find(({ slots = [] }) => {
+      let i = index;
+      slotMap = {};
+
+      return slots.every((utteranceSlot) => {
+        // find an random sample for each slot in the intent
+        const slot = model.slots.find(({ key }) => key === utteranceSlot);
+        const sample = slot?.inputs[i % slot.inputs.length]?.split(',')[0];
+        if (!sample) return false;
+
+        i++;
+        slotMap[slot!.name] = sample;
+
+        return true;
+      });
+    })?.text;
+
+  return utterance ? replaceSlots(utterance, slotMap).trim() : '';
+};
+
+// generate multiple buttons with slot variations from provided utterances
+export const generateButtonsForUtterances = (utterances: Utterance[], model: PrototypeModel, variations = 3): AnyRequestButton[] => {
+  const buttons: AnyRequestButton[] = [];
+
+  for (let i = 0; i < variations; i++) {
+    const utterance = utterances[i % utterances.length];
+
+    if (utterance) {
+      const name = sampleUtterance([utterance], model, i);
+
+      if (name) {
+        buttons.push({ name, request: { type: RequestType.TEXT, payload: name } });
+      }
+    }
+  }
+
+  return _.uniqBy(buttons, (button) => button.name);
 };

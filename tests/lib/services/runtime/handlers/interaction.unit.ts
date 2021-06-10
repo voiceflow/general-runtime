@@ -24,8 +24,8 @@ describe('Interaction handler', () => {
     describe('action is response', () => {
       it('buttons exist', () => {
         const utils = {
+          addButtonsIfExists: sinon.stub(),
           addRepromptIfExists: sinon.stub(),
-          addButtonsIfExists: sinon.stub().returns(true),
         };
 
         const node = { id: 'node-id' };
@@ -42,8 +42,8 @@ describe('Interaction handler', () => {
 
       it('no buttons', () => {
         const utils = {
+          addButtonsIfExists: sinon.stub(),
           addRepromptIfExists: sinon.stub(),
-          addButtonsIfExists: sinon.stub().returns(false),
         };
 
         const node = {
@@ -58,9 +58,7 @@ describe('Interaction handler', () => {
         expect(runtime.getAction.callCount).to.eql(1);
         expect(utils.addRepromptIfExists.args).to.eql([[node, runtime, variables]]);
         expect(utils.addButtonsIfExists.args).to.eql([[node, runtime, variables]]);
-        expect(runtime.trace.addTrace.args).to.eql([
-          [{ type: TraceType.CHOICE, payload: { choices: [{ intent: 'intent-name', name: 'intent-name' }] } }],
-        ]);
+        expect(runtime.trace.addTrace.callCount).to.eql(0);
         expect(runtime.storage.delete.args).to.eql([[StorageType.NO_MATCHES_COUNTER]]);
       });
     });
@@ -84,7 +82,7 @@ describe('Interaction handler', () => {
           expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
           expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
           expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
-          expect(utils.noMatchHandler.canHandle.args).to.eql([[node, runtime]]);
+          expect(utils.noMatchHandler.canHandle.args).to.eql([[node, runtime, variables, null]]);
           expect(runtime.trace.addTrace.args).to.eql([[ElsePathTrace]]);
         });
 
@@ -106,7 +104,7 @@ describe('Interaction handler', () => {
             expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
             expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
             expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
-            expect(utils.noMatchHandler.canHandle.args).to.eql([[node, runtime]]);
+            expect(utils.noMatchHandler.canHandle.args).to.eql([[node, runtime, variables, null]]);
             expect(runtime.trace.addTrace.args).to.eql([[ElsePathTrace]]);
           });
 
@@ -129,7 +127,7 @@ describe('Interaction handler', () => {
             expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime, variables }]]);
             expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
             expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
-            expect(utils.noMatchHandler.canHandle.args).to.eql([[node, runtime]]);
+            expect(utils.noMatchHandler.canHandle.args).to.eql([[node, runtime, variables, null]]);
             expect(runtime.trace.addTrace.args).to.eql([[ElsePathTrace]]);
           });
         });
@@ -192,8 +190,8 @@ describe('Interaction handler', () => {
           expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
           expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
           expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
-          expect(utils.noMatchHandler.canHandle.args).to.eql([[node, runtime]]);
-          expect(utils.noMatchHandler.handle.args).to.eql([[node, runtime, variables]]);
+          expect(utils.noMatchHandler.canHandle.args).to.eql([[node, runtime, variables, null]]);
+          expect(utils.noMatchHandler.handle.args).to.eql([[node, runtime, variables, null]]);
         });
 
         describe('eventMatcher can handle', () => {

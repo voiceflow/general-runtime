@@ -15,7 +15,6 @@ const buildServices = (context: any) => ({
   speak: { handle: sinon.stub().resolves(output(context, 'speak')) },
   runtime: { handle: sinon.stub().resolves(output(context, 'runtime')) },
   dialog: { handle: sinon.stub().resolves(output(context, 'dialog')) },
-  buttons: { handle: sinon.stub().resolves(output(context, 'buttons')) },
   filter: { handle: sinon.stub().resolves(output(context, 'filter', { trace: 'trace' })) },
   metrics: { generalRequest: sinon.stub() },
 });
@@ -63,7 +62,6 @@ describe('interact service unit tests', () => {
       expect(services.runtime.handle.args).to.eql([[output(context, 'dialog')]]);
       expect(services.tts.handle.args).to.eql([[output(context, 'runtime')]]);
       expect(services.speak.handle.args).to.eql([[output(context, 'tts')]]);
-      expect(services.buttons.handle.args).to.eql([[output(context, 'speak')]]);
       expect(services.metrics.generalRequest.callCount).to.eql(1);
     });
 
@@ -108,7 +106,6 @@ describe('interact service unit tests', () => {
       expect(services.runtime.handle.args).to.eql([[output(context, 'dialog')]]);
       expect(services.tts.handle.args).to.eql([[output(context, 'runtime')]]);
       expect(services.speak.handle.args).to.eql([[output(context, 'tts')]]);
-      expect(services.buttons.handle.args).to.eql([[output(context, 'speak')]]);
       expect(services.metrics.generalRequest.callCount).to.eql(1);
     });
 

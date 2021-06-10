@@ -11,7 +11,6 @@ import _ from 'lodash';
 import logger from '@/logger';
 import { Context, ContextHandler } from '@/types';
 
-import { generateVariations } from '../buttons/utils';
 import { handleNLCDialog } from '../nlu/nlc';
 import { getNoneIntentRequest, NONE_INTENT } from '../nlu/utils';
 import { isIntentRequest } from '../runtime/types';
@@ -20,6 +19,7 @@ import { rectifyEntityValue } from './synonym';
 import {
   dmPrefix,
   fillStringEntities,
+  generateButtonsForUtterances,
   getDMPrefixIntentName,
   getIntentEntityList,
   getUnfulfilledEntity,
@@ -188,7 +188,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         trace.push({
           type: TraceType.CHOICE,
           payload: {
-            buttons: generateVariations(unfulfilledEntity.dialog.utterances, version.prototype.model),
+            buttons: generateButtonsForUtterances(unfulfilledEntity.dialog.utterances, version.prototype.model),
           },
         });
       }

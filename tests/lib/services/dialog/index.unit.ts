@@ -167,7 +167,11 @@ describe('dialog manager unit tests', () => {
           {
             type: 'choice',
             payload: {
-              choices: [{ name: 'bbq' }, { name: 'spicy wings' }, { name: 'I want honey garlic' }],
+              buttons: [
+                { name: 'bbq', request: { payload: 'bbq', type: 'text' } },
+                { name: 'spicy wings', request: { payload: 'spicy wings', type: 'text' } },
+                { name: 'I want honey garlic', request: { payload: 'I want honey garlic', type: 'text' } },
+              ],
             },
           },
         ];

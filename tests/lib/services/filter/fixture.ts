@@ -43,7 +43,7 @@ export const SPEAK_TRACE_NO_SSML: SpeakTrace = {
 export const CHOICE_TRACE: ChoiceTrace = {
   type: TraceType.CHOICE,
   payload: {
-    choices: [],
+    buttons: [],
   },
 };
 

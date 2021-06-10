@@ -4,7 +4,6 @@ import { Config } from '@/types';
 
 import { ClientMap } from '../clients';
 import ASR from './asr';
-import Buttons from './buttons';
 import Dialog from './dialog';
 import Filter from './filter';
 import Interact from './interact';
@@ -26,7 +25,6 @@ export interface ServiceMap {
   nlu: NLU;
   dialog: Dialog;
   tts: TTS;
-  buttons: Buttons;
   rateLimit: RateLimitManager<Config>;
   slots: Slots;
   filter: Filter;
@@ -52,7 +50,6 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.nlu = new NLU(services, config);
   services.tts = new TTS(services, config);
   services.dialog = new Dialog(services, config);
-  services.buttons = new Buttons(services, config);
   services.rateLimit = new RateLimitManager(services, config);
   services.slots = new Slots(services, config);
   services.filter = new Filter(services, config);

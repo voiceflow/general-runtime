@@ -1,6 +1,5 @@
 /* eslint-disable no-restricted-syntax */
-import { EventType, IntentEvent, IntentRequestButton, RequestType, TraceType } from '@voiceflow/general-types';
-import { Node, TraceFrame } from '@voiceflow/general-types/build/nodes/interaction';
+import { Node } from '@voiceflow/general-types/build/nodes/interaction';
 
 import { Action, HandlerFactory } from '@/runtime';
 
@@ -22,39 +21,10 @@ const utilsObj = {
 
 export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => !!node.interactions,
-  handle: (node, runtime, variables) => {
+  handle: (node, runtime, variables, program) => {
     if (runtime.getAction() === Action.RESPONSE) {
       utils.addRepromptIfExists(node, runtime, variables);
-
-      if (!utils.addButtonsIfExists(node, runtime, variables)) {
-        runtime.trace.addTrace<TraceFrame>({
-          type: TraceType.CHOICE,
-          payload: {
-            buttons: node.interactions.reduce<IntentRequestButton[]>((acc, interaction) => {
-              if (interaction.event?.type === EventType.INTENT) {
-                const { intent } = interaction.event as IntentEvent;
-
-                return [
-                  ...acc,
-                  {
-                    name: '', // will be filled in the buttons service
-                    request: {
-                      type: RequestType.INTENT,
-                      payload: {
-                        query: '',
-                        intent: { name: intent },
-                        entities: [],
-                      },
-                    },
-                  },
-                ];
-              }
-
-              return acc;
-            }, []),
-          },
-        });
-      }
+      utils.addButtonsIfExists(node, runtime, variables);
 
       // clean up no matches counter on new interaction
       runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);
@@ -90,8 +60,8 @@ export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils)
     }
 
     // check for noMatches to handle
-    if (utils.noMatchHandler.canHandle(node, runtime)) {
-      return utils.noMatchHandler.handle(node, runtime, variables);
+    if (utils.noMatchHandler.canHandle(node, runtime, variables, program)) {
+      return utils.noMatchHandler.handle(node, runtime, variables, program);
     }
 
     runtime.trace.addTrace<any>({
