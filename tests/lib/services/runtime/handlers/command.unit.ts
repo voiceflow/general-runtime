@@ -7,6 +7,9 @@ import { CommandHandler, getCommand as GetCommand } from '@/lib/services/runtime
 import { FrameType } from '@/lib/services/runtime/types';
 import { Action } from '@/runtime';
 
+const JumpPathTrace = { type: 'path', path: 'jump' };
+const PushPathTrace = { type: 'path', path: 'push' };
+
 describe('Command handler', () => {
   describe('getCommand', () => {
     it('returns null', () => {
@@ -103,7 +106,7 @@ describe('Command handler', () => {
         const runtime = {
           setAction: sinon.stub(),
           stack: { getSize: sinon.stub().returns(3), popTo: sinon.stub(), top: sinon.stub().returns({ setNodeID }) },
-          trace: { debug: sinon.stub() },
+          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
         };
         const variables = { var1: 'val1' };
 
@@ -116,6 +119,7 @@ describe('Command handler', () => {
         expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
         expect(setNodeID.args).to.eql([[commandObj.nextID]]);
         expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - exiting flows and jumping to node`]]);
+        expect(runtime.trace.addTrace.args).to.eql([[JumpPathTrace]]);
       });
 
       describe('top of stack', () => {
@@ -132,7 +136,7 @@ describe('Command handler', () => {
           const runtime = {
             setAction: sinon.stub(),
             stack: { getSize: sinon.stub().returns(3) },
-            trace: { debug: sinon.stub() },
+            trace: { debug: sinon.stub(), addTrace: sinon.stub() },
           };
           const variables = { var1: 'val1' };
 
@@ -143,6 +147,7 @@ describe('Command handler', () => {
           expect(sideEffectStub.callCount).to.eql(1);
           expect(runtime.stack.getSize.callCount).to.eql(2);
           expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`]]);
+          expect(runtime.trace.addTrace.args).to.eql([[JumpPathTrace]]);
         });
 
         it('no nextID', () => {
@@ -158,7 +163,7 @@ describe('Command handler', () => {
           const runtime = {
             setAction: sinon.stub(),
             stack: { getSize: sinon.stub().returns(3) },
-            trace: { debug: sinon.stub() },
+            trace: { debug: sinon.stub(), addTrace: sinon.stub() },
           };
           const variables = { var1: 'val1' };
 
@@ -169,6 +174,7 @@ describe('Command handler', () => {
           expect(sideEffectStub.callCount).to.eql(1);
           expect(runtime.stack.getSize.callCount).to.eql(2);
           expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`]]);
+          expect(runtime.trace.addTrace.args).to.eql([[JumpPathTrace]]);
         });
       });
     });
@@ -207,7 +213,7 @@ describe('Command handler', () => {
         const runtime = {
           setAction: sinon.stub(),
           stack: { top: sinon.stub().returns({ storage: { set: storageSetStub } }), push: sinon.stub() },
-          trace: { debug: sinon.stub() },
+          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
         };
         const variables = { var1: 'val1' };
 
@@ -220,6 +226,7 @@ describe('Command handler', () => {
         expect(storageSetStub.args).to.eql([[FrameType.CALLED_COMMAND, true]]);
         expect(utils.Frame.args).to.eql([[{ programID: commandObj.diagramID }]]);
         expect(runtime.stack.push.args).to.eql([[{}]]);
+        expect(runtime.trace.addTrace.args).to.eql([[PushPathTrace]]);
       });
     });
   });

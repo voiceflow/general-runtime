@@ -7,6 +7,8 @@ import { InteractionHandler } from '@/lib/services/runtime/handlers/interaction'
 import { StorageType } from '@/lib/services/runtime/types';
 import { Action } from '@/runtime';
 
+const ElsePathTrace = { type: 'path', path: 'choice:else' };
+
 describe('Interaction handler', () => {
   describe('canHandle', () => {
     it('false', () => {
@@ -73,7 +75,7 @@ describe('Interaction handler', () => {
           };
 
           const node = { id: 'node-id', elseId: 'else-id', interactions: [] };
-          const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub() };
+          const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), trace: { addTrace: sinon.stub() } };
           const variables = { var1: 'val1' };
           const handler = InteractionHandler(utils as any);
 
@@ -83,6 +85,7 @@ describe('Interaction handler', () => {
           expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
           expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
           expect(utils.noMatchHandler.canHandle.args).to.eql([[node, runtime]]);
+          expect(runtime.trace.addTrace.args).to.eql([[ElsePathTrace]]);
         });
 
         describe('without elseId', () => {
@@ -94,7 +97,7 @@ describe('Interaction handler', () => {
             };
 
             const node = { id: 'node-id', interactions: [] };
-            const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub() };
+            const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), trace: { addTrace: sinon.stub() } };
             const variables = { var1: 'val1' };
             const handler = InteractionHandler(utils as any);
 
@@ -104,6 +107,7 @@ describe('Interaction handler', () => {
             expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
             expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
             expect(utils.noMatchHandler.canHandle.args).to.eql([[node, runtime]]);
+            expect(runtime.trace.addTrace.args).to.eql([[ElsePathTrace]]);
           });
 
           it('no matcher', () => {
@@ -115,7 +119,7 @@ describe('Interaction handler', () => {
             };
 
             const node = { id: 'node-id', interactions: [{ event: { foo: 'bar' } }] };
-            const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub() };
+            const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), trace: { addTrace: sinon.stub() } };
             const variables = { var1: 'val1' };
             const handler = InteractionHandler(utils as any);
 
@@ -126,6 +130,7 @@ describe('Interaction handler', () => {
             expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
             expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
             expect(utils.noMatchHandler.canHandle.args).to.eql([[node, runtime]]);
+            expect(runtime.trace.addTrace.args).to.eql([[ElsePathTrace]]);
           });
         });
       });
@@ -199,7 +204,7 @@ describe('Interaction handler', () => {
             };
 
             const node = { id: 'node-id', interactions: [{ event: { foo: 'bar' }, nextId: 'next-id' }] };
-            const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub() };
+            const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), trace: { addTrace: sinon.stub() } };
             const variables = { var1: 'val1' };
             const handler = InteractionHandler(utils as any);
 
@@ -208,6 +213,37 @@ describe('Interaction handler', () => {
             expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
             expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime, variables }]]);
             expect(sideEffect.callCount).to.eql(1);
+            expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', path: 'choice:1' }]]);
+          });
+
+          it('iterate events', () => {
+            const sideEffect = sinon.stub();
+            const utils = {
+              findEventMatcher: sinon
+                .stub()
+                .onCall(3)
+                .returns({ sideEffect }),
+            };
+
+            const node = {
+              id: 'node-id',
+              interactions: [
+                { event: { foo: 'one' }, nextId: 'one' },
+                { event: { foo: 'two' }, nextId: 'two' },
+                { event: { foo: 'three' }, nextId: 'three' },
+                { event: { foo: 'four' }, nextId: 'four' },
+              ],
+            };
+            const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), trace: { addTrace: sinon.stub() } };
+            const variables = { var1: 'val1' };
+            const handler = InteractionHandler(utils as any);
+
+            expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.interactions[3].nextId);
+            expect(runtime.getAction.callCount).to.eql(1);
+            expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
+            expect(utils.findEventMatcher.args[3]).to.eql([{ event: node.interactions[3].event, runtime, variables }]);
+            expect(sideEffect.callCount).to.eql(1);
+            expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', path: 'choice:4' }]]);
           });
 
           it('without nextId', () => {
@@ -217,7 +253,7 @@ describe('Interaction handler', () => {
             };
 
             const node = { id: 'node-id', interactions: [{ event: { foo: 'bar' } }] };
-            const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub() };
+            const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), trace: { addTrace: sinon.stub() } };
             const variables = { var1: 'val1' };
             const handler = InteractionHandler(utils as any);
 
@@ -226,6 +262,7 @@ describe('Interaction handler', () => {
             expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
             expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime, variables }]]);
             expect(sideEffect.callCount).to.eql(1);
+            expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', path: 'choice:1' }]]);
           });
         });
       });

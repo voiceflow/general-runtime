@@ -1,10 +1,12 @@
 /* eslint-disable max-nested-callbacks */
-import { IntentRequest, NodeType, Request, RequestType } from '@voiceflow/general-types';
+import { RequestType } from '@voiceflow/general-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { CaptureHandler } from '@/lib/services/runtime/handlers/capture';
 import { Action } from '@/runtime';
+
+const CapturePathTrace = { type: 'path', path: 'capture' };
 
 describe('Capture handler', () => {
   describe('canHandle', () => {
@@ -91,7 +93,12 @@ describe('Capture handler', () => {
 
             const node = { id: 'node-id', nextId: 'next-id' };
             const request = { foo: 'bar' };
-            const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), getRequest: sinon.stub().returns(request) };
+            const runtime = {
+              getAction: sinon.stub().returns(Action.REQUEST),
+              setAction: sinon.stub(),
+              getRequest: sinon.stub().returns(request),
+              trace: { addTrace: sinon.stub() },
+            };
             const variables = { var1: 'val1' };
             expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
 
@@ -99,6 +106,7 @@ describe('Capture handler', () => {
             expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
             expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
             expect(runtime.getRequest.callCount).to.eql(1);
+            expect(runtime.trace.addTrace.args).to.eql([[CapturePathTrace]]);
           });
 
           it('without nextID', () => {
@@ -114,7 +122,12 @@ describe('Capture handler', () => {
 
             const node = { id: 'node-id' };
             const request = { foo: 'bar' };
-            const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), getRequest: sinon.stub().returns(request) };
+            const runtime = {
+              getAction: sinon.stub().returns(Action.REQUEST),
+              setAction: sinon.stub(),
+              getRequest: sinon.stub().returns(request),
+              trace: { addTrace: sinon.stub() },
+            };
             const variables = { var1: 'val1' };
             expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
 
@@ -122,6 +135,7 @@ describe('Capture handler', () => {
             expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
             expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
             expect(runtime.getRequest.callCount).to.eql(1);
+            expect(runtime.trace.addTrace.args).to.eql([[CapturePathTrace]]);
           });
         });
 
@@ -139,7 +153,12 @@ describe('Capture handler', () => {
 
             const node = { id: 'node-id' };
             const request = { type: RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [] } };
-            const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), getRequest: sinon.stub().returns(request) };
+            const runtime = {
+              getAction: sinon.stub().returns(Action.REQUEST),
+              setAction: sinon.stub(),
+              getRequest: sinon.stub().returns(request),
+              trace: { addTrace: sinon.stub() },
+            };
             const variables = { var1: 'val1' };
             expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
 
@@ -147,6 +166,7 @@ describe('Capture handler', () => {
             expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
             expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
             expect(runtime.getRequest.callCount).to.eql(1);
+            expect(runtime.trace.addTrace.args).to.eql([[CapturePathTrace]]);
           });
 
           describe('query not number', () => {
@@ -164,7 +184,12 @@ describe('Capture handler', () => {
 
               const node = { id: 'node-id', variable: 'var' };
               const request = { type: RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [], query: 'q' } };
-              const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), getRequest: sinon.stub().returns(request) };
+              const runtime = {
+                getAction: sinon.stub().returns(Action.REQUEST),
+                setAction: sinon.stub(),
+                getRequest: sinon.stub().returns(request),
+                trace: { addTrace: sinon.stub() },
+              };
               const variables = { var1: 'val1', set: sinon.stub() };
               expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
 
@@ -174,6 +199,7 @@ describe('Capture handler', () => {
               expect(runtime.getRequest.callCount).to.eql(1);
               expect(utils.wordsToNumbers.args).to.eql([[request.payload.query]]);
               expect(variables.set.args).to.eql([[node.variable, request.payload.query]]);
+              expect(runtime.trace.addTrace.args).to.eql([[CapturePathTrace]]);
             });
 
             it('NaN', () => {
@@ -190,7 +216,12 @@ describe('Capture handler', () => {
 
               const node = { id: 'node-id', variable: 'var' };
               const request = { type: RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [], query: 'q' } };
-              const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), getRequest: sinon.stub().returns(request) };
+              const runtime = {
+                getAction: sinon.stub().returns(Action.REQUEST),
+                setAction: sinon.stub(),
+                getRequest: sinon.stub().returns(request),
+                trace: { addTrace: sinon.stub() },
+              };
               const variables = { var1: 'val1', set: sinon.stub() };
               expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
 
@@ -200,6 +231,7 @@ describe('Capture handler', () => {
               expect(runtime.getRequest.callCount).to.eql(1);
               expect(utils.wordsToNumbers.args).to.eql([[request.payload.query]]);
               expect(variables.set.args).to.eql([[node.variable, request.payload.query]]);
+              expect(runtime.trace.addTrace.args).to.eql([[CapturePathTrace]]);
             });
           });
 
@@ -219,7 +251,12 @@ describe('Capture handler', () => {
 
               const node = { id: 'node-id', variable: 'var' };
               const request = { type: RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [], query: 'q' } };
-              const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), getRequest: sinon.stub().returns(request) };
+              const runtime = {
+                getAction: sinon.stub().returns(Action.REQUEST),
+                setAction: sinon.stub(),
+                getRequest: sinon.stub().returns(request),
+                trace: { addTrace: sinon.stub() },
+              };
               const variables = { var1: 'val1', set: sinon.stub() };
               expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
 
@@ -229,6 +266,7 @@ describe('Capture handler', () => {
               expect(runtime.getRequest.callCount).to.eql(1);
               expect(utils.wordsToNumbers.args).to.eql([[request.payload.query]]);
               expect(variables.set.args).to.eql([[node.variable, num]]);
+              expect(runtime.trace.addTrace.args).to.eql([[CapturePathTrace]]);
             });
           });
         });
