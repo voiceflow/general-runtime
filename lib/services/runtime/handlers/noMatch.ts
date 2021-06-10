@@ -30,6 +30,11 @@ export const NoMatchHandler = () => ({
       draft[StorageType.NO_MATCHES_COUNTER] = counter ? counter + 1 : 1;
     });
 
+    runtime.trace.addTrace<any>({
+      type: 'path',
+      payload: { path: 'reprompt' },
+    });
+
     const nonEmptyNoMatches = removeEmptyNoMatches(node.noMatches);
     const speak =
       (node.randomize
@@ -42,7 +47,6 @@ export const NoMatchHandler = () => ({
     runtime.storage.produce<StorageData>((draft) => {
       draft[StorageType.OUTPUT] += output;
     });
-
     runtime.trace.addTrace<TraceFrame>({
       type: TraceType.SPEAK,
       payload: { message: output, type: SpeakType.MESSAGE },

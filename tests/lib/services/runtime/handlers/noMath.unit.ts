@@ -5,6 +5,8 @@ import sinon from 'sinon';
 import { EMPTY_AUDIO_STRING, NoMatchHandler } from '@/lib/services/runtime/handlers/noMatch';
 import { StorageType } from '@/lib/services/runtime/types';
 
+const RepromptPathTrace = { type: 'path', payload: { path: 'reprompt' } };
+
 describe('noMatch handler unit tests', () => {
   describe('canHandle', () => {
     it('false', () => {
@@ -42,6 +44,7 @@ describe('noMatch handler unit tests', () => {
       const noMatchHandler = NoMatchHandler();
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args).to.eql([
+        [RepromptPathTrace],
         [
           {
             type: 'speak',
@@ -90,6 +93,7 @@ describe('noMatch handler unit tests', () => {
       const noMatchHandler = NoMatchHandler();
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args).to.eql([
+        [RepromptPathTrace],
         [
           {
             type: 'speak',
@@ -123,6 +127,7 @@ describe('noMatch handler unit tests', () => {
       const noMatchHandler = NoMatchHandler();
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args).to.eql([
+        [RepromptPathTrace],
         [
           {
             type: 'speak',
@@ -169,7 +174,7 @@ describe('noMatch handler unit tests', () => {
 
       const noMatchHandler = NoMatchHandler();
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
-      expect(node.noMatches.includes(runtime.trace.addTrace.args[0][0].payload.message)).to.eql(true);
+      expect(node.noMatches.includes(runtime.trace.addTrace.args[1][0].payload.message)).to.eql(true);
     });
 
     it('with noMatch null speak string', () => {
@@ -193,7 +198,7 @@ describe('noMatch handler unit tests', () => {
 
       const noMatchHandler = NoMatchHandler();
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
-      expect(runtime.trace.addTrace.args[0][0].payload.message).to.eql(NON_NULL_STRING);
+      expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(NON_NULL_STRING);
     });
 
     it('with noMatch empty audio', () => {
@@ -217,7 +222,7 @@ describe('noMatch handler unit tests', () => {
 
       const noMatchHandler = NoMatchHandler();
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
-      expect(runtime.trace.addTrace.args[0][0].payload.message).to.eql(NON_NULL_STRING);
+      expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(NON_NULL_STRING);
     });
   });
 });
