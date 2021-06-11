@@ -77,7 +77,6 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     if (!state?.stack?.length) {
       state = this.generate(version, state);
     }
-    console.log('identify');
     this.services.analyticsClient!.identify(context.versionID);
 
     return {

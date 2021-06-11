@@ -79,8 +79,8 @@ const CONFIG: Config = {
   MONGO_URI: getOptionalProcessEnv('MONGO_URI'),
   MONGO_DB: getOptionalProcessEnv('MONGO_DB'),
 
-  ANALITICS_ENDPOINT: getOptionalProcessEnv('ANALITICS_ENDPOINT') || 'https://voiceflowdyo.dataplane.rudderstack.com',
-  ANALITICS_WRITE_KEY: getOptionalProcessEnv('ANALITICS_WRITE_KEY') || '1tni2kpxC8z547pwMD7xhAQyIRK',
+  ANALITICS_ENDPOINT: getOptionalProcessEnv('ANALITICS_ENDPOINT') || 'none',
+  ANALITICS_WRITE_KEY: getOptionalProcessEnv('ANALITICS_WRITE_KEY') || 'none',
 };
 
 export default CONFIG;
