@@ -1,6 +1,6 @@
 declare module '@rudderstack/rudder-sdk-node' {
   class Analytics {
-    constructor(writeKey: string, endpoint: string);
+    constructor(writeKey?: string, endpoint?: string);
 
     public identify(userId: string, context: any): void;
 

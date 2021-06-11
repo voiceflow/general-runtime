@@ -1,7 +1,7 @@
-import Analytics from '@rudderstack/rudder-sdk-node';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
+import { AnalyticsSystem } from '@/lib/clients/analytics';
 import StateManager, { utils as defaultUtils } from '@/lib/services/state';
 
 const VERSION_ID = 'version_id';
@@ -76,7 +76,7 @@ describe('state manager unit tests', () => {
         dataAPI: {
           get: sinon.stub().returns({ getVersion: getVersionStub }),
         },
-        analyticsClient: new Analytics('fake', 'fake'),
+        analyticsClient: new AnalyticsSystem(undefined),
       };
 
       const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
