@@ -72,7 +72,6 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
       trace: runtime.trace.get() as GeneralTrace[],
     };
 
-    console.log('track');
     this.services.analyticsClient!.track(versionID, 'state_management', result);
 
     return result;
