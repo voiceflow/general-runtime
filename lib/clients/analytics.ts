@@ -16,7 +16,7 @@ export class AnalyticsSystem {
     const payload = {
       userId,
     };
-    if (this.aggregateAnalytics) {
+    if (this.aggregateAnalytics && this.client) {
       this.client.identify(payload);
     }
     // TODO: add the webhook call
@@ -28,7 +28,7 @@ export class AnalyticsSystem {
       event: eventId,
       properties: metadata,
     };
-    if (this.aggregateAnalytics) {
+    if (this.aggregateAnalytics && this.client) {
       this.client.track(payload);
     }
     // TODO: add the webhook call
