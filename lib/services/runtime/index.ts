@@ -64,13 +64,18 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
 
     await runtime.update();
 
-    return {
+    const result = {
       ...context,
       request,
       versionID,
       state: runtime.getFinalState(),
       trace: runtime.trace.get() as GeneralTrace[],
     };
+
+    console.log('track');
+    this.services.analyticsClient!.track(versionID, 'state_management', result);
+
+    return result;
   }
 }
 

@@ -12,6 +12,9 @@ export interface Config extends RateLimitConfig {
   NODE_ENV: string;
   PORT: string;
 
+  CLOUD_ENV: string | null;
+  IS_PRIVATE_CLOUD: boolean;
+
   AWS_ACCESS_KEY_ID: string | null;
   AWS_SECRET_ACCESS_KEY: string | null;
   AWS_REGION: string | null;
@@ -52,6 +55,9 @@ export interface Config extends RateLimitConfig {
   SESSIONS_SOURCE: string;
   MONGO_URI: string | null;
   MONGO_DB: string | null;
+
+  ANALITICS_ENDPOINT: string | null;
+  ANALITICS_WRITE_KEY: string | null;
 }
 
 export interface Request<P extends {} = {}, B = any, H extends {} = {}, Q = any, RB = any> extends Express.Request<P, RB, B, Q> {
