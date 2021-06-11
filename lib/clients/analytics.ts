@@ -5,18 +5,18 @@ import { Config } from '@/types';
 export class AnalyticsSystem {
   private client: any;
 
-  private datawarehouseEnabled: boolean;
+  private aggregateAnalytics: boolean;
 
   constructor(config: Config) {
     this.client = new Analytics(config.ANALITICS_WRITE_KEY!, `${config.ANALITICS_ENDPOINT!}/v1/batch`);
-    this.datawarehouseEnabled = !config.IS_PRIVATE_CLOUD;
+    this.aggregateAnalytics = !config.IS_PRIVATE_CLOUD;
   }
 
   identify(userId: string) {
     const payload = {
       userId,
     };
-    if (this.datawarehouseEnabled) {
+    if (this.aggregateAnalytics) {
       this.client.identify(payload);
     }
     // TODO: add the webhook call
@@ -28,7 +28,7 @@ export class AnalyticsSystem {
       event: eventId,
       properties: metadata,
     };
-    if (this.datawarehouseEnabled) {
+    if (this.aggregateAnalytics) {
       this.client.track(payload);
     }
     // TODO: add the webhook call
