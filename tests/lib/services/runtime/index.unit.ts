@@ -1,12 +1,10 @@
-import Analytics from '@rudderstack/rudder-sdk-node';
 import { RequestType } from '@voiceflow/general-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
+import { AnalyticsSystem } from '@/lib/clients/analytics';
 import RuntimeManager, { utils as defaultUtils } from '@/lib/services/runtime';
 import { TurnType } from '@/lib/services/runtime/types';
-
-import AnalyticsClient from '../../../../lib/clients/analytics';
 
 const VERSION_ID = 'version_id';
 
@@ -40,7 +38,7 @@ describe('runtime manager unit tests', () => {
 
       const services = {
         dataAPI: { getProgram: 'service-api' },
-        analyticsClient: new Analytics('fake', 'fake'),
+        analyticsClient: new AnalyticsSystem(undefined),
       };
 
       const utils = {
@@ -89,7 +87,7 @@ describe('runtime manager unit tests', () => {
 
       const services = {
         dataAPI: { getProgram: 'service-api' },
-        analyticsClient: new Analytics('fake', 'fake'),
+        analyticsClient: new AnalyticsSystem(undefined),
       };
 
       const utils = {
@@ -137,7 +135,7 @@ describe('runtime manager unit tests', () => {
 
       const services = {
         dataAPI: { getProgram: 'service-api' },
-        analyticsClient: new Analytics('fake', 'fake'),
+        analyticsClient: new AnalyticsSystem(undefined),
       };
 
       const utils = {
@@ -186,7 +184,7 @@ describe('runtime manager unit tests', () => {
 
       const services = {
         dataAPI: { getProgram: 'service-api' },
-        analyticsClient: new Analytics('fake', 'fake'),
+        analyticsClient: new AnalyticsSystem(undefined),
       };
 
       const utils = {

@@ -5,11 +5,15 @@ import { Config } from '@/types';
 export class AnalyticsSystem {
   private client: any;
 
-  private aggregateAnalytics: boolean;
+  private aggregateAnalytics = false;
 
-  constructor(config: Config) {
-    this.client = new Analytics(config.ANALITICS_WRITE_KEY!, `${config.ANALITICS_ENDPOINT!}/v1/batch`);
-    this.aggregateAnalytics = !config.IS_PRIVATE_CLOUD;
+  constructor(config?: Config) {
+    if (config) {
+      if (config.ANALITICS_WRITE_KEY && config.ANALITICS_ENDPOINT) {
+        this.client = new Analytics(config.ANALITICS_WRITE_KEY!, `${config.ANALITICS_ENDPOINT!}/v1/batch`);
+      }
+      this.aggregateAnalytics = !config.IS_PRIVATE_CLOUD;
+    }
   }
 
   identify(userId: string) {
