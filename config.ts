@@ -9,10 +9,16 @@ import { getOptionalProcessEnv, getRequiredProcessEnv } from '@voiceflow/common'
 
 import { Config } from './types';
 
+const NODE_ENV = getRequiredProcessEnv('NODE_ENV');
+const CLOUD_ENV = getOptionalProcessEnv('CLOUD_ENV', 'public');
+
 const CONFIG: Config = {
   // Configs
-  NODE_ENV: getRequiredProcessEnv('NODE_ENV'),
+  NODE_ENV,
   PORT: getRequiredProcessEnv('PORT'),
+
+  CLOUD_ENV,
+  IS_PRIVATE_CLOUD: NODE_ENV === 'production' && CLOUD_ENV !== 'public',
 
   AWS_ENDPOINT: getOptionalProcessEnv('AWS_ENDPOINT'),
   DYNAMO_ENDPOINT: getOptionalProcessEnv('DYNAMO_ENDPOINT'),
@@ -72,6 +78,9 @@ const CONFIG: Config = {
   SESSIONS_SOURCE: getRequiredProcessEnv('SESSIONS_SOURCE'),
   MONGO_URI: getOptionalProcessEnv('MONGO_URI'),
   MONGO_DB: getOptionalProcessEnv('MONGO_DB'),
+
+  ANALITICS_ENDPOINT: getOptionalProcessEnv('ANALITICS_ENDPOINT') || 'https://voiceflowdyo.dataplane.rudderstack.com',
+  ANALITICS_WRITE_KEY: getOptionalProcessEnv('ANALITICS_WRITE_KEY') || '1tni2kpxC8z547pwMD7xhAQyIRK',
 };
 
 export default CONFIG;
