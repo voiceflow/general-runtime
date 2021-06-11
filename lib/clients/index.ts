@@ -3,6 +3,7 @@ import { RateLimitClient } from '@voiceflow/backend-utils';
 import { MongoSession } from '@/lib/services/session';
 import { Config } from '@/types';
 
+import Analytics, { AnalyticsType } from './analytics';
 import DataAPI from './dataAPI';
 import Metrics, { MetricsType } from './metrics';
 import MongoDB from './mongodb';
@@ -15,6 +16,7 @@ export interface ClientMap extends StaticType {
   redis: ReturnType<typeof RedisClient>;
   rateLimitClient: ReturnType<typeof RateLimitClient>;
   mongo: MongoDB | null;
+  analyticsClient: AnalyticsType | null;
 }
 
 /**
@@ -30,6 +32,7 @@ const buildClients = (config: Config): ClientMap => {
     redis,
     rateLimitClient: RateLimitClient('general-runtime', redis, config),
     mongo: MongoSession.enabled(config) ? new MongoDB(config) : null,
+    analyticsClient: Analytics(config),
   };
 };
 

@@ -12,6 +12,7 @@
     }
   },
   "dependencies": {
+    "@rudderstack/rudder-sdk-node": "^1.0.2",
     "@types/mathjs": "^6.0.4",
     "@types/workerpool": "^5.0.1",
     "@voiceflow/api-sdk": "1.32.1",
