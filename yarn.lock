@@ -1012,10 +1012,10 @@
     rate-limiter-flexible "^2.2.2"
     sinon "^10.0.0"
 
-"@voiceflow/body-parser@^1.20.1":
-  version "1.20.1"
-  resolved "https://registry.yarnpkg.com/@voiceflow/body-parser/-/body-parser-1.20.1.tgz#469901095c0585457f311f0c60c54e707f629b54"
-  integrity sha512-I4VCtPE/ful1WfFkO9gBdKeRcoAflvPAFHSTMvwm4z1/SiruCFTNNN+nAOZyxcB3VBP8BJy2y/cWDvfPAhjLfQ==
+"@voiceflow/body-parser@^1.21.0":
+  version "1.21.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/body-parser/-/body-parser-1.21.0.tgz#3ff37a61a9271e0ab7dca48733806e2515c2b6db"
+  integrity sha512-2vH9AiOlRB9utD3hilefHXcBw6HkVRbmltaG1/6mvqmoA7R+SSjR4SQlYHTADtdoHpvuWQ7tWLkvsfVtfa47/g==
   dependencies:
     bytes "3.1.0"
     content-type "~1.0.4"
@@ -1026,6 +1026,7 @@
     on-finished "~2.3.0"
     qs "6.9.3"
     raw-body "2.4.1"
+    secure-json-parse "^2.4.0"
     type-is "~1.6.18"
 
 "@voiceflow/commitlint-config@^1.0.1":
