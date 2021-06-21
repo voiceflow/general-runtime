@@ -71,9 +71,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
       state: runtime.getFinalState(),
       trace: runtime.trace.get() as GeneralTrace[],
     };
-
-    this.services.analyticsClient!.track(versionID, 'state_management', result);
-
+    await this.services.analyticsClient!.track(versionID, 'interact', result);
     return result;
   }
 }
