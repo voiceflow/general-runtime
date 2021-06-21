@@ -32,7 +32,7 @@ export class AnalyticsSystem {
       userId: id,
     };
     if (this.aggregateAnalytics && this.analyticsClient) {
-      log.debug('Identify');
+      log.trace('Identify');
       this.analyticsClient.identify(payload);
     }
   }
@@ -55,7 +55,7 @@ export class AnalyticsSystem {
       eventId,
       request: {
         userId: metadata.state.variables.user_id,
-        sessionId: 'sessionId',
+        sessionId: `${id}.${metadata.state.variables.user_id}`,
         versionId: id,
         payload: metadata.request != null ? metadata.request.payload.query : null,
         metadata: {
@@ -74,13 +74,13 @@ export class AnalyticsSystem {
       interactIngestBody.request.userId = 'voiceflow';
       if ((trace.type === TraceType.SPEAK || trace.type === TraceType.STREAM) && trace.payload.src) {
         interactIngestBody.request.payload = trace.payload.src;
-        log.debug(JSON.stringify(interactIngestBody));
+        log.trace(JSON.stringify(interactIngestBody));
       } else if (trace.type === TraceType.SPEAK && !trace.payload.src) {
         interactIngestBody.request.payload = trace.payload.message;
-        log.debug(JSON.stringify(interactIngestBody));
+        log.trace(JSON.stringify(interactIngestBody));
       } else if (trace.type === TraceType.VISUAL) {
         interactIngestBody.request.payload = trace.payload.image;
-        log.debug(JSON.stringify(interactIngestBody));
+        log.trace(JSON.stringify(interactIngestBody));
       } else {
         // Other case
         return false;
@@ -97,7 +97,7 @@ export class AnalyticsSystem {
   }
 
   async track(id: string, eventId: string, metadata: any): Promise<boolean> {
-    log.debug('track');
+    log.trace('track');
     // eslint-disable-next-line sonarjs/no-small-switch
     switch (eventId as EventsType) {
       case EventsType.INTERACT: {
@@ -106,7 +106,7 @@ export class AnalyticsSystem {
         }
         if (this.ingestClient) {
           const interactIngestBody = this.createInteractBody(id, eventId, metadata);
-          log.debug(JSON.stringify(interactIngestBody));
+          log.trace(JSON.stringify(interactIngestBody));
           // User interact
           const response = await this.ingestClient.doIngest(interactIngestBody);
           if (response.status !== 200) {
