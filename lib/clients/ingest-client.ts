@@ -38,7 +38,7 @@ export default class IngestApi extends HttpClient {
   }
 
   private _initializeRequestInterceptor = () => {
-    this.instance!.interceptors.request.use(this._handleRequest, this._handleError);
+    this.instance.interceptors.request.use(this._handleRequest, this._handleError);
   };
 
   private _handleRequest = (config: AxiosRequestConfig) => {
