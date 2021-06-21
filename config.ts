@@ -18,7 +18,7 @@ const CONFIG: Config = {
   PORT: getRequiredProcessEnv('PORT'),
 
   CLOUD_ENV,
-  IS_PRIVATE_CLOUD: NODE_ENV === 'production' && CLOUD_ENV !== 'public',
+  IS_PRIVATE_CLOUD: false,
 
   AWS_ENDPOINT: getOptionalProcessEnv('AWS_ENDPOINT'),
   DYNAMO_ENDPOINT: getOptionalProcessEnv('DYNAMO_ENDPOINT'),
@@ -79,8 +79,10 @@ const CONFIG: Config = {
   MONGO_URI: getOptionalProcessEnv('MONGO_URI'),
   MONGO_DB: getOptionalProcessEnv('MONGO_DB'),
 
-  ANALITICS_ENDPOINT: getOptionalProcessEnv('ANALITICS_ENDPOINT') || 'none',
-  ANALITICS_WRITE_KEY: getOptionalProcessEnv('ANALITICS_WRITE_KEY') || 'none',
+  ANALITICS_ENDPOINT: getOptionalProcessEnv('ANALITICS_ENDPOINT') || null,
+  ANALITICS_WRITE_KEY: getOptionalProcessEnv('ANALITICS_WRITE_KEY') || null,
+
+  INGEST_WEBHOOK_ENDPOINT: getOptionalProcessEnv('INGEST_WEBHOOK_ENDPOINT') || null,
 };
 
 export default CONFIG;

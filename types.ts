@@ -58,6 +58,7 @@ export interface Config extends RateLimitConfig {
 
   ANALITICS_ENDPOINT: string | null;
   ANALITICS_WRITE_KEY: string | null;
+  INGEST_WEBHOOK_ENDPOINT: string | null;
 }
 
 export interface Request<P extends {} = {}, B = any, H extends {} = {}, Q = any, RB = any> extends Express.Request<P, RB, B, Q> {
