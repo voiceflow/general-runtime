@@ -2,6 +2,7 @@ import Analytics from '@rudderstack/rudder-sdk-node';
 import { GeneralTrace, TraceType } from '@voiceflow/general-types';
 import { AxiosResponse } from 'axios';
 
+import log from '@/logger';
 import { Config } from '@/types';
 
 import IngestApi, { EventsType, InteractBody } from './ingest-client';
@@ -16,7 +17,7 @@ export class AnalyticsSystem {
   constructor(config?: Config) {
     if (config) {
       if (config.ANALITICS_WRITE_KEY && config.ANALITICS_ENDPOINT) {
-        this.analyticsClient = new Analytics(config.ANALITICS_WRITE_KEY!, `${config.ANALITICS_ENDPOINT!}/v1/batch`);
+        this.analyticsClient = new Analytics(config.ANALITICS_WRITE_KEY, `${config.ANALITICS_ENDPOINT}/v1/batch`);
       }
 
       if (config.INGEST_WEBHOOK_ENDPOINT) {
@@ -31,6 +32,7 @@ export class AnalyticsSystem {
       userId: id,
     };
     if (this.aggregateAnalytics && this.analyticsClient) {
+      log.debug('Identify');
       this.analyticsClient.identify(payload);
     }
   }
@@ -72,10 +74,13 @@ export class AnalyticsSystem {
       interactIngestBody.request.userId = 'voiceflow';
       if ((trace.type === TraceType.SPEAK || trace.type === TraceType.STREAM) && trace.payload.src) {
         interactIngestBody.request.payload = trace.payload.src;
+        log.debug(JSON.stringify(interactIngestBody));
       } else if (trace.type === TraceType.SPEAK && !trace.payload.src) {
         interactIngestBody.request.payload = trace.payload.message;
+        log.debug(JSON.stringify(interactIngestBody));
       } else if (trace.type === TraceType.VISUAL) {
         interactIngestBody.request.payload = trace.payload.image;
+        log.debug(JSON.stringify(interactIngestBody));
       } else {
         // Other case
         return false;
@@ -92,6 +97,7 @@ export class AnalyticsSystem {
   }
 
   async track(id: string, eventId: string, metadata: any): Promise<boolean> {
+    log.debug('track');
     // eslint-disable-next-line sonarjs/no-small-switch
     switch (eventId as EventsType) {
       case EventsType.INTERACT: {
@@ -100,6 +106,7 @@ export class AnalyticsSystem {
         }
         if (this.ingestClient) {
           const interactIngestBody = this.createInteractBody(id, eventId, metadata);
+          log.debug(JSON.stringify(interactIngestBody));
           // User interact
           const response = await this.ingestClient.doIngest(interactIngestBody);
           if (response.status !== 200) {
@@ -107,8 +114,7 @@ export class AnalyticsSystem {
           }
 
           // Voiceflow interact
-          // eslint-disable-next-line no-return-await
-          return await this.processTrace(metadata.trace as GeneralTrace, interactIngestBody);
+          return this.processTrace(metadata.trace as GeneralTrace, interactIngestBody);
         }
         break;
       }
