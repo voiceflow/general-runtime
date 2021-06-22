@@ -55,9 +55,9 @@ export class AnalyticsSystem {
       eventId,
       request: {
         userId: metadata.state.variables.user_id,
-        sessionId: `${id}.${metadata.state.variables.user_id}`,
+        sessionId: metadata.data.reqHeaders.sessionid ? metadata.data.reqHeaders.sessionid : `${id}.${metadata.state.variables.user_id}`,
         versionId: id,
-        payload: metadata.request != null ? metadata.request.payload.query : null,
+        payload: metadata.request ? metadata.request.payload.query : null,
         metadata: {
           state: metadata.state,
           request: metadata.request,
@@ -83,7 +83,7 @@ export class AnalyticsSystem {
         log.trace(JSON.stringify(interactIngestBody));
       } else {
         // Other case
-        return false;
+        continue;
       }
       // eslint-disable-next-line no-await-in-loop
       response = await this.ingestClient!.doIngest(interactIngestBody);
