@@ -110,6 +110,9 @@
     "typedoc-plugin-sourcefile-url": "^1.0.6",
     "typescript": "^3.9.7"
   },
+  "files": [
+    "build/"
+  ],
   "homepage": "https://github.com/voiceflow/general-runtime#readme",
   "keywords": [
     "express",
