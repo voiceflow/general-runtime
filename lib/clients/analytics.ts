@@ -54,10 +54,10 @@ export class AnalyticsSystem {
     return {
       eventId,
       request: {
-        userId: metadata.state.variables.user_id,
+        userId: `${metadata.state.variables.user_id}`,
         sessionId: metadata.data.reqHeaders.sessionid ? metadata.data.reqHeaders.sessionid : `${id}.${metadata.state.variables.user_id}`,
-        versionId: id,
-        payload: metadata.request ? metadata.request.payload.query : null,
+        versionId: `${id}`,
+        payload: metadata.request ? `${metadata.request.payload.query}` : null,
         metadata: {
           state: metadata.state,
           request: metadata.request,
@@ -114,7 +114,7 @@ export class AnalyticsSystem {
           }
 
           // Voiceflow interact
-          return this.processTrace(metadata.trace as GeneralTrace, interactIngestBody);
+          return this.processTrace(metadata.trace, interactIngestBody);
         }
         break;
       }
