@@ -1,5 +1,5 @@
 import Analytics from '@rudderstack/rudder-sdk-node';
-import { GeneralTrace, TraceType } from '@voiceflow/general-types';
+import { GeneralTrace } from '@voiceflow/general-types';
 import { AxiosResponse } from 'axios';
 
 import log from '@/logger';
