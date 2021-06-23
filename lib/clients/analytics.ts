@@ -49,11 +49,20 @@ export class AnalyticsSystem {
   }
 
   private createInteractBody(id: string, eventId: string, metadata: any): InteractBody {
+    let sessionId: string;
+    if (metadata.data && metadata.data.reqHeaders && metadata.data.reqHeaders.sessionid) {
+      sessionId = metadata.data.reqHeaders.sessionid;
+    } else if (metadata.state && metadata.state.variables) {
+      sessionId = `${id}.${metadata.state.variables.user_id}`;
+    } else {
+      sessionId = `${id}`;
+    }
+
     return {
       eventId,
       request: {
         requestType: metadata.request ? 'request' : 'launch',
-        sessionId: metadata.data.reqHeaders.sessionid ? metadata.data.reqHeaders.sessionid : `${id}.${metadata.state.variables.user_id}`,
+        sessionId,
         versionId: `${id}`,
         payload: metadata.request ? metadata.request : { type: 'launch' },
         metadata: {
@@ -75,11 +84,13 @@ export class AnalyticsSystem {
       if (this.aggregateAnalytics && this.analyticsClient) {
         this.callAnalyticsSystemTrack(interactIngestBody.request.versionId!, interactIngestBody.eventId, interactIngestBody);
       }
-      // eslint-disable-next-line no-await-in-loop
-      response = await this.ingestClient!.doIngest(interactIngestBody);
+      if (this.ingestClient) {
+        // eslint-disable-next-line no-await-in-loop
+        response = await this.ingestClient!.doIngest(interactIngestBody);
 
-      if (response && response.status !== 200) {
-        return false;
+        if (response && response.status !== 200) {
+          return false;
+        }
       }
     }
 
