@@ -5,10 +5,10 @@ import HttpClient from './http-client';
 export interface InteractBody {
   eventId: string;
   request: {
-    userId?: string;
+    requestType?: string;
     sessionId?: string;
     versionId?: string;
-    payload?: string;
+    payload?: any;
     metadata?: any;
   };
 }

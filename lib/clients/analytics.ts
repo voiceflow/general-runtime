@@ -42,9 +42,7 @@ export class AnalyticsSystem {
       userId: id,
       event: eventId,
       properties: {
-        state: metadata.state,
-        request: metadata.request,
-        trace: metadata.trace,
+        metadata,
       },
     };
     this.analyticsClient.track(interactAnalyticsBody);
@@ -54,14 +52,14 @@ export class AnalyticsSystem {
     return {
       eventId,
       request: {
-        userId: `${metadata.state.variables.user_id}`,
+        requestType: metadata.request ? 'request' : 'launch',
         sessionId: metadata.data.reqHeaders.sessionid ? metadata.data.reqHeaders.sessionid : `${id}.${metadata.state.variables.user_id}`,
         versionId: `${id}`,
-        payload: metadata.request ? `${metadata.request.payload.query}` : null,
+        payload: metadata.request ? metadata.request : { type: 'launch' },
         metadata: {
           state: metadata.state,
-          request: metadata.request,
-          trace: metadata.trace,
+          end: metadata.end,
+          locale: metadata.data.locale,
         },
       },
     } as InteractBody;
@@ -71,19 +69,11 @@ export class AnalyticsSystem {
     let response: AxiosResponse | undefined;
     // eslint-disable-next-line no-restricted-syntax
     for (const trace of Object.values(fullTrace)) {
-      interactIngestBody.request.userId = 'voiceflow';
-      if ((trace.type === TraceType.SPEAK || trace.type === TraceType.STREAM) && trace.payload.src) {
-        interactIngestBody.request.payload = trace.payload.src;
-        log.trace(JSON.stringify(interactIngestBody));
-      } else if (trace.type === TraceType.SPEAK && !trace.payload.src) {
-        interactIngestBody.request.payload = trace.payload.message;
-        log.trace(JSON.stringify(interactIngestBody));
-      } else if (trace.type === TraceType.VISUAL) {
-        interactIngestBody.request.payload = trace.payload.image;
-        log.trace(JSON.stringify(interactIngestBody));
-      } else {
-        // Other case
-        continue;
+      interactIngestBody.request.requestType = 'response';
+      interactIngestBody.request.payload = trace;
+
+      if (this.aggregateAnalytics && this.analyticsClient) {
+        this.callAnalyticsSystemTrack(interactIngestBody.request.versionId!, interactIngestBody.eventId, interactIngestBody);
       }
       // eslint-disable-next-line no-await-in-loop
       response = await this.ingestClient!.doIngest(interactIngestBody);
@@ -101,28 +91,25 @@ export class AnalyticsSystem {
     // eslint-disable-next-line sonarjs/no-small-switch
     switch (eventId as EventsType) {
       case EventsType.INTERACT: {
+        const interactIngestBody = this.createInteractBody(id, eventId, metadata);
+
+        // User/initial interact
         if (this.aggregateAnalytics && this.analyticsClient) {
-          this.callAnalyticsSystemTrack(id, eventId, metadata);
+          this.callAnalyticsSystemTrack(id, eventId, interactIngestBody);
         }
         if (this.ingestClient) {
-          const interactIngestBody = this.createInteractBody(id, eventId, metadata);
-          log.trace(JSON.stringify(interactIngestBody));
-          // User interact
           const response = await this.ingestClient.doIngest(interactIngestBody);
           if (response.status !== 200) {
             return false;
           }
-
-          // Voiceflow interact
-          return this.processTrace(metadata.trace, interactIngestBody);
         }
-        break;
+
+        // Voiceflow interact
+        return this.processTrace(metadata.trace, interactIngestBody);
       }
       default:
         return true;
     }
-
-    return true;
   }
 }
 
