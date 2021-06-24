@@ -56,8 +56,8 @@ export interface Config extends RateLimitConfig {
   MONGO_URI: string | null;
   MONGO_DB: string | null;
 
-  ANALITICS_ENDPOINT: string | null;
-  ANALITICS_WRITE_KEY: string | null;
+  ANALYTICS_ENDPOINT: string | null;
+  ANALYTICS_WRITE_KEY: string | null;
   INGEST_WEBHOOK_ENDPOINT: string | null;
 }
 
