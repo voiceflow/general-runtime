@@ -16,8 +16,8 @@ export class AnalyticsSystem {
 
   constructor(config?: Config) {
     if (config) {
-      if (config.ANALITICS_WRITE_KEY && config.ANALITICS_ENDPOINT) {
-        this.analyticsClient = new Analytics(config.ANALITICS_WRITE_KEY, `${config.ANALITICS_ENDPOINT}/v1/batch`);
+      if (config.ANALYTICS_WRITE_KEY && config.ANALYTICS_ENDPOINT) {
+        this.analyticsClient = new Analytics(config.ANALYTICS_WRITE_KEY, `${config.ANALYTICS_ENDPOINT}/v1/batch`);
       }
 
       if (config.INGEST_WEBHOOK_ENDPOINT) {

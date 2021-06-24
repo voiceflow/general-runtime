@@ -79,8 +79,8 @@ const CONFIG: Config = {
   MONGO_URI: getOptionalProcessEnv('MONGO_URI'),
   MONGO_DB: getOptionalProcessEnv('MONGO_DB'),
 
-  ANALITICS_ENDPOINT: getOptionalProcessEnv('ANALITICS_ENDPOINT') || null,
-  ANALITICS_WRITE_KEY: getOptionalProcessEnv('ANALITICS_WRITE_KEY') || null,
+  ANALYTICS_ENDPOINT: getOptionalProcessEnv('ANALYTICS_ENDPOINT') || null,
+  ANALYTICS_WRITE_KEY: getOptionalProcessEnv('ANALYTICS_WRITE_KEY') || null,
 
   INGEST_WEBHOOK_ENDPOINT: getOptionalProcessEnv('INGEST_WEBHOOK_ENDPOINT') || null,
 };
