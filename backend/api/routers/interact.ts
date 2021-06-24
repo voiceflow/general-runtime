@@ -1,4 +1,4 @@
-import bodyParser from 'body-parser';
+import bodyParser from '@voiceflow/body-parser';
 import express from 'express';
 
 import { BODY_PARSER_SIZE_LIMIT } from '@/backend/constants';

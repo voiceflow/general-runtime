@@ -1,41 +1,126 @@
 import Analytics from '@rudderstack/rudder-sdk-node';
+import { GeneralTrace } from '@voiceflow/general-types';
+import { AxiosResponse } from 'axios';
 
+import log from '@/logger';
 import { Config } from '@/types';
 
+import IngestApi, { EventsType, InteractBody } from './ingest-client';
+
 export class AnalyticsSystem {
-  private client: any;
+  private analyticsClient: any;
 
   private aggregateAnalytics = false;
 
+  private ingestClient?: IngestApi;
+
   constructor(config?: Config) {
     if (config) {
-      if (config.ANALITICS_WRITE_KEY && config.ANALITICS_ENDPOINT) {
-        this.client = new Analytics(config.ANALITICS_WRITE_KEY!, `${config.ANALITICS_ENDPOINT!}/v1/batch`);
+      if (config.ANALYTICS_WRITE_KEY && config.ANALYTICS_ENDPOINT) {
+        this.analyticsClient = new Analytics(config.ANALYTICS_WRITE_KEY, `${config.ANALYTICS_ENDPOINT}/v1/batch`);
       }
-      this.aggregateAnalytics = !config.IS_PRIVATE_CLOUD;
+
+      if (config.INGEST_WEBHOOK_ENDPOINT) {
+        this.ingestClient = new IngestApi(config.INGEST_WEBHOOK_ENDPOINT, undefined);
+      }
+      this.aggregateAnalytics = true;
     }
   }
 
-  identify(userId: string) {
+  identify(id: string) {
     const payload = {
-      userId,
+      userId: id,
     };
-    if (this.aggregateAnalytics && this.client) {
-      this.client.identify(payload);
+    if (this.aggregateAnalytics && this.analyticsClient) {
+      log.trace('Identify');
+      this.analyticsClient.identify(payload);
     }
-    // TODO: add the webhook call
   }
 
-  track(userId: string, eventId: string, metadata: any) {
-    const payload = {
-      userId,
+  private callAnalyticsSystemTrack(id: string, eventId: string, metadata: any) {
+    const interactAnalyticsBody = {
+      userId: id,
       event: eventId,
-      properties: metadata,
+      properties: {
+        metadata,
+      },
     };
-    if (this.aggregateAnalytics && this.client) {
-      this.client.track(payload);
+    this.analyticsClient.track(interactAnalyticsBody);
+  }
+
+  private createInteractBody(id: string, eventId: string, metadata: any): InteractBody {
+    let sessionId: string;
+    if (metadata.data && metadata.data.reqHeaders && metadata.data.reqHeaders.sessionid) {
+      sessionId = metadata.data.reqHeaders.sessionid;
+    } else if (metadata.state && metadata.state.variables) {
+      sessionId = `${id}.${metadata.state.variables.user_id}`;
+    } else {
+      sessionId = `${id}`;
     }
-    // TODO: add the webhook call
+
+    return {
+      eventId,
+      request: {
+        requestType: metadata.request ? 'request' : 'launch',
+        sessionId,
+        versionId: `${id}`,
+        payload: metadata.request ? metadata.request : { type: 'launch' },
+        metadata: {
+          state: metadata.state,
+          end: metadata.end,
+          locale: metadata.data.locale,
+        },
+      },
+    } as InteractBody;
+  }
+
+  private async processTrace(fullTrace: GeneralTrace, interactIngestBody: InteractBody): Promise<boolean> {
+    let response: AxiosResponse | undefined;
+    // eslint-disable-next-line no-restricted-syntax
+    for (const trace of Object.values(fullTrace)) {
+      interactIngestBody.request.requestType = 'response';
+      interactIngestBody.request.payload = trace;
+
+      if (this.aggregateAnalytics && this.analyticsClient) {
+        this.callAnalyticsSystemTrack(interactIngestBody.request.versionId!, interactIngestBody.eventId, interactIngestBody);
+      }
+      if (this.ingestClient) {
+        // eslint-disable-next-line no-await-in-loop
+        response = await this.ingestClient!.doIngest(interactIngestBody);
+
+        if (response && response.status !== 200) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  async track(id: string, eventId: string, metadata: any): Promise<boolean> {
+    log.trace('track');
+    // eslint-disable-next-line sonarjs/no-small-switch
+    switch (eventId as EventsType) {
+      case EventsType.INTERACT: {
+        const interactIngestBody = this.createInteractBody(id, eventId, metadata);
+
+        // User/initial interact
+        if (this.aggregateAnalytics && this.analyticsClient) {
+          this.callAnalyticsSystemTrack(id, eventId, interactIngestBody);
+        }
+        if (this.ingestClient) {
+          const response = await this.ingestClient.doIngest(interactIngestBody);
+          if (response.status !== 200) {
+            return false;
+          }
+        }
+
+        // Voiceflow interact
+        return this.processTrace(metadata.trace, interactIngestBody);
+      }
+      default:
+        return true;
+    }
   }
 }
 
