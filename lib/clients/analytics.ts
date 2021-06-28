@@ -23,7 +23,7 @@ export class AnalyticsSystem {
       if (config.INGEST_WEBHOOK_ENDPOINT) {
         this.ingestClient = new IngestApi(config.INGEST_WEBHOOK_ENDPOINT, undefined);
       }
-      this.aggregateAnalytics = true;
+      this.aggregateAnalytics = !config.IS_PRIVATE_CLOUD;
     }
   }
 
@@ -50,9 +50,9 @@ export class AnalyticsSystem {
 
   private createInteractBody(id: string, eventId: string, metadata: any): InteractBody {
     let sessionId: string;
-    if (metadata.data && metadata.data.reqHeaders && metadata.data.reqHeaders.sessionid) {
+    if (metadata.data?.reqHeaders?.sessionid) {
       sessionId = metadata.data.reqHeaders.sessionid;
-    } else if (metadata.state && metadata.state.variables) {
+    } else if (metadata.state?.variables) {
       sessionId = `${id}.${metadata.state.variables.user_id}`;
     } else {
       sessionId = `${id}`;

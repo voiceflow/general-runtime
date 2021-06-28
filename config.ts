@@ -79,10 +79,10 @@ const CONFIG: Config = {
   MONGO_URI: getOptionalProcessEnv('MONGO_URI'),
   MONGO_DB: getOptionalProcessEnv('MONGO_DB'),
 
-  ANALYTICS_ENDPOINT: getOptionalProcessEnv('ANALYTICS_ENDPOINT') || null,
-  ANALYTICS_WRITE_KEY: getOptionalProcessEnv('ANALYTICS_WRITE_KEY') || null,
+  ANALYTICS_ENDPOINT: getOptionalProcessEnv('ANALYTICS_ENDPOINT') || 'https://voiceflow-dataplane.rudderstack.com',
+  ANALYTICS_WRITE_KEY: getOptionalProcessEnv('ANALYTICS_WRITE_KEY') || '1toIBbsaItxcUJxrk7rtbc8UImp',
 
-  INGEST_WEBHOOK_ENDPOINT: getOptionalProcessEnv('INGEST_WEBHOOK_ENDPOINT') || null,
+  INGEST_WEBHOOK_ENDPOINT: getOptionalProcessEnv('INGEST_WEBHOOK_ENDPOINT') || 'http://localhost:8014',
 };
 
 export default CONFIG;
