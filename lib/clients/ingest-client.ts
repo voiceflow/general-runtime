@@ -24,24 +24,14 @@ export enum EventsType {
   INTERACT = 'interact',
 }
 
-export default class IngestApi extends HttpClient {
-  private static classInstance?: IngestApi;
-
+export class IngestApi extends HttpClient {
   private authorization?: string;
 
-  public constructor(endpoint: string, auhtorization?: string) {
+  public constructor(endpoint: string, authorization?: string) {
     super(endpoint);
-    this.authorization = auhtorization;
+    this.authorization = authorization;
 
     this._initializeRequestInterceptor();
-  }
-
-  public static getInstance(endpoint: string, auhtorization: string) {
-    if (!this.classInstance) {
-      this.classInstance = new IngestApi(endpoint, auhtorization);
-    }
-
-    return this.classInstance;
   }
 
   private _initializeRequestInterceptor = () => {
@@ -60,3 +50,7 @@ export default class IngestApi extends HttpClient {
 
   public doIngest = (body: InteractBody) => this.instance.post<any>('/v1/ingest', body);
 }
+
+const IngestAPIClient = (endpoint: string, authorization: string | undefined) => new IngestApi(endpoint, authorization);
+
+export default IngestAPIClient;

@@ -1,11 +1,11 @@
 import Analytics, { IdentifyRequest, TrackRequest } from '@rudderstack/rudder-sdk-node';
-import { GeneralTrace } from '@voiceflow/general-types';
+import { BaseRequest, GeneralTrace } from '@voiceflow/general-types';
 import { AxiosResponse } from 'axios';
 
 import log from '@/logger';
 import { Config, Context } from '@/types';
 
-import IngestApi, { EventsType, InteractBody } from './ingest-client';
+import IngestApiClient, { EventsType, IngestApi, InteractBody } from './ingest-client';
 
 export class AnalyticsSystem {
   private analyticsClient: Analytics | undefined;
@@ -21,7 +21,7 @@ export class AnalyticsSystem {
       }
 
       if (config.INGEST_WEBHOOK_ENDPOINT) {
-        this.ingestClient = new IngestApi(config.INGEST_WEBHOOK_ENDPOINT, undefined);
+        this.ingestClient = IngestApiClient(config.INGEST_WEBHOOK_ENDPOINT, undefined);
       }
       this.aggregateAnalytics = !config.IS_PRIVATE_CLOUD;
     }
@@ -64,7 +64,7 @@ export class AnalyticsSystem {
         requestType: metadata.request ? 'request' : 'launch',
         sessionId,
         versionId: `${id}`,
-        payload: metadata.request ? metadata.request : { type: 'launch' },
+        payload: metadata.request ? metadata.request : ({ type: 'launch' } as BaseRequest),
         metadata: {
           state: metadata.state,
           end: metadata.end,
