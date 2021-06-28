@@ -1,14 +1,14 @@
-import Analytics from '@rudderstack/rudder-sdk-node';
+import Analytics, { IdentifyRequest, TrackRequest } from '@rudderstack/rudder-sdk-node';
 import { GeneralTrace } from '@voiceflow/general-types';
 import { AxiosResponse } from 'axios';
 
 import log from '@/logger';
-import { Config } from '@/types';
+import { Config, Context } from '@/types';
 
 import IngestApi, { EventsType, InteractBody } from './ingest-client';
 
 export class AnalyticsSystem {
-  private analyticsClient: any;
+  private analyticsClient: Analytics | undefined;
 
   private aggregateAnalytics = false;
 
@@ -30,25 +30,25 @@ export class AnalyticsSystem {
   identify(id: string) {
     const payload = {
       userId: id,
-    };
+    } as IdentifyRequest;
     if (this.aggregateAnalytics && this.analyticsClient) {
       log.trace('Identify');
-      this.analyticsClient.identify(payload);
+      this.analyticsClient!.identify(payload);
     }
   }
 
-  private callAnalyticsSystemTrack(id: string, eventId: string, metadata: any) {
+  private callAnalyticsSystemTrack(id: string, eventId: string, metadata: InteractBody) {
     const interactAnalyticsBody = {
       userId: id,
       event: eventId,
       properties: {
         metadata,
       },
-    };
-    this.analyticsClient.track(interactAnalyticsBody);
+    } as TrackRequest;
+    this.analyticsClient!.track(interactAnalyticsBody);
   }
 
-  private createInteractBody(id: string, eventId: string, metadata: any): InteractBody {
+  private createInteractBody(id: string, eventId: string, metadata: Context): InteractBody {
     let sessionId: string;
     if (metadata.data?.reqHeaders?.sessionid) {
       sessionId = metadata.data.reqHeaders.sessionid;
@@ -74,7 +74,7 @@ export class AnalyticsSystem {
     } as InteractBody;
   }
 
-  private async processTrace(fullTrace: GeneralTrace, interactIngestBody: InteractBody): Promise<boolean> {
+  private async processTrace(fullTrace: GeneralTrace[], interactIngestBody: InteractBody): Promise<boolean> {
     let response: AxiosResponse | undefined;
     // eslint-disable-next-line no-restricted-syntax
     for (const trace of Object.values(fullTrace)) {
@@ -97,7 +97,7 @@ export class AnalyticsSystem {
     return true;
   }
 
-  async track(id: string, eventId: string, metadata: any): Promise<boolean> {
+  async track(id: string, eventId: string, metadata: Context): Promise<boolean> {
     log.trace('track');
     // eslint-disable-next-line sonarjs/no-small-switch
     switch (eventId as EventsType) {
@@ -116,7 +116,7 @@ export class AnalyticsSystem {
         }
 
         // Voiceflow interact
-        return this.processTrace(metadata.trace, interactIngestBody);
+        return this.processTrace(metadata.trace!, interactIngestBody);
       }
       default:
         return true;

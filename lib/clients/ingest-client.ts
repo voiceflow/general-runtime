@@ -1,4 +1,7 @@
+import { GeneralTrace } from '@voiceflow/general-types';
 import { AxiosRequestConfig } from 'axios';
+
+import { State } from '@/runtime/lib/Runtime';
 
 import HttpClient from './http-client';
 
@@ -8,8 +11,12 @@ export interface InteractBody {
     requestType?: string;
     sessionId?: string;
     versionId?: string;
-    payload?: any;
-    metadata?: any;
+    payload?: GeneralTrace;
+    metadata?: {
+      state?: State;
+      locale?: string;
+      end?: boolean;
+    };
   };
 }
 

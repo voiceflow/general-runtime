@@ -93,6 +93,7 @@ export type ContextData = {
   reqHeaders?: {
     authorization?: string;
     origin?: string;
+    sessionid?: string;
   };
 };
 
