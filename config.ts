@@ -18,7 +18,8 @@ const CONFIG: Config = {
   PORT: getRequiredProcessEnv('PORT'),
 
   CLOUD_ENV,
-  IS_PRIVATE_CLOUD: false,
+
+  IS_PRIVATE_CLOUD: NODE_ENV === 'production' && CLOUD_ENV !== 'public',
 
   AWS_ENDPOINT: getOptionalProcessEnv('AWS_ENDPOINT'),
   DYNAMO_ENDPOINT: getOptionalProcessEnv('DYNAMO_ENDPOINT'),
