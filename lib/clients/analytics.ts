@@ -1,24 +1,25 @@
-import Analytics, { IdentifyRequest, TrackRequest } from '@rudderstack/rudder-sdk-node';
+import Rudderstack, { IdentifyRequest, TrackRequest } from '@rudderstack/rudder-sdk-node';
 import { GeneralTrace } from '@voiceflow/general-types';
 import { AxiosResponse } from 'axios';
 
 import log from '@/logger';
 import { Config, Context } from '@/types';
 
-import IngestApiClient, { EventsType, IngestApi, InteractBody } from './ingest-client';
+import IngestApiClient, { Event, IngestApi, InteractBody } from './ingest-client';
+import { AbstractClient } from './utils';
 
-export class AnalyticsSystem {
-  private analyticsClient?: Analytics;
+export class AnalyticsSystem extends AbstractClient {
+  private rudderstackClient?: Rudderstack;
 
   private ingestClient?: IngestApi;
 
   private aggregateAnalytics = false;
 
-  constructor(config?: Config) {
-    if (!config) return;
+  constructor(config: Config) {
+    super(config);
 
     if (config.ANALYTICS_WRITE_KEY && config.ANALYTICS_ENDPOINT) {
-      this.analyticsClient = new Analytics(config.ANALYTICS_WRITE_KEY, `${config.ANALYTICS_ENDPOINT}/v1/batch`);
+      this.rudderstackClient = new Rudderstack(config.ANALYTICS_WRITE_KEY, `${config.ANALYTICS_ENDPOINT}/v1/batch`);
     }
 
     if (config.INGEST_WEBHOOK_ENDPOINT) {
@@ -32,9 +33,9 @@ export class AnalyticsSystem {
       userId: id,
     };
 
-    if (this.aggregateAnalytics && this.analyticsClient) {
+    if (this.aggregateAnalytics && this.rudderstackClient) {
       log.trace('analytics: Identify');
-      this.analyticsClient.identify(payload);
+      this.rudderstackClient.identify(payload);
     }
   }
 
@@ -46,7 +47,7 @@ export class AnalyticsSystem {
         metadata,
       },
     };
-    this.analyticsClient!.track(interactAnalyticsBody);
+    this.rudderstackClient!.track(interactAnalyticsBody);
   }
 
   private createInteractBody(id: string, eventId: string, metadata: Context): InteractBody {
@@ -75,7 +76,7 @@ export class AnalyticsSystem {
       interactIngestBody.request.requestType = 'response';
       interactIngestBody.request.payload = trace;
 
-      if (this.aggregateAnalytics && this.analyticsClient) {
+      if (this.aggregateAnalytics && this.rudderstackClient) {
         this.callAnalyticsSystemTrack(interactIngestBody.request.versionId!, interactIngestBody.eventId, interactIngestBody);
       }
       if (this.ingestClient) {
@@ -91,16 +92,16 @@ export class AnalyticsSystem {
     return true;
   }
 
-  async track(id: string, eventId: string, metadata: Context): Promise<boolean> {
+  async track(id: string, event: Event, metadata: Context): Promise<boolean> {
     log.trace('track');
     // eslint-disable-next-line sonarjs/no-small-switch
-    switch (eventId as EventsType) {
-      case EventsType.INTERACT: {
-        const interactIngestBody = this.createInteractBody(id, eventId, metadata);
+    switch (event) {
+      case Event.INTERACT: {
+        const interactIngestBody = this.createInteractBody(id, event, metadata);
 
         // User/initial interact
-        if (this.aggregateAnalytics && this.analyticsClient) {
-          this.callAnalyticsSystemTrack(id, eventId, interactIngestBody);
+        if (this.aggregateAnalytics && this.rudderstackClient) {
+          this.callAnalyticsSystemTrack(id, event, interactIngestBody);
         }
         if (this.ingestClient) {
           const response = await this.ingestClient.doIngest(interactIngestBody);
@@ -119,7 +120,5 @@ export class AnalyticsSystem {
 }
 
 const AnalyticsClient = (config: Config) => new AnalyticsSystem(config);
-
-export type AnalyticsType = AnalyticsSystem;
 
 export default AnalyticsClient;

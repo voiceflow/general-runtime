@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { AnalyticsSystem } from '@/lib/clients/analytics';
 import StateManager, { utils as defaultUtils } from '@/lib/services/state';
 
 const VERSION_ID = 'version_id';
@@ -76,7 +75,7 @@ describe('state manager unit tests', () => {
         dataAPI: {
           get: sinon.stub().returns({ getVersion: getVersionStub }),
         },
-        analyticsClient: new AnalyticsSystem(undefined),
+        analyticsClient: { identify: sinon.stub() },
       };
 
       const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);

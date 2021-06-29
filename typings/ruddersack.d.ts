@@ -1,21 +1,23 @@
 declare module '@rudderstack/rudder-sdk-node' {
+  namespace Analytics {
+    interface IdentifyRequest {
+      userId: string;
+    }
+
+    interface TrackRequest {
+      userId: string;
+      event: string;
+      properties: Record<string, unknown>;
+    }
+  }
+
   class Analytics {
     constructor(writeKey?: string, endpoint?: string);
 
-    public identify(data: IdentifyRequest): void;
+    public identify(data: Analytics.IdentifyRequest): void;
 
-    public track(data: TrackRequest): void;
+    public track(data: Analytics.TrackRequest): void;
   }
 
-  export default Analytics;
-
-  export interface IdentifyRequest {
-    userId: string;
-  }
-
-  export interface TrackRequest {
-    userId: string;
-    event: string;
-    properties: Record<string, unknown>;
-  }
+  export = Analytics;
 }

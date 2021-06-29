@@ -2,7 +2,6 @@ import { RequestType } from '@voiceflow/general-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { AnalyticsSystem } from '@/lib/clients/analytics';
 import RuntimeManager, { utils as defaultUtils } from '@/lib/services/runtime';
 import { TurnType } from '@/lib/services/runtime/types';
 
@@ -38,7 +37,7 @@ describe('runtime manager unit tests', () => {
 
       const services = {
         dataAPI: { getProgram: 'service-api' },
-        analyticsClient: new AnalyticsSystem(undefined),
+        analyticsClient: { track: sinon.stub() },
       };
 
       const utils = {
@@ -87,7 +86,7 @@ describe('runtime manager unit tests', () => {
 
       const services = {
         dataAPI: { getProgram: 'service-api' },
-        analyticsClient: new AnalyticsSystem(undefined),
+        analyticsClient: { track: sinon.stub() },
       };
 
       const utils = {
@@ -135,7 +134,7 @@ describe('runtime manager unit tests', () => {
 
       const services = {
         dataAPI: { getProgram: 'service-api' },
-        analyticsClient: new AnalyticsSystem(undefined),
+        analyticsClient: { track: sinon.stub() },
       };
 
       const utils = {
@@ -184,7 +183,7 @@ describe('runtime manager unit tests', () => {
 
       const services = {
         dataAPI: { getProgram: 'service-api' },
-        analyticsClient: new AnalyticsSystem(undefined),
+        analyticsClient: { track: sinon.stub() },
       };
 
       const utils = {

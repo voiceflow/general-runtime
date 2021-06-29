@@ -1,5 +1,5 @@
 import { GeneralTrace } from '@voiceflow/general-types';
-import Axios, { AxiosInstance } from 'axios';
+import Axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
 import { State } from '@/runtime/lib/Runtime';
 
@@ -18,7 +18,7 @@ export interface InteractBody {
   };
 }
 
-export enum EventsType {
+export enum Event {
   INTERACT = 'interact',
 }
 
@@ -26,21 +26,22 @@ export class IngestApi {
   private axios: AxiosInstance;
 
   public constructor(endpoint: string, authorization?: string) {
+    const config: AxiosRequestConfig = {
+      baseURL: endpoint,
+    };
+
     if (authorization) {
-      this.axios = Axios.create({
-        baseURL: endpoint,
-        headers: { Authorization: authorization },
-      });
-    } else {
-      this.axios = Axios.create({
-        baseURL: endpoint,
-      });
+      config.headers = {
+        Authorization: authorization,
+      };
     }
+
+    this.axios = Axios.create(config);
   }
 
-  public doIngest = (body: InteractBody) => this.axios.post('/v1/ingest', body);
+  public doIngest = async (body: InteractBody) => this.axios.post('/v1/ingest', body);
 }
 
-const IngestAPIClient = (endpoint: string, authorization: string | undefined) => new IngestApi(endpoint, authorization);
+const IngestClient = (endpoint: string, authorization: string | undefined) => new IngestApi(endpoint, authorization);
 
-export default IngestAPIClient;
+export default IngestClient;
