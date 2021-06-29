@@ -50,7 +50,7 @@ export class AnalyticsSystem extends AbstractClient {
   }
 
   private createInteractBody(id: string, eventId: Event, metadata: Context): InteractBody {
-    const sessionId = metadata.data.reqHeaders?.sessionid ?? (metadata.state?.variables ? `${id}.${metadata.state.variables.user_id}` : id);
+    const sessionId = metadata.data.reqHeaders?.sessionId ?? (metadata.state?.variables ? `${id}.${metadata.state.variables.user_id}` : id);
 
     return {
       eventId,
