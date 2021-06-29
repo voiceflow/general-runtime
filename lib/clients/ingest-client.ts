@@ -1,9 +1,7 @@
 import { GeneralTrace } from '@voiceflow/general-types';
-import { AxiosRequestConfig } from 'axios';
+import Axios, { AxiosInstance } from 'axios';
 
 import { State } from '@/runtime/lib/Runtime';
-
-import HttpClient from './http-client';
 
 export interface InteractBody {
   eventId: string;
@@ -24,31 +22,17 @@ export enum EventsType {
   INTERACT = 'interact',
 }
 
-export class IngestApi extends HttpClient {
-  private authorization?: string;
+export class IngestApi {
+  private axios: AxiosInstance;
 
   public constructor(endpoint: string, authorization?: string) {
-    super(endpoint);
-    this.authorization = authorization;
-
-    this._initializeRequestInterceptor();
+    this.axios = Axios.create({
+      baseURL: endpoint,
+      headers: { Authorization: authorization },
+    });
   }
 
-  private _initializeRequestInterceptor = () => {
-    this.instance.interceptors.request.use(this._handleRequest, this._handleError);
-  };
-
-  private _handleRequest = (config: AxiosRequestConfig) => {
-    if (this.authorization) {
-      config.headers.Authorization = this.authorization;
-    }
-
-    return config;
-  };
-
-  protected _handleError = (error: any) => Promise.reject(error);
-
-  public doIngest = (body: InteractBody) => this.instance.post<any>('/v1/ingest', body);
+  public doIngest = (body: InteractBody) => this.axios.post('/v1/ingest', body);
 }
 
 const IngestAPIClient = (endpoint: string, authorization: string | undefined) => new IngestApi(endpoint, authorization);

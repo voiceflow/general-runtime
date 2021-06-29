@@ -1,5 +1,5 @@
 import Analytics, { IdentifyRequest, TrackRequest } from '@rudderstack/rudder-sdk-node';
-import { BaseRequest, GeneralTrace } from '@voiceflow/general-types';
+import { GeneralTrace } from '@voiceflow/general-types';
 import { AxiosResponse } from 'axios';
 
 import log from '@/logger';
@@ -8,63 +8,57 @@ import { Config, Context } from '@/types';
 import IngestApiClient, { EventsType, IngestApi, InteractBody } from './ingest-client';
 
 export class AnalyticsSystem {
-  private analyticsClient: Analytics | undefined;
-
-  private aggregateAnalytics = false;
+  private analyticsClient?: Analytics;
 
   private ingestClient?: IngestApi;
 
-  constructor(config?: Config) {
-    if (config) {
-      if (config.ANALYTICS_WRITE_KEY && config.ANALYTICS_ENDPOINT) {
-        this.analyticsClient = new Analytics(config.ANALYTICS_WRITE_KEY, `${config.ANALYTICS_ENDPOINT}/v1/batch`);
-      }
+  private aggregateAnalytics = false;
 
-      if (config.INGEST_WEBHOOK_ENDPOINT) {
-        this.ingestClient = IngestApiClient(config.INGEST_WEBHOOK_ENDPOINT, undefined);
-      }
-      this.aggregateAnalytics = !config.IS_PRIVATE_CLOUD;
+  constructor(config?: Config) {
+    if (!config) return;
+
+    if (config.ANALYTICS_WRITE_KEY && config.ANALYTICS_ENDPOINT) {
+      this.analyticsClient = new Analytics(config.ANALYTICS_WRITE_KEY, `${config.ANALYTICS_ENDPOINT}/v1/batch`);
     }
+
+    if (config.INGEST_WEBHOOK_ENDPOINT) {
+      this.ingestClient = IngestApiClient(config.INGEST_WEBHOOK_ENDPOINT, undefined);
+    }
+    this.aggregateAnalytics = !config.IS_PRIVATE_CLOUD;
   }
 
   identify(id: string) {
-    const payload = {
+    const payload: IdentifyRequest = {
       userId: id,
-    } as IdentifyRequest;
+    };
+
     if (this.aggregateAnalytics && this.analyticsClient) {
-      log.trace('Identify');
-      this.analyticsClient!.identify(payload);
+      log.trace('analytics: Identify');
+      this.analyticsClient.identify(payload);
     }
   }
 
   private callAnalyticsSystemTrack(id: string, eventId: string, metadata: InteractBody) {
-    const interactAnalyticsBody = {
+    const interactAnalyticsBody: TrackRequest = {
       userId: id,
       event: eventId,
       properties: {
         metadata,
       },
-    } as TrackRequest;
+    };
     this.analyticsClient!.track(interactAnalyticsBody);
   }
 
   private createInteractBody(id: string, eventId: string, metadata: Context): InteractBody {
-    let sessionId: string;
-    if (metadata.data?.reqHeaders?.sessionid) {
-      sessionId = metadata.data.reqHeaders.sessionid;
-    } else if (metadata.state?.variables) {
-      sessionId = `${id}.${metadata.state.variables.user_id}`;
-    } else {
-      sessionId = `${id}`;
-    }
+    const sessionId = metadata.data.reqHeaders?.sessionid ?? (metadata.state?.variables ? `${id}.${metadata.state.variables.user_id}` : id);
 
     return {
       eventId,
       request: {
         requestType: metadata.request ? 'request' : 'launch',
         sessionId,
-        versionId: `${id}`,
-        payload: metadata.request ? metadata.request : ({ type: 'launch' } as BaseRequest),
+        versionId: id,
+        payload: metadata.request ?? { type: 'launch' },
         metadata: {
           state: metadata.state,
           end: metadata.end,
@@ -86,7 +80,7 @@ export class AnalyticsSystem {
       }
       if (this.ingestClient) {
         // eslint-disable-next-line no-await-in-loop
-        response = await this.ingestClient!.doIngest(interactIngestBody);
+        response = await this.ingestClient.doIngest(interactIngestBody);
 
         if (response && response.status !== 200) {
           return false;
