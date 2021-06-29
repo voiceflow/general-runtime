@@ -1,4 +1,3 @@
-import * as rudderstack from '@rudderstack/rudder-sdk-node';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -13,22 +12,16 @@ describe('Analytics client unit tests', () => {
     it('works', () => {
       const config = {};
 
-      const identify = sinon.stub();
-
-      console.log(rudderstack);
-
-      // TODO: Throwing with TypeError: Cannot assign to read only property 'default' of object '#<Object>'
-      // @ts-expect-error
-      rudderstack.default = class RudderstackMock {
-        identify = identify;
-      };
+      const rudderstack = { identify: sinon.stub() };
 
       const client = AnalyticsClient(config as any);
 
+      (client as any).rudderstackClient = rudderstack;
+
       client.identify('user id');
 
-      expect(identify.callCount).to.eql(1);
-      expect(identify.getCall(0).args).to.deep.eq([{ userId: 'user id' }]);
+      expect(rudderstack.identify.callCount).to.eql(1);
+      expect(rudderstack.identify.getCall(0).args).to.deep.eq([{ userId: 'user id' }]);
     });
   });
 });
