@@ -26,10 +26,16 @@ export class IngestApi {
   private axios: AxiosInstance;
 
   public constructor(endpoint: string, authorization?: string) {
-    this.axios = Axios.create({
-      baseURL: endpoint,
-      headers: { Authorization: authorization },
-    });
+    if (authorization) {
+      this.axios = Axios.create({
+        baseURL: endpoint,
+        headers: { Authorization: authorization },
+      });
+    } else {
+      this.axios = Axios.create({
+        baseURL: endpoint,
+      });
+    }
   }
 
   public doIngest = (body: InteractBody) => this.axios.post('/v1/ingest', body);
