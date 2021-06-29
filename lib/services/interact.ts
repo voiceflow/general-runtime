@@ -17,7 +17,7 @@ class Interact extends AbstractManager {
     params: { versionID: string };
     body: { state?: State; request?: RuntimeRequest; config?: Config };
     query: { locale?: string };
-    headers: { authorization?: string; origin?: string; sessionId?: string };
+    headers: { authorization?: string; origin?: string; sessionid?: string };
   }) {
     const { runtime, metrics, nlu, tts, dialog, asr, speak, slots, state: stateManager, filter } = this.services;
 
@@ -25,7 +25,7 @@ class Interact extends AbstractManager {
       body: { state, config = {} },
       params: { versionID },
       query: { locale },
-      headers: { authorization, origin, sessionId },
+      headers: { authorization, origin, sessionid: sessionId },
     } = req;
 
     let {
