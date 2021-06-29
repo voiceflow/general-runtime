@@ -40,6 +40,7 @@ describe('interact service unit tests', () => {
           reqHeaders: {
             authorization: data.headers.authorization,
             origin: data.headers.origin,
+            sessionId: undefined,
           },
         },
       };
@@ -67,7 +68,7 @@ describe('interact service unit tests', () => {
 
     it('launch request', async () => {
       const data = {
-        headers: { authorization: 'auth', origin: 'origin' },
+        headers: { authorization: 'auth', origin: 'origin', sessionId: 'sessionId' },
         body: { state: { foo: 'bar', stack: [{}, {}], storage: { foo: 'bar' } }, request: { type: RequestType.LAUNCH }, config: { tts: true } },
         params: { versionID: 'versionID' },
         query: { locale: 'locale' },
@@ -84,6 +85,7 @@ describe('interact service unit tests', () => {
           reqHeaders: {
             authorization: data.headers.authorization,
             origin: data.headers.origin,
+            sessionId: data.headers.sessionId,
           },
         },
       };
