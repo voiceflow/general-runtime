@@ -1,6 +1,5 @@
 import Rudderstack, { IdentifyRequest, TrackRequest } from '@rudderstack/rudder-sdk-node';
 import { GeneralTrace } from '@voiceflow/general-types';
-import { AxiosResponse } from 'axios';
 
 import log from '@/logger';
 import { Config, Context } from '@/types';
@@ -39,7 +38,7 @@ export class AnalyticsSystem extends AbstractClient {
     }
   }
 
-  private callAnalyticsSystemTrack(id: string, eventId: string, metadata: InteractBody) {
+  private callAnalyticsSystemTrack(id: string, eventId: Event, metadata: InteractBody) {
     const interactAnalyticsBody: TrackRequest = {
       userId: id,
       event: eventId,
@@ -50,8 +49,8 @@ export class AnalyticsSystem extends AbstractClient {
     this.rudderstackClient!.track(interactAnalyticsBody);
   }
 
-  private createInteractBody(id: string, eventId: string, metadata: Context): InteractBody {
-    const sessionId = metadata.data.reqHeaders?.sessionId ?? (metadata.state?.variables ? `${id}.${metadata.state.variables.user_id}` : id);
+  private createInteractBody(id: string, eventId: Event, metadata: Context): InteractBody {
+    const sessionId = metadata.data.reqHeaders?.sessionid ?? (metadata.state?.variables ? `${id}.${metadata.state.variables.user_id}` : id);
 
     return {
       eventId,
@@ -69,8 +68,7 @@ export class AnalyticsSystem extends AbstractClient {
     } as InteractBody;
   }
 
-  private async processTrace(fullTrace: GeneralTrace[], interactIngestBody: InteractBody): Promise<boolean> {
-    let response: AxiosResponse | undefined;
+  private async processTrace(fullTrace: GeneralTrace[], interactIngestBody: InteractBody): Promise<void> {
     // eslint-disable-next-line no-restricted-syntax
     for (const trace of Object.values(fullTrace)) {
       interactIngestBody.request.requestType = 'response';
@@ -81,19 +79,13 @@ export class AnalyticsSystem extends AbstractClient {
       }
       if (this.ingestClient) {
         // eslint-disable-next-line no-await-in-loop
-        response = await this.ingestClient.doIngest(interactIngestBody);
-
-        if (response && response.status !== 200) {
-          return false;
-        }
+        await this.ingestClient.doIngest(interactIngestBody);
       }
     }
-
-    return true;
   }
 
-  async track(id: string, event: Event, metadata: Context): Promise<boolean> {
-    log.trace('track');
+  async track(id: string, event: Event, metadata: Context): Promise<void> {
+    log.trace('analytics: Track');
     // eslint-disable-next-line sonarjs/no-small-switch
     switch (event) {
       case Event.INTERACT: {
@@ -103,18 +95,14 @@ export class AnalyticsSystem extends AbstractClient {
         if (this.aggregateAnalytics && this.rudderstackClient) {
           this.callAnalyticsSystemTrack(id, event, interactIngestBody);
         }
-        if (this.ingestClient) {
-          const response = await this.ingestClient.doIngest(interactIngestBody);
-          if (response.status !== 200) {
-            return false;
-          }
-        }
+
+        await this.ingestClient?.doIngest(interactIngestBody);
 
         // Voiceflow interact
         return this.processTrace(metadata.trace!, interactIngestBody);
       }
       default:
-        return true;
+        throw new RangeError(`Unknown event type: ${event}`);
     }
   }
 }

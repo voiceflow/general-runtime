@@ -4,7 +4,7 @@ import Axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { State } from '@/runtime/lib/Runtime';
 
 export interface InteractBody {
-  eventId: string;
+  eventId: Event;
   request: {
     requestType?: string;
     sessionId?: string;
