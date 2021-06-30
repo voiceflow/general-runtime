@@ -53,7 +53,7 @@ class Interact extends AbstractManager {
 
     turn.addHandlers(speak, filter);
 
-    return turn.resolve({ state, request, versionID, data: { locale, config, reqHeaders: { authorization, origin, sessionId } } });
+    return turn.resolve({ state, request, versionID, data: { locale, config, reqHeaders: { authorization, origin, sessionid: sessionId } } });
   }
 }
 
