@@ -105,7 +105,7 @@ describe('ifV2 handler unit tests', () => {
         expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(node.paths[2].nextID);
 
         expect(runtime.trace.debug.args).to.eql([
-          ['evaluating code - changes:  \n`{arr}`: `1,3,5` => `1,3,5`  \n'],
+          ['evaluating code - no variable changes'],
           [`Error condition 2 - "${node.payload.expressions[1]}": SyntaxError: Unexpected token ')'`],
           ['condition matched - taking path 3'],
         ]);
