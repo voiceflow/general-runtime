@@ -30,8 +30,24 @@ class Store {
     return new Store({ ...store1.getState(), ...store2.getState() });
   }
 
+  static formatPayloadValue(payloadValue: any): any {
+    let value = payloadValue;
+
+    if (Array.isArray(value)) {
+      value = Array.from(value).map(Store.formatPayloadValue);
+    } else if (value && typeof value === 'object') {
+      value = Store.formatPayload(value);
+    }
+
+    return value;
+  }
+
+  static formatPayload(payload: State): State {
+    return Object.keys(payload).reduce((acc, key) => Object.assign(acc, { [key]: Store.formatPayloadValue(payload[key]) }), {});
+  }
+
   constructor(payload: State = {}, { didUpdate, willUpdate }: { didUpdate?: DidUpdate; willUpdate?: WillUpdate } = {}) {
-    this.store = { ...payload };
+    this.store = Store.formatPayload(payload);
 
     this.didUpdate = didUpdate;
     this.willUpdate = willUpdate;

@@ -23,13 +23,15 @@ const CodeHandler: HandlerFactory<Node, CodeOptions | void> = ({ endpoint, callb
         code: node.code,
         variables: variablesState,
       };
+
       const data = endpoint ? (await axios.post(endpoint, reqData)).data : vmExecute(reqData, safe, callbacks);
 
       // debugging changes find variable value differences
       const changes = _.union(Object.keys(variablesState), Object.keys(data)).reduce<string>((acc, variable) => {
-        if (variablesState[variable] !== data[variable]) {
-          acc += `\`{${variable}}\`: \`${variablesState[variable]?.toString?.()}\` => \`${data[variable]?.toString?.()}\`  \n`;
+        if (!_.isEqual(variablesState[variable], data[variable])) {
+          acc += `\`{${variable}}\`: \`${JSON.stringify(variablesState[variable])}\` => \`${JSON.stringify(data[variable])}\`  \n`;
         }
+
         return acc;
       }, '');
 

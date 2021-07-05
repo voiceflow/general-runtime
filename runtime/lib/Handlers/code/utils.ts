@@ -2,6 +2,8 @@ import _ from 'lodash';
 import requireFromUrl from 'require-from-url/sync';
 import { VM } from 'vm2';
 
+import Store from '@/runtime/lib/Runtime/Store';
+
 // eslint-disable-next-line import/prefer-default-export
 export const vmExecute = (
   data: { code: string; variables: Record<string, any> },
@@ -32,7 +34,10 @@ export const vmExecute = (
   vm.run(`${safe ? clearContext : ''} ${data.code}`);
 
   return Object.keys(data.variables).reduce<Record<string, any>>((acc, key) => {
-    acc[key] = _.get(vm, '_context')[key];
+    const newValue = vm.getGlobal(key);
+
+    acc[key] = Store.formatPayloadValue(newValue);
+
     return acc;
   }, {});
 };
