@@ -1,7 +1,6 @@
 import { BaseNode } from '@voiceflow/api-sdk';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
-import { NodeWithButtons, TraceType } from '@voiceflow/general-types';
-import { Node as ChoiceNode } from '@voiceflow/general-types/build/nodes/interaction';
+import { NodeWithButtons, NodeWithNoMatches, TraceType } from '@voiceflow/general-types';
 import { SpeakType, TraceFrame } from '@voiceflow/general-types/build/nodes/speak';
 import _ from 'lodash';
 
@@ -10,9 +9,7 @@ import { HandlerFactory, Runtime, Store } from '@/runtime';
 import { NoMatchCounterStorage, StorageData, StorageType } from '../types';
 import { addButtonsIfExists } from '../utils';
 
-export interface NoMatchNode extends BaseNode, NodeWithButtons, Partial<Pick<ChoiceNode, 'noMatches'>> {
-  randomize?: boolean;
-}
+export interface NoMatchNode extends BaseNode, NodeWithButtons, NodeWithNoMatches {}
 
 export const EMPTY_AUDIO_STRING = '<audio src=""/>';
 
