@@ -47,7 +47,7 @@ class Store {
   }
 
   constructor(payload: State = {}, { didUpdate, willUpdate }: { didUpdate?: DidUpdate; willUpdate?: WillUpdate } = {}) {
-    this.store = Store.formatPayload(payload);
+    this.store = { ...payload };
 
     this.didUpdate = didUpdate;
     this.willUpdate = willUpdate;
