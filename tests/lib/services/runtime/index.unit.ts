@@ -28,6 +28,7 @@ describe('runtime manager unit tests', () => {
         getRawState: sinon.stub().returns(rawState),
         trace: { get: sinon.stub().returns(trace), addTrace: sinon.stub() },
         getFinalState: sinon.stub().returns(rawState),
+        variables: { set: sinon.stub() },
       };
 
       const client = {
@@ -77,6 +78,7 @@ describe('runtime manager unit tests', () => {
         getFinalState: sinon.stub().returns(rawState),
         turn: { set: sinon.stub() },
         trace: { get: sinon.stub().returns(trace) },
+        variables: { set: sinon.stub() },
       };
 
       const client = {
@@ -125,6 +127,7 @@ describe('runtime manager unit tests', () => {
         getRawState: sinon.stub().returns(rawState),
         trace: { get: sinon.stub().returns(trace), addTrace: sinon.stub() },
         getFinalState: sinon.stub().returns(rawState),
+        variables: { set: sinon.stub() },
       };
 
       const client = {
@@ -168,6 +171,7 @@ describe('runtime manager unit tests', () => {
     it('matched intent debug trace', async () => {
       const rawState = { foo: 'bar' };
       const trace = { foo1: 'bar1' };
+      const timestamp = Math.floor(Date.now() / 1000);
       const runtime = {
         update: sinon.stub(),
         getRawState: sinon.stub().returns(rawState),
@@ -210,7 +214,10 @@ describe('runtime manager unit tests', () => {
       await runtimeManager.handle(context);
 
       expect(runtime.trace.debug.args).to.eql([['matched intent **name** - confidence interval _86.12%_']]);
-      expect(runtime.variables.set.args).to.eql([['intent_confidence', 86.12]]);
+      expect(runtime.variables.set.args).to.eql([
+        ['intent_confidence', 86.12],
+        ['timestamp', timestamp],
+      ]);
     });
   });
 });

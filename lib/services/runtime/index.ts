@@ -6,6 +6,7 @@
 import { GeneralTrace } from '@voiceflow/general-types';
 
 import { Event } from '@/lib/clients/ingest-client';
+import { Variables } from '@/lib/services/runtime/types';
 import Client from '@/runtime';
 import { Config, Context, ContextHandler } from '@/types';
 
@@ -63,6 +64,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
       runtime.turn.set(TurnType.STOP_ALL, true);
     }
 
+    runtime.variables.set(Variables.TIMESTAMP, Math.floor(Date.now() / 1000));
     await runtime.update();
 
     const result = {
