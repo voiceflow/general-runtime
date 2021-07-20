@@ -1,25 +1,41 @@
 import { GeneralTrace } from '@voiceflow/general-types';
 import Axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
+import { RuntimeRequest } from '@/build/lib/services/runtime/types';
 import { State } from '@/runtime/lib/Runtime';
 
-export interface InteractBody {
+export interface TurnBody {
   eventId: Event;
   request: {
-    requestType?: string;
-    sessionId?: string;
-    versionId?: string;
-    payload?: GeneralTrace;
+    version_id?: string;
+    session_id?: string;
+    state?: State;
+    timestamp?: string;
     metadata?: {
-      state?: State;
       locale?: string;
       end?: boolean;
     };
   };
 }
 
+export interface TurnResponse {
+  turn_id: string;
+}
+
+export interface InteractBody {
+  eventId: Event;
+  request: {
+    turn_id?: string;
+    type?: string;
+    format?: string;
+    payload?: GeneralTrace | RuntimeRequest;
+    timestamp?: string;
+  };
+}
+
 export enum Event {
   INTERACT = 'interact',
+  TURN = 'turn',
 }
 
 export class IngestApi {
@@ -39,7 +55,7 @@ export class IngestApi {
     this.axios = Axios.create(config);
   }
 
-  public doIngest = async (body: InteractBody) => this.axios.post('/v1/ingest', body);
+  public doIngest = async (body: InteractBody | TurnBody) => this.axios.post<TurnResponse>('/v1/ingest', body);
 }
 
 const IngestClient = (endpoint: string, authorization: string | undefined) => new IngestApi(endpoint, authorization);

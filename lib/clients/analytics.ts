@@ -1,10 +1,11 @@
 import Rudderstack, { IdentifyRequest, TrackRequest } from '@rudderstack/rudder-sdk-node';
 import { GeneralTrace } from '@voiceflow/general-types';
 
+import { RuntimeRequest } from '@/build/lib/services/runtime/types';
 import log from '@/logger';
 import { Config, Context } from '@/types';
 
-import IngestApiClient, { Event, IngestApi, InteractBody } from './ingest-client';
+import IngestApiClient, { Event, IngestApi, InteractBody, TurnBody } from './ingest-client';
 import { AbstractClient } from './utils';
 
 export class AnalyticsSystem extends AbstractClient {
@@ -49,33 +50,46 @@ export class AnalyticsSystem extends AbstractClient {
     this.rudderstackClient!.track(interactAnalyticsBody);
   }
 
-  private createInteractBody(id: string, eventId: Event, metadata: Context): InteractBody {
+  private createInteractBody(eventId: Event, turnId: string, timestamp: string, trace?: GeneralTrace, request?: RuntimeRequest): InteractBody {
+    return {
+      eventId,
+      request: {
+        turn_id: turnId,
+        // eslint-disable-next-line no-nested-ternary
+        type: trace ? trace.type : request ? request?.type : 'launch',
+        payload: trace || request || {},
+        // eslint-disable-next-line no-nested-ternary
+        format: trace ? 'trace' : request ? 'request' : 'launch',
+        timestamp,
+      },
+    } as InteractBody;
+  }
+
+  private createTurnBody(id: string, eventId: Event, metadata: Context, timestamp: string): TurnBody {
     const sessionId = metadata.data.reqHeaders?.sessionid ?? (metadata.state?.variables ? `${id}.${metadata.state.variables.user_id}` : id);
 
     return {
       eventId,
       request: {
-        requestType: metadata.request ? 'request' : 'launch',
-        sessionId,
-        versionId: id,
-        payload: metadata.request ?? { type: 'launch' },
+        session_id: sessionId,
+        version_id: id,
+        state: metadata.state,
+        timestamp,
         metadata: {
-          state: metadata.state,
           end: metadata.end,
           locale: metadata.data.locale,
         },
       },
-    } as InteractBody;
+    } as TurnBody;
   }
 
-  private async processTrace(fullTrace: GeneralTrace[], interactIngestBody: InteractBody): Promise<void> {
+  private async processTrace(fullTrace: GeneralTrace[], turnId: string, versionId: string, timestamp: string): Promise<void> {
     // eslint-disable-next-line no-restricted-syntax
     for (const trace of Object.values(fullTrace)) {
-      interactIngestBody.request.requestType = 'response';
-      interactIngestBody.request.payload = trace;
+      const interactIngestBody = this.createInteractBody(Event.INTERACT, turnId, timestamp, trace, undefined);
 
       if (this.aggregateAnalytics && this.rudderstackClient) {
-        this.callAnalyticsSystemTrack(interactIngestBody.request.versionId!, interactIngestBody.eventId, interactIngestBody);
+        this.callAnalyticsSystemTrack(versionId!, interactIngestBody.eventId, interactIngestBody);
       }
       if (this.ingestClient) {
         // eslint-disable-next-line no-await-in-loop
@@ -84,22 +98,25 @@ export class AnalyticsSystem extends AbstractClient {
     }
   }
 
-  async track(id: string, event: Event, metadata: Context): Promise<void> {
+  async track(id: string, event: Event, metadata: Context, timestamp: string): Promise<void> {
     log.trace('analytics: Track');
     // eslint-disable-next-line sonarjs/no-small-switch
     switch (event) {
-      case Event.INTERACT: {
-        const interactIngestBody = this.createInteractBody(id, event, metadata);
+      case Event.TURN: {
+        const turnIngestBody = this.createTurnBody(id, event, metadata, timestamp);
 
         // User/initial interact
         if (this.aggregateAnalytics && this.rudderstackClient) {
-          this.callAnalyticsSystemTrack(id, event, interactIngestBody);
+          this.callAnalyticsSystemTrack(id, event, turnIngestBody);
         }
+        const response = await this.ingestClient?.doIngest(turnIngestBody);
 
+        // Request
+        const interactIngestBody = this.createInteractBody(Event.INTERACT, response?.data.turn_id!, timestamp, undefined, metadata.request);
         await this.ingestClient?.doIngest(interactIngestBody);
 
-        // Voiceflow interact
-        return this.processTrace(metadata.trace!, interactIngestBody);
+        // Voiceflow response
+        return this.processTrace(metadata.trace!, response?.data.turn_id!, id, timestamp);
       }
       default:
         throw new RangeError(`Unknown event type: ${event}`);
