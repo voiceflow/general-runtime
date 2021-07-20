@@ -1,8 +1,9 @@
 import { GeneralTrace } from '@voiceflow/general-types';
 import Axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
-import { RuntimeRequest } from '@/build/lib/services/runtime/types';
 import { State } from '@/runtime/lib/Runtime';
+
+import { RuntimeRequest } from '../services/runtime/types';
 
 export interface TurnBody {
   eventId: Event;

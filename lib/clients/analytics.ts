@@ -1,10 +1,10 @@
 import Rudderstack, { IdentifyRequest, TrackRequest } from '@rudderstack/rudder-sdk-node';
 import { GeneralTrace } from '@voiceflow/general-types';
 
-import { RuntimeRequest } from '@/build/lib/services/runtime/types';
 import log from '@/logger';
 import { Config, Context } from '@/types';
 
+import { RuntimeRequest } from '../services/runtime/types';
 import IngestApiClient, { Event, IngestApi, InteractBody, TurnBody } from './ingest-client';
 import { AbstractClient } from './utils';
 
