@@ -3,8 +3,6 @@
  * @packageDocumentation
  */
 
-import { GeneralTrace } from '@voiceflow/general-types';
-
 import { Event } from '@/lib/clients/ingest-client';
 import { Variables } from '@/lib/services/runtime/types';
 import Client from '@/runtime';
