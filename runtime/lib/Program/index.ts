@@ -5,6 +5,8 @@ type MinimalProgram = Partial<Program> & Pick<Program, 'id' | 'lines' | 'startId
 export class ProgramModel {
   private id: string;
 
+  private name?: string;
+
   private nodes: Record<string, BaseNode>;
 
   private commands: BaseCommand[] = [];
@@ -13,8 +15,9 @@ export class ProgramModel {
 
   private startNodeID: string;
 
-  constructor({ id, lines, variables = [], commands = [], startId }: MinimalProgram) {
+  constructor({ id, lines, variables = [], commands = [], name, startId }: MinimalProgram) {
     this.id = id;
+    this.name = name;
     this.nodes = lines;
     this.commands = commands;
     this.variables = variables;
@@ -47,6 +50,10 @@ export class ProgramModel {
 
   public getVariables(): string[] {
     return this.variables;
+  }
+
+  public getName() {
+    return this.name;
   }
 
   public getRaw() {

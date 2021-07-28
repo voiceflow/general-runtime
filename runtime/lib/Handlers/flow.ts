@@ -31,7 +31,7 @@ const FlowHandler: HandlerFactory<Node> = () => ({
 
     runtime.stack.push(newFrame);
 
-    runtime.trace.debug(`entering flow \`${newFrame.getProgramID()}\``);
+    runtime.trace.debug(`entering flow \`${newFrame.getName() || newFrame.getProgramID()}\``);
 
     return null;
   },

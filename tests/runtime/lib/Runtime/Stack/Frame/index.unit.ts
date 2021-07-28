@@ -10,7 +10,7 @@ describe('Runtime Stack Frame unit tests', () => {
       nodeID: 'node-id',
       programID: 'program-id',
       storage: { s1: 'v1' },
-      commands: [{}, {}],
+      commands: [{ type: 'c1' }, { type: 'c2' }],
       variables: { v1: 'v1' },
     };
     const frame = new Frame(options);
@@ -66,9 +66,11 @@ describe('Runtime Stack Frame unit tests', () => {
     it('init nodeID', () => {
       const frame = new Frame({} as any);
       const commands = [{ c1: 'v1' }, { c2: 'v2' }];
+      const name = 'flow name';
       const startNodeID = 'start-node-id';
       const variables = ['var1', 'var2'];
       const program = {
+        getName: sinon.stub().returns(name),
         getCommands: sinon.stub().returns(commands),
         getStartNodeID: sinon.stub().returns(startNodeID),
         getVariables: sinon.stub().returns(variables),
@@ -76,6 +78,7 @@ describe('Runtime Stack Frame unit tests', () => {
 
       frame.initialize(program as any);
 
+      expect(frame.getName()).to.eql(name);
       expect(frame.getNodeID()).to.eql(startNodeID);
       expect(frame.getCommands()).to.eql(commands);
       expect(frame.getState().variables).to.eql({ var1: 0, var2: 0 });
@@ -86,6 +89,7 @@ describe('Runtime Stack Frame unit tests', () => {
       const frame = new Frame({ nodeID } as any);
       const startNodeID = 'start-node-id';
       const program = {
+        getName: sinon.stub().returns(undefined),
         getCommands: sinon.stub().returns([]),
         getStartNodeID: sinon.stub().returns(startNodeID),
         getVariables: sinon.stub().returns([]),
