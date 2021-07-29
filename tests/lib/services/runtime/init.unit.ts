@@ -27,7 +27,7 @@ describe('runtime init service unit tests', () => {
         [
           {
             type: TraceType.FLOW,
-            payload: { diagramID: undefined },
+            payload: { diagramID: undefined, name: undefined },
           },
         ],
       ]);
@@ -36,7 +36,8 @@ describe('runtime init service unit tests', () => {
     it('with top frame', () => {
       const client = { setEvent: sinon.stub() };
       const programID = 'program-id';
-      const topFrame = { getProgramID: sinon.stub().returns(programID) };
+      const name = 'flow-name';
+      const topFrame = { getProgramID: sinon.stub().returns(programID), getName: sinon.stub().returns(name) };
       const runtime = { stack: { top: sinon.stub().returns(topFrame) }, trace: { addTrace: sinon.stub() } };
       init(client as any);
 
@@ -49,7 +50,7 @@ describe('runtime init service unit tests', () => {
         [
           {
             type: TraceType.FLOW,
-            payload: { diagramID: programID },
+            payload: { diagramID: programID, name },
           },
         ],
       ]);

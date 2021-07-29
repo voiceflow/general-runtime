@@ -12,11 +12,11 @@ import { FrameType, SpeakFrame, StorageData, StorageType, StreamAction, StreamPl
 // initialize event behaviors for client
 const init = (client: Client) => {
   client.setEvent(EventType.stackDidChange, ({ runtime }) => {
-    const programID = runtime.stack.top()?.getProgramID();
+    const top = runtime.stack.top();
 
     runtime.trace.addTrace<FlowTraceFrame>({
       type: TraceType.FLOW,
-      payload: { diagramID: programID },
+      payload: { diagramID: top?.getProgramID(), name: top?.getName() },
     });
   });
 
