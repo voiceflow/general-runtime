@@ -23,7 +23,6 @@ export const promptToSSML = (content = '', voice: string | undefined) => {
 
 export const createResumeFrame = (resume: Prompt<Voice>, follow: Prompt<Voice> | null) => {
   return new Frame({
-    name: 'Voiceflow Resume',
     programID: RESUME_PROGRAM_ID,
     variables: {
       [ResumeVariables.CONTENT]: promptToSSML(resume.content, resume.voice),
@@ -34,6 +33,7 @@ export const createResumeFrame = (resume: Prompt<Voice>, follow: Prompt<Voice> |
 
 const ResumeDiagramRaw = {
   id: RESUME_PROGRAM_ID,
+  name: 'Voiceflow Resume',
   lines: {
     1: {
       id: '1',
