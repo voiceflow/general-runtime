@@ -108,4 +108,5 @@ export type FrameData = Partial<{
 export enum Variables {
   TIMESTAMP = 'timestamp',
   LAST_UTTERANCE = 'last_utterance',
+  INTENT_CONFIDENCE = 'intent_confidence',
 }
