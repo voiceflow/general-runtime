@@ -80,7 +80,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     }
 
     try {
-      this.services.analyticsClient!.identify(context.versionID);
+      await this.services.analyticsClient?.identify(context.versionID);
     } catch (error) {
       logger.error(error);
     }

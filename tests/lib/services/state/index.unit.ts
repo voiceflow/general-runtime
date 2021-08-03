@@ -75,7 +75,7 @@ describe('state manager unit tests', () => {
         dataAPI: {
           get: sinon.stub().returns({ getVersion: getVersionStub }),
         },
-        analyticsClient: { identify: sinon.stub() },
+        analyticsClient: { identify: sinon.stub().resolves() },
       };
 
       const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
