@@ -79,7 +79,7 @@ export class AnalyticsSystem extends AbstractClient {
       request: {
         turn_id: turnID,
         // eslint-disable-next-line no-nested-ternary
-        type: trace ? trace.type : request ? request.type : 'launch',
+        type: (trace ?? request)?.type ?? 'launch',
         payload: trace ?? request ?? {},
         format,
         timestamp: timestamp.toISOString(),
