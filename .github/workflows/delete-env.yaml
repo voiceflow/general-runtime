@@ -9,6 +9,7 @@ jobs:
     name: Clean up dev environment
     runs-on: ubuntu-latest
     continue-on-error: true # Ignore errors
+    if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
       - name: Check PR env labels
         uses: voiceflow/pr-label-match@master

@@ -52,7 +52,11 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
 
       runtime.trace.debug(`matched intent **${request.payload.intent.name}** - confidence interval _${confidence}%_`);
 
-      runtime.variables.set('intent_confidence', Number(confidence));
+      runtime.variables.set(Variables.INTENT_CONFIDENCE, Number(confidence));
+
+      if (request.payload.query) {
+        runtime.variables.set(Variables.LAST_UTTERANCE, request.payload.query);
+      }
     }
 
     if (context.data.config?.stopTypes) {

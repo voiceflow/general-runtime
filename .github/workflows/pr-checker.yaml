@@ -8,6 +8,7 @@ jobs:
   pr-validation:
     name: Checks if the PR title is valid
     runs-on: ubuntu-latest
+    if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
       - uses: deepakputhraya/action-pr-title@master
         with:

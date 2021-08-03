@@ -202,7 +202,7 @@ describe('runtime manager unit tests', () => {
       const request = {
         type: RequestType.INTENT,
         payload: {
-          query: '',
+          query: 'hello world',
           intent: { name: 'name' },
           entities: [],
           confidence: 0.86123,
@@ -216,6 +216,7 @@ describe('runtime manager unit tests', () => {
       expect(runtime.trace.debug.args).to.eql([['matched intent **name** - confidence interval _86.12%_']]);
       expect(runtime.variables.set.args).to.eql([
         ['intent_confidence', 86.12],
+        ['last_utterance', 'hello world'],
         ['timestamp', timestamp],
       ]);
     });

@@ -13,6 +13,7 @@ jobs:
   auto-rebase:
     name: AutoRebase
     runs-on: ubuntu-latest
+    if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
       - uses: Label305/AutoRebase@v0.1
         with:

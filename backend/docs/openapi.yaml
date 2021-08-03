@@ -48,7 +48,7 @@ info:
 
         const requestOptions = {
           method: 'post',
-          uri: 'https://general-runtime.voiceflow.com/state/{versionID}/user/steve/interact',
+          url: 'https://general-runtime.voiceflow.com/state/{versionID}/user/steve/interact',
           headers: {
             Authorization: '{apiKey}'
           },

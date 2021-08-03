@@ -33,6 +33,7 @@ export const createResumeFrame = (resume: Prompt<Voice>, follow: Prompt<Voice> |
 
 const ResumeDiagramRaw = {
   id: RESUME_PROGRAM_ID,
+  name: 'Voiceflow Resume',
   lines: {
     1: {
       id: '1',

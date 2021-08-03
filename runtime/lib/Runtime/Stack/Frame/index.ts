@@ -12,6 +12,7 @@ import Store, { State as StoreState } from '../../Store';
 export interface State {
   nodeID?: string | null;
   programID: string;
+  name?: string;
 
   storage: StoreState;
   commands?: BaseCommand[];
@@ -21,6 +22,7 @@ export interface State {
 export interface Options {
   nodeID?: string | null;
   programID: string;
+  name?: string;
 
   storage?: StoreState;
   commands?: BaseCommand[];
@@ -40,6 +42,8 @@ class Frame {
 
   private programID: string;
 
+  private name?: string;
+
   private commands: BaseCommand[] = [];
 
   public storage: Store;
@@ -52,6 +56,7 @@ class Frame {
     if ('nodeID' in frameState) this.nodeID = frameState.nodeID;
 
     this.programID = frameState.diagramID ?? frameState.programID;
+    this.name = frameState.name;
 
     this.storage = new Store(frameState.storage);
     this.commands = frameState.commands ?? [];
@@ -76,6 +81,7 @@ class Frame {
 
     this.initialized = true;
 
+    this.name = program.getName();
     this.commands = program.getCommands();
     this.startNodeID = program.getStartNodeID();
 
@@ -126,6 +132,10 @@ class Frame {
 
   public getProgramID(): string {
     return this.programID;
+  }
+
+  public getName(): string | undefined {
+    return this.name;
   }
 
   public setProgramID(programID: string): void {
