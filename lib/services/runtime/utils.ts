@@ -1,15 +1,6 @@
 import { SlotMapping } from '@voiceflow/api-sdk';
 import { replaceVariables, transformStringVariableToNumber } from '@voiceflow/common';
-import {
-  AnyRequestButton,
-  IntentName,
-  IntentRequest,
-  isTextRequest,
-  NodeWithButtons,
-  NodeWithReprompt,
-  RequestType,
-  TraceType,
-} from '@voiceflow/general-types';
+import { AnyRequestButton, IntentRequest, isTextRequest, NodeWithButtons, NodeWithReprompt, RequestType, TraceType } from '@voiceflow/general-types';
 import { TraceFrame as ChoiceFrame } from '@voiceflow/general-types/build/nodes/interaction';
 import _ from 'lodash';
 
