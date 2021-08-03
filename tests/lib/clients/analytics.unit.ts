@@ -72,7 +72,7 @@ describe('Analytics client unit tests', () => {
 
       (client as any).rudderstackClient = rudderstack;
 
-      const ingestClient = { doIngest: sinon.stub() };
+      const ingestClient = { doIngest: sinon.stub().resolves({ data: { turn_id: 1 } }) };
 
       (client as any).ingestClient = ingestClient;
       const timestamp = new Date();
