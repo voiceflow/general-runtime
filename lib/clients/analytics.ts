@@ -1,4 +1,3 @@
-import Rudderstack, { IdentifyRequest, TrackRequest } from '@rudderstack/rudder-sdk-node';
 import { GeneralTrace } from '@voiceflow/general-types';
 
 import log from '@/logger';
@@ -9,47 +8,48 @@ import IngestApiClient, { Event, IngestApi, InteractBody, TurnBody } from './ing
 import { AbstractClient } from './utils';
 
 export class AnalyticsSystem extends AbstractClient {
-  private rudderstackClient?: Rudderstack;
+  // private rudderstackClient?: Rudderstack;
 
   private ingestClient?: IngestApi;
 
-  private aggregateAnalytics = false;
+  // private aggregateAnalytics = false;
 
   constructor(config: Config) {
     super(config);
 
-    if (config.ANALYTICS_WRITE_KEY && config.ANALYTICS_ENDPOINT) {
-      this.rudderstackClient = new Rudderstack(config.ANALYTICS_WRITE_KEY, `${config.ANALYTICS_ENDPOINT}/v1/batch`);
-    }
+    // if (config.ANALYTICS_WRITE_KEY && config.ANALYTICS_ENDPOINT) {
+    //   this.rudderstackClient = new Rudderstack(config.ANALYTICS_WRITE_KEY, `${config.ANALYTICS_ENDPOINT}/v1/batch`);
+    // }
 
     if (config.INGEST_WEBHOOK_ENDPOINT) {
       this.ingestClient = IngestApiClient(config.INGEST_WEBHOOK_ENDPOINT, undefined);
     }
-    this.aggregateAnalytics = !config.IS_PRIVATE_CLOUD;
+    // this.aggregateAnalytics = !config.IS_PRIVATE_CLOUD;
   }
 
   identify(id: string) {
-    const payload: IdentifyRequest = {
-      userId: id,
-    };
+    log.trace(`analytics: Identify ${id}`);
+    // const payload: IdentifyRequest = {
+    //   userId: id,
+    // };
 
-    if (this.aggregateAnalytics && this.rudderstackClient) {
-      log.trace('analytics: Identify');
-      this.rudderstackClient.identify(payload);
-    }
+    // if (this.aggregateAnalytics && this.rudderstackClient) {
+    //   log.trace('analytics: Identify');
+    //   this.rudderstackClient.identify(payload);
+    // }
   }
 
-  private callAnalyticsSystemTrack(id: string, eventID: Event, metadata: InteractBody): void {
-    const interactAnalyticsBody: TrackRequest = {
-      userId: id,
-      event: eventID,
-      properties: {
-        metadata,
-      },
-    };
+  // private callAnalyticsSystemTrack(id: string, eventID: Event, metadata: InteractBody): void {
+  //   const interactAnalyticsBody: TrackRequest = {
+  //     userId: id,
+  //     event: eventID,
+  //     properties: {
+  //       metadata,
+  //     },
+  //   };
 
-    this.rudderstackClient!.track(interactAnalyticsBody);
-  }
+  //   this.rudderstackClient!.track(interactAnalyticsBody);
+  // }
 
   private createInteractBody({
     eventID,
@@ -78,7 +78,8 @@ export class AnalyticsSystem extends AbstractClient {
       eventId: eventID,
       request: {
         turn_id: turnID,
-        type: trace ? trace.type : request ?? 'launch',
+        // eslint-disable-next-line no-nested-ternary
+        type: trace ? trace.type : request ? request.type : 'launch',
         payload: trace ?? request ?? {},
         format,
         timestamp: timestamp.toISOString(),
@@ -126,13 +127,14 @@ export class AnalyticsSystem extends AbstractClient {
     versionID: string;
     timestamp: Date;
   }): Promise<void> {
+    log.trace(`analytics: Track Trace VersionID ${versionID}`);
     // eslint-disable-next-line no-restricted-syntax
     for (const trace of Object.values(fullTrace)) {
       const interactIngestBody = this.createInteractBody({ eventID: Event.INTERACT, turnID, timestamp, trace });
 
-      if (this.aggregateAnalytics && this.rudderstackClient) {
-        this.callAnalyticsSystemTrack(versionID, interactIngestBody.eventId, interactIngestBody);
-      }
+      // if (this.aggregateAnalytics && this.rudderstackClient) {
+      //   this.callAnalyticsSystemTrack(versionID, interactIngestBody.eventId, interactIngestBody);
+      // }
       if (this.ingestClient) {
         // eslint-disable-next-line no-await-in-loop
         await this.ingestClient.doIngest(interactIngestBody);
@@ -147,23 +149,26 @@ export class AnalyticsSystem extends AbstractClient {
         const turnIngestBody = this.createTurnBody({ versionID, eventID: event, metadata, timestamp });
 
         // User/initial interact
-        if (this.aggregateAnalytics && this.rudderstackClient) {
-          this.callAnalyticsSystemTrack(versionID, event, turnIngestBody);
+        // if (this.aggregateAnalytics && this.rudderstackClient) {
+        //   this.callAnalyticsSystemTrack(versionID, event, turnIngestBody);
+        // }
+        const response = await this.ingestClient?.doIngest(turnIngestBody);
+
+        if (response) {
+          // Request
+          const interactIngestBody = this.createInteractBody({
+            eventID: Event.INTERACT,
+            turnID: response.data.turn_id,
+            timestamp,
+            trace: undefined,
+            request: metadata.request,
+          });
+          await this.ingestClient?.doIngest(interactIngestBody);
+
+          // Voiceflow response
+          return this.processTrace({ fullTrace: metadata.trace ?? [], turnID: response.data.turn_id, versionID, timestamp });
         }
-        const response = await this.ingestClient!.doIngest(turnIngestBody);
-
-        // Request
-        const interactIngestBody = this.createInteractBody({
-          eventID: Event.INTERACT,
-          turnID: response.data.turn_id,
-          timestamp,
-          trace: undefined,
-          request: metadata.request,
-        });
-        await this.ingestClient?.doIngest(interactIngestBody);
-
-        // Voiceflow response
-        return this.processTrace({ fullTrace: metadata.trace ?? [], turnID: response.data.turn_id, versionID, timestamp });
+        break;
       }
       case Event.INTERACT:
         throw new RangeError('INTERACT events are not supported');
