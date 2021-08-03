@@ -2,6 +2,7 @@ import { Version } from '@voiceflow/api-sdk';
 import { GeneralTrace } from '@voiceflow/general-types';
 import _ from 'lodash';
 
+import logger from '@/logger';
 import { PartialContext, State } from '@/runtime';
 import { Context, InitContextHandler } from '@/types';
 
@@ -77,7 +78,12 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     if (!state?.stack?.length) {
       state = this.generate(version, state);
     }
-    this.services.analyticsClient!.identify(context.versionID);
+
+    try {
+      this.services.analyticsClient!.identify(context.versionID);
+    } catch (error) {
+      logger.error(error);
+    }
 
     return {
       ...context,

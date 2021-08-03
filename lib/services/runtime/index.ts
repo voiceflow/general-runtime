@@ -5,6 +5,7 @@
 
 import { Event } from '@/lib/clients/ingest-client';
 import { Variables } from '@/lib/services/runtime/types';
+import logger from '@/logger';
 import Client from '@/runtime';
 import { Config, Context, ContextHandler } from '@/types';
 
@@ -79,7 +80,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
       trace: runtime.trace.get(),
     };
 
-    await this.services.analyticsClient!.track({ versionID, event: Event.TURN, metadata, timestamp });
+    await this.services.analyticsClient!.track({ versionID, event: Event.TURN, metadata, timestamp }).catch((error) => logger.error(error));
     return metadata;
   }
 }
