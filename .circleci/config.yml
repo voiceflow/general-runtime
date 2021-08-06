@@ -46,10 +46,23 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@0.0.138
+  vfcommon: voiceflow/common@0.0.181
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
+
+  e2e-check:
+    executor: vfcommon/e2e-executor
+    steps:
+      - vfcommon/init_e2e:
+          checkout: true
+          install_node_modules: true
+          github_username: GITHUB_USERNAME
+          github_token: GITHUB_TOKEN
+      # Service dependencies
+      - vfcommon/check_e2e:
+          port: "8005"
+
   test:
     executor: vfcommon/code-test-executor
     steps:
@@ -102,6 +115,12 @@ workflows:
   # Master (production)
   test-and-release-app:
     jobs:
+      - e2e-check:
+          <<: *slack-fail-post-step
+          context: dev-test
+          filters:
+            <<: *ignore_autorebase_staging_filters
+
       - test:
           <<: *slack-fail-post-step
           context: dev-test
@@ -112,6 +131,7 @@ workflows:
           <<: *slack-fail-post-step
           context: dev-test
           requires:
+            - e2e-check
             - test
           filters:
             branches:
