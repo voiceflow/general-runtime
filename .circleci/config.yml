@@ -60,6 +60,10 @@ jobs:
           github_username: GITHUB_USERNAME
           github_token: GITHUB_TOKEN
       # Service dependencies
+      - vfcommon/setup_vf_service:
+          service_name: server-data-api
+          github_username: GITHUB_USERNAME
+          github_token: GITHUB_TOKEN
       - vfcommon/check_e2e:
           port: "8005"
 
