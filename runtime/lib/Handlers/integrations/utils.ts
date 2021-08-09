@@ -1,8 +1,8 @@
+import { transformStringVariableToNumber } from '@voiceflow/common';
 import { IntegrationType } from '@voiceflow/general-types';
 import { GoogleSheetsActionType } from '@voiceflow/general-types/build/nodes/googleSheets';
 import { Node } from '@voiceflow/general-types/build/nodes/integration';
 import { ZapierActionType } from '@voiceflow/general-types/build/nodes/zapier';
-
 // integrations repos endpoints based on action
 export const ENDPOINTS_MAP: Record<string, Record<string, string>> = {
   [IntegrationType.GOOGLE_SHEETS]: {
@@ -16,10 +16,10 @@ export const ENDPOINTS_MAP: Record<string, Record<string, string>> = {
   },
 };
 
-export const resultMappings = (node: Node, resultData: any): Record<string, string> => {
+export const resultMappings = (node: Node, resultData: any): Record<string, string | number | null> => {
   switch (node.selected_integration) {
     case IntegrationType.GOOGLE_SHEETS: {
-      const newVariables: Record<string, string> = {};
+      const newVariables: Record<string, string | number | null> = {};
 
       if (node.action_data && node.action_data.mapping) {
         node.action_data.mapping.forEach((m) => {
@@ -31,7 +31,7 @@ export const resultMappings = (node: Node, resultData: any): Record<string, stri
           // @ts-ignore
           const isRowNumber = col === 'row_number';
 
-          newVariables[toVar] = isRowNumber ? resultData._cell_location.row : resultData[col];
+          newVariables[toVar] = transformStringVariableToNumber(isRowNumber ? resultData._cell_location.row : resultData[col]);
         });
       }
       return newVariables;
