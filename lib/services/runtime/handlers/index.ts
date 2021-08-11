@@ -45,7 +45,7 @@ export default ({ API_HANDLER_ENDPOINT, INTEGRATIONS_HANDLER_ENDPOINT, CODE_HAND
   SetV2Handler(),
   StartHandler(),
   VisualHandler(),
-  NextHandler(),
   TextHandler(),
+  NextHandler(),
   _v1Handler,
 ];
