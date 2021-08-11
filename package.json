@@ -18,7 +18,7 @@
     "@voiceflow/backend-utils": "3.3.0",
     "@voiceflow/body-parser": "^1.21.0",
     "@voiceflow/common": "6.5.0",
-    "@voiceflow/general-types": "1.51.3",
+    "@voiceflow/general-types": "1.53.0",
     "@voiceflow/logger": "1.5.2",
     "@voiceflow/natural-language-commander": "^0.5.1",
     "@voiceflow/verror": "^1.1.0",

@@ -21,6 +21,7 @@ import InteractionHandler from './interaction';
 import SpeakHandler from './speak';
 import StateHandlers from './state';
 import StreamHandler from './stream';
+import TextHandler from './text';
 import VisualHandler from './visual';
 
 const _v1Handler = _V1Handler();
@@ -45,5 +46,6 @@ export default ({ API_HANDLER_ENDPOINT, INTEGRATIONS_HANDLER_ENDPOINT, CODE_HAND
   StartHandler(),
   VisualHandler(),
   NextHandler(),
+  TextHandler(),
   _v1Handler,
 ];
