@@ -892,17 +892,7 @@
     semver "^7.3.2"
     tsutils "^3.17.1"
 
-"@voiceflow/api-sdk@1.34.0":
-  version "1.34.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.34.0.tgz#e22f9223004e9b9757f150f3ddef53b512d2e484"
-  integrity sha512-buG0ThmnKOKOiI1s05tijo0K7Nuy6J1uWvDXW3ISjqgtHKpxXhIuqWyduBxYuWemjUZtVSK3BOi6+UC+fIlvHQ==
-  dependencies:
-    "@types/atob" "^2.1.2"
-    atob "^2.1.2"
-    axios "^0.21.1"
-    superstruct "^0.10.12"
-
-"@voiceflow/api-sdk@^1.34.3":
+"@voiceflow/api-sdk@1.34.3", "@voiceflow/api-sdk@^1.34.3":
   version "1.34.3"
   resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.34.3.tgz#a2e5c282b0452935fe996cfed7edfbaa25eaf5e9"
   integrity sha512-A8BcJfyq414xgYAOxWcgyyAsrBxiyW9rMRqElObLEc/jNCW86N52BY6uPk3eienGRyDPIsaVJhi1nraI6HpiDA==
