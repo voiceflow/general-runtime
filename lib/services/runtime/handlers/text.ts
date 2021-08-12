@@ -1,6 +1,8 @@
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { NodeType, TraceType } from '@voiceflow/general-types';
-import { Descendant, Node, TraceFrame } from '@voiceflow/general-types/build/nodes/text';
+import { Descendant, Node, TextData, TraceFrame } from '@voiceflow/general-types/build/nodes/text';
+import _cloneDeepWith from 'lodash/cloneDeepWith';
+import _isString from 'lodash/isString';
 import _sample from 'lodash/sample';
 import { Text } from 'slate';
 
@@ -13,22 +15,10 @@ const slateToPlaintext = (content: Descendant[] = []): string =>
     return acc;
   }, '');
 
-const slateInjectVariables = (variables: Record<string, unknown>) => {
-  const injectVariables = (content: Descendant[] = []): Descendant[] =>
-    content.map((n) =>
-      Text.isText(n)
-        ? {
-            ...n,
-            // to counteract replaceVariables trim effect: https://github.com/voiceflow/common/blob/master/src/utils/variables.ts#L21
-            text: n.text.trim() ? replaceVariables(n.text, variables) : n.text,
-          }
-        : {
-            ...n,
-            ...(Array.isArray(n.children) && { children: injectVariables(n.children) }),
-          }
-    );
-
-  return injectVariables;
+const slateInjectVariables = (slate: TextData, variables: Record<string, unknown>) => {
+  // return undefined to recursively clone object https://stackoverflow.com/a/52956848
+  const customizer = (value: any) => (_isString(value) ? replaceVariables(value, variables, undefined, { trim: false }) : undefined);
+  return _cloneDeepWith(slate, customizer);
 };
 
 const TextHandler: HandlerFactory<Node> = () => ({
@@ -39,7 +29,7 @@ const TextHandler: HandlerFactory<Node> = () => ({
     if (slate) {
       try {
         const sanitizedVars = sanitizeVariables(variables.getState());
-        const newSlate = { id: slate.id, content: slateInjectVariables(sanitizedVars)(slate.content) };
+        const newSlate = slateInjectVariables(slate, sanitizedVars);
 
         runtime.trace.addTrace<TraceFrame>({
           type: TraceType.TEXT,
