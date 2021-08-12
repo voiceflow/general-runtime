@@ -435,40 +435,27 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - type: object
-                    description: Verbose response, only returned if you enabled the `verbose` parameter
-                    properties:
-                      trace:
-                        $ref: '#/components/schemas/Trace'
-                      state:
-                        $ref: '#/components/schemas/State'
-                      request:
-                        $ref: '#/components/schemas/Request'
-                    required:
-                      - trace
-                  - $ref: '#/components/schemas/Trace'
+                $ref: '#/components/schemas/Trace'
               examples:
                 Dialog Example:
                   value:
-                    trace:
-                      - type: speak
-                        payload:
-                          type: message
-                          message: one large pepperoni pizza is that correct?
-                      - type: speak
-                        payload:
-                          type: audio
-                          src: 'https://voiceflow.com/chime.mp3'
-                          message: "<audio src='https://voiceflow.com/chime.mp3'/>"
-                      - type: visual
-                        payload:
-                          image: 'https://voiceflow.com/splash.mp3'
-                      - type: choice
-                        payload:
-                          choices:
-                            - name: 'yes'
-                            - name: 'no'
+                    - type: speak
+                      payload:
+                        type: message
+                        message: one large pepperoni pizza is that correct?
+                    - type: speak
+                      payload:
+                        type: audio
+                        src: 'https://voiceflow.com/chime.mp3'
+                        message: "<audio src='https://voiceflow.com/chime.mp3'/>"
+                    - type: visual
+                      payload:
+                        image: 'https://voiceflow.com/splash.mp3'
+                    - type: choice
+                      payload:
+                        choices:
+                          - name: 'yes'
+                          - name: 'no'
                 Custom Trace:
                   value:
                     trace:

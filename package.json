@@ -100,6 +100,7 @@
     "nyc": "^15.1.0",
     "prettier": "^1.19.1",
     "prettier-eslint-cli": "^5.0.0",
+    "redoc-cli": "^0.12.3",
     "rimraf": "^3.0.0",
     "sinon": "^7.5.0",
     "source-map-support": "^0.5.19",
@@ -131,6 +132,7 @@
     "@types/serve-static": "1.13.9"
   },
   "scripts": {
+    "redoc": "redoc-cli serve backend/docs/openapi.yaml --ssr --watch",
     "build": "yarn clean && ttsc --project ./tsconfig.build.json && cpy app.config.js yarn.lock build/",
     "clean": "rimraf build",
     "commit": "cz",
