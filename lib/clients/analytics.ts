@@ -128,9 +128,10 @@ export class AnalyticsSystem extends AbstractClient {
     timestamp: Date;
   }): Promise<void> {
     log.trace(`analytics: Track Trace VersionID ${versionID}`);
+    let epoch_millis = timestamp.getTime();
     // eslint-disable-next-line no-restricted-syntax
     for (const trace of Object.values(fullTrace)) {
-      const interactIngestBody = this.createInteractBody({ eventID: Event.INTERACT, turnID, timestamp, trace });
+      const interactIngestBody = this.createInteractBody({ eventID: Event.INTERACT, turnID, timestamp: new Date(epoch_millis), trace });
 
       // if (this.aggregateAnalytics && this.rudderstackClient) {
       //   this.callAnalyticsSystemTrack(versionID, interactIngestBody.eventId, interactIngestBody);
@@ -139,6 +140,7 @@ export class AnalyticsSystem extends AbstractClient {
         // eslint-disable-next-line no-await-in-loop
         await this.ingestClient.doIngest(interactIngestBody);
       }
+      epoch_millis++;
     }
   }
 
