@@ -129,8 +129,11 @@ export class AnalyticsSystem extends AbstractClient {
   }): Promise<void> {
     log.trace(`analytics: Track Trace VersionID ${versionID}`);
     // eslint-disable-next-line no-restricted-syntax
-    for (const trace of Object.values(fullTrace)) {
-      const interactIngestBody = this.createInteractBody({ eventID: Event.INTERACT, turnID, timestamp, trace });
+    const unixTime = timestamp.getTime();
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const [index, trace] of fullTrace.entries()) {
+      const interactIngestBody = this.createInteractBody({ eventID: Event.INTERACT, turnID, timestamp: new Date(unixTime + index), trace });
 
       // if (this.aggregateAnalytics && this.rudderstackClient) {
       //   this.callAnalyticsSystemTrack(versionID, interactIngestBody.eventId, interactIngestBody);
