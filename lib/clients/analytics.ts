@@ -128,7 +128,6 @@ export class AnalyticsSystem extends AbstractClient {
     timestamp: Date;
   }): Promise<void> {
     log.trace(`analytics: Track Trace VersionID ${versionID}`);
-    // eslint-disable-next-line no-restricted-syntax
     const unixTime = timestamp.getTime();
 
     // eslint-disable-next-line no-restricted-syntax
