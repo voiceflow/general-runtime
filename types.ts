@@ -11,6 +11,7 @@ import * as Runtime from './runtime';
 export interface Config extends RateLimitConfig {
   NODE_ENV: string;
   PORT: string;
+  ERROR_RESPONSE_MS: number;
 
   CLOUD_ENV: string | null;
   IS_PRIVATE_CLOUD: boolean;

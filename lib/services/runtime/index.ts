@@ -80,7 +80,9 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
       trace: runtime.trace.get(),
     };
 
-    await this.services.analyticsClient?.track({ versionID, event: Event.TURN, metadata, timestamp }).catch((error) => logger.error(error));
+    // eslint-disable-next-line no-unused-expressions
+    this.services.analyticsClient?.track({ versionID, event: Event.TURN, metadata, timestamp }).catch((error) => logger.error(error));
+
     return metadata;
   }
 }

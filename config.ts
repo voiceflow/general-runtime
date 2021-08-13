@@ -16,6 +16,7 @@ const CONFIG: Config = {
   // Configs
   NODE_ENV,
   PORT: getRequiredProcessEnv('PORT'),
+  ERROR_RESPONSE_MS: Number(getOptionalProcessEnv('ERROR_RESPONSE_MS', (10 * 1000).toString())),
 
   CLOUD_ENV,
 

@@ -7,11 +7,11 @@ import * as Express from 'express';
 import helmet from 'helmet';
 import _ from 'lodash';
 
+import CONFIG from '@/config';
 import { ControllerMap, MiddlewareMap } from '@/lib';
 import log from '@/logger';
 
 import api from './api';
-import { ERROR_RESPONSE_MS } from './constants';
 
 /**
  * @class
@@ -41,7 +41,7 @@ class ExpressMiddleware {
 
     app.use(log.logMiddleware());
 
-    app.use(timeout(String(ERROR_RESPONSE_MS), { respond: false }));
+    app.use(timeout(String(CONFIG.ERROR_RESPONSE_MS), { respond: false }));
     app.use((req, res, next) => {
       req.on('timeout', () => {
         log.warn('response timeout');
