@@ -1,4 +1,4 @@
-import { EventType } from '@voiceflow/general-types';
+import { Node } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -123,7 +123,7 @@ describe('noMatch handler unit tests', () => {
     it('with buttons', () => {
       const node = {
         id: 'node-id',
-        buttons: [{ intent: 'address_intent' }, { event: { type: EventType.INTENT, intent: 'phone_number_intent' } }],
+        buttons: [{ intent: 'address_intent' }, { event: { type: Node.Utils.EventType.INTENT, intent: 'phone_number_intent' } }],
       };
       const runtime = {
         storage: {

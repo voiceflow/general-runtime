@@ -1,4 +1,4 @@
-import { RequestType } from '@voiceflow/general-types';
+import { Request } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -52,7 +52,7 @@ describe('runtime manager unit tests', () => {
 
       const state = { foo2: 'bar2' };
       const request = {
-        type: RequestType.INTENT,
+        type: Request.RequestType.INTENT,
         payload: {},
       };
       const context = { state, request, versionID: VERSION_ID, data: { api: { getProgram: 'api' } } } as any;
@@ -102,7 +102,7 @@ describe('runtime manager unit tests', () => {
 
       const state = { foo2: 'bar2' };
       const request = {
-        type: RequestType.TEXT,
+        type: Request.RequestType.TEXT,
         payload: 'hi',
       };
       const context = { state, request, versionID: VERSION_ID, data: { api: { getProgram: 'api' }, config: { stopTypes: ['t1', 't2'] } } } as any;
@@ -150,7 +150,7 @@ describe('runtime manager unit tests', () => {
       const runtimeManager = new RuntimeManager({ ...services, utils: { ...defaultUtils, ...utils } } as any, config as any);
 
       const request = {
-        type: RequestType.INTENT,
+        type: Request.RequestType.INTENT,
         payload: {},
       };
       const state = { foo: 'bar' };
@@ -200,7 +200,7 @@ describe('runtime manager unit tests', () => {
       const runtimeManager = new RuntimeManager({ ...services, utils: { ...defaultUtils, ...utils } } as any, config as any);
 
       const request = {
-        type: RequestType.INTENT,
+        type: Request.RequestType.INTENT,
         payload: {
           query: 'hello world',
           intent: { name: 'name' },

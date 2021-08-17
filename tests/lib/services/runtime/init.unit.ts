@@ -1,5 +1,4 @@
-import { TraceType } from '@voiceflow/general-types';
-import { SpeakType } from '@voiceflow/general-types/build/nodes/speak';
+import { Node } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -26,7 +25,7 @@ describe('runtime init service unit tests', () => {
       expect(runtime.trace.addTrace.args).to.eql([
         [
           {
-            type: TraceType.FLOW,
+            type: Node.Utils.TraceType.FLOW,
             payload: { diagramID: undefined, name: undefined },
           },
         ],
@@ -49,7 +48,7 @@ describe('runtime init service unit tests', () => {
       expect(runtime.trace.addTrace.args).to.eql([
         [
           {
-            type: TraceType.FLOW,
+            type: Node.Utils.TraceType.FLOW,
             payload: { diagramID: programID, name },
           },
         ],
@@ -129,7 +128,9 @@ describe('runtime init service unit tests', () => {
         fn2(draft);
         expect(draft).to.eql({ [StorageType.OUTPUT]: `${prevOutput}${output}` });
 
-        expect(runtime.trace.addTrace.args).to.eql([[{ type: TraceType.SPEAK, payload: { message: output, type: SpeakType.MESSAGE } }]]);
+        expect(runtime.trace.addTrace.args).to.eql([
+          [{ type: Node.Utils.TraceType.SPEAK, payload: { message: output, type: Node.Speak.TraceSpeakType.MESSAGE } }],
+        ]);
       });
     });
   });

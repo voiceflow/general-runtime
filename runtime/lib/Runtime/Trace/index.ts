@@ -1,6 +1,5 @@
 import { Node } from '@voiceflow/base-types';
 
-// import { BaseTraceFrame } from '@voiceflow/general-types';
 import { EventType } from '@/runtime/lib/Lifecycle';
 
 import Runtime from '..';

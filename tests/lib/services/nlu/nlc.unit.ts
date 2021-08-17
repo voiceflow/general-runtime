@@ -1,21 +1,13 @@
-import { DEFAULT_INTENTS_MAP, RequestType } from '@voiceflow/general-types';
+import { Request } from '@voiceflow/base-types';
+import { Constants } from '@voiceflow/general-types';
 import * as NLC from '@voiceflow/natural-language-commander';
 import * as standardSlots from '@voiceflow/natural-language-commander/dist/lib/standardSlots';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import * as nlc from '@/lib/services/nlu/nlc';
-import {
-  createNLC,
-  handleNLCCommand,
-  handleNLCDialog,
-  nlcToIntent,
-  registerBuiltInIntents,
-  registerIntents,
-  registerSlots,
-} from '@/lib/services/nlu/nlc';
+import { createNLC, handleNLCCommand, handleNLCDialog, nlcToIntent, registerBuiltInIntents } from '@/lib/services/nlu/nlc';
 import * as utils from '@/lib/services/nlu/utils';
-import * as logger from '@/logger';
 
 describe('nlu nlc service unit tests', () => {
   afterEach(() => {
@@ -167,7 +159,7 @@ describe('nlu nlc service unit tests', () => {
       const confidence = 0.8;
 
       expect(nlcToIntent(intent, query, confidence)).to.eql({
-        type: RequestType.INTENT,
+        type: Request.RequestType.INTENT,
         payload: {
           query,
           intent: { name: intent.intent },
@@ -189,7 +181,7 @@ describe('nlu nlc service unit tests', () => {
       };
 
       registerBuiltInIntents(nlcObj as any, locale as any);
-      const registerIntentArgs = DEFAULT_INTENTS_MAP.en.map(({ name, samples }) => [{ intent: name, utterances: samples }]);
+      const registerIntentArgs = Constants.DEFAULT_INTENTS_MAP.en.map(({ name, samples }) => [{ intent: name, utterances: samples }]);
       expect(nlcObj.registerIntent.args).to.eql(registerIntentArgs);
     });
 
@@ -202,7 +194,7 @@ describe('nlu nlc service unit tests', () => {
       };
 
       registerBuiltInIntents(nlcObj as any);
-      const registerIntentArgs = DEFAULT_INTENTS_MAP.en.map(({ name, samples }) => [{ intent: name, utterances: samples }]);
+      const registerIntentArgs = Constants.DEFAULT_INTENTS_MAP.en.map(({ name, samples }) => [{ intent: name, utterances: samples }]);
       expect(nlcObj.registerIntent.args).to.eql(registerIntentArgs);
     });
 
@@ -216,7 +208,7 @@ describe('nlu nlc service unit tests', () => {
       };
 
       registerBuiltInIntents(nlcObj as any, locale as any);
-      const registerIntentArgs = DEFAULT_INTENTS_MAP.es.map(({ name, samples }) => [{ intent: name, utterances: samples }]);
+      const registerIntentArgs = Constants.DEFAULT_INTENTS_MAP.es.map(({ name, samples }) => [{ intent: name, utterances: samples }]);
       expect(nlcObj.registerIntent.args).to.eql(registerIntentArgs);
     });
   });

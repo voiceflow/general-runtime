@@ -7,8 +7,11 @@ import { HandlerFactory } from '@/runtime';
 
 import { FrameType, SpeakFrame, StorageType } from '../types';
 
+// TODO: probably we can remove it, since prompt is not used in the node handler, and does not exist in general service handler
+const isPromptSpeak = (node: Node.Speak.Node & { prompt?: unknown }) => _.isString(node.prompt) && node.prompt !== 'true';
+
 const SpeakHandler: HandlerFactory<Node.Speak.Node> = () => ({
-  canHandle: (node) => ('random_speak' in node ? !!node.random_speak : !!node.speak) || (_.isString(node.prompt) && node.prompt !== 'true'),
+  canHandle: (node) => ('random_speak' in node ? !!node.random_speak : !!node.speak) || isPromptSpeak(node),
   handle: (node, runtime, variables) => {
     let speak = '';
 

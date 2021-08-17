@@ -1,5 +1,5 @@
 /* eslint-disable max-nested-callbacks */
-import { CommandType } from '@voiceflow/general-types';
+import { Node } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -93,7 +93,7 @@ describe('Command handler', () => {
 
     describe('command type jump', () => {
       it('no top of stack', () => {
-        const commandObj = { event: { foo: 'bar' }, type: CommandType.JUMP, nextID: 'next-id' };
+        const commandObj = { event: { foo: 'bar' }, type: Node.Utils.CommandType.JUMP, nextID: 'next-id' };
         const index = 1;
         const sideEffectStub = sinon.stub();
         const utils = {
@@ -124,7 +124,7 @@ describe('Command handler', () => {
 
       describe('top of stack', () => {
         it('with nextID', () => {
-          const commandObj = { event: { foo: 'bar' }, type: CommandType.JUMP, nextID: 'next-id' };
+          const commandObj = { event: { foo: 'bar' }, type: Node.Utils.CommandType.JUMP, nextID: 'next-id' };
           const index = 2;
           const sideEffectStub = sinon.stub();
           const utils = {
@@ -151,7 +151,7 @@ describe('Command handler', () => {
         });
 
         it('no nextID', () => {
-          const commandObj = { event: { foo: 'bar' }, type: CommandType.JUMP };
+          const commandObj = { event: { foo: 'bar' }, type: Node.Utils.CommandType.JUMP };
           const index = 2;
           const sideEffectStub = sinon.stub();
           const utils = {
@@ -181,7 +181,7 @@ describe('Command handler', () => {
 
     describe('command type push', () => {
       it('no diagramID', () => {
-        const commandObj = { event: { foo: 'bar' }, type: CommandType.PUSH };
+        const commandObj = { event: { foo: 'bar' }, type: Node.Utils.CommandType.PUSH };
         const sideEffectStub = sinon.stub();
         const utils = {
           findEventMatcher: sinon.stub().returns({ sideEffect: sideEffectStub }),
@@ -200,7 +200,7 @@ describe('Command handler', () => {
       });
 
       it('with diagramID', () => {
-        const commandObj = { event: { foo: 'bar' }, type: CommandType.PUSH, diagramID: 'diagram-id' };
+        const commandObj = { event: { foo: 'bar' }, type: Node.Utils.CommandType.PUSH, diagramID: 'diagram-id' };
         const sideEffectStub = sinon.stub();
         const utils = {
           findEventMatcher: sinon.stub().returns({ sideEffect: sideEffectStub }),

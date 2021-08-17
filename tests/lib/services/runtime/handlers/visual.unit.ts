@@ -1,4 +1,4 @@
-import { NodeType, TraceType } from '@voiceflow/general-types';
+import { Node } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -6,7 +6,7 @@ import VisualHandler from '@/lib/services/runtime/handlers/visual';
 
 const getMockDependencies = () => ({
   node: {
-    type: NodeType.VISUAL,
+    type: Node.NodeType.VISUAL,
     data: 'data',
   } as any,
   runtime: {
@@ -43,6 +43,6 @@ describe('Visual handler', () => {
     handler.handle(deps.node, deps.runtime, null as any, null as any);
 
     expect(deps.runtime.trace.debug.args).to.eql([['__visual__ - entered']]);
-    expect(deps.runtime.trace.addTrace.args).to.eql([[{ type: TraceType.VISUAL, payload: deps.node.data }]]);
+    expect(deps.runtime.trace.addTrace.args).to.eql([[{ type: Node.Utils.TraceType.VISUAL, payload: deps.node.data }]]);
   });
 });

@@ -1,11 +1,11 @@
-import { IntentRequest, RequestType } from '@voiceflow/general-types';
+import { Request } from '@voiceflow/base-types';
 import sinon from 'sinon';
 
 import CacheDataAPI from '@/lib/services/state/cacheDataAPI';
 import { Context } from '@/types';
 
-export const mockUnfulfilledIntentRequest: IntentRequest = {
-  type: RequestType.INTENT,
+export const mockUnfulfilledIntentRequest: Request.IntentRequest = {
+  type: Request.RequestType.INTENT,
   payload: {
     query: 'I want some large chicken wings',
     intent: {
@@ -229,8 +229,8 @@ export const mockLM = {
   ],
 };
 
-export const mockRegularUnrelatedResult: IntentRequest = {
-  type: RequestType.INTENT,
+export const mockRegularUnrelatedResult: Request.IntentRequest = {
+  type: Request.RequestType.INTENT,
   payload: {
     query: 'I want to order some chicken wings',
     intent: {
@@ -240,8 +240,8 @@ export const mockRegularUnrelatedResult: IntentRequest = {
   },
 };
 
-export const mockDMPrefixUnrelatedResult: IntentRequest = {
-  type: RequestType.INTENT,
+export const mockDMPrefixUnrelatedResult: Request.IntentRequest = {
+  type: Request.RequestType.INTENT,
   payload: {
     query: 'b5c1b7fae5e4c5b87a39e68d8e27028f I want to order some chicken wings',
     intent: {
@@ -256,8 +256,8 @@ export const mockDMPrefixUnrelatedResult: IntentRequest = {
   },
 };
 
-export const mockDMPrefixedUnrelatedSingleEntityResult: IntentRequest = {
-  type: RequestType.INTENT,
+export const mockDMPrefixedUnrelatedSingleEntityResult: Request.IntentRequest = {
+  type: Request.RequestType.INTENT,
   payload: {
     query: 'cd55d3ff73dce9bbb75edc60ab5c81be I want a small chicken wings',
     intent: {
@@ -276,8 +276,8 @@ export const mockDMPrefixedUnrelatedSingleEntityResult: IntentRequest = {
   },
 };
 
-export const mockRegularNoEntityResult: IntentRequest = {
-  type: RequestType.INTENT,
+export const mockRegularNoEntityResult: Request.IntentRequest = {
+  type: Request.RequestType.INTENT,
   payload: {
     query: 'I want a pizza',
     intent: {
@@ -287,8 +287,8 @@ export const mockRegularNoEntityResult: IntentRequest = {
   },
 };
 
-export const mockDMPrefixedNoEntityResult: IntentRequest = {
-  type: RequestType.INTENT,
+export const mockDMPrefixedNoEntityResult: Request.IntentRequest = {
+  type: Request.RequestType.INTENT,
   payload: {
     query: 'b5c1b7fae5e4c5b87a39e68d8e27028f I want a pizza',
     intent: {
@@ -303,8 +303,8 @@ export const mockDMPrefixedNoEntityResult: IntentRequest = {
   },
 };
 
-export const mockRegularMultipleEntityResult: IntentRequest = {
-  type: RequestType.INTENT,
+export const mockRegularMultipleEntityResult: Request.IntentRequest = {
+  type: Request.RequestType.INTENT,
   payload: {
     query: 'I want a large pepperoni pizza',
     intent: {
@@ -323,8 +323,8 @@ export const mockRegularMultipleEntityResult: IntentRequest = {
   },
 };
 
-export const mockDMPrefixedMultipleEntityResult: IntentRequest = {
-  type: RequestType.INTENT,
+export const mockDMPrefixedMultipleEntityResult: Request.IntentRequest = {
+  type: Request.RequestType.INTENT,
   payload: {
     query: 'b5c1b7fae5e4c5b87a39e68d8e27028f I want a large pepperoni pizza',
     intent: {
@@ -347,8 +347,8 @@ export const mockDMPrefixedMultipleEntityResult: IntentRequest = {
   },
 };
 
-export const mockRegularSingleEntityResult: IntentRequest = {
-  type: RequestType.INTENT,
+export const mockRegularSingleEntityResult: Request.IntentRequest = {
+  type: Request.RequestType.INTENT,
   payload: {
     query: 'I want a small pizza',
     intent: {
@@ -363,8 +363,8 @@ export const mockRegularSingleEntityResult: IntentRequest = {
   },
 };
 
-export const mockDMPrefixedSingleEntityResult: IntentRequest = {
-  type: RequestType.INTENT,
+export const mockDMPrefixedSingleEntityResult: Request.IntentRequest = {
+  type: Request.RequestType.INTENT,
   payload: {
     query: 'b5c1b7fae5e4c5b87a39e68d8e27028f I want a small pizza',
     intent: {
@@ -383,8 +383,8 @@ export const mockDMPrefixedSingleEntityResult: IntentRequest = {
   },
 };
 
-export const mockDMPrefixedNonSubsetEntityResult: IntentRequest = {
-  type: RequestType.INTENT,
+export const mockDMPrefixedNonSubsetEntityResult: Request.IntentRequest = {
+  type: Request.RequestType.INTENT,
   payload: {
     query: 'A crazy blue query',
     intent: {
@@ -418,8 +418,8 @@ export const mockDataAPI = ({
   getVersion: sinon.stub().resolves(mockVersion),
 } as any) as CacheDataAPI;
 
-export const mockFulfilledIntentRequest: IntentRequest = {
-  type: RequestType.INTENT,
+export const mockFulfilledIntentRequest: Request.IntentRequest = {
+  type: Request.RequestType.INTENT,
   payload: {
     query: 'I want some spicy chicken wings',
     intent: {
@@ -486,8 +486,8 @@ export const mockRegularContext: Context = {
   },
 };
 
-export const mockEntitySynonymRequest: IntentRequest = {
-  type: RequestType.INTENT,
+export const mockEntitySynonymRequest: Request.IntentRequest = {
+  type: Request.RequestType.INTENT,
   payload: {
     query: 'I want some huge chicken wings',
     intent: {
@@ -502,8 +502,8 @@ export const mockEntitySynonymRequest: IntentRequest = {
   },
 };
 
-export const mockEntityNonSynonymRequest: IntentRequest = {
-  type: RequestType.INTENT,
+export const mockEntityNonSynonymRequest: Request.IntentRequest = {
+  type: Request.RequestType.INTENT,
   payload: {
     query: 'I want some medium chicken wings',
     intent: {

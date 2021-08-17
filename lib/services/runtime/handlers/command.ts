@@ -1,5 +1,4 @@
 import { Node as BaseNode } from '@voiceflow/base-types';
-import { Node } from '@voiceflow/general-types';
 
 import { FrameType, GeneralRuntime } from '@/lib/services/runtime/types';
 import { Action, extractFrameCommand, Frame, Store } from '@/runtime';
@@ -7,9 +6,9 @@ import { Action, extractFrameCommand, Frame, Store } from '@/runtime';
 import { findEventMatcher, hasEventMatch } from './event';
 
 export const getCommand = (runtime: GeneralRuntime, extractFrame: typeof extractFrameCommand) => {
-  const frameMatch = (command: Node.Command.Command | null) => hasEventMatch(command?.event || null, runtime);
+  const frameMatch = (command: BaseNode.Utils.AnyCommand | null) => hasEventMatch(command?.event || null, runtime);
 
-  return extractFrame<Node.Command.Command>(runtime.stack, frameMatch) || null;
+  return extractFrame<BaseNode.Utils.AnyCommand>(runtime.stack, frameMatch) || null;
 };
 
 const utilsObj = {

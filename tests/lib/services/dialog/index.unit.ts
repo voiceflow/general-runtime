@@ -1,9 +1,8 @@
 /* eslint-disable no-unused-expressions */
-import { IntentRequest } from '@voiceflow/general-types';
+import { Request } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import DataAPI from '@/lib/clients/dataAPI';
 import DialogManager, { utils as defaultUtils } from '@/lib/services/dialog';
 import * as utils from '@/lib/services/dialog/utils';
 
@@ -184,7 +183,7 @@ describe('dialog manager unit tests', () => {
       it('removes the DM prefix entities from final entity list', async () => {
         const result = await dm.handle(mockRegularContext);
 
-        const resultEntities = (result.request as IntentRequest).payload.entities;
+        const resultEntities = (result.request as Request.IntentRequest).payload.entities;
         const hasDMPrefix = resultEntities.some((entity) => entity.name.startsWith(utils.VF_DM_PREFIX));
         expect(hasDMPrefix).to.be.false;
       });

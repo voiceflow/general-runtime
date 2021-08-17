@@ -1,4 +1,4 @@
-import { RequestType } from '@voiceflow/general-types';
+import { Request } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -69,7 +69,11 @@ describe('interact service unit tests', () => {
     it('launch request', async () => {
       const data = {
         headers: { authorization: 'auth', origin: 'origin', sessionid: 'sessionid' },
-        body: { state: { foo: 'bar', stack: [{}, {}], storage: { foo: 'bar' } }, request: { type: RequestType.LAUNCH }, config: { tts: true } },
+        body: {
+          state: { foo: 'bar', stack: [{}, {}], storage: { foo: 'bar' } },
+          request: { type: Request.RequestType.LAUNCH },
+          config: { tts: true },
+        },
         params: { versionID: 'versionID' },
         query: { locale: 'locale' },
       };

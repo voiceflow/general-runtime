@@ -1,4 +1,4 @@
-import { IntegrationType } from '@voiceflow/general-types';
+import { Node } from '@voiceflow/base-types';
 import axios from 'axios';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -23,7 +23,12 @@ describe('API Handler unit tests', () => {
     it('true', () => {
       const apiHandler = APIHandler(DEFAULT_OPTIONS);
       expect(
-        apiHandler.canHandle({ type: 'integrations', selected_integration: IntegrationType.CUSTOM_API } as any, null as any, null as any, null as any)
+        apiHandler.canHandle(
+          { type: 'integrations', selected_integration: Node.Utils.IntegrationType.CUSTOM_API } as any,
+          null as any,
+          null as any,
+          null as any
+        )
       ).to.eql(true);
     });
   });
@@ -38,7 +43,7 @@ describe('API Handler unit tests', () => {
       const resultVariables = { data: { variables: { foo: 'bar' }, response: { status: 200 } } };
       const axiosPost = sinon.stub(axios, 'post').resolves(resultVariables);
 
-      const node = { selected_integration: IntegrationType.CUSTOM_API, selected_action: 'Make a GET Request' };
+      const node = { selected_integration: Node.Utils.IntegrationType.CUSTOM_API, selected_action: 'Make a GET Request' };
       const runtime = { trace: { debug: sinon.stub() } };
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 
@@ -54,7 +59,7 @@ describe('API Handler unit tests', () => {
       const axiosPost = sinon.stub(axios, 'post').resolves(resultVariables);
       const local = sinon.stub(APIUtils, 'makeAPICall').resolves(resultVariables.data as any);
 
-      const node = { selected_integration: IntegrationType.CUSTOM_API, selected_action: 'Make a GET Request', action_data: 'actionData' };
+      const node = { selected_integration: Node.Utils.IntegrationType.CUSTOM_API, selected_action: 'Make a GET Request', action_data: 'actionData' };
       const runtime = { trace: { debug: sinon.stub() } };
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 

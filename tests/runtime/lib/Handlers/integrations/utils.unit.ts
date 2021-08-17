@@ -1,4 +1,4 @@
-import { IntegrationType } from '@voiceflow/general-types';
+import { Node } from '@voiceflow/base-types';
 import { expect } from 'chai';
 
 import { resultMappings } from '@/runtime/lib/Handlers/integrations/utils';
@@ -8,13 +8,13 @@ describe('handlers integrations utils unit tests', () => {
     describe('GOOGLE_SHEETS', () => {
       it('no mappings', () => {
         const resultData = { foo: 'bar' };
-        expect(resultMappings({ selected_integration: IntegrationType.GOOGLE_SHEETS } as any, resultData as any)).to.eql({});
+        expect(resultMappings({ selected_integration: Node.Utils.IntegrationType.GOOGLE_SHEETS } as any, resultData as any)).to.eql({});
       });
 
       it('with mappings', () => {
         const resultData = { _cell_location: { row: 'val1' }, foo: 'val2' };
         const node = {
-          selected_integration: IntegrationType.GOOGLE_SHEETS,
+          selected_integration: Node.Utils.IntegrationType.GOOGLE_SHEETS,
           action_data: {
             mapping: [
               { arg1: 'row_number', arg2: 'var1' },
@@ -28,11 +28,11 @@ describe('handlers integrations utils unit tests', () => {
 
     it('CUSTOM_API', () => {
       const resultData = { foo: 'bar' };
-      expect(resultMappings({ selected_integration: IntegrationType.CUSTOM_API } as any, resultData as any)).to.eql(resultData);
+      expect(resultMappings({ selected_integration: Node.Utils.IntegrationType.CUSTOM_API } as any, resultData as any)).to.eql(resultData);
     });
 
     it('ZAPIER', () => {
-      expect(resultMappings({ selected_integration: IntegrationType.ZAPIER } as any, null as any)).to.eql({});
+      expect(resultMappings({ selected_integration: Node.Utils.IntegrationType.ZAPIER } as any, null as any)).to.eql({});
     });
   });
 });

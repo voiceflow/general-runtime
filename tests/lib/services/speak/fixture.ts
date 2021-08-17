@@ -1,5 +1,4 @@
-import { DeviceType, SpeakTrace, TraceType, VisualTrace } from '@voiceflow/general-types';
-import { CanvasVisibility, VisualType } from '@voiceflow/general-types/build/nodes/visual';
+import { Node } from '@voiceflow/base-types';
 
 import { Context, PartialContext } from '@/runtime';
 
@@ -8,30 +7,30 @@ export const audioUrl = 'http://localhost:8000/audio.local/1613583846532-mixaund
 export const audioMsg = `<audio src="${audioUrl}"/>`;
 
 export const malformedTrace1 = {
-  type: TraceType.SPEAK,
+  type: Node.Utils.TraceType.SPEAK,
   payload: {
     message: audioMsg,
   },
-} as SpeakTrace;
+} as Node.Speak.TraceFrame;
 
 export const malformedTrace2 = {
-  type: TraceType.SPEAK,
+  type: Node.Utils.TraceType.SPEAK,
   payload: {
     message: '',
   },
-} as SpeakTrace;
+} as Node.Speak.TraceFrame;
 
-export const DB_VISUAL_TRACE: VisualTrace = {
-  type: TraceType.VISUAL,
+export const DB_VISUAL_TRACE: Node.Visual.TraceFrame = {
+  type: Node.Utils.TraceType.VISUAL,
   payload: {
-    visualType: VisualType.IMAGE,
+    visualType: Node.Visual.VisualType.IMAGE,
     image: 'the-image.url',
-    device: DeviceType.DESKTOP,
+    device: Node.Visual.DeviceType.DESKTOP,
     dimensions: {
       height: 100,
       width: 200,
     },
-    canvasVisibility: CanvasVisibility.CROPPED,
+    canvasVisibility: Node.Visual.CanvasVisibility.CROPPED,
   },
 };
 

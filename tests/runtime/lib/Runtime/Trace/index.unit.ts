@@ -1,4 +1,4 @@
-import { TraceFrame } from '@voiceflow/general-types';
+import { Node } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import _ from 'lodash';
 import sinon from 'sinon';
@@ -24,7 +24,7 @@ describe('Runtime Trace unit tests', () => {
 
     it('does not add frame', () => {
       const runtime = { callEvent: sinon.stub() };
-      const fakeFn = (_event: string, utils: { frame: TraceFrame; stop: Function }) => {
+      const fakeFn = (_event: string, utils: { frame: Node.Utils.BaseTraceFrame; stop: Function }) => {
         utils.stop();
       };
       runtime.callEvent.callsFake(fakeFn);

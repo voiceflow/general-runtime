@@ -1,4 +1,4 @@
-import { NodeType } from '@voiceflow/general-types';
+import { Node } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -12,7 +12,7 @@ describe('ifHandler unit tests', () => {
   describe('canHandle', () => {
     it('false', () => {
       expect(ifHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
-      expect(ifHandler.canHandle({ type: NodeType.IF_V2 } as any, null as any, null as any, null as any)).to.eql(false);
+      expect(ifHandler.canHandle({ type: Node.NodeType.IF_V2 } as any, null as any, null as any, null as any)).to.eql(false);
     });
 
     it('true', () => {
