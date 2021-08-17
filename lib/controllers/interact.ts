@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 
-import { Config } from '@voiceflow/general-types';
+import { Request as BaseRequest } from '@voiceflow/base-types';
 import { Request } from 'express';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
@@ -16,7 +16,9 @@ class InteractController extends AbstractController {
     return this.services.interact.state(req);
   }
 
-  async handler(req: Request<{ versionID: string }, null, { state?: State; request?: RuntimeRequest; config?: Config }, { locale?: string }>) {
+  async handler(
+    req: Request<{ versionID: string }, null, { state?: State; request?: RuntimeRequest; config?: BaseRequest.RequestConfig }, { locale?: string }>
+  ) {
     return this.services.interact.handler(req);
   }
 }

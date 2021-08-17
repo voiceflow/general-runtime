@@ -1,6 +1,5 @@
 /* eslint-disable no-restricted-syntax */
-import { Node } from '@voiceflow/general-types/build/nodes/_v1';
-import { BaseTraceFrame } from '@voiceflow/general-types/build/nodes/types';
+import { Node } from '@voiceflow/base-types';
 
 import { Action, HandlerFactory } from '@/runtime';
 
@@ -13,7 +12,7 @@ const utilsObj = {
   findEventMatcher,
 };
 
-export const _V1Handler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
+export const _V1Handler: HandlerFactory<Node._v1.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => node._v === 1,
   handle: (node, runtime, variables) => {
     const defaultPath = node.paths[node.defaultPath!]?.nextID || null;
@@ -42,7 +41,7 @@ export const _V1Handler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
       return null;
     }
 
-    runtime.trace.addTrace<BaseTraceFrame<unknown>>({
+    runtime.trace.addTrace<Node.Utils.BaseTraceFrame<unknown>>({
       type: node.type,
       payload: node.payload,
       defaultPath: node.defaultPath,

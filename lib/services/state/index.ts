@@ -1,5 +1,5 @@
 import { Version } from '@voiceflow/api-sdk';
-import { GeneralTrace } from '@voiceflow/general-types';
+import { Trace } from '@voiceflow/base-types';
 import _ from 'lodash';
 
 import logger from '@/logger';
@@ -88,7 +88,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     return {
       ...context,
       state: this.initializeVariables(version, state),
-      trace: [] as GeneralTrace[],
+      trace: [] as Trace.AnyTrace[],
       request: context.request || null,
       versionID: context.versionID,
       data: { ...context.data, locale, api },

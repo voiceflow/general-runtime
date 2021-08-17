@@ -4,8 +4,8 @@
  */
 
 import { PrototypeModel } from '@voiceflow/api-sdk';
-import { GeneralTrace, IntentRequest, Locale, TraceType } from '@voiceflow/general-types';
-import { SpeakType } from '@voiceflow/general-types/build/nodes/speak';
+import { Node as BaseNode, Request, Trace } from '@voiceflow/base-types';
+import { Constants } from '@voiceflow/general-types';
 import _ from 'lodash';
 
 import logger from '@/logger';
@@ -33,7 +33,7 @@ export const utils = {
 };
 
 declare type DMStore = {
-  intentRequest?: IntentRequest;
+  intentRequest?: Request.IntentRequest;
 };
 
 @injectServices({ utils })
@@ -42,7 +42,12 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     return { ...context, state: { ...context.state, storage: { ...context.state.storage, dm: store } } };
   }
 
-  handleDMContext = (dmStateStore: DMStore, dmPrefixedResult: IntentRequest, incomingRequest: IntentRequest, languageModel: PrototypeModel) => {
+  handleDMContext = (
+    dmStateStore: DMStore,
+    dmPrefixedResult: Request.IntentRequest,
+    incomingRequest: Request.IntentRequest,
+    languageModel: PrototypeModel
+  ) => {
     const dmPrefixedResultName = dmPrefixedResult.payload.intent.name;
     logger.trace(`@DM - DM-Prefixed inference result: ${dmPrefixedResultName}`);
 
@@ -137,7 +142,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         const resultNLC = handleNLCDialog({
           query,
           model: version.prototype.model,
-          locale: version.prototype.data!.locales[0] as Locale,
+          locale: version.prototype.data!.locales[0] as Constants.Locale,
           dmRequest: dmStateStore.intentRequest,
         });
 
@@ -172,21 +177,21 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     if (unfulfilledEntity) {
       // There are unfulfilled required entities -> return dialog management prompt
       // Assemble return string by populating the inline entity values
-      const trace: GeneralTrace[] = [];
+      const trace: Trace.AnyTrace[] = [];
 
       const prompt = _.sample(unfulfilledEntity.dialog.prompt)!;
 
       trace.push({
-        type: TraceType.SPEAK,
+        type: BaseNode.Utils.TraceType.SPEAK,
         payload: {
           message: fillStringEntities(inputToString(prompt, version.platformData.settings.defaultVoice), dmStateStore!.intentRequest),
-          type: SpeakType.MESSAGE,
+          type: BaseNode.Speak.TraceSpeakType.MESSAGE,
         },
       });
 
       if (version.prototype?.model) {
         trace.push({
-          type: TraceType.CHOICE,
+          type: BaseNode.Utils.TraceType.CHOICE,
           payload: {
             buttons: generateButtonsForUtterances(unfulfilledEntity.dialog.utterances, version.prototype.model),
           },

@@ -1,5 +1,5 @@
 import { RateLimitConfig, Validator } from '@voiceflow/backend-utils';
-import { Config as RequestConfig, GeneralTrace } from '@voiceflow/general-types';
+import { Request, Trace } from '@voiceflow/base-types';
 import * as Express from 'express';
 import http from 'http';
 
@@ -90,7 +90,7 @@ export type AnyClass = Class<any, any[]>;
 export type ContextData = {
   locale?: string;
   api: CacheDataAPI;
-  config?: RequestConfig;
+  config?: Request.RequestConfig;
   reqHeaders?: {
     authorization?: string;
     origin?: string;
@@ -98,6 +98,6 @@ export type ContextData = {
   };
 };
 
-export type Context = Runtime.Context<RuntimeRequest, GeneralTrace, ContextData>;
+export type Context = Runtime.Context<RuntimeRequest, Trace.AnyTrace, ContextData>;
 export type ContextHandler = Runtime.ContextHandler<Context>;
 export type InitContextHandler = Runtime.InitContextHandler<Context>;

@@ -1,7 +1,7 @@
 import { BaseNode } from '@voiceflow/api-sdk';
+import { Node, Request, Trace } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
-import { NodeWithButtons, NodeWithNoMatches, TraceType } from '@voiceflow/general-types';
-import { SpeakType, TraceFrame } from '@voiceflow/general-types/build/nodes/speak';
+import { Node as VoiceNode } from '@voiceflow/voice-types';
 import _ from 'lodash';
 
 import { HandlerFactory, Runtime, Store } from '@/runtime';
@@ -9,7 +9,7 @@ import { HandlerFactory, Runtime, Store } from '@/runtime';
 import { NoMatchCounterStorage, StorageData, StorageType } from '../types';
 import { addButtonsIfExists } from '../utils';
 
-export interface NoMatchNode extends BaseNode, NodeWithButtons, NodeWithNoMatches {}
+export interface NoMatchNode extends BaseNode, Request.NodeButton, VoiceNode.Utils.NodeNoMatch {}
 
 export const EMPTY_AUDIO_STRING = '<audio src=""/>';
 
@@ -51,9 +51,9 @@ export const NoMatchHandler: HandlerFactory<NoMatchNode, typeof utilsObj> = (uti
     runtime.storage.produce<StorageData>((draft) => {
       draft[StorageType.OUTPUT] += output;
     });
-    runtime.trace.addTrace<TraceFrame>({
-      type: TraceType.SPEAK,
-      payload: { message: output, type: SpeakType.MESSAGE },
+    runtime.trace.addTrace<Trace.SpeakTrace>({
+      type: Node.Utils.TraceType.SPEAK,
+      payload: { message: output, type: Node.Speak.TraceSpeakType.MESSAGE },
     });
 
     utils.addButtonsIfExists(node, runtime, variables);

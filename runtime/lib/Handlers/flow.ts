@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/general-types/build/nodes/flow';
+import { Node } from '@voiceflow/base-types';
 
 import { S } from '@/runtime/lib/Constants';
 import { HandlerFactory } from '@/runtime/lib/Handler';
@@ -6,7 +6,7 @@ import Frame from '@/runtime/lib/Runtime/Stack/Frame';
 
 import { mapStores } from '../Runtime/utils/variables';
 
-const FlowHandler: HandlerFactory<Node> = () => ({
+const FlowHandler: HandlerFactory<Node.Flow.Node> = () => ({
   canHandle: (node) => !!node.diagram_id,
   handle: (node, runtime, variables) => {
     if (!node.diagram_id) {

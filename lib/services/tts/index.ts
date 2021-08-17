@@ -3,8 +3,7 @@
  * @packageDocumentation
  */
 
-import { TraceType } from '@voiceflow/general-types';
-import { SpeakType, TraceFrame as SpeakTrace } from '@voiceflow/general-types/build/nodes/speak';
+import { Node, Trace } from '@voiceflow/base-types';
 import _ from 'lodash';
 
 import log from '@/logger';
@@ -16,9 +15,9 @@ export const utils = {};
 
 @injectServices({ utils })
 class TTS extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  fetchTTS = async (message: string, locale?: string): Promise<SpeakTrace[]> => {
+  fetchTTS = async (message: string, locale?: string): Promise<Trace.SpeakTrace[]> => {
     try {
-      const { data } = await this.services.axios.post<SpeakTrace['payload'][]>(
+      const { data } = await this.services.axios.post<Trace.SpeakTrace['payload'][]>(
         `${this.config.GENERAL_SERVICE_ENDPOINT}/tts/convert`,
         {
           ssml: message,
@@ -28,10 +27,10 @@ class TTS extends AbstractManager<{ utils: typeof utils }> implements ContextHan
         }
       );
 
-      return data.map((payload) => ({ type: TraceType.SPEAK, payload }));
+      return data.map((payload) => ({ type: Node.Utils.TraceType.SPEAK, payload }));
     } catch (error) {
       log.error(error);
-      return [{ type: TraceType.SPEAK, payload: { message, type: SpeakType.AUDIO } }];
+      return [{ type: Node.Utils.TraceType.SPEAK, payload: { message, type: Node.Speak.TraceSpeakType.AUDIO } }];
     }
   };
 
@@ -40,7 +39,7 @@ class TTS extends AbstractManager<{ utils: typeof utils }> implements ContextHan
 
     const trace = await Promise.all(
       context.trace.map(async (frame) => {
-        if (frame.type === TraceType.SPEAK) {
+        if (frame.type === Node.Utils.TraceType.SPEAK) {
           return this.fetchTTS(frame.payload.message, context.data.locale);
         }
         return frame;

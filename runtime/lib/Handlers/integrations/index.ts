@@ -1,6 +1,5 @@
+import { Node } from '@voiceflow/base-types';
 import { deepVariableSubstitution } from '@voiceflow/common';
-import { IntegrationType, NodeType } from '@voiceflow/general-types';
-import { Node } from '@voiceflow/general-types/build/nodes/integration';
 import axios from 'axios';
 import _ from 'lodash';
 import safeJSONStringify from 'safe-json-stringify';
@@ -13,10 +12,10 @@ export type IntegrationsOptions = {
   integrationsEndpoint: string;
 };
 
-const VALID_INTEGRATIONS = [IntegrationType.ZAPIER, IntegrationType.GOOGLE_SHEETS];
+const VALID_INTEGRATIONS = [Node.Utils.IntegrationType.ZAPIER, Node.Utils.IntegrationType.GOOGLE_SHEETS];
 
-const IntegrationsHandler: HandlerFactory<Node, IntegrationsOptions> = ({ integrationsEndpoint }) => ({
-  canHandle: (node) => node.type === NodeType.INTEGRATIONS && VALID_INTEGRATIONS.includes(node.selected_integration),
+const IntegrationsHandler: HandlerFactory<Node.Integration.Node, IntegrationsOptions> = ({ integrationsEndpoint }) => ({
+  canHandle: (node) => node.type === Node.NodeType.INTEGRATIONS && VALID_INTEGRATIONS.includes(node.selected_integration),
   handle: async (node, runtime, variables) => {
     if (!node.selected_integration || !node.selected_action) {
       runtime.trace.debug('no integration or action specified - fail by default');

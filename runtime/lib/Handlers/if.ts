@@ -1,13 +1,12 @@
-import { NodeType } from '@voiceflow/general-types';
-import { Node } from '@voiceflow/general-types/build/nodes/if';
+import { Node } from '@voiceflow/base-types';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 import { EventType } from '@/runtime/lib/Lifecycle';
 
 import { evaluateExpression, regexExpression } from './utils/shuntingYard';
 
-const IfHandler: HandlerFactory<Node> = () => ({
-  canHandle: (node: any) => !!(node.type !== NodeType.IF_V2 && node.expressions && node.expressions.length < 101),
+const IfHandler: HandlerFactory<Node.If.Node> = () => ({
+  canHandle: (node: any) => !!(node.type !== Node.NodeType.IF_V2 && node.expressions && node.expressions.length < 101),
   handle: async (node, runtime, variables) => {
     for (let i = 0; i < node.expressions.length; i++) {
       try {

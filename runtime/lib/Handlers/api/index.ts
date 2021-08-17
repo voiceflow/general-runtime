@@ -1,6 +1,5 @@
+import { Node } from '@voiceflow/base-types';
 import { deepVariableSubstitution } from '@voiceflow/common';
-import { IntegrationType, NodeType } from '@voiceflow/general-types';
-import { Node } from '@voiceflow/general-types/build/nodes/integration';
 import axios from 'axios';
 import _ from 'lodash';
 import safeJSONStringify from 'safe-json-stringify';
@@ -13,8 +12,8 @@ export type IntegrationsOptions = {
   customAPIEndpoint?: string | null;
 };
 
-const APIHandler: HandlerFactory<Node, IntegrationsOptions | void> = ({ customAPIEndpoint } = {}) => ({
-  canHandle: (node) => node.type === NodeType.INTEGRATIONS && node.selected_integration === IntegrationType.CUSTOM_API,
+const APIHandler: HandlerFactory<Node.Integration.Node, IntegrationsOptions | void> = ({ customAPIEndpoint } = {}) => ({
+  canHandle: (node) => node.type === Node.NodeType.INTEGRATIONS && node.selected_integration === Node.Utils.IntegrationType.CUSTOM_API,
   handle: async (node, runtime, variables) => {
     let nextId: string | null = null;
 

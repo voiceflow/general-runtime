@@ -1,8 +1,4 @@
-import { BlockTrace, TraceType as GeneralTraceType, TraceType } from '@voiceflow/general-types';
-import { TraceFrame as ExitTraceFrame } from '@voiceflow/general-types/build/nodes/exit';
-import { TraceFrame as FlowTraceFrame } from '@voiceflow/general-types/build/nodes/flow';
-import { SpeakType, TraceFrame as SpeakTraceFrame } from '@voiceflow/general-types/build/nodes/speak';
-import { TraceFrame as StreamTraceFrame, TraceStreamAction } from '@voiceflow/general-types/build/nodes/stream';
+import { Node, Trace } from '@voiceflow/base-types';
 
 import Client, { EventType } from '@/runtime';
 
@@ -14,8 +10,8 @@ const init = (client: Client) => {
   client.setEvent(EventType.stackDidChange, ({ runtime }) => {
     const top = runtime.stack.top();
 
-    runtime.trace.addTrace<FlowTraceFrame>({
-      type: TraceType.FLOW,
+    runtime.trace.addTrace<Node.Flow.TraceFrame>({
+      type: Node.Utils.TraceType.FLOW,
       payload: { diagramID: top?.getProgramID(), name: top?.getName() },
     });
   });
@@ -31,7 +27,10 @@ const init = (client: Client) => {
           draft[StorageType.OUTPUT] += output;
         });
 
-        runtime.trace.addTrace<SpeakTraceFrame>({ type: TraceType.SPEAK, payload: { message: output, type: SpeakType.MESSAGE } });
+        runtime.trace.addTrace<Node.Speak.TraceFrame>({
+          type: Node.Utils.TraceType.SPEAK,
+          payload: { message: output, type: Node.Speak.TraceSpeakType.MESSAGE },
+        });
       }
     }
   });
@@ -43,7 +42,7 @@ const init = (client: Client) => {
   });
 
   client.setEvent(EventType.handlerWillHandle, ({ runtime, node }) =>
-    runtime.trace.addTrace<BlockTrace>({ type: GeneralTraceType.BLOCK, payload: { blockID: node.id } })
+    runtime.trace.addTrace<Trace.BlockTrace>({ type: Node.Utils.TraceType.BLOCK, payload: { blockID: node.id } })
   );
 
   client.setEvent(EventType.updateDidExecute, ({ runtime }) => {
@@ -55,15 +54,15 @@ const init = (client: Client) => {
       switch (action) {
         case StreamAction.START:
         case StreamAction.RESUME:
-          runtime.trace.addTrace<StreamTraceFrame>({
-            type: TraceType.STREAM,
-            payload: { src, token, action: loop ? TraceStreamAction.LOOP : TraceStreamAction.PLAY },
+          runtime.trace.addTrace<Node.Stream.TraceFrame>({
+            type: Node.Utils.TraceType.STREAM,
+            payload: { src, token, action: loop ? Node.Stream.TraceStreamAction.LOOP : Node.Stream.TraceStreamAction.PLAY },
           });
           break;
         case StreamAction.PAUSE:
-          runtime.trace.addTrace<StreamTraceFrame>({
-            type: TraceType.STREAM,
-            payload: { src, token, action: TraceStreamAction.PAUSE },
+          runtime.trace.addTrace<Node.Stream.TraceFrame>({
+            type: Node.Utils.TraceType.STREAM,
+            payload: { src, token, action: Node.Stream.TraceStreamAction.PAUSE },
           });
           break;
         default:
@@ -72,7 +71,7 @@ const init = (client: Client) => {
     }
 
     if (runtime.stack.isEmpty() && !runtime.turn.get(TurnType.END)) {
-      runtime.trace.addTrace<ExitTraceFrame>({ type: GeneralTraceType.END, payload: undefined });
+      runtime.trace.addTrace<Node.Exit.TraceFrame>({ type: Node.Utils.TraceType.END, payload: undefined });
     }
   });
 };

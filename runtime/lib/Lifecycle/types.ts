@@ -1,5 +1,5 @@
 import { BaseNode } from '@voiceflow/api-sdk';
-import { BaseTraceFrame, DebugTrace } from '@voiceflow/general-types';
+import { Node, Trace } from '@voiceflow/base-types';
 
 import Program from '../Program';
 import Runtime from '../Runtime';
@@ -76,7 +76,7 @@ interface FrameDidFinishEvent extends BaseEvent {
   frame?: Frame;
 }
 
-interface TraceWillAddEvent<TF extends BaseTraceFrame> extends BaseEvent {
+interface TraceWillAddEvent<TF extends Node.Utils.BaseTraceFrame> extends BaseEvent {
   stop: () => void;
   frame: TF;
 }
@@ -89,7 +89,7 @@ interface StackDidChangeEvent extends BaseEvent {
   prevFrames: Frame[];
 }
 
-export interface EventMap<TF extends BaseTraceFrame> {
+export interface EventMap<TF extends Node.Utils.BaseTraceFrame> {
   [EventType.updateWillExecute]: BaseEvent;
   [EventType.updateDidExecute]: BaseEvent;
   [EventType.updateDidCatch]: UpdateDidCatchEvent;
@@ -118,10 +118,14 @@ export interface EventMap<TF extends BaseTraceFrame> {
   [EventType.variablesWillUpdate]: BaseEvent;
   [EventType.variablesDidUpdate]: BaseEvent;
 
-  [EventType.traceWillAdd]: TraceWillAddEvent<TF | DebugTrace>;
+  [EventType.traceWillAdd]: TraceWillAddEvent<TF | Trace.DebugTrace>;
 }
 
-export type Event<K extends EventType, TF extends BaseTraceFrame = BaseTraceFrame> = EventMap<TF>[K];
-export type CallbackEvent<K extends EventType, TF extends BaseTraceFrame = BaseTraceFrame> = Event<K, TF> & { runtime: Runtime };
-export type EventCallback<K extends EventType, TF extends BaseTraceFrame = BaseTraceFrame> = (event: CallbackEvent<K, TF>) => void | Promise<void>;
-export type EventCallbackMap<TF extends BaseTraceFrame = BaseTraceFrame> = { [key in EventType]: EventCallback<key, TF> };
+export type Event<K extends EventType, TF extends Node.Utils.BaseTraceFrame = Node.Utils.BaseTraceFrame> = EventMap<TF>[K];
+export type CallbackEvent<K extends EventType, TF extends Node.Utils.BaseTraceFrame = Node.Utils.BaseTraceFrame> = Event<K, TF> & {
+  runtime: Runtime;
+};
+export type EventCallback<K extends EventType, TF extends Node.Utils.BaseTraceFrame = Node.Utils.BaseTraceFrame> = (
+  event: CallbackEvent<K, TF>
+) => void | Promise<void>;
+export type EventCallbackMap<TF extends Node.Utils.BaseTraceFrame = Node.Utils.BaseTraceFrame> = { [key in EventType]: EventCallback<key, TF> };

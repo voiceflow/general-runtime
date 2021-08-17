@@ -1,15 +1,16 @@
-import { BaseTraceFrame, TraceType } from '@voiceflow/general-types';
+import { Node } from '@voiceflow/base-types';
 
+// import { BaseTraceFrame } from '@voiceflow/general-types';
 import { EventType } from '@/runtime/lib/Lifecycle';
 
 import Runtime from '..';
 
 export default class Trace {
-  private trace: BaseTraceFrame[] = [];
+  private trace: Node.Utils.BaseTraceFrame[] = [];
 
   constructor(private runtime: Runtime) {}
 
-  addTrace<TF extends BaseTraceFrame>(frame: TF) {
+  addTrace<TF extends Node.Utils.BaseTraceFrame>(frame: TF) {
     let stop = false;
 
     this.runtime.callEvent(EventType.traceWillAdd, {
@@ -24,11 +25,11 @@ export default class Trace {
     this.trace = [...this.trace, frame];
   }
 
-  get<TF extends BaseTraceFrame>(): TF[] {
+  get<TF extends Node.Utils.BaseTraceFrame>(): TF[] {
     return this.trace as TF[];
   }
 
   debug(message: string) {
-    this.addTrace({ type: TraceType.DEBUG, payload: { message } });
+    this.addTrace({ type: Node.Utils.TraceType.DEBUG, payload: { message } });
   }
 }

@@ -1,6 +1,4 @@
-import { NodeType } from '@voiceflow/general-types/';
-import { Node as V1Node } from '@voiceflow/general-types/build/nodes/_v1';
-import { Node } from '@voiceflow/general-types/build/nodes/ifV2';
+import { Node } from '@voiceflow/base-types';
 
 import Handler, { HandlerFactory } from '@/runtime/lib/Handler';
 
@@ -9,18 +7,18 @@ import CodeHandler from './code';
 
 export type IfV2Options = {
   safe?: boolean;
-  _v1: Handler<V1Node>;
+  _v1: Handler<Node._v1.Node>;
 };
 
 type DebugError = { index: number; expression: string; msg: string };
 
-const IfV2Handler: HandlerFactory<Node, IfV2Options> = ({ _v1, safe }) => ({
+const IfV2Handler: HandlerFactory<Node.IfV2.Node, IfV2Options> = ({ _v1, safe }) => ({
   canHandle: (node) => {
-    return node.type === NodeType.IF_V2;
+    return node.type === Node.NodeType.IF_V2;
   },
   handle: async (node, runtime, variables, program) => {
-    if (runtime.turn.get<string[]>(TurnType.STOP_TYPES)?.includes(NodeType.IF_V2)) {
-      return _v1.handle(node as V1Node, runtime, variables, program);
+    if (runtime.turn.get<string[]>(TurnType.STOP_TYPES)?.includes(Node.NodeType.IF_V2)) {
+      return _v1.handle(node as Node._v1.Node, runtime, variables, program);
     }
 
     let outputPortIndex = -1;
@@ -56,7 +54,12 @@ const IfV2Handler: HandlerFactory<Node, IfV2Options> = ({ _v1, safe }) => ({
 
     const codeTemplate = `try { ${code} } catch (err) {}`;
 
-    await codeHandler.handle({ code: codeTemplate, id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE', type: NodeType.CODE }, runtime, variables, program);
+    await codeHandler.handle(
+      { code: codeTemplate, id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE', type: Node.NodeType.CODE },
+      runtime,
+      variables,
+      program
+    );
 
     debugErrors.forEach((err) => runtime.trace.debug(`Error condition ${err.index} - "${err.expression}": ${err.msg}`));
 

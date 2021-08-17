@@ -1,5 +1,4 @@
-import { GeneralTrace, TraceType } from '@voiceflow/general-types';
-import { SpeakType, TraceFrame as SpeakTrace } from '@voiceflow/general-types/build/nodes/speak';
+import { Node, Trace } from '@voiceflow/base-types';
 import htmlParse from 'html-parse-stringify';
 
 import { Context, ContextHandler } from '@/types';
@@ -10,8 +9,8 @@ export const utils = {};
 
 @injectServices({ utils })
 class Speak extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  parseSpeakTraces = (trace: GeneralTrace): GeneralTrace => {
-    if (trace.type !== TraceType.SPEAK) {
+  parseSpeakTraces = (trace: Trace.AnyTrace): Trace.AnyTrace => {
+    if (trace.type !== Node.Utils.TraceType.SPEAK) {
       return trace;
     }
 
@@ -22,16 +21,16 @@ class Speak extends AbstractManager<{ utils: typeof utils }> implements ContextH
         ...trace,
         payload: {
           ...trace.payload,
-          type: SpeakType.MESSAGE,
+          type: Node.Speak.TraceSpeakType.MESSAGE,
         },
-      } as SpeakTrace;
+      } as Trace.SpeakTrace;
     }
 
     return {
       ...trace,
       payload: {
         ...trace.payload,
-        type: SpeakType.AUDIO,
+        type: Node.Speak.TraceSpeakType.AUDIO,
         src: node.attrs.src || null,
       },
     };

@@ -1,11 +1,11 @@
-import { Node } from '@voiceflow/general-types/build/nodes/random';
+import { Node } from '@voiceflow/base-types';
 
 import { S } from '@/runtime/lib/Constants';
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
 type RandomStorage = Partial<Record<string, (string | null)[]>>;
 
-const randomHandler: HandlerFactory<Node> = () => ({
+const randomHandler: HandlerFactory<Node.Random.Node> = () => ({
   canHandle: (node) => !!node.random,
   handle: async (node, runtime) => {
     let nextId: string | null;

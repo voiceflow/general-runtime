@@ -1,6 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
+import { Node } from '@voiceflow/base-types';
 import { replaceVariables } from '@voiceflow/common';
-import { IntentName, NodeID } from '@voiceflow/general-types';
+import { Constants } from '@voiceflow/general-types';
 
 import { Action, HandlerFactory } from '@/runtime';
 
@@ -23,9 +24,9 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
     const request = runtime.getRequest();
     const intentName = isIntentRequest(request) ? request.payload.intent.name : null;
 
-    let nextId: NodeID = null;
+    let nextId: Node.Utils.NodeID = null;
 
-    if (intentName === IntentName.PAUSE) {
+    if (intentName === Constants.IntentName.PAUSE) {
       if (streamPlay.pauseID) {
         // If it is linked to something else, save current pause state
         runtime.storage.set<StreamPauseStorage>(StorageType.STREAM_PAUSE, { id: streamPlay.nodeID, offset: streamPlay.offset });
@@ -43,20 +44,20 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
 
         runtime.end();
       }
-    } else if (intentName === IntentName.RESUME) {
+    } else if (intentName === Constants.IntentName.RESUME) {
       runtime.storage.produce<StorageData>((draft) => {
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.RESUME;
       });
 
       runtime.end();
-    } else if (intentName === IntentName.START_OVER || intentName === IntentName.REPEAT) {
+    } else if (intentName === Constants.IntentName.START_OVER || intentName === Constants.IntentName.REPEAT) {
       runtime.storage.produce<StorageData>((draft) => {
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.START;
         draft[StorageType.STREAM_PLAY]!.offset = 0;
       });
 
       runtime.end();
-    } else if (intentName === IntentName.NEXT || streamPlay.action === StreamAction.NEXT) {
+    } else if (intentName === Constants.IntentName.NEXT || streamPlay.action === StreamAction.NEXT) {
       if (streamPlay.nextID) {
         nextId = streamPlay.nextID;
       }
@@ -64,7 +65,7 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
       runtime.storage.produce<StorageData>((draft) => {
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.END;
       });
-    } else if (intentName === IntentName.PREVIOUS) {
+    } else if (intentName === Constants.IntentName.PREVIOUS) {
       if (streamPlay.previousID) {
         nextId = streamPlay.previousID;
       }
@@ -72,7 +73,7 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
       runtime.storage.produce<StorageData>((draft) => {
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.END;
       });
-    } else if (intentName === IntentName.CANCEL) {
+    } else if (intentName === Constants.IntentName.CANCEL) {
       runtime.storage.produce<StorageData>((draft) => {
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.PAUSE;
       });

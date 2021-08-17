@@ -1,4 +1,4 @@
-import { GeneralTrace } from '@voiceflow/general-types';
+import { Trace } from '@voiceflow/base-types';
 import Axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
 import { State } from '@/runtime/lib/Runtime';
@@ -29,7 +29,7 @@ export interface InteractBody {
     turn_id?: string;
     type?: string;
     format?: string;
-    payload?: GeneralTrace | RuntimeRequest;
+    payload?: Trace.AnyTrace | RuntimeRequest;
     timestamp?: string;
   };
 }

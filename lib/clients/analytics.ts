@@ -1,4 +1,4 @@
-import { GeneralTrace } from '@voiceflow/general-types';
+import { Trace } from '@voiceflow/base-types';
 
 import log from '@/logger';
 import { Config, Context } from '@/types';
@@ -61,7 +61,7 @@ export class AnalyticsSystem extends AbstractClient {
     eventID: Event;
     turnID: string;
     timestamp: Date;
-    trace?: GeneralTrace;
+    trace?: Trace.AnyTrace;
     request?: RuntimeRequest;
   }): InteractBody {
     let format: string;
@@ -122,7 +122,7 @@ export class AnalyticsSystem extends AbstractClient {
     versionID,
     timestamp,
   }: {
-    fullTrace: GeneralTrace[];
+    fullTrace: Trace.AnyTrace[];
     turnID: string;
     versionID: string;
     timestamp: Date;

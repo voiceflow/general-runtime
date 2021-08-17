@@ -1,4 +1,4 @@
-import { Config, RequestType } from '@voiceflow/general-types';
+import { Request } from '@voiceflow/base-types';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
 import { State, TurnBuilder } from '@/runtime';
@@ -15,7 +15,7 @@ class Interact extends AbstractManager {
 
   async handler(req: {
     params: { versionID: string };
-    body: { state?: State; request?: RuntimeRequest; config?: Config };
+    body: { state?: State; request?: RuntimeRequest; config?: Request.RequestConfig };
     query: { locale?: string };
     headers: { authorization?: string; origin?: string; sessionid?: string };
   }) {
@@ -32,7 +32,7 @@ class Interact extends AbstractManager {
       body: { request = null },
     } = req;
 
-    if (request?.type === RequestType.LAUNCH && state) {
+    if (request?.type === Request.RequestType.LAUNCH && state) {
       state.stack = [];
       state.storage = {};
       request = null;

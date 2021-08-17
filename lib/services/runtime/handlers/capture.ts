@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/general-types/build/nodes/capture';
+import { Node } from '@voiceflow/general-types';
 import wordsToNumbers from 'words-to-numbers';
 
 import { Action, HandlerFactory } from '@/runtime';
@@ -16,7 +16,7 @@ const utilsObj = {
   addButtonsIfExists,
 };
 
-export const CaptureHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
+export const CaptureHandler: HandlerFactory<Node.Capture.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => !!node.variable,
   handle: (node, runtime, variables) => {
     if (runtime.getAction() === Action.RESPONSE) {

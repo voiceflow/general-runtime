@@ -1,14 +1,14 @@
 import { SlotMapping } from '@voiceflow/api-sdk';
+import { Node, Request, Trace } from '@voiceflow/base-types';
 import { replaceVariables, transformStringVariableToNumber } from '@voiceflow/common';
-import { AnyRequestButton, IntentRequest, isTextRequest, NodeWithButtons, NodeWithReprompt, RequestType, TraceType } from '@voiceflow/general-types';
-import { TraceFrame as ChoiceFrame } from '@voiceflow/general-types/build/nodes/interaction';
+import { Node as VoiceNode } from '@voiceflow/voice-types';
 import _ from 'lodash';
 
 import { Runtime, Store } from '@/runtime';
 
 import { TurnType } from './types';
 
-export const mapEntities = (mappings: SlotMapping[], entities: IntentRequest['payload']['entities'] = [], overwrite = false): object => {
+export const mapEntities = (mappings: SlotMapping[], entities: Request.IntentRequest['payload']['entities'] = [], overwrite = false): object => {
   const variables: Record<string, any> = {};
 
   const entityMap = entities.reduce<Record<string, string>>(
@@ -38,19 +38,19 @@ export const mapEntities = (mappings: SlotMapping[], entities: IntentRequest['pa
   return variables;
 };
 
-export const addRepromptIfExists = <N extends NodeWithReprompt>(node: N, runtime: Runtime, variables: Store): void => {
+export const addRepromptIfExists = <N extends VoiceNode.Utils.NodeReprompt>(node: N, runtime: Runtime, variables: Store): void => {
   if (node.reprompt) {
     runtime.turn.set(TurnType.REPROMPT, replaceVariables(node.reprompt, variables.getState()));
   }
 };
 
-export const addButtonsIfExists = <N extends NodeWithButtons>(node: N, runtime: Runtime, variables: Store): void => {
-  let buttons: AnyRequestButton[] = [];
+export const addButtonsIfExists = <N extends Request.NodeButton>(node: N, runtime: Runtime, variables: Store): void => {
+  let buttons: Request.AnyRequestButton[] = [];
   if (node.buttons?.length) {
     buttons = node.buttons
       .filter(({ name }) => name)
       .map(({ name, request }) => {
-        return isTextRequest(request)
+        return Request.isTextRequest(request)
           ? {
               name: replaceVariables(name, variables.getState()),
               request: {
@@ -76,15 +76,15 @@ export const addButtonsIfExists = <N extends NodeWithButtons>(node: N, runtime: 
     buttons = node.chips.map(({ label }) => {
       const name = replaceVariables(label, variables.getState());
 
-      return { name, request: { type: RequestType.TEXT, payload: name } };
+      return { name, request: { type: Request.RequestType.TEXT, payload: name } };
     });
   }
 
   buttons = _.uniqBy(buttons, (button) => button.name);
 
   if (buttons.length) {
-    runtime.trace.addTrace<ChoiceFrame>({
-      type: TraceType.CHOICE,
+    runtime.trace.addTrace<Trace.ChoiceTrace>({
+      type: Node.Utils.TraceType.CHOICE,
       payload: { buttons },
     });
   }

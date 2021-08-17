@@ -1,20 +1,20 @@
-import { BaseRequest, IntentRequest, NodeID, RequestType, TextRequest } from '@voiceflow/general-types';
+import { Node, Request } from '@voiceflow/base-types';
 
 import { Runtime } from '@/runtime';
 
-export type RuntimeRequest = BaseRequest | null;
+export type RuntimeRequest = Request.BaseRequest | null;
 
 export type GeneralRuntime = Runtime<RuntimeRequest>;
 
-export const isTextRequest = (request: RuntimeRequest): request is TextRequest => {
-  return !!(request?.type === RequestType.TEXT && typeof request.payload === 'string');
+export const isTextRequest = (request: RuntimeRequest): request is Request.TextRequest => {
+  return !!(request?.type === Request.RequestType.TEXT && typeof request.payload === 'string');
 };
 
-export const isIntentRequest = (request: RuntimeRequest): request is IntentRequest => {
+export const isIntentRequest = (request: RuntimeRequest): request is Request.IntentRequest => {
   return !!(
-    request?.type === RequestType.INTENT &&
-    (request as IntentRequest).payload?.intent?.name &&
-    Array.isArray((request as IntentRequest).payload.entities)
+    request?.type === Request.RequestType.INTENT &&
+    (request as Request.IntentRequest).payload?.intent?.name &&
+    Array.isArray((request as Request.IntentRequest).payload.entities)
   );
 };
 
@@ -55,10 +55,10 @@ export type StreamPlayStorage = {
   token: string;
   action: StreamAction;
   offset: number;
-  nodeID: NonNullable<NodeID>;
-  nextID?: NodeID;
-  pauseID?: NodeID;
-  previousID?: NodeID;
+  nodeID: NonNullable<Node.Utils.NodeID>;
+  nextID?: Node.Utils.NodeID;
+  pauseID?: Node.Utils.NodeID;
+  previousID?: Node.Utils.NodeID;
 };
 
 export type StreamPauseStorage = {

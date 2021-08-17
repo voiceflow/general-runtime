@@ -1,4 +1,6 @@
-import { IntentName, NodeType, Prompt, Voice } from '@voiceflow/general-types';
+import { Node } from '@voiceflow/base-types';
+import { Constants } from '@voiceflow/general-types';
+import { Types } from '@voiceflow/voice-types';
 
 import { Frame, Program } from '@/runtime';
 
@@ -21,7 +23,7 @@ export const promptToSSML = (content = '', voice: string | undefined) => {
   return `<voice name="${voice}">${content}</voice>`;
 };
 
-export const createResumeFrame = (resume: Prompt<Voice>, follow: Prompt<Voice> | null) => {
+export const createResumeFrame = (resume: Types.Prompt<Constants.Voice>, follow: Types.Prompt<Constants.Voice> | null) => {
   return new Frame({
     programID: RESUME_PROGRAM_ID,
     variables: {
@@ -37,20 +39,20 @@ const ResumeDiagramRaw = {
   lines: {
     1: {
       id: '1',
-      type: NodeType.SPEAK,
+      type: Node.NodeType.SPEAK,
       speak: `{${ResumeVariables.CONTENT}}`,
       nextId: '2',
     },
     2: {
       id: '2',
-      type: NodeType.INTERACTION,
+      type: Node.NodeType.INTERACTION,
       interactions: [
         {
-          intent: IntentName.YES,
+          intent: Constants.IntentName.YES,
           mappings: [],
         },
         {
-          intent: IntentName.NO,
+          intent: Constants.IntentName.NO,
           mappings: [],
         },
       ],
@@ -58,7 +60,7 @@ const ResumeDiagramRaw = {
       elseId: '3',
     },
     3: {
-      type: NodeType.SPEAK,
+      type: Node.NodeType.SPEAK,
       id: '3',
       speak: `{${ResumeVariables.FOLLOW_CONTENT}}`,
     },

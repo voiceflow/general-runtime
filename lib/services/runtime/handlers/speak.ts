@@ -1,13 +1,13 @@
+import { Node as BaseNode } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
-import { TraceType } from '@voiceflow/general-types';
-import { Node, SpeakType, TraceFrame } from '@voiceflow/general-types/build/nodes/speak';
+import { Node } from '@voiceflow/general-types';
 import _ from 'lodash';
 
 import { HandlerFactory } from '@/runtime';
 
 import { FrameType, SpeakFrame, StorageType } from '../types';
 
-const SpeakHandler: HandlerFactory<Node> = () => ({
+const SpeakHandler: HandlerFactory<Node.Speak.Node> = () => ({
   canHandle: (node) => ('random_speak' in node ? !!node.random_speak : !!node.speak) || (_.isString(node.prompt) && node.prompt !== 'true'),
   handle: (node, runtime, variables) => {
     let speak = '';
@@ -30,7 +30,10 @@ const SpeakHandler: HandlerFactory<Node> = () => ({
       });
 
       runtime.stack.top().storage.set<SpeakFrame>(FrameType.SPEAK, output);
-      runtime.trace.addTrace<TraceFrame>({ type: TraceType.SPEAK, payload: { message: output, type: SpeakType.MESSAGE } });
+      runtime.trace.addTrace<BaseNode.Utils.BaseTraceFrame>({
+        type: BaseNode.Utils.TraceType.SPEAK,
+        payload: { message: output, type: BaseNode.Speak.TraceSpeakType.MESSAGE },
+      });
     }
 
     return node.nextId ?? null;

@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/general-types/build/nodes/code';
+import { Node } from '@voiceflow/base-types';
 import axios from 'axios';
 import _ from 'lodash';
 import safeJSONStringify from 'safe-json-stringify';
@@ -13,7 +13,7 @@ export type CodeOptions = {
   safe?: boolean;
 };
 
-const CodeHandler: HandlerFactory<Node, CodeOptions | void> = ({ endpoint, callbacks, safe } = {}) => ({
+const CodeHandler: HandlerFactory<Node.Code.Node, CodeOptions | void> = ({ endpoint, callbacks, safe } = {}) => ({
   canHandle: (node) => !!node.code,
   handle: async (node, runtime, variables) => {
     try {

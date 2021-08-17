@@ -1,5 +1,4 @@
-import { NodeType } from '@voiceflow/general-types';
-import { Node } from '@voiceflow/general-types/build/nodes/start';
+import { Node } from '@voiceflow/base-types';
 
 import { Action, HandlerFactory } from '@/runtime';
 
@@ -10,9 +9,9 @@ const utilsObj = {
   commandHandler: CommandHandler(),
 };
 
-export const OneShotIntentHandler: HandlerFactory<Node, typeof utilsObj> = (utils) => ({
+export const OneShotIntentHandler: HandlerFactory<Node.Start.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node, runtime) => {
-    return isIntentRequest(runtime.getRequest()) && runtime.stack.getSize() === 1 && node.type === NodeType.START;
+    return isIntentRequest(runtime.getRequest()) && runtime.stack.getSize() === 1 && node.type === Node.NodeType.START;
   },
   handle: (node, runtime, variables) => {
     // request for this turn has been processed, set action to response

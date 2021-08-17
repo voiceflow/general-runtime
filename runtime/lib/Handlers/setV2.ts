@@ -1,5 +1,4 @@
-import { NodeType } from '@voiceflow/general-types/build';
-import { Node } from '@voiceflow/general-types/build/nodes/setV2';
+import { Node } from '@voiceflow/base-types';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
@@ -9,8 +8,8 @@ export type SetV2Options = {
   safe?: boolean;
 };
 
-const SetV2Handler: HandlerFactory<Node, SetV2Options | void> = ({ safe } = {}) => ({
-  canHandle: (node) => node.type === NodeType.SET_V2,
+const SetV2Handler: HandlerFactory<Node.SetV2.Node, SetV2Options | void> = ({ safe } = {}) => ({
+  canHandle: (node) => node.type === Node.NodeType.SET_V2,
   handle: async (node, runtime, variables, program) => {
     const codeHandler = CodeHandler({ safe });
 
@@ -30,7 +29,7 @@ const SetV2Handler: HandlerFactory<Node, SetV2Options | void> = ({ safe } = {}) 
         `;
     });
 
-    await codeHandler.handle({ code, id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE', type: NodeType.CODE }, runtime, variables, program);
+    await codeHandler.handle({ code, id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE', type: Node.NodeType.CODE }, runtime, variables, program);
 
     return node.nextId || null;
   },

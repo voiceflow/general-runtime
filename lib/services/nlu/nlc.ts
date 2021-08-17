@@ -1,6 +1,7 @@
 import { PrototypeModel } from '@voiceflow/api-sdk';
+import { Request } from '@voiceflow/base-types';
 import { getUtterancesWithSlotNames } from '@voiceflow/common';
-import { DEFAULT_INTENTS_MAP, IntentRequest, Locale, RequestType } from '@voiceflow/general-types';
+import { Constants } from '@voiceflow/general-types';
 import NLC, { IIntentFullfilment, IIntentSlot } from '@voiceflow/natural-language-commander';
 import { getRequired } from '@voiceflow/natural-language-commander/dist/lib/standardSlots';
 import _ from 'lodash';
@@ -69,9 +70,9 @@ export const registerIntents = (nlc: NLC, { slots, intents }: PrototypeModel) =>
   });
 };
 
-export const registerBuiltInIntents = (nlc: NLC, locale = Locale.EN_US) => {
+export const registerBuiltInIntents = (nlc: NLC, locale = Constants.Locale.EN_US) => {
   const lang = locale.slice(0, 2);
-  const builtInIntents = DEFAULT_INTENTS_MAP[lang] || DEFAULT_INTENTS_MAP.en;
+  const builtInIntents = Constants.DEFAULT_INTENTS_MAP[lang] || Constants.DEFAULT_INTENTS_MAP.en;
 
   builtInIntents.forEach((intent) => {
     const { name, samples } = intent;
@@ -84,7 +85,7 @@ export const registerBuiltInIntents = (nlc: NLC, locale = Locale.EN_US) => {
   });
 };
 
-export const createNLC = ({ model, locale, openSlot }: { model: PrototypeModel; locale: Locale; openSlot: boolean }) => {
+export const createNLC = ({ model, locale, openSlot }: { model: PrototypeModel; locale: Constants.Locale; openSlot: boolean }) => {
   const nlc = new NLC();
 
   registerSlots(nlc, model, openSlot);
@@ -94,9 +95,9 @@ export const createNLC = ({ model, locale, openSlot }: { model: PrototypeModel; 
   return nlc;
 };
 
-export const nlcToIntent = (intent: IIntentFullfilment | null, query = '', confidence?: number): IntentRequest =>
+export const nlcToIntent = (intent: IIntentFullfilment | null, query = '', confidence?: number): Request.IntentRequest =>
   (intent && {
-    type: RequestType.INTENT,
+    type: Request.RequestType.INTENT,
     payload: {
       query,
       intent: { name: intent.intent },
@@ -115,9 +116,9 @@ export const handleNLCCommand = ({
 }: {
   query: string;
   model: PrototypeModel;
-  locale: Locale;
+  locale: Constants.Locale;
   openSlot: boolean;
-}): IntentRequest => {
+}): Request.IntentRequest => {
   const nlc = createNLC({ model, locale, openSlot });
 
   return nlcToIntent(nlc.handleCommand(query), query, openSlot ? undefined : 1);
@@ -131,9 +132,9 @@ export const handleNLCDialog = ({
 }: {
   query: string;
   model: PrototypeModel;
-  locale: Locale;
-  dmRequest: IntentRequest;
-}): IntentRequest => {
+  locale: Constants.Locale;
+  dmRequest: Request.IntentRequest;
+}): Request.IntentRequest => {
   const nlc = createNLC({ model, locale, openSlot: true });
 
   const intentName = dmRequest.payload.intent.name;

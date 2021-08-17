@@ -1,6 +1,5 @@
+import { Node } from '@voiceflow/base-types';
 import { replaceVariables } from '@voiceflow/common';
-import { NodeType } from '@voiceflow/general-types';
-import { Node } from '@voiceflow/general-types/build/nodes/stream';
 
 import { HandlerFactory } from '@/runtime';
 
@@ -10,8 +9,8 @@ const handlerUtils = {
   replaceVariables,
 };
 
-export const StreamHandler: HandlerFactory<Node, typeof handlerUtils> = (u) => ({
-  canHandle: (node) => node.type === NodeType.STREAM && !!node.src,
+export const StreamHandler: HandlerFactory<Node.Stream.Node, typeof handlerUtils> = (u) => ({
+  canHandle: (node) => node.type === Node.NodeType.STREAM && !!node.src,
   handle: (node, runtime, variables) => {
     const variablesMap = variables.getState();
 

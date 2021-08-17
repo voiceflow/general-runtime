@@ -1,16 +1,15 @@
-import { NodeType, TraceType } from '@voiceflow/general-types';
-import { Node } from '@voiceflow/general-types/build/nodes/visual';
+import { Node, Trace } from '@voiceflow/base-types';
 
 import { HandlerFactory } from '@/runtime';
 
-const VisualHandler: HandlerFactory<Node> = () => ({
-  canHandle: (node) => node.type === NodeType.VISUAL && !!node.data,
+const VisualHandler: HandlerFactory<Node.Visual.Node> = () => ({
+  canHandle: (node) => node.type === Node.NodeType.VISUAL && !!node.data,
 
   handle: (node, runtime) => {
     runtime.trace.debug('__visual__ - entered');
 
-    runtime.trace.addTrace({
-      type: TraceType.VISUAL,
+    runtime.trace.addTrace<Trace.VisualTrace>({
+      type: Node.Utils.TraceType.VISUAL,
       payload: node.data,
     });
 

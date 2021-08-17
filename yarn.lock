@@ -1020,10 +1020,10 @@
     semver "^7.3.2"
     tsutils "^3.17.1"
 
-"@voiceflow/api-sdk@1.34.3", "@voiceflow/api-sdk@^1.34.3":
-  version "1.34.3"
-  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.34.3.tgz#a2e5c282b0452935fe996cfed7edfbaa25eaf5e9"
-  integrity sha512-A8BcJfyq414xgYAOxWcgyyAsrBxiyW9rMRqElObLEc/jNCW86N52BY6uPk3eienGRyDPIsaVJhi1nraI6HpiDA==
+"@voiceflow/api-sdk@1.35.1", "@voiceflow/api-sdk@^1.35.0", "@voiceflow/api-sdk@^1.35.1":
+  version "1.35.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.35.1.tgz#fb6986d309882e4eb156c53521b9d46f3f029d6b"
+  integrity sha512-2sf/seo5uOZQmiBRP10y9F21azFZQfmAkCIdDa5Vp3zqkFAd5sUxYskkeWjc5Zy7TxA+EO9iPkjfMCHkpKweVg==
   dependencies:
     "@types/atob" "^2.1.2"
     atob "^2.1.2"
@@ -1052,6 +1052,14 @@
     luxon "^1.21.3"
     rate-limiter-flexible "^2.2.2"
     sinon "^10.0.0"
+
+"@voiceflow/base-types@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-1.0.1.tgz#571139cd19d6228c8b210192a2b5cabd549734ac"
+  integrity sha512-vSj+8ayCOErLUs2fJG6jU12ocorMYgz8ELFJWyOnJ4aG12Jkuv7i3TY7e8WxQN9PQhI3+3exgIyleSK8QOrbag==
+  dependencies:
+    "@voiceflow/api-sdk" "^1.35.0"
+    slate "^0.63.0"
 
 "@voiceflow/body-parser@^1.21.0":
   version "1.21.0"
@@ -1112,13 +1120,14 @@
     eslint-plugin-xss "^0.1.9"
     typescript "^3.9.7"
 
-"@voiceflow/general-types@1.53.3":
-  version "1.53.3"
-  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.53.3.tgz#6234a0b8653cff33083cc3cedfe31ee4c14d64c1"
-  integrity sha512-V5Snzee589vh/ZsaWqMbHSX/RXBOkl4u8iBCYrh975P8Irr2ndbDxNPIvUIqQ8s4HEyTdoPHQfvnhr7VlEkWRg==
+"@voiceflow/general-types@1.54.2":
+  version "1.54.2"
+  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.54.2.tgz#388e52b169d9cff79dca85c5b037853f43461887"
+  integrity sha512-vCTCpLolRPV/ysB8SWhkIhRBMBtFW/sQu3hT3LznaC58HThXkeMBBlVr3ZREDuvNa9clhoAN5XKbAXgashyJfw==
   dependencies:
-    "@voiceflow/api-sdk" "^1.34.3"
-    slate "^0.63.0"
+    "@voiceflow/api-sdk" "^1.35.1"
+    "@voiceflow/base-types" "^1.0.1"
+    "@voiceflow/voice-types" "^1.1.0"
 
 "@voiceflow/git-branch-check@^1.2.0":
   version "1.2.0"
@@ -1193,6 +1202,14 @@
   integrity sha512-zxCs41ScHcqZKMuoUyjPSd+836+hyPpjrqNlXR4wEuKIhJb/dYs8f3qa0pH8N0Xq8+II1h3AEaHTGEcU3P6+Ww==
   dependencies:
     http-status "^1.3.2"
+
+"@voiceflow/voice-types@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/voice-types/-/voice-types-1.1.0.tgz#29f6e861838445dde4a4fc29d6e07a7a85a606fd"
+  integrity sha512-ClO8OIBLRokCmrurhn/spKWItNtE0+SbklX6GHdBoNdtwFcnQMcq88PIbXXTNYgcUxgOncH0NVFW5PWZ69Z9DQ==
+  dependencies:
+    "@voiceflow/api-sdk" "^1.35.0"
+    "@voiceflow/base-types" "^1.0.1"
 
 "@vue/compiler-core@3.1.5":
   version "3.1.5"

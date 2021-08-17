@@ -1,4 +1,5 @@
-import { IntentName, RepeatType } from '@voiceflow/general-types';
+import { Version } from '@voiceflow/base-types';
+import { Constants } from '@voiceflow/general-types';
 
 import { Runtime } from '@/runtime';
 
@@ -6,22 +7,23 @@ import { FrameType, isIntentRequest, PreviousOutputTurn, SpeakFrame, StorageData
 
 const RepeatHandler = {
   canHandle: (runtime: Runtime): boolean => {
-    const repeat = runtime.storage.get<RepeatType>(StorageType.REPEAT);
+    const repeat = runtime.storage.get<Version.RepeatType>(StorageType.REPEAT);
     const request = runtime.getRequest();
     return (
       isIntentRequest(request) &&
-      request.payload.intent.name === IntentName.REPEAT &&
+      request.payload.intent.name === Constants.IntentName.REPEAT &&
       !!repeat &&
-      [RepeatType.ALL, RepeatType.DIALOG].includes(repeat)
+      [Version.RepeatType.ALL, Version.RepeatType.DIALOG].includes(repeat)
     );
   },
   handle: (runtime: Runtime) => {
-    const repeat = runtime.storage.get<RepeatType>(StorageType.REPEAT);
+    const repeat = runtime.storage.get<Version.RepeatType>(StorageType.REPEAT);
     const top = runtime.stack.top();
 
     const output =
-      (repeat === RepeatType.ALL ? runtime.turn.get<PreviousOutputTurn>(TurnType.PREVIOUS_OUTPUT) : top.storage.get<SpeakFrame>(FrameType.SPEAK)) ||
-      '';
+      (repeat === Version.RepeatType.ALL
+        ? runtime.turn.get<PreviousOutputTurn>(TurnType.PREVIOUS_OUTPUT)
+        : top.storage.get<SpeakFrame>(FrameType.SPEAK)) || '';
 
     runtime.storage.produce<StorageData>((draft) => {
       draft[StorageType.OUTPUT] += output;

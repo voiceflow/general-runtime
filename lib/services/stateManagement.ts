@@ -1,4 +1,4 @@
-import { Config } from '@voiceflow/general-types';
+import { Request } from '@voiceflow/base-types';
 import _ from 'lodash';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
@@ -9,7 +9,7 @@ import { AbstractManager } from './utils';
 class StateManagement extends AbstractManager {
   async interact(data: {
     params: { versionID: string; userID: string };
-    body: { state?: State; request?: RuntimeRequest; config?: Config };
+    body: { state?: State; request?: RuntimeRequest; config?: Request.RequestConfig };
     query: { locale?: string; verbose?: boolean };
     headers: { authorization: string; project_id: string };
   }) {

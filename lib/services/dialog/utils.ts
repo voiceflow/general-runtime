@@ -1,8 +1,8 @@
 /* eslint-disable no-restricted-syntax */
 import { BaseNode, IntentInput, PrototypeModel } from '@voiceflow/api-sdk';
+import { Node, Request } from '@voiceflow/base-types';
 import { SLOT_REGEXP } from '@voiceflow/common';
-import { AnyRequestButton, IntentRequest, RequestType } from '@voiceflow/general-types';
-import { NodeInteraction } from '@voiceflow/general-types/build/nodes/interaction';
+// import { Node } from '@voiceflow/general-types';
 import * as crypto from 'crypto';
 import _ from 'lodash';
 
@@ -26,7 +26,7 @@ export const getSlotNameByID = (id: string, model: PrototypeModel) => {
   return model.slots.find((lmEntity) => lmEntity.key === id)?.name;
 };
 
-export const getUnfulfilledEntity = (intentRequest: IntentRequest, model: PrototypeModel) => {
+export const getUnfulfilledEntity = (intentRequest: Request.IntentRequest, model: PrototypeModel) => {
   const intentModel = model.intents.find((intent) => intent.name === intentRequest.payload.intent.name);
   const extractedEntities = intentRequest.payload.entities;
 
@@ -45,7 +45,7 @@ export const replaceSlots = (input: string, variables: Record<string, string>) =
   input.replace(SLOT_REGEXP, (_match, inner) => variables[inner] || '');
 
 // Populates all entities in a given string
-export const fillStringEntities = (input = '', intentRequest: IntentRequest) => {
+export const fillStringEntities = (input = '', intentRequest: Request.IntentRequest) => {
   // create a dictionary of all entities from Entity[] => { [entity.name]: entity.value }
   const entityMap = intentRequest.payload.entities.reduce<Record<string, string>>(
     (acc, entity) => ({ ...acc, ...(entity.value && { [entity.name]: entity.value }) }),
@@ -72,8 +72,9 @@ export const getIntentEntityList = (intentName: string, model: PrototypeModel) =
   return intentEntityIDs?.map((id) => model.slots.find((entity) => entity.key === id));
 };
 
-export const isInteractionsInNode = (node: BaseNode & { interactions?: NodeInteraction[] }): node is BaseNode & { interactions: NodeInteraction[] } =>
-  Array.isArray(node.interactions);
+export const isInteractionsInNode = (
+  node: BaseNode & { interactions?: Node.Interaction.NodeInteraction[] }
+): node is BaseNode & { interactions: Node.Interaction.NodeInteraction[] } => Array.isArray(node.interactions);
 
 export const isIntentInScope = async ({ data: { api }, versionID, state, request }: Context) => {
   const client = new Client({
@@ -142,8 +143,8 @@ export const sampleUtterance = (utterances: Utterance[], model: PrototypeModel, 
 };
 
 // generate multiple buttons with slot variations from provided utterances
-export const generateButtonsForUtterances = (utterances: Utterance[], model: PrototypeModel, variations = 3): AnyRequestButton[] => {
-  const buttons: AnyRequestButton[] = [];
+export const generateButtonsForUtterances = (utterances: Utterance[], model: PrototypeModel, variations = 3): Request.AnyRequestButton[] => {
+  const buttons: Request.AnyRequestButton[] = [];
 
   for (let i = 0; i < variations; i++) {
     const utterance = utterances[i % utterances.length];
@@ -152,7 +153,7 @@ export const generateButtonsForUtterances = (utterances: Utterance[], model: Pro
       const name = sampleUtterance([utterance], model, i);
 
       if (name) {
-        buttons.push({ name, request: { type: RequestType.TEXT, payload: name } });
+        buttons.push({ name, request: { type: Request.RequestType.TEXT, payload: name } });
       }
     }
   }

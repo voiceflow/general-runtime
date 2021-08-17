@@ -1,5 +1,4 @@
-import { NodeType } from '@voiceflow/general-types';
-import { Node, NodeSet } from '@voiceflow/general-types/build/nodes/set';
+import { Node } from '@voiceflow/base-types';
 import Promise from 'bluebird';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
@@ -7,10 +6,10 @@ import { EventType } from '@/runtime/lib/Lifecycle';
 
 import { evaluateExpression, regexExpression } from './utils/shuntingYard';
 
-const setHandler: HandlerFactory<Node> = () => ({
-  canHandle: (node: any) => !!(node.type !== NodeType.SET_V2 && node.sets && node.sets.length < 21),
+const setHandler: HandlerFactory<Node.Set.Node> = () => ({
+  canHandle: (node: any) => !!(node.type !== Node.NodeType.SET_V2 && node.sets && node.sets.length < 21),
   handle: async (node, runtime, variables) => {
-    await Promise.each<NodeSet>(node.sets, async (set) => {
+    await Promise.each<Node.Set.NodeSet>(node.sets, async (set) => {
       try {
         if (!set.variable) throw new Error('No Variable Defined');
 

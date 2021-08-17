@@ -1,10 +1,10 @@
-import { APIBodyType, APIMethod, NodeData } from '@voiceflow/general-types/build/nodes/api';
+import { Node } from '@voiceflow/base-types';
 import axios, { AxiosRequestConfig } from 'axios';
 import FormData from 'form-data';
 import _ from 'lodash';
 import querystring from 'querystring';
 
-export type APINodeData = NodeData['action_data'];
+export type APINodeData = Node.Api.NodeData['action_data'];
 
 const stringToNumIfNumeric = (str: string): string | number => {
   /* eslint-disable-next-line */
@@ -74,18 +74,18 @@ const formatRequestConfig = (data: APINodeData) => {
   options.validateStatus = () => true;
 
   // do not parse body if GET request
-  if (method === APIMethod.GET) {
+  if (method === Node.Api.APIMethod.GET) {
     return options;
   }
 
-  if (bodyInputType === APIBodyType.RAW_INPUT) {
+  if (bodyInputType === Node.Api.APIBodyType.RAW_INPUT) {
     // attempt to convert into JSON
     try {
       options.data = JSON.parse(content);
     } catch (e) {
       options.data = data;
     }
-  } else if (bodyInputType === APIBodyType.FORM_DATA) {
+  } else if (bodyInputType === Node.Api.APIBodyType.FORM_DATA) {
     const formData = new FormData();
     body.forEach((b) => {
       if (b.key) {
@@ -94,7 +94,7 @@ const formatRequestConfig = (data: APINodeData) => {
     });
     options.headers = { ...options.headers, ...formData.getHeaders() };
     options.data = formData;
-  } else if (bodyInputType === APIBodyType.URL_ENCODED) {
+  } else if (bodyInputType === Node.Api.APIBodyType.URL_ENCODED) {
     if (Array.isArray(body)) {
       options.data = querystring.stringify(ReduceKeyValue(body));
     } else {

@@ -1,11 +1,11 @@
-import { Program, Version } from '@voiceflow/api-sdk';
-import { Command, GeneralNodes, GeneralVersionData } from '@voiceflow/general-types';
+import { Version } from '@voiceflow/general-types';
+import { GeneralProgram } from '@voiceflow/general-types/build/program';
 
 import { ServerDataApi } from '@/runtime';
 
-class RemoteDataAPI extends ServerDataApi<Program<GeneralNodes, Command>, Version<GeneralVersionData>> {
+class RemoteDataAPI extends ServerDataApi<GeneralProgram, Version.GeneralVersion> {
   public getProgram = async (programID: string) => {
-    const { data } = await this.client.get<Program<GeneralNodes, Command>>(`/prototype-programs/${programID}`);
+    const { data } = await this.client.get<GeneralProgram>(`/prototype-programs/${programID}`);
     return data;
   };
 }
