@@ -16,8 +16,7 @@ const CONFIG: Config = {
   // Configs
   NODE_ENV,
   PORT: getRequiredProcessEnv('PORT'),
-  // TODO: Change from 30s->10s
-  ERROR_RESPONSE_MS: Number(getOptionalProcessEnv('ERROR_RESPONSE_MS', (30 * 1000).toString())),
+  ERROR_RESPONSE_MS: Number(getOptionalProcessEnv('ERROR_RESPONSE_MS', (10 * 1000).toString())),
 
   CLOUD_ENV,
 
