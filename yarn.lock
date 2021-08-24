@@ -1150,10 +1150,10 @@
     nanoid "^3.1.20"
     pino-http "5.3.0"
 
-"@voiceflow/logger@^1.5.7":
-  version "1.5.7"
-  resolved "https://registry.yarnpkg.com/@voiceflow/logger/-/logger-1.5.7.tgz#f273a9d2a9feef3b0e59e25fad1ae8f6faf4a8c2"
-  integrity sha512-OWUEVmaZ+H63xWNZF/gzwrRsF29QfE7myZQyFNx4kO9MeonMwrtGsE6IDmzSz1HdXCFnjp/dugxgOpycLxmZXA==
+"@voiceflow/logger@^1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/logger/-/logger-1.6.0.tgz#83a2fe021513834b0b74bbb42b7698656fae9367"
+  integrity sha512-m8aQI6LvhlCOkP2kQ0BZDgrwLjXl00UEhtcB04f90OI6lNM+HvP7vFEErDjnhTJDTYiYhhHQD5cT/zgS7ffS3A==
   dependencies:
     "@types/cls-hooked" "^4.3.1"
     "@types/express-pino-logger" "^4.0.2"
