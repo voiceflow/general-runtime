@@ -50,24 +50,33 @@ export const addButtonsIfExists = <N extends Request.NodeButton>(node: N, runtim
     buttons = node.buttons
       .filter(({ name }) => name)
       .map(({ name, request }) => {
-        return Request.isTextRequest(request)
-          ? {
-              name: replaceVariables(name, variables.getState()),
-              request: {
-                ...request,
-                payload: replaceVariables(request.payload, variables.getState()),
+        if (Request.isTextRequest(request)) {
+          return {
+            name: replaceVariables(name, variables.getState()),
+            request: {
+              ...request,
+              payload: replaceVariables(request.payload, variables.getState()),
+            },
+          };
+        }
+
+        if (Request.isIntentRequest(request)) {
+          return {
+            name: replaceVariables(name, variables.getState()),
+            request: {
+              ...request,
+              payload: {
+                ...request.payload,
+                query: replaceVariables(request.payload.query, variables.getState()),
               },
-            }
-          : {
-              name: replaceVariables(name, variables.getState()),
-              request: {
-                ...request,
-                payload: {
-                  ...request.payload,
-                  query: replaceVariables(request.payload.query, variables.getState()),
-                },
-              },
-            };
+            },
+          };
+        }
+
+        return {
+          name: replaceVariables(name, variables.getState()),
+          request,
+        };
       });
   }
 
