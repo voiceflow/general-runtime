@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 
-import Client from '@/runtime';
+import Client, { Action as RuntimeAction } from '@/runtime';
 import { Config, Context, ContextHandler } from '@/types';
 
 import { FullServiceMap } from '../index';
@@ -69,6 +69,8 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     // skip runtime for the action request, since it do not have any effects
     if (!isActionRequest(request)) {
       await runtime.update();
+    } else {
+      runtime.setAction(RuntimeAction.END); // to get final state
     }
 
     const metadata: Context = {
