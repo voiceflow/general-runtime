@@ -45,14 +45,14 @@ export const generalEventMatcher = {
   },
 };
 
-const EventMatchers = [intentEventMatcher, generalEventMatcher];
+const EVENT_MATCHERS = [intentEventMatcher, generalEventMatcher];
 
 export const findEventMatcher = (context: { event: Node.Utils.BaseEvent | null; runtime: GeneralRuntime; variables: Store }) => {
-  const matcher = EventMatchers.find((m) => m.match(context));
+  const matcher = EVENT_MATCHERS.find((m) => m.match(context));
 
   if (!matcher) return null;
   return { ...matcher, sideEffect: () => matcher.sideEffect(context as any) };
 };
 
 export const hasEventMatch = (event: Node.Utils.BaseEvent | null, runtime: GeneralRuntime) =>
-  !!EventMatchers.find((m) => m.match({ event, runtime }));
+  !!EVENT_MATCHERS.find((m) => m.match({ event, runtime }));

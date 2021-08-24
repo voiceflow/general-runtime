@@ -6,17 +6,13 @@ export type RuntimeRequest = Request.BaseRequest | null;
 
 export type GeneralRuntime = Runtime<RuntimeRequest>;
 
-export const isTextRequest = (request: RuntimeRequest): request is Request.TextRequest => {
-  return !!(request?.type === Request.RequestType.TEXT && typeof request.payload === 'string');
-};
+export const isTextRequest = (request?: RuntimeRequest | null): request is Request.TextRequest =>
+  !!request && Request.isTextRequest(request) && typeof request.payload === 'string';
 
-export const isIntentRequest = (request: RuntimeRequest): request is Request.IntentRequest => {
-  return !!(
-    request?.type === Request.RequestType.INTENT &&
-    (request as Request.IntentRequest).payload?.intent?.name &&
-    Array.isArray((request as Request.IntentRequest).payload.entities)
-  );
-};
+export const isIntentRequest = (request?: RuntimeRequest | null): request is Request.IntentRequest =>
+  !!request && Request.isIntentRequest(request) && !!request.payload?.intent?.name && Array.isArray(request.payload.entities);
+
+export const isActionRequest = (request?: RuntimeRequest | null): request is Request.ActionRequest => !!request && Request.isActionRequest(request);
 
 export const isRuntimeRequest = (request: any): request is RuntimeRequest => {
   return request === null || !!(typeof request.type === 'string' && !!request.type);
