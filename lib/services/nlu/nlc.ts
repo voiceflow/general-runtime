@@ -6,7 +6,7 @@ import NLC, { IIntentFullfilment, IIntentSlot } from '@voiceflow/natural-languag
 import { getRequired } from '@voiceflow/natural-language-commander/dist/lib/standardSlots';
 import _ from 'lodash';
 
-import logger from '@/logger';
+import log from '@/logger';
 
 import { getNoneIntentRequest } from './utils';
 
@@ -25,8 +25,8 @@ export const registerSlots = (nlc: NLC, { slots }: PrototypeModel, openSlot: boo
 
         nlc.addSlotType({ type: slot.name, matcher });
       }
-    } catch (err) {
-      logger.debug(`NLC Unable To Register Slot ${slot} ${err}`);
+    } catch (error) {
+      log.debug(`[app] [runtime] [nlc] unable to register slot ${log.vars({ error, slot })}`);
     }
   });
 };
@@ -64,8 +64,8 @@ export const registerIntents = (nlc: NLC, { slots, intents }: PrototypeModel) =>
         intent: intent.name,
         utterances: samples,
       });
-    } catch (err) {
-      logger.debug(`NLC Unable To Register Custom Intent ${intent} ${err}`);
+    } catch (error) {
+      log.debug(`[app] [runtime] [nlc] unable to register custom intent ${log.vars({ error, intent: intent.name })}`);
     }
   });
 };
@@ -79,8 +79,8 @@ export const registerBuiltInIntents = (nlc: NLC, locale = Constants.Locale.EN_US
 
     try {
       nlc.registerIntent({ intent: name, utterances: samples });
-    } catch (err) {
-      logger.debug(`NLC Unable To Register Built In Intent ${err}`);
+    } catch (error) {
+      log.debug(`[app] [runtime] [nlc] unable to register built-in intent ${log.vars({ intent: name, error })}`);
     }
   });
 };

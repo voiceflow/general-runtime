@@ -29,7 +29,7 @@ class TTS extends AbstractManager<{ utils: typeof utils }> implements ContextHan
 
       return data.map((payload) => ({ type: Node.Utils.TraceType.SPEAK, payload }));
     } catch (error) {
-      log.error(error);
+      log.error(`[app] [runtime] [${TTS.name}] failed to fetch TTS ${log.vars({ error })}`);
       return [{ type: Node.Utils.TraceType.SPEAK, payload: { message, type: Node.Speak.TraceSpeakType.AUDIO } }];
     }
   };

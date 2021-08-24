@@ -1150,6 +1150,20 @@
     nanoid "^3.1.20"
     pino-http "5.3.0"
 
+"@voiceflow/logger@^1.5.7":
+  version "1.5.7"
+  resolved "https://registry.yarnpkg.com/@voiceflow/logger/-/logger-1.5.7.tgz#f273a9d2a9feef3b0e59e25fad1ae8f6faf4a8c2"
+  integrity sha512-OWUEVmaZ+H63xWNZF/gzwrRsF29QfE7myZQyFNx4kO9MeonMwrtGsE6IDmzSz1HdXCFnjp/dugxgOpycLxmZXA==
+  dependencies:
+    "@types/cls-hooked" "^4.3.1"
+    "@types/express-pino-logger" "^4.0.2"
+    "@voiceflow/pino" "6.11.2"
+    "@voiceflow/pino-pretty" "4.4.0"
+    "@zerollup/ts-transform-paths" "^1.7.18"
+    cls-hooked "^4.2.2"
+    nanoid "^3.1.20"
+    pino-http "5.3.0"
+
 "@voiceflow/natural-language-commander@^0.5.1":
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/@voiceflow/natural-language-commander/-/natural-language-commander-0.5.1.tgz#507436588afa60f1bf3aeb4d6b23a7db0947fa26"

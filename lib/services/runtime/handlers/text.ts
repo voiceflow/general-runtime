@@ -42,7 +42,7 @@ export const TextHandler: HandlerFactory<Node.Text.Node, typeof handlerUtils> = 
           payload: { slate: newSlate, text: utils.slateToPlaintext(newSlate.content) },
         });
       } catch (error) {
-        log.error(error);
+        log.error(`[app] [runtime] [${TextHandler.name}] failed to add Slate trace ${log.vars({ error })}`);
       }
     }
 

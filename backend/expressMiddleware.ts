@@ -44,7 +44,7 @@ class ExpressMiddleware {
     app.use(timeout(String(CONFIG.ERROR_RESPONSE_MS), { respond: false }));
     app.use((req, res, next) => {
       req.on('timeout', () => {
-        log.warn('response timeout');
+        log.warn(`[http] response timeout ${log.vars({ requestID: req.id })}`);
         res.status(VError.HTTP_STATUS.REQUEST_TIMEOUT).send('response timeout');
       });
 

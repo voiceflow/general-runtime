@@ -2,7 +2,7 @@ import { ResponseBuilder, Validator } from '@voiceflow/backend-utils';
 import Ajv from 'ajv';
 import { RequestHandler } from 'express';
 
-import logger from '@/logger';
+import log from '@/logger';
 import { AnyClass } from '@/types';
 
 import { ControllerMap } from './controllers';
@@ -22,8 +22,10 @@ export const customAJV = (schema: object) => (value: any) => {
   const ajv = new Ajv({ useDefaults: true, allErrors: true, verbose: true });
   const valid = ajv.validate(schema, value);
   if (!valid) {
-    logger.error(`@customAJV:validation - error:for: ${value} ${ajv.errorsText()}`);
-    throw new Error(ajv.errorsText());
+    const error = new Error(ajv.errorsText());
+    log.error(`[http] [${customAJV.name}] validation error ${log.vars({ value, error })}`);
+
+    throw error;
   }
 
   return true;

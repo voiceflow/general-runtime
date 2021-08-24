@@ -8,7 +8,7 @@ import { Node as BaseNode, Request, Trace } from '@voiceflow/base-types';
 import { Constants } from '@voiceflow/general-types';
 import _ from 'lodash';
 
-import logger from '@/logger';
+import log from '@/logger';
 import { Context, ContextHandler } from '@/types';
 
 import { handleNLCDialog } from '../nlu/nlc';
@@ -49,7 +49,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     languageModel: PrototypeModel
   ) => {
     const dmPrefixedResultName = dmPrefixedResult.payload.intent.name;
-    logger.trace(`@DM - DM-Prefixed inference result: ${dmPrefixedResultName}`);
+    log.trace(`[app] [runtime] [dm] DM-Prefixed inference result ${log.vars({ resultName: dmPrefixedResultName })}`);
 
     if (dmPrefixedResultName.startsWith(VF_DM_PREFIX)) {
       // Remove hash prefix entity from the DM-prefixed result
@@ -114,7 +114,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     const dmStateStore: DMStore = { ...context.state.storage.dm };
 
     if (dmStateStore?.intentRequest) {
-      logger.debug('@DM - In dialog management context');
+      log.debug('[app] [runtime] [dm] in dialog management context');
 
       const { query } = incomingRequest.payload;
 
@@ -156,7 +156,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         dmStateStore.intentRequest = resultNLC;
       }
     } else {
-      logger.debug('@DM - In regular context');
+      log.debug('[app] [runtime] [dm] in regular context');
 
       if (!(await this.services.utils.isIntentInScope(context))) {
         return context;

@@ -5,7 +5,7 @@
 
 import { Event } from '@/lib/clients/ingest-client';
 import { Variables } from '@/lib/services/runtime/types';
-import logger from '@/logger';
+import log from '@/logger';
 import Client from '@/runtime';
 import { Config, Context, ContextHandler } from '@/types';
 
@@ -81,7 +81,9 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     };
 
     // eslint-disable-next-line no-unused-expressions
-    this.services.analyticsClient?.track({ versionID, event: Event.TURN, metadata, timestamp }).catch((error) => logger.error(error));
+    this.services.analyticsClient?.track({ versionID, event: Event.TURN, metadata, timestamp }).catch((error) => {
+      log.error(`[analytics] failed to track ${log.vars({ versionID, error })}`);
+    });
 
     return metadata;
   }
