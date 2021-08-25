@@ -3,7 +3,7 @@ import { RateLimitManager } from '@voiceflow/backend-utils';
 import { Config } from '@/types';
 
 import { ClientMap } from '../clients';
-import Analytics from './Analytics';
+import Analytics from './analytics';
 import ASR from './asr';
 import Dialog from './dialog';
 import Filter from './filter';
