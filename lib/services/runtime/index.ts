@@ -3,9 +3,7 @@
  * @packageDocumentation
  */
 
-import { Event } from '@/lib/clients/ingest-client';
 import { Variables } from '@/lib/services/runtime/types';
-import log from '@/logger';
 import Client from '@/runtime';
 import { Config, Context, ContextHandler } from '@/types';
 
@@ -67,25 +65,16 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
       runtime.turn.set(TurnType.STOP_ALL, true);
     }
 
-    const timestamp = new Date();
-
-    runtime.variables.set(Variables.TIMESTAMP, Math.floor(timestamp.getTime() / 1000));
+    runtime.variables.set(Variables.TIMESTAMP, Math.floor(Date.now() / 1000));
     await runtime.update();
 
-    const metadata: Context = {
+    return {
       ...context,
       request,
       versionID,
       state: runtime.getFinalState(),
       trace: runtime.trace.get(),
     };
-
-    // eslint-disable-next-line no-unused-expressions
-    this.services.analyticsClient?.track({ versionID, event: Event.TURN, metadata, timestamp }).catch((error) => {
-      log.error(`[analytics] failed to track ${log.vars({ versionID, error })}`);
-    });
-
-    return metadata;
   }
 }
 
