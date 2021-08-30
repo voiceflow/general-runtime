@@ -2,7 +2,6 @@
 import { Node } from '@voiceflow/base-types';
 import { replaceVariables } from '@voiceflow/common';
 import { Constants } from '@voiceflow/general-types';
-import { slate as SlateUtils } from '@voiceflow/internal';
 
 import { Action, HandlerFactory } from '@/runtime';
 
