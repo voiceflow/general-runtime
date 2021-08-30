@@ -39,7 +39,7 @@ export const TextHandler: HandlerFactory<Node.Text.Node, typeof handlerUtils> = 
 
         runtime.trace.addTrace<Trace.TextTrace>({
           type: Node.Utils.TraceType.TEXT,
-          payload: { slate: newSlate, text: utils.slateToPlaintext(newSlate.content) },
+          payload: { slate: newSlate, message: utils.slateToPlaintext(newSlate.content) },
         });
       } catch (error) {
         log.error(`[app] [runtime] [${TextHandler.name}] failed to add Slate trace ${log.vars({ error })}`);
