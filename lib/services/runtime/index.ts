@@ -73,7 +73,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
       runtime.setAction(RuntimeAction.END); // to get final state
     }
 
-    const metadata: Context = {
+    return {
       ...context,
       request,
       versionID,
