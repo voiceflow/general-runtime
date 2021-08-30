@@ -51,7 +51,7 @@ describe('text handler unit tests', async () => {
       expect(utils.sanitizeVariables.args).to.eql([['vars']]);
       expect(utils.slateToPlaintext.args).to.eql([[newSlate.content]]);
       expect(utils.slateInjectVariables.args).to.eql([[[{ children: { text: 'sampledSlate' } }], 'sanitizedVars']]);
-      expect(topStorageSet.args).to.eql([['text', newSlate.content]]);
+      expect(topStorageSet.args).to.eql([['output', newSlate.content]]);
     });
   });
 });

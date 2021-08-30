@@ -20,7 +20,6 @@ export const isRuntimeRequest = (request: any): request is RuntimeRequest => {
 
 export enum StorageType {
   USER = 'user',
-  OUTPUT = 'output',
   LOCALE = 'locale',
   REPEAT = 'repeat',
   SESSIONS = 'sessions',
@@ -62,12 +61,9 @@ export type StreamPauseStorage = {
   offset: number;
 };
 
-export type OutputStorage = Text.SlateTextValue | string;
-
 export type NoMatchCounterStorage = number;
 
 export type StorageData = Partial<{
-  [StorageType.OUTPUT]: OutputStorage;
   [StorageType.STREAM_PLAY]: StreamPlayStorage;
   [StorageType.STREAM_PAUSE]: StreamPauseStorage;
   [StorageType.NO_MATCHES_COUNTER]: NoMatchCounterStorage;
@@ -84,24 +80,19 @@ export enum TurnType {
   STOP_TYPES = 'stopTypes',
 }
 
-export type PreviousOutputTurn = Text.SlateTextValue | string;
+export type Output = Text.SlateTextValue | string;
 
 export type TurnData = Partial<{
-  [TurnType.PREVIOUS_OUTPUT]: PreviousOutputTurn;
+  [TurnType.PREVIOUS_OUTPUT]: Output;
 }>;
 
 export enum FrameType {
-  TEXT = 'text',
-  SPEAK = 'speak',
+  OUTPUT = 'output',
   CALLED_COMMAND = 'calledCommand',
 }
 
-export type TextFrame = Text.SlateTextValue;
-export type SpeakFrame = string;
-
 export type FrameData = Partial<{
-  [FrameType.TEXT]: TextFrame;
-  [FrameType.SPEAK]: SpeakFrame;
+  [FrameType.OUTPUT]: Output;
 }>;
 
 export enum Variables {

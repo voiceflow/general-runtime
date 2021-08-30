@@ -5,8 +5,7 @@ import _ from 'lodash';
 
 import { HandlerFactory } from '@/runtime';
 
-import { FrameType, SpeakFrame, StorageData, StorageType } from '../types';
-import { slateToPlaintext } from '../utils';
+import { FrameType, Output } from '../types';
 
 // TODO: probably we can remove it, since prompt is not used in the node handler, and does not exist in general service handler
 const isPromptSpeak = (node: Node.Speak.Node & { prompt?: unknown }) => _.isString(node.prompt) && node.prompt !== 'true';
@@ -29,13 +28,7 @@ const SpeakHandler: HandlerFactory<Node.Speak.Node> = () => ({
       // in case a variable's value is a text containing another variable (i.e text2="say {text}")
       const output = replaceVariables(replaceVariables(speak, sanitizedVars), sanitizedVars);
 
-      runtime.storage.produce<StorageData>((draft) => {
-        const draftOutput = draft[StorageType.OUTPUT];
-
-        draft[StorageType.OUTPUT] = `${Array.isArray(draftOutput) ? slateToPlaintext(draftOutput) : draftOutput}${output}`;
-      });
-
-      runtime.stack.top().storage.set<SpeakFrame>(FrameType.SPEAK, output);
+      runtime.stack.top().storage.set<Output>(FrameType.OUTPUT, output);
       runtime.trace.addTrace<BaseNode.Utils.BaseTraceFrame>({
         type: BaseNode.Utils.TraceType.SPEAK,
         payload: { message: output, type: BaseNode.Speak.TraceSpeakType.MESSAGE },

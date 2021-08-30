@@ -1,15 +1,13 @@
 import { BaseNode } from '@voiceflow/api-sdk';
-import { Node, Request, Text, Trace } from '@voiceflow/base-types';
+import { Request, Text } from '@voiceflow/base-types';
 import { Node as ChatNode } from '@voiceflow/chat-types';
-import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { Node as VoiceNode } from '@voiceflow/voice-types';
-import cuid from 'cuid';
 import _ from 'lodash';
 
 import { HandlerFactory, Runtime, Store } from '@/runtime';
 
 import { NoMatchCounterStorage, StorageData, StorageType } from '../types';
-import { addButtonsIfExists, slateInjectVariables, slateToPlaintext } from '../utils';
+import { addButtonsIfExists, outputTrace, slateToPlaintext } from '../utils';
 
 interface BaseNoMatchNode extends BaseNode, Request.NodeButton {}
 interface VoiceNoMatchNode extends BaseNoMatchNode, VoiceNode.Utils.NodeNoMatch {}
@@ -20,9 +18,8 @@ export type NoMatchNode = VoiceNoMatchNode | ChatNoMatchNode;
 export const EMPTY_AUDIO_STRING = '<audio src=""/>';
 
 const utilsObj = {
-  slateToPlaintext,
+  outputTrace,
   addButtonsIfExists,
-  slateInjectVariables,
 };
 
 const removeEmptyNoMatches = <T extends string[] | Text.SlateTextValue[]>(noMatchArray?: T): T | undefined =>
@@ -52,40 +49,11 @@ export const NoMatchHandler: HandlerFactory<NoMatchNode, typeof utilsObj> = (uti
 
     const nonEmptyNoMatches = removeEmptyNoMatches(node.noMatches)!;
 
-    const noMatch = node.randomize
+    const output = node.randomize
       ? _.sample<string | Text.SlateTextValue>(nonEmptyNoMatches)
       : nonEmptyNoMatches?.[runtime.storage.get<NoMatchCounterStorage>(StorageType.NO_MATCHES_COUNTER)! - 1];
 
-    const sanitizedVars = sanitizeVariables(variables.getState());
-
-    if (noMatch && Array.isArray(noMatch)) {
-      const content = utils.slateInjectVariables(noMatch, sanitizedVars);
-      const message = utils.slateToPlaintext(content);
-
-      runtime.storage.produce<StorageData>((draft) => {
-        const draftOutput = draft[StorageType.OUTPUT] || '';
-
-        draft[StorageType.OUTPUT] = [...(Array.isArray(draftOutput) ? draftOutput : [{ children: [{ text: draftOutput }] }]), ...content];
-      });
-
-      runtime.trace.addTrace<Trace.TextTrace>({
-        type: Node.Utils.TraceType.TEXT,
-        payload: { slate: { id: cuid.slug(), content }, message },
-      });
-    } else {
-      const output = replaceVariables(noMatch || '', sanitizedVars);
-
-      runtime.storage.produce<StorageData>((draft) => {
-        const draftOutput = draft[StorageType.OUTPUT] || '';
-
-        draft[StorageType.OUTPUT] = `${Array.isArray(draftOutput) ? utils.slateToPlaintext(draftOutput) : draftOutput}${output}`;
-      });
-
-      runtime.trace.addTrace<Trace.SpeakTrace>({
-        type: Node.Utils.TraceType.SPEAK,
-        payload: { message: output, type: Node.Speak.TraceSpeakType.MESSAGE },
-      });
-    }
+    runtime.trace.addTrace(utils.outputTrace({ output, variables: variables.getState() }));
 
     utils.addButtonsIfExists(node, runtime, variables);
 

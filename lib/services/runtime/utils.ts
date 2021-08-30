@@ -1,8 +1,9 @@
 import { SlotMapping } from '@voiceflow/api-sdk';
 import { Node, Request, Text, Trace } from '@voiceflow/base-types';
 import { Node as ChatNode } from '@voiceflow/chat-types';
-import { replaceVariables, transformStringVariableToNumber } from '@voiceflow/common';
+import { replaceVariables, sanitizeVariables, transformStringVariableToNumber } from '@voiceflow/common';
 import { Node as VoiceNode } from '@voiceflow/voice-types';
+import cuid from 'cuid';
 import _ from 'lodash';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
 import _isString from 'lodash/isString';
@@ -10,7 +11,7 @@ import { Text as SlateText } from 'slate';
 
 import { Runtime, Store } from '@/runtime';
 
-import { TurnType } from './types';
+import { Output, TurnType } from './types';
 
 export const mapEntities = (
   mappings: SlotMapping[],
@@ -125,3 +126,31 @@ export const getReadableConfidence = (confidence?: number) => ((confidence ?? 1)
 
 export const slateToPlaintext = (content: Text.SlateTextValue = []): string =>
   content.reduce<string>((acc, node) => acc + (SlateText.isText(node) ? node.text : slateToPlaintext(node.children)), '');
+
+interface OutputParams<V> {
+  output?: V;
+  variables?: Record<string, unknown>;
+}
+
+export function outputTrace(params: OutputParams<Text.SlateTextValue>): Trace.TextTrace;
+export function outputTrace(params: OutputParams<string>): Trace.SpeakTrace;
+export function outputTrace(params: OutputParams<Output>): Trace.TextTrace | Trace.SpeakTrace;
+export function outputTrace({ output, variables = {} }: OutputParams<Output>) {
+  const sanitizedVars = sanitizeVariables(variables);
+
+  if (output && Array.isArray(output)) {
+    const content = slateInjectVariables(output, sanitizedVars);
+    const message = slateToPlaintext(content);
+
+    return {
+      type: Node.Utils.TraceType.TEXT,
+      payload: { slate: { id: cuid.slug(), content }, message },
+    };
+  }
+  const message = replaceVariables(output || '', sanitizedVars);
+
+  return {
+    type: Node.Utils.TraceType.SPEAK,
+    payload: { message, type: Node.Speak.TraceSpeakType.MESSAGE },
+  };
+}

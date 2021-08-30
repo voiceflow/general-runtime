@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import init from '@/lib/services/runtime/init';
-import { FrameType, StorageType } from '@/lib/services/runtime/types';
+import { FrameType } from '@/lib/services/runtime/types';
 import { EventType } from '@/runtime';
 
 describe('runtime init service unit tests', () => {
@@ -91,8 +91,8 @@ describe('runtime init service unit tests', () => {
         const fn = client.setEvent.args[1][1];
         fn({ runtime });
 
-        expect(runtime.stack.top.callCount).to.eql(4);
-        expect(topFrame.storage.get.args).to.eql([[FrameType.CALLED_COMMAND], [FrameType.TEXT], [FrameType.SPEAK]]);
+        expect(runtime.stack.top.callCount).to.eql(3);
+        expect(topFrame.storage.get.args).to.eql([[FrameType.CALLED_COMMAND], [FrameType.OUTPUT]]);
         expect(topFrame.storage.delete.args).to.eql([[FrameType.CALLED_COMMAND]]);
       });
 
@@ -106,7 +106,6 @@ describe('runtime init service unit tests', () => {
               .onFirstCall()
               .returns('called-command')
               .onSecondCall()
-              .returns(undefined)
               .returns(output),
             delete: sinon.stub(),
           },
@@ -119,15 +118,9 @@ describe('runtime init service unit tests', () => {
         const fn = client.setEvent.args[1][1];
         fn({ runtime });
 
-        expect(runtime.stack.top.callCount).to.eql(4);
-        expect(topFrame.storage.get.args).to.eql([[FrameType.CALLED_COMMAND], [FrameType.TEXT], [FrameType.SPEAK]]);
+        expect(runtime.stack.top.callCount).to.eql(3);
+        expect(topFrame.storage.get.args).to.eql([[FrameType.CALLED_COMMAND], [FrameType.OUTPUT]]);
         expect(topFrame.storage.delete.args).to.eql([[FrameType.CALLED_COMMAND]]);
-
-        const fn2 = runtime.storage.produce.args[0][0];
-        const prevOutput = 'abc ';
-        const draft = { [StorageType.OUTPUT]: prevOutput };
-        fn2(draft);
-        expect(draft).to.eql({ [StorageType.OUTPUT]: `${prevOutput}${output}` });
 
         expect(runtime.trace.addTrace.args).to.eql([
           [{ type: Node.Utils.TraceType.SPEAK, payload: { message: output, type: Node.Speak.TraceSpeakType.MESSAGE } }],

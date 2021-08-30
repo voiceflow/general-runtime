@@ -5,7 +5,7 @@ import _sample from 'lodash/sample';
 import log from '@/logger';
 import { HandlerFactory } from '@/runtime';
 
-import { FrameType, TextFrame } from '../types';
+import { FrameType, Output } from '../types';
 import { slateInjectVariables, slateToPlaintext } from '../utils';
 
 const handlerUtils = {
@@ -26,7 +26,7 @@ export const TextHandler: HandlerFactory<Node.Text.Node, typeof handlerUtils> = 
         const content = utils.slateInjectVariables(slate.content, sanitizedVars);
         const message = utils.slateToPlaintext(content);
 
-        runtime.stack.top().storage.set<TextFrame>(FrameType.TEXT, content);
+        runtime.stack.top().storage.set<Output>(FrameType.OUTPUT, content);
         runtime.trace.addTrace<Trace.TextTrace>({
           type: Node.Utils.TraceType.TEXT,
           payload: { slate: { ...slate, content }, message },

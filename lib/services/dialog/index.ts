@@ -16,7 +16,7 @@ import { Context, ContextHandler } from '@/types';
 import { handleNLCDialog } from '../nlu/nlc';
 import { getNoneIntentRequest, NONE_INTENT } from '../nlu/utils';
 import { isIntentRequest } from '../runtime/types';
-import { slateInjectVariables, slateToPlaintext } from '../runtime/utils';
+import { outputTrace } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
 import { rectifyEntityValue } from './synonym';
 import {
@@ -33,6 +33,7 @@ import {
 } from './utils';
 
 export const utils = {
+  outputTrace,
   isIntentInScope,
 };
 
@@ -184,25 +185,14 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       const trace: Trace.AnyTrace[] = [];
 
       const prompt = _.sample(unfulfilledEntity.dialog.prompt)! as ChatTypes.Prompt | VoiceTypes.IntentPrompt<string>;
+      const variables = getEntitiesMap(dmStateStore!.intentRequest);
 
-      if ('content' in prompt) {
-        const entities = getEntitiesMap(dmStateStore!.intentRequest);
-        const content = slateInjectVariables(prompt.content, entities);
-        const message = slateToPlaintext(content);
+      const output =
+        'content' in prompt
+          ? prompt.content
+          : fillStringEntities(inputToString(prompt, version.platformData.settings.defaultVoice), dmStateStore!.intentRequest);
 
-        trace.push({
-          type: BaseNode.Utils.TraceType.TEXT,
-          payload: { slate: { ...prompt, content }, message },
-        });
-      } else {
-        trace.push({
-          type: BaseNode.Utils.TraceType.SPEAK,
-          payload: {
-            message: fillStringEntities(inputToString(prompt, version.platformData.settings.defaultVoice), dmStateStore!.intentRequest),
-            type: BaseNode.Speak.TraceSpeakType.MESSAGE,
-          },
-        });
-      }
+      trace.push(outputTrace({ output, variables }));
 
       if (version.prototype?.model) {
         trace.push({

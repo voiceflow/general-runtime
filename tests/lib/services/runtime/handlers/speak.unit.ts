@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import SpeakHandler from '@/lib/services/runtime/handlers/speak';
-import { FrameType, StorageType } from '@/lib/services/runtime/types';
+import { FrameType } from '@/lib/services/runtime/types';
 
 describe('speak handler unit tests', async () => {
   const speakHandler = SpeakHandler();
@@ -41,7 +41,7 @@ describe('speak handler unit tests', async () => {
       const variables = { getState: sinon.stub().returns({}) };
 
       expect(speakHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
-      expect(topFrame.storage.set.args[0][0]).to.eql(FrameType.SPEAK);
+      expect(topFrame.storage.set.args[0][0]).to.eql(FrameType.OUTPUT);
       // output is one of the options in random_speak
       expect(node.random_speak.includes(topFrame.storage.set.args[0][1])).to.eql(true);
     });
@@ -64,17 +64,7 @@ describe('speak handler unit tests', async () => {
 
       expect(speakHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
       // output has vars replaced and numbers turned to 2digits floats
-      expect(topFrame.storage.set.args).to.eql([[FrameType.SPEAK, 'random 1.23 or here']]);
-
-      const fn = runtime.storage.produce.args[0][0];
-
-      const draft = {
-        [StorageType.OUTPUT]: 'previous ',
-      };
-
-      fn(draft);
-
-      expect(draft[StorageType.OUTPUT]).to.eq('previous random 1.23 or here');
+      expect(topFrame.storage.set.args).to.eql([[FrameType.OUTPUT, 'random 1.23 or here']]);
       expect(runtime.trace.addTrace.args).to.eql([[{ type: 'speak', payload: { message: 'random 1.23 or here', type: 'message' } }]]);
     });
 

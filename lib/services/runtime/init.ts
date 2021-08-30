@@ -1,11 +1,10 @@
 import { Node, Trace } from '@voiceflow/base-types';
-import cuid from 'cuid';
 
 import Client, { EventType } from '@/runtime';
 
 import { RESUME_PROGRAM_ID, ResumeDiagram } from './programs/resume';
-import { FrameType, SpeakFrame, StorageData, StorageType, StreamAction, StreamPlayStorage, TextFrame, TurnType } from './types';
-import { slateToPlaintext } from './utils';
+import { FrameType, Output, StorageType, StreamAction, StreamPlayStorage, TurnType } from './types';
+import { outputTrace } from './utils';
 
 // initialize event behaviors for client
 const init = (client: Client) => {
@@ -25,33 +24,13 @@ const init = (client: Client) => {
 
     runtime.stack.top().storage.delete(FrameType.CALLED_COMMAND);
 
-    const output = runtime.stack.top().storage.get<TextFrame>(FrameType.TEXT) ?? runtime.stack.top().storage.get<SpeakFrame>(FrameType.SPEAK);
+    const output = runtime.stack.top().storage.get<Output>(FrameType.OUTPUT);
 
     if (!output) {
       return;
     }
 
-    runtime.storage.produce<StorageData>((draft) => {
-      const draftOutput = draft[StorageType.OUTPUT] || '';
-
-      if (Array.isArray(output)) {
-        draft[StorageType.OUTPUT] = [...(Array.isArray(draftOutput) ? draftOutput : [{ children: [{ text: draftOutput }] }]), ...output];
-      } else {
-        draft[StorageType.OUTPUT] = `${Array.isArray(draftOutput) ? slateToPlaintext(draftOutput) : draftOutput}${output}`;
-      }
-    });
-
-    if (Array.isArray(output)) {
-      runtime.trace.addTrace<Trace.TextTrace>({
-        type: Node.Utils.TraceType.TEXT,
-        payload: { slate: { id: cuid.slug(), content: output }, message: slateToPlaintext(output) },
-      });
-    } else {
-      runtime.trace.addTrace<Node.Speak.TraceFrame>({
-        type: Node.Utils.TraceType.SPEAK,
-        payload: { message: output, type: Node.Speak.TraceSpeakType.MESSAGE },
-      });
-    }
+    runtime.trace.addTrace(outputTrace({ output }));
   });
 
   client.setEvent(EventType.programWillFetch, ({ programID, override }) => {

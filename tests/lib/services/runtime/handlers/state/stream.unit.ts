@@ -77,16 +77,11 @@ describe('stream state handler unit tests', () => {
         expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(runtime.getRequest.callCount).to.eql(1);
 
-        expect(runtime.storage.produce.callCount).to.eql(2);
+        expect(runtime.storage.produce.callCount).to.eql(1);
         const fn1 = runtime.storage.produce.args[0][0];
         const draft1 = { [StorageType.STREAM_PLAY]: {} };
         fn1(draft1);
         expect(draft1).to.eql({ [StorageType.STREAM_PLAY]: { action: StreamAction.NOEFFECT } });
-
-        const fn2 = runtime.storage.produce.args[1][0];
-        const draft2 = { output: '' };
-        fn2(draft2);
-        expect(draft2).to.eql({ output: 'Sorry, this action isn’t available in this skill. ' });
 
         expect(runtime.end.callCount).to.eql(1);
       });
