@@ -1,9 +1,10 @@
 import { Version } from '@voiceflow/base-types';
 import { Constants } from '@voiceflow/general-types';
+import { slate as SlateUtils } from '@voiceflow/internal';
 
 import { Runtime } from '@/runtime';
 
-import { FrameType, isIntentRequest, PreviousOutputTurn, SpeakFrame, StorageData, StorageType, TurnType } from '../types';
+import { FrameType, isIntentRequest, PreviousOutputTurn, SpeakFrame, StorageData, StorageType, TextFrame, TurnType } from '../types';
 
 const RepeatHandler = {
   canHandle: (runtime: Runtime): boolean => {
@@ -21,12 +22,19 @@ const RepeatHandler = {
     const top = runtime.stack.top();
 
     const output =
-      (repeat === Version.RepeatType.ALL
+      repeat === Version.RepeatType.ALL
         ? runtime.turn.get<PreviousOutputTurn>(TurnType.PREVIOUS_OUTPUT)
-        : top.storage.get<SpeakFrame>(FrameType.SPEAK)) || '';
+        : // for the voice projects text frame should be always empty
+          top.storage.get<TextFrame>(FrameType.TEXT) ?? top.storage.get<SpeakFrame>(FrameType.SPEAK);
 
     runtime.storage.produce<StorageData>((draft) => {
-      draft[StorageType.OUTPUT] += output;
+      const draftOutput = draft[StorageType.OUTPUT] || '';
+
+      if (Array.isArray(output)) {
+        draft[StorageType.OUTPUT] = [...(Array.isArray(draftOutput) ? draftOutput : [{ children: [{ text: draftOutput }] }]), ...output];
+      } else {
+        draft[StorageType.OUTPUT] = `${Array.isArray(draftOutput) ? SlateUtils.toPlaintext(draftOutput) : draftOutput}${output || ''}`;
+      }
     });
 
     return top.getNodeID() || null;

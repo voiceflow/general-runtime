@@ -63,6 +63,12 @@ export const NoMatchHandler: HandlerFactory<NoMatchNode, typeof utilsObj> = (uti
       const content = utils.slateInjectVariables(noMatch, sanitizedVars);
       const message = utils.slateToPlaintext(content);
 
+      runtime.storage.produce<StorageData>((draft) => {
+        const draftOutput = draft[StorageType.OUTPUT] || '';
+
+        draft[StorageType.OUTPUT] = [...(Array.isArray(draftOutput) ? draftOutput : [{ children: [{ text: draftOutput }] }]), ...content];
+      });
+
       runtime.trace.addTrace<Trace.TextTrace>({
         type: Node.Utils.TraceType.TEXT,
         payload: { slate: { id: cuid.slug(), content }, message },
@@ -71,7 +77,9 @@ export const NoMatchHandler: HandlerFactory<NoMatchNode, typeof utilsObj> = (uti
       const output = replaceVariables(noMatch || '', sanitizedVars);
 
       runtime.storage.produce<StorageData>((draft) => {
-        draft[StorageType.OUTPUT] += output;
+        const draftOutput = draft[StorageType.OUTPUT] || '';
+
+        draft[StorageType.OUTPUT] = `${Array.isArray(draftOutput) ? SlateUtils.toPlaintext(draftOutput) : draftOutput}${output}`;
       });
 
       runtime.trace.addTrace<Trace.SpeakTrace>({

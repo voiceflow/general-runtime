@@ -2,6 +2,7 @@
 import { Node } from '@voiceflow/base-types';
 import { replaceVariables } from '@voiceflow/common';
 import { Constants } from '@voiceflow/general-types';
+import { slate as SlateUtils } from '@voiceflow/internal';
 
 import { Action, HandlerFactory } from '@/runtime';
 
@@ -91,7 +92,13 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
       });
 
       runtime.storage.produce<StorageData>((draft) => {
-        draft[StorageType.OUTPUT] += 'Sorry, this action isn’t available in this skill. ';
+        const draftOutput = draft[StorageType.OUTPUT] || '';
+
+        if (Array.isArray(draftOutput)) {
+          draft[StorageType.OUTPUT] = [...draftOutput, { children: [{ text: 'Sorry, this action isn’t available in this skill. ' }] }];
+        } else {
+          draft[StorageType.OUTPUT] = `${draftOutput}Sorry, this action isn’t available in this skill. `;
+        }
       });
 
       runtime.end();

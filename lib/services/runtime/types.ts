@@ -1,4 +1,4 @@
-import { Node, Request } from '@voiceflow/base-types';
+import { Node, Request, Text } from '@voiceflow/base-types';
 
 import { Runtime } from '@/runtime';
 
@@ -62,7 +62,7 @@ export type StreamPauseStorage = {
   offset: number;
 };
 
-export type OutputStorage = string;
+export type OutputStorage = Text.SlateTextValue | string;
 
 export type NoMatchCounterStorage = number;
 
@@ -84,21 +84,23 @@ export enum TurnType {
   STOP_TYPES = 'stopTypes',
 }
 
-export type PreviousOutputTurn = string;
+export type PreviousOutputTurn = Text.SlateTextValue | string;
 
 export type TurnData = Partial<{
   [TurnType.PREVIOUS_OUTPUT]: PreviousOutputTurn;
 }>;
 
 export enum FrameType {
+  TEXT = 'text',
   SPEAK = 'speak',
   CALLED_COMMAND = 'calledCommand',
 }
 
-export type TextFrame = Node.Text.TextData;
+export type TextFrame = Text.SlateTextValue;
 export type SpeakFrame = string;
 
 export type FrameData = Partial<{
+  [FrameType.TEXT]: TextFrame;
   [FrameType.SPEAK]: SpeakFrame;
 }>;
 
