@@ -26,8 +26,8 @@ const utilsObj = {
 };
 
 const removeEmptyNoMatches = <T extends string[] | Text.SlateTextValue[]>(noMatchArray?: T): T | undefined =>
-  (noMatchArray as any[])?.filter((noMatch: T[number]) =>
-    noMatch != null && _.isString(noMatch) ? noMatch !== EMPTY_AUDIO_STRING : !!slateToPlaintext(noMatch)
+  (noMatchArray as any[])?.filter(
+    (noMatch: T[number]) => noMatch != null && (_.isString(noMatch) ? noMatch !== EMPTY_AUDIO_STRING : !!slateToPlaintext(noMatch))
   ) as T | undefined;
 
 export const NoMatchHandler: HandlerFactory<NoMatchNode, typeof utilsObj> = (utils) => ({

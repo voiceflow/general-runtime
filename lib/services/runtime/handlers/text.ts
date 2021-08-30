@@ -10,8 +10,8 @@ import { slateInjectVariables, slateToPlaintext } from '../utils';
 
 const handlerUtils = {
   _sample,
-  sanitizeVariables,
   slateToPlaintext,
+  sanitizeVariables,
   slateInjectVariables,
 };
 

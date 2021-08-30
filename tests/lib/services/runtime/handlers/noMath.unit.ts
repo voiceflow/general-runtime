@@ -200,7 +200,7 @@ describe('noMatch handler unit tests', () => {
         getState: sinon.stub().returns({}),
       };
 
-      const noMatchHandler = NoMatchHandler({ addButtonsIfExists: sinon.stub() });
+      const noMatchHandler = NoMatchHandler({ addButtonsIfExists: sinon.stub() } as any);
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(NON_NULL_STRING);
     });

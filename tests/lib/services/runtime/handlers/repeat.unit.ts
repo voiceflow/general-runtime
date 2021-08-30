@@ -41,7 +41,14 @@ describe('repeat handler', () => {
     it('minimal repeat', () => {
       const frame = {
         getNodeID: sinon.stub().returns('node'),
-        storage: { get: sinon.stub().returns('foo') },
+        storage: {
+          get: sinon
+            .stub()
+            .onFirstCall()
+            .returns(undefined)
+            .onSecondCall()
+            .returns('foo'),
+        },
       };
 
       const runtime = {
@@ -61,7 +68,7 @@ describe('repeat handler', () => {
 
       expect(runtime.storage.get.args[0][0]).to.eql(StorageType.REPEAT);
       expect(runtime.stack.top.callCount).to.eql(1);
-      expect(frame.storage.get.args[0][0]).to.eql(FrameType.SPEAK);
+      expect(frame.storage.get.args).to.eql([[FrameType.TEXT], [FrameType.SPEAK]]);
       expect(runtime.turn.get.callCount).to.eql(0);
 
       const fn = runtime.storage.produce.args[0][0];

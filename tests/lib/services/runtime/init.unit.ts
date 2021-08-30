@@ -91,8 +91,8 @@ describe('runtime init service unit tests', () => {
         const fn = client.setEvent.args[1][1];
         fn({ runtime });
 
-        expect(runtime.stack.top.callCount).to.eql(3);
-        expect(topFrame.storage.get.args).to.eql([[FrameType.CALLED_COMMAND], [FrameType.SPEAK]]);
+        expect(runtime.stack.top.callCount).to.eql(4);
+        expect(topFrame.storage.get.args).to.eql([[FrameType.CALLED_COMMAND], [FrameType.TEXT], [FrameType.SPEAK]]);
         expect(topFrame.storage.delete.args).to.eql([[FrameType.CALLED_COMMAND]]);
       });
 
@@ -106,6 +106,7 @@ describe('runtime init service unit tests', () => {
               .onFirstCall()
               .returns('called-command')
               .onSecondCall()
+              .returns(undefined)
               .returns(output),
             delete: sinon.stub(),
           },
@@ -118,8 +119,8 @@ describe('runtime init service unit tests', () => {
         const fn = client.setEvent.args[1][1];
         fn({ runtime });
 
-        expect(runtime.stack.top.callCount).to.eql(3);
-        expect(topFrame.storage.get.args).to.eql([[FrameType.CALLED_COMMAND], [FrameType.SPEAK]]);
+        expect(runtime.stack.top.callCount).to.eql(4);
+        expect(topFrame.storage.get.args).to.eql([[FrameType.CALLED_COMMAND], [FrameType.TEXT], [FrameType.SPEAK]]);
         expect(topFrame.storage.delete.args).to.eql([[FrameType.CALLED_COMMAND]]);
 
         const fn2 = runtime.storage.produce.args[0][0];

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { TurnType } from '@/lib/services/runtime/types';
-import { addButtonsIfExists, addRepromptIfExists, getReadableConfidence } from '@/lib/services/runtime/utils';
+import { addButtonsIfExists, addRepromptIfExists, getReadableConfidence, slateInjectVariables } from '@/lib/services/runtime/utils';
 
 describe('runtime utils service unit tests', () => {
   describe('addRepromptIfExists', () => {
@@ -94,6 +94,27 @@ describe('runtime utils service unit tests', () => {
         ],
       ]);
       expect(variables.getState.callCount).to.eql(4);
+    });
+  });
+
+  describe('slateInjectVariables', () => {
+    it('works', () => {
+      const variableState = { var1: 'first', var2: 'second', var3: ['third', 'fourth'] };
+      const slate = {
+        id: '1',
+        content: [{ text: 'test {var1}', underline: true, property: 'prop {var3}' }, { text: ' ' }, { children: [{ text: ' nice {var2} var' }] }],
+      };
+
+      const expectedSlate = {
+        id: '1',
+        content: [
+          { text: 'test first', underline: true, property: 'prop third,fourth' },
+          { text: ' ' },
+          { children: [{ text: ' nice second var' }] },
+        ],
+      };
+
+      expect(slateInjectVariables(slate as any, variableState)).to.eql(expectedSlate);
     });
   });
 });
