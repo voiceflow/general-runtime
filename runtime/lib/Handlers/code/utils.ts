@@ -8,7 +8,7 @@ import Store from '@/runtime/lib/Runtime/Store';
 export const vmExecute = (
   data: { code: string; variables: Record<string, any> },
   safe = true /* set to false when running in testing env */,
-  callbacks?: Record<string, Function>
+  callbacks?: Record<string, (...args: any) => any>
 ) => {
   const vm = new VM({
     timeout: 1000,

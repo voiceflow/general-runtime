@@ -62,7 +62,13 @@ export interface Config extends RateLimitConfig {
   INGEST_WEBHOOK_ENDPOINT: string | null;
 }
 
-export interface Request<P extends {} = {}, B = any, H extends {} = {}, Q = any, RB = any> extends Express.Request<P, RB, B, Q> {
+export interface Request<
+  P extends Record<string, any> = Record<string, any>,
+  B = any,
+  H extends Record<string, any> = Record<string, any>,
+  Q = any,
+  RB = any
+> extends Express.Request<P, RB, B, Q> {
   headers: http.IncomingHttpHeaders & H;
 }
 
@@ -70,7 +76,7 @@ export type Response = Express.Response;
 
 export type Next = () => void;
 
-export interface Route<P = {}, T = void> {
+export interface Route<P = Record<string, any>, T = void> {
   (req: Request<P>): Promise<T>;
 
   validations?: Validator.ValidationChain[];

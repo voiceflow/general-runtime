@@ -12,13 +12,13 @@ import { AbstractMiddleware } from './middlewares/utils';
 
 type Validations = Record<string, Validator.ValidationChain>;
 
-export const validate = (validations: Validations) => (_target: object, _key: string, descriptor: PropertyDescriptor) => {
+export const validate = (validations: Validations) => (_target: Record<string, any>, _key: string, descriptor: PropertyDescriptor) => {
   descriptor.value = Object.assign(descriptor.value, { validations });
 
   return descriptor;
 };
 
-export const customAJV = (schema: object) => (value: any) => {
+export const customAJV = (schema: Record<string, any>) => (value: any) => {
   const ajv = new Ajv({ useDefaults: true, allErrors: true, verbose: true });
   const valid = ajv.validate(schema, value);
   if (!valid) {

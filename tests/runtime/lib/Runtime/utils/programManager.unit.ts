@@ -52,7 +52,7 @@ describe('Runtime utils ProgramManager', () => {
   it('program gets injected', async () => {
     const runtime = { callEvent: sinon.stub() };
     const injectedProgramModel = { foo: 'bar' };
-    const fakeFn = (_event: string, utils: { programID: string; override: Function }) => {
+    const fakeFn = (_event: string, utils: { programID: string; override: (...args: any[]) => any }) => {
       utils.override(injectedProgramModel);
     };
 

@@ -40,7 +40,7 @@ class SessionManager extends AbstractManager {
 
     const id = this.getSessionID(projectID, userID);
 
-    const session = await mongo!.db.collection(this.collectionName).findOne<{ attributes: object }>({ id });
+    const session = await mongo!.db.collection(this.collectionName).findOne<{ attributes?: T }>({ id });
 
     return (session?.attributes || {}) as T;
   }
