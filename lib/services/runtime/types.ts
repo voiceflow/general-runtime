@@ -95,6 +95,7 @@ export enum FrameType {
   CALLED_COMMAND = 'calledCommand',
 }
 
+export type TextFrame = Node.Text.TextData;
 export type SpeakFrame = string;
 
 export type FrameData = Partial<{

@@ -5,7 +5,10 @@
 
 import { PrototypeModel } from '@voiceflow/api-sdk';
 import { Node as BaseNode, Request, Trace } from '@voiceflow/base-types';
+import { Types as ChatTypes } from '@voiceflow/chat-types';
 import { Constants } from '@voiceflow/general-types';
+import { slate as SlateUtils } from '@voiceflow/internal';
+import { Types as VoiceTypes } from '@voiceflow/voice-types';
 import _ from 'lodash';
 
 import log from '@/logger';
@@ -14,6 +17,7 @@ import { Context, ContextHandler } from '@/types';
 import { handleNLCDialog } from '../nlu/nlc';
 import { getNoneIntentRequest, NONE_INTENT } from '../nlu/utils';
 import { isIntentRequest } from '../runtime/types';
+import { slateInjectVariables } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
 import { rectifyEntityValue } from './synonym';
 import {
@@ -21,6 +25,7 @@ import {
   fillStringEntities,
   generateButtonsForUtterances,
   getDMPrefixIntentName,
+  getEntitiesMap,
   getIntentEntityList,
   getUnfulfilledEntity,
   inputToString,
@@ -179,15 +184,26 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       // Assemble return string by populating the inline entity values
       const trace: Trace.AnyTrace[] = [];
 
-      const prompt = _.sample(unfulfilledEntity.dialog.prompt)!;
+      const prompt = _.sample(unfulfilledEntity.dialog.prompt)! as ChatTypes.Prompt | VoiceTypes.IntentPrompt<string>;
 
-      trace.push({
-        type: BaseNode.Utils.TraceType.SPEAK,
-        payload: {
-          message: fillStringEntities(inputToString(prompt, version.platformData.settings.defaultVoice), dmStateStore!.intentRequest),
-          type: BaseNode.Speak.TraceSpeakType.MESSAGE,
-        },
-      });
+      if ('content' in prompt) {
+        const entities = getEntitiesMap(dmStateStore!.intentRequest);
+        const content = slateInjectVariables(prompt.content, entities);
+        const message = SlateUtils.toPlaintext(content);
+
+        trace.push({
+          type: BaseNode.Utils.TraceType.TEXT,
+          payload: { slate: { ...prompt, content }, message },
+        });
+      } else {
+        trace.push({
+          type: BaseNode.Utils.TraceType.SPEAK,
+          payload: {
+            message: fillStringEntities(inputToString(prompt, version.platformData.settings.defaultVoice), dmStateStore!.intentRequest),
+            type: BaseNode.Speak.TraceSpeakType.MESSAGE,
+          },
+        });
+      }
 
       if (version.prototype?.model) {
         trace.push({

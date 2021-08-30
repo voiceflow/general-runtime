@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { slateInjectVariables, slateToPlaintext, TextHandler } from '@/lib/services/runtime/handlers/text';
+import { slateInjectVariables, TextHandler } from '@/lib/services/runtime/handlers/text';
 
 describe('text handler unit tests', async () => {
   afterEach(() => sinon.restore());
@@ -67,17 +67,6 @@ describe('text handler unit tests', async () => {
       };
 
       expect(slateInjectVariables(slate as any, variableState)).to.eql(expectedSlate);
-    });
-
-    it('slateToPlaintext', () => {
-      const content = [
-        { text: 'one', underline: true, property: 'property' },
-        { text: 'two' },
-        { text: ' ' },
-        { children: [{ children: [{ text: 'three' }] }, { text: ' four ' }, { text: 'five' }] },
-      ];
-
-      expect(slateToPlaintext(content as any)).to.eql('onetwo three four five');
     });
   });
 });

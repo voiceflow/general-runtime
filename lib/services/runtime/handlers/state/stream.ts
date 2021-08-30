@@ -91,7 +91,7 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
       });
 
       runtime.storage.produce<StorageData>((draft) => {
-        draft.output += 'Sorry, this action isn’t available in this skill. ';
+        draft[StorageType.OUTPUT] += 'Sorry, this action isn’t available in this skill. ';
       });
 
       runtime.end();

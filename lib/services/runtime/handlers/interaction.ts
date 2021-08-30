@@ -1,5 +1,5 @@
-/* eslint-disable no-restricted-syntax */
-import { Node } from '@voiceflow/general-types';
+import { Node as ChatNode } from '@voiceflow/chat-types';
+import { Node as GeneralNode } from '@voiceflow/general-types';
 
 import { Action, HandlerFactory } from '@/runtime';
 
@@ -19,7 +19,7 @@ const utilsObj = {
   addRepromptIfExists,
 };
 
-export const InteractionHandler: HandlerFactory<Node.Interaction.Node, typeof utilsObj> = (utils) => ({
+export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | ChatNode.Interaction.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => !!node.interactions,
   handle: (node, runtime, variables, program) => {
     if (runtime.getAction() === Action.RESPONSE) {

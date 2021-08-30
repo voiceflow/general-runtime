@@ -9,6 +9,7 @@
     "resolveJsonModule": true,
     "experimentalDecorators": true,
     /* Strictness Checks */
+    "strict": true,
     "alwaysStrict": true,
     "noImplicitAny": true,
     "noUnusedLocals": true,
@@ -25,9 +26,7 @@
     "listEmittedFiles": false,
     "listFiles": false,
     "pretty": true,
-    "lib": [
-      "es2020"
-    ],
+    "lib": ["es2020"],
     "outDir": "./build",
     "baseUrl": ".",
     "paths": {

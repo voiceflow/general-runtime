@@ -1,8 +1,11 @@
 import { SlotMapping } from '@voiceflow/api-sdk';
-import { Node, Request, Trace } from '@voiceflow/base-types';
+import { Node, Request, Text, Trace } from '@voiceflow/base-types';
+import { Node as ChatNode } from '@voiceflow/chat-types';
 import { replaceVariables, transformStringVariableToNumber } from '@voiceflow/common';
 import { Node as VoiceNode } from '@voiceflow/voice-types';
 import _ from 'lodash';
+import _cloneDeepWith from 'lodash/cloneDeepWith';
+import _isString from 'lodash/isString';
 
 import { Runtime, Store } from '@/runtime';
 
@@ -38,9 +41,23 @@ export const mapEntities = (mappings: SlotMapping[], entities: Request.IntentReq
   return variables;
 };
 
-export const addRepromptIfExists = <N extends VoiceNode.Utils.NodeReprompt>(node: N, runtime: Runtime, variables: Store): void => {
-  if (node.reprompt) {
-    runtime.turn.set(TurnType.REPROMPT, replaceVariables(node.reprompt, variables.getState()));
+export const slateInjectVariables = (slateValue: Text.SlateTextValue, variables: Record<string, unknown>): Text.SlateTextValue => {
+  // return undefined to recursively clone object https://stackoverflow.com/a/52956848
+  const customizer = (value: any) => (_isString(value) ? replaceVariables(value, variables, undefined, { trim: false }) : undefined);
+
+  return _cloneDeepWith(slateValue, customizer);
+};
+
+export const addRepromptIfExists = <N extends VoiceNode.Utils.NodeReprompt | ChatNode.Utils.NodeReprompt>(
+  { reprompt }: N,
+  runtime: Runtime,
+  variables: Store
+): void => {
+  if (reprompt) {
+    runtime.turn.set(
+      TurnType.REPROMPT,
+      _isString(reprompt) ? replaceVariables(reprompt, variables.getState()) : slateInjectVariables(reprompt, variables.getState())
+    );
   }
 };
 

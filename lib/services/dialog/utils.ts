@@ -35,6 +35,7 @@ export const getUnfulfilledEntity = (intentRequest: Request.IntentRequest, model
       // If the required model intent entity is not found in the extracted entity, this is the entity model to return
       return !extractedEntities.some((extractedEntity) => extractedEntity.name === getSlotNameByID(modelIntentEntity.id, model));
     }
+
     return false;
   });
 };
@@ -44,13 +45,16 @@ export const getUnfulfilledEntity = (intentRequest: Request.IntentRequest, model
 export const replaceSlots = (input: string, variables: Record<string, string>) =>
   input.replace(SLOT_REGEXP, (_match, inner) => variables[inner] || '');
 
-// Populates all entities in a given string
-export const fillStringEntities = (input = '', intentRequest: Request.IntentRequest) => {
-  // create a dictionary of all entities from Entity[] => { [entity.name]: entity.value }
-  const entityMap = intentRequest.payload.entities.reduce<Record<string, string>>(
+// create a dictionary of all entities from Entity[] => { [entity.name]: entity.value }
+export const getEntitiesMap = (intentRequest: Request.IntentRequest): Record<string, string> =>
+  intentRequest.payload.entities.reduce<Record<string, string>>(
     (acc, entity) => ({ ...acc, ...(entity.value && { [entity.name]: entity.value }) }),
     {}
   );
+
+// Populates all entities in a given string
+export const fillStringEntities = (input = '', intentRequest: Request.IntentRequest) => {
+  const entityMap = getEntitiesMap(intentRequest);
 
   return replaceSlots(input, entityMap);
 };
