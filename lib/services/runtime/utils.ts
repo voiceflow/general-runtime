@@ -4,9 +4,9 @@ import { Node as ChatNode } from '@voiceflow/chat-types';
 import { replaceVariables, sanitizeVariables, transformStringVariableToNumber } from '@voiceflow/common';
 import { Node as VoiceNode } from '@voiceflow/voice-types';
 import cuid from 'cuid';
-import _ from 'lodash';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
 import _isString from 'lodash/isString';
+import _uniqBy from 'lodash/uniqBy';
 import { Text as SlateText } from 'slate';
 
 import { Runtime, Store } from '@/runtime';
@@ -112,7 +112,7 @@ export const addButtonsIfExists = <N extends Request.NodeButton>(node: N, runtim
     });
   }
 
-  buttons = _.uniqBy(buttons, (button) => button.name);
+  buttons = _uniqBy(buttons, (button) => button.name);
 
   if (buttons.length) {
     runtime.trace.addTrace<Trace.ChoiceTrace>({
@@ -138,7 +138,7 @@ export function outputTrace(params: OutputParams<Output>): Trace.TextTrace | Tra
 export function outputTrace({ output, variables = {} }: OutputParams<Output>) {
   const sanitizedVars = sanitizeVariables(variables);
 
-  if (output && Array.isArray(output)) {
+  if (Array.isArray(output)) {
     const content = slateInjectVariables(output, sanitizedVars);
     const message = slateToPlaintext(content);
 
