@@ -2,7 +2,6 @@ import { BaseNode } from '@voiceflow/api-sdk';
 import { Node, Request, Text, Trace } from '@voiceflow/base-types';
 import { Node as ChatNode } from '@voiceflow/chat-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
-import { slate as SlateUtils } from '@voiceflow/internal';
 import { Node as VoiceNode } from '@voiceflow/voice-types';
 import cuid from 'cuid';
 import _ from 'lodash';
@@ -10,7 +9,7 @@ import _ from 'lodash';
 import { HandlerFactory, Runtime, Store } from '@/runtime';
 
 import { NoMatchCounterStorage, StorageData, StorageType } from '../types';
-import { addButtonsIfExists, slateInjectVariables } from '../utils';
+import { addButtonsIfExists, slateInjectVariables, slateToPlaintext } from '../utils';
 
 interface BaseNoMatchNode extends BaseNode, Request.NodeButton {}
 interface VoiceNoMatchNode extends BaseNoMatchNode, VoiceNode.Utils.NodeNoMatch {}
@@ -21,14 +20,14 @@ export type NoMatchNode = VoiceNoMatchNode | ChatNoMatchNode;
 export const EMPTY_AUDIO_STRING = '<audio src=""/>';
 
 const utilsObj = {
+  slateToPlaintext,
   addButtonsIfExists,
-  slateToPlaintext: SlateUtils.toPlaintext,
   slateInjectVariables,
 };
 
 const removeEmptyNoMatches = <T extends string[] | Text.SlateTextValue[]>(noMatchArray?: T): T | undefined =>
   (noMatchArray as any[])?.filter((noMatch: T[number]) =>
-    noMatch != null && _.isString(noMatch) ? noMatch !== EMPTY_AUDIO_STRING : !!SlateUtils.toPlaintext(noMatch)
+    noMatch != null && _.isString(noMatch) ? noMatch !== EMPTY_AUDIO_STRING : !!slateToPlaintext(noMatch)
   ) as T | undefined;
 
 export const NoMatchHandler: HandlerFactory<NoMatchNode, typeof utilsObj> = (utils) => ({
@@ -79,7 +78,7 @@ export const NoMatchHandler: HandlerFactory<NoMatchNode, typeof utilsObj> = (uti
       runtime.storage.produce<StorageData>((draft) => {
         const draftOutput = draft[StorageType.OUTPUT] || '';
 
-        draft[StorageType.OUTPUT] = `${Array.isArray(draftOutput) ? SlateUtils.toPlaintext(draftOutput) : draftOutput}${output}`;
+        draft[StorageType.OUTPUT] = `${Array.isArray(draftOutput) ? utils.slateToPlaintext(draftOutput) : draftOutput}${output}`;
       });
 
       runtime.trace.addTrace<Trace.SpeakTrace>({

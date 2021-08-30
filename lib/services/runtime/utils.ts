@@ -6,13 +6,18 @@ import { Node as VoiceNode } from '@voiceflow/voice-types';
 import _ from 'lodash';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
 import _isString from 'lodash/isString';
+import { Text as SlateText } from 'slate';
 
 import { Runtime, Store } from '@/runtime';
 
 import { TurnType } from './types';
 
-export const mapEntities = (mappings: SlotMapping[], entities: Request.IntentRequest['payload']['entities'] = [], overwrite = false): object => {
-  const variables: Record<string, any> = {};
+export const mapEntities = (
+  mappings: SlotMapping[],
+  entities: Request.IntentRequest['payload']['entities'] = [],
+  overwrite = false
+): Record<string, string | number | null> => {
+  const variables: Record<string, string | number | null> = {};
 
   const entityMap = entities.reduce<Record<string, string>>(
     (acc, { name, value }) => ({
@@ -117,3 +122,6 @@ export const addButtonsIfExists = <N extends Request.NodeButton>(node: N, runtim
 };
 
 export const getReadableConfidence = (confidence?: number) => ((confidence ?? 1) * 100).toFixed(2);
+
+export const slateToPlaintext = (content: Text.SlateTextValue = []): string =>
+  content.reduce<string>((acc, node) => acc + (SlateText.isText(node) ? node.text : slateToPlaintext(node.children)), '');

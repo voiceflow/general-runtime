@@ -1179,7 +1179,7 @@
     rate-limiter-flexible "^2.2.2"
     sinon "^10.0.0"
 
-"@voiceflow/base-types@^1.1.0", "@voiceflow/base-types@^1.4.4":
+"@voiceflow/base-types@^1.4.4":
   version "1.4.4"
   resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-1.4.4.tgz#b0d4e54d752f999ddaa1edec721071113c6d9f9a"
   integrity sha512-vkSWfxsryoVMupNp7Z4M3g2wO0O6NQ/GvMKJf4QagUjqp0CULvwL5p+R7JnJL4Gg4nONWSetGDDUTzfwsY5ewQ==
@@ -1269,15 +1269,6 @@
   integrity sha512-t+c50h+brJHwXbPDNoOT9Q2WYKWGd7usHNsp0B8qI0IBJLdH/CKTAsV+4gxO2IS8jMXVNxcyE2r25tHO3zRsFQ==
   dependencies:
     current-git-branch "^1.1.0"
-
-"@voiceflow/internal@^1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/internal/-/internal-1.7.0.tgz#5428e1cf82547fa26842c6f5fbd1b2a44a2b16ba"
-  integrity sha512-XJck2f7VT32PBNjVmrdsnBia2WWn8Li7KEvSZhNzE19Z6OZLEXGYr9XCsnYVgdxN+PBVvvFLNM1LXVJB9uduOQ==
-  dependencies:
-    "@voiceflow/base-types" "^1.1.0"
-    csstype "^3.0.8"
-    slate "^0.65.3"
 
 "@voiceflow/logger@1.5.2":
   version "1.5.2"
@@ -2865,11 +2856,6 @@ cssesc@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/cssesc/-/cssesc-3.0.0.tgz#37741919903b868565e1c09ea747445cd18983ee"
   integrity sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==
-
-csstype@^3.0.8:
-  version "3.0.8"
-  resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.0.8.tgz#d2266a792729fb227cd216fb572f43728e1ad340"
-  integrity sha512-jXKhWqXPmlUeoQnF/EhTtTl4C9SnrxSH/jZUih3jmO6lBKr99rP3/+FmrMj4EFpOXzMtXHAZkd3x0E6h6Fgflw==
 
 cuid@^2.1.8:
   version "2.1.8"

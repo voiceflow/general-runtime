@@ -21,7 +21,6 @@
     "@voiceflow/chat-types": "^1.4.6",
     "@voiceflow/common": "6.6.2",
     "@voiceflow/general-types": "1.55.9",
-    "@voiceflow/internal": "^1.7.0",
     "@voiceflow/logger": "^1.6.0",
     "@voiceflow/natural-language-commander": "^0.5.1",
     "@voiceflow/verror": "^1.1.0",

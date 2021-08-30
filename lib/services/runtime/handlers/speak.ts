@@ -1,12 +1,12 @@
 import { Node as BaseNode } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { Node } from '@voiceflow/general-types';
-import { slate as SlateUtils } from '@voiceflow/internal';
 import _ from 'lodash';
 
 import { HandlerFactory } from '@/runtime';
 
 import { FrameType, SpeakFrame, StorageData, StorageType } from '../types';
+import { slateToPlaintext } from '../utils';
 
 // TODO: probably we can remove it, since prompt is not used in the node handler, and does not exist in general service handler
 const isPromptSpeak = (node: Node.Speak.Node & { prompt?: unknown }) => _.isString(node.prompt) && node.prompt !== 'true';
@@ -32,7 +32,7 @@ const SpeakHandler: HandlerFactory<Node.Speak.Node> = () => ({
       runtime.storage.produce<StorageData>((draft) => {
         const draftOutput = draft[StorageType.OUTPUT];
 
-        draft[StorageType.OUTPUT] = `${Array.isArray(draftOutput) ? SlateUtils.toPlaintext(draftOutput) : draftOutput}${output}`;
+        draft[StorageType.OUTPUT] = `${Array.isArray(draftOutput) ? slateToPlaintext(draftOutput) : draftOutput}${output}`;
       });
 
       runtime.stack.top().storage.set<SpeakFrame>(FrameType.SPEAK, output);

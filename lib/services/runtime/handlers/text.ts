@@ -1,18 +1,17 @@
 import { Node, Trace } from '@voiceflow/base-types';
 import { sanitizeVariables } from '@voiceflow/common';
-import { slate as SlateUtils } from '@voiceflow/internal';
 import _sample from 'lodash/sample';
 
 import log from '@/logger';
 import { HandlerFactory } from '@/runtime';
 
 import { FrameType, TextFrame } from '../types';
-import { slateInjectVariables } from '../utils';
+import { slateInjectVariables, slateToPlaintext } from '../utils';
 
 const handlerUtils = {
   _sample,
   sanitizeVariables,
-  slateToPlaintext: SlateUtils.toPlaintext,
+  slateToPlaintext,
   slateInjectVariables,
 };
 

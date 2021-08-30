@@ -7,7 +7,6 @@ import { PrototypeModel } from '@voiceflow/api-sdk';
 import { Node as BaseNode, Request, Trace } from '@voiceflow/base-types';
 import { Types as ChatTypes } from '@voiceflow/chat-types';
 import { Constants } from '@voiceflow/general-types';
-import { slate as SlateUtils } from '@voiceflow/internal';
 import { Types as VoiceTypes } from '@voiceflow/voice-types';
 import _ from 'lodash';
 
@@ -17,7 +16,7 @@ import { Context, ContextHandler } from '@/types';
 import { handleNLCDialog } from '../nlu/nlc';
 import { getNoneIntentRequest, NONE_INTENT } from '../nlu/utils';
 import { isIntentRequest } from '../runtime/types';
-import { slateInjectVariables } from '../runtime/utils';
+import { slateInjectVariables, slateToPlaintext } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
 import { rectifyEntityValue } from './synonym';
 import {
@@ -189,7 +188,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       if ('content' in prompt) {
         const entities = getEntitiesMap(dmStateStore!.intentRequest);
         const content = slateInjectVariables(prompt.content, entities);
-        const message = SlateUtils.toPlaintext(content);
+        const message = slateToPlaintext(content);
 
         trace.push({
           type: BaseNode.Utils.TraceType.TEXT,

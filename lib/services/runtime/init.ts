@@ -1,11 +1,11 @@
 import { Node, Trace } from '@voiceflow/base-types';
-import { slate as SlateUtils } from '@voiceflow/internal';
 import cuid from 'cuid';
 
 import Client, { EventType } from '@/runtime';
 
 import { RESUME_PROGRAM_ID, ResumeDiagram } from './programs/resume';
 import { FrameType, SpeakFrame, StorageData, StorageType, StreamAction, StreamPlayStorage, TextFrame, TurnType } from './types';
+import { slateToPlaintext } from './utils';
 
 // initialize event behaviors for client
 const init = (client: Client) => {
@@ -37,14 +37,14 @@ const init = (client: Client) => {
       if (Array.isArray(output)) {
         draft[StorageType.OUTPUT] = [...(Array.isArray(draftOutput) ? draftOutput : [{ children: [{ text: draftOutput }] }]), ...output];
       } else {
-        draft[StorageType.OUTPUT] = `${Array.isArray(draftOutput) ? SlateUtils.toPlaintext(draftOutput) : draftOutput}${output}`;
+        draft[StorageType.OUTPUT] = `${Array.isArray(draftOutput) ? slateToPlaintext(draftOutput) : draftOutput}${output}`;
       }
     });
 
     if (Array.isArray(output)) {
       runtime.trace.addTrace<Trace.TextTrace>({
         type: Node.Utils.TraceType.TEXT,
-        payload: { slate: { id: cuid.slug(), content: output }, message: SlateUtils.toPlaintext(output) },
+        payload: { slate: { id: cuid.slug(), content: output }, message: slateToPlaintext(output) },
       });
     } else {
       runtime.trace.addTrace<Node.Speak.TraceFrame>({
