@@ -9,7 +9,6 @@
     "resolveJsonModule": true,
     "experimentalDecorators": true,
     /* Strictness Checks */
-    "strict": true,
     "alwaysStrict": true,
     "noImplicitAny": true,
     "noUnusedLocals": true,
