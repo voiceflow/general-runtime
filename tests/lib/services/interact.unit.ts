@@ -14,6 +14,7 @@ const buildServices = (context: any) => ({
   tts: { handle: sinon.stub().resolves(output(context, 'tts')) },
   speak: { handle: sinon.stub().resolves(output(context, 'speak')) },
   runtime: { handle: sinon.stub().resolves(output(context, 'runtime')) },
+  analytics: { handle: sinon.stub().resolves(output(context, 'analytics')) },
   dialog: { handle: sinon.stub().resolves(output(context, 'dialog')) },
   filter: { handle: sinon.stub().resolves(output(context, 'filter', { trace: 'trace' })) },
   metrics: { generalRequest: sinon.stub() },
@@ -61,7 +62,8 @@ describe('interact service unit tests', () => {
       expect(services.slots.handle.args).to.eql([[output(context, 'nlu')]]);
       expect(services.dialog.handle.args).to.eql([[output(context, 'slots')]]);
       expect(services.runtime.handle.args).to.eql([[output(context, 'dialog')]]);
-      expect(services.tts.handle.args).to.eql([[output(context, 'runtime')]]);
+      expect(services.analytics.handle.args).to.eql([[output(context, 'runtime')]]);
+      expect(services.tts.handle.args).to.eql([[output(context, 'analytics')]]);
       expect(services.speak.handle.args).to.eql([[output(context, 'tts')]]);
       expect(services.metrics.generalRequest.callCount).to.eql(1);
     });
@@ -110,7 +112,8 @@ describe('interact service unit tests', () => {
       expect(services.slots.handle.args).to.eql([[output(context, 'nlu')]]);
       expect(services.dialog.handle.args).to.eql([[output(context, 'slots')]]);
       expect(services.runtime.handle.args).to.eql([[output(context, 'dialog')]]);
-      expect(services.tts.handle.args).to.eql([[output(context, 'runtime')]]);
+      expect(services.analytics.handle.args).to.eql([[output(context, 'runtime')]]);
+      expect(services.tts.handle.args).to.eql([[output(context, 'analytics')]]);
       expect(services.speak.handle.args).to.eql([[output(context, 'tts')]]);
       expect(services.metrics.generalRequest.callCount).to.eql(1);
     });
@@ -135,7 +138,7 @@ describe('interact service unit tests', () => {
       });
 
       expect(services.tts.handle.callCount).to.eql(0);
-      expect(services.speak.handle.args).to.eql([[output(context, 'runtime')]]);
+      expect(services.speak.handle.args).to.eql([[output(context, 'analytics')]]);
     });
   });
 

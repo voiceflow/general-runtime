@@ -3,6 +3,7 @@ import { RateLimitManager } from '@voiceflow/backend-utils';
 import { Config } from '@/types';
 
 import { ClientMap } from '../clients';
+import Analytics from './analytics';
 import ASR from './asr';
 import Dialog from './dialog';
 import Filter from './filter';
@@ -30,6 +31,7 @@ export interface ServiceMap {
   filter: Filter;
   session: Session;
   interact: Interact;
+  analytics: Analytics;
   stateManagement: StateManagement;
 }
 
@@ -54,6 +56,7 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.slots = new Slots(services, config);
   services.filter = new Filter(services, config);
   services.interact = new Interact(services, config);
+  services.analytics = new Analytics(services, config);
   services.stateManagement = new StateManagement(services, config);
 
   if (config.SESSIONS_SOURCE === Source.LOCAL) {

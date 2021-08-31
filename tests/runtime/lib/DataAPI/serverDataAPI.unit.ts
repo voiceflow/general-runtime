@@ -3,7 +3,7 @@ import sinon from 'sinon';
 
 import ServerDataAPI from '@/runtime/lib/DataAPI/serverDataAPI';
 
-const getServerDataApi = async (axiosInstance: Record<string, Function>) => {
+const getServerDataApi = async (axiosInstance: Record<string, (...args: any[]) => any>) => {
   const axios = { create: sinon.stub().returns(axiosInstance), post: sinon.stub().returns({ data: { token: 'secret-token' } }) };
   const testConfig = { platform: 'alexa', dataEndpoint: 'data-endpoint', adminToken: 'admin-token' };
 

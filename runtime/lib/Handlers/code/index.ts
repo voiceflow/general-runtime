@@ -9,7 +9,7 @@ import { vmExecute } from './utils';
 
 export type CodeOptions = {
   endpoint?: string | null;
-  callbacks?: Record<string, Function>;
+  callbacks?: Record<string, (...args: any) => any>;
   safe?: boolean;
 };
 

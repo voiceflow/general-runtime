@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { slateInjectVariables, slateToPlaintext, TextHandler } from '@/lib/services/runtime/handlers/text';
+import { TextHandler } from '@/lib/services/runtime/handlers/text';
 
 describe('text handler unit tests', async () => {
   afterEach(() => sinon.restore());
@@ -19,12 +19,12 @@ describe('text handler unit tests', async () => {
 
   describe('handle', () => {
     it('works', () => {
-      const newSlate = { content: 'injectedSlate' };
+      const newSlate = { content: [{ children: { text: 'injectedSlate' } }] };
       const utils = {
-        _sample: sinon.stub().returns('sampledSlate'),
-        sanitizeVariables: sinon.stub().returns('sanitizedVars'),
+        _sample: sinon.stub().returns({ content: [{ children: { text: 'sampledSlate' } }] }),
         slateToPlaintext: sinon.stub().returns('plainText'),
-        slateInjectVariables: sinon.stub().returns(newSlate),
+        sanitizeVariables: sinon.stub().returns('sanitizedVars'),
+        slateInjectVariables: sinon.stub().returns(newSlate.content),
       };
 
       const node = {
@@ -32,7 +32,12 @@ describe('text handler unit tests', async () => {
         nextId: 'nextId',
       };
 
+      const topStorageSet = sinon.stub();
+
       const runtime = {
+        stack: {
+          top: sinon.stub().returns({ storage: { set: topStorageSet } }),
+        },
         trace: { addTrace: sinon.stub() },
       };
 
@@ -40,44 +45,13 @@ describe('text handler unit tests', async () => {
 
       const textHandler = TextHandler(utils as any);
       expect(textHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
-      expect(runtime.trace.addTrace.args).to.eql([[{ type: 'text', payload: { slate: newSlate, text: 'plainText' } }]]);
+      expect(runtime.trace.addTrace.args).to.eql([[{ type: 'text', payload: { slate: newSlate, message: 'plainText' } }]]);
       expect(variables.getState.callCount).to.eql(1);
       expect(utils._sample.args).to.eql([[node.texts]]);
       expect(utils.sanitizeVariables.args).to.eql([['vars']]);
-      expect(utils.slateToPlaintext.args).to.eql([['injectedSlate']]);
-      expect(utils.slateInjectVariables.args).to.eql([['sampledSlate', 'sanitizedVars']]);
-    });
-  });
-
-  describe('utils', () => {
-    it('slateInjectVariables', () => {
-      const variableState = { var1: 'first', var2: 'second', var3: ['third', 'fourth'] };
-      const slate = {
-        id: '1',
-        content: [{ text: 'test {var1}', underline: true, property: 'prop {var3}' }, { text: ' ' }, { children: [{ text: ' nice {var2} var' }] }],
-      };
-
-      const expectedSlate = {
-        id: '1',
-        content: [
-          { text: 'test first', underline: true, property: 'prop third,fourth' },
-          { text: ' ' },
-          { children: [{ text: ' nice second var' }] },
-        ],
-      };
-
-      expect(slateInjectVariables(slate as any, variableState)).to.eql(expectedSlate);
-    });
-
-    it('slateToPlaintext', () => {
-      const content = [
-        { text: 'one', underline: true, property: 'property' },
-        { text: 'two' },
-        { text: ' ' },
-        { children: [{ children: [{ text: 'three' }] }, { text: ' four ' }, { text: 'five' }] },
-      ];
-
-      expect(slateToPlaintext(content as any)).to.eql('onetwo three four five');
+      expect(utils.slateToPlaintext.args).to.eql([[newSlate.content]]);
+      expect(utils.slateInjectVariables.args).to.eql([[[{ children: { text: 'sampledSlate' } }], 'sanitizedVars']]);
+      expect(topStorageSet.args).to.eql([['output', newSlate.content]]);
     });
   });
 });

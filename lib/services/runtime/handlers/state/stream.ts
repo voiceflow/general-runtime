@@ -90,10 +90,6 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.NOEFFECT;
       });
 
-      runtime.storage.produce<StorageData>((draft) => {
-        draft.output += 'Sorry, this action isn’t available in this skill. ';
-      });
-
       runtime.end();
     }
 

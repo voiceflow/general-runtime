@@ -19,7 +19,7 @@ class Interact extends AbstractManager {
     query: { locale?: string };
     headers: { authorization?: string; origin?: string; sessionid?: string };
   }) {
-    const { runtime, metrics, nlu, tts, dialog, asr, speak, slots, state: stateManager, filter } = this.services;
+    const { analytics, runtime, metrics, nlu, tts, dialog, asr, speak, slots, state: stateManager, filter } = this.services;
 
     const {
       body: { state, config = {} },
@@ -46,6 +46,7 @@ class Interact extends AbstractManager {
     const turn = new TurnBuilder<Context>(stateManager);
 
     turn.addHandlers(asr, nlu, slots, dialog, runtime);
+    turn.addHandlers(analytics);
 
     if (config.tts) {
       turn.addHandlers(tts);

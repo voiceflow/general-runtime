@@ -28,7 +28,7 @@ export class AnalyticsSystem extends AbstractClient {
   }
 
   identify(id: string) {
-    log.trace(`analytics: Identify ${id}`);
+    log.trace(`[analytics] identify ${log.vars({ id })}`);
     // const payload: IdentifyRequest = {
     //   userId: id,
     // };
@@ -127,7 +127,7 @@ export class AnalyticsSystem extends AbstractClient {
     versionID: string;
     timestamp: Date;
   }): Promise<void> {
-    log.trace(`analytics: Track Trace VersionID ${versionID}`);
+    log.trace(`[analytics] process trace ${log.vars({ turnID, versionID })}`);
     // add milliseconds to put it behind response, and to maintain interact order
     const unixTime = timestamp.getTime() + 1;
 
@@ -146,7 +146,7 @@ export class AnalyticsSystem extends AbstractClient {
   }
 
   async track({ versionID, event, metadata, timestamp }: { versionID: string; event: Event; metadata: Context; timestamp: Date }): Promise<void> {
-    log.trace('analytics: Track');
+    log.trace(`[analytics] track ${log.vars({ versionID })}`);
     switch (event) {
       case Event.TURN: {
         const turnIngestBody = this.createTurnBody({ versionID, eventID: event, metadata, timestamp });

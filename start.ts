@@ -12,21 +12,23 @@ import Server from './server';
 
   // Graceful shutdown from SIGTERM
   process.on('SIGTERM', async () => {
-    log.warn('SIGTERM received stopping server...');
+    log.warn('[app] [http] SIGTERM received stopping server');
 
     await server.stop();
+
+    log.warn('[app] exiting');
+
     // eslint-disable-next-line no-process-exit
     process.exit(0);
   });
 
-  process.on('unhandledRejection', (r, p) => {
-    log.warn(`${r} Unhandled rejection at: ${p}`);
+  process.on('unhandledRejection', (rejection, promise) => {
+    log.error(`[app] unhandled rejection ${log.vars({ rejection, promise })}`);
   });
 
   try {
     await server.start();
-  } catch (e) {
-    log.error('Failed to start server');
-    log.error(e);
+  } catch (error) {
+    log.error(`[app] [http] failed to start server ${log.vars({ error })}`);
   }
 })();

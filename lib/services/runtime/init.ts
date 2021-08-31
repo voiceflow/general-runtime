@@ -3,7 +3,8 @@ import { Node, Trace } from '@voiceflow/base-types';
 import Client, { EventType } from '@/runtime';
 
 import { RESUME_PROGRAM_ID, ResumeDiagram } from './programs/resume';
-import { FrameType, SpeakFrame, StorageData, StorageType, StreamAction, StreamPlayStorage, TurnType } from './types';
+import { FrameType, Output, StorageType, StreamAction, StreamPlayStorage, TurnType } from './types';
+import { outputTrace } from './utils';
 
 // initialize event behaviors for client
 const init = (client: Client) => {
@@ -17,22 +18,19 @@ const init = (client: Client) => {
   });
 
   client.setEvent(EventType.frameDidFinish, ({ runtime }) => {
-    if (runtime.stack.top()?.storage.get(FrameType.CALLED_COMMAND)) {
-      runtime.stack.top().storage.delete(FrameType.CALLED_COMMAND);
-
-      const output = runtime.stack.top().storage.get<SpeakFrame>(FrameType.SPEAK);
-
-      if (output) {
-        runtime.storage.produce<StorageData>((draft) => {
-          draft[StorageType.OUTPUT] += output;
-        });
-
-        runtime.trace.addTrace<Node.Speak.TraceFrame>({
-          type: Node.Utils.TraceType.SPEAK,
-          payload: { message: output, type: Node.Speak.TraceSpeakType.MESSAGE },
-        });
-      }
+    if (!runtime.stack.top()?.storage.get(FrameType.CALLED_COMMAND)) {
+      return;
     }
+
+    runtime.stack.top().storage.delete(FrameType.CALLED_COMMAND);
+
+    const output = runtime.stack.top().storage.get<Output>(FrameType.OUTPUT);
+
+    if (!output) {
+      return;
+    }
+
+    runtime.trace.addTrace(outputTrace({ output }));
   });
 
   client.setEvent(EventType.programWillFetch, ({ programID, override }) => {

@@ -52,7 +52,7 @@ class Server {
 
     await Promise.fromCallback((cb: any) => this.server!.listen(this.config.PORT, cb));
 
-    log.info(`${name} listening on port ${this.config.PORT}`);
+    log.info(`[http] ${name} listening ${log.vars({ port: this.config.PORT })}`);
   }
 
   /**

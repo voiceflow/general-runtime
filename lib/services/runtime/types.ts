@@ -1,4 +1,4 @@
-import { Node, Request } from '@voiceflow/base-types';
+import { Node, Request, Text } from '@voiceflow/base-types';
 
 import { Runtime } from '@/runtime';
 
@@ -6,17 +6,13 @@ export type RuntimeRequest = Request.BaseRequest | null;
 
 export type GeneralRuntime = Runtime<RuntimeRequest>;
 
-export const isTextRequest = (request: RuntimeRequest): request is Request.TextRequest => {
-  return !!(request?.type === Request.RequestType.TEXT && typeof request.payload === 'string');
-};
+export const isTextRequest = (request?: RuntimeRequest | null): request is Request.TextRequest =>
+  !!request && Request.isTextRequest(request) && typeof request.payload === 'string';
 
-export const isIntentRequest = (request: RuntimeRequest): request is Request.IntentRequest => {
-  return !!(
-    request?.type === Request.RequestType.INTENT &&
-    (request as Request.IntentRequest).payload?.intent?.name &&
-    Array.isArray((request as Request.IntentRequest).payload.entities)
-  );
-};
+export const isIntentRequest = (request?: RuntimeRequest | null): request is Request.IntentRequest =>
+  !!request && Request.isIntentRequest(request) && !!request.payload?.intent?.name && Array.isArray(request.payload.entities);
+
+export const isActionRequest = (request?: RuntimeRequest | null): request is Request.ActionRequest => !!request && Request.isActionRequest(request);
 
 export const isRuntimeRequest = (request: any): request is RuntimeRequest => {
   return request === null || !!(typeof request.type === 'string' && !!request.type);
@@ -24,7 +20,6 @@ export const isRuntimeRequest = (request: any): request is RuntimeRequest => {
 
 export enum StorageType {
   USER = 'user',
-  OUTPUT = 'output',
   LOCALE = 'locale',
   REPEAT = 'repeat',
   SESSIONS = 'sessions',
@@ -66,12 +61,9 @@ export type StreamPauseStorage = {
   offset: number;
 };
 
-export type OutputStorage = string;
-
 export type NoMatchCounterStorage = number;
 
 export type StorageData = Partial<{
-  [StorageType.OUTPUT]: OutputStorage;
   [StorageType.STREAM_PLAY]: StreamPlayStorage;
   [StorageType.STREAM_PAUSE]: StreamPauseStorage;
   [StorageType.NO_MATCHES_COUNTER]: NoMatchCounterStorage;
@@ -88,21 +80,19 @@ export enum TurnType {
   STOP_TYPES = 'stopTypes',
 }
 
-export type PreviousOutputTurn = string;
+export type Output = Text.SlateTextValue | string;
 
 export type TurnData = Partial<{
-  [TurnType.PREVIOUS_OUTPUT]: PreviousOutputTurn;
+  [TurnType.PREVIOUS_OUTPUT]: Output;
 }>;
 
 export enum FrameType {
-  SPEAK = 'speak',
+  OUTPUT = 'output',
   CALLED_COMMAND = 'calledCommand',
 }
 
-export type SpeakFrame = string;
-
 export type FrameData = Partial<{
-  [FrameType.SPEAK]: SpeakFrame;
+  [FrameType.OUTPUT]: Output;
 }>;
 
 export enum Variables {

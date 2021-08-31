@@ -3,9 +3,14 @@ import { Constants } from '@voiceflow/general-types';
 
 import { Runtime } from '@/runtime';
 
-import { FrameType, isIntentRequest, PreviousOutputTurn, SpeakFrame, StorageData, StorageType, TurnType } from '../types';
+import { FrameType, isIntentRequest, Output, StorageType, TurnType } from '../types';
+import { outputTrace } from '../utils';
 
-const RepeatHandler = {
+const utilsObj = {
+  outputTrace,
+};
+
+export const RepeatHandler = (utils: typeof utilsObj) => ({
   canHandle: (runtime: Runtime): boolean => {
     const repeat = runtime.storage.get<Version.RepeatType>(StorageType.REPEAT);
     const request = runtime.getRequest();
@@ -20,17 +25,12 @@ const RepeatHandler = {
     const repeat = runtime.storage.get<Version.RepeatType>(StorageType.REPEAT);
     const top = runtime.stack.top();
 
-    const output =
-      (repeat === Version.RepeatType.ALL
-        ? runtime.turn.get<PreviousOutputTurn>(TurnType.PREVIOUS_OUTPUT)
-        : top.storage.get<SpeakFrame>(FrameType.SPEAK)) || '';
+    const output = repeat === Version.RepeatType.ALL ? runtime.turn.get<Output>(TurnType.PREVIOUS_OUTPUT) : top.storage.get<Output>(FrameType.OUTPUT);
 
-    runtime.storage.produce<StorageData>((draft) => {
-      draft[StorageType.OUTPUT] += output;
-    });
+    runtime.trace.addTrace(utils.outputTrace({ output }));
 
     return top.getNodeID() || null;
   },
-};
+});
 
-export default () => RepeatHandler;
+export default () => RepeatHandler(utilsObj);

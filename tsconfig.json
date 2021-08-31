@@ -25,9 +25,7 @@
     "listEmittedFiles": false,
     "listFiles": false,
     "pretty": true,
-    "lib": [
-      "es2020"
-    ],
+    "lib": ["es2020"],
     "outDir": "./build",
     "baseUrl": ".",
     "paths": {

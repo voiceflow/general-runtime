@@ -25,7 +25,7 @@ export const resultMappings = (node: Node.Integration.Node, resultData: any): Re
           const toVar = m.arg2;
 
           // FIXME: possible bug, col is number based on the general types
-          // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           const isRowNumber = col === 'row_number';
 

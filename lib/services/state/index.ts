@@ -2,7 +2,7 @@ import { Version } from '@voiceflow/api-sdk';
 import { Trace } from '@voiceflow/base-types';
 import _ from 'lodash';
 
-import logger from '@/logger';
+import log from '@/logger';
 import { PartialContext, State } from '@/runtime';
 import { Context, InitContextHandler } from '@/types';
 
@@ -82,7 +82,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     try {
       await this.services.analyticsClient?.identify(context.versionID);
     } catch (error) {
-      logger.error(error);
+      log.error(`[analytics] failed to identify ${log.vars({ versionID: context.versionID, error })}`);
     }
 
     return {

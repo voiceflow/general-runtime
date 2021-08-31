@@ -7,13 +7,13 @@ class Lifecycle {
   private events: Partial<EventCallbackMap> = {};
 
   public setEvent<K extends EventType>(type: K, callback: EventCallback<K>) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     this.events[type] = callback;
   }
 
   public getEvent<K extends EventType>(type: K): EventCallback<K> | undefined {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return (this.events as EventCallbackMap)[type];
   }

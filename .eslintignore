@@ -5,6 +5,7 @@ scratch.js
 /scripts
 /.ebextensions/
 /log/
+/build
 /routes/multimodal/apl_authoring_tool
 /database
 /node_modules

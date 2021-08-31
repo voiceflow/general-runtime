@@ -4,6 +4,7 @@ import sinon from 'sinon';
 
 import { EMPTY_AUDIO_STRING, NoMatchHandler } from '@/lib/services/runtime/handlers/noMatch';
 import { StorageType } from '@/lib/services/runtime/types';
+import { outputTrace } from '@/lib/services/runtime/utils';
 
 const RepromptPathTrace = { type: 'path', payload: { path: 'reprompt' } };
 
@@ -55,7 +56,7 @@ describe('noMatch handler unit tests', () => {
         getState: sinon.stub().returns({ counter: 5.2345 }),
       };
 
-      const noMatchHandler = NoMatchHandler({ addButtonsIfExists: sinon.stub() });
+      const noMatchHandler = NoMatchHandler({ outputTrace, addButtonsIfExists: sinon.stub() });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args).to.eql([
         [RepromptPathTrace],
@@ -81,10 +82,6 @@ describe('noMatch handler unit tests', () => {
       cb1(draft2);
       expect(draft2).to.eql({ [StorageType.NO_MATCHES_COUNTER]: 3 });
       // adds output
-      const cb2 = runtime.storage.produce.args[1][0];
-      const draft3 = { [StorageType.OUTPUT]: 'msg: ' };
-      cb2(draft3);
-      expect(draft3).to.eql({ [StorageType.OUTPUT]: 'msg: the counter is 5.23' });
     });
 
     it('without noMatch', () => {
@@ -104,7 +101,7 @@ describe('noMatch handler unit tests', () => {
         getState: sinon.stub().returns({}),
       };
 
-      const noMatchHandler = NoMatchHandler({ addButtonsIfExists: sinon.stub() });
+      const noMatchHandler = NoMatchHandler({ outputTrace, addButtonsIfExists: sinon.stub() });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args).to.eql([
         [RepromptPathTrace],
@@ -140,7 +137,7 @@ describe('noMatch handler unit tests', () => {
 
       const addButtonsIfExists = sinon.stub();
 
-      const noMatchHandler = NoMatchHandler({ addButtonsIfExists });
+      const noMatchHandler = NoMatchHandler({ outputTrace, addButtonsIfExists });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
       expect(addButtonsIfExists.args).to.eql([[node, runtime, variables]]);
       expect(runtime.trace.addTrace.args).to.eql([
@@ -176,7 +173,7 @@ describe('noMatch handler unit tests', () => {
         getState: sinon.stub().returns({}),
       };
 
-      const noMatchHandler = NoMatchHandler({ addButtonsIfExists: sinon.stub() });
+      const noMatchHandler = NoMatchHandler({ outputTrace, addButtonsIfExists: sinon.stub() });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
       expect(node.noMatches.includes(runtime.trace.addTrace.args[1][0].payload.message)).to.eql(true);
     });
@@ -200,7 +197,7 @@ describe('noMatch handler unit tests', () => {
         getState: sinon.stub().returns({}),
       };
 
-      const noMatchHandler = NoMatchHandler({ addButtonsIfExists: sinon.stub() });
+      const noMatchHandler = NoMatchHandler({ outputTrace, addButtonsIfExists: sinon.stub() });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(NON_NULL_STRING);
     });
@@ -224,7 +221,7 @@ describe('noMatch handler unit tests', () => {
         getState: sinon.stub().returns({}),
       };
 
-      const noMatchHandler = NoMatchHandler({ addButtonsIfExists: sinon.stub() });
+      const noMatchHandler = NoMatchHandler({ outputTrace, addButtonsIfExists: sinon.stub() });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(NON_NULL_STRING);
     });
