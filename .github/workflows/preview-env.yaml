@@ -5,7 +5,7 @@ on:
     types: [reopened, labeled]
 
 # when new-env label + new labels are added at the same time it creates a race condition and this job has to be executed only once
-concurrency: 
+concurrency:
   group: preview-env-${{ github.ref }}
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
       - name: Check PR env labels
         uses: voiceflow/pr-label-match@master
         with:
-          regex: "env-"
+          regex: 'env-'
         id: envNameLabel
       - name: Check for new env request
         uses: Dreamcodeio/pr-has-label-action@master
@@ -52,7 +52,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: "us-east-1"
+          AWS_DEFAULT_REGION: 'us-east-1'
         run: |
           sleep $[ ( $RANDOM % 10 ) ]s # Add dither to desync multiple tag request firings
 
@@ -88,7 +88,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: "us-east-1"
+          AWS_DEFAULT_REGION: 'us-east-1'
         run: |
           echo "Initializating vfcli..."
           ./vfcli init --interactive false
@@ -107,27 +107,27 @@ jobs:
           fi
 
       - name: Comment PR
-        uses: thollander/actions-comment-pull-request@master
+        uses: thollander/actions-comment-pull-request@main
         if: steps.newEnvLabel.outputs.hasLabel == 'true' && steps.envNameLabel.outputs.label == ''
         with:
-          message: "Dev environment ${{ steps.createNewEnv.outputs.newEnvName }} created!"
+          message: 'Dev environment ${{ steps.createNewEnv.outputs.newEnvName }} created!'
           GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}
 
       - name: Comment PR
-        uses: thollander/actions-comment-pull-request@master
+        uses: thollander/actions-comment-pull-request@main
         if: steps.newEnvLabel.outputs.hasLabel == 'true' && steps.envNameLabel.outputs.label == ''
         with:
-          message: "Preview environment available at: https://${{ steps.createNewEnv.outputs.endpoint }}"
+          message: 'Preview environment available at: https://${{ steps.createNewEnv.outputs.endpoint }}'
           GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}
 
       - name: Create empty commit
         uses: stefanzweifel/git-auto-commit-action@v4
         if: steps.newEnvLabel.outputs.hasLabel == 'true' && steps.envNameLabel.outputs.label == ''
         with:
-          commit_message: "ci: empty commit to update the track"
-          commit_options: "--allow-empty"
+          commit_message: 'ci: empty commit to update the track'
+          commit_options: '--allow-empty'
           commit_user_name: vf-service-account # defaults to "GitHub Actions"
           commit_user_email: serviceaccount@voiceflow.com # defaults to "actions@github.com"
           commit_author: vf-service-account <serviceaccount@voiceflow.com>
-          file_pattern: "*.ts *.js"
+          file_pattern: '*.ts *.js'
           skip_dirty_check: true

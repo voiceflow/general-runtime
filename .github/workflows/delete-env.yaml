@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [closed, unlabeled]
 
-concurrency: 
+concurrency:
   group: delete-env-${{ github.ref }}
 
 jobs:
@@ -64,7 +64,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: "us-east-1"
+          AWS_DEFAULT_REGION: 'us-east-1'
         run: |
           echo "Initializating vfcli..."
           ./vfcli init --interactive false
@@ -92,10 +92,10 @@ jobs:
           echo -e "::set-output name=envName::${ENV_NAME}"
 
       - name: Comment PR
-        uses: thollander/actions-comment-pull-request@master
+        uses: thollander/actions-comment-pull-request@main
         if: steps.deleteEnv.outputs.deleted == 'true'
         with:
-          message: "Dev environment ${{ steps.deleteEnv.outputs.envName}} destroyed!"
+          message: 'Dev environment ${{ steps.deleteEnv.outputs.envName}} destroyed!'
           GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}
 
       - name: Remove track if exists
@@ -104,7 +104,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: "us-east-1"
+          AWS_DEFAULT_REGION: 'us-east-1'
         run: |
           COMPONENT=$(echo "${GITHUB_REPOSITORY}" | sed 's:.*/::')
           BRANCH="$(echo ${GITHUB_HEAD_REF#refs/heads/})"
