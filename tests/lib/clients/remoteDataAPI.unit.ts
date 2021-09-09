@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import RemoteDataAPI from '../../../lib/clients/remoteDataAPI';
+import RemoteDataAPI from '@/lib/clients/remoteDataAPI';
 
 describe('remoteDataAPI client unit tests', () => {
   beforeEach(() => {

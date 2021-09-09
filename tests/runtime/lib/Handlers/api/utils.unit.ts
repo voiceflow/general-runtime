@@ -4,7 +4,8 @@ import FormData from 'form-data';
 import querystring from 'querystring';
 import sinon from 'sinon';
 
-import { formatRequestConfig, getVariable, ReduceKeyValue, stringToNumIfNumeric } from '../../../../../runtime/lib/Handlers/api/utils';
+import { formatRequestConfig, getVariable, ReduceKeyValue, stringToNumIfNumeric } from '@/runtime/lib/Handlers/api/utils';
+
 import { baseData, baseOptions } from './fixture';
 
 describe('Handlers api utils unit tests', () => {
