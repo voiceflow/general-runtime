@@ -42,4 +42,13 @@ describe('metrics client unit tests', () => {
     metrics.generalRequest();
     expect(increment.args).to.eql([['general.request']]);
   });
+
+  it('sdkRequest', () => {
+    const metrics = MetricsClient({} as any);
+    const increment = sinon.stub();
+    _.set(metrics, 'client', { increment });
+
+    metrics.sdkRequest();
+    expect(increment.args).to.eql([['sdk.request']]);
+  });
 });

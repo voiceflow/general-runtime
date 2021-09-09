@@ -5,7 +5,6 @@ import sinon from 'sinon';
 
 import DialogManager, { utils as defaultUtils } from '@/lib/services/dialog';
 import * as utils from '@/lib/services/dialog/utils';
-import * as runtime_types from '@/lib/services/runtime/types';
 
 import {
   mockDMPrefixedMultipleEntityResult,
