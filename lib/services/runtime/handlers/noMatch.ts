@@ -1,5 +1,5 @@
 import { BaseNode } from '@voiceflow/api-sdk';
-import { Request, Text } from '@voiceflow/base-types';
+import { Node, Request, Text, Trace } from '@voiceflow/base-types';
 import { Node as ChatNode } from '@voiceflow/chat-types';
 import { Node as VoiceNode } from '@voiceflow/voice-types';
 import _ from 'lodash';
@@ -42,8 +42,8 @@ export const NoMatchHandler: HandlerFactory<NoMatchNode, typeof utilsObj> = (uti
       draft[StorageType.NO_MATCHES_COUNTER] = counter ? counter + 1 : 1;
     });
 
-    runtime.trace.addTrace<any>({
-      type: 'path',
+    runtime.trace.addTrace<Trace.PathTrace>({
+      type: Node.Utils.TraceType.PATH,
       payload: { path: 'reprompt' },
     });
 

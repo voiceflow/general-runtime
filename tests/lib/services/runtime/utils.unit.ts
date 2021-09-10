@@ -86,7 +86,10 @@ describe('runtime utils service unit tests', () => {
             type: Node.Utils.TraceType.CHOICE,
             payload: {
               buttons: [
-                { name: 'button value1', request: { type: 'intent', payload: { intent: { name: 'intent' }, query: 'button value1' } } },
+                {
+                  name: 'button value1',
+                  request: { type: 'intent', payload: { label: undefined, intent: { name: 'intent' }, query: 'button value1' } },
+                },
                 { name: 'button value2 ', request: { type: 'text', payload: 'value2' } },
               ],
             },

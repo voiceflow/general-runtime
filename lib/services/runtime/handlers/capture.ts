@@ -1,3 +1,4 @@
+import { Node as BaseNode, Trace } from '@voiceflow/base-types';
 import { Node as ChatNode } from '@voiceflow/chat-types';
 import { Node as GeneralNode } from '@voiceflow/general-types';
 import wordsToNumbers from 'words-to-numbers';
@@ -54,8 +55,8 @@ export const CaptureHandler: HandlerFactory<GeneralNode.Capture.Node | ChatNode.
       }
     }
 
-    runtime.trace.addTrace<any>({
-      type: 'path',
+    runtime.trace.addTrace<Trace.PathTrace>({
+      type: BaseNode.Utils.TraceType.PATH,
       payload: { path: 'capture' },
     });
     return node.nextId || null;
