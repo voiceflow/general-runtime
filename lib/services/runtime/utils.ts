@@ -69,13 +69,16 @@ export const addRepromptIfExists = <N extends VoiceNode.Utils.NodeReprompt | Cha
 
 export const addButtonsIfExists = <N extends Request.NodeButton>(node: N, runtime: Runtime, variables: Store): void => {
   let buttons: Request.AnyRequestButton[] = [];
+
   if (node.buttons?.length) {
     buttons = node.buttons
       .filter(({ name }) => name)
       .map(({ name, request }) => {
+        const processedName = replaceVariables(name, variables.getState());
+
         if (Request.isTextRequest(request)) {
           return {
-            name: replaceVariables(name, variables.getState()),
+            name: processedName,
             request: {
               ...request,
               payload: replaceVariables(request.payload, variables.getState()),
@@ -85,19 +88,33 @@ export const addButtonsIfExists = <N extends Request.NodeButton>(node: N, runtim
 
         if (Request.isIntentRequest(request)) {
           return {
-            name: replaceVariables(name, variables.getState()),
+            name: processedName,
             request: {
               ...request,
               payload: {
                 ...request.payload,
                 query: replaceVariables(request.payload.query, variables.getState()),
+                label: request.payload.label && replaceVariables(request.payload.label, variables.getState()),
+              },
+            },
+          };
+        }
+
+        if (typeof request.payload?.label === 'string') {
+          return {
+            name: processedName,
+            request: {
+              ...request,
+              payload: {
+                ...request.payload,
+                label: replaceVariables(request.payload.label, variables.getState()),
               },
             },
           };
         }
 
         return {
-          name: replaceVariables(name, variables.getState()),
+          name: processedName,
           request,
         };
       });

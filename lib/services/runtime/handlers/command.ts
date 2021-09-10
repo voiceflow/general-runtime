@@ -1,4 +1,4 @@
-import { Node as BaseNode } from '@voiceflow/base-types';
+import { Node as BaseNode, Trace } from '@voiceflow/base-types';
 
 import { FrameType, GeneralRuntime } from '@/lib/services/runtime/types';
 import { Action, extractFrameCommand, Frame, Store } from '@/runtime';
@@ -38,8 +38,8 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
 
     // interrupting command where it jumps to a node in the existing stack
     if (command.type === BaseNode.Utils.CommandType.JUMP) {
-      runtime.trace.addTrace<any>({
-        type: 'path',
+      runtime.trace.addTrace<Trace.PathTrace>({
+        type: BaseNode.Utils.TraceType.PATH,
         payload: { path: 'jump' },
       });
       if (index < runtime.stack.getSize() - 1) {
@@ -57,8 +57,8 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
 
     // push command, adds a new frame
     if (command.type === BaseNode.Utils.CommandType.PUSH && command.diagramID) {
-      runtime.trace.addTrace<any>({
-        type: 'path',
+      runtime.trace.addTrace<Trace.PathTrace>({
+        type: BaseNode.Utils.TraceType.PATH,
         payload: { path: 'push' },
       });
       runtime.stack.top().storage.set(FrameType.CALLED_COMMAND, true);

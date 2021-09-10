@@ -1,3 +1,4 @@
+import { Node as BaseNode, Trace } from '@voiceflow/base-types';
 import { Node as ChatNode } from '@voiceflow/chat-types';
 import { Node as GeneralNode } from '@voiceflow/general-types';
 
@@ -43,8 +44,8 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
       if (matcher) {
         // allow handler to apply side effects
         matcher.sideEffect();
-        runtime.trace.addTrace<any>({
-          type: 'path',
+        runtime.trace.addTrace<Trace.PathTrace>({
+          type: BaseNode.Utils.TraceType.PATH,
           payload: { path: `choice:${i + 1}` },
         });
         return nextId || null;
@@ -64,8 +65,8 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
       return utils.noMatchHandler.handle(node, runtime, variables, program);
     }
 
-    runtime.trace.addTrace<any>({
-      type: 'path',
+    runtime.trace.addTrace<Trace.PathTrace>({
+      type: BaseNode.Utils.TraceType.PATH,
       payload: { path: 'choice:else' },
     });
     return node.elseId || null;
