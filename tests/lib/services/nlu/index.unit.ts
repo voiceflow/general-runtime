@@ -4,6 +4,8 @@ import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 
 import NLUManager, { utils as defaultUtils } from '@/lib/services/nlu';
+import * as NLC from '@/lib/services/nlu/nlc';
+import { NONE_INTENT } from '@/lib/services/nlu/utils';
 
 chai.use(chaiAsPromised);
 const { expect } = chai;
@@ -89,6 +91,91 @@ describe('nlu manager unit tests', () => {
       expect(await nlu.handle(context as any)).to.eql(context);
       expect(services.dataAPI.getVersion.callCount).to.eql(0);
       expect(services.axios.post.callCount).to.eql(0);
+    });
+  });
+
+  describe('predict', () => {
+    it('works with model and locale defined and intent is not NONE_INTENT', async () => {
+      const services = {
+        axios: {
+          post: sinon.stub().resolves({ data: {} }),
+        },
+      };
+      const arg = { model: 'model-val', locale: 'locale-val', query: 'query-val', projectID: 'projectID' } as any;
+      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
+      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand').returns({ payload: { intent: { name: 'abcdefg' } } } as any);
+
+      expect(await nlu.predict(arg)).to.eql({ payload: { intent: { name: 'abcdefg' } } });
+    });
+
+    it('works with model and locale defined and intent is NONE_INTENT, prediction is not empty', async () => {
+      const services = {
+        axios: {
+          post: sinon.stub().resolves({ data: 'data-val' }),
+        },
+      };
+      const arg = { model: 'model-val', locale: 'locale-val', query: 'query-val', projectID: 'projectID' } as any;
+      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
+      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand').returns({ payload: { intent: { name: NONE_INTENT } } } as any);
+
+      expect(await nlu.predict(arg)).to.eql('data-val');
+      expect(services.axios.post.args).to.eql([[`${GENERAL_SERVICE_ENDPOINT}/runtime/${arg.projectID}/predict`, { query: 'query-val' }]]);
+    });
+
+    it('works with model and locale undefined, intent is not NONE_INTENT, prediction is not empty', async () => {
+      const services = {
+        axios: {
+          post: sinon.stub().resolves({ data: 'data-val' }),
+        },
+      };
+      const arg = { model: '', locale: '', query: 'query-val', projectID: 'projectID' } as any;
+      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
+      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand').returns({ payload: { intent: { name: 'abcdefg' } } } as any);
+      expect(await nlu.predict(arg)).to.eql('data-val');
+      expect(services.axios.post.args).to.eql([[`${GENERAL_SERVICE_ENDPOINT}/runtime/${arg.projectID}/predict`, { query: 'query-val' }]]);
+    });
+
+    it('works with model and locale undefined, intent is not NONE_INTENT, prediction empty', async () => {
+      const services = {
+        axios: {
+          post: sinon.stub().resolves({ data: undefined }),
+        },
+      };
+      const arg = { model: '', locale: '', query: 'query-val', projectID: 'projectID' } as any;
+      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
+      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand').returns({ payload: { intent: { name: 'abcdefg' } } } as any);
+
+      await expect(nlu.predict(arg)).to.be.rejectedWith(Error);
+      expect(services.axios.post.args).to.eql([[`${GENERAL_SERVICE_ENDPOINT}/runtime/${arg.projectID}/predict`, { query: 'query-val' }]]);
+    });
+
+    it('works with model defined and locale undefined, intent is not NONE_INTENT, prediction empty', async () => {
+      const services = {
+        axios: {
+          post: sinon.stub().resolves({ data: undefined }),
+        },
+      };
+      const arg = { model: 'abcd', locale: '', query: 'query-val', projectID: 'projectID' } as any;
+      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
+      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand').returns({ payload: { intent: { name: 'abcdefg' } } } as any);
+
+      await expect(nlu.predict(arg)).to.be.rejectedWith(Error);
+      expect(services.axios.post.args).to.eql([[`${GENERAL_SERVICE_ENDPOINT}/runtime/${arg.projectID}/predict`, { query: 'query-val' }]]);
+    });
+
+    it('works with model and locale defined, intent is NONE_INTENT, prediction is empty', async () => {
+      const services = {
+        axios: {
+          post: sinon.stub().resolves({ data: undefined }),
+        },
+      };
+      const arg = { model: 'abcd', locale: 'abcd', query: 'query-val', projectID: 'projectID' } as any;
+      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
+      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand').returns({ payload: { intent: { name: NONE_INTENT } } } as any);
+
+      expect(await nlu.predict(arg)).to.eql({ payload: { intent: { name: NONE_INTENT } } });
+      expect(handleNLCCommandStub.callCount).to.eql(2);
+      expect(services.axios.post.args).to.eql([[`${GENERAL_SERVICE_ENDPOINT}/runtime/${arg.projectID}/predict`, { query: 'query-val' }]]);
     });
   });
 });

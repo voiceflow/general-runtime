@@ -3,7 +3,14 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { TurnType } from '@/lib/services/runtime/types';
-import { addButtonsIfExists, addRepromptIfExists, getReadableConfidence, slateInjectVariables, slateToPlaintext } from '@/lib/services/runtime/utils';
+import {
+  addButtonsIfExists,
+  addRepromptIfExists,
+  getReadableConfidence,
+  mapEntities,
+  slateInjectVariables,
+  slateToPlaintext,
+} from '@/lib/services/runtime/utils';
 
 describe('runtime utils service unit tests', () => {
   describe('addRepromptIfExists', () => {
@@ -131,6 +138,52 @@ describe('runtime utils service unit tests', () => {
       ];
 
       expect(slateToPlaintext(content as any)).to.eql('onetwo three four five');
+    });
+  });
+
+  describe('mapEntities', () => {
+    it('works for empty mappings and entities', () => {
+      expect(mapEntities([], [])).to.eql({});
+    });
+
+    it('works for empty mappings and non empty entities', () => {
+      expect(mapEntities([], [{ name: 'name', value: 'value' }])).to.eql({});
+    });
+
+    it('works for non empty mappings', () => {
+      expect(mapEntities([{ slot: 'slot', variable: 'variable' }])).to.eql({});
+    });
+
+    it('works with no override', () => {
+      const mapping = [
+        { slot: 'slot1', variable: 'var1' },
+        { slot: 'slot2', variable: 'var2' },
+        { slot: '', variable: 'var3' },
+        { slot: 'slot4', variable: 'var4' },
+      ];
+      const entities = [
+        { name: 'slot1', value: 'never' },
+        { name: 'slot1', value: 'ent-val1' },
+        { name: 'slot2', value: 'ent-val2' },
+      ];
+
+      expect(mapEntities(mapping, entities)).to.eql({ var1: 'ent-val1', var2: 'ent-val2' });
+    });
+
+    it('works with override', () => {
+      const mapping = [
+        { slot: 'slot1', variable: 'var1' },
+        { slot: 'slot2', variable: 'var2' },
+        { slot: '', variable: 'var3' },
+        { slot: 'slot4', variable: 'var4' },
+      ];
+      const entities = [
+        { name: 'slot1', value: 'never' },
+        { name: 'slot1', value: 'ent-val1' },
+        { name: 'slot2', value: 'ent-val2' },
+      ];
+
+      expect(mapEntities(mapping, entities, true)).to.eql({ var1: 'ent-val1', var2: 'ent-val2', var4: 0 });
     });
   });
 });

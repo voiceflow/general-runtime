@@ -80,4 +80,55 @@ describe('dataAPI client unit tests', () => {
   it('fails if no data API env configuration set', () => {
     expect(() => new DataAPI({} as any, {} as any)).to.throw('no data API env configuration set');
   });
+
+  describe('init', () => {
+    it('calls only remote api init', async () => {
+      const localInitStub = sinon.stub().resolves();
+      const remoteInitStub = sinon.stub().resolves();
+      const creatorInitStub = sinon.stub().resolves();
+
+      const API = {
+        LocalDataApi: sinon.stub().returns({ init: localInitStub }),
+        RemoteDataAPI: sinon.stub().returns({ init: remoteInitStub }),
+        CreatorDataApi: sinon.stub().returns({ init: creatorInitStub }),
+      };
+
+      const config = {
+        ADMIN_SERVER_DATA_API_TOKEN: 'token',
+        VF_DATA_ENDPOINT: 'endpoint',
+        CREATOR_API_ENDPOINT: 'creator endpoint',
+      };
+
+      await new DataAPI(config as any, API as any).init();
+
+      expect(localInitStub.callCount).to.eql(0);
+      expect(remoteInitStub.callCount).to.eql(1);
+      expect(creatorInitStub.callCount).to.eql(0);
+    });
+
+    it('calls local and remote api init', async () => {
+      const localInitStub = sinon.stub().resolves();
+      const remoteInitStub = sinon.stub().resolves();
+      const creatorInitStub = sinon.stub().resolves();
+
+      const API = {
+        LocalDataApi: sinon.stub().returns({ init: localInitStub }),
+        RemoteDataAPI: sinon.stub().returns({ init: remoteInitStub }),
+        CreatorDataApi: sinon.stub().returns({ init: creatorInitStub }),
+      };
+
+      const config = {
+        PROJECT_SOURCE: 'cool.vf',
+        ADMIN_SERVER_DATA_API_TOKEN: 'token',
+        VF_DATA_ENDPOINT: 'endpoint',
+        CREATOR_API_ENDPOINT: 'creator endpoint',
+      };
+
+      await new DataAPI(config as any, API as any).init();
+
+      expect(localInitStub.callCount).to.eql(1);
+      expect(remoteInitStub.callCount).to.eql(1);
+      expect(creatorInitStub.callCount).to.eql(0);
+    });
+  });
 });

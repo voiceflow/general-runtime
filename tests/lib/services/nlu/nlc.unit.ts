@@ -6,8 +6,10 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import * as nlc from '@/lib/services/nlu/nlc';
-import { createNLC, handleNLCCommand, handleNLCDialog, nlcToIntent, registerBuiltInIntents } from '@/lib/services/nlu/nlc';
+import { createNLC, handleNLCCommand, handleNLCDialog, nlcToIntent, registerBuiltInIntents, registerSlots } from '@/lib/services/nlu/nlc';
 import * as utils from '@/lib/services/nlu/utils';
+
+import { customTypeSlots, regexMatcherSlots } from './fixture';
 
 describe('nlu nlc service unit tests', () => {
   afterEach(() => {
@@ -210,6 +212,102 @@ describe('nlu nlc service unit tests', () => {
       registerBuiltInIntents(nlcObj as any, locale as any);
       const registerIntentArgs = Constants.DEFAULT_INTENTS_MAP.es.map(({ name, samples }) => [{ intent: name, utterances: samples }]);
       expect(nlcObj.registerIntent.args).to.eql(registerIntentArgs);
+    });
+  });
+
+  describe('registerSlots', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('calls addSlotType with slots of non-custom type, empty inputs, no type value, no inputs when openslot is true', () => {
+      const nlcObj = {
+        addSlotType: sinon.stub(),
+      };
+      const matcherRegex = /[\S\s]*/;
+      const slots = regexMatcherSlots;
+
+      registerSlots(nlcObj as any, { slots } as any, true);
+
+      expect(nlcObj.addSlotType.args).to.eql([
+        [{ type: slots[0].name, matcher: matcherRegex }],
+        [{ type: slots[1].name, matcher: matcherRegex }],
+        [{ type: slots[2].name, matcher: matcherRegex }],
+        [{ type: slots[3].name, matcher: matcherRegex }],
+        [{ type: slots[4].name, matcher: matcherRegex }],
+      ]);
+    });
+
+    it('no calls to addSlotType with slots of non-custom type, empty inputs, no type value, no inputs when openslot is false', () => {
+      const nlcObj = {
+        addSlotType: sinon.stub(),
+      };
+      const slots = regexMatcherSlots;
+
+      registerSlots(nlcObj as any, { slots } as any, false);
+
+      expect(nlcObj.addSlotType.callCount).to.eql(0);
+    });
+
+    it('calls addSlotType with right matchers with slots of type custom when openslot is true', () => {
+      const nlcObj = {
+        addSlotType: sinon.stub(),
+      };
+      const slots = customTypeSlots;
+
+      registerSlots(nlcObj as any, { slots } as any, true);
+
+      expect(nlcObj.addSlotType.args).to.eql([
+        [{ type: slots[0].name, matcher: ['custom-input1'] }],
+        [{ type: slots[1].name, matcher: ['abc', 'def', 'geh', 'x', 'y', 'z'] }],
+        [{ type: slots[2].name, matcher: ['a', 'b'] }],
+      ]);
+    });
+
+    it('calls addSlotType with right matchers with slots of type custom when openslot is false', () => {
+      const nlcObj = {
+        addSlotType: sinon.stub(),
+      };
+      const slots = customTypeSlots;
+
+      registerSlots(nlcObj as any, { slots } as any, false);
+
+      expect(nlcObj.addSlotType.args).to.eql([
+        [{ type: slots[0].name, matcher: ['custom-input1'] }],
+        [{ type: slots[1].name, matcher: ['abc', 'def', 'geh', 'x', 'y', 'z'] }],
+        [{ type: slots[2].name, matcher: ['a', 'b'] }],
+      ]);
+    });
+
+    it('doesnt call addSlotType for empty slot', () => {
+      const nlcObj = {
+        addSlotType: sinon.stub(),
+      };
+
+      registerSlots(nlcObj as any, { slots: [] } as any, true);
+
+      expect(nlcObj.addSlotType.callCount).to.eql(0);
+    });
+
+    it('mix of slots that result in custom and regex matchers with openslots true', () => {
+      const nlcObj = {
+        addSlotType: sinon.stub(),
+      };
+      const slots = [...customTypeSlots, ...regexMatcherSlots];
+      const matcherRegex = /[\S\s]*/;
+
+      registerSlots(nlcObj as any, { slots } as any, true);
+
+      expect(nlcObj.addSlotType.args).to.eql([
+        [{ type: slots[0].name, matcher: ['custom-input1'] }],
+        [{ type: slots[1].name, matcher: ['abc', 'def', 'geh', 'x', 'y', 'z'] }],
+        [{ type: slots[2].name, matcher: ['a', 'b'] }],
+        [{ type: slots[3].name, matcher: matcherRegex }],
+        [{ type: slots[4].name, matcher: matcherRegex }],
+        [{ type: slots[5].name, matcher: matcherRegex }],
+        [{ type: slots[6].name, matcher: matcherRegex }],
+        [{ type: slots[7].name, matcher: matcherRegex }],
+      ]);
     });
   });
 });

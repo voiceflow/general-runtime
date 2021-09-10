@@ -91,4 +91,14 @@ describe('serverDataAPI client unit tests', () => {
     expect(await client.getVersion(versionId)).to.eql(data);
     expect(axios.get.args).to.eql([[`/version/${versionId}`]]);
   });
+
+  it('getProject', async () => {
+    const data = { foo: 'bar' };
+    const axios = { get: sinon.stub().returns({ data }) };
+    const client = await getServerDataApi(axios);
+
+    const projectId = '1';
+    expect(await client.getProject(projectId)).to.eql(data);
+    expect(axios.get.args).to.eql([[`/project/${projectId}`]]);
+  });
 });

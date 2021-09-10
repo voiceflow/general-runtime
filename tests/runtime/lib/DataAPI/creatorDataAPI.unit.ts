@@ -23,6 +23,21 @@ describe('creatorDataAPI client unit tests', () => {
       expect(VF.args).to.eql([[{ apiEndpoint: config.endpoint, clientKey: config.clientKey }]]);
       expect(VFClient.args).to.eql([[{ authorization: config.authorization }]]);
     });
+
+    it('works correctly with default clientKey arg', async () => {
+      const VFClient = sinon.stub();
+      const VF = sinon.stub().returns({
+        generateClient: VFClient,
+      });
+
+      const config = { endpoint: '_endpoint', authorization: '_authorization', prototype: true };
+
+      const creatorDataAPI = new CreatorDataAPI(config, VF as any);
+      await creatorDataAPI.init();
+
+      expect(VF.args).to.eql([[{ apiEndpoint: config.endpoint, clientKey: '' }]]);
+      expect(VFClient.args).to.eql([[{ authorization: config.authorization }]]);
+    });
   });
 
   describe('fetchDisplayById', () => {

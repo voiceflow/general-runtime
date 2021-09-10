@@ -6,7 +6,7 @@ import querystring from 'querystring';
 
 export type APINodeData = Node.Api.NodeData['action_data'];
 
-const stringToNumIfNumeric = (str: string): string | number => {
+export const stringToNumIfNumeric = (str: string): string | number => {
   /* eslint-disable-next-line */
   if (_.isString(str) && !isNaN(str as any) && str.length < 16) {
     return Number(str);
@@ -43,7 +43,7 @@ export const getVariable = (path: string, data: any) => {
   return stringToNumIfNumeric(curData);
 };
 
-const ReduceKeyValue = (values: { key: string; val: string }[]) =>
+export const ReduceKeyValue = (values: { key: string; val: string }[]) =>
   values.reduce<Record<string, string>>((acc, { key, val }) => {
     if (key) {
       acc[key] = val;
@@ -51,7 +51,7 @@ const ReduceKeyValue = (values: { key: string; val: string }[]) =>
     return acc;
   }, {});
 
-const formatRequestConfig = (data: APINodeData) => {
+export const formatRequestConfig = (data: APINodeData) => {
   const { method, bodyInputType, headers, body, params, url, content } = data;
 
   const options: AxiosRequestConfig = {

@@ -2,7 +2,6 @@ import { Node, Trace } from '@voiceflow/base-types';
 
 import Client, { EventType } from '@/runtime';
 
-import { RESUME_PROGRAM_ID, ResumeDiagram } from './programs/resume';
 import { FrameType, Output, StorageType, StreamAction, StreamPlayStorage, TurnType } from './types';
 import { outputTrace } from './utils';
 
@@ -31,12 +30,6 @@ const init = (client: Client) => {
     }
 
     runtime.trace.addTrace(outputTrace({ output }));
-  });
-
-  client.setEvent(EventType.programWillFetch, ({ programID, override }) => {
-    if (programID === RESUME_PROGRAM_ID) {
-      override(ResumeDiagram);
-    }
   });
 
   client.setEvent(EventType.handlerWillHandle, ({ runtime, node }) =>
