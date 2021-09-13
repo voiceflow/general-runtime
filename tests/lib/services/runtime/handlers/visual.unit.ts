@@ -42,7 +42,7 @@ describe('Visual handler', () => {
 
     handler.handle(deps.node, deps.runtime, null as any, null as any);
 
-    expect(deps.runtime.trace.debug.args).to.eql([['__visual__ - entered']]);
+    expect(deps.runtime.trace.debug.args).to.eql([['__visual__ - entered', Node.NodeType.VISUAL]]);
     expect(deps.runtime.trace.addTrace.args).to.eql([[{ type: Node.Utils.TraceType.VISUAL, payload: deps.node.data }]]);
   });
 });

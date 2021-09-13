@@ -1,4 +1,4 @@
-import { Request } from '@voiceflow/base-types';
+import { Node, Request } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -213,7 +213,7 @@ describe('runtime manager unit tests', () => {
 
       await runtimeManager.handle(context);
 
-      expect(runtime.trace.debug.args).to.eql([['matched intent **name** - confidence interval _86.12%_']]);
+      expect(runtime.trace.debug.args).to.eql([['matched intent **name** - confidence interval _86.12%_', Node.NodeType.INTENT]]);
       expect(runtime.variables.set.args).to.eql([
         ['intent_confidence', 86.12],
         ['last_utterance', 'hello world'],

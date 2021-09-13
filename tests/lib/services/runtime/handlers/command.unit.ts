@@ -118,7 +118,9 @@ describe('Command handler', () => {
         expect(runtime.stack.getSize.callCount).to.eql(2);
         expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
         expect(setNodeID.args).to.eql([[commandObj.nextID]]);
-        expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - exiting flows and jumping to node`]]);
+        expect(runtime.trace.debug.args).to.eql([
+          [`matched command **${commandObj.type}** - exiting flows and jumping to node`, Node.NodeType.COMMAND],
+        ]);
         expect(runtime.trace.addTrace.args).to.eql([[JumpPathTrace]]);
       });
 
@@ -146,7 +148,7 @@ describe('Command handler', () => {
           expect(utils.findEventMatcher.args).to.eql([[{ event: commandObj.event, runtime, variables }]]);
           expect(sideEffectStub.callCount).to.eql(1);
           expect(runtime.stack.getSize.callCount).to.eql(2);
-          expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`]]);
+          expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`, Node.NodeType.COMMAND]]);
           expect(runtime.trace.addTrace.args).to.eql([[JumpPathTrace]]);
         });
 
@@ -173,7 +175,7 @@ describe('Command handler', () => {
           expect(utils.findEventMatcher.args).to.eql([[{ event: commandObj.event, runtime, variables }]]);
           expect(sideEffectStub.callCount).to.eql(1);
           expect(runtime.stack.getSize.callCount).to.eql(2);
-          expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`]]);
+          expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`, Node.NodeType.COMMAND]]);
           expect(runtime.trace.addTrace.args).to.eql([[JumpPathTrace]]);
         });
       });
@@ -222,7 +224,7 @@ describe('Command handler', () => {
         expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(utils.findEventMatcher.args).to.eql([[{ event: commandObj.event, runtime, variables }]]);
         expect(sideEffectStub.callCount).to.eql(1);
-        expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - adding command flow`]]);
+        expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - adding command flow`, Node.NodeType.COMMAND]]);
         expect(storageSetStub.args).to.eql([[FrameType.CALLED_COMMAND, true]]);
         expect(utils.Frame.args).to.eql([[{ programID: commandObj.diagramID }]]);
         expect(runtime.stack.push.args).to.eql([[{}]]);

@@ -47,9 +47,9 @@ describe('ifHandler unit tests', () => {
       expect(runtime.callEvent.args[0][1].error.toString()).to.eql(evaluateError);
 
       expect(runtime.trace.debug.args).to.eql([
-        [`unable to resolve expression \`${node.expressions[0]}\`  \n\`${evaluateError}\``],
-        ['evaluating path 2: `second` to `5`'],
-        ['condition true - taking path 2'],
+        [`unable to resolve expression \`${node.expressions[0]}\`  \n\`${evaluateError}\``, Node.NodeType.IF],
+        ['evaluating path 2: `second` to `5`', Node.NodeType.IF],
+        ['condition true - taking path 2', Node.NodeType.IF],
       ]);
     });
 
@@ -70,9 +70,9 @@ describe('ifHandler unit tests', () => {
       ]);
 
       expect(runtime.trace.debug.args).to.eql([
-        ['evaluating path 1: `first` to `undefined`'],
-        ['evaluating path 2: `second` to `0`'],
-        ['condition true - taking path 2'],
+        ['evaluating path 1: `first` to `undefined`', Node.NodeType.IF],
+        ['evaluating path 2: `second` to `0`', Node.NodeType.IF],
+        ['condition true - taking path 2', Node.NodeType.IF],
       ]);
     });
 
@@ -90,7 +90,10 @@ describe('ifHandler unit tests', () => {
 
         expect(await ifHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.elseId);
 
-        expect(runtime.trace.debug.args).to.eql([['evaluating path 1: `first` to `undefined`'], ['no conditions matched - taking else path']]);
+        expect(runtime.trace.debug.args).to.eql([
+          ['evaluating path 1: `first` to `undefined`', Node.NodeType.IF],
+          ['no conditions matched - taking else path', Node.NodeType.IF],
+        ]);
       });
 
       it('without elseId', async () => {
@@ -102,7 +105,10 @@ describe('ifHandler unit tests', () => {
 
         expect(await ifHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
 
-        expect(runtime.trace.debug.args).to.eql([['evaluating path 1: `first` to `undefined`'], ['no conditions matched - taking else path']]);
+        expect(runtime.trace.debug.args).to.eql([
+          ['evaluating path 1: `first` to `undefined`', Node.NodeType.IF],
+          ['no conditions matched - taking else path', Node.NodeType.IF],
+        ]);
       });
     });
   });

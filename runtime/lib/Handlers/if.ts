@@ -21,7 +21,7 @@ const IfHandler: HandlerFactory<Node.If.Node> = () => ({
         );
 
         if (evaluated || evaluated === 0) {
-          runtime.trace.debug(`condition true - taking path ${i + 1}`);
+          runtime.trace.debug(`condition true - taking path ${i + 1}`, Node.NodeType.IF);
           return node.nextIds[i];
         }
       } catch (error) {

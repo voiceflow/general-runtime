@@ -1,3 +1,4 @@
+import { Node } from '@voiceflow/base-types';
 import axios from 'axios';
 import { expect } from 'chai';
 import safeJSONStringify from 'safe-json-stringify';
@@ -40,7 +41,7 @@ describe('codeHandler unit tests', () => {
         const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
         expect(result).to.eql(null);
         expect(axiosPost.args).to.eql([['foo', { code: node.code, variables: {} }]]);
-        expect(runtime.trace.debug.args).to.eql([[`unable to resolve code  \n\`${safeJSONStringify(err.response.data)}\``]]);
+        expect(runtime.trace.debug.args).to.eql([[`unable to resolve code  \n\`${safeJSONStringify(err.response.data)}\``, Node.NodeType.CODE]]);
       });
 
       it('with fail_id', async () => {
@@ -54,7 +55,7 @@ describe('codeHandler unit tests', () => {
         const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
         expect(result).to.eql(node.fail_id);
         expect(axiosPost.args).to.eql([['foo', { code: node.code, variables: {} }]]);
-        expect(runtime.trace.debug.args).to.eql([[`unable to resolve code  \n\`"${error.toString()}"\``]]);
+        expect(runtime.trace.debug.args).to.eql([[`unable to resolve code  \n\`"${error.toString()}"\``, Node.NodeType.CODE]]);
       });
     });
 
@@ -79,6 +80,7 @@ describe('codeHandler unit tests', () => {
         expect(runtime.trace.debug.args).to.eql([
           [
             'evaluating code - changes:  \n`{var1}`: `1` => `1.1`  \n`{var2}`: `2` => `2.2`  \n`{var3}`: `3` => `undefined`  \n`{newVar}`: `undefined` => `5`  \n',
+            Node.NodeType.CODE,
           ],
         ]);
       });
@@ -93,7 +95,7 @@ describe('codeHandler unit tests', () => {
         const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
         expect(result).to.eql(null);
         expect(axiosPost.args).to.eql([['foo', { code: node.code, variables: { var1: 1 } }]]);
-        expect(runtime.trace.debug.args).to.eql([['evaluating code - no variable changes']]);
+        expect(runtime.trace.debug.args).to.eql([['evaluating code - no variable changes', Node.NodeType.CODE]]);
       });
     });
 
@@ -118,6 +120,7 @@ describe('codeHandler unit tests', () => {
         expect(runtime.trace.debug.args).to.eql([
           [
             'evaluating code - changes:  \n`{var1}`: `1` => `1.1`  \n`{var2}`: `2` => `2.2`  \n`{var3}`: `3` => `undefined`  \n`{newVar}`: `undefined` => `5`  \n',
+            Node.NodeType.CODE,
           ],
         ]);
       });
