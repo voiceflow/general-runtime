@@ -6,7 +6,7 @@ const VisualHandler: HandlerFactory<Node.Visual.Node> = () => ({
   canHandle: (node) => node.type === Node.NodeType.VISUAL && !!node.data,
 
   handle: (node, runtime) => {
-    runtime.trace.debug('__visual__ - entered');
+    runtime.trace.debug('__visual__ - entered', Node.NodeType.VISUAL);
 
     runtime.trace.addTrace<Trace.VisualTrace>({
       type: Node.Utils.TraceType.VISUAL,

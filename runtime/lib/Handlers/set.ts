@@ -16,10 +16,16 @@ const setHandler: HandlerFactory<Node.Set.Node> = () => ({
         const evaluated = await evaluateExpression(set.expression, { v: variables.getState() });
         const value = !!evaluated || !Number.isNaN(evaluated as any) ? evaluated : undefined;
         // assign only if truthy or not literally NaN
-        runtime.trace.debug(`setting \`{${set.variable}}\`  \nevaluating \`${regexExpression(set.expression)}\` to \`${value?.toString?.()}\``);
+        runtime.trace.debug(
+          `setting \`{${set.variable}}\`  \nevaluating \`${regexExpression(set.expression)}\` to \`${value?.toString?.()}\``,
+          Node.NodeType.SET
+        );
         variables.set(set.variable, value);
       } catch (error) {
-        runtime.trace.debug(`unable to resolve expression \`${regexExpression(set.expression)}\` for \`{${set.variable}}\`  \n\`${error}\``);
+        runtime.trace.debug(
+          `unable to resolve expression \`${regexExpression(set.expression)}\` for \`{${set.variable}}\`  \n\`${error}\``,
+          Node.NodeType.SET
+        );
         await runtime.callEvent(EventType.handlerDidCatch, { error });
       }
     });

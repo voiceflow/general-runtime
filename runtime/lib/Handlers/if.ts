@@ -15,20 +15,23 @@ const IfHandler: HandlerFactory<Node.If.Node> = () => ({
           v: variables.getState(),
         });
 
-        runtime.trace.debug(`evaluating path ${i + 1}: \`${regexExpression(node.expressions[i])}\` to \`${evaluated?.toString?.()}\``);
+        runtime.trace.debug(
+          `evaluating path ${i + 1}: \`${regexExpression(node.expressions[i])}\` to \`${evaluated?.toString?.()}\``,
+          Node.NodeType.IF
+        );
 
         if (evaluated || evaluated === 0) {
           runtime.trace.debug(`condition true - taking path ${i + 1}`);
           return node.nextIds[i];
         }
       } catch (error) {
-        runtime.trace.debug(`unable to resolve expression \`${regexExpression(node.expressions[i])}\`  \n\`${error}\``);
+        runtime.trace.debug(`unable to resolve expression \`${regexExpression(node.expressions[i])}\`  \n\`${error}\``, Node.NodeType.IF);
         // eslint-disable-next-line no-await-in-loop
         await runtime.callEvent(EventType.handlerDidCatch, { error });
       }
     }
 
-    runtime.trace.debug('no conditions matched - taking else path');
+    runtime.trace.debug('no conditions matched - taking else path', Node.NodeType.IF);
 
     return node.elseId || null;
   },

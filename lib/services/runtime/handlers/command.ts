@@ -46,11 +46,11 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
         // destructive and pop off everything before the command node
         runtime.stack.popTo(index + 1);
         runtime.stack.top().setNodeID(command.nextID);
-        runtime.trace.debug(`matched command **${command.type}** - exiting flows and jumping to node`);
+        runtime.trace.debug(`matched command **${command.type}** - exiting flows and jumping to node`, BaseNode.NodeType.COMMAND);
       }
       if (index === runtime.stack.getSize() - 1) {
         // jumping to an intent within the same flow
-        runtime.trace.debug(`matched command **${command.type}** - jumping to node`);
+        runtime.trace.debug(`matched command **${command.type}** - jumping to node`, BaseNode.NodeType.COMMAND);
         return command.nextID || null;
       }
     }
@@ -62,7 +62,7 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
         payload: { path: 'push' },
       });
       runtime.stack.top().storage.set(FrameType.CALLED_COMMAND, true);
-      runtime.trace.debug(`matched command **${command.type}** - adding command flow`);
+      runtime.trace.debug(`matched command **${command.type}** - adding command flow`, BaseNode.NodeType.COMMAND);
       // reset state to beginning of new diagram and store current line to the stack
       const newFrame = new utils.Frame({ programID: command.diagramID });
       runtime.stack.push(newFrame);

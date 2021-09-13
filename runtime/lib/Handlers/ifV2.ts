@@ -61,14 +61,14 @@ const IfV2Handler: HandlerFactory<Node.IfV2.Node, IfV2Options> = ({ _v1, safe })
       program
     );
 
-    debugErrors.forEach((err) => runtime.trace.debug(`Error condition ${err.index} - "${err.expression}": ${err.msg}`));
+    debugErrors.forEach((err) => runtime.trace.debug(`Error condition ${err.index} - "${err.expression}": ${err.msg}`, Node.NodeType.IF_V2));
 
     if (outputPortIndex !== -1) {
-      runtime.trace.debug(`condition matched - taking path ${outputPortIndex + 1}`);
+      runtime.trace.debug(`condition matched - taking path ${outputPortIndex + 1}`, Node.NodeType.IF_V2);
       return node.paths[outputPortIndex].nextID;
     }
 
-    runtime.trace.debug('no conditions matched - taking else path');
+    runtime.trace.debug('no conditions matched - taking else path', Node.NodeType.IF_V2);
 
     return node.payload.elseId || null;
   },
