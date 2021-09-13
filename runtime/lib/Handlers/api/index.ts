@@ -30,14 +30,14 @@ const APIHandler: HandlerFactory<Node.Integration.Node, IntegrationsOptions | vo
 
       // if custom api returned error http status nextId to fail port, otherwise success
       if (data.response.status >= 400) {
-        runtime.trace.debug(`API call returned status code ${data.response.status}`);
+        runtime.trace.debug(`API call returned status code ${data.response.status}`, Node.NodeType.API);
         nextId = node.fail_id ?? null;
       } else {
-        runtime.trace.debug('API call successfully triggered');
+        runtime.trace.debug('API call successfully triggered', Node.NodeType.API);
         nextId = node.success_id ?? null;
       }
     } catch (error) {
-      runtime.trace.debug(`API call failed - Error: \n${safeJSONStringify(error.response?.data || error)}`);
+      runtime.trace.debug(`API call failed - Error: \n${safeJSONStringify(error.response?.data || error)}`, Node.NodeType.API);
       nextId = node.fail_id ?? null;
     }
 

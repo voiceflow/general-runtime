@@ -11,7 +11,7 @@ const randomHandler: HandlerFactory<Node.Random.Node> = () => ({
     let nextId: string | null;
 
     if (!node.nextIds.length) {
-      runtime.trace.debug('no random paths connected - exiting');
+      runtime.trace.debug('no random paths connected - exiting', Node.NodeType.RANDOM);
       return null;
     }
 
@@ -53,7 +53,7 @@ const randomHandler: HandlerFactory<Node.Random.Node> = () => ({
       nextId = node.nextIds[Math.floor(Math.random() * node.nextIds.length)];
     }
 
-    runtime.trace.debug('going down random path');
+    runtime.trace.debug('going down random path', Node.NodeType.RANDOM);
 
     return nextId;
   },

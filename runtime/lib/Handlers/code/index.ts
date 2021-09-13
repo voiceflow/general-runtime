@@ -35,13 +35,13 @@ const CodeHandler: HandlerFactory<Node.Code.Node, CodeOptions | void> = ({ endpo
         return acc;
       }, '');
 
-      runtime.trace.debug(`evaluating code - ${changes ? `changes:  \n${changes}` : 'no variable changes'}`);
+      runtime.trace.debug(`evaluating code - ${changes ? `changes:  \n${changes}` : 'no variable changes'}`, Node.NodeType.CODE);
 
       variables.merge(data);
 
       return node.success_id ?? null;
     } catch (error) {
-      runtime.trace.debug(`unable to resolve code  \n\`${safeJSONStringify(error.response?.data || error.toString())}\``);
+      runtime.trace.debug(`unable to resolve code  \n\`${safeJSONStringify(error.response?.data || error.toString())}\``, Node.NodeType.CODE);
 
       return node.fail_id ?? null;
     }

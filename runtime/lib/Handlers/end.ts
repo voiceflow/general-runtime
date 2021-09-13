@@ -14,7 +14,7 @@ const EndHandler: HandlerFactory<Node.Exit.Node> = () => ({
 
     runtime.turn.set('end', true);
     runtime.trace.addTrace<Trace.ExitTrace>({ type: Node.Utils.TraceType.END, payload: null });
-    runtime.trace.debug('exiting session - saving location/resolving stack');
+    runtime.trace.debug('exiting session - saving location/resolving stack', Node.NodeType.EXIT);
 
     runtime.end();
 

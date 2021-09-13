@@ -56,10 +56,10 @@ describe('setHandler unit tests', () => {
         [node.sets[3].variable, 5],
       ]);
       expect(runtime.trace.debug.args).to.eql([
-        ['unable to resolve expression `` for `{undefined}`  \n`Error: No Variable Defined`'],
-        ['setting `{v1}`  \nevaluating `v1-expression` to `undefined`'],
-        ['setting `{v2}`  \nevaluating `v2-expression` to `undefined`'],
-        ['setting `{v3}`  \nevaluating `v3-expression` to `5`'],
+        ['unable to resolve expression `` for `{undefined}`  \n`Error: No Variable Defined`', Node.NodeType.SET],
+        ['setting `{v1}`  \nevaluating `v1-expression` to `undefined`', Node.NodeType.SET],
+        ['setting `{v2}`  \nevaluating `v2-expression` to `undefined`', Node.NodeType.SET],
+        ['setting `{v3}`  \nevaluating `v3-expression` to `5`', Node.NodeType.SET],
       ]);
       expect(runtime.callEvent.callCount).to.eql(1);
       expect(runtime.callEvent.args[0][0]).to.eql(EventType.handlerDidCatch);

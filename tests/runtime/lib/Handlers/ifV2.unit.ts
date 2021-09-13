@@ -70,7 +70,7 @@ describe('ifV2 handler unit tests', () => {
           ],
         ]);
 
-        expect(runtime.trace.debug.args).to.eql([['no conditions matched - taking else path']]);
+        expect(runtime.trace.debug.args).to.eql([['no conditions matched - taking else path', Node.NodeType.IF_V2]]);
       });
 
       it('no elseId', async () => {
@@ -105,9 +105,9 @@ describe('ifV2 handler unit tests', () => {
         expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(node.paths[2].nextID);
 
         expect(runtime.trace.debug.args).to.eql([
-          ['evaluating code - no variable changes'],
-          [`Error condition 2 - "${node.payload.expressions[1]}": SyntaxError: Unexpected token ')'`],
-          ['condition matched - taking path 3'],
+          ['evaluating code - no variable changes', Node.NodeType.CODE],
+          [`Error condition 2 - "${node.payload.expressions[1]}": SyntaxError: Unexpected token ')'`, Node.NodeType.IF_V2],
+          ['condition matched - taking path 3', Node.NodeType.IF_V2],
         ]);
       });
     });

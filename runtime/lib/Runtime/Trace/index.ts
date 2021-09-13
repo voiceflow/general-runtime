@@ -28,7 +28,7 @@ export default class Trace {
     return this.trace as TF[];
   }
 
-  debug(message: string) {
-    this.addTrace({ type: Node.Utils.TraceType.DEBUG, payload: { message } });
+  debug(message: string, type?: Node.NodeType): void {
+    this.addTrace({ type: Node.Utils.TraceType.DEBUG, payload: { type, message } });
   }
 }

@@ -3,6 +3,8 @@
  * @packageDocumentation
  */
 
+import { Node } from '@voiceflow/base-types';
+
 import Client, { Action as RuntimeAction } from '@/runtime';
 import { Config, Context, ContextHandler } from '@/types';
 
@@ -48,7 +50,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     if (isIntentRequest(request)) {
       const confidence = getReadableConfidence(request.payload.confidence);
 
-      runtime.trace.debug(`matched intent **${request.payload.intent.name}** - confidence interval _${confidence}%_`);
+      runtime.trace.debug(`matched intent **${request.payload.intent.name}** - confidence interval _${confidence}%_`, Node.NodeType.INTENT);
 
       runtime.variables.set(Variables.INTENT_CONFIDENCE, Number(confidence));
 

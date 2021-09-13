@@ -18,7 +18,7 @@ const IntegrationsHandler: HandlerFactory<Node.Integration.Node, IntegrationsOpt
   canHandle: (node) => node.type === Node.NodeType.INTEGRATIONS && VALID_INTEGRATIONS.includes(node.selected_integration),
   handle: async (node, runtime, variables) => {
     if (!node.selected_integration || !node.selected_action) {
-      runtime.trace.debug('no integration or action specified - fail by default');
+      runtime.trace.debug('no integration or action specified - fail by default', Node.NodeType.INTEGRATIONS);
       return node.fail_id ?? null;
     }
 
@@ -36,11 +36,15 @@ const IntegrationsHandler: HandlerFactory<Node.Integration.Node, IntegrationsOpt
       // add mapped variables to variables store
       variables.merge(mappedVariables);
 
-      runtime.trace.debug(`action **${node.selected_action}** for integration **${node.selected_integration}** successfully triggered`);
+      runtime.trace.debug(
+        `action **${node.selected_action}** for integration **${node.selected_integration}** successfully triggered`,
+        Node.NodeType.INTEGRATIONS
+      );
       nextId = node.success_id ?? null;
     } catch (error) {
       runtime.trace.debug(
-        `action **${node.selected_action}** for integration **${node.selected_integration}** failed  \n${safeJSONStringify(error.response?.data)}`
+        `action **${node.selected_action}** for integration **${node.selected_integration}** failed  \n${safeJSONStringify(error.response?.data)}`,
+        Node.NodeType.INTEGRATIONS
       );
       nextId = node.fail_id ?? null;
     }

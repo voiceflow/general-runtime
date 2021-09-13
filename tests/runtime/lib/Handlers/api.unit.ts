@@ -48,7 +48,7 @@ describe('API Handler unit tests', () => {
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 
       expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
-      expect(runtime.trace.debug.args).to.eql([['API call successfully triggered']]);
+      expect(runtime.trace.debug.args).to.eql([['API call successfully triggered', Node.NodeType.API]]);
       expect(axiosPost.args).to.eql([[`${customAPIEndpoint}/custom/make_api_call`, undefined]]);
       expect(variables.merge.args).to.eql([[resultVariables.data.variables]]);
     });
@@ -64,7 +64,7 @@ describe('API Handler unit tests', () => {
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 
       expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
-      expect(runtime.trace.debug.args).to.eql([['API call successfully triggered']]);
+      expect(runtime.trace.debug.args).to.eql([['API call successfully triggered', Node.NodeType.API]]);
       expect(local.args).to.eql([[node.action_data]]);
       expect(axiosPost.callCount).to.eql(0);
       expect(variables.merge.args).to.eql([[resultVariables.data.variables]]);
@@ -80,7 +80,7 @@ describe('API Handler unit tests', () => {
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 
       expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
-      expect(runtime.trace.debug.args).to.eql([[`API call returned status code ${resultVariables.data.response.status}`]]);
+      expect(runtime.trace.debug.args).to.eql([[`API call returned status code ${resultVariables.data.response.status}`, Node.NodeType.API]]);
     });
 
     it('error status with fail_id', async () => {
@@ -93,7 +93,7 @@ describe('API Handler unit tests', () => {
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 
       expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.fail_id);
-      expect(runtime.trace.debug.args).to.eql([[`API call returned status code ${resultVariables.data.response.status}`]]);
+      expect(runtime.trace.debug.args).to.eql([[`API call returned status code ${resultVariables.data.response.status}`, Node.NodeType.API]]);
     });
 
     describe('fails', () => {
@@ -107,7 +107,7 @@ describe('API Handler unit tests', () => {
         const variables = { getState: sinon.stub().returns({}) };
 
         expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
-        expect(runtime.trace.debug.args).to.eql([[`API call failed - Error: \n"${axiosErr.response.data}"`]]);
+        expect(runtime.trace.debug.args).to.eql([[`API call failed - Error: \n"${axiosErr.response.data}"`, Node.NodeType.API]]);
         expect(axiosPost.args).to.eql([[`${DEFAULT_OPTIONS.customAPIEndpoint}/custom/make_api_call`, undefined]]);
       });
 
@@ -121,7 +121,7 @@ describe('API Handler unit tests', () => {
 
         expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.fail_id);
         expect(axiosPost.args).to.eql([[`${DEFAULT_OPTIONS.customAPIEndpoint}/custom/make_api_call`, undefined]]);
-        expect(runtime.trace.debug.args).to.eql([['API call failed - Error: \n{"name":"error5"}']]);
+        expect(runtime.trace.debug.args).to.eql([['API call failed - Error: \n{"name":"error5"}', Node.NodeType.API]]);
       });
     });
   });
