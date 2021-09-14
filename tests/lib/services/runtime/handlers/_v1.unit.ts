@@ -5,7 +5,7 @@ import { _V1Handler } from '@/lib/services/runtime/handlers/_v1';
 import { TurnType } from '@/lib/services/runtime/types';
 import { Action } from '@/runtime';
 
-describe('Trace handler unit tests', () => {
+describe('_v1 handler unit tests', () => {
   describe('canHandle', () => {
     it('false', () => {
       expect(_V1Handler({} as any).canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
@@ -27,7 +27,7 @@ describe('Trace handler unit tests', () => {
             stop: true,
             payload: { foo: 'bar' },
             paths: [
-              { event: {}, nextID: '1' },
+              { event: {}, label: 'label1', nextID: '1' },
               { event: {}, nextID: '2' },
             ],
           };
@@ -44,7 +44,10 @@ describe('Trace handler unit tests', () => {
               {
                 type: node.type,
                 payload: node.payload,
-                paths: [{ event: {} }, { event: {} }],
+                paths: [
+                  { event: {}, label: 'label1' },
+                  { event: {}, label: undefined },
+                ],
                 defaultPath: undefined,
               },
             ],
@@ -76,7 +79,10 @@ describe('Trace handler unit tests', () => {
               {
                 type: node.type,
                 payload: node.payload,
-                paths: [{ event: {} }, { event: {} }],
+                paths: [
+                  { event: {}, label: undefined },
+                  { event: {}, label: undefined },
+                ],
                 defaultPath: undefined,
               },
             ],
@@ -110,7 +116,10 @@ describe('Trace handler unit tests', () => {
               {
                 type: node.type,
                 payload: node.payload,
-                paths: [{ event: {} }, { event: {} }],
+                paths: [
+                  { event: {}, label: undefined },
+                  { event: {}, label: undefined },
+                ],
                 defaultPath: undefined,
               },
             ],
@@ -143,7 +152,10 @@ describe('Trace handler unit tests', () => {
               {
                 type: node.type,
                 payload: node.payload,
-                paths: [{ event: {} }, { event: {} }],
+                paths: [
+                  { event: {}, label: undefined },
+                  { event: {}, label: undefined },
+                ],
                 defaultPath: node.defaultPath,
               },
             ],
@@ -176,7 +188,10 @@ describe('Trace handler unit tests', () => {
               {
                 type: node.type,
                 payload: node.payload,
-                paths: [{ event: { name: 'event1' } }, { event: {} }],
+                paths: [
+                  { event: { name: 'event1' }, label: undefined },
+                  { event: {}, label: undefined },
+                ],
                 defaultPath: node.defaultPath,
               },
             ],

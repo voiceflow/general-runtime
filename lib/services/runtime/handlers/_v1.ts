@@ -45,7 +45,7 @@ export const _V1Handler: HandlerFactory<Node._v1.Node, typeof utilsObj> = (utils
       type: node.type,
       payload: node.payload,
       defaultPath: node.defaultPath,
-      paths: node.paths.map((path) => ({ event: path.event! })),
+      paths: node.paths.map((path) => ({ label: path.label, event: path.event! })),
     });
 
     const stopTypes = runtime.turn.get<string[]>(TurnType.STOP_TYPES) || [];
