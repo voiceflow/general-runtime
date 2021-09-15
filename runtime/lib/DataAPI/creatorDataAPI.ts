@@ -46,6 +46,8 @@ class CreatorDataAPI<P extends Program<any, any>, V extends Version<any>, PJ ext
     return (await this.client.version.get(versionID)) as V;
   };
 
+  public unhashVersionID = async (versionID: string) => versionID;
+
   public getProject = async (projectID: string) => {
     return (await this.client.project.get(projectID)) as PJ;
   };

@@ -15,5 +15,7 @@ export interface DataAPI<
 
   getVersion(versionID: string): Promise<V>;
 
+  unhashVersionID(versionID: string): Promise<string>;
+
   getProject(projectID: string): Promise<PJ>;
 }
