@@ -181,7 +181,6 @@ workflows:
   e2e-push:
     jobs:              
       - build-push-image:
-          <<: *prod_deploy_filters
           name: build-push-image-e2e
           context: dev-test
           image_repo: << pipeline.parameters.container-image-url >>
