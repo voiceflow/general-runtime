@@ -46,7 +46,7 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@0.0.187
+  vfcommon: voiceflow/common@0.0.194
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
@@ -94,10 +94,28 @@ jobs:
 
   build-push-image:
     executor: vfcommon/build-executor
+    parameters:
+      image_repo: 
+        description: The container image repository
+        type: string
+      image_tag: 
+        description: The container image tag
+        type: string
+        default: ""
+      release_pkg: 
+        description: The npm package name to be released
+        type: string
+        default: ""
+      dockerfile: 
+        description: Name of the Dockerfile to build
+        type: string
+        default: Dockerfile
     steps:
       - vfcommon/build_push_image:
-          image_repo: << pipeline.parameters.container-image-url >>
-          release_pkg: << pipeline.parameters.npm-repo >>
+          image_repo: << parameters.image_repo >>
+          release_pkg: << parameters.release_pkg >>
+          image_tag: << parameters.image_tag >>
+          dockerfile: << parameters.dockerfile >>
 
   post-image-push-actions:
     executor: vfcommon/build-executor
@@ -160,12 +178,24 @@ workflows:
           filters:
             branches:
               only: master
+  e2e-push:
+    jobs:              
+      - build-push-image:
+          <<: *prod_deploy_filters
+          name: build-push-image-e2e
+          context: dev-test
+          image_repo: << pipeline.parameters.container-image-url >>
+          dockerfile: "Dockerfile.e2e"
+          image_tag: "latest-master-e2e"
 
   deploy-app:
     jobs:
       - build-push-image:
           <<: *prod_deploy_filters
+          name: build-push-image
           context: dev-test
+          image_repo: << pipeline.parameters.container-image-url >>
+          release_pkg: << pipeline.parameters.npm-repo >>
       - update-track:
           <<: *prod_deploy_filters
           context: dev-test
