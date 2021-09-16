@@ -60,11 +60,15 @@ class ServerDataAPI<P extends Program<any, any>, V extends Version<any>, PJ exte
     return data;
   };
 
-  public unhashVersionID = moize(
-    async (versionID: string) => {
-      if (versionID.length === 24 && ObjectId.isValid(versionID)) return versionID;
+  public unhashVersionID = async (versionID: string): Promise<string> => {
+    if (versionID.length === 24 && ObjectId.isValid(versionID)) return versionID;
 
-      const { data } = await this.client.get<string>(`/version/convert/${versionID}`);
+    return this._convertSkillID(versionID);
+  };
+
+  private _convertSkillID = moize(
+    async (skillID: string) => {
+      const { data } = await this.client.get<string>(`/version/convert/${skillID}`);
 
       return data;
     },
