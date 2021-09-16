@@ -5,6 +5,8 @@ import { Runtime, Store } from '@/runtime';
 
 import { mapEntities } from '../../utils';
 
+const entitiesToMappings = (entities: Request.Entity[]) => entities.map(({ name }) => ({ slot: name, variable: name }));
+
 export const intentEventMatcher = {
   match: (context: {
     runtime: GeneralRuntime;
@@ -19,7 +21,8 @@ export const intentEventMatcher = {
   sideEffect: (context: { runtime: Runtime<Request.IntentRequest>; event: Node.Utils.IntentEvent; variables: Store }) => {
     // use event slot mappings map request entities to variables
     const request = context.runtime.getRequest() as Request.IntentRequest;
-    context.variables.merge(mapEntities(context.event.mappings || [], request.payload.entities || []));
+    const entities = request.payload.entities || [];
+    context.variables.merge(mapEntities(context.event.mappings || entitiesToMappings(entities), entities));
   },
 };
 

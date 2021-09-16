@@ -41,6 +41,7 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
       const { event, nextId } = node.interactions[i];
 
       const matcher = utils.findEventMatcher({ event, runtime, variables });
+
       if (matcher) {
         // allow handler to apply side effects
         matcher.sideEffect();
