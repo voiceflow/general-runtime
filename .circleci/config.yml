@@ -69,6 +69,12 @@ jobs:
       - vfcommon/check_service_running:
           port: "8011"
       - vfcommon/setup_vf_service:
+          service_name: creator-api
+          github_username: GITHUB_USERNAME
+          github_token: GITHUB_TOKEN
+      - vfcommon/check_service_running:
+          port: "8003"
+      - vfcommon/setup_vf_service:
           service_name: general-service
           github_username: GITHUB_USERNAME
           github_token: GITHUB_TOKEN
