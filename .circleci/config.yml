@@ -54,6 +54,7 @@ jobs:
   e2e-check:
     executor: vfcommon/e2e-executor
     steps:
+      - vfcommon/set_yarn_bash_default_shell
       - vfcommon/init_e2e:
           checkout: true
           install_node_modules: true
