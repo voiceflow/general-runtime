@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import LocalDataAPI from '@/runtime/lib/DataAPI/localDataAPI';
 
 describe('localDataAPI client unit tests', () => {
-  beforeEach(() => {
+  afterEach(() => {
     sinon.restore();
   });
 

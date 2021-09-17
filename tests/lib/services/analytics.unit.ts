@@ -19,10 +19,11 @@ describe('analytics manager unit tests', () => {
     const context = { versionID: 1, data: '_context123' };
     expect(analytics.handle(context as any)).to.eql(context);
 
-    const now = new Date();
-    const clock = sinon.useFakeTimers(now.getTime());
+    const clock = sinon.useFakeTimers(new Date());
 
-    expect(services.analyticsClient.track.args).to.eql([[{ versionID: context.versionID, event: Event.TURN, metadata: context, timestamp: now }]]);
+    expect(services.analyticsClient.track.args).to.eql([
+      [{ versionID: context.versionID, event: Event.TURN, metadata: context, timestamp: clock.Date() }],
+    ]);
 
     clock.restore();
   });
