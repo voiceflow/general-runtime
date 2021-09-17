@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -104,6 +105,18 @@ describe('creatorDataAPI client unit tests', () => {
 
     expect(await creatorDataAPI.getVersion(versionID)).to.eql(version);
     expect(Client.version.get.args).to.eql([[versionID]]);
+  });
+
+  it('unhashVersionID', async () => {
+    const Client = { version: { get: sinon.stub().resolves() } };
+    const VFClient = sinon.stub().returns(Client);
+    const VF = sinon.stub().returns({
+      generateClient: VFClient,
+    });
+    const versionID = 'versionID';
+    const creatorDataAPI = new CreatorDataAPI({} as any, VF as any);
+
+    expect(await creatorDataAPI.unhashVersionID(versionID)).to.eql(versionID);
   });
 
   it('getProject', async () => {

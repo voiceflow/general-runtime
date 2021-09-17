@@ -68,6 +68,25 @@ describe('localDataAPI client unit tests', () => {
     expect(await LocalDataApi.getVersion()).to.eql(content.version);
   });
 
+  it('unhashVersionID', async () => {
+    const content = {
+      version: 'version-val',
+      project: 'project-val',
+      programs: 'programs-val',
+    };
+    const stubFS = {
+      readFileSync: sinon.stub().returns('readFileSync-val'),
+    };
+    const jsonParseStub = sinon.stub(JSON, 'parse').returns(content as any);
+    const path = {
+      join: sinon.stub().returns('join-val'),
+    };
+    const versionID = 'versionID';
+    const creatorDataAPI = new LocalDataAPI({ projectSource: 'project-source' } as any, { fs: stubFS as any, path: path as any } as any);
+
+    expect(await creatorDataAPI.unhashVersionID(versionID)).to.eql(versionID);
+  });
+
   it('getProgram', async () => {
     const content = {
       version: 'version-val',

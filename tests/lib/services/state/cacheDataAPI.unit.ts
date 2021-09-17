@@ -79,6 +79,18 @@ describe('cacheDataAPI unit tests', () => {
     });
   });
 
+  describe('unhashVersionID', () => {
+    it('works', async () => {
+      const unhashVersionIDStub = sinon.stub().returns('unhashVersionID-value');
+      const dataAPIStub = { unhashVersionID: unhashVersionIDStub };
+
+      const cacheDataApi = new CacheDataAPI(dataAPIStub as any);
+
+      expect(await cacheDataApi.unhashVersionID('999')).to.eql('unhashVersionID-value');
+      expect(dataAPIStub.unhashVersionID.args).to.eql([['999']]);
+    });
+  });
+
   describe('fetchDisplayById', () => {
     it('works', async () => {
       const fetchDisplayByIdStub = sinon.stub().returns('fetchDisplayById-value');
