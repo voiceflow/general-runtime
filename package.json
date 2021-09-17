@@ -41,7 +41,7 @@
     "form-data": "3.0.0",
     "helmet": "^3.21.2",
     "html-parse-stringify": "^1.0.3",
-    "immer": "^5.1.0",
+    "immer": "^9.0.6",
     "ioredis": "^4.22.0",
     "lodash": "^4.17.21",
     "mathjs": "^6.5.0",
