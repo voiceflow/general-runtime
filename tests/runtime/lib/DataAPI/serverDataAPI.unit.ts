@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import _ from 'lodash';
 import sinon from 'sinon';
 
 import ServerDataAPI from '@/runtime/lib/DataAPI/serverDataAPI';
@@ -90,6 +91,54 @@ describe('serverDataAPI client unit tests', () => {
     const versionId = '1';
     expect(await client.getVersion(versionId)).to.eql(data);
     expect(axios.get.args).to.eql([[`/version/${versionId}`]]);
+  });
+
+  describe('unhashVersionID', () => {
+    describe('24 length', () => {
+      it('valid object id', async () => {
+        const versionID = '5ede8aec9edf9c1b7c1c4166';
+        const client = await getServerDataApi(null as any);
+
+        expect(await client.unhashVersionID(versionID)).to.eql(versionID);
+      });
+
+      it('not valid object id', async () => {
+        const versionID = 'XXXXXXXXXXXXXXXXXXXXXXXX'; // 24 length
+        const client = await getServerDataApi(null as any);
+        const unhashedVersionID = 'unhashed';
+        const _convertSkillIDStub = sinon.stub().resolves(unhashedVersionID);
+        _.set(client, '_convertSkillID', _convertSkillIDStub);
+
+        expect(await client.unhashVersionID(versionID)).to.eql(unhashedVersionID);
+        expect(_convertSkillIDStub.args).to.eql([[versionID]]);
+      });
+    });
+
+    it('unhashes correctly', async () => {
+      const versionID = 'abc';
+      const client = await getServerDataApi(null as any);
+      const unhashedVersionID = 'unhashed';
+      const _convertSkillIDStub = sinon.stub().resolves(unhashedVersionID);
+      _.set(client, '_convertSkillID', _convertSkillIDStub);
+
+      expect(await client.unhashVersionID(versionID)).to.eql(unhashedVersionID);
+      expect(_convertSkillIDStub.args).to.eql([[versionID]]);
+    });
+  });
+
+  describe('_convertSkillID', () => {
+    it('works', async () => {
+      const unhashedVersionID = 'unhashed';
+      const axios = { get: sinon.stub().returns({ data: unhashedVersionID }) };
+      const versionID = 'abc';
+
+      const client = await getServerDataApi(axios);
+
+      expect(await _.get(client, '_convertSkillID')(versionID)).to.eql(unhashedVersionID);
+      expect(await _.get(client, '_convertSkillID')(versionID)).to.eql(unhashedVersionID);
+      expect(axios.get.callCount).to.eql(1); // axios called only once as call is memoized
+      expect(axios.get.args).to.eql([[`/version/convert/${versionID}`]]);
+    });
   });
 
   it('getProject', async () => {
