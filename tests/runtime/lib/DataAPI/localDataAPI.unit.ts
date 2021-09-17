@@ -77,7 +77,7 @@ describe('localDataAPI client unit tests', () => {
     const stubFS = {
       readFileSync: sinon.stub().returns('readFileSync-val'),
     };
-    const jsonParseStub = sinon.stub(JSON, 'parse').returns(content as any);
+    sinon.stub(JSON, 'parse').returns(content as any);
     const path = {
       join: sinon.stub().returns('join-val'),
     };
