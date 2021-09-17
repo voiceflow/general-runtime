@@ -737,6 +737,11 @@
   resolved "https://registry.yarnpkg.com/@types/cors/-/cors-2.8.12.tgz#6b2c510a7ad7039e98e7b8d3d6598f4359e5c080"
   integrity sha512-vt+kDhq/M2ayberEtJcIN/hxXy1Pk+59g2FV/ZQceeaTyCtCucjL2Q7FXlFjtWn4n15KCr1NE2lNNFhp0lEThw==
 
+"@types/crypto-js@^4.0.2":
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/@types/crypto-js/-/crypto-js-4.0.2.tgz#4524325a175bf819fec6e42560c389ce1fb92c97"
+  integrity sha512-sCVniU+h3GcGqxOmng11BRvf9TfN9yIs8KKjB8C8d75W69cpTfZG80gau9yTx5SxF3gvHGbJhdESzzvnjtf3Og==
+
 "@types/datadog-metrics@^0.6.0":
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/@types/datadog-metrics/-/datadog-metrics-0.6.2.tgz#b3b2b9b4e7838cff07830472e8a8c8caa04514fa"
@@ -1156,6 +1161,15 @@
     axios "^0.21.1"
     superstruct "^0.10.12"
 
+"@voiceflow/api-sdk@^1.40.1":
+  version "1.40.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.40.1.tgz#ca293b5e4c8b3518196aade05878cceeddec6503"
+  integrity sha512-3zy8mrEBb69DbNeW6fPep9/SyCBgvIuE9vb57SetwPogG6TWM8vGwuXFgLU1Ut+m49oHAl8QgCrSHo21JrbUag==
+  dependencies:
+    "@voiceflow/common" "6.8.0"
+    axios "^0.21.1"
+    superstruct "^0.10.12"
+
 "@voiceflow/backend-utils@3.3.0":
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/@voiceflow/backend-utils/-/backend-utils-3.3.0.tgz#e4af7d68462855286f9d06026c4191fafdd8b156"
@@ -1178,6 +1192,14 @@
     luxon "^1.21.3"
     rate-limiter-flexible "^2.2.2"
     sinon "^10.0.0"
+
+"@voiceflow/base-types@^1.1.0":
+  version "1.6.4"
+  resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-1.6.4.tgz#2e1db1cafd5e41072f1ce61340053ae95fa36cc8"
+  integrity sha512-rapMNv6KOfacjZ6RtfLWb94+JpCmP0cMUxkc6s2gDvnfIVMxn7Q0hZ3zcddqfSwegTBWTvDTemhuhtYZTlh85A==
+  dependencies:
+    "@voiceflow/api-sdk" "^1.40.1"
+    slate "^0.63.0"
 
 "@voiceflow/base-types@^1.6.2":
   version "1.6.2"
@@ -1226,6 +1248,14 @@
   dependencies:
     dotenv "^9.0.2"
 
+"@voiceflow/common@6.8.0":
+  version "6.8.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/common/-/common-6.8.0.tgz#0c7dfb5544f4e2ce42f4d52f65fd30752edb85b6"
+  integrity sha512-J8AFADt1XRICOkUHW8DwyZnsEYM5g+GKUV5tVJNBX2rZee4OK14i3VrxsFY1wnwkDYCy+lQoQi9JdJqmaQwfEg==
+  dependencies:
+    "@types/crypto-js" "^4.0.2"
+    crypto-js "^4.1.1"
+
 "@voiceflow/eslint-config@^2.0.5":
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/@voiceflow/eslint-config/-/eslint-config-2.0.6.tgz#cf5f3e5be2cde289f2bc55f411558bd2b1e5e29f"
@@ -1269,6 +1299,15 @@
   integrity sha512-t+c50h+brJHwXbPDNoOT9Q2WYKWGd7usHNsp0B8qI0IBJLdH/CKTAsV+4gxO2IS8jMXVNxcyE2r25tHO3zRsFQ==
   dependencies:
     current-git-branch "^1.1.0"
+
+"@voiceflow/internal@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/internal/-/internal-1.7.0.tgz#5428e1cf82547fa26842c6f5fbd1b2a44a2b16ba"
+  integrity sha512-XJck2f7VT32PBNjVmrdsnBia2WWn8Li7KEvSZhNzE19Z6OZLEXGYr9XCsnYVgdxN+PBVvvFLNM1LXVJB9uduOQ==
+  dependencies:
+    "@voiceflow/base-types" "^1.1.0"
+    csstype "^3.0.8"
+    slate "^0.65.3"
 
 "@voiceflow/logger@1.5.2":
   version "1.5.2"
@@ -2838,6 +2877,11 @@ crypto-browserify@^3.11.0:
     randombytes "^2.0.0"
     randomfill "^1.0.3"
 
+crypto-js@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.1.1.tgz#9e485bcf03521041bd85844786b83fb7619736cf"
+  integrity sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw==
+
 css-color-keywords@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/css-color-keywords/-/css-color-keywords-1.0.0.tgz#fea2616dc676b2962686b3af8dbdbe180b244e05"
@@ -2856,6 +2900,11 @@ cssesc@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/cssesc/-/cssesc-3.0.0.tgz#37741919903b868565e1c09ea747445cd18983ee"
   integrity sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==
+
+csstype@^3.0.8:
+  version "3.0.9"
+  resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.0.9.tgz#6410af31b26bd0520933d02cbc64fce9ce3fbf0b"
+  integrity sha512-rpw6JPxK6Rfg1zLOYCSwle2GFOOsnjmDYDaBwEcwoOg4qlsIVCN789VkBZDJAGi4T07gI4YSutR43t9Zz4Lzuw==
 
 cuid@^2.1.8:
   version "2.1.8"

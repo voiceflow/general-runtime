@@ -1,3 +1,4 @@
+import { PlatformType } from '@voiceflow/internal';
 import { expect } from 'chai';
 import _ from 'lodash';
 import sinon from 'sinon';
@@ -45,7 +46,10 @@ describe('dataAPI client unit tests', () => {
 
     expect(await new DataAPI(config as any, API as any).get()).to.eql({ type: 'remote' });
     expect(API.RemoteDataAPI.args).to.eql([
-      [{ platform: 'general', adminToken: config.ADMIN_SERVER_DATA_API_TOKEN, dataEndpoint: config.VF_DATA_ENDPOINT }, { axios: Static.axios }],
+      [
+        { platform: PlatformType.GENERAL, adminToken: config.ADMIN_SERVER_DATA_API_TOKEN, dataEndpoint: config.VF_DATA_ENDPOINT },
+        { axios: Static.axios },
+      ],
     ]);
     expect(API.CreatorDataApi.callCount).to.eql(0);
     expect(API.LocalDataApi.callCount).to.eql(0);

@@ -1,3 +1,5 @@
+import { PlatformType } from '@voiceflow/internal';
+
 import { CreatorDataApi, LocalDataApi } from '@/runtime';
 import { Config } from '@/types';
 
@@ -36,7 +38,7 @@ class DataAPI {
     // fetch from server-data-api
     if (ADMIN_SERVER_DATA_API_TOKEN && VF_DATA_ENDPOINT) {
       this.remoteDataApi = new API.RemoteDataAPI(
-        { platform: 'general', adminToken: ADMIN_SERVER_DATA_API_TOKEN, dataEndpoint: VF_DATA_ENDPOINT },
+        { platform: PlatformType.GENERAL, adminToken: ADMIN_SERVER_DATA_API_TOKEN, dataEndpoint: VF_DATA_ENDPOINT },
         { axios: Static.axios }
       );
     }
