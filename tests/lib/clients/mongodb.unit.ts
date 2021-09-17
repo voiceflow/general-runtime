@@ -6,7 +6,7 @@ import sinon from 'sinon';
 import MongoDb from '@/lib/clients/mongodb';
 
 describe('mongodb client unit tests', () => {
-  beforeEach(() => {
+  afterEach(() => {
     sinon.restore();
   });
 

@@ -9,7 +9,7 @@ import { FrameType, StorageType, TurnType } from '@/lib/services/runtime/types';
 describe('repeat handler', () => {
   const intentRequest = { type: Request.RequestType.INTENT, payload: { intent: { name: Constants.IntentName.REPEAT }, entities: [] } };
 
-  beforeEach(() => {
+  afterEach(() => {
     sinon.restore();
   });
 

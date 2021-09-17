@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import CreatorDataAPI from '@/runtime/lib/DataAPI/creatorDataAPI';
 
 describe('creatorDataAPI client unit tests', () => {
-  beforeEach(() => {
+  afterEach(() => {
     sinon.restore();
   });
 
