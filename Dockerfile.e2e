@@ -1,6 +1,6 @@
 FROM node:12-alpine 
 
-RUN apk add --no-cache dumb-init
+RUN apk add --no-cache dumb-init ca-certificates
 
 ARG NPM_TOKEN
 
