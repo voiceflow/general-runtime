@@ -6,7 +6,7 @@ import Config from '@/config';
 import MetricsClient, { Metrics } from '@/lib/clients/metrics';
 
 describe('metrics client unit tests', () => {
-  beforeEach(() => {
+  afterEach(() => {
     sinon.restore();
   });
 

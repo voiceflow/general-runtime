@@ -1,5 +1,7 @@
 import { BasePlatformData, Program, Project, Version } from '@voiceflow/api-sdk';
 import { AxiosInstance, AxiosStatic } from 'axios';
+import moize from 'moize';
+import { ObjectId } from 'mongodb';
 
 import { DataAPI, Display } from './types';
 
@@ -57,6 +59,21 @@ class ServerDataAPI<P extends Program<any, any>, V extends Version<any>, PJ exte
 
     return data;
   };
+
+  public unhashVersionID = async (versionID: string): Promise<string> => {
+    if (versionID.length === 24 && ObjectId.isValid(versionID)) return versionID;
+
+    return this._convertSkillID(versionID);
+  };
+
+  private _convertSkillID = moize(
+    async (skillID: string) => {
+      const { data } = await this.client.get<string>(`/version/convert/${skillID}`);
+
+      return data;
+    },
+    { maxSize: 1000 }
+  );
 
   public getProject = async (projectID: string) => {
     const { data } = await this.client.get<PJ>(`/project/${projectID}`);

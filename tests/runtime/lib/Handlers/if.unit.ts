@@ -21,7 +21,7 @@ describe('ifHandler unit tests', () => {
   });
 
   describe('handle', () => {
-    beforeEach(() => {
+    afterEach(() => {
       sinon.restore();
     });
 

@@ -6,7 +6,7 @@ import DataAPI from '@/lib/clients/dataAPI';
 import Static from '@/lib/clients/static';
 
 describe('dataAPI client unit tests', () => {
-  beforeEach(() => {
+  afterEach(() => {
     sinon.restore();
   });
 

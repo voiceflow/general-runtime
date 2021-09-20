@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import { initClients, stopClients } from '@/lib/clients';
 
 describe('clients/index', () => {
-  beforeEach(() => {
+  afterEach(() => {
     sinon.restore();
   });
 

@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import LocalDataAPI from '@/runtime/lib/DataAPI/localDataAPI';
 
 describe('localDataAPI client unit tests', () => {
-  beforeEach(() => {
+  afterEach(() => {
     sinon.restore();
   });
 
@@ -66,6 +66,25 @@ describe('localDataAPI client unit tests', () => {
     const LocalDataApi = new LocalDataAPI({ projectSource: 'projectSource-val' }, { fs: stubFS as any, path: path as any });
 
     expect(await LocalDataApi.getVersion()).to.eql(content.version);
+  });
+
+  it('unhashVersionID', async () => {
+    const content = {
+      version: 'version-val',
+      project: 'project-val',
+      programs: 'programs-val',
+    };
+    const stubFS = {
+      readFileSync: sinon.stub().returns('readFileSync-val'),
+    };
+    sinon.stub(JSON, 'parse').returns(content as any);
+    const path = {
+      join: sinon.stub().returns('join-val'),
+    };
+    const versionID = 'versionID';
+    const creatorDataAPI = new LocalDataAPI({ projectSource: 'project-source' } as any, { fs: stubFS as any, path: path as any } as any);
+
+    expect(await creatorDataAPI.unhashVersionID(versionID)).to.eql(versionID);
   });
 
   it('getProgram', async () => {

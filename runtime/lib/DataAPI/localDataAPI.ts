@@ -28,6 +28,8 @@ class LocalDataAPI<P extends Program<any, any>, V extends Version<any>, PJ exten
 
   public getVersion = async () => this.version;
 
+  public unhashVersionID = async (versionID: string) => versionID;
+
   public getProgram = async (programID: string) => this.programs[programID];
 
   public getProject = async () => this.project;

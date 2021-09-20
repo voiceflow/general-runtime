@@ -33,6 +33,10 @@ class CacheDataAPI implements DataAPI<Program.GeneralProgram, Version.GeneralVer
     await this.api.init();
   }
 
+  async unhashVersionID(versionID: string): Promise<string> {
+    return this.api.unhashVersionID(versionID);
+  }
+
   async fetchDisplayById(displayId: number) {
     return this.api.fetchDisplayById(displayId);
   }
