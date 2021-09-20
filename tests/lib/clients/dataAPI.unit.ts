@@ -1,4 +1,4 @@
-import { PlatformType } from '@voiceflow/internal';
+import { Constants } from '@voiceflow/general-types';
 import { expect } from 'chai';
 import _ from 'lodash';
 import sinon from 'sinon';
@@ -47,7 +47,7 @@ describe('dataAPI client unit tests', () => {
     expect(await new DataAPI(config as any, API as any).get()).to.eql({ type: 'remote' });
     expect(API.RemoteDataAPI.args).to.eql([
       [
-        { platform: PlatformType.GENERAL, adminToken: config.ADMIN_SERVER_DATA_API_TOKEN, dataEndpoint: config.VF_DATA_ENDPOINT },
+        { platform: Constants.PlatformType.GENERAL, adminToken: config.ADMIN_SERVER_DATA_API_TOKEN, dataEndpoint: config.VF_DATA_ENDPOINT },
         { axios: Static.axios },
       ],
     ]);
