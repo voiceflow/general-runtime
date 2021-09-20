@@ -1161,12 +1161,12 @@
     axios "^0.21.1"
     superstruct "^0.10.12"
 
-"@voiceflow/api-sdk@^1.40.1":
-  version "1.40.1"
-  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.40.1.tgz#ca293b5e4c8b3518196aade05878cceeddec6503"
-  integrity sha512-3zy8mrEBb69DbNeW6fPep9/SyCBgvIuE9vb57SetwPogG6TWM8vGwuXFgLU1Ut+m49oHAl8QgCrSHo21JrbUag==
+"@voiceflow/api-sdk@^1.40.2":
+  version "1.40.2"
+  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.40.2.tgz#b20a845787a5c6b71ec2c5142d094ef7023676bb"
+  integrity sha512-LIGs/jgnstTDexM81+oCmhfc46oo9dhgpM16TZjK30Ed73DUgsrmzogHSvLhiuv2qmEEoDHLcIUrfA5okyX4/A==
   dependencies:
-    "@voiceflow/common" "6.8.0"
+    "@voiceflow/common" "6.8.1"
     axios "^0.21.1"
     superstruct "^0.10.12"
 
@@ -1201,12 +1201,12 @@
     "@voiceflow/api-sdk" "^1.39.0"
     slate "^0.63.0"
 
-"@voiceflow/base-types@^1.6.4":
-  version "1.6.4"
-  resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-1.6.4.tgz#2e1db1cafd5e41072f1ce61340053ae95fa36cc8"
-  integrity sha512-rapMNv6KOfacjZ6RtfLWb94+JpCmP0cMUxkc6s2gDvnfIVMxn7Q0hZ3zcddqfSwegTBWTvDTemhuhtYZTlh85A==
+"@voiceflow/base-types@^1.6.5":
+  version "1.6.5"
+  resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-1.6.5.tgz#42feb90a69582ca7a5cdd4cc584f6c0719835371"
+  integrity sha512-282WUzRJ84GjtESvCM6lYEAUpehKkGgVSJpHrbtstBXdH9HajArFEkKQ7MiJ1kLkoseTffiWXtY2wzizml1RSA==
   dependencies:
-    "@voiceflow/api-sdk" "^1.40.1"
+    "@voiceflow/api-sdk" "^1.40.2"
     slate "^0.63.0"
 
 "@voiceflow/body-parser@^1.21.0":
@@ -1248,10 +1248,10 @@
   dependencies:
     dotenv "^9.0.2"
 
-"@voiceflow/common@6.8.0":
-  version "6.8.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/common/-/common-6.8.0.tgz#0c7dfb5544f4e2ce42f4d52f65fd30752edb85b6"
-  integrity sha512-J8AFADt1XRICOkUHW8DwyZnsEYM5g+GKUV5tVJNBX2rZee4OK14i3VrxsFY1wnwkDYCy+lQoQi9JdJqmaQwfEg==
+"@voiceflow/common@6.8.1":
+  version "6.8.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/common/-/common-6.8.1.tgz#2c1e828ac889c5848d114c393d88bc3cf2b58e40"
+  integrity sha512-tsfkpmB0J5QJAI4oIE4gWljWXV8XQ/XjhGYyrI6Qxsc4NPM4VW4V+1dSUXxFyMPvoiwJLplapZUFo15PlP5Dig==
   dependencies:
     "@types/crypto-js" "^4.0.2"
     crypto-js "^4.1.1"
@@ -1284,14 +1284,14 @@
     eslint-plugin-xss "^0.1.9"
     typescript "^3.9.7"
 
-"@voiceflow/general-types@1.56.0":
-  version "1.56.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.56.0.tgz#de614a73dde587fe53561f921610544410b29768"
-  integrity sha512-Ya1fXI7fY6iSHFVWGTbnabNX49lG54kSH2KmSzdA65PpZo0ddVg7ABKTY8QgylL5HcvK+y6lvaMNlVG3DF4jwA==
+"@voiceflow/general-types@1.56.1":
+  version "1.56.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-1.56.1.tgz#33f5212cbd06cc79dae4c0a4e8d7fdf110160869"
+  integrity sha512-mxN2SPMqSnmUcgvR5vLWqUzcRci052qlnxB73hKO0hd42dWt3+JqdF6/T9ASzN1Dg/3zBIps8VD0bSHJu/LDtg==
   dependencies:
-    "@voiceflow/api-sdk" "^1.40.1"
-    "@voiceflow/base-types" "^1.6.4"
-    "@voiceflow/voice-types" "^1.4.15"
+    "@voiceflow/api-sdk" "^1.40.2"
+    "@voiceflow/base-types" "^1.6.5"
+    "@voiceflow/voice-types" "^1.4.16"
 
 "@voiceflow/git-branch-check@^1.2.0":
   version "1.2.0"
@@ -1389,13 +1389,13 @@
     "@voiceflow/api-sdk" "^1.39.0"
     "@voiceflow/base-types" "^1.6.2"
 
-"@voiceflow/voice-types@^1.4.15":
-  version "1.4.15"
-  resolved "https://registry.yarnpkg.com/@voiceflow/voice-types/-/voice-types-1.4.15.tgz#6d21648b126e2d5eb95484e36968438755f8b967"
-  integrity sha512-3siuDIsvVtG35Rq3LAofJlmJ7OJcdEgMhAc+fXe73a+jNk+6z3hWDfepE4sZIx7KNlprGg87iCNZg5RsZf2hqg==
+"@voiceflow/voice-types@^1.4.16":
+  version "1.4.16"
+  resolved "https://registry.yarnpkg.com/@voiceflow/voice-types/-/voice-types-1.4.16.tgz#6ed6c205c042d232522d0bc6a6cdc6b6da61f971"
+  integrity sha512-ZWTv1SiSsxrS+z/pdNsaQDtj3OmxVvunogA/tC3tphAUWHTH46wpM3CVe8ZbZvkGhSw1TJut2gwwWhZPElgByg==
   dependencies:
-    "@voiceflow/api-sdk" "^1.40.1"
-    "@voiceflow/base-types" "^1.6.4"
+    "@voiceflow/api-sdk" "^1.40.2"
+    "@voiceflow/base-types" "^1.6.5"
 
 "@vue/compiler-core@3.1.5":
   version "3.1.5"
@@ -9311,10 +9311,10 @@ typescript@^3.2.1, typescript@^3.9.7:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.10.tgz#70f3910ac7a51ed6bef79da7800690b19bf778b8"
   integrity sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==
 
-typescript@^4.3.5:
-  version "4.4.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.4.2.tgz#6d618640d430e3569a1dfb44f7d7e600ced3ee86"
-  integrity sha512-gzP+t5W4hdy4c+68bfcv0t400HVJMMd2+H9B7gae1nQlBzCqvrXX+6GL/b3GAgyTH966pzrZ70/fRjwAtZksSQ==
+typescript@~4.3.5:
+  version "4.3.5"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.3.5.tgz#4d1c37cc16e893973c45a06886b7113234f119f4"
+  integrity sha512-DqQgihaQ9cUrskJo9kIyW/+g0Vxsk8cDtZ52a3NGh0YNTfpUSArXSohyUGnvbPazEPLu398C0UxmKSOrPumUzA==
 
 uglify-js@^3.1.4:
   version "3.14.1"

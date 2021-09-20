@@ -1,21 +1,11 @@
 {
-  "files.autoSave": "onFocusChange",
-  "editor.formatOnPaste": true,
-  "editor.formatOnSave": true,
   "editor.tabSize": 2,
   "editor.detectIndentation": false,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.tslint": true,
-    "source.fixAll.eslint": true
-  },
   "eslint.format.enable": true,
   "eslint.lintTask.enable": true,
   "eslint.packageManager": "yarn",
-  "css.validate": false,
-  "less.validate": false,
-  "scss.validate": false,
-  "javascript.validate.enable": false,
   "javascript.updateImportsOnFileMove.enabled": "always",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -30,5 +20,6 @@
   },
   "[typescript]": {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-  }
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
