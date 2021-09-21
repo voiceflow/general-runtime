@@ -655,11 +655,6 @@
   resolved "https://registry.yarnpkg.com/@sinonjs/text-encoding/-/text-encoding-0.7.1.tgz#8da5c6530915653f3a1f38fd5f101d8c3f8079c5"
   integrity sha512-+iTbntw2IZPb/anVDbypzfQa+ay64MW0Zo8aJ8gZPWMMK6/OubMVb6lUPMagqjOPnmtauXnFCACVl3O7ogjeqQ==
 
-"@types/atob@^2.1.2":
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/@types/atob/-/atob-2.1.2.tgz#157eb0cc46264a8c55f2273a836c7a1a644fb820"
-  integrity sha512-8GAYQ1jDRUQkSpHzJUqXwAkYFOxuWAOGLhIR4aPd/Y/yL12Q/9m7LsKpHKlfKdNE/362Hc9wPI1Yh6opDfxVJg==
-
 "@types/bluebird@^3.5.32", "@types/bluebird@^3.5.33":
   version "3.5.36"
   resolved "https://registry.yarnpkg.com/@types/bluebird/-/bluebird-3.5.36.tgz#00d9301d4dc35c2f6465a8aec634bb533674c652"
@@ -1151,17 +1146,7 @@
     "@typescript-eslint/types" "4.29.3"
     eslint-visitor-keys "^2.0.0"
 
-"@voiceflow/api-sdk@1.39.0", "@voiceflow/api-sdk@^1.39.0":
-  version "1.39.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.39.0.tgz#5f9cf5f54d53f7b2ac362a79a7a29c498ad54729"
-  integrity sha512-rJERsN+FP1e80m44mtwpe3KwAVO1k5Co+WpCicUFNpC198XXaCeec+Qn7IVp0CHiIGPJEWifyrv6nT3PGofYmQ==
-  dependencies:
-    "@types/atob" "^2.1.2"
-    atob "^2.1.2"
-    axios "^0.21.1"
-    superstruct "^0.10.12"
-
-"@voiceflow/api-sdk@^1.40.2":
+"@voiceflow/api-sdk@1.40.2", "@voiceflow/api-sdk@^1.40.2":
   version "1.40.2"
   resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-1.40.2.tgz#b20a845787a5c6b71ec2c5142d094ef7023676bb"
   integrity sha512-LIGs/jgnstTDexM81+oCmhfc46oo9dhgpM16TZjK30Ed73DUgsrmzogHSvLhiuv2qmEEoDHLcIUrfA5okyX4/A==
@@ -1193,15 +1178,7 @@
     rate-limiter-flexible "^2.2.2"
     sinon "^10.0.0"
 
-"@voiceflow/base-types@^1.6.2":
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-1.6.2.tgz#193c5a86b05f1c3eab23c8ff0bd0ce95fcf8f6e2"
-  integrity sha512-NQ3wNQ5K0NpYKY+dBteePjHKSilnsmxrApcyte33Jb27dCnEMq4CqjYw+RVpW/FymC73V6hVGZ6eO8zRDsFeGQ==
-  dependencies:
-    "@voiceflow/api-sdk" "^1.39.0"
-    slate "^0.63.0"
-
-"@voiceflow/base-types@^1.6.5":
+"@voiceflow/base-types@1.6.5", "@voiceflow/base-types@^1.6.5":
   version "1.6.5"
   resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-1.6.5.tgz#42feb90a69582ca7a5cdd4cc584f6c0719835371"
   integrity sha512-282WUzRJ84GjtESvCM6lYEAUpehKkGgVSJpHrbtstBXdH9HajArFEkKQ7MiJ1kLkoseTffiWXtY2wzizml1RSA==
@@ -1226,13 +1203,13 @@
     secure-json-parse "^2.4.0"
     type-is "~1.6.18"
 
-"@voiceflow/chat-types@^1.4.13":
-  version "1.4.13"
-  resolved "https://registry.yarnpkg.com/@voiceflow/chat-types/-/chat-types-1.4.13.tgz#5e0b4dd250463ba6d0cd691f0c458484a400c2e0"
-  integrity sha512-k8YAJX0Dqfgdki3HWXHk7f8A9Cw3v8wpXt9/Nwdppq9BIL19iOdYTvg2bKTTqavvfo/olEkJgAZKnRXKZtB6QA==
+"@voiceflow/chat-types@1.4.16":
+  version "1.4.16"
+  resolved "https://registry.yarnpkg.com/@voiceflow/chat-types/-/chat-types-1.4.16.tgz#bba31a90484ffea712fe81a3e2f5c1e88e3dfb49"
+  integrity sha512-/0j35kTwguTn9v6vSDLu3HnE2fyEgot1fQgyuJuaqUoIti10mD4+Eorcy+yl9UShx+IEmbzvWfx/0P5KgDV0YQ==
   dependencies:
-    "@voiceflow/api-sdk" "^1.39.0"
-    "@voiceflow/base-types" "^1.6.2"
+    "@voiceflow/api-sdk" "^1.40.2"
+    "@voiceflow/base-types" "^1.6.5"
 
 "@voiceflow/commitlint-config@^1.0.1":
   version "1.1.0"
@@ -1381,15 +1358,7 @@
   dependencies:
     http-status "^1.3.2"
 
-"@voiceflow/voice-types@^1.4.13":
-  version "1.4.13"
-  resolved "https://registry.yarnpkg.com/@voiceflow/voice-types/-/voice-types-1.4.13.tgz#5a1e77d5f9c0911f979f4640bfc85c118075a2fb"
-  integrity sha512-pQJyxbEhoGJUdhQ8IR2yzaqV01TOIutMUr+sAa5VJru15I3v7INLwSAVJ7/qELr44h9mxrCrwpoGs+fuGS3MYw==
-  dependencies:
-    "@voiceflow/api-sdk" "^1.39.0"
-    "@voiceflow/base-types" "^1.6.2"
-
-"@voiceflow/voice-types@^1.4.16":
+"@voiceflow/voice-types@1.4.16", "@voiceflow/voice-types@^1.4.16":
   version "1.4.16"
   resolved "https://registry.yarnpkg.com/@voiceflow/voice-types/-/voice-types-1.4.16.tgz#6ed6c205c042d232522d0bc6a6cdc6b6da61f971"
   integrity sha512-ZWTv1SiSsxrS+z/pdNsaQDtj3OmxVvunogA/tC3tphAUWHTH46wpM3CVe8ZbZvkGhSw1TJut2gwwWhZPElgByg==
