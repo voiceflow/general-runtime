@@ -1,3 +1,4 @@
+import { Constants } from '@voiceflow/general-types';
 import { expect } from 'chai';
 import _ from 'lodash';
 import sinon from 'sinon';
@@ -6,7 +7,7 @@ import ServerDataAPI from '@/runtime/lib/DataAPI/serverDataAPI';
 
 const getServerDataApi = async (axiosInstance: Record<string, (...args: any[]) => any>) => {
   const axios = { create: sinon.stub().returns(axiosInstance), post: sinon.stub().returns({ data: { token: 'secret-token' } }) };
-  const testConfig = { platform: 'alexa', dataEndpoint: 'data-endpoint', adminToken: 'admin-token' };
+  const testConfig = { platform: Constants.PlatformType.ALEXA, dataEndpoint: 'data-endpoint', adminToken: 'admin-token' };
 
   const client = new ServerDataAPI(testConfig, { axios } as any);
   await client.init();
@@ -17,7 +18,7 @@ const getServerDataApi = async (axiosInstance: Record<string, (...args: any[]) =
 describe('serverDataAPI client unit tests', () => {
   describe('new', () => {
     it('works correctly', async () => {
-      const platform = 'alexa';
+      const platform = Constants.PlatformType.ALEXA;
       const dataSecret = 'secret-token';
       const adminToken = 'admin-token';
       const dataEndpoint = 'random';
@@ -36,7 +37,7 @@ describe('serverDataAPI client unit tests', () => {
         [
           `${dataEndpoint}/generate-platform-token`,
           {
-            platform: 'alexa',
+            platform: Constants.PlatformType.ALEXA,
             ttl_min: 525600,
           },
           { headers: { admintoken: adminToken } },

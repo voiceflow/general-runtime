@@ -1,3 +1,4 @@
+import { Constants } from '@voiceflow/general-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -15,7 +16,7 @@ describe('remoteDataAPI client unit tests', () => {
       create: sinon.stub().returns({ get: axiosClientGetMock }),
       post: sinon.stub().returns({ data: { token: 'secret-token' } }),
     };
-    const testConfig = { platform: 'alexa', dataEndpoint: 'data-endpoint', adminToken: 'admin-token' };
+    const testConfig = { platform: Constants.PlatformType.ALEXA, dataEndpoint: 'data-endpoint', adminToken: 'admin-token' };
     const arg = 'mock-program-id';
 
     const client = new RemoteDataAPI(testConfig, { axios } as any);
