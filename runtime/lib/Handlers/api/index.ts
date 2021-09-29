@@ -13,8 +13,7 @@ export type IntegrationsOptions = {
 };
 
 export const USER_AGENT_KEY = 'User-Agent';
-export const USER_AGENT = 'voiceflow-custom-api';
-
+export const USER_AGENT = 'Voiceflow/1.0.0 (+https://voiceflow.com)';
 const APIHandler: HandlerFactory<Node.Integration.Node, IntegrationsOptions | void> = ({ customAPIEndpoint } = {}) => ({
   canHandle: (node) => node.type === Node.NodeType.INTEGRATIONS && node.selected_integration === Node.Utils.IntegrationType.CUSTOM_API,
   handle: async (node, runtime, variables) => {
