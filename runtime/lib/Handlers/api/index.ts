@@ -12,8 +12,8 @@ export type IntegrationsOptions = {
   customAPIEndpoint?: string | null;
 };
 
-const USER_AGENT_KEY = 'User-Agent';
-const USER_AGENT = 'voiceflow-custom-api';
+export const USER_AGENT_KEY = 'User-Agent';
+export const USER_AGENT = 'voiceflow-custom-api';
 
 const APIHandler: HandlerFactory<Node.Integration.Node, IntegrationsOptions | void> = ({ customAPIEndpoint } = {}) => ({
   canHandle: (node) => node.type === Node.NodeType.INTEGRATIONS && node.selected_integration === Node.Utils.IntegrationType.CUSTOM_API,
@@ -24,8 +24,9 @@ const APIHandler: HandlerFactory<Node.Integration.Node, IntegrationsOptions | vo
       const actionBodyData = deepVariableSubstitution(_.cloneDeep(node.action_data), variables.getState()) as APINodeData;
 
       // override user agent
-      if (!actionBodyData.headers?.some(({ key }) => key === USER_AGENT_KEY)) {
-        actionBodyData.headers = [...actionBodyData.headers, { key: USER_AGENT_KEY, val: USER_AGENT }];
+      const headers = actionBodyData.headers || [];
+      if (!headers.some(({ key }) => key === USER_AGENT_KEY)) {
+        actionBodyData.headers = [...headers, { key: USER_AGENT_KEY, val: USER_AGENT }];
       }
 
       const data = customAPIEndpoint
