@@ -46,7 +46,7 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@0.0.194
+  vfcommon: voiceflow/common@0.0.201
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
@@ -54,8 +54,7 @@ jobs:
   e2e-check:
     executor: vfcommon/e2e-executor
     steps:
-      - vfcommon/set_yarn_bash_default_shell
-      - vfcommon/init_e2e:
+      - vfcommon/init_e2e_docker:
           checkout: true
           install_node_modules: true
           github_username: GITHUB_USERNAME
@@ -213,3 +212,10 @@ workflows:
           context: dev-test
           requires:
             - update-track-release
+      - build-push-image:
+          <<: *prod_deploy_filters
+          name: build-push-image-e2e
+          context: dev-test
+          image_repo: << pipeline.parameters.container-image-url >>
+          dockerfile: "Dockerfile.e2e"
+          image_tag: "latest-master-e2e"
