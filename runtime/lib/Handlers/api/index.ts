@@ -12,6 +12,8 @@ export type IntegrationsOptions = {
   customAPIEndpoint?: string | null;
 };
 
+export const USER_AGENT_KEY = 'User-Agent';
+export const USER_AGENT = 'Voiceflow/1.0.0 (+https://voiceflow.com)';
 const APIHandler: HandlerFactory<Node.Integration.Node, IntegrationsOptions | void> = ({ customAPIEndpoint } = {}) => ({
   canHandle: (node) => node.type === Node.NodeType.INTEGRATIONS && node.selected_integration === Node.Utils.IntegrationType.CUSTOM_API,
   handle: async (node, runtime, variables) => {
@@ -19,6 +21,12 @@ const APIHandler: HandlerFactory<Node.Integration.Node, IntegrationsOptions | vo
 
     try {
       const actionBodyData = deepVariableSubstitution(_.cloneDeep(node.action_data), variables.getState()) as APINodeData;
+
+      // override user agent
+      const headers = actionBodyData.headers || [];
+      if (!headers.some(({ key }) => key === USER_AGENT_KEY)) {
+        actionBodyData.headers = [...headers, { key: USER_AGENT_KEY, val: USER_AGENT }];
+      }
 
       const data = customAPIEndpoint
         ? (await axios.post(`${customAPIEndpoint}/custom/make_api_call`, actionBodyData)).data
