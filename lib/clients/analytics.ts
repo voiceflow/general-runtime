@@ -1,16 +1,24 @@
 import { Trace } from '@voiceflow/base-types';
 
+import { InteractBody, TurnBody } from '@/ingest';
 import log from '@/logger';
 import { Config, Context } from '@/types';
 
 import { RuntimeRequest } from '../services/runtime/types';
-import IngestApiClient, { Event, IngestApi, InteractBody, TurnBody } from './ingest-client';
+import * as Ingest from './ingest-client';
 import { AbstractClient } from './utils';
+
+type GeneralTurnBody = TurnBody<{
+  locale?: string;
+  end?: boolean;
+}>;
+
+type GeneralInteractBody = InteractBody<Trace.AnyTrace | RuntimeRequest>;
 
 export class AnalyticsSystem extends AbstractClient {
   // private rudderstackClient?: Rudderstack;
 
-  private ingestClient?: IngestApi;
+  private ingestClient?: Ingest.Api<GeneralInteractBody, GeneralTurnBody>;
 
   // private aggregateAnalytics = false;
 
@@ -22,7 +30,7 @@ export class AnalyticsSystem extends AbstractClient {
     // }
 
     if (config.INGEST_WEBHOOK_ENDPOINT) {
-      this.ingestClient = IngestApiClient(config.INGEST_WEBHOOK_ENDPOINT, undefined);
+      this.ingestClient = Ingest.Client(config.INGEST_WEBHOOK_ENDPOINT, undefined);
     }
     // this.aggregateAnalytics = !config.IS_PRIVATE_CLOUD;
   }
@@ -58,12 +66,12 @@ export class AnalyticsSystem extends AbstractClient {
     trace,
     request,
   }: {
-    eventID: Event;
+    eventID: Ingest.Event;
     turnID: string;
     timestamp: Date;
     trace?: Trace.AnyTrace;
     request?: RuntimeRequest;
-  }): InteractBody {
+  }): GeneralInteractBody {
     let format: string;
 
     if (trace) {
@@ -84,7 +92,7 @@ export class AnalyticsSystem extends AbstractClient {
         format,
         timestamp: timestamp.toISOString(),
       },
-    } as InteractBody;
+    } as GeneralInteractBody;
   }
 
   private createTurnBody({
@@ -94,10 +102,10 @@ export class AnalyticsSystem extends AbstractClient {
     timestamp,
   }: {
     versionID: string;
-    eventID: Event;
+    eventID: Ingest.Event;
     metadata: Context;
     timestamp: Date;
-  }): TurnBody {
+  }): GeneralTurnBody {
     const sessionId =
       metadata.data.reqHeaders?.sessionid ?? (metadata.state?.variables ? `${versionID}.${metadata.state.variables.user_id}` : versionID);
 
@@ -113,7 +121,7 @@ export class AnalyticsSystem extends AbstractClient {
           locale: metadata.data.locale,
         },
       },
-    } as TurnBody;
+    };
   }
 
   private async processTrace({
@@ -133,7 +141,7 @@ export class AnalyticsSystem extends AbstractClient {
 
     // eslint-disable-next-line no-restricted-syntax
     for (const [index, trace] of fullTrace.entries()) {
-      const interactIngestBody = this.createInteractBody({ eventID: Event.INTERACT, turnID, timestamp: new Date(unixTime + index), trace });
+      const interactIngestBody = this.createInteractBody({ eventID: Ingest.Event.INTERACT, turnID, timestamp: new Date(unixTime + index), trace });
 
       // if (this.aggregateAnalytics && this.rudderstackClient) {
       //   this.callAnalyticsSystemTrack(versionID, interactIngestBody.eventId, interactIngestBody);
@@ -145,10 +153,20 @@ export class AnalyticsSystem extends AbstractClient {
     }
   }
 
-  async track({ versionID, event, metadata, timestamp }: { versionID: string; event: Event; metadata: Context; timestamp: Date }): Promise<void> {
+  async track({
+    versionID,
+    event,
+    metadata,
+    timestamp,
+  }: {
+    versionID: string;
+    event: Ingest.Event;
+    metadata: Context;
+    timestamp: Date;
+  }): Promise<void> {
     log.trace(`[analytics] track ${log.vars({ versionID })}`);
     switch (event) {
-      case Event.TURN: {
+      case Ingest.Event.TURN: {
         const turnIngestBody = this.createTurnBody({ versionID, eventID: event, metadata, timestamp });
 
         // User/initial interact
@@ -160,7 +178,7 @@ export class AnalyticsSystem extends AbstractClient {
         if (response) {
           // Request
           const interactIngestBody = this.createInteractBody({
-            eventID: Event.INTERACT,
+            eventID: Ingest.Event.INTERACT,
             turnID: response.data.turn_id,
             timestamp,
             trace: undefined,
@@ -173,7 +191,7 @@ export class AnalyticsSystem extends AbstractClient {
         }
         break;
       }
-      case Event.INTERACT:
+      case Ingest.Event.INTERACT:
         throw new RangeError('INTERACT events are not supported');
       default:
         throw new RangeError(`Unknown event type: ${event}`);

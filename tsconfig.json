@@ -33,6 +33,6 @@
     }
   },
   "compileOnSave": false,
-  "include": ["**/*.ts", "typings/**/*.d.ts"],
-  "exclude": ["node_modules/**"]
+  "include": ["backend", "lib", "runtime", "tests", "typings", "./*.ts"],
+  "exclude": ["node_modules", "build"]
 }
