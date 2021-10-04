@@ -106,7 +106,6 @@
     "prettier": "^1.19.1",
     "prettier-eslint-cli": "^5.0.0",
     "redoc-cli": "^0.12.3",
-    "rimraf": "^3.0.0",
     "sinon": "^7.5.0",
     "source-map-support": "^0.5.19",
     "supertest": "^4.0.2",
