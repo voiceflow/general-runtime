@@ -1,8 +1,6 @@
 import { Version } from '@voiceflow/api-sdk';
 import { Trace } from '@voiceflow/base-types';
-import _ from 'lodash';
 
-import log from '@/logger';
 import { PartialContext, State } from '@/runtime';
 import { Context, InitContextHandler } from '@/types';
 
@@ -77,12 +75,6 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     // if stack or state is empty, repopulate the stack
     if (!state?.stack?.length) {
       state = this.generate(version, state);
-    }
-
-    try {
-      await this.services.analyticsClient?.identify(context.versionID);
-    } catch (error) {
-      log.error(`[analytics] failed to identify ${log.vars({ versionID: context.versionID, error })}`);
     }
 
     return {

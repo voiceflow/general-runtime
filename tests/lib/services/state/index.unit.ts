@@ -75,7 +75,6 @@ describe('state manager unit tests', () => {
         dataAPI: {
           get: sinon.stub().returns({ getVersion: getVersionStub }),
         },
-        analyticsClient: { identify: sinon.stub().resolves() },
       };
 
       const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
@@ -108,7 +107,6 @@ describe('state manager unit tests', () => {
         dataAPI: {
           get: sinon.stub().returns({ getVersion: getVersionStub }),
         },
-        analyticsClient: { identify: sinon.stub().resolves() },
       };
 
       const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
@@ -126,7 +124,6 @@ describe('state manager unit tests', () => {
         dataAPI: {
           get: sinon.stub().returns({ getVersion: getVersionStub }),
         },
-        analyticsClient: { identify: sinon.stub().resolves() },
       };
 
       const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
@@ -160,7 +157,6 @@ describe('state manager unit tests', () => {
         dataAPI: {
           get: sinon.stub().returns({ getVersion: getVersionStub }),
         },
-        analyticsClient: { identify: sinon.stub().resolves() },
       };
 
       const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
@@ -177,40 +173,6 @@ describe('state manager unit tests', () => {
         request: null,
         versionID: VERSION_ID,
         state,
-        trace: [],
-        data: {
-          ...context.data,
-          locale: version.prototype.data.locales[0],
-          api: newContext.data.api,
-        },
-      });
-      expect(await newContext.data.api.getVersion(VERSION_ID)).to.eql(version);
-      expect(getVersionStub.args).to.eql([[VERSION_ID]]);
-    });
-
-    it('works if analytics client throws and stack exists', async () => {
-      const getVersionStub = sinon.stub().resolves(version);
-      const services = {
-        dataAPI: {
-          get: sinon.stub().returns({ getVersion: getVersionStub }),
-        },
-        analyticsClient: { identify: sinon.stub().throws() },
-      };
-
-      const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
-
-      const context = {
-        state: { stack: ['some-stack-value'] },
-        versionID: VERSION_ID,
-        data: { foo: 'bar' },
-      } as any;
-
-      const newContext = await stateManager.handle(context);
-
-      expect(newContext).to.eql({
-        request: null,
-        versionID: VERSION_ID,
-        state: { stack: ['some-stack-value'], variables: { slot1: 0, variable1: 0 } },
         trace: [],
         data: {
           ...context.data,
