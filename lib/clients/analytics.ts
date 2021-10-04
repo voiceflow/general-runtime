@@ -1,19 +1,18 @@
 import { Trace } from '@voiceflow/base-types';
 
-import { InteractBody, TurnBody } from '@/ingest';
+import * as Ingest from '@/ingest';
 import log from '@/logger';
 import { Config, Context } from '@/types';
 
 import { RuntimeRequest } from '../services/runtime/types';
-import * as Ingest from './ingest-client';
 import { AbstractClient } from './utils';
 
-type GeneralTurnBody = TurnBody<{
+type GeneralTurnBody = Ingest.TurnBody<{
   locale?: string;
   end?: boolean;
 }>;
 
-type GeneralInteractBody = InteractBody<Trace.AnyTrace | RuntimeRequest>;
+type GeneralInteractBody = Ingest.InteractBody<Trace.AnyTrace | RuntimeRequest>;
 
 export class AnalyticsSystem extends AbstractClient {
   private ingestClient?: Ingest.Api<GeneralInteractBody, GeneralTurnBody>;
