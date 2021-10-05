@@ -7,9 +7,10 @@ import https from 'https';
 
 import { ExpressMiddleware, ServiceManager } from './backend';
 import log from './logger';
+import pjson from './package.json';
 import { Config } from './types';
 
-const name = 'general-runtime';
+const name = pjson.name.replace(/^@[a-zA-Z0-9-]+\//g, '');
 
 /**
  * @class

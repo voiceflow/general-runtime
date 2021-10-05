@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import * as Ingest from '@/lib/clients/ingest-client';
+import * as Ingest from '@/ingest';
 
 describe('Ingest client', () => {
   describe('Do ingest', () => {
