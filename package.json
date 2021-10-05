@@ -158,6 +158,7 @@
     "lint:quiet": "yarn lint --quiet",
     "lint:report": "yarn lint --format json -o sonar/report.json",
     "local": "rm -f .env.local && vfcli mesh connect general-runtime",
+    "prepare": "yarn build",
     "redoc": "redoc-cli serve backend/docs/openapi.yaml --ssr --watch",
     "start": "cross-env NODE_ENV=production node --max-old-space-size=8192 build/start.js",
     "start:local": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0  NODE_ENV=local ts-node-dev --files --respawn --exit-child --transpile-only -r tsconfig-paths/register -- start.ts",
