@@ -11,11 +11,11 @@ describe('runtime manager unit tests', () => {
   let clock: sinon.SinonFakeTimers;
 
   beforeEach(() => {
-    clock = sinon.useFakeTimers(Date.now()); // fake Date.now
+    clock = sinon.useFakeTimers();
   });
 
   afterEach(() => {
-    clock.restore(); // restore Date.now
+    clock.restore();
     sinon.restore();
   });
 

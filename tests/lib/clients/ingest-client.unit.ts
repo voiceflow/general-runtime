@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import IngestClient from '@/lib/clients/ingest-client';
+import * as Ingest from '@/ingest';
 
 describe('Ingest client', () => {
   describe('Do ingest', () => {
     it('works', async () => {
-      const client = IngestClient('https://localhost', 'api key');
+      const client = Ingest.Client('https://localhost', 'api key');
       const body = { data: { hello: 'world' } };
 
       const axios = {
