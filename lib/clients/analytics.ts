@@ -1,6 +1,6 @@
 import { Trace } from '@voiceflow/base-types';
 
-import * as Ingest from '@/ingest';
+import * as Ingest from '@/lib/clients/ingest-client';
 import log from '@/logger';
 import { Config, Context } from '@/types';
 
