@@ -1,7 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const pjson = require('./package.json');
-
-const name = pjson.name.replace(/^@[a-zA-Z0-9-]+\//g, '');
+const name = 'general-runtime';
 
 module.exports = {
   apps: [
