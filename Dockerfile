@@ -27,7 +27,7 @@ ENV GIT_SHA=${build_GIT_SHA}
 ENV BUILD_URL=${build_BUILD_URL}
 
 WORKDIR /usr/src/app
-COPY --from=build /target/build ./
+COPY --from=build /target/build ./build
 COPY ./package.json ./app.config.js ./
 
 RUN echo $NPM_TOKEN > .npmrc && \
