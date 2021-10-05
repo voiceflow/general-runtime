@@ -1,4 +1,4 @@
-FROM node:12 as build  
+FROM node:12 as build
 
 ARG NPM_TOKEN
 
@@ -8,10 +8,9 @@ COPY ./ ./
 RUN echo $NPM_TOKEN > .npmrc && \
   yarn install --ignore-scripts && \
   yarn build && \
-  rm -rf build/node_modules && \
-  rm -f .npmrc 
+  rm -f .npmrc
 
-FROM node:12-alpine 
+FROM node:12-alpine
 
 RUN apk add --no-cache dumb-init
 
@@ -29,6 +28,7 @@ ENV BUILD_URL=${build_BUILD_URL}
 
 WORKDIR /usr/src/app
 COPY --from=build /target/build ./
+COPY ./package.json ./app.config.js ./
 
 RUN echo $NPM_TOKEN > .npmrc && \
   yarn install --production --ignore-scripts && \
@@ -36,4 +36,4 @@ RUN echo $NPM_TOKEN > .npmrc && \
   yarn cache clean
 
 ENTRYPOINT [ "dumb-init" ]
-CMD ["node", "start.js"]
+CMD ["node", "."]

@@ -137,7 +137,7 @@
     "@types/serve-static": "1.13.9"
   },
   "scripts": {
-    "build": "ttsc --project ./tsconfig.build.json && cpy app.config.js yarn.lock build/",
+    "build": "ttsc --project ./tsconfig.build.json",
     "commit": "cz",
     "connect:cli": "vfcli mesh connect general-runtime -c \"/bin/bash\"",
     "docs:gen": "typedoc ./lib ./config.ts",
