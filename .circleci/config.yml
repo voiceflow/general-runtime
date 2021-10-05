@@ -185,6 +185,15 @@ workflows:
             branches:
               only: master
 
+  new-e2e:
+    jobs:
+      - build-push-image:
+          name: build-push-image-e2e
+          context: dev-test
+          image_repo: << pipeline.parameters.container-image-url >>
+          dockerfile: "Dockerfile.e2e"
+          image_tag: "latest-master-e2e"
+
   deploy-app:
     jobs:
       - build-push-image:
