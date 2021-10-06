@@ -29,8 +29,7 @@ ENV BUILD_URL=${build_BUILD_URL}
 WORKDIR /usr/src/app
 COPY --from=build /target/build ./build
 
-# yarn.lock will be regenerated
-COPY ./package.json ./app.config.js ./
+COPY ./package.json ./yarn.lock ./app.config.js ./
 
 RUN echo $NPM_TOKEN > .npmrc && \
   yarn install --production --ignore-scripts && \
