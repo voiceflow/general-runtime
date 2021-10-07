@@ -118,11 +118,6 @@
     "typedoc-plugin-sourcefile-url": "^1.0.6",
     "typescript": "~4.3.5"
   },
-  "exports": {
-    ".": "./build/runtime/index.js",
-    "./ingest": "./build/lib/clients/ingest-client.js",
-    "./*": "./*"
-  },
   "homepage": "https://github.com/voiceflow/general-runtime#readme",
   "keywords": [
     "express",
