@@ -120,7 +120,8 @@
   },
   "exports": {
     ".": "./build/runtime/index.js",
-    "./ingest": "./build/lib/clients/ingest-client.js"
+    "./ingest": "./build/lib/clients/ingest-client.js",
+    "./build/lib/clients/ingest-client": "./build/lib/clients/ingest-client.js"
   },
   "homepage": "https://github.com/voiceflow/general-runtime#readme",
   "keywords": [
