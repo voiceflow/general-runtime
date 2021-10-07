@@ -1181,10 +1181,10 @@
     jsonwebtoken "^8.5.1"
     superstruct "^0.10.12"
 
-"@voiceflow/backend-utils@3.5.5":
-  version "3.5.5"
-  resolved "https://registry.yarnpkg.com/@voiceflow/backend-utils/-/backend-utils-3.5.5.tgz#d0677fdec11aaa66858c86c5e97eca2afcf6c2dc"
-  integrity sha512-qK0L9fTmmNGYITLteS1JKlsSb/VToS6wjGpk10Irea4ukjaF5eH0zpUc9XJ8lsvi8BWpkO/s4Dv/RyzR4BadAw==
+"@voiceflow/backend-utils@3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/backend-utils/-/backend-utils-3.3.0.tgz#e4af7d68462855286f9d06026c4191fafdd8b156"
+  integrity sha512-/Ns34pdNrcaih03ix3vYj33jDvtKqUb/N65jrHGj7La5DP0mMapMxK4L1VRSAd9OonLanxo1CJ2UfKq/Fr7czQ==
   dependencies:
     "@types/bluebird" "^3.5.33"
     "@types/chai" "^4.2.16"
@@ -1197,7 +1197,6 @@
     "@voiceflow/verror" "^1.1.0"
     bluebird "^3.7.2"
     chai "^4.3.4"
-    dotenv "^10.0.0"
     express "^4.17.1"
     http-status "^1.4.2"
     lodash "^4.17.11"
@@ -1245,7 +1244,14 @@
   dependencies:
     "@commitlint/config-conventional" "^12.1.4"
 
-"@voiceflow/common@6.9.3", "@voiceflow/common@^6.9.3":
+"@voiceflow/common@6.7.1":
+  version "6.7.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/common/-/common-6.7.1.tgz#c6b8ad8f7a3b2008dce7146dd3d01ff4b68643c0"
+  integrity sha512-0ACgq44J5lWL5EudgEAPmlFc4aIYH8XaZNen9VZSrUHOVTVPaJBMgcf6R4QzG8b5QfLoebBewpfS5KebhqWTGg==
+  dependencies:
+    dotenv "^9.0.2"
+
+"@voiceflow/common@^6.9.3":
   version "6.9.3"
   resolved "https://registry.yarnpkg.com/@voiceflow/common/-/common-6.9.3.tgz#68dfff5485901f2d62e5e55dd6cd6c65302e8bee"
   integrity sha512-i7/8bCGzbJy+j8NY9v3dR1BjLPNnShbJWR9FQisRbLsml3gwhNuVTO3wY0U+PucR133WGX9vZlIMN+u7ibcXQQ==
@@ -3272,15 +3278,15 @@ dot-prop@^5.1.0:
   dependencies:
     is-obj "^2.0.0"
 
-dotenv@^10.0.0:
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-10.0.0.tgz#3d4227b8fb95f81096cdd2b66653fb2c7085ba81"
-  integrity sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==
-
 dotenv@^8.2.0:
   version "8.6.0"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-8.6.0.tgz#061af664d19f7f4d8fc6e4ff9b584ce237adcb8b"
   integrity sha512-IrPdXQsk2BbzvCBGBOTmmSH5SodmqZNt4ERAZDmW4CT+tL8VtvinqywuANaFu4bOMWki16nqf0e4oC0QIaDr/g==
+
+dotenv@^9.0.2:
+  version "9.0.2"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-9.0.2.tgz#dacc20160935a37dea6364aa1bef819fb9b6ab05"
+  integrity sha512-I9OvvrHp4pIARv4+x9iuewrWycX6CcZtoAu1XrzPxc5UygMJXJZYmBsynku8IkrJwgypE5DGNjDPmPRhDCptUg==
 
 dynamic-dedupe@^0.3.0:
   version "0.3.0"
