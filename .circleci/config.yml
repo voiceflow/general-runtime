@@ -88,7 +88,6 @@ jobs:
       - checkout
       - vfcommon/install_node_modules
       - vfcommon/setup_dynamodb
-      - vfcommon/lint_source
       - vfcommon/lint_report
       - vfcommon/lint_dockerfile
       - vfcommon/dependency_tests:
@@ -101,18 +100,18 @@ jobs:
   build-push-image:
     executor: vfcommon/build-executor
     parameters:
-      image_repo: 
+      image_repo:
         description: The container image repository
         type: string
-      image_tag: 
+      image_tag:
         description: The container image tag
         type: string
         default: ""
-      release_pkg: 
+      release_pkg:
         description: The npm package name to be released
         type: string
         default: ""
-      dockerfile: 
+      dockerfile:
         description: Name of the Dockerfile to build
         type: string
         default: Dockerfile
