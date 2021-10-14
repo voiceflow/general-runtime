@@ -115,12 +115,10 @@ describe('Command handler', () => {
         expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(utils.findEventMatcher.args).to.eql([[{ event: commandObj.event, runtime, variables }]]);
         expect(sideEffectStub.callCount).to.eql(1);
-        expect(runtime.stack.getSize.callCount).to.eql(2);
+        expect(runtime.stack.getSize.callCount).to.eql(0);
         expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
         expect(setNodeID.args).to.eql([[commandObj.nextID]]);
-        expect(runtime.trace.debug.args).to.eql([
-          [`matched command **${commandObj.type}** - exiting flows and jumping to node`, Node.NodeType.COMMAND],
-        ]);
+        expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`, Node.NodeType.COMMAND]]);
         expect(runtime.trace.addTrace.args).to.eql([[JumpPathTrace]]);
       });
 
@@ -135,19 +133,21 @@ describe('Command handler', () => {
           };
           const handler = CommandHandler(utils as any);
 
+          const setNodeID = sinon.stub();
           const runtime = {
             setAction: sinon.stub(),
-            stack: { getSize: sinon.stub().returns(3) },
+            stack: { popTo: sinon.stub(), top: sinon.stub().returns({ setNodeID }) },
             trace: { debug: sinon.stub(), addTrace: sinon.stub() },
           };
           const variables = { var1: 'val1' };
 
-          expect(handler.handle(runtime as any, variables as any)).to.eql(commandObj.nextID);
+          expect(handler.handle(runtime as any, variables as any)).to.eql(null);
           expect(utils.getCommand.args).to.eql([[runtime]]);
           expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
           expect(utils.findEventMatcher.args).to.eql([[{ event: commandObj.event, runtime, variables }]]);
           expect(sideEffectStub.callCount).to.eql(1);
-          expect(runtime.stack.getSize.callCount).to.eql(2);
+          expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
+          expect(setNodeID.args).to.eql([[commandObj.nextID]]);
           expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`, Node.NodeType.COMMAND]]);
           expect(runtime.trace.addTrace.args).to.eql([[JumpPathTrace]]);
         });
@@ -162,9 +162,10 @@ describe('Command handler', () => {
           };
           const handler = CommandHandler(utils as any);
 
+          const setNodeID = sinon.stub();
           const runtime = {
             setAction: sinon.stub(),
-            stack: { getSize: sinon.stub().returns(3) },
+            stack: { popTo: sinon.stub(), top: sinon.stub().returns({ setNodeID }) },
             trace: { debug: sinon.stub(), addTrace: sinon.stub() },
           };
           const variables = { var1: 'val1' };
@@ -174,7 +175,8 @@ describe('Command handler', () => {
           expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
           expect(utils.findEventMatcher.args).to.eql([[{ event: commandObj.event, runtime, variables }]]);
           expect(sideEffectStub.callCount).to.eql(1);
-          expect(runtime.stack.getSize.callCount).to.eql(2);
+          expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
+          expect(setNodeID.args).to.eql([[null]]);
           expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`, Node.NodeType.COMMAND]]);
           expect(runtime.trace.addTrace.args).to.eql([[JumpPathTrace]]);
         });

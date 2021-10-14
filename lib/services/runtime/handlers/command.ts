@@ -52,7 +52,7 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
         stack.push(newFrame);
       }
 
-      stack.top().setNodeID(command.nextID);
+      stack.top().setNodeID(command.nextID || null);
       trace.debug(`matched command **${command.type}** - jumping to node`, BaseNode.NodeType.COMMAND);
     }
 
