@@ -1,0 +1,32 @@
+# Keeps the current branch up-to-date by rebasing to master when necessary
+name: Automatic Rebase
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  rebase-to-master:
+    name: Rebase to Master
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the latest code
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0 # otherwise, you will fail to push refs to dest repo
+
+      - name: Find Pull Request
+        id: find-pr
+        uses: kylorhall/find-github-pull-request@v1.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commitSha: ${{ github.sha }}
+          allowClosed: false
+          failIfNotFound: false
+
+      - name: Rebase Pull Request
+        if: ${{ steps.find-pr.outputs.number != '' }}
+        uses: voiceflow/rebase-many@v1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBERS: ${{ steps.find-pr.outputs.number }}

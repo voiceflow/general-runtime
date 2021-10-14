@@ -1,0 +1,17 @@
+# Keeps all incoming branches up-to-date by rebasing to master when necessary
+name: Automatic Rebase All Branches
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  # When master updates, rebase all open pull requests
+  rebase-all-to-master:
+    name: Rebase All to Master
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rebase All Incoming PRs
+        uses: voiceflow/rebase-incoming@v1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          comment-on-failure: 'true'
