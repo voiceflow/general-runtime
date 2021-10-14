@@ -31,6 +31,7 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
 
     const { command, index } = res!;
     const { event } = command;
+    const { stack, trace } = runtime;
 
     // allow matcher to apply side effects
     const matcher = utils.findEventMatcher({ event, runtime, variables });
@@ -38,34 +39,34 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
 
     // interrupting command where it jumps to a node in the existing stack
     if (command.type === BaseNode.Utils.CommandType.JUMP) {
-      runtime.trace.addTrace<Trace.PathTrace>({
+      trace.addTrace<Trace.PathTrace>({
         type: BaseNode.Utils.TraceType.PATH,
         payload: { path: 'jump' },
       });
-      if (index < runtime.stack.getSize() - 1) {
-        // destructive and pop off everything before the command node
-        runtime.stack.popTo(index + 1);
-        runtime.stack.top().setNodeID(command.nextID);
-        runtime.trace.debug(`matched command **${command.type}** - exiting flows and jumping to node`, BaseNode.NodeType.COMMAND);
+
+      // destructive and pop off everything before the command node
+      stack.popTo(index + 1);
+
+      if (command.diagramID && command.diagramID !== stack.top().getProgramID()) {
+        const newFrame = new utils.Frame({ programID: command.diagramID });
+        stack.push(newFrame);
       }
-      if (index === runtime.stack.getSize() - 1) {
-        // jumping to an intent within the same flow
-        runtime.trace.debug(`matched command **${command.type}** - jumping to node`, BaseNode.NodeType.COMMAND);
-        return command.nextID || null;
-      }
+
+      stack.top().setNodeID(command.nextID);
+      trace.debug(`matched command **${command.type}** - jumping to node`, BaseNode.NodeType.COMMAND);
     }
 
     // push command, adds a new frame
     if (command.type === BaseNode.Utils.CommandType.PUSH && command.diagramID) {
-      runtime.trace.addTrace<Trace.PathTrace>({
+      trace.addTrace<Trace.PathTrace>({
         type: BaseNode.Utils.TraceType.PATH,
         payload: { path: 'push' },
       });
-      runtime.stack.top().storage.set(FrameType.CALLED_COMMAND, true);
-      runtime.trace.debug(`matched command **${command.type}** - adding command flow`, BaseNode.NodeType.COMMAND);
+      stack.top().storage.set(FrameType.CALLED_COMMAND, true);
+      trace.debug(`matched command **${command.type}** - adding command flow`, BaseNode.NodeType.COMMAND);
       // reset state to beginning of new diagram and store current line to the stack
       const newFrame = new utils.Frame({ programID: command.diagramID });
-      runtime.stack.push(newFrame);
+      stack.push(newFrame);
     }
 
     return null;
