@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Rebase All Incoming PRs
-        uses: voiceflow/rebase-incoming@v1.0
+        uses: voiceflow/rebase-incoming@v1.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-failure: 'true'

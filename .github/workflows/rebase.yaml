@@ -26,7 +26,7 @@ jobs:
 
       - name: Rebase Pull Request
         if: ${{ steps.find-pr.outputs.number != '' }}
-        uses: voiceflow/rebase-many@v1.0
+        uses: voiceflow/rebase-many@v1.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBERS: ${{ steps.find-pr.outputs.number }}
