@@ -4,7 +4,7 @@
  */
 
 import { PrototypeModel } from '@voiceflow/api-sdk';
-import { Node as BaseNode, Request, Trace } from '@voiceflow/base-types';
+import { Request, Trace } from '@voiceflow/base-types';
 import { Types as ChatTypes } from '@voiceflow/chat-types';
 import { Constants } from '@voiceflow/general-types';
 import { Types as VoiceTypes } from '@voiceflow/voice-types';
@@ -22,7 +22,6 @@ import { rectifyEntityValue } from './synonym';
 import {
   dmPrefix,
   fillStringEntities,
-  generateButtonsForUtterances,
   getDMPrefixIntentName,
   getEntitiesMap,
   getIntentEntityList,
@@ -193,15 +192,6 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
           : fillStringEntities(inputToString(prompt, version.platformData.settings.defaultVoice), dmStateStore!.intentRequest);
 
       trace.push(outputTrace({ output, variables }));
-
-      if (version.prototype?.model) {
-        trace.push({
-          type: BaseNode.Utils.TraceType.CHOICE,
-          payload: {
-            buttons: generateButtonsForUtterances(unfulfilledEntity.dialog.utterances, version.prototype.model),
-          },
-        });
-      }
 
       return {
         ...context,
