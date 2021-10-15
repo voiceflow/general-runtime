@@ -163,16 +163,6 @@ describe('dialog manager unit tests', () => {
               type: 'message',
             },
           },
-          {
-            type: 'choice',
-            payload: {
-              buttons: [
-                { name: 'bbq', request: { payload: 'bbq', type: 'text' } },
-                { name: 'spicy wings', request: { payload: 'spicy wings', type: 'text' } },
-                { name: 'I want honey garlic', request: { payload: 'I want honey garlic', type: 'text' } },
-              ],
-            },
-          },
         ];
         expect(result.end).to.be.true;
         expect(result.trace).to.eql(expectedTrace);
