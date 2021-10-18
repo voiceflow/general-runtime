@@ -170,7 +170,6 @@ workflows:
           vf_service_commit: CIRCLE_SHA1
           vf_service_name: "general-runtime"
           vf_service_port: "8005"
-          enable: false
           context: dev-test
           filters:
             <<: *ignore_staging_filters
