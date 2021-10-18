@@ -44,7 +44,7 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@0.0.201
+  vfcommon: voiceflow/common@0.0.231
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
@@ -59,19 +59,19 @@ jobs:
           github_token: GITHUB_TOKEN
           cache_prefix: e2e
       # Service dependencies
-      - vfcommon/setup_vf_service:
+      - vfcommon/setup_vf_service_docker:
           service_name: server-data-api
           github_username: GITHUB_USERNAME
           github_token: GITHUB_TOKEN
       - vfcommon/check_service_running:
           port: "8011"
-      - vfcommon/setup_vf_service:
+      - vfcommon/setup_vf_service_docker:
           service_name: creator-api
           github_username: GITHUB_USERNAME
           github_token: GITHUB_TOKEN
       - vfcommon/check_service_running:
           port: "8003"
-      - vfcommon/setup_vf_service:
+      - vfcommon/setup_vf_service_docker:
           service_name: general-service
           github_username: GITHUB_USERNAME
           github_token: GITHUB_TOKEN
@@ -162,12 +162,24 @@ workflows:
           context: dev-test
           filters:
             <<: *ignore_staging_filters
-
+      - vfcommon/test_e2e:
+          <<: *slack-fail-post-step
+          github_username: GITHUB_USERNAME
+          github_token: GITHUB_TOKEN
+          creator_app_commit: DEFAULT_COMMIT
+          vf_service_commit: CIRCLE_SHA1
+          vf_service_name: "general-runtime"
+          vf_service_port: "8005"
+          enable: false
+          context: dev-test
+          filters:
+            <<: *ignore_staging_filters
       - vfcommon/release:
           <<: *slack-fail-post-step
           context: dev-test
           requires:
             - e2e-check
+            - vfcommon/test_e2e
             - test
           filters:
             branches:
