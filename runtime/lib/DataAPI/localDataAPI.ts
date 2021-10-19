@@ -5,7 +5,8 @@ import * as Path from 'path';
 import { DataAPI } from './types';
 
 class LocalDataAPI<P extends Program<any, any>, V extends Version<any>, PJ extends Project<any, any> = Project<BasePlatformData, BasePlatformData>>
-  implements DataAPI<P, V, PJ> {
+  implements DataAPI<P, V, PJ>
+{
   private version: V;
 
   private project: PJ;

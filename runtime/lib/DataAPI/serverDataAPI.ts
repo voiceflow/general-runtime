@@ -6,7 +6,8 @@ import { ObjectId } from 'mongodb';
 import { DataAPI, Display } from './types';
 
 class ServerDataAPI<P extends Program<any, any>, V extends Version<any>, PJ extends Project<any, any> = Project<BasePlatformData, BasePlatformData>>
-  implements DataAPI<P, V, PJ> {
+  implements DataAPI<P, V, PJ>
+{
   protected client!: AxiosInstance;
 
   private axios: AxiosStatic;

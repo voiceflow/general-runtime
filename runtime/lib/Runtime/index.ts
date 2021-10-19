@@ -61,7 +61,10 @@ class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends Abstrac
   ) {
     super(events);
 
-    const createEvent = <K extends EventType>(type: K) => (event: Event<K>) => this.callEvent(type, event);
+    const createEvent =
+      <K extends EventType>(type: K) =>
+      (event: Event<K>) =>
+        this.callEvent(type, event);
 
     this.services = services;
     this.handlers = handlers;

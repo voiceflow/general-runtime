@@ -414,9 +414,9 @@ export const mockVersion = {
   },
 };
 
-export const mockDataAPI = ({
+export const mockDataAPI = {
   getVersion: sinon.stub().resolves(mockVersion),
-} as any) as CacheDataAPI;
+} as any as CacheDataAPI;
 
 export const mockFulfilledIntentRequest: Request.IntentRequest = {
   type: Request.RequestType.INTENT,

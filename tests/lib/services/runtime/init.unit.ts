@@ -75,11 +75,7 @@ describe('runtime init service unit tests', () => {
         const client = { setEvent: sinon.stub() };
         const topFrame = {
           storage: {
-            get: sinon
-              .stub()
-              .onFirstCall()
-              .returns('called-command')
-              .returns(null),
+            get: sinon.stub().onFirstCall().returns('called-command').returns(null),
             delete: sinon.stub(),
           },
         };
@@ -101,12 +97,7 @@ describe('runtime init service unit tests', () => {
         const output = 'output';
         const topFrame = {
           storage: {
-            get: sinon
-              .stub()
-              .onFirstCall()
-              .returns('called-command')
-              .onSecondCall()
-              .returns(output),
+            get: sinon.stub().onFirstCall().returns('called-command').onSecondCall().returns(output),
             delete: sinon.stub(),
           },
         };

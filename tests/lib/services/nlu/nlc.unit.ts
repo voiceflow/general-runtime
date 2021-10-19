@@ -176,10 +176,7 @@ describe('nlu nlc service unit tests', () => {
     it('language not supported', () => {
       const locale = '00xx';
       const nlcObj = {
-        registerIntent: sinon
-          .stub()
-          .onFirstCall()
-          .throws('first call error'),
+        registerIntent: sinon.stub().onFirstCall().throws('first call error'),
       };
 
       registerBuiltInIntents(nlcObj as any, locale as any);
@@ -189,10 +186,7 @@ describe('nlu nlc service unit tests', () => {
 
     it('no language', () => {
       const nlcObj = {
-        registerIntent: sinon
-          .stub()
-          .onFirstCall()
-          .throws('first call error'),
+        registerIntent: sinon.stub().onFirstCall().throws('first call error'),
       };
 
       registerBuiltInIntents(nlcObj as any);
@@ -203,10 +197,7 @@ describe('nlu nlc service unit tests', () => {
     it('language supported', () => {
       const locale = 'español';
       const nlcObj = {
-        registerIntent: sinon
-          .stub()
-          .onFirstCall()
-          .throws('first call error'),
+        registerIntent: sinon.stub().onFirstCall().throws('first call error'),
       };
 
       registerBuiltInIntents(nlcObj as any, locale as any);

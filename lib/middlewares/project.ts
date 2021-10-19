@@ -9,14 +9,10 @@ import { AbstractMiddleware } from './utils';
 const { param, header } = Validator;
 const VALIDATIONS = {
   PARAMS: {
-    VERSION_ID: param('versionID')
-      .exists()
-      .isString(),
+    VERSION_ID: param('versionID').exists().isString(),
   },
   HEADERS: {
-    AUTHORIZATION: header('authorization')
-      .exists()
-      .isString(),
+    AUTHORIZATION: header('authorization').exists().isString(),
   },
 };
 class Project extends AbstractMiddleware {

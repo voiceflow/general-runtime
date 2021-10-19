@@ -89,21 +89,11 @@ describe('Runtime cycleStack unit tests', () => {
       const runtime = {
         callEvent: sinon.stub(),
         stack: {
-          getSize: sinon
-            .stub()
-            .onFirstCall()
-            .returns(1)
-            .onSecondCall()
-            .returns(0),
+          getSize: sinon.stub().onFirstCall().returns(1).onSecondCall().returns(0),
           top: sinon
             .stub()
             .returns({ getProgramID: sinon.stub().returns('program-id'), initialize: sinon.stub(), variables: { var1: 'val1', var2: 'val2' } }),
-          getFrames: sinon
-            .stub()
-            .onFirstCall()
-            .returns([{}])
-            .onSecondCall()
-            .returns([]),
+          getFrames: sinon.stub().onFirstCall().returns([{}]).onSecondCall().returns([]),
         },
         end: sinon.stub(),
         hasEnded: sinon.stub().returns(false),
@@ -127,12 +117,7 @@ describe('Runtime cycleStack unit tests', () => {
           callEvent: sinon.stub(),
           stack: {
             pop: sinon.stub().returns(null),
-            getSize: sinon
-              .stub()
-              .onFirstCall()
-              .returns(1)
-              .onSecondCall()
-              .returns(0),
+            getSize: sinon.stub().onFirstCall().returns(1).onSecondCall().returns(0),
             top: sinon
               .stub()
               .returns({ getProgramID: sinon.stub().returns('program-id'), initialize: sinon.stub(), variables: { var1: 'val1', var2: 'val2' } }),
@@ -163,12 +148,7 @@ describe('Runtime cycleStack unit tests', () => {
           callEvent: sinon.stub(),
           stack: {
             pop: sinon.stub().returns({ storage: { get: sinon.stub().returns(OUTPUT_MAP) } }),
-            getSize: sinon
-              .stub()
-              .onFirstCall()
-              .returns(1)
-              .onSecondCall()
-              .returns(0),
+            getSize: sinon.stub().onFirstCall().returns(1).onSecondCall().returns(0),
             top: sinon.stub().returns({ getProgramID: sinon.stub().returns('program-id'), initialize: sinon.stub(), variables: topFrameVariables }),
             getFrames: sinon.stub().returns([]),
           },

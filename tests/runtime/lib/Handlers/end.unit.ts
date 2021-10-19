@@ -27,12 +27,7 @@ describe('EndHandler unit tests', () => {
         stack: {
           pop: sinon.stub(),
           top: sinon.stub().returns(frame),
-          isEmpty: sinon
-            .stub()
-            .onFirstCall()
-            .returns(false)
-            .onSecondCall()
-            .returns(true),
+          isEmpty: sinon.stub().onFirstCall().returns(false).onSecondCall().returns(true),
         },
         turn: { set: sinon.stub() },
         end: sinon.stub(),

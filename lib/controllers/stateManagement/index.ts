@@ -14,15 +14,10 @@ const VALIDATIONS = {
     OBJECT: body().exists(),
   },
   HEADERS: {
-    PROJECT_ID: header('project_id')
-      .exists()
-      .isString(),
+    PROJECT_ID: header('project_id').exists().isString(),
   },
   QUERY: {
-    VERBOSE: query('verbose')
-      .isBoolean()
-      .optional()
-      .toBoolean(),
+    VERBOSE: query('verbose').isBoolean().optional().toBoolean(),
   },
 };
 

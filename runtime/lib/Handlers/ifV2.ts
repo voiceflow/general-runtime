@@ -22,11 +22,11 @@ const IfV2Handler: HandlerFactory<Node.IfV2.Node, IfV2Options> = ({ _v1, safe })
     }
 
     let outputPortIndex = -1;
-    const setOutputPort = function(index: number) {
+    const setOutputPort = function (index: number) {
       outputPortIndex = index;
     };
     const debugErrors: Array<DebugError> = [];
-    const addDebugError = function(err: DebugError) {
+    const addDebugError = function (err: DebugError) {
       debugErrors.push(err);
     };
 

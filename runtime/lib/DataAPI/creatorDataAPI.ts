@@ -3,7 +3,8 @@ import Voiceflow, { BasePlatformData, Client, Program, Project, Version } from '
 import { DataAPI } from './types';
 
 class CreatorDataAPI<P extends Program<any, any>, V extends Version<any>, PJ extends Project<any, any> = Project<BasePlatformData, BasePlatformData>>
-  implements DataAPI<P, V, PJ> {
+  implements DataAPI<P, V, PJ>
+{
   protected client: Client;
 
   private prototype: boolean;
