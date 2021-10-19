@@ -2,7 +2,7 @@
 name: Automatic Rebase All Branches
 on:
   push:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   # When master updates, rebase all open pull requests

@@ -10,26 +10,12 @@
         "NODE_ENV": "local",
         "NODE_TLS_REJECT_UNAUTHORIZED": "0"
       },
-      "runtimeArgs": [
-        "--nolazy",
-        "-r",
-        "ts-node/register/transpile-only",
-        "-r",
-        "tsconfig-paths/register"
-      ],
-      "args": [
-        "start.ts"
-      ],
+      "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only", "-r", "tsconfig-paths/register"],
+      "args": ["start.ts"],
       "cwd": "${workspaceRoot}",
       "internalConsoleOptions": "openOnSessionStart",
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ],
-      "skipFiles": [
-        "<node_internals>/**",
-        "node_modules/**"
-      ]
+      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
+      "skipFiles": ["<node_internals>/**", "node_modules/**"]
     },
     {
       "name": "Run ts-mocha File",
@@ -41,10 +27,7 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/ts-mocha",
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ],
+      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
       "runtimeArgs": [
         "-r",
         "tsconfig-paths/register",

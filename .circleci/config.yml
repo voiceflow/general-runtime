@@ -3,22 +3,22 @@ version: 2.1
 parameters:
   npm-repo:
     type: string
-    default: "@voiceflow/general-runtime"
+    default: '@voiceflow/general-runtime'
   container-image-url:
     type: string
-    default: "168387678261.dkr.ecr.us-east-1.amazonaws.com/general-runtime"
+    default: '168387678261.dkr.ecr.us-east-1.amazonaws.com/general-runtime'
   k8s-asset:
     type: string
-    default: "deployment/general-runtime"
+    default: 'deployment/general-runtime'
   k8s-namespace:
     type: string
-    default: "voiceflow-v1" # This is usually voiceflow-v1
+    default: 'voiceflow-v1' # This is usually voiceflow-v1
   ssh-fingerprint:
     type: string
-    default: "61:71:13:8f:00:5f:da:63:a8:0c:6d:f3:b4:b1:17:b3"
+    default: '61:71:13:8f:00:5f:da:63:a8:0c:6d:f3:b4:b1:17:b3'
   track-component:
     type: string
-    default: "general-runtime"
+    default: 'general-runtime'
 
 # Reusable YAML chunks
 defaults:
@@ -39,7 +39,7 @@ defaults:
       - vfcommon/notify_slack:
           channel: dev_general
           event: fail
-          mentions: "@eng_integrations"
+          mentions: '@eng_integrations'
           template: basic_fail_1
           branch_pattern: master
 
@@ -48,7 +48,6 @@ orbs:
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
-
   e2e-check:
     executor: vfcommon/e2e-executor
     steps:
@@ -64,21 +63,21 @@ jobs:
           github_username: GITHUB_USERNAME
           github_token: GITHUB_TOKEN
       - vfcommon/check_service_running:
-          port: "8011"
+          port: '8011'
       - vfcommon/setup_vf_service_docker:
           service_name: creator-api
           github_username: GITHUB_USERNAME
           github_token: GITHUB_TOKEN
       - vfcommon/check_service_running:
-          port: "8003"
+          port: '8003'
       - vfcommon/setup_vf_service_docker:
           service_name: general-service
           github_username: GITHUB_USERNAME
           github_token: GITHUB_TOKEN
       - vfcommon/check_service_running:
-          port: "8006"
+          port: '8006'
       - vfcommon/check_e2e:
-          port: "8005"
+          port: '8005'
 
   test:
     executor: vfcommon/code-test-executor
@@ -104,11 +103,11 @@ jobs:
       image_tag:
         description: The container image tag
         type: string
-        default: ""
+        default: ''
       release_pkg:
         description: The npm package name to be released
         type: string
-        default: ""
+        default: ''
       dockerfile:
         description: Name of the Dockerfile to build
         type: string
@@ -168,8 +167,8 @@ workflows:
           github_token: GITHUB_TOKEN
           creator_app_commit: DEFAULT_COMMIT
           vf_service_commit: CIRCLE_SHA1
-          vf_service_name: "general-runtime"
-          vf_service_port: "8005"
+          vf_service_name: 'general-runtime'
+          vf_service_port: '8005'
           enable: false
           context: dev-test
           filters:
@@ -218,5 +217,5 @@ workflows:
           name: build-push-image-e2e
           context: dev-test
           image_repo: << pipeline.parameters.container-image-url >>
-          dockerfile: "Dockerfile.e2e"
-          image_tag: "latest-master-e2e"
+          dockerfile: 'Dockerfile.e2e'
+          image_tag: 'latest-master-e2e'
