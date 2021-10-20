@@ -13,6 +13,6 @@ jobs:
       - name: Rebase All Incoming PRs
         uses: voiceflow/rebase-incoming@latest
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_SA_TOKEN }}
           comment-on-failure: 'true'
           label-on-failure: 'true'
