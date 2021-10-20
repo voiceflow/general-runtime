@@ -29,12 +29,11 @@ ENV BUILD_URL=${build_BUILD_URL}
 
 WORKDIR /usr/src/app
 COPY --from=build /target/build ./
-COPY .yarn ./.yarn
-COPY .yarnrc.yml ./.yarnrc.yml
+COPY --from=build /target/.yarn ./.yarn
+COPY --from=build /target/.yarnrc.yml ./.yarnrc.yml
 
 RUN echo $NPM_TOKEN > .npmrc && \
-  yarn install --immutable && \
-  # Remove devDependencies from node_modules
+  # replicate the old `yarn install --production` https://yarnpkg.com/getting-started/migration/#renamed
   yarn workspaces focus --all --production && \
   rm -f .npmrc && \
   yarn cache clean
