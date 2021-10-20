@@ -34,6 +34,8 @@ COPY .yarnrc.yml ./.yarnrc.yml
 
 RUN echo $NPM_TOKEN > .npmrc && \
   yarn install --immutable && \
+  # Remove devDependencies from node_modules
+  yarn workspaces focus --all --production && \
   rm -f .npmrc && \
   yarn cache clean
 
