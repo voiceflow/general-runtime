@@ -10,3 +10,4 @@ scratch.js
 /database
 /node_modules
 /routes
+.yarn

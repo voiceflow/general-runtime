@@ -1,4 +1,4 @@
-FROM node:12-alpine 
+FROM node:12-alpine
 
 RUN apk add --no-cache dumb-init ca-certificates
 
@@ -19,7 +19,7 @@ WORKDIR /target
 COPY ./ ./
 
 RUN echo $NPM_TOKEN > .npmrc && \
-  yarn install --ignore-scripts && \
+  yarn install --immutable && \
   rm -f .npmrc && \
   yarn cache clean
 

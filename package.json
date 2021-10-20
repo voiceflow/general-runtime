@@ -127,8 +127,8 @@
   ],
   "license": "ISC",
   "main": "build/start.js",
+  "packageManager": "yarn@3.0.2",
   "prettier": "@voiceflow/prettier-config",
-  "private": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/voiceflow/general-runtime.git"

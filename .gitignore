@@ -15,6 +15,15 @@ dump.rdb
 routes/tmp/*
 !routes/tmp/.gitkeep
 
+# Yarn
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
 coverage
 *_coverage
 restart.sh

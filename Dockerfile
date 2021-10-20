@@ -1,4 +1,4 @@
-FROM node:12 as build  
+FROM node:12 as build
 
 ARG NPM_TOKEN
 
@@ -6,12 +6,12 @@ WORKDIR /target
 COPY ./ ./
 
 RUN echo $NPM_TOKEN > .npmrc && \
-  yarn install --ignore-scripts && \
+  yarn install --immutable && \
   yarn build && \
   rm -rf build/node_modules && \
-  rm -f .npmrc 
+  rm -f .npmrc
 
-FROM node:12-alpine 
+FROM node:12-alpine
 
 RUN apk add --no-cache dumb-init
 
@@ -29,9 +29,11 @@ ENV BUILD_URL=${build_BUILD_URL}
 
 WORKDIR /usr/src/app
 COPY --from=build /target/build ./
+COPY .yarn ./.yarn
+COPY .yarnrc.yml ./.yarnrc.yml
 
 RUN echo $NPM_TOKEN > .npmrc && \
-  yarn install --production --ignore-scripts && \
+  yarn install --immutable && \
   rm -f .npmrc && \
   yarn cache clean
 
