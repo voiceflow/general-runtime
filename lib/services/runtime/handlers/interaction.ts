@@ -46,10 +46,6 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
       if (matcher) {
         // allow handler to apply side effects
         matcher.sideEffect();
-        runtime.trace.addTrace<Trace.PathTrace>({
-          type: BaseNode.Utils.TraceType.PATH,
-          payload: { path: `choice:${i + 1}` },
-        });
 
         if ((event as IntentEvent).goTo) {
           runtime.trace.addTrace<Trace.GoToTrace>({
@@ -60,6 +56,11 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
           // stop on itself to await for new intent request coming in
           return node.id;
         }
+
+        runtime.trace.addTrace<Trace.PathTrace>({
+          type: BaseNode.Utils.TraceType.PATH,
+          payload: { path: `choice:${i + 1}` },
+        });
 
         return nextId || null;
       }
