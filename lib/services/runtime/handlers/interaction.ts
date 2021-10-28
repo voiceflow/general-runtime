@@ -2,6 +2,7 @@ import { Node as BaseNode, Trace } from '@voiceflow/base-types';
 import { Node as ChatNode } from '@voiceflow/chat-types';
 import { Node as GeneralNode } from '@voiceflow/general-types';
 
+import { IntentEvent } from '@/../libs/packages/base-types/build/node/utils';
 import { Action, HandlerFactory } from '@/runtime';
 
 import { StorageType } from '../types';
@@ -50,11 +51,13 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
           payload: { path: `choice:${i + 1}` },
         });
 
-        if (event.goTo) {
+        if ((event as IntentEvent).goTo) {
           runtime.trace.addTrace<Trace.GoToTrace>({
             type: BaseNode.Utils.TraceType.GOTO,
-            payload: { request: event.goTo.request },
+            payload: { request: (event as IntentEvent).goTo!.request },
           });
+
+          // stop on itself to await for new intent request coming in
           return node.id;
         }
 
