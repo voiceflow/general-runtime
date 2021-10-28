@@ -49,6 +49,15 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
           type: BaseNode.Utils.TraceType.PATH,
           payload: { path: `choice:${i + 1}` },
         });
+
+        if (event.goTo) {
+          runtime.trace.addTrace<Trace.GoToTrace>({
+            type: BaseNode.Utils.TraceType.GOTO,
+            payload: { request: event.goTo.request },
+          });
+          return node.id;
+        }
+
         return nextId || null;
       }
     }
