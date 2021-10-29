@@ -1,8 +1,8 @@
 import { Node as BaseNode, Trace } from '@voiceflow/base-types';
+import { IntentEvent } from '@voiceflow/base-types/build/node/utils';
 import { Node as ChatNode } from '@voiceflow/chat-types';
 import { Node as GeneralNode } from '@voiceflow/general-types';
 
-import { IntentEvent } from '@/../libs/packages/base-types/build/node/utils';
 import { Action, HandlerFactory } from '@/runtime';
 
 import { StorageType } from '../types';
