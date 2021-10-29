@@ -214,6 +214,25 @@ describe('Interaction handler', () => {
             expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', payload: { path: 'choice:1' } }]]);
           });
 
+          it('with goTo', () => {
+            const sideEffect = sinon.stub();
+            const utils = {
+              findEventMatcher: sinon.stub().returns({ sideEffect }),
+            };
+
+            const node = { id: 'node-id', interactions: [{ event: { foo: 'bar', goTo: { request: 'request' } } }] };
+            const runtime = { getAction: sinon.stub().returns(Action.REQUEST), setAction: sinon.stub(), trace: { addTrace: sinon.stub() } };
+            const variables = { var1: 'val1' };
+            const handler = InteractionHandler(utils as any);
+
+            expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
+            expect(runtime.getAction.callCount).to.eql(1);
+            expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
+            expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime, variables }]]);
+            expect(sideEffect.callCount).to.eql(1);
+            expect(runtime.trace.addTrace.args).to.eql([[{ type: 'goto', payload: { request: node.interactions[0].event.goTo.request } }]]);
+          });
+
           it('iterate events', () => {
             const sideEffect = sinon.stub();
             const utils = {
