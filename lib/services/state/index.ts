@@ -1,6 +1,7 @@
 import { Version } from '@voiceflow/api-sdk';
 import { Trace } from '@voiceflow/base-types';
 
+import { Variables } from '@/lib/services/runtime/types';
 import { PartialContext, State } from '@/runtime';
 import { Context, InitContextHandler } from '@/types';
 
@@ -21,7 +22,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
    * generate a context for a new session
    * @param versionID - project version to generate the context for
    */
-  generate({ prototype, rootDiagramID }: Version<any>, state?: State): State {
+  generate({ prototype, rootDiagramID }: Version<any>, state?: State, userID?: string): State {
     const DEFAULT_STACK = [{ programID: rootDiagramID, storage: {}, variables: {} }];
 
     const stack =
@@ -34,6 +35,8 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     return {
       stack,
       variables: {
+        // if userID is passed in as an argument from a state API call, set variable user_id to it
+        ...(userID && { [Variables.USER_ID]: userID }),
         ...prototype?.context.variables,
         ...state?.variables,
       },

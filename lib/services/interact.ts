@@ -7,10 +7,10 @@ import { Context } from '@/types';
 import { AbstractManager } from './utils';
 
 class Interact extends AbstractManager {
-  async state(data: { headers: { authorization?: string; origin?: string }; params: { versionID: string } }) {
+  async state(data: { headers: { authorization?: string; origin?: string }; params: { versionID: string; userID?: string } }) {
     const api = await this.services.dataAPI.get(data.headers.authorization);
     const version = await api.getVersion(data.params.versionID);
-    return this.services.state.generate(version);
+    return this.services.state.generate(version, undefined, data.params.userID);
   }
 
   async handler(req: {

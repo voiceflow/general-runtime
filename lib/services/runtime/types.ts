@@ -99,4 +99,5 @@ export enum Variables {
   TIMESTAMP = 'timestamp',
   LAST_UTTERANCE = 'last_utterance',
   INTENT_CONFIDENCE = 'intent_confidence',
+  USER_ID = 'user_id',
 }
