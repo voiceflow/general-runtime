@@ -1,6 +1,6 @@
 import { Request } from '@voiceflow/base-types';
 
-import { RuntimeRequest } from '@/lib/services/runtime/types';
+import { RuntimeRequest, Variables } from '@/lib/services/runtime/types';
 import { State, TurnBuilder } from '@/runtime';
 import { Context } from '@/types';
 
@@ -14,7 +14,7 @@ class Interact extends AbstractManager {
   }
 
   async handler(req: {
-    params: { versionID: string };
+    params: { versionID: string; userID?: string };
     body: { state?: State; request?: RuntimeRequest; config?: Request.RequestConfig };
     query: { locale?: string };
     headers: { authorization?: string; origin?: string; sessionid?: string };
@@ -36,6 +36,11 @@ class Interact extends AbstractManager {
       state.stack = [];
       state.storage = {};
       request = null;
+      // if this is a state API call, set the user_id variable to userID
+      // This is more for backwards compatibility for users that are already created to be able to access user_id
+      if (req.params.userID) {
+        state.variables = { ...state.variables, [Variables.USER_ID]: req.params.userID };
+      }
     }
 
     metrics.generalRequest();
