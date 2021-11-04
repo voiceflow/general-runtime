@@ -33,6 +33,7 @@ describe('interact service unit tests', () => {
         state: data.body.state,
         request: data.body.request,
         versionID: data.params.versionID,
+        userID: undefined,
         data: {
           locale: data.query.locale,
           config: {
@@ -83,6 +84,7 @@ describe('interact service unit tests', () => {
         state: { ...data.body.state, stack: [], storage: {} },
         request: null,
         versionID: data.params.versionID,
+        userID: undefined,
         data: {
           locale: data.query.locale,
           config: {
@@ -125,7 +127,13 @@ describe('interact service unit tests', () => {
         params: { versionID: 'versionID' },
         query: { locale: 'locale' },
       };
-      const context = { state: data.body.state, request: data.body.request, versionID: data.params.versionID, data: { locale: data.query.locale } };
+      const context = {
+        state: data.body.state,
+        userID: undefined,
+        request: data.body.request,
+        versionID: data.params.versionID,
+        data: { locale: data.query.locale },
+      };
 
       const services = buildServices(context);
 
@@ -149,7 +157,13 @@ describe('interact service unit tests', () => {
       params: { versionID: 'versionID' },
       query: { locale: 'locale' },
     };
-    const context = { state: data.body.state, request: data.body.request, versionID: data.params.versionID, data: { locale: data.query.locale } };
+    const context = {
+      state: data.body.state,
+      userID: undefined,
+      request: data.body.request,
+      versionID: data.params.versionID,
+      data: { locale: data.query.locale },
+    };
 
     const services = buildServices(context);
 
@@ -169,7 +183,13 @@ describe('interact service unit tests', () => {
       params: { versionID: 'versionID' },
       query: { locale: 'locale' },
     };
-    const context = { state: data.body.state, request: data.body.request, versionID: data.params.versionID, data: { locale: data.query.locale } };
+    const context = {
+      state: data.body.state,
+      userID: undefined,
+      request: data.body.request,
+      versionID: data.params.versionID,
+      data: { locale: data.query.locale },
+    };
 
     const services = buildServices(context);
 

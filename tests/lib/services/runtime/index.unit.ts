@@ -269,7 +269,10 @@ describe('runtime manager unit tests', () => {
       expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
       expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request]]);
       expect(runtime.update.callCount).to.eql(1);
-      expect(runtime.variables.set.args).to.eql([[Variables.USER_ID, 'someUserId']]);
+      expect(runtime.variables.set.args).to.eql([
+        [Variables.TIMESTAMP, 0],
+        [Variables.USER_ID, 'someUserId'],
+      ]);
     });
   });
 });
