@@ -7,10 +7,10 @@ import { Context } from '@/types';
 import { AbstractManager } from './utils';
 
 class Interact extends AbstractManager {
-  async state(data: { headers: { authorization?: string; origin?: string }; params: { versionID: string; userID?: string } }) {
+  async state(data: { headers: { authorization?: string; origin?: string }; params: { versionID: string } }) {
     const api = await this.services.dataAPI.get(data.headers.authorization);
     const version = await api.getVersion(data.params.versionID);
-    return this.services.state.generate(version, undefined, data.params.userID);
+    return this.services.state.generate(version);
   }
 
   async handler(req: {
@@ -23,7 +23,7 @@ class Interact extends AbstractManager {
 
     const {
       body: { state, config = {} },
-      params: { versionID },
+      params: { versionID, userID },
       query: { locale },
       headers: { authorization, origin, sessionid: sessionId },
     } = req;
@@ -36,11 +36,6 @@ class Interact extends AbstractManager {
       state.stack = [];
       state.storage = {};
       request = null;
-      // if this is a state API call, set the user_id variable to userID
-      // This is more for backwards compatibility for users that are already created to be able to access user_id
-      if (req.params.userID) {
-        state.variables = { ...state.variables, [Variables.USER_ID]: req.params.userID };
-      }
     }
 
     metrics.generalRequest();
@@ -59,7 +54,13 @@ class Interact extends AbstractManager {
 
     turn.addHandlers(speak, filter);
 
-    return turn.resolve({ state, request, versionID, data: { locale, config, reqHeaders: { authorization, origin, sessionid: sessionId } } });
+    return turn.resolve({
+      state,
+      request,
+      userID,
+      versionID,
+      data: { locale, config, reqHeaders: { authorization, origin, sessionid: sessionId } },
+    });
   }
 }
 

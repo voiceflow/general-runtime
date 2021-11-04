@@ -42,7 +42,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     return client;
   }
 
-  public async handle({ versionID, state, request, ...context }: Context): Promise<Context> {
+  public async handle({ versionID, userID, state, request, ...context }: Context): Promise<Context> {
     if (!isRuntimeRequest(request)) throw new Error(`invalid runtime request type: ${JSON.stringify(request)}`);
 
     const runtime = this.createClient(context.data.api).createRuntime(versionID, state, request);
@@ -67,6 +67,11 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     }
 
     runtime.variables.set(Variables.TIMESTAMP, Math.floor(Date.now() / 1000));
+
+    // if state API call, set the variable user_id to be userID in the param
+    if (userID) {
+      runtime.variables.set(Variables.USER_ID, userID);
+    }
 
     // skip runtime for the action request, since it do not have any effects
     if (!isActionRequest(request)) {

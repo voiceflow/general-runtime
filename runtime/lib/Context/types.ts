@@ -9,6 +9,7 @@ export type Context<R = Record<string, unknown>, T = Node.Utils.BaseTraceFrame, 
   trace?: T[];
   end?: boolean;
   data: D;
+  userID?: string;
 };
 
 export type ContextHandle<C extends Context<any, any, any>> = (request: C) => C | Promise<C>;

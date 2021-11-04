@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import RuntimeManager, { utils as defaultUtils } from '@/lib/services/runtime';
-import { TurnType } from '@/lib/services/runtime/types';
+import { TurnType, Variables } from '@/lib/services/runtime/types';
 
 const VERSION_ID = 'version_id';
 
@@ -220,6 +220,56 @@ describe('runtime manager unit tests', () => {
         ['last_utterance', 'hello world'],
         ['timestamp', timestamp],
       ]);
+    });
+
+    it('sets user_id variable if userID passed in', async () => {
+      const rawState = { foo: 'bar' };
+      const trace = { foo1: 'bar1' };
+
+      const runtime = {
+        update: sinon.stub(),
+        getRawState: sinon.stub().returns(rawState),
+        trace: { get: sinon.stub().returns(trace), addTrace: sinon.stub() },
+        getFinalState: sinon.stub().returns(rawState),
+        variables: { set: sinon.stub() },
+      };
+
+      const client = {
+        setEvent: sinon.stub(),
+        createRuntime: sinon.stub().returns(runtime),
+      };
+
+      const services = {
+        dataAPI: { getProgram: 'service-api' },
+        analyticsClient: { track: sinon.stub().resolves() },
+      };
+
+      const utils = {
+        Client: sinon.stub().returns(client),
+        Handlers: () => 'foo',
+      };
+
+      const config = {};
+
+      const runtimeManager = new RuntimeManager({ ...services, utils: { ...defaultUtils, ...utils } } as any, config as any);
+
+      const state = { foo2: 'bar2' };
+      const request = {
+        type: Request.RequestType.INTENT,
+        payload: {},
+      };
+      const context = { state, userID: 'someUserId', request, versionID: VERSION_ID, data: { api: { getProgram: 'api' } } } as any;
+      expect(await runtimeManager.handle(context)).to.eql({
+        state: rawState,
+        trace,
+        request,
+        versionID: VERSION_ID,
+        data: { api: { getProgram: 'api' } },
+      });
+      expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
+      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request]]);
+      expect(runtime.update.callCount).to.eql(1);
+      expect(runtime.variables.set.args).to.eql([[Variables.USER_ID, 'someUserId']]);
     });
   });
 });
