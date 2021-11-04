@@ -1,7 +1,6 @@
 import { Version } from '@voiceflow/api-sdk';
 import { Trace } from '@voiceflow/base-types';
 
-import { Variables } from '@/lib/services/runtime/types';
 import { PartialContext, State } from '@/runtime';
 import { Context, InitContextHandler } from '@/types';
 
