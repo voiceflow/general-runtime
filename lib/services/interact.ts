@@ -1,6 +1,6 @@
 import { Request } from '@voiceflow/base-types';
 
-import { RuntimeRequest, Variables } from '@/lib/services/runtime/types';
+import { RuntimeRequest } from '@/lib/services/runtime/types';
 import { State, TurnBuilder } from '@/runtime';
 import { Context } from '@/types';
 
