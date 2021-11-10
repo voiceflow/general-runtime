@@ -26,11 +26,11 @@ const CONFIG: Config = {
   DYNAMO_ENDPOINT: getOptionalProcessEnv('DYNAMO_ENDPOINT'),
 
   // code block
-  CODE_HANDLER_ENDPOINT: null,
+  CODE_HANDLER_ENDPOINT: getOptionalProcessEnv('CODE_HANDLER_ENDPOINT'),
   // integrations block
   INTEGRATIONS_HANDLER_ENDPOINT: getOptionalProcessEnv('INTEGRATIONS_HANDLER_ENDPOINT') || 'none',
   // api-block
-  API_HANDLER_ENDPOINT: null,
+  API_HANDLER_ENDPOINT: getOptionalProcessEnv('API_HANDLER_ENDPOINT'),
 
   PROJECT_SOURCE: getOptionalProcessEnv('PROJECT_SOURCE'),
 
