@@ -82,7 +82,7 @@ class Store {
   }
 
   public merge<S extends State>(payload: Partial<S>): void {
-    this.update({ ...this.store, payload });
+    this.update({ ...this.store, ...payload });
   }
 
   public set<T extends unknown>(key: string, value: T): void {
