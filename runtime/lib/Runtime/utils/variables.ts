@@ -24,9 +24,10 @@ export const saveCombinedVariables = (combined: Store, global: Store, local: Sto
 };
 
 export const mapStores = (map: [string, string][], from: Store, to: Store): void => {
-  to.produce((draft) => {
-    map.forEach(([currentVal, newVal]) => {
-      draft[newVal] = from.get(currentVal);
-    });
-  });
+  to.merge(
+    map.reduce<Record<string, unknown>>((acc, [currentVal, newVal]) => {
+      acc[newVal] = from.get(currentVal);
+      return acc;
+    }, {})
+  );
 };

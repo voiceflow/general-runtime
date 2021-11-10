@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-expressions */
 
 import produce, { Draft } from 'immer';
+import { values } from 'lodash';
 
 export type State = { readonly [k: string]: any };
 
@@ -81,19 +82,16 @@ class Store {
   }
 
   public merge<S extends State>(payload: Partial<S>): void {
-    this.produce((draft: Draft<S>) => Object.assign(draft, payload));
+    this.update({ ...this.store, payload });
   }
 
   public set<T extends unknown>(key: string, value: T): void {
-    this.produce((draft: Draft<State>) => {
-      draft[key] = value;
-    });
+    this.update({ ...this.store, [key]: value });
   }
 
   public delete(key: string): void {
-    this.produce((draft: Draft<State>) => {
-      delete draft[key];
-    });
+    const { [key]: _key, ...newState } = this.store;
+    this.update(newState);
   }
 
   public keys(): string[] {
