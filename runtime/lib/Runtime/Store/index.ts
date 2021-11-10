@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-expressions */
 
 import produce, { Draft } from 'immer';
-import { values } from 'lodash';
 
 export type State = { readonly [k: string]: any };
 
