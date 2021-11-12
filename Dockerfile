@@ -1,4 +1,4 @@
-FROM node:12 as build  
+FROM node:16-alpine as build
 
 ARG NPM_TOKEN
 
@@ -9,9 +9,9 @@ RUN echo $NPM_TOKEN > .npmrc && \
   yarn install --ignore-scripts && \
   yarn build && \
   rm -rf build/node_modules && \
-  rm -f .npmrc 
+  rm -f .npmrc
 
-FROM node:12-alpine 
+FROM node:16-alpine
 
 RUN apk add --no-cache dumb-init
 
