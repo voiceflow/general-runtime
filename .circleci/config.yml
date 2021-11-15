@@ -44,7 +44,7 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@0.0.251
+  vfcommon: voiceflow/common@0.0.253
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
@@ -162,6 +162,12 @@ workflows:
           context: dev-test
           filters:
             <<: *ignore_staging_filters
+      - e2e-approval: # <<< A job that will require manual approval in the CircleCI web application.
+          type: approval # <<< This key-value pair will set your workflow to a status of "On Hold"
+          filters:
+            branches:
+              ignore: master
+      - vfcommon/dummy_job
       - vfcommon/test_e2e:
           <<: *slack-fail-post-step
           github_username: GITHUB_USERNAME
@@ -171,7 +177,9 @@ workflows:
           vf_service_name: "general-runtime"
           vf_service_port: "8005"
           context: dev-test
-          enable: false
+          requires:
+           - e2e-approval
+           - vfcommon/dummy_job
           filters:
             <<: *ignore_staging_filters
       - vfcommon/release:
