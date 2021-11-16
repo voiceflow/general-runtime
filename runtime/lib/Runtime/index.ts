@@ -3,7 +3,7 @@ import Lifecycle, { AbstractLifecycle, Event, EventType } from '@/runtime/lib/Li
 import cycleStack from '@/runtime/lib/Runtime/cycleStack';
 
 import { DataAPI } from '../DataAPI';
-import Stack, { FrameState } from './Stack';
+import Stack, { Frame, FrameState } from './Stack';
 import Store, { State as StorageState } from './Store';
 import Trace from './Trace';
 import ProgramManager from './utils/programManager';
@@ -120,8 +120,23 @@ class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends Abstrac
     return this.programManager.get(programID);
   }
 
+  private async injectBaseProgram() {
+    // apphend base program to the stack
+    if (this.stack.get(0).getProgramID() === this.versionID) {
+      return;
+    }
+    const program = await this.api.getProgram(this.versionID).catch(() => null);
+    this.stack.unshift(
+      new Frame({
+        programID: this.versionID,
+        commands: [...(program?.commands ?? [])],
+      })
+    );
+  }
+
   public async update(): Promise<void> {
     try {
+      await this.injectBaseProgram();
       await this.callEvent(EventType.updateWillExecute, {});
 
       if (this.action !== Action.IDLE) {

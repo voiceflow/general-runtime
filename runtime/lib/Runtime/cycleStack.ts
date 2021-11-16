@@ -13,6 +13,11 @@ const cycleStack = async (runtime: Runtime, depth = 0): Promise<void> => {
     return;
   }
 
+  if (runtime.stack.get(0)?.getProgramID() === runtime.getVersionID()) {
+    runtime.end();
+    return;
+  }
+
   const currentFrame = runtime.stack.top();
   const currentFrames = runtime.stack.getFrames();
 

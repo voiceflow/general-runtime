@@ -72,6 +72,10 @@ class Stack {
     this.updateFrames((this.frames = [...this.frames, frame]));
   }
 
+  public unshift(frame: Frame): void {
+    this.updateFrames((this.frames = [frame, ...this.frames]));
+  }
+
   public update(frames: FrameState[]): void {
     this.updateFrames(Stack.getFrames(frames));
   }
