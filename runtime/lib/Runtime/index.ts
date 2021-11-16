@@ -121,10 +121,11 @@ class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends Abstrac
   }
 
   private async injectBaseProgram() {
-    // apphend base program to the stack
-    if (this.stack.get(0).getProgramID() === this.versionID) {
+    if (this.stack.get(0)?.getProgramID() === this.versionID) {
       return;
     }
+
+    // insert base program to the stack
     const program = await this.api.getProgram(this.versionID).catch(() => null);
     this.stack.unshift(
       new Frame({

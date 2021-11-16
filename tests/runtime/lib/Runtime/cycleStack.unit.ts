@@ -31,8 +31,10 @@ describe('Runtime cycleStack unit tests', () => {
 
     const runtime = {
       callEvent: sinon.stub(),
+      getVersionID: sinon.stub().returns('versionID'),
       stack: {
         getSize: sinon.stub().returns(1),
+        get: sinon.stub().returns(null),
         top: sinon
           .stub()
           .returns({ getProgramID: sinon.stub().returns('program-id'), initialize: sinon.stub(), variables: { var1: 'val1', var2: 'val2' } }),
@@ -62,7 +64,13 @@ describe('Runtime cycleStack unit tests', () => {
 
       const runtime = {
         callEvent: sinon.stub(),
-        stack: { getSize: sinon.stub().returns(1), top: sinon.stub().returns(currentFrame), getFrames: sinon.stub().returns(currentFrames) },
+        getVersionID: sinon.stub().returns('versionID'),
+        stack: {
+          getSize: sinon.stub().returns(1),
+          get: sinon.stub().returns(null),
+          top: sinon.stub().returns(currentFrame),
+          getFrames: sinon.stub().returns(currentFrames),
+        },
         hasEnded: sinon.stub().returns(true),
         getProgram: sinon.stub().returns(program),
         variables: 'runtime-variables',
@@ -88,6 +96,7 @@ describe('Runtime cycleStack unit tests', () => {
 
       const runtime = {
         callEvent: sinon.stub(),
+        getVersionID: sinon.stub().returns('versionID'),
         stack: {
           getSize: sinon
             .stub()
@@ -95,6 +104,7 @@ describe('Runtime cycleStack unit tests', () => {
             .returns(1)
             .onSecondCall()
             .returns(0),
+          get: sinon.stub().returns(null),
           top: sinon
             .stub()
             .returns({ getProgramID: sinon.stub().returns('program-id'), initialize: sinon.stub(), variables: { var1: 'val1', var2: 'val2' } }),
@@ -125,6 +135,7 @@ describe('Runtime cycleStack unit tests', () => {
 
         const runtime = {
           callEvent: sinon.stub(),
+          getVersionID: sinon.stub().returns('versionID'),
           stack: {
             pop: sinon.stub().returns(null),
             getSize: sinon
@@ -133,6 +144,7 @@ describe('Runtime cycleStack unit tests', () => {
               .returns(1)
               .onSecondCall()
               .returns(0),
+            get: sinon.stub().returns(null),
             top: sinon
               .stub()
               .returns({ getProgramID: sinon.stub().returns('program-id'), initialize: sinon.stub(), variables: { var1: 'val1', var2: 'val2' } }),
@@ -161,6 +173,7 @@ describe('Runtime cycleStack unit tests', () => {
         const topFrameVariables = { var1: 'val1', var2: 'val2' };
         const runtime = {
           callEvent: sinon.stub(),
+          getVersionID: sinon.stub().returns('versionID'),
           stack: {
             pop: sinon.stub().returns({ storage: { get: sinon.stub().returns(OUTPUT_MAP) } }),
             getSize: sinon
@@ -169,6 +182,7 @@ describe('Runtime cycleStack unit tests', () => {
               .returns(1)
               .onSecondCall()
               .returns(0),
+            get: sinon.stub().returns(null),
             top: sinon.stub().returns({ getProgramID: sinon.stub().returns('program-id'), initialize: sinon.stub(), variables: topFrameVariables }),
             getFrames: sinon.stub().returns([]),
           },
@@ -180,6 +194,25 @@ describe('Runtime cycleStack unit tests', () => {
 
         await cycleStack(runtime as any);
         expect(mapStoresStub.args).to.eql([[OUTPUT_MAP, combinedVariables, topFrameVariables]]);
+      });
+
+      it('hit base program', async () => {
+        const versionID = 'versionID';
+        const frame = {
+          getProgramID: sinon.stub().returns(versionID),
+        };
+        const runtime = {
+          getVersionID: sinon.stub().returns(versionID),
+          stack: {
+            getSize: sinon.stub().returns(1),
+            get: sinon.stub().returns(frame),
+          },
+          end: sinon.stub(),
+        };
+
+        await cycleStack(runtime as any);
+        expect(runtime.end.callCount).to.eq(1);
+        expect(runtime.stack.get.args).to.eql([[0]]);
       });
     });
   });

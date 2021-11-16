@@ -95,7 +95,7 @@ describe('Runtime unit', () => {
 
   describe('update', () => {
     it('catch error', async () => {
-      const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
+      const runtime = new Runtime(undefined as any, { stack: [] } as any, undefined as any, {} as any, null as any);
       runtime.setAction(Action.REQUEST);
       const callEventStub = sinon.stub().resolves();
       runtime.callEvent = callEventStub;
@@ -109,7 +109,7 @@ describe('Runtime unit', () => {
 
     it('response action', async () => {
       const cycleStackStub = sinon.stub(cycleStack, 'default');
-      const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
+      const runtime = new Runtime(undefined as any, { stack: [] } as any, undefined as any, {} as any, null as any);
       const callEventStub = sinon.stub();
       runtime.callEvent = callEventStub;
       const setActionStub = sinon.stub();
@@ -125,7 +125,7 @@ describe('Runtime unit', () => {
 
     it('request action', async () => {
       const cycleStackStub = sinon.stub(cycleStack, 'default');
-      const runtime = new Runtime(null as any, { stack: [] } as any, true as any, {} as any, null as any);
+      const runtime = new Runtime(undefined as any, { stack: [] } as any, true as any, {} as any, null as any);
       const callEventStub = sinon.stub();
       runtime.callEvent = callEventStub;
       const setActionStub = sinon.stub();
@@ -137,6 +137,31 @@ describe('Runtime unit', () => {
       ]);
       expect(setActionStub.args).to.eql([[Action.REQUEST]]);
       expect(cycleStackStub.args).to.eql([[runtime]]);
+    });
+
+    it('injectBaseProgram', async () => {
+      const versionID = 'version id';
+      const cycleStackStub = sinon.stub(cycleStack, 'default');
+      const program = { commands: [] };
+      const runtime = new Runtime(
+        versionID,
+        { stack: [] } as any,
+        true as any,
+        { api: { getProgram: sinon.stub().resolves(program) } } as any,
+        null as any
+      );
+      const callEventStub = sinon.stub();
+      runtime.callEvent = callEventStub;
+      const setActionStub = sinon.stub();
+      runtime.setAction = setActionStub;
+      await runtime.update();
+      expect(callEventStub.args[0][0]).to.eql(EventType.stackWillChange);
+      expect(callEventStub.args[1][0]).to.eql(EventType.stackDidChange);
+      expect(callEventStub.args[2]).to.eql([EventType.updateWillExecute, {}]);
+      expect(callEventStub.args[3]).to.eql([EventType.updateDidExecute, {}]);
+      expect(setActionStub.args).to.eql([[Action.REQUEST]]);
+      expect(cycleStackStub.args).to.eql([[runtime]]);
+      expect(runtime.stack.get(0)?.getProgramID()).to.eql(versionID);
     });
   });
 
