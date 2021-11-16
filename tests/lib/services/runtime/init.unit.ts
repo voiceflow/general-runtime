@@ -14,7 +14,11 @@ describe('runtime init service unit tests', () => {
   describe('EventType.stackDidChange', () => {
     it('no top frame', () => {
       const client = { setEvent: sinon.stub() };
-      const runtime = { stack: { top: sinon.stub().returns(null) }, trace: { addTrace: sinon.stub() } };
+      const runtime = {
+        getVersionID: sinon.stub().returns('versionID'),
+        stack: { top: sinon.stub().returns(null) },
+        trace: { addTrace: sinon.stub() },
+      };
       init(client as any);
 
       expect(client.setEvent.args[0][0]).to.eql(EventType.stackDidChange);
@@ -22,14 +26,7 @@ describe('runtime init service unit tests', () => {
       const fn = client.setEvent.args[0][1];
       fn({ runtime });
 
-      expect(runtime.trace.addTrace.args).to.eql([
-        [
-          {
-            type: Node.Utils.TraceType.FLOW,
-            payload: { diagramID: undefined, name: undefined },
-          },
-        ],
-      ]);
+      expect(runtime.trace.addTrace.callCount).to.eql(0);
     });
 
     it('with top frame', () => {
@@ -37,7 +34,11 @@ describe('runtime init service unit tests', () => {
       const programID = 'program-id';
       const name = 'flow-name';
       const topFrame = { getProgramID: sinon.stub().returns(programID), getName: sinon.stub().returns(name) };
-      const runtime = { stack: { top: sinon.stub().returns(topFrame) }, trace: { addTrace: sinon.stub() } };
+      const runtime = {
+        getVersionID: sinon.stub().returns('versionID'),
+        stack: { top: sinon.stub().returns(topFrame) },
+        trace: { addTrace: sinon.stub() },
+      };
       init(client as any);
 
       expect(client.setEvent.args[0][0]).to.eql(EventType.stackDidChange);
@@ -53,6 +54,25 @@ describe('runtime init service unit tests', () => {
           },
         ],
       ]);
+    });
+
+    it('base frame', () => {
+      const client = { setEvent: sinon.stub() };
+      const programID = 'program-id';
+      const topFrame = { getProgramID: sinon.stub().returns(programID) };
+      const runtime = {
+        getVersionID: sinon.stub().returns(programID),
+        stack: { top: sinon.stub().returns(topFrame) },
+        trace: { addTrace: sinon.stub() },
+      };
+      init(client as any);
+
+      expect(client.setEvent.args[0][0]).to.eql(EventType.stackDidChange);
+
+      const fn = client.setEvent.args[0][1];
+      fn({ runtime });
+
+      expect(runtime.trace.addTrace.callCount).to.eql(0);
     });
   });
 

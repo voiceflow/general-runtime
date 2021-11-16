@@ -131,6 +131,7 @@ class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends Abstrac
       new Frame({
         programID: this.versionID,
         commands: [...(program?.commands ?? [])],
+        nodeID: null,
       })
     );
   }

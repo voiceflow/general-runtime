@@ -205,14 +205,16 @@ describe('Runtime cycleStack unit tests', () => {
           getVersionID: sinon.stub().returns(versionID),
           stack: {
             getSize: sinon.stub().returns(1),
-            get: sinon.stub().returns(frame),
+            top: sinon.stub().returns(frame),
+            flush: sinon.stub(),
           },
           end: sinon.stub(),
         };
 
         await cycleStack(runtime as any);
         expect(runtime.end.callCount).to.eq(1);
-        expect(runtime.stack.get.args).to.eql([[0]]);
+        expect(runtime.stack.top.callCount).to.eql(1);
+        expect(runtime.stack.flush.callCount).to.eql(1);
       });
     });
   });
