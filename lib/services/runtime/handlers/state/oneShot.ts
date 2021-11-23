@@ -11,7 +11,7 @@ const utilsObj = {
 
 export const OneShotIntentHandler: HandlerFactory<Node.Start.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node, runtime) => {
-    return isIntentRequest(runtime.getRequest()) && runtime.stack.getSize() === 1 && node.type === Node.NodeType.START;
+    return isIntentRequest(runtime.getRequest()) && runtime.stack.getSize() <= 2 && node.type === Node.NodeType.START;
   },
   handle: (node, runtime, variables) => {
     if (utils.commandHandler.canHandle(runtime)) {
