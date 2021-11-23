@@ -1,7 +1,7 @@
 import { Node as BaseNode, Trace } from '@voiceflow/base-types';
 
 import { FrameType, GeneralRuntime } from '@/lib/services/runtime/types';
-import { Action, extractFrameCommand, Frame, Store } from '@/runtime';
+import { extractFrameCommand, Frame, Store } from '@/runtime';
 
 import { findEventMatcher, hasEventMatch } from './event';
 

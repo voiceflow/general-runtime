@@ -3,7 +3,7 @@ import { Node } from '@voiceflow/base-types';
 import { replaceVariables } from '@voiceflow/common';
 import { Constants } from '@voiceflow/general-types';
 
-import { Action, HandlerFactory } from '@/runtime';
+import { HandlerFactory } from '@/runtime';
 
 import { isIntentRequest, StorageData, StorageType, StreamAction, StreamPauseStorage, StreamPlayStorage } from '../../types';
 import CommandHandler from '../command';
