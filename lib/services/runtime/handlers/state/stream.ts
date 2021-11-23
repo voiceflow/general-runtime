@@ -19,8 +19,6 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
   handle: (_, runtime, variables) => {
     const streamPlay = runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY)!;
 
-    // request for this turn has been processed, set action to response
-    runtime.setAction(Action.RESPONSE);
     const request = runtime.getRequest();
     const intentName = isIntentRequest(request) ? request.payload.intent.name : null;
 

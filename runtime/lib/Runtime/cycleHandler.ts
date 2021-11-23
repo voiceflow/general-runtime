@@ -1,5 +1,6 @@
 /* eslint-disable no-await-in-loop */
 
+import { Action } from '@/runtime';
 import { EventType } from '@/runtime/lib/Lifecycle';
 import ProgramModel from '@/runtime/lib/Program';
 import Runtime from '@/runtime/lib/Runtime';
@@ -40,6 +41,11 @@ const cycleHandler = async (runtime: Runtime, program: ProgramModel, variableSta
         }
       } catch (error) {
         await runtime.callEvent(EventType.handlerDidCatch, { error });
+      }
+
+      // after the first handler, the request is processed
+      if (runtime.getAction() === Action.REQUEST) {
+        runtime.setAction(Action.RUNNING);
       }
 
       // if a node has decided to stop on itself

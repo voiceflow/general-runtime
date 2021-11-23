@@ -25,8 +25,6 @@ export const PreliminaryHandler: HandlerFactory<BaseNode, typeof utilsObj> = (ut
     return !!request && runtime.getAction() === Action.REQUEST && !utils.eventHandlers.find((h) => h.canHandle(node, runtime, variables, program));
   },
   handle: (node, runtime, variables) => {
-    runtime.setAction(Action.RESPONSE);
-
     // check if there is a command in the stack that fulfills request
     if (utils.commandHandler.canHandle(runtime)) {
       return utils.commandHandler.handle(runtime, variables);

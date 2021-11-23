@@ -32,7 +32,7 @@ describe('_v1 handler unit tests', () => {
             ],
           };
           const runtime = {
-            getAction: sinon.stub().returns(Action.RESPONSE),
+            getAction: sinon.stub().returns(Action.RUNNING),
             trace: { addTrace: sinon.stub() },
             turn: { get: sinon.stub().returns(null) },
           };
@@ -67,7 +67,7 @@ describe('_v1 handler unit tests', () => {
             ],
           };
           const runtime = {
-            getAction: sinon.stub().returns(Action.RESPONSE),
+            getAction: sinon.stub().returns(Action.RUNNING),
             trace: { addTrace: sinon.stub() },
             turn: { get: sinon.stub().returns(['type1', 'the trace block', 'type3']) },
           };
@@ -104,7 +104,7 @@ describe('_v1 handler unit tests', () => {
             ],
           };
           const runtime = {
-            getAction: sinon.stub().returns(Action.RESPONSE),
+            getAction: sinon.stub().returns(Action.RUNNING),
             trace: { addTrace: sinon.stub() },
             turn: { get: sinon.stub().returns(undefined) },
           };
@@ -140,7 +140,7 @@ describe('_v1 handler unit tests', () => {
             ],
           };
           const runtime = {
-            getAction: sinon.stub().returns(Action.RESPONSE),
+            getAction: sinon.stub().returns(Action.RUNNING),
             trace: { addTrace: sinon.stub() },
             turn: { get: sinon.stub().returns(null) },
           };
@@ -176,7 +176,7 @@ describe('_v1 handler unit tests', () => {
             ],
           };
           const runtime = {
-            getAction: sinon.stub().returns(Action.RESPONSE),
+            getAction: sinon.stub().returns(Action.RUNNING),
             trace: { addTrace: sinon.stub() },
             turn: { get: sinon.stub().returns(false) },
           };
@@ -213,13 +213,11 @@ describe('_v1 handler unit tests', () => {
         const commandHandler = { canHandle: sinon.stub().returns(false) };
         const runtime = {
           getAction: sinon.stub().returns(Action.REQUEST),
-          setAction: sinon.stub(),
           trace: { addTrace: sinon.stub() },
         };
         const handler = _V1Handler({ commandHandler } as any);
 
         expect(handler.handle(node as any, runtime as any, null as any, null as any)).to.eql(null);
-        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(commandHandler.canHandle.args).to.eql([[runtime]]);
       });
 
@@ -235,14 +233,12 @@ describe('_v1 handler unit tests', () => {
         const findEventMatcher = sinon.stub().returns(null);
         const runtime = {
           getAction: sinon.stub().returns(Action.REQUEST),
-          setAction: sinon.stub(),
           trace: { addTrace: sinon.stub() },
         };
         const variables = { var1: 'val1' };
         const handler = _V1Handler({ commandHandler, findEventMatcher } as any);
 
         expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('command-id');
-        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(commandHandler.canHandle.args).to.eql([[runtime]]);
         expect(commandHandler.handle.args).to.eql([[runtime, variables]]);
         expect(findEventMatcher.args).to.eql([[{ event: node.paths[0].event, runtime, variables }]]);
@@ -268,14 +264,12 @@ describe('_v1 handler unit tests', () => {
           .returns(matcher);
         const runtime = {
           getAction: sinon.stub().returns(Action.REQUEST),
-          setAction: sinon.stub(),
           trace: { addTrace: sinon.stub() },
         };
         const variables = { var1: 'val1' };
         const handler = _V1Handler({ findEventMatcher } as any);
 
         expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('next-id2');
-        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(findEventMatcher.args).to.eql([
           [{ event: node.paths[0].event, runtime, variables }],
           [{ event: node.paths[1].event, runtime, variables }],
@@ -300,14 +294,12 @@ describe('_v1 handler unit tests', () => {
           .returns(matcher);
         const runtime = {
           getAction: sinon.stub().returns(Action.REQUEST),
-          setAction: sinon.stub(),
           trace: { addTrace: sinon.stub() },
         };
         const variables = { var1: 'val1' };
         const handler = _V1Handler({ findEventMatcher } as any);
 
         expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
-        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(findEventMatcher.args).to.eql([
           [{ event: node.paths[0].event, runtime, variables }],
           [{ event: node.paths[1].event, runtime, variables }],

@@ -1,6 +1,6 @@
 import { Node } from '@voiceflow/base-types';
 
-import { Action, HandlerFactory } from '@/runtime';
+import { HandlerFactory } from '@/runtime';
 
 import { isIntentRequest } from '../../types';
 import CommandHandler from '../command';
@@ -14,9 +14,6 @@ export const OneShotIntentHandler: HandlerFactory<Node.Start.Node, typeof utilsO
     return isIntentRequest(runtime.getRequest()) && runtime.stack.getSize() === 1 && node.type === Node.NodeType.START;
   },
   handle: (node, runtime, variables) => {
-    // request for this turn has been processed, set action to response
-    runtime.setAction(Action.RESPONSE);
-
     if (utils.commandHandler.canHandle(runtime)) {
       return utils.commandHandler.handle(runtime, variables);
     }

@@ -27,14 +27,14 @@ describe('Runtime unit', () => {
 
   it('setAction', () => {
     const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
-    const action = Action.RESPONSE;
+    const action = Action.RUNNING;
     runtime.setAction(action as any);
     expect(_.get(runtime, 'action')).to.eql(action);
   });
 
   it('getAction', () => {
     const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
-    const action = Action.RESPONSE;
+    const action = Action.RUNNING;
     runtime.setAction(action as any);
     expect(runtime.getAction()).to.eql(action);
   });
@@ -107,7 +107,7 @@ describe('Runtime unit', () => {
       expect(callEventStub.args[1][1].error.message).to.eql('runtime updated twice');
     });
 
-    it('response action', async () => {
+    it('empty request', async () => {
       const cycleStackStub = sinon.stub(cycleStack, 'default');
       const runtime = new Runtime(undefined as any, { stack: [] } as any, undefined as any, {} as any, null as any);
       const callEventStub = sinon.stub();
@@ -119,7 +119,7 @@ describe('Runtime unit', () => {
         [EventType.updateWillExecute, {}],
         [EventType.updateDidExecute, {}],
       ]);
-      expect(setActionStub.args).to.eql([[Action.RESPONSE]]);
+      expect(setActionStub.args).to.eql([[Action.REQUEST]]);
       expect(cycleStackStub.args).to.eql([[runtime]]);
     });
 

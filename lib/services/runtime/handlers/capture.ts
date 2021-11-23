@@ -21,15 +21,12 @@ const utilsObj = {
 export const CaptureHandler: HandlerFactory<GeneralNode.Capture.Node | ChatNode.Capture.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => !!node.variable,
   handle: (node, runtime, variables) => {
-    if (runtime.getAction() === Action.RESPONSE) {
+    if (runtime.getAction() === Action.RUNNING) {
       utils.addRepromptIfExists(node, runtime, variables);
       utils.addButtonsIfExists(node, runtime, variables);
       // quit cycleStack without ending session by stopping on itself
       return node.id;
     }
-
-    // request for this turn has been processed, set action to response
-    runtime.setAction(Action.RESPONSE);
 
     // check if there is a command in the stack that fulfills request
     if (utils.commandHandler.canHandle(runtime)) {

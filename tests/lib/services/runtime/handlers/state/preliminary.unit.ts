@@ -12,7 +12,7 @@ describe('preliminary handler unit tests', () => {
     });
 
     it('action not request', () => {
-      const runtime = { getRequest: sinon.stub().returns({ payload: { name: 'event1' } }), getAction: sinon.stub().returns(Action.RESPONSE) };
+      const runtime = { getRequest: sinon.stub().returns({ payload: { name: 'event1' } }), getAction: sinon.stub().returns(Action.RUNNING) };
       expect(PreliminaryHandlerFactory({ eventHandlers: [] } as any).canHandle(null as any, runtime as any, null as any, null as any)).to.eql(false);
     });
 
@@ -39,7 +39,7 @@ describe('preliminary handler unit tests', () => {
       const runtime = { setAction: sinon.stub() };
       const variables = { var1: 'val1', var2: 'val2' };
       expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(nodeID);
-      expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
+
       expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
       expect(utils.commandHandler.handle.args).to.eql([[runtime, variables]]);
     });
@@ -54,7 +54,7 @@ describe('preliminary handler unit tests', () => {
       const runtime = { setAction: sinon.stub() };
       const variables = { var1: 'val1', var2: 'val2' };
       expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
-      expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
+
       expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
     });
   });

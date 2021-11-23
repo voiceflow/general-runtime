@@ -5,7 +5,6 @@ import sinon from 'sinon';
 
 import { CommandHandler, getCommand as GetCommand } from '@/lib/services/runtime/handlers/command';
 import { FrameType } from '@/lib/services/runtime/types';
-import { Action } from '@/runtime';
 
 const JumpPathTrace = { type: 'path', payload: { path: 'jump' } };
 const PushPathTrace = { type: 'path', payload: { path: 'push' } };
@@ -63,12 +62,11 @@ describe('Command handler', () => {
         };
         const handler = CommandHandler(utils as any);
 
-        const runtime = { setAction: sinon.stub() };
+        const runtime = {};
         const variables = { var1: 'val1' };
 
         expect(handler.handle(runtime as any, variables as any)).to.eql(null);
         expect(utils.getCommand.args).to.eql([[runtime]]);
-        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(utils.findEventMatcher.args).to.eql([[{ event: commandObj.event, runtime, variables }]]);
         expect(sideEffectStub.callCount).to.eql(1);
       });
@@ -81,12 +79,11 @@ describe('Command handler', () => {
         };
         const handler = CommandHandler(utils as any);
 
-        const runtime = { setAction: sinon.stub() };
+        const runtime = {};
         const variables = { var1: 'val1' };
 
         expect(handler.handle(runtime as any, variables as any)).to.eql(null);
         expect(utils.getCommand.args).to.eql([[runtime]]);
-        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(utils.findEventMatcher.args).to.eql([[{ event: commandObj.event, runtime, variables }]]);
       });
     });
@@ -104,7 +101,6 @@ describe('Command handler', () => {
 
         const setNodeID = sinon.stub();
         const runtime = {
-          setAction: sinon.stub(),
           stack: { getSize: sinon.stub().returns(3), popTo: sinon.stub(), top: sinon.stub().returns({ setNodeID }) },
           trace: { debug: sinon.stub(), addTrace: sinon.stub() },
         };
@@ -112,7 +108,6 @@ describe('Command handler', () => {
 
         expect(handler.handle(runtime as any, variables as any)).to.eql(null);
         expect(utils.getCommand.args).to.eql([[runtime]]);
-        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(utils.findEventMatcher.args).to.eql([[{ event: commandObj.event, runtime, variables }]]);
         expect(sideEffectStub.callCount).to.eql(1);
         expect(runtime.stack.getSize.callCount).to.eql(0);
@@ -135,7 +130,6 @@ describe('Command handler', () => {
 
           const setNodeID = sinon.stub();
           const runtime = {
-            setAction: sinon.stub(),
             stack: { popTo: sinon.stub(), top: sinon.stub().returns({ setNodeID }) },
             trace: { debug: sinon.stub(), addTrace: sinon.stub() },
           };
@@ -143,7 +137,6 @@ describe('Command handler', () => {
 
           expect(handler.handle(runtime as any, variables as any)).to.eql(null);
           expect(utils.getCommand.args).to.eql([[runtime]]);
-          expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
           expect(utils.findEventMatcher.args).to.eql([[{ event: commandObj.event, runtime, variables }]]);
           expect(sideEffectStub.callCount).to.eql(1);
           expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
@@ -164,7 +157,6 @@ describe('Command handler', () => {
 
           const setNodeID = sinon.stub();
           const runtime = {
-            setAction: sinon.stub(),
             stack: { popTo: sinon.stub(), top: sinon.stub().returns({ setNodeID }) },
             trace: { debug: sinon.stub(), addTrace: sinon.stub() },
           };
@@ -172,7 +164,6 @@ describe('Command handler', () => {
 
           expect(handler.handle(runtime as any, variables as any)).to.eql(null);
           expect(utils.getCommand.args).to.eql([[runtime]]);
-          expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
           expect(utils.findEventMatcher.args).to.eql([[{ event: commandObj.event, runtime, variables }]]);
           expect(sideEffectStub.callCount).to.eql(1);
           expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
@@ -193,12 +184,11 @@ describe('Command handler', () => {
         };
         const handler = CommandHandler(utils as any);
 
-        const runtime = { setAction: sinon.stub() };
+        const runtime = {};
         const variables = { var1: 'val1' };
 
         expect(handler.handle(runtime as any, variables as any)).to.eql(null);
         expect(utils.getCommand.args).to.eql([[runtime]]);
-        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(utils.findEventMatcher.args).to.eql([[{ event: commandObj.event, runtime, variables }]]);
         expect(sideEffectStub.callCount).to.eql(1);
       });
@@ -215,7 +205,6 @@ describe('Command handler', () => {
 
         const storageSetStub = sinon.stub();
         const runtime = {
-          setAction: sinon.stub(),
           stack: { top: sinon.stub().returns({ storage: { set: storageSetStub } }), push: sinon.stub() },
           trace: { debug: sinon.stub(), addTrace: sinon.stub() },
         };
@@ -223,7 +212,6 @@ describe('Command handler', () => {
 
         expect(handler.handle(runtime as any, variables as any)).to.eql(null);
         expect(utils.getCommand.args).to.eql([[runtime]]);
-        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(utils.findEventMatcher.args).to.eql([[{ event: commandObj.event, runtime, variables }]]);
         expect(sideEffectStub.callCount).to.eql(1);
         expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - adding command flow`, Node.NodeType.COMMAND]]);

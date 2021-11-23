@@ -81,7 +81,7 @@ describe('dialog manager utilities unit tests', () => {
         stack: { top: sinon.stub().returns(currentFrame) },
         getProgram: sinon.stub().resolves(program),
         variables: { var1: 'val1' },
-        getAction: sinon.stub().returns(RuntimeModule.Action.RESPONSE),
+        getAction: sinon.stub().returns(RuntimeModule.Action.RUNNING),
       };
       const client = { createRuntime: sinon.stub().returns(runtime) };
       const ClientStub = sinon.stub(Client, 'default');

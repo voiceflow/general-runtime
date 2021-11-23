@@ -24,7 +24,7 @@ const utilsObj = {
 export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | ChatNode.Interaction.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => !!node.interactions,
   handle: (node, runtime, variables, program) => {
-    if (runtime.getAction() === Action.RESPONSE) {
+    if (runtime.getAction() === Action.RUNNING) {
       utils.addRepromptIfExists(node, runtime, variables);
       utils.addButtonsIfExists(node, runtime, variables);
 
@@ -34,9 +34,6 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
       // quit cycleStack without ending session by stopping on itself
       return node.id;
     }
-
-    // request for this turn has been processed, set action to response
-    runtime.setAction(Action.RESPONSE);
 
     for (let i = 0; i < node.interactions.length; i++) {
       const { event, nextId } = node.interactions[i];

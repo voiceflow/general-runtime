@@ -26,9 +26,6 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
   handle: (runtime: GeneralRuntime, variables: Store): string | null => {
     const res = utils.getCommand(runtime);
 
-    // request for this turn has been processed, set action to response
-    runtime.setAction(Action.RESPONSE);
-
     const { command, index } = res!;
     const { event } = command;
     const { stack, trace } = runtime;

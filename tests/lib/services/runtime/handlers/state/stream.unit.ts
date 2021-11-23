@@ -5,7 +5,6 @@ import sinon from 'sinon';
 
 import { StreamStateHandler } from '@/lib/services/runtime/handlers/state/stream';
 import { StorageType, StreamAction } from '@/lib/services/runtime/types';
-import { Action } from '@/runtime';
 
 describe('stream state handler unit tests', () => {
   describe('canHandle', () => {
@@ -40,14 +39,12 @@ describe('stream state handler unit tests', () => {
         const runtime = {
           getRequest: sinon.stub().returns(null),
           storage: { get: sinon.stub().returns({}), produce: sinon.stub() },
-          setAction: sinon.stub(),
         };
         const variables = { var1: 'val1' };
         const handler = StreamStateHandler(utils as any);
 
         expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(output);
         expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(runtime.getRequest.callCount).to.eql(1);
         expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
 
@@ -67,14 +64,12 @@ describe('stream state handler unit tests', () => {
         const runtime = {
           getRequest: sinon.stub().returns(null),
           storage: { get: sinon.stub().returns({}), produce: sinon.stub() },
-          setAction: sinon.stub(),
           end: sinon.stub(),
         };
         const handler = StreamStateHandler(utils as any);
 
         expect(handler.handle(null as any, runtime as any, null as any, null as any)).to.eql(null);
         expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(runtime.getRequest.callCount).to.eql(1);
 
         expect(runtime.storage.produce.callCount).to.eql(1);
@@ -96,14 +91,12 @@ describe('stream state handler unit tests', () => {
           const runtime = {
             getRequest: sinon.stub().returns(request),
             storage: { get: sinon.stub().returns(streamPlay), produce: sinon.stub(), set: sinon.stub() },
-            setAction: sinon.stub(),
           };
           const variables = { var1: 'val1' };
           const handler = StreamStateHandler(utils as any);
 
           expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(streamPlay.pauseID);
           expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-          expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
           expect(runtime.getRequest.callCount).to.eql(1);
           expect(runtime.storage.set.args).to.eql([[StorageType.STREAM_PAUSE, { id: streamPlay.nodeID, offset: streamPlay.offset }]]);
 
@@ -120,7 +113,6 @@ describe('stream state handler unit tests', () => {
           const runtime = {
             getRequest: sinon.stub().returns(request),
             storage: { get: sinon.stub().returns({}), produce: sinon.stub() },
-            setAction: sinon.stub(),
             end: sinon.stub(),
           };
           const variables = { var1: 'val1' };
@@ -128,7 +120,6 @@ describe('stream state handler unit tests', () => {
 
           expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(null);
           expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-          expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
           expect(runtime.getRequest.callCount).to.eql(1);
 
           expect(runtime.storage.produce.callCount).to.eql(1);
@@ -147,7 +138,6 @@ describe('stream state handler unit tests', () => {
         const runtime = {
           getRequest: sinon.stub().returns(request),
           storage: { get: sinon.stub().returns({}), produce: sinon.stub() },
-          setAction: sinon.stub(),
           end: sinon.stub(),
         };
         const variables = { var1: 'val1' };
@@ -155,7 +145,6 @@ describe('stream state handler unit tests', () => {
 
         expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(null);
         expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(runtime.getRequest.callCount).to.eql(1);
 
         expect(runtime.storage.produce.callCount).to.eql(1);
@@ -173,7 +162,6 @@ describe('stream state handler unit tests', () => {
         const runtime = {
           getRequest: sinon.stub().returns(request),
           storage: { get: sinon.stub().returns({}), produce: sinon.stub() },
-          setAction: sinon.stub(),
           end: sinon.stub(),
         };
         const variables = { var1: 'val1' };
@@ -181,7 +169,6 @@ describe('stream state handler unit tests', () => {
 
         expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(null);
         expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(runtime.getRequest.callCount).to.eql(1);
 
         expect(runtime.storage.produce.callCount).to.eql(1);
@@ -199,7 +186,6 @@ describe('stream state handler unit tests', () => {
         const runtime = {
           getRequest: sinon.stub().returns(request),
           storage: { get: sinon.stub().returns({}), produce: sinon.stub() },
-          setAction: sinon.stub(),
           end: sinon.stub(),
         };
         const variables = { var1: 'val1' };
@@ -207,7 +193,6 @@ describe('stream state handler unit tests', () => {
 
         expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(null);
         expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(runtime.getRequest.callCount).to.eql(1);
 
         expect(runtime.storage.produce.callCount).to.eql(1);
@@ -227,14 +212,12 @@ describe('stream state handler unit tests', () => {
           const runtime = {
             getRequest: sinon.stub().returns(request),
             storage: { get: sinon.stub().returns({ nextID }), produce: sinon.stub() },
-            setAction: sinon.stub(),
           };
           const variables = { var1: 'val1' };
           const handler = StreamStateHandler(utils as any);
 
           expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(nextID);
           expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-          expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
           expect(runtime.getRequest.callCount).to.eql(1);
 
           expect(runtime.storage.produce.callCount).to.eql(1);
@@ -250,14 +233,12 @@ describe('stream state handler unit tests', () => {
           const runtime = {
             getRequest: sinon.stub().returns(request),
             storage: { get: sinon.stub().returns({ action: StreamAction.NEXT }), produce: sinon.stub() },
-            setAction: sinon.stub(),
           };
           const variables = { var1: 'val1' };
           const handler = StreamStateHandler(utils as any);
 
           expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(null);
           expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-          expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
           expect(runtime.getRequest.callCount).to.eql(1);
 
           expect(runtime.storage.produce.callCount).to.eql(1);
@@ -275,14 +256,12 @@ describe('stream state handler unit tests', () => {
           const runtime = {
             getRequest: sinon.stub().returns(request),
             storage: { get: sinon.stub().returns({}), produce: sinon.stub() },
-            setAction: sinon.stub(),
           };
           const variables = { var1: 'val1' };
           const handler = StreamStateHandler(utils as any);
 
           expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(null);
           expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-          expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
           expect(runtime.getRequest.callCount).to.eql(1);
 
           expect(runtime.storage.produce.callCount).to.eql(1);
@@ -299,14 +278,12 @@ describe('stream state handler unit tests', () => {
           const runtime = {
             getRequest: sinon.stub().returns(request),
             storage: { get: sinon.stub().returns({ previousID }), produce: sinon.stub() },
-            setAction: sinon.stub(),
           };
           const variables = { var1: 'val1' };
           const handler = StreamStateHandler(utils as any);
 
           expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(previousID);
           expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-          expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
           expect(runtime.getRequest.callCount).to.eql(1);
 
           expect(runtime.storage.produce.callCount).to.eql(1);
@@ -323,7 +300,6 @@ describe('stream state handler unit tests', () => {
         const runtime = {
           getRequest: sinon.stub().returns(request),
           storage: { get: sinon.stub().returns({}), produce: sinon.stub() },
-          setAction: sinon.stub(),
           end: sinon.stub(),
         };
         const variables = { var1: 'val1' };
@@ -331,7 +307,6 @@ describe('stream state handler unit tests', () => {
 
         expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(null);
         expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-        expect(runtime.setAction.args).to.eql([[Action.RESPONSE]]);
         expect(runtime.getRequest.callCount).to.eql(1);
 
         expect(runtime.storage.produce.callCount).to.eql(1);

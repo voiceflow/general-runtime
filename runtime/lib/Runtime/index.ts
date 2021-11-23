@@ -23,8 +23,8 @@ export interface State {
 
 export enum Action {
   IDLE,
-  REQUEST,
-  RESPONSE,
+  REQUEST, // incoming user request that needs to be handled
+  RUNNING, // normal execution
   END,
 }
 
@@ -145,7 +145,9 @@ class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends Abstrac
         throw new Error('runtime updated twice');
       }
 
-      this.setAction(this.request ? Action.REQUEST : Action.RESPONSE);
+      // request coming in
+      this.setAction(Action.REQUEST);
+
       await cycleStack(this);
 
       await this.callEvent(EventType.updateDidExecute, {});

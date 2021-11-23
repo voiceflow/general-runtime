@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import _ from 'lodash';
 import sinon from 'sinon';
 
+import { Action } from '@/runtime';
 import { EventType } from '@/runtime/lib/Lifecycle';
 import cycleHandler, * as file from '@/runtime/lib/Runtime/cycleHandler';
 
@@ -9,7 +10,10 @@ describe('Runtime cycleHandler unit tests', () => {
   it('no node', async () => {
     const nodeID = 'node-id';
     const referenceFrame = { getNodeID: sinon.stub().returns(nodeID) };
-    const runtime = { stack: { getFrames: sinon.stub().returns([]), top: sinon.stub().returns(referenceFrame) } };
+    const runtime = {
+      stack: { getFrames: sinon.stub().returns([]), top: sinon.stub().returns(referenceFrame) },
+      getAction: sinon.stub().returns(Action.RUNNING),
+    };
     const program = { getNode: sinon.stub().returns(null) };
     const variableState = {};
 
@@ -24,6 +28,7 @@ describe('Runtime cycleHandler unit tests', () => {
     const runtime = {
       stack: { getFrames: sinon.stub().returns([]), top: sinon.stub().returns(referenceFrame) },
       getHandlers: sinon.stub().returns(handlers),
+      getAction: sinon.stub().returns(Action.RUNNING),
     };
     const node = {};
     const program = { getNode: sinon.stub().returns(node) };
@@ -43,6 +48,7 @@ describe('Runtime cycleHandler unit tests', () => {
       getHandlers: sinon.stub().returns(handlers),
       end: sinon.stub(),
       hasEnded: sinon.stub().returns(true),
+      getAction: sinon.stub().returns(Action.RUNNING),
     };
     const node = { id: nodeID };
     const program = { getNode: sinon.stub().returns(node) };
@@ -66,6 +72,7 @@ describe('Runtime cycleHandler unit tests', () => {
       stack: { getFrames: sinon.stub().returns([]), top: sinon.stub().returns(referenceFrame) },
       getHandlers: sinon.stub().returns(handlers),
       hasEnded: sinon.stub().returns(true),
+      getAction: sinon.stub().returns(Action.RUNNING),
     };
     const node = {};
     const program = { getNode: sinon.stub().returns(node) };
@@ -95,6 +102,7 @@ describe('Runtime cycleHandler unit tests', () => {
       },
       getHandlers: sinon.stub().returns(handlers),
       hasEnded: sinon.stub().returns(false),
+      getAction: sinon.stub().returns(Action.RUNNING),
     };
     const node = {};
     const program = { getNode: sinon.stub().returns(node) };
@@ -118,6 +126,7 @@ describe('Runtime cycleHandler unit tests', () => {
       },
       getHandlers: sinon.stub().returns(handlers),
       hasEnded: sinon.stub().returns(false),
+      getAction: sinon.stub().returns(Action.RUNNING),
     };
     const node = {};
     const program = { getNode: sinon.stub().returns(node) };
@@ -127,5 +136,29 @@ describe('Runtime cycleHandler unit tests', () => {
     await cycleHandler(runtime as any, program as any, variableState as any);
     expect(runtime.hasEnded.callCount).to.eql(cyclesLimit + 1);
     expect(referenceFrame.setNodeID.args[0]).to.eql(['next-id']);
+  });
+
+  it('handles request', async () => {
+    const nodeID = 'node-id';
+    const referenceFrame = { getNodeID: sinon.stub().returns(nodeID) };
+    const handlers = [{ canHandle: () => true, handle: sinon.stub().resolves(null) }];
+    const runtime = {
+      callEvent: sinon.stub(),
+      stack: {
+        getFrames: sinon.stub().returns([]),
+        top: sinon.stub().returns(referenceFrame),
+      },
+      getHandlers: sinon.stub().returns(handlers),
+      hasEnded: sinon.stub().returns(false),
+      getAction: sinon.stub().returns(Action.REQUEST),
+      setAction: sinon.stub(),
+    };
+    const node = {};
+    const program = { getNode: sinon.stub().returns(node) };
+    const variableState = {};
+
+    // the fact that finishes means that i > HANDLER_OVERFLOW was hit
+    await cycleHandler(runtime as any, program as any, variableState as any);
+    expect(runtime.setAction.args).to.eql([[Action.RUNNING]]);
   });
 });
