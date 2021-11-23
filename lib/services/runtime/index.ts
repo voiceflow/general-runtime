@@ -62,6 +62,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     if (context.data.config?.stopTypes) {
       runtime.turn.set(TurnType.STOP_TYPES, context.data.config.stopTypes);
     }
+
     if (context.data.config?.stopAll) {
       runtime.turn.set(TurnType.STOP_ALL, true);
     }

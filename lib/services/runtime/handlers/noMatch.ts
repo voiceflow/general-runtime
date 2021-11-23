@@ -1,57 +1,57 @@
-import { BaseNode } from '@voiceflow/api-sdk';
-import { Node, Request, Text, Trace } from '@voiceflow/base-types';
+import { Node as BaseNode, Request, Text, Trace } from '@voiceflow/base-types';
 import { Node as ChatNode } from '@voiceflow/chat-types';
 import { Node as VoiceNode } from '@voiceflow/voice-types';
 import _ from 'lodash';
 
-import { HandlerFactory, Runtime, Store } from '@/runtime';
+import { Runtime, Store } from '@/runtime';
 
-import { NoMatchCounterStorage, StorageData, StorageType } from '../types';
-import { addButtonsIfExists, outputTrace, slateToPlaintext } from '../utils';
+import { NoMatchCounterStorage, StorageType } from '../types';
+import { addButtonsIfExists, outputTrace, removeEmptyPrompts } from '../utils';
 
-interface BaseNoMatchNode extends BaseNode, Request.NodeButton {}
-interface VoiceNoMatchNode extends BaseNoMatchNode, VoiceNode.Utils.NodeNoMatch {}
-interface ChatNoMatchNode extends BaseNoMatchNode, ChatNode.Utils.NodeNoMatch {}
-
-export type NoMatchNode = VoiceNoMatchNode | ChatNoMatchNode;
-
-export const EMPTY_AUDIO_STRING = '<audio src=""/>';
+type NoMatchNode = Request.NodeButton & (VoiceNode.Utils.NoMatchNode | ChatNode.Utils.NoMatchNode);
 
 const utilsObj = {
   outputTrace,
   addButtonsIfExists,
 };
 
-const removeEmptyNoMatches = <T extends string[] | Text.SlateTextValue[]>(noMatchArray?: T): T | undefined =>
-  (noMatchArray as any[])?.filter(
-    (noMatch: T[number]) => noMatch != null && (_.isString(noMatch) ? noMatch !== EMPTY_AUDIO_STRING : !!slateToPlaintext(noMatch))
-  ) as T | undefined;
+const removeEmptyNoMatches = (node: NoMatchNode) => {
+  const prompts: Array<Text.SlateTextValue | string> = node.noMatch?.prompts ?? node.noMatches ?? [];
 
-export const NoMatchHandler: HandlerFactory<NoMatchNode, typeof utilsObj> = (utils) => ({
-  canHandle: (node: NoMatchNode, runtime: Runtime) => {
-    const nonEmptyNoMatches = removeEmptyNoMatches(node.noMatches);
+  return removeEmptyPrompts(prompts);
+};
 
-    return (
-      Array.isArray(nonEmptyNoMatches) && nonEmptyNoMatches.length > (runtime.storage.get<NoMatchCounterStorage>(StorageType.NO_MATCHES_COUNTER) ?? 0)
-    );
-  },
+const getNoMatchID = (node: NoMatchNode) => node.noMatch?.nodeID ?? node.elseId ?? null;
+
+export const NoMatchHandler = (utils: typeof utilsObj) => ({
   handle: (node: NoMatchNode, runtime: Runtime, variables: Store) => {
-    runtime.storage.produce<StorageData>((draft) => {
-      const counter = draft[StorageType.NO_MATCHES_COUNTER];
+    const nonEmptyNoMatches = removeEmptyNoMatches(node);
 
-      draft[StorageType.NO_MATCHES_COUNTER] = counter ? counter + 1 : 1;
-    });
+    const noMatchCounter = runtime.storage.get<NoMatchCounterStorage>(StorageType.NO_MATCHES_COUNTER) ?? 0;
+
+    if (noMatchCounter >= nonEmptyNoMatches.length) {
+      // clean up no matches counter
+      runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);
+
+      runtime.trace.addTrace<Trace.PathTrace>({
+        type: BaseNode.Utils.TraceType.PATH,
+        payload: { path: 'choice:else' },
+      });
+
+      return getNoMatchID(node);
+    }
+
+    runtime.storage.set(StorageType.NO_MATCHES_COUNTER, noMatchCounter + 1);
 
     runtime.trace.addTrace<Trace.PathTrace>({
-      type: Node.Utils.TraceType.PATH,
+      type: BaseNode.Utils.TraceType.PATH,
       payload: { path: 'reprompt' },
     });
 
-    const nonEmptyNoMatches = removeEmptyNoMatches(node.noMatches)!;
-
-    const output = node.randomize
-      ? _.sample<string | Text.SlateTextValue>(nonEmptyNoMatches)
-      : nonEmptyNoMatches?.[runtime.storage.get<NoMatchCounterStorage>(StorageType.NO_MATCHES_COUNTER)! - 1];
+    const output =
+      node.noMatch?.randomize ?? node.randomize
+        ? _.sample<string | Text.SlateTextValue>(nonEmptyNoMatches)
+        : nonEmptyNoMatches?.[runtime.storage.get<NoMatchCounterStorage>(StorageType.NO_MATCHES_COUNTER)! - 1];
 
     runtime.trace.addTrace(utils.outputTrace({ output, variables: variables.getState() }));
 

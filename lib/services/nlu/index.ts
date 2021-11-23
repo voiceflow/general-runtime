@@ -3,8 +3,7 @@
  * @packageDocumentation
  */
 
-import { PrototypeModel } from '@voiceflow/api-sdk';
-import { Request } from '@voiceflow/base-types';
+import { Models, Request } from '@voiceflow/base-types';
 import { Constants } from '@voiceflow/general-types';
 
 import { isTextRequest } from '@/lib/services/runtime/types';
@@ -21,7 +20,7 @@ export const utils = {};
  * random
  */
 class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  async predict({ query, model, locale, projectID }: { query: string; model?: PrototypeModel; locale?: Constants.Locale; projectID: string }) {
+  async predict({ query, model, locale, projectID }: { query: string; model?: Models.PrototypeModel; locale?: Constants.Locale; projectID: string }) {
     // 1. first try restricted regex (no open slots) - exact string match
     if (model && locale) {
       const intent = handleNLCCommand({ query, model, locale, openSlot: false });

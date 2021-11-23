@@ -2,37 +2,9 @@ import { Node } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { TurnType } from '@/lib/services/runtime/types';
-import {
-  addButtonsIfExists,
-  addRepromptIfExists,
-  getReadableConfidence,
-  mapEntities,
-  slateInjectVariables,
-  slateToPlaintext,
-} from '@/lib/services/runtime/utils';
+import { addButtonsIfExists, getReadableConfidence, mapEntities, slateInjectVariables, slateToPlaintext } from '@/lib/services/runtime/utils';
 
 describe('runtime utils service unit tests', () => {
-  describe('addRepromptIfExists', () => {
-    it('does not have repropmt', () => {
-      const runtime = { turn: { set: sinon.stub() } };
-      addRepromptIfExists({ foo: 'bar' } as any, runtime as any, null as any);
-
-      expect(runtime.turn.set.callCount).to.eql(0);
-    });
-
-    it('has reprompt', () => {
-      const runtime = { turn: { set: sinon.stub() } };
-      const node = { reprompt: 'hello {var}' };
-      const varState = { var: 'there' };
-      const variables = { getState: sinon.stub().returns(varState) };
-
-      addRepromptIfExists(node, runtime as any, variables as any);
-
-      expect(runtime.turn.set.args[0]).to.eql([TurnType.REPROMPT, 'hello there']);
-    });
-  });
-
   describe('getReadableConfidence', () => {
     it('works', () => {
       expect(getReadableConfidence()).to.eql('100.00');

@@ -82,6 +82,7 @@ describe('dialog manager utilities unit tests', () => {
         getProgram: sinon.stub().resolves(program),
         variables: { var1: 'val1' },
         getAction: sinon.stub().returns(RuntimeModule.Action.RUNNING),
+        getRequest: sinon.stub().returns({}),
       };
       const client = { createRuntime: sinon.stub().returns(runtime) };
       const ClientStub = sinon.stub(Client, 'default');
@@ -119,6 +120,7 @@ describe('dialog manager utilities unit tests', () => {
         getProgram: sinon.stub().resolves(program),
         variables: { var1: 'val1' },
         getAction: sinon.stub().returns(RuntimeModule.Action.REQUEST),
+        getRequest: sinon.stub().returns({}),
       };
       const client = { createRuntime: sinon.stub().returns(runtime) };
       const ClientStub = sinon.stub(Client, 'default');
@@ -148,6 +150,7 @@ describe('dialog manager utilities unit tests', () => {
         getProgram: sinon.stub().resolves(program),
         variables: { var1: 'val1' },
         getAction: sinon.stub().returns(RuntimeModule.Action.REQUEST),
+        getRequest: sinon.stub().returns({}),
       };
       const client = { createRuntime: sinon.stub().returns(runtime) };
       const ClientStub = sinon.stub(Client, 'default');
@@ -177,6 +180,7 @@ describe('dialog manager utilities unit tests', () => {
         getProgram: sinon.stub().resolves(program),
         variables: { var1: 'val1' },
         getAction: sinon.stub().returns(RuntimeModule.Action.REQUEST),
+        getRequest: sinon.stub().returns({}),
       };
       const client = { createRuntime: sinon.stub().returns(runtime) };
       const ClientStub = sinon.stub(Client, 'default');
@@ -209,6 +213,7 @@ describe('dialog manager utilities unit tests', () => {
         getProgram: sinon.stub().resolves(program),
         variables: { var1: 'val1' },
         getAction: sinon.stub().returns(RuntimeModule.Action.REQUEST),
+        getRequest: sinon.stub().returns({}),
       };
       const client = { createRuntime: sinon.stub().returns(runtime) };
       const ClientStub = sinon.stub(Client, 'default');
@@ -240,6 +245,7 @@ describe('dialog manager utilities unit tests', () => {
         getProgram: sinon.stub().resolves(program),
         variables: { var1: 'val1' },
         getAction: sinon.stub().returns(RuntimeModule.Action.REQUEST),
+        getRequest: sinon.stub().returns({}),
       };
       const client = { createRuntime: sinon.stub().returns(runtime) };
       const ClientStub = sinon.stub(Client, 'default');

@@ -1,8 +1,8 @@
-import { BaseNode } from '@voiceflow/api-sdk';
+import { Models } from '@voiceflow/base-types';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
-export interface NextNode extends BaseNode {
+export interface NextNode extends Models.BaseNode {
   nextId?: string;
 }
 

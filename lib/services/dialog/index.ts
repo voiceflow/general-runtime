@@ -3,8 +3,7 @@
  * @packageDocumentation
  */
 
-import { PrototypeModel } from '@voiceflow/api-sdk';
-import { Request, Trace } from '@voiceflow/base-types';
+import { Models, Request, Trace } from '@voiceflow/base-types';
 import { Types as ChatTypes } from '@voiceflow/chat-types';
 import { Constants } from '@voiceflow/general-types';
 import { Types as VoiceTypes } from '@voiceflow/voice-types';
@@ -50,7 +49,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     dmStateStore: DMStore,
     dmPrefixedResult: Request.IntentRequest,
     incomingRequest: Request.IntentRequest,
-    languageModel: PrototypeModel
+    languageModel: Models.PrototypeModel
   ) => {
     const dmPrefixedResultName = dmPrefixedResult.payload.intent.name;
     log.trace(`[app] [runtime] [dm] DM-Prefixed inference result ${log.vars({ resultName: dmPrefixedResultName })}`);

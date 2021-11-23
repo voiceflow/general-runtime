@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 
-import { BaseCommand } from '@voiceflow/api-sdk';
+import { Models } from '@voiceflow/base-types';
 
 import ProgramModel from '@/runtime/lib/Program';
 
@@ -15,7 +15,7 @@ export interface State {
   name?: string;
 
   storage: StoreState;
-  commands?: BaseCommand[];
+  commands?: Models.BaseCommand[];
   variables: StoreState;
 }
 
@@ -25,7 +25,7 @@ export interface Options {
   name?: string;
 
   storage?: StoreState;
-  commands?: BaseCommand[];
+  commands?: Models.BaseCommand[];
   variables?: StoreState;
 
   // deprecated
@@ -44,7 +44,7 @@ class Frame {
 
   private name?: string;
 
-  private commands: BaseCommand[] = [];
+  private commands: Models.BaseCommand[] = [];
 
   public storage: Store;
 
@@ -142,7 +142,7 @@ class Frame {
     this.programID = programID;
   }
 
-  public getCommands<T extends BaseCommand = BaseCommand>(): T[] {
+  public getCommands<T extends Models.BaseCommand = Models.BaseCommand>(): T[] {
     return this.commands as T[];
   }
 }

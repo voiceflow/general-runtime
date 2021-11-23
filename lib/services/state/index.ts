@@ -1,5 +1,4 @@
-import { Version } from '@voiceflow/api-sdk';
-import { Trace } from '@voiceflow/base-types';
+import { Models, Trace } from '@voiceflow/base-types';
 
 import { PartialContext, State } from '@/runtime';
 import { Context, InitContextHandler } from '@/types';
@@ -21,7 +20,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
    * generate a context for a new session
    * @param versionID - project version to generate the context for
    */
-  generate({ prototype, rootDiagramID }: Version<any>, state?: State): State {
+  generate({ prototype, rootDiagramID }: Models.Version<any>, state?: State): State {
     const DEFAULT_STACK = [{ programID: rootDiagramID, storage: {}, variables: {} }];
 
     const stack =
@@ -45,7 +44,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
   }
 
   // initialize all entities and variables to 0, it is important that they are defined
-  initializeVariables({ prototype, variables }: Version<any>, state: State) {
+  initializeVariables({ prototype, variables }: Models.Version<any>, state: State) {
     const entities = prototype?.model.slots.map(({ name }) => name) || [];
 
     return {

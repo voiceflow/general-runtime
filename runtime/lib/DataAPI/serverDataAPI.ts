@@ -1,12 +1,15 @@
-import { BasePlatformData, Program, Project, Version } from '@voiceflow/api-sdk';
+import { Models } from '@voiceflow/base-types';
 import { AxiosInstance, AxiosStatic } from 'axios';
 import moize from 'moize';
 import { ObjectId } from 'mongodb';
 
 import { DataAPI, Display } from './types';
 
-class ServerDataAPI<P extends Program<any, any>, V extends Version<any>, PJ extends Project<any, any> = Project<BasePlatformData, BasePlatformData>>
-  implements DataAPI<P, V, PJ> {
+class ServerDataAPI<
+  P extends Models.Program<any, any>,
+  V extends Models.Version<any>,
+  PJ extends Models.Project<any, any> = Models.Project<Models.BasePlatformData, Models.BasePlatformData>
+> implements DataAPI<P, V, PJ> {
   protected client!: AxiosInstance;
 
   private axios: AxiosStatic;

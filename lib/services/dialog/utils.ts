@@ -1,6 +1,5 @@
 /* eslint-disable no-restricted-syntax */
-import { BaseNode, IntentInput, PrototypeModel } from '@voiceflow/api-sdk';
-import { Node, Request } from '@voiceflow/base-types';
+import { Models, Node, Request } from '@voiceflow/base-types';
 import { SLOT_REGEXP } from '@voiceflow/common';
 // import { Node } from '@voiceflow/general-types';
 import * as crypto from 'crypto';
@@ -16,17 +15,17 @@ import { eventHandlers } from '../runtime/handlers/state/preliminary';
 
 export const VF_DM_PREFIX = 'dm_';
 
-export const inputToString = ({ text, voice }: IntentInput, defaultVoice: string | null) => {
+export const inputToString = ({ text, voice }: Models.IntentInput, defaultVoice: string | null) => {
   const currentVoice = voice || defaultVoice;
 
   return currentVoice?.trim() ? `<voice name="${currentVoice}">${text}</voice>` : text;
 };
 
-export const getSlotNameByID = (id: string, model: PrototypeModel) => {
+export const getSlotNameByID = (id: string, model: Models.PrototypeModel) => {
   return model.slots.find((lmEntity) => lmEntity.key === id)?.name;
 };
 
-export const getUnfulfilledEntity = (intentRequest: Request.IntentRequest, model: PrototypeModel) => {
+export const getUnfulfilledEntity = (intentRequest: Request.IntentRequest, model: Models.PrototypeModel) => {
   const intentModel = model.intents.find((intent) => intent.name === intentRequest.payload.intent.name);
   const extractedEntities = intentRequest.payload.entities;
 
@@ -70,15 +69,15 @@ export const getDMPrefixIntentName = (intentName: string) => {
   return `${VF_DM_PREFIX}${dmPrefix(intentName)}_${intentName}`;
 };
 
-export const getIntentEntityList = (intentName: string, model: PrototypeModel) => {
+export const getIntentEntityList = (intentName: string, model: Models.PrototypeModel) => {
   const intentModel = model.intents.find((intent) => intent.name === intentName);
   const intentEntityIDs = intentModel?.slots?.map((entity) => entity.id);
   return intentEntityIDs?.map((id) => model.slots.find((entity) => entity.key === id));
 };
 
 export const isInteractionsInNode = (
-  node: BaseNode & { interactions?: Node.Interaction.NodeInteraction[] }
-): node is BaseNode & { interactions: Node.Interaction.NodeInteraction[] } => Array.isArray(node.interactions);
+  node: Models.BaseNode & { interactions?: Node.Interaction.NodeInteraction[] }
+): node is Models.BaseNode & { interactions: Node.Interaction.NodeInteraction[] } => Array.isArray(node.interactions);
 
 export const isIntentInScope = async ({ data: { api }, versionID, state, request }: Context) => {
   const client = new Client({

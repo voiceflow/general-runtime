@@ -1,4 +1,4 @@
-import { BaseNode } from '@voiceflow/api-sdk';
+import { Models } from '@voiceflow/base-types';
 
 import { Action, Handler, HandlerFactory, IfV2Handler } from '@/runtime';
 
@@ -19,7 +19,7 @@ const utilsObj = {
  * If request comes in but runtime nodeID is not a node that handles events (i.e, interaction, capture, _v1, etc..) =>
  * Handle it here
  */
-export const PreliminaryHandler: HandlerFactory<BaseNode, typeof utilsObj> = (utils) => ({
+export const PreliminaryHandler: HandlerFactory<Models.BaseNode, typeof utilsObj> = (utils) => ({
   canHandle: (node, runtime, variables, program) => {
     const request = runtime.getRequest();
     return !!request && runtime.getAction() === Action.REQUEST && !utils.eventHandlers.find((h) => h.canHandle(node, runtime, variables, program));

@@ -1,8 +1,5 @@
-import { SlotMapping } from '@voiceflow/api-sdk';
-import { Node, Request, Text, Trace } from '@voiceflow/base-types';
-import { Node as ChatNode } from '@voiceflow/chat-types';
+import { Models, Node, Request, Text, Trace } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables, transformStringVariableToNumber } from '@voiceflow/common';
-import { Node as VoiceNode } from '@voiceflow/voice-types';
 import cuid from 'cuid';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
 import _isString from 'lodash/isString';
@@ -11,10 +8,12 @@ import { Text as SlateText } from 'slate';
 
 import { Runtime, Store } from '@/runtime';
 
-import { Output, TurnType } from './types';
+import { Output } from './types';
+
+export const EMPTY_AUDIO_STRING = '<audio src=""/>';
 
 export const mapEntities = (
-  mappings: SlotMapping[],
+  mappings: Models.SlotMapping[],
   entities: Request.IntentRequest['payload']['entities'] = [],
   overwrite = false
 ): Record<string, string | number | null> => {
@@ -29,7 +28,7 @@ export const mapEntities = (
   );
 
   if (mappings && entities) {
-    mappings.forEach((map: SlotMapping) => {
+    mappings.forEach((map: Models.SlotMapping) => {
       if (!map.slot) return;
 
       const toVariable = map.variable;
@@ -52,19 +51,6 @@ export const slateInjectVariables = (slateValue: Text.SlateTextValue, variables:
   const customizer = (value: any) => (_isString(value) ? replaceVariables(value, variables, undefined, { trim: false }) : undefined);
 
   return _cloneDeepWith(slateValue, customizer);
-};
-
-export const addRepromptIfExists = <N extends VoiceNode.Utils.NodeReprompt | ChatNode.Utils.NodeReprompt>(
-  { reprompt }: N,
-  runtime: Runtime,
-  variables: Store
-): void => {
-  if (reprompt) {
-    runtime.turn.set(
-      TurnType.REPROMPT,
-      _isString(reprompt) ? replaceVariables(reprompt, variables.getState()) : slateInjectVariables(reprompt, variables.getState())
-    );
-  }
 };
 
 export const addButtonsIfExists = <N extends Request.NodeButton>(node: N, runtime: Runtime, variables: Store): void => {
@@ -139,10 +125,13 @@ export const addButtonsIfExists = <N extends Request.NodeButton>(node: N, runtim
   }
 };
 
-export const getReadableConfidence = (confidence?: number) => ((confidence ?? 1) * 100).toFixed(2);
+export const getReadableConfidence = (confidence?: number): string => ((confidence ?? 1) * 100).toFixed(2);
 
 export const slateToPlaintext = (content: Text.SlateTextValue = []): string =>
   content.reduce<string>((acc, node) => acc + (SlateText.isText(node) ? node.text : slateToPlaintext(node.children)), '');
+
+export const removeEmptyPrompts = (prompts: Array<Text.SlateTextValue | string>): Array<Text.SlateTextValue | string> =>
+  prompts.filter((prompt) => prompt != null && (_isString(prompt) ? prompt !== EMPTY_AUDIO_STRING : !!slateToPlaintext(prompt)));
 
 interface OutputParams<V> {
   output?: V;

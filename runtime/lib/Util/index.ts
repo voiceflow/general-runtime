@@ -1,11 +1,11 @@
-import { BaseCommand } from '@voiceflow/api-sdk';
+import { Models } from '@voiceflow/base-types';
 
 import Stack from '@/runtime/lib/Runtime/Stack';
 
-export type CommandMatcher<C extends BaseCommand = BaseCommand> = (command: C, match?: any) => boolean;
+export type CommandMatcher<C extends Models.BaseCommand = Models.BaseCommand> = (command: C, match?: any) => boolean;
 
 // eslint-disable-next-line import/prefer-default-export
-export const extractFrameCommand = <C extends BaseCommand = BaseCommand>(
+export const extractFrameCommand = <C extends Models.BaseCommand = Models.BaseCommand>(
   stack: Stack,
   matcher: CommandMatcher<C>,
   match?: any

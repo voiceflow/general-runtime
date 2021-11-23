@@ -1,5 +1,4 @@
-import { PrototypeModel } from '@voiceflow/api-sdk';
-import { Request } from '@voiceflow/base-types';
+import { Models, Request } from '@voiceflow/base-types';
 import { getUtterancesWithSlotNames } from '@voiceflow/common';
 import { Constants } from '@voiceflow/general-types';
 import NLC, { IIntentFullfilment, IIntentSlot } from '@voiceflow/natural-language-commander';
@@ -10,7 +9,7 @@ import log from '@/logger';
 
 import { getNoneIntentRequest } from './utils';
 
-export const registerSlots = (nlc: NLC, { slots }: PrototypeModel, openSlot: boolean) => {
+export const registerSlots = (nlc: NLC, { slots }: Models.PrototypeModel, openSlot: boolean) => {
   slots.forEach((slot) => {
     try {
       if (slot.type?.value?.toLowerCase() !== 'custom' || !slot.inputs?.length) {
@@ -31,7 +30,7 @@ export const registerSlots = (nlc: NLC, { slots }: PrototypeModel, openSlot: boo
   });
 };
 
-export const registerIntents = (nlc: NLC, { slots, intents }: PrototypeModel) => {
+export const registerIntents = (nlc: NLC, { slots, intents }: Models.PrototypeModel) => {
   intents.forEach((intent) => {
     const samples = getUtterancesWithSlotNames({ slots, utterances: intent.inputs })
       .map((value) => value.trim())
@@ -85,7 +84,7 @@ export const registerBuiltInIntents = (nlc: NLC, locale = Constants.Locale.EN_US
   });
 };
 
-export const createNLC = ({ model, locale, openSlot }: { model: PrototypeModel; locale: Constants.Locale; openSlot: boolean }) => {
+export const createNLC = ({ model, locale, openSlot }: { model: Models.PrototypeModel; locale: Constants.Locale; openSlot: boolean }) => {
   const nlc = new NLC();
 
   registerSlots(nlc, model, openSlot);
@@ -115,7 +114,7 @@ export const handleNLCCommand = ({
   openSlot = true,
 }: {
   query: string;
-  model: PrototypeModel;
+  model: Models.PrototypeModel;
   locale: Constants.Locale;
   openSlot: boolean;
 }): Request.IntentRequest => {
@@ -131,7 +130,7 @@ export const handleNLCDialog = ({
   dmRequest,
 }: {
   query: string;
-  model: PrototypeModel;
+  model: Models.PrototypeModel;
   locale: Constants.Locale;
   dmRequest: Request.IntentRequest;
 }): Request.IntentRequest => {

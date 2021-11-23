@@ -28,6 +28,7 @@ export enum StorageType {
   STREAM_PAUSE = 'streamPause',
   STREAM_FINISHED = 'streamFinished',
   NO_MATCHES_COUNTER = 'noMatchesCounter',
+  NO_REPLIES_COUNTER = 'noRepliesCounter',
 }
 
 export enum StreamAction {
@@ -62,11 +63,13 @@ export type StreamPauseStorage = {
 };
 
 export type NoMatchCounterStorage = number;
+export type NoReplyCounterStorage = number;
 
 export type StorageData = Partial<{
   [StorageType.STREAM_PLAY]: StreamPlayStorage;
   [StorageType.STREAM_PAUSE]: StreamPauseStorage;
   [StorageType.NO_MATCHES_COUNTER]: NoMatchCounterStorage;
+  [StorageType.NO_REPLIES_COUNTER]: NoReplyCounterStorage;
 }>;
 
 export enum TurnType {
