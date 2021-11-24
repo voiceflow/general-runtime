@@ -34,7 +34,7 @@ export const CaptureHandler: HandlerFactory<GeneralNode.Capture.Node | ChatNode.
       return node.id;
     }
 
-    if (runtime.getRequest() === null) {
+    if (utils.noReplyHandler.canHandle(runtime)) {
       return utils.noReplyHandler.handle(node, runtime, variables);
     }
 

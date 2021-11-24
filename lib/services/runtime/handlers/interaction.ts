@@ -37,7 +37,7 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
       return node.id;
     }
 
-    if (runtime.getRequest() === null) {
+    if (utils.noReplyHandler.canHandle(runtime)) {
       return utils.noReplyHandler.handle(node, runtime, variables);
     }
 

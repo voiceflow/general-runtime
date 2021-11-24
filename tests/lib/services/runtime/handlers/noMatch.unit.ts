@@ -105,7 +105,7 @@ describe('noMatch handler unit tests', () => {
       const node = {
         id: 'node-id',
         buttons: [{ intent: 'address_intent' }, { event: { type: Node.Utils.EventType.INTENT, intent: 'phone_number_intent' } }],
-        noMatch: { prompts: ['the counter is {counter}'] },
+        noMatch: { nodeID: 'next-id', prompts: ['the counter is {counter}'], randomize: false },
       };
       const runtime = {
         storage: {

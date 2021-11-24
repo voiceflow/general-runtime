@@ -20,8 +20,6 @@ const removeEmptyNoReplies = (node: NoReplyNode) => {
   return removeEmptyPrompts(noReplies);
 };
 
-const getNoReplyID = (node: NoReplyNode) => node.noReply?.nodeID ?? null;
-
 export const addNoReplyTimeoutIfExists = (node: NoReplyNode, runtime: Runtime): void => {
   if (!node.noReply?.timeout) return;
 
@@ -32,6 +30,7 @@ export const addNoReplyTimeoutIfExists = (node: NoReplyNode, runtime: Runtime): 
 };
 
 export const NoReplyHandler = (utils: typeof utilsObj) => ({
+  canHandle: (runtime: Runtime) => runtime.getRequest() === null,
   handle: (node: NoReplyNode, runtime: Runtime, variables: Store) => {
     const nonEmptyNoReplies = removeEmptyNoReplies(node);
 
@@ -46,7 +45,7 @@ export const NoReplyHandler = (utils: typeof utilsObj) => ({
         payload: { path: 'choice:noReply' },
       });
 
-      return getNoReplyID(node);
+      return node.noReply?.nodeID ?? null;
     }
 
     runtime.trace.addTrace<Trace.PathTrace>({

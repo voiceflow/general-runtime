@@ -15,16 +15,26 @@ const utilsObj = {
   addButtonsIfExists,
 };
 
+const convertDeprecatedNoMatch = ({ noMatch, elseId, noMatches, randomize, ...node }: NoMatchNode) =>
+  ({
+    noMatch: {
+      prompts: noMatch?.prompts ?? noMatches,
+      randomize: noMatch?.randomize ?? randomize,
+      nodeID: noMatch?.nodeID ?? elseId,
+    },
+    ...node,
+  } as NoMatchNode);
+
 const removeEmptyNoMatches = (node: NoMatchNode) => {
-  const prompts: Array<Text.SlateTextValue | string> = node.noMatch?.prompts ?? node.noMatches ?? [];
+  const prompts: Array<Text.SlateTextValue | string> = node.noMatch?.prompts ?? [];
 
   return removeEmptyPrompts(prompts);
 };
 
-const getNoMatchID = (node: NoMatchNode) => node.noMatch?.nodeID ?? node.elseId ?? null;
-
 export const NoMatchHandler = (utils: typeof utilsObj) => ({
-  handle: (node: NoMatchNode, runtime: Runtime, variables: Store) => {
+  handle: (_node: NoMatchNode, runtime: Runtime, variables: Store) => {
+    const node = convertDeprecatedNoMatch(_node);
+
     const nonEmptyNoMatches = removeEmptyNoMatches(node);
 
     const noMatchCounter = runtime.storage.get<NoMatchCounterStorage>(StorageType.NO_MATCHES_COUNTER) ?? 0;
@@ -38,7 +48,7 @@ export const NoMatchHandler = (utils: typeof utilsObj) => ({
         payload: { path: 'choice:else' },
       });
 
-      return getNoMatchID(node);
+      return node.noMatch?.nodeID ?? null;
     }
 
     runtime.trace.addTrace<Trace.PathTrace>({
@@ -46,8 +56,7 @@ export const NoMatchHandler = (utils: typeof utilsObj) => ({
       payload: { path: 'reprompt' },
     });
 
-    const output =
-      node.noMatch?.randomize ?? node.randomize ? _.sample<string | Text.SlateTextValue>(nonEmptyNoMatches) : nonEmptyNoMatches?.[noMatchCounter];
+    const output = node.noMatch?.randomize ? _.sample<string | Text.SlateTextValue>(nonEmptyNoMatches) : nonEmptyNoMatches?.[noMatchCounter];
 
     runtime.storage.set(StorageType.NO_MATCHES_COUNTER, noMatchCounter + 1);
 

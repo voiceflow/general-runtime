@@ -20,9 +20,10 @@ describe('Capture handler', () => {
   });
 
   describe('handle', () => {
-    it('action is response', () => {
+    it('action is running', () => {
       const utils = {
         addButtonsIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
       };
       const handler = CaptureHandler(utils as any);
 
@@ -44,12 +45,15 @@ describe('Capture handler', () => {
             canHandle: sinon.stub().returns(true),
             handle: sinon.stub().returns(output),
           },
+          noReplyHandler: {
+            canHandle: sinon.stub().returns(false),
+          },
         };
         const handler = CaptureHandler(utils as any);
 
         const node = { id: 'node-id' };
         const runtime = {
-          getAction: sinon.stub().returns(Action.RUNNING),
+          getAction: sinon.stub().returns(Action.REQUEST),
           setAction: sinon.stub(),
           getRequest: sinon.stub().returns({}),
           storage: { delete: sinon.stub() },
@@ -71,12 +75,15 @@ describe('Capture handler', () => {
             canHandle: sinon.stub().returns(true),
             handle: sinon.stub().returns(output),
           },
+          noReplyHandler: {
+            canHandle: sinon.stub().returns(false),
+          },
         };
         const handler = CaptureHandler(utils as any);
 
         const node = { id: 'node-id' };
         const runtime = {
-          getAction: sinon.stub().returns(Action.RUNNING),
+          getAction: sinon.stub().returns(Action.REQUEST),
           setAction: sinon.stub(),
           getRequest: sinon.stub().returns({}),
           storage: { delete: sinon.stub() },
@@ -89,6 +96,29 @@ describe('Capture handler', () => {
         expect(utils.repeatHandler.handle.args).to.eql([[runtime]]);
       });
 
+      it('noReply can handle', () => {
+        const output = 'next-id';
+        const utils = {
+          noReplyHandler: {
+            canHandle: sinon.stub().returns(true),
+            handle: sinon.stub().returns(output),
+          },
+        };
+        const handler = CaptureHandler(utils as any);
+
+        const node = { id: 'node-id' };
+        const runtime = {
+          getAction: sinon.stub().returns(Action.REQUEST),
+          setAction: sinon.stub(),
+          getRequest: sinon.stub().returns({}),
+          storage: { delete: sinon.stub() },
+        };
+        const variables = { var1: 'val1' };
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(output);
+
+        expect(utils.noReplyHandler.handle.args).to.eql([[node, runtime, variables]]);
+      });
+
       describe('command and repeat can not handle', () => {
         describe('not intent request', () => {
           it('with nextID', () => {
@@ -97,6 +127,9 @@ describe('Capture handler', () => {
                 canHandle: sinon.stub().returns(false),
               },
               repeatHandler: {
+                canHandle: sinon.stub().returns(false),
+              },
+              noReplyHandler: {
                 canHandle: sinon.stub().returns(false),
               },
             };
@@ -115,7 +148,7 @@ describe('Capture handler', () => {
 
             expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
             expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
-            expect(runtime.getRequest.callCount).to.eql(2);
+            expect(runtime.getRequest.callCount).to.eql(1);
             expect(runtime.trace.addTrace.args).to.eql([[CapturePathTrace]]);
           });
 
@@ -125,6 +158,9 @@ describe('Capture handler', () => {
                 canHandle: sinon.stub().returns(false),
               },
               repeatHandler: {
+                canHandle: sinon.stub().returns(false),
+              },
+              noReplyHandler: {
                 canHandle: sinon.stub().returns(false),
               },
             };
@@ -143,7 +179,7 @@ describe('Capture handler', () => {
 
             expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
             expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
-            expect(runtime.getRequest.callCount).to.eql(2);
+            expect(runtime.getRequest.callCount).to.eql(1);
             expect(runtime.trace.addTrace.args).to.eql([[CapturePathTrace]]);
           });
         });
@@ -155,6 +191,9 @@ describe('Capture handler', () => {
                 canHandle: sinon.stub().returns(false),
               },
               repeatHandler: {
+                canHandle: sinon.stub().returns(false),
+              },
+              noReplyHandler: {
                 canHandle: sinon.stub().returns(false),
               },
             };
@@ -173,7 +212,7 @@ describe('Capture handler', () => {
 
             expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
             expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
-            expect(runtime.getRequest.callCount).to.eql(2);
+            expect(runtime.getRequest.callCount).to.eql(1);
             expect(runtime.trace.addTrace.args).to.eql([[CapturePathTrace]]);
           });
 
@@ -185,6 +224,9 @@ describe('Capture handler', () => {
                   canHandle: sinon.stub().returns(false),
                 },
                 repeatHandler: {
+                  canHandle: sinon.stub().returns(false),
+                },
+                noReplyHandler: {
                   canHandle: sinon.stub().returns(false),
                 },
               };
@@ -203,7 +245,7 @@ describe('Capture handler', () => {
 
               expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
               expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
-              expect(runtime.getRequest.callCount).to.eql(2);
+              expect(runtime.getRequest.callCount).to.eql(1);
               expect(utils.wordsToNumbers.args).to.eql([[request.payload.query]]);
               expect(variables.set.args).to.eql([[node.variable, request.payload.query]]);
               expect(runtime.trace.addTrace.args).to.eql([[CapturePathTrace]]);
@@ -218,6 +260,9 @@ describe('Capture handler', () => {
                 repeatHandler: {
                   canHandle: sinon.stub().returns(false),
                 },
+                noReplyHandler: {
+                  canHandle: sinon.stub().returns(false),
+                },
               };
               const handler = CaptureHandler(utils as any);
 
@@ -234,7 +279,7 @@ describe('Capture handler', () => {
 
               expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
               expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
-              expect(runtime.getRequest.callCount).to.eql(2);
+              expect(runtime.getRequest.callCount).to.eql(1);
               expect(utils.wordsToNumbers.args).to.eql([[request.payload.query]]);
               expect(variables.set.args).to.eql([[node.variable, request.payload.query]]);
               expect(runtime.trace.addTrace.args).to.eql([[CapturePathTrace]]);
@@ -252,6 +297,9 @@ describe('Capture handler', () => {
                 repeatHandler: {
                   canHandle: sinon.stub().returns(false),
                 },
+                noReplyHandler: {
+                  canHandle: sinon.stub().returns(false),
+                },
               };
               const handler = CaptureHandler(utils as any);
 
@@ -268,7 +316,7 @@ describe('Capture handler', () => {
 
               expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
               expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
-              expect(runtime.getRequest.callCount).to.eql(2);
+              expect(runtime.getRequest.callCount).to.eql(1);
               expect(utils.wordsToNumbers.args).to.eql([[request.payload.query]]);
               expect(variables.set.args).to.eql([[node.variable, num]]);
               expect(runtime.trace.addTrace.args).to.eql([[CapturePathTrace]]);
