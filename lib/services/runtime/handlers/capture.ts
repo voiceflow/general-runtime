@@ -28,7 +28,6 @@ export const CaptureHandler: HandlerFactory<GeneralNode.Capture.Node | ChatNode.
     }
 
     if (runtime.getAction() === Action.RUNNING) {
-      utils.addRepromptIfExists(node, runtime, variables);
       utils.addButtonsIfExists(node, runtime, variables);
       utils.addNoReplyTimeoutIfExists(node, runtime);
 

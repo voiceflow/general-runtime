@@ -30,7 +30,6 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
     }
 
     if (runtime.getAction() === Action.RUNNING) {
-      utils.addRepromptIfExists(node, runtime, variables);
       utils.addButtonsIfExists(node, runtime, variables);
       utils.addNoReplyTimeoutIfExists(node, runtime);
 
