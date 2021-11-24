@@ -23,10 +23,6 @@ const utilsObj = {
 export const CaptureHandler: HandlerFactory<GeneralNode.Capture.Node | ChatNode.Capture.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => !!node.variable,
   handle: (node, runtime, variables) => {
-    if (runtime.getRequest() === null) {
-      return utils.noReplyHandler.handle(node, runtime, variables);
-    }
-
     if (runtime.getAction() === Action.RUNNING) {
       utils.addButtonsIfExists(node, runtime, variables);
       utils.addNoReplyTimeoutIfExists(node, runtime);
@@ -36,6 +32,10 @@ export const CaptureHandler: HandlerFactory<GeneralNode.Capture.Node | ChatNode.
 
       // quit cycleStack without ending session by stopping on itself
       return node.id;
+    }
+
+    if (runtime.getRequest() === null) {
+      return utils.noReplyHandler.handle(node, runtime, variables);
     }
 
     // check if there is a command in the stack that fulfills request

@@ -60,6 +60,8 @@ export const NoReplyHandler = (utils: typeof utilsObj) => ({
 
     runtime.trace.addTrace(utils.outputTrace({ output, variables: variables.getState() }));
 
+    addNoReplyTimeoutIfExists(node, runtime);
+
     return node.id;
   },
 });

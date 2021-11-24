@@ -25,10 +25,6 @@ const utilsObj = {
 export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | ChatNode.Interaction.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => !!node.interactions,
   handle: (node, runtime, variables) => {
-    if (runtime.getRequest() === null) {
-      return utils.noReplyHandler.handle(node, runtime, variables);
-    }
-
     if (runtime.getAction() === Action.RUNNING) {
       utils.addButtonsIfExists(node, runtime, variables);
       utils.addNoReplyTimeoutIfExists(node, runtime);
@@ -39,6 +35,10 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
 
       // quit cycleStack without ending session by stopping on itself
       return node.id;
+    }
+
+    if (runtime.getRequest() === null) {
+      return utils.noReplyHandler.handle(node, runtime, variables);
     }
 
     for (let i = 0; i < node.interactions.length; i++) {
