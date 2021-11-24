@@ -8,7 +8,7 @@ import { Action, HandlerFactory } from '@/runtime';
 import { isIntentRequest, StorageType } from '../types';
 import { addButtonsIfExists } from '../utils';
 import CommandHandler from './command';
-import NoReplyHandler from './noReply';
+import NoReplyHandler, { addNoReplyTimeoutIfExists } from './noReply';
 import RepeatHandler from './repeat';
 
 const utilsObj = {
@@ -17,6 +17,7 @@ const utilsObj = {
   wordsToNumbers,
   commandHandler: CommandHandler(),
   addButtonsIfExists,
+  addNoReplyTimeoutIfExists,
 };
 
 export const CaptureHandler: HandlerFactory<GeneralNode.Capture.Node | ChatNode.Capture.Node, typeof utilsObj> = (utils) => ({
@@ -29,6 +30,7 @@ export const CaptureHandler: HandlerFactory<GeneralNode.Capture.Node | ChatNode.
     if (runtime.getAction() === Action.RUNNING) {
       utils.addRepromptIfExists(node, runtime, variables);
       utils.addButtonsIfExists(node, runtime, variables);
+      utils.addNoReplyTimeoutIfExists(node, runtime);
 
       // clean up no-replies counters on new interaction
       runtime.storage.delete(StorageType.NO_REPLIES_COUNTER);

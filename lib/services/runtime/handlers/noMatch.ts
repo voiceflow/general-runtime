@@ -41,17 +41,15 @@ export const NoMatchHandler = (utils: typeof utilsObj) => ({
       return getNoMatchID(node);
     }
 
-    runtime.storage.set(StorageType.NO_MATCHES_COUNTER, noMatchCounter + 1);
-
     runtime.trace.addTrace<Trace.PathTrace>({
       type: BaseNode.Utils.TraceType.PATH,
       payload: { path: 'reprompt' },
     });
 
     const output =
-      node.noMatch?.randomize ?? node.randomize
-        ? _.sample<string | Text.SlateTextValue>(nonEmptyNoMatches)
-        : nonEmptyNoMatches?.[runtime.storage.get<NoMatchCounterStorage>(StorageType.NO_MATCHES_COUNTER)! - 1];
+      node.noMatch?.randomize ?? node.randomize ? _.sample<string | Text.SlateTextValue>(nonEmptyNoMatches) : nonEmptyNoMatches?.[noMatchCounter];
+
+    runtime.storage.set(StorageType.NO_MATCHES_COUNTER, noMatchCounter + 1);
 
     runtime.trace.addTrace(utils.outputTrace({ output, variables: variables.getState() }));
 

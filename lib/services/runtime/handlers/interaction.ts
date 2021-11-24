@@ -9,7 +9,7 @@ import { addButtonsIfExists } from '../utils';
 import CommandHandler from './command';
 import { findEventMatcher } from './event';
 import NoMatchHandler from './noMatch';
-import NoReplyHandler from './noReply';
+import NoReplyHandler, { addNoReplyTimeoutIfExists } from './noReply';
 import RepeatHandler from './repeat';
 
 const utilsObj = {
@@ -19,6 +19,7 @@ const utilsObj = {
   noReplyHandler: NoReplyHandler(),
   findEventMatcher,
   addButtonsIfExists,
+  addNoReplyTimeoutIfExists,
 };
 
 export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | ChatNode.Interaction.Node, typeof utilsObj> = (utils) => ({
@@ -31,6 +32,7 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
     if (runtime.getAction() === Action.RUNNING) {
       utils.addRepromptIfExists(node, runtime, variables);
       utils.addButtonsIfExists(node, runtime, variables);
+      utils.addNoReplyTimeoutIfExists(node, runtime);
 
       // clean up no-matches and no-replies counters on new interaction
       runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);
