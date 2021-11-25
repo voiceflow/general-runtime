@@ -7,12 +7,14 @@ import { Runtime, Store } from '@/runtime';
 
 import { NoMatchCounterStorage, StorageType } from '../types';
 import { addButtonsIfExists, outputTrace, removeEmptyPrompts } from '../utils';
+import { addNoReplyTimeoutIfExists } from './noReply';
 
 type NoMatchNode = Request.NodeButton & (VoiceNode.Utils.NoMatchNode | ChatNode.Utils.NoMatchNode);
 
 const utilsObj = {
   outputTrace,
   addButtonsIfExists,
+  addNoReplyTimeoutIfExists,
 };
 
 const convertDeprecatedNoMatch = ({ noMatch, elseId, noMatches, randomize, ...node }: NoMatchNode) =>
@@ -63,6 +65,7 @@ export const NoMatchHandler = (utils: typeof utilsObj) => ({
     runtime.trace.addTrace(utils.outputTrace({ output, variables: variables.getState() }));
 
     utils.addButtonsIfExists(node, runtime, variables);
+    utils.addNoReplyTimeoutIfExists(node, runtime);
 
     return node.id;
   },
