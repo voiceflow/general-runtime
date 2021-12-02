@@ -293,8 +293,10 @@ tags:
       In which case, the next `request` is simply `null` to denote that the user has no replied, and the API will handle the following logic:
       ```
       {
-        request: null
-        // state, config, and other stuff here
+        request: {
+          type: "no-reply" // Request.RequestType.NO_REPLY
+        },
+        // state, config, and other metadata here
       }
       ```
 paths:
