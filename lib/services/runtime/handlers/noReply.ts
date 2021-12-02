@@ -1,4 +1,4 @@
-import { Node as BaseNode, Text, Trace } from '@voiceflow/base-types';
+import { Node as BaseNode, Request, Text, Trace } from '@voiceflow/base-types';
 import { Node as ChatNode } from '@voiceflow/chat-types';
 import { Node as VoiceNode } from '@voiceflow/voice-types';
 import _ from 'lodash';
@@ -30,7 +30,7 @@ export const addNoReplyTimeoutIfExists = (node: NoReplyNode, runtime: Runtime): 
 };
 
 export const NoReplyHandler = (utils: typeof utilsObj) => ({
-  canHandle: (runtime: Runtime) => runtime.getRequest() === null,
+  canHandle: (runtime: Runtime) => runtime.getRequest() === null || Request.isNoReplyRequest(runtime.getRequest()),
   handle: (node: NoReplyNode, runtime: Runtime, variables: Store) => {
     const nonEmptyNoReplies = removeEmptyNoReplies(node);
 
