@@ -1,12 +1,27 @@
 import { Node } from '@voiceflow/base-types';
-import axios, { AxiosRequestConfig } from 'axios';
+import VError from '@voiceflow/verror';
+import axios from 'axios';
+import { promises as DNS } from 'dns';
 import FormData from 'form-data';
+import ipRangeCheck from 'ip-range-check';
 import _ from 'lodash';
 import querystring from 'querystring';
+import validator from 'validator';
+
+import log from '@/logger';
+import Runtime from '@/runtime/lib/Runtime';
 
 export type APINodeData = Node.Api.NodeData['action_data'];
+const PROHIBITED_IP_RANGES = ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '127.0.0.0/8', '0.0.0.0/8', 'fd00::/8', '169.254.169.254/32'];
 
-export const stringToNumIfNumeric = (str: string): string | number => {
+// Regex to match
+const BLACKLISTED_URLS: RegExp[] = [];
+
+const USER_AGENT = 'voiceflow-custom-api';
+
+const throttleDelay = 5000;
+
+const stringToNumIfNumeric = (str: string): string | number => {
   /* eslint-disable-next-line */
   if (_.isString(str) && !isNaN(str as any) && str.length < 16) {
     return Number(str);
@@ -43,90 +58,161 @@ export const getVariable = (path: string, data: any) => {
   return stringToNumIfNumeric(curData);
 };
 
-export const ReduceKeyValue = (values: { key: string; val: string }[]) =>
-  values.reduce<Record<string, string>>((acc, { key, val }) => {
-    if (key) {
-      acc[key] = val;
+const validateUrl = async (urlString: string, runtime: Runtime) => {
+  let url;
+  try {
+    url = new URL(urlString);
+  } catch (err) {
+    throw new VError(`url: ${urlString} could not be parsed`, VError.HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const { hostname } = url;
+
+  if (hostname.toLowerCase() === 'localhost') {
+    throw new VError(`url hostname cannot be localhost: ${urlString}`, VError.HTTP_STATUS.BAD_REQUEST);
+  }
+
+  // DNS.resolve returns an array of ips
+  const ips = validator.isIP(hostname)
+    ? [hostname]
+    : await DNS.resolve(hostname).catch(() => {
+        throw new VError(`cannot resolve hostname: ${hostname}`, VError.HTTP_STATUS.BAD_REQUEST);
+      });
+
+  PROHIBITED_IP_RANGES.forEach((prohibitedRange) => {
+    ips.forEach((ip) => {
+      if (ipRangeCheck(ip, prohibitedRange)) {
+        throw new VError(`url resolves to IP: ${ip} in prohibited range`, VError.HTTP_STATUS.BAD_REQUEST);
+      }
+    });
+  });
+
+  runtime.outgoingApiLimiter.addHostnameUse(hostname);
+
+  if (runtime.outgoingApiLimiter.shouldThrottle(hostname)) {
+    // if the use of the hostname is high, delay the api call but let it happen
+    await new Promise((resolve) => setTimeout(resolve, throttleDelay));
+  }
+};
+
+// eslint-disable-next-line sonarjs/cognitive-complexity
+export const getResponse = async (data: APINodeData, runtime: Runtime) => {
+  const { method, bodyInputType, headers, body, params, url } = data;
+
+  let content;
+  try {
+    content = JSON.parse(data.content);
+  } catch (e) {
+    ({ content } = data);
+  }
+
+  BLACKLISTED_URLS.forEach((regex) => {
+    if (regex.test(url)) {
+      throw new VError('url endpoint is blacklisted', VError.HTTP_STATUS.BAD_REQUEST);
     }
-    return acc;
-  }, {});
+  });
 
-export const formatRequestConfig = (data: APINodeData) => {
-  const { method, bodyInputType, headers, body, params, url, content } = data;
-
-  const options: AxiosRequestConfig = {
+  const options: Record<string, any> = {
     method,
     url,
-    timeout: 29000, // REQ_TIMEOUT_SEC
+    // If the request takes longer than `timeout` in ms, the request will be aborted
+    timeout: 29000,
+    // defines the max size of the http response content in bytes allowed in node.js
+    maxContentLength: 2000,
+    // defines the max size of the http request content in bytes allowed
+    maxBodyLength: 2000,
   };
+  await validateUrl(url, runtime);
 
-  if (params?.length > 0) {
-    const formattedParams = ReduceKeyValue(params);
+  if (params && params.length > 0) {
+    const formattedParams: Record<string, any> = {};
+    params.forEach((p) => {
+      if (p.key) {
+        formattedParams[p.key] = p.val;
+      }
+    });
     if (!_.isEmpty(formattedParams)) options.params = formattedParams;
   }
 
   if (headers && headers.length > 0) {
-    const formattedHeaders = ReduceKeyValue(headers);
+    const formattedHeaders: Record<string, any> = {};
+    headers.forEach((h) => {
+      if (h.key) {
+        formattedHeaders[h.key] = h.val;
+      }
+    });
     if (!_.isEmpty(formattedHeaders)) options.headers = formattedHeaders;
   }
   if (!options.headers) options.headers = {};
 
-  options.validateStatus = () => true;
-
-  // do not parse body if GET request
-  if (method === Node.Api.APIMethod.GET) {
-    return options;
-  }
-
-  if (bodyInputType === Node.Api.APIBodyType.RAW_INPUT) {
-    // attempt to convert into JSON
-    try {
-      options.data = JSON.parse(content);
-    } catch (e) {
-      options.data = data;
-    }
-  } else if (bodyInputType === Node.Api.APIBodyType.FORM_DATA) {
-    const formData = new FormData();
-    body.forEach((b) => {
-      if (b.key) {
-        formData.append(b.key, b.val);
+  if (method !== 'GET') {
+    let formattedData: any;
+    // bodyInputType is no longer used in new integration blocks, but needs to be kept around until the old ones are migrated
+    if (bodyInputType === 'rawInput') {
+      formattedData = content;
+    } else if (bodyInputType === 'formData') {
+      const bodyForm = body.filter((b) => b.key);
+      if (bodyForm.length) {
+        formattedData = new FormData();
+        bodyForm.forEach((b) => formattedData.append(b.key, b.val));
+        options.headers = { ...options.headers, ...formattedData.getHeaders() };
       }
-    });
-    options.headers = { ...options.headers, ...formData.getHeaders() };
-    options.data = formData;
-  } else if (bodyInputType === Node.Api.APIBodyType.URL_ENCODED) {
-    if (Array.isArray(body)) {
-      options.data = querystring.stringify(ReduceKeyValue(body));
-    } else {
-      options.data = querystring.stringify(body);
+    } else if (bodyInputType === 'urlEncoded') {
+      if (Array.isArray(body)) {
+        const tempObj: Record<string, any> = {};
+        body.forEach((b) => {
+          if (b.key) {
+            tempObj[b.key] = b.val;
+          }
+        });
+        formattedData = querystring.stringify(tempObj);
+      } else {
+        formattedData = querystring.stringify(body);
+      }
+      options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    } else if (typeof body === 'string') {
+      formattedData = body;
+    } else if (bodyInputType === 'keyValue' || Array.isArray(body)) {
+      formattedData = {};
+      body.forEach((b) => {
+        if (b.key) {
+          formattedData[b.key] = b.val;
+        }
+      });
     }
-    options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-  } else if (typeof body === 'string') {
-    options.data = body;
-  } else if (bodyInputType === 'keyValue' || Array.isArray(body)) {
-    options.data = ReduceKeyValue(body);
+    options.data = formattedData;
   }
 
-  return options;
+  options.validateStatus = () => true;
+  if (!options.headers['User-Agent']) {
+    options.headers['User-Agent'] = USER_AGENT;
+  }
+
+  const response = await axios(options);
+  if (_.isObject(response.data)) {
+    // @ts-expect-error assigned kvp thats not a part of type
+    response.data.VF_STATUS_CODE = response.status;
+    // @ts-expect-error assigned kvp thats not a part of type
+    response.data.VF_HEADERS = response.headers;
+  }
+
+  return { data: response.data, headers: response.headers, status: response.status };
 };
 
-export const makeAPICall = async (nodeData: APINodeData) => {
-  const requestConfig = formatRequestConfig(nodeData);
-
-  const { data, headers, status } = await axios(requestConfig);
-
-  if (_.isObject(data) as any) {
-    data.VF_STATUS_CODE = status;
-    data.VF_HEADERS = headers;
+export const makeAPICall = async (data: APINodeData, runtime: Runtime) => {
+  try {
+    const response = await getResponse(data, runtime);
+    const newVariables: Record<string, any> = {};
+    if (data.mapping) {
+      data.mapping.forEach((m) => {
+        if (m.var) {
+          newVariables[m.var] = getVariable(m.path, response.data);
+        }
+      });
+    }
+    return { variables: newVariables, response };
+  } catch (e) {
+    log.info(e.stack);
+    throw new Error();
   }
-
-  const newVariables: Record<string, any> = {};
-  if (nodeData.mapping) {
-    nodeData.mapping.forEach((m) => {
-      if (m.var) {
-        newVariables[m.var] = getVariable(m.path, data);
-      }
-    });
-  }
-  return { variables: newVariables, response: { data, headers, status } };
 };
