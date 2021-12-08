@@ -3,6 +3,7 @@ import Lifecycle, { AbstractLifecycle, Event, EventType } from '@/runtime/lib/Li
 import cycleStack from '@/runtime/lib/Runtime/cycleStack';
 
 import { DataAPI } from '../DataAPI';
+import OutgoingApiLimiter from './OutgoingApiLimiter';
 import Stack, { Frame, FrameState } from './Stack';
 import Store, { State as StorageState } from './Store';
 import Trace from './Trace';
@@ -45,6 +46,8 @@ class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends Abstrac
   public services: Record<string, any>;
 
   public api: DA;
+
+  public outgoingApiLimiter: OutgoingApiLimiter;
 
   private action: Action = Action.IDLE;
 
@@ -90,6 +93,8 @@ class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends Abstrac
     this.trace = new Trace(this);
 
     this.programManager = new ProgramManager(this);
+
+    this.outgoingApiLimiter = new OutgoingApiLimiter();
   }
 
   getRequest(): R | null {
