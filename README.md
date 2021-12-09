@@ -20,6 +20,8 @@ To interact with your `general-runtime` server, reference the [Voiceflow DM API]
 
 run `yarn` in command line to install all dependencies.
 
+For the `isolated-vm` dependency, there are additional steps to install [here](https://github.com/laverdet/isolated-vm#requirements)
+
 Add the following file to the local repository:
 
 > `.env.local`
