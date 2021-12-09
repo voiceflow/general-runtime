@@ -8,7 +8,7 @@ COPY ./ ./
 RUN apk add --no-cache python3 make g++
 
 RUN echo $NPM_TOKEN > .npmrc && \
-  yarn install --ignore-scripts && \
+  yarn install && \
   yarn build && \
   rm -rf build/node_modules && \
   rm -f .npmrc
@@ -33,7 +33,7 @@ WORKDIR /usr/src/app
 COPY --from=build /target/build ./
 
 RUN echo $NPM_TOKEN > .npmrc && \
-  yarn install --production --ignore-scripts && \
+  yarn install --production && \
   rm -f .npmrc && \
   yarn cache clean
 
