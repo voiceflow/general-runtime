@@ -55,6 +55,7 @@ jobs:
       - vfcommon/init_e2e_docker:
           checkout: true
           install_node_modules: true
+          avoid_post_install_scripts: false
           github_username: GITHUB_USERNAME
           github_token: GITHUB_TOKEN
           cache_prefix: e2e
