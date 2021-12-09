@@ -19,7 +19,7 @@ WORKDIR /target
 COPY ./ ./
 
 RUN echo $NPM_TOKEN > .npmrc && \
-  yarn install --ignore-scripts && \
+  yarn install && \
   rm -f .npmrc && \
   yarn cache clean
 
