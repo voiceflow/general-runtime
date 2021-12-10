@@ -16,6 +16,7 @@ const CONFIG: Config = {
   // Configs
   NODE_ENV,
   PORT: getRequiredProcessEnv('PORT'),
+  PORT_METRICS: getOptionalProcessEnv('PORT_METRICS'),
   ERROR_RESPONSE_MS: Number(getOptionalProcessEnv('ERROR_RESPONSE_MS', (10 * 1000).toString())),
 
   CLOUD_ENV,
@@ -35,9 +36,6 @@ const CONFIG: Config = {
   PROJECT_SOURCE: getOptionalProcessEnv('PROJECT_SOURCE'),
 
   GENERAL_SERVICE_ENDPOINT: getRequiredProcessEnv('GENERAL_SERVICE_ENDPOINT'), // voiceflow nlu/tts services
-
-  // Secrets
-  DATADOG_API_KEY: getOptionalProcessEnv('DATADOG_API_KEY') || 'none',
 
   // server-data-api config
   VF_DATA_ENDPOINT: getOptionalProcessEnv('VF_DATA_ENDPOINT'), // server-data-api endpoint

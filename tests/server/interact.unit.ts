@@ -2,6 +2,8 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import request from 'supertest';
 
+import Server from '@/server';
+
 import GetApp from '../getAppForTest';
 import fixtures from './fixture';
 
@@ -107,9 +109,9 @@ const tests = [
   },
 ];
 
-describe('interact route unit tests', () => {
-  let app;
-  let server;
+describe('interact route unit tests', async () => {
+  let app: Server['app'];
+  let server: Server;
 
   afterEach(async () => {
     sinon.restore();

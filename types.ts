@@ -11,6 +11,7 @@ import * as Runtime from './runtime';
 export interface Config extends RateLimitConfig {
   NODE_ENV: string;
   PORT: string;
+  PORT_METRICS: string | null;
   ERROR_RESPONSE_MS: number;
 
   CLOUD_ENV: string | null;
@@ -21,7 +22,6 @@ export interface Config extends RateLimitConfig {
   AWS_REGION: string | null;
   AWS_ENDPOINT: string | null;
 
-  DATADOG_API_KEY: string;
   DYNAMO_ENDPOINT: string | null;
 
   CODE_HANDLER_ENDPOINT: string | null;
