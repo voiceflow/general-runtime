@@ -19,8 +19,8 @@ export const comparison = (a: string, b: string) => {
 };
 
 // convert to lowercase and strip all accents: Crème Brulée => Creme Brulee
-export const sanitize = (input: string): string =>
-  input
+export const sanitize = (input: unknown): string =>
+  String(input)
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
