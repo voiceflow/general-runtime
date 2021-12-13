@@ -4,7 +4,7 @@ import cuid from 'cuid';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
 import _isString from 'lodash/isString';
 import _uniqBy from 'lodash/uniqBy';
-import { Text as SlateText } from 'slate';
+import * as Slate from 'slate';
 
 import { Runtime, Store } from '@/runtime';
 
@@ -127,8 +127,11 @@ export const addButtonsIfExists = <N extends Request.NodeButton>(node: N, runtim
 
 export const getReadableConfidence = (confidence?: number): string => ((confidence ?? 1) * 100).toFixed(2);
 
-export const slateToPlaintext = (content: Text.SlateTextValue = []): string =>
-  content.reduce<string>((acc, node) => acc + (SlateText.isText(node) ? node.text : slateToPlaintext(node.children)), '');
+export const slateToPlaintext = (content: Readonly<Text.SlateTextValue> = []): string =>
+  content
+    .map((n) => Slate.Node.string(n))
+    .join('\n')
+    .trim();
 
 export const removeEmptyPrompts = (prompts: Array<Text.SlateTextValue | string>): Array<Text.SlateTextValue | string> =>
   prompts.filter((prompt) => prompt != null && (_isString(prompt) ? prompt !== EMPTY_AUDIO_STRING : !!slateToPlaintext(prompt)));

@@ -103,13 +103,13 @@ describe('runtime utils service unit tests', () => {
   describe('slateToPlaintext', () => {
     it('works', () => {
       const content = [
-        { text: 'one', underline: true, property: 'property' },
+        { text: 'one ', underline: true, property: 'property' },
         { text: 'two' },
         { text: ' ' },
-        { children: [{ children: [{ text: 'three' }] }, { text: ' four ' }, { text: 'five' }] },
+        { children: [{ children: [{ text: ' three' }] }, { text: ' four ' }, { text: 'five ' }] },
       ];
 
-      expect(slateToPlaintext(content as any)).to.eql('onetwo three four five');
+      expect(slateToPlaintext(content as any)).to.eql(['one ', 'two', ' ', ' three four five'].join('\n'));
     });
   });
 
