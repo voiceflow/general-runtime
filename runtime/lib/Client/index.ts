@@ -15,8 +15,8 @@ class Controller<R extends any = any, D extends DataAPI = DataAPI> extends Abstr
     };
   }
 
-  public createRuntime(versionID: string, state: RuntimeState, request?: R, options?: RuntimeOptions<D>): Runtime<R, D> {
-    return new Runtime<R, D>(versionID, state, request, { ...this.options, ...options }, this.events);
+  public createRuntime(versionID: string, state: RuntimeState, request?: R, options?: RuntimeOptions<D>, authorization?: string): Runtime<R, D> {
+    return new Runtime<R, D>(versionID, state, request, { ...this.options, ...options }, this.events, authorization);
   }
 }
 
