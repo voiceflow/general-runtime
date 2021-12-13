@@ -1,26 +1,39 @@
-const MIN_NUMBER_OF_CALLS_TO_THROTTLE = 0;
-const THROTTLE_FREQUENCY = 5;
+import Runtime from '@/runtime/lib/Runtime';
+
+const MIN_NUMBER_OF_CALLS_TO_THROTTLE_PRIVATE = 5000;
+const MIN_NUMBER_OF_CALLS_TO_THROTTLE_PUBLIC = 1000;
 
 class OutgoingApiLimiter {
-  private hostnameHits: Record<string, number> = {};
+  private REDIS_PREFIX = 'outgoing_api';
 
-  constructor() {
-    this.hostnameHits = {};
+  // in seconds for the uses count to reset
+  private EXPIRY_LENGTH = 60;
+
+  constructor(private runtime: Runtime) {}
+
+  private isPublic(): boolean {
+    return !this.runtime.authorization;
   }
 
-  public addHostnameUse(host: string): void {
-    if (host in this.hostnameHits) {
-      this.hostnameHits[host] += 1;
+  private makeRedisHostnameHash(hostname: string): string {
+    return `${this.REDIS_PREFIX}_${this.isPublic() ? 'public' : this.runtime.authorization!}_${hostname}`;
+  }
+
+  private async getHostnameUses(hostname: string): Promise<string | null> {
+    return this.runtime.services.redis.get(this.makeRedisHostnameHash(hostname));
+  }
+
+  public async addHostnameUseAndShouldThrottle(hostname: string): Promise<boolean> {
+    const uses = await this.getHostnameUses(hostname);
+    // if already existing
+    if (uses) {
+      // add one to count without updating expiry date
+      await this.runtime.services.redis.set(this.makeRedisHostnameHash(hostname), `${Number(uses) + 1}`, 'KEEPTTL');
     } else {
-      this.hostnameHits[host] = 1;
+      await this.runtime.services.redis.set(this.makeRedisHostnameHash(hostname), '1', 'EX', this.EXPIRY_LENGTH);
     }
-  }
-
-  public shouldThrottle(host: string): boolean {
-    // throttle the request every THROTTLE_FREQUENCY requests after it exceeds MIN_NUMBER_OF_CALLS_TO_THROTTLE total calls
-    return (
-      host in this.hostnameHits && this.hostnameHits[host] > MIN_NUMBER_OF_CALLS_TO_THROTTLE && this.hostnameHits[host] % THROTTLE_FREQUENCY === 0
-    );
+    const numberCallsLimitForProject = this.isPublic() ? MIN_NUMBER_OF_CALLS_TO_THROTTLE_PUBLIC : MIN_NUMBER_OF_CALLS_TO_THROTTLE_PRIVATE;
+    return (uses ? Number(uses) + 1 : 1) > numberCallsLimitForProject;
   }
 }
 

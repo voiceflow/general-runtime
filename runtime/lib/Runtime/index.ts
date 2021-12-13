@@ -55,12 +55,14 @@ class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends Abstrac
 
   private programManager: ProgramManager;
 
+  // eslint-disable-next-line max-params
   constructor(
     public versionID: string,
     state: State,
     private request: R | null = null,
     { services = {}, handlers = [], api }: Options<DA>,
-    events: Lifecycle
+    events: Lifecycle,
+    public authorization: string | undefined
   ) {
     super(events);
 
@@ -94,7 +96,7 @@ class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends Abstrac
 
     this.programManager = new ProgramManager(this);
 
-    this.outgoingApiLimiter = new OutgoingApiLimiter();
+    this.outgoingApiLimiter = new OutgoingApiLimiter(this);
   }
 
   getRequest(): R | null {
