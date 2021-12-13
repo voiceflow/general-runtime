@@ -19,7 +19,8 @@ const BLACKLISTED_URLS: RegExp[] = [];
 
 const USER_AGENT = 'voiceflow-custom-api';
 
-const throttleDelay = 5000;
+// Delay amount in ms for when max api call limit is reached
+const THROTTLE_DELAY = 2000;
 
 const stringToNumIfNumeric = (str: string): string | number => {
   /* eslint-disable-next-line */
@@ -87,11 +88,9 @@ const validateUrl = async (urlString: string, runtime: Runtime) => {
     });
   });
 
-  runtime.outgoingApiLimiter.addHostnameUse(hostname);
-
-  if (runtime.outgoingApiLimiter.shouldThrottle(hostname)) {
+  if (await runtime.outgoingApiLimiter.addHostnameUseAndShouldThrottle(hostname)) {
     // if the use of the hostname is high, delay the api call but let it happen
-    await new Promise((resolve) => setTimeout(resolve, throttleDelay));
+    await new Promise((resolve) => setTimeout(resolve, THROTTLE_DELAY));
   }
 };
 
@@ -189,6 +188,7 @@ export const getResponse = async (data: APINodeData, runtime: Runtime) => {
   }
 
   const response = await axios(options);
+
   if (_.isObject(response.data)) {
     // @ts-expect-error assigned kvp thats not a part of type
     response.data.VF_STATUS_CODE = response.status;
