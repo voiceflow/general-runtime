@@ -12,10 +12,7 @@
     }
   },
   "dependencies": {
-    "@opentelemetry/api": "1.0.3",
     "@opentelemetry/api-metrics": "0.26.0",
-    "@opentelemetry/exporter-prometheus": "0.26.0",
-    "@opentelemetry/sdk-metrics-base": "0.26.0",
     "@types/mathjs": "^6.0.4",
     "@types/workerpool": "^5.0.1",
     "@voiceflow/api-sdk": "3.4.6",
@@ -26,6 +23,7 @@
     "@voiceflow/common": "7.12.1",
     "@voiceflow/general-types": "3.2.11",
     "@voiceflow/logger": "^1.6.0",
+    "@voiceflow/metrics": "1.1.0",
     "@voiceflow/natural-language-commander": "^0.5.1",
     "@voiceflow/verror": "^1.1.0",
     "@voiceflow/voice-types": "2.1.11",
