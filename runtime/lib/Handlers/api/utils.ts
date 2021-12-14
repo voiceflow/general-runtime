@@ -1,6 +1,6 @@
 import { Node } from '@voiceflow/base-types';
 import VError from '@voiceflow/verror';
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import { promises as DNS } from 'dns';
 import FormData from 'form-data';
 import ipRangeCheck from 'ip-range-check';
@@ -8,7 +8,6 @@ import _ from 'lodash';
 import querystring from 'querystring';
 import validator from 'validator';
 
-import log from '@/logger';
 import Runtime from '@/runtime/lib/Runtime';
 
 export type APINodeData = Node.Api.NodeData['action_data'];
@@ -17,12 +16,12 @@ const PROHIBITED_IP_RANGES = ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '
 // Regex to match
 const BLACKLISTED_URLS: RegExp[] = [];
 
-const USER_AGENT = 'voiceflow-custom-api';
+const USER_AGENT = 'voiceflow-general-runtime';
 
 // Delay amount in ms for when max api call limit is reached
 const THROTTLE_DELAY = 2000;
 
-const stringToNumIfNumeric = (str: string): string | number => {
+export const stringToNumIfNumeric = (str: string): string | number => {
   /* eslint-disable-next-line */
   if (_.isString(str) && !isNaN(str as any) && str.length < 16) {
     return Number(str);
@@ -59,8 +58,16 @@ export const getVariable = (path: string, data: any) => {
   return stringToNumIfNumeric(curData);
 };
 
+export const ReduceKeyValue = (values: { key: string; val: string }[]) =>
+  values.reduce<Record<string, string>>((acc, { key, val }) => {
+    if (key) {
+      acc[key] = val;
+    }
+    return acc;
+  }, {});
+
 const validateUrl = async (urlString: string, runtime: Runtime) => {
-  let url;
+  let url: URL;
   try {
     url = new URL(urlString);
   } catch (err) {
@@ -80,13 +87,10 @@ const validateUrl = async (urlString: string, runtime: Runtime) => {
         throw new VError(`cannot resolve hostname: ${hostname}`, VError.HTTP_STATUS.BAD_REQUEST);
       });
 
-  PROHIBITED_IP_RANGES.forEach((prohibitedRange) => {
-    ips.forEach((ip) => {
-      if (ipRangeCheck(ip, prohibitedRange)) {
-        throw new VError(`url resolves to IP: ${ip} in prohibited range`, VError.HTTP_STATUS.BAD_REQUEST);
-      }
-    });
-  });
+  const badIP = ips.find((ip) => PROHIBITED_IP_RANGES.some((range) => ipRangeCheck(ip, range)));
+  if (badIP) {
+    throw new VError(`url resolves to IP: ${badIP} in prohibited range`, VError.HTTP_STATUS.BAD_REQUEST);
+  }
 
   if (await runtime.outgoingApiLimiter.addHostnameUseAndShouldThrottle(hostname)) {
     // if the use of the hostname is high, delay the api call but let it happen
@@ -95,91 +99,67 @@ const validateUrl = async (urlString: string, runtime: Runtime) => {
 };
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-export const getResponse = async (data: APINodeData, runtime: Runtime) => {
-  const { method, bodyInputType, headers, body, params, url } = data;
+export const formatRequestConfig = async (data: APINodeData, runtime: Runtime) => {
+  const { method, bodyInputType, headers, body, params, url, content } = data;
 
-  let content;
-  try {
-    content = JSON.parse(data.content);
-  } catch (e) {
-    ({ content } = data);
+  if (BLACKLISTED_URLS.some((regex) => regex.test(url))) {
+    throw new VError('url endpoint is blacklisted', VError.HTTP_STATUS.BAD_REQUEST);
   }
 
-  BLACKLISTED_URLS.forEach((regex) => {
-    if (regex.test(url)) {
-      throw new VError('url endpoint is blacklisted', VError.HTTP_STATUS.BAD_REQUEST);
-    }
-  });
-
-  const options: Record<string, any> = {
+  const options: AxiosRequestConfig = {
     method,
     url,
     // If the request takes longer than `timeout` in ms, the request will be aborted
     timeout: 29000,
     // defines the max size of the http response content in bytes allowed in node.js
-    maxContentLength: 2000,
+    maxContentLength: 100000,
     // defines the max size of the http request content in bytes allowed
-    maxBodyLength: 2000,
+    maxBodyLength: 100000,
   };
   await validateUrl(url, runtime);
 
   if (params && params.length > 0) {
-    const formattedParams: Record<string, any> = {};
-    params.forEach((p) => {
-      if (p.key) {
-        formattedParams[p.key] = p.val;
-      }
-    });
+    const formattedParams = ReduceKeyValue(params);
     if (!_.isEmpty(formattedParams)) options.params = formattedParams;
   }
 
   if (headers && headers.length > 0) {
-    const formattedHeaders: Record<string, any> = {};
-    headers.forEach((h) => {
-      if (h.key) {
-        formattedHeaders[h.key] = h.val;
-      }
-    });
+    const formattedHeaders = ReduceKeyValue(headers);
     if (!_.isEmpty(formattedHeaders)) options.headers = formattedHeaders;
   }
   if (!options.headers) options.headers = {};
 
-  if (method !== 'GET') {
-    let formattedData: any;
-    // bodyInputType is no longer used in new integration blocks, but needs to be kept around until the old ones are migrated
-    if (bodyInputType === 'rawInput') {
-      formattedData = content;
-    } else if (bodyInputType === 'formData') {
-      const bodyForm = body.filter((b) => b.key);
-      if (bodyForm.length) {
-        formattedData = new FormData();
-        bodyForm.forEach((b) => formattedData.append(b.key, b.val));
-        options.headers = { ...options.headers, ...formattedData.getHeaders() };
-      }
-    } else if (bodyInputType === 'urlEncoded') {
-      if (Array.isArray(body)) {
-        const tempObj: Record<string, any> = {};
-        body.forEach((b) => {
-          if (b.key) {
-            tempObj[b.key] = b.val;
-          }
-        });
-        formattedData = querystring.stringify(tempObj);
-      } else {
-        formattedData = querystring.stringify(body);
-      }
-      options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-    } else if (typeof body === 'string') {
-      formattedData = body;
-    } else if (bodyInputType === 'keyValue' || Array.isArray(body)) {
-      formattedData = {};
-      body.forEach((b) => {
-        if (b.key) {
-          formattedData[b.key] = b.val;
-        }
-      });
+  // do not parse body if GET request
+  if (method === Node.Api.APIMethod.GET) {
+    return options;
+  }
+  if (bodyInputType === Node.Api.APIBodyType.RAW_INPUT) {
+    // attempt to convert into JSON
+    try {
+      options.data = JSON.parse(content);
+    } catch (e) {
+      options.data = data;
     }
-    options.data = formattedData;
+  } else if (bodyInputType === Node.Api.APIBodyType.FORM_DATA) {
+    const formData = new FormData();
+    body.forEach((b) => {
+      if (b.key) {
+        formData.append(b.key, b.val);
+      }
+    });
+    options.headers = { ...options.headers, ...formData.getHeaders() };
+    options.data = formData;
+  } else if (bodyInputType === Node.Api.APIBodyType.URL_ENCODED) {
+    if (Array.isArray(body)) {
+      options.data = querystring.stringify(ReduceKeyValue(body));
+    } else {
+      options.data = querystring.stringify(body);
+    }
+    options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+  } else if (typeof body === 'string') {
+    options.data = body;
+  } else if (bodyInputType === 'keyValue' || Array.isArray(body)) {
+    options.data = ReduceKeyValue(body);
   }
 
   options.validateStatus = () => true;
@@ -187,32 +167,24 @@ export const getResponse = async (data: APINodeData, runtime: Runtime) => {
     options.headers['User-Agent'] = USER_AGENT;
   }
 
-  const response = await axios(options);
-
-  if (_.isObject(response.data)) {
-    // @ts-expect-error assigned kvp thats not a part of type
-    response.data.VF_STATUS_CODE = response.status;
-    // @ts-expect-error assigned kvp thats not a part of type
-    response.data.VF_HEADERS = response.headers;
-  }
-
-  return { data: response.data, headers: response.headers, status: response.status };
+  return options;
 };
 
-export const makeAPICall = async (data: APINodeData, runtime: Runtime) => {
+export const makeAPICall = async (nodeData: APINodeData, runtime: Runtime) => {
   try {
-    const response = await getResponse(data, runtime);
-    const newVariables: Record<string, any> = {};
-    if (data.mapping) {
-      data.mapping.forEach((m) => {
-        if (m.var) {
-          newVariables[m.var] = getVariable(m.path, response.data);
-        }
-      });
+    const options = await formatRequestConfig(nodeData, runtime);
+
+    const { data, headers, status } = await axios(options);
+
+    if (typeof data === 'object' && options !== null) {
+      data.VF_STATUS_CODE = status;
+      data.VF_HEADERS = headers;
     }
-    return { variables: newVariables, response };
+
+    const newVariables = Object.fromEntries((nodeData.mapping ?? []).filter((map) => map.var).map((map) => [map.var, getVariable(map.path, data)]));
+
+    return { variables: newVariables, response: { data, headers, status } };
   } catch (e) {
-    log.info(e.stack);
-    throw new Error();
+    throw e;
   }
 };
