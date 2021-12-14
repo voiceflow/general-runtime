@@ -64,14 +64,6 @@ describe('Handlers api utils unit tests', () => {
   });
 
   describe('formatRequestConfig', () => {
-    let runtime: any;
-    beforeEach(() => {
-      runtime = {
-        outgoingApiLimiter: {
-          addHostnameUseAndShouldThrottle: sinon.stub().resolves(false),
-        },
-      };
-    });
     afterEach(() => {
       sinon.restore();
     });
@@ -83,7 +75,7 @@ describe('Handlers api utils unit tests', () => {
           bodyInputType: Node.Api.APIBodyType.RAW_INPUT,
         };
 
-        const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime as any);
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any);
         expect(rest).to.eql({
           ...baseOptions,
           method: data.method,
@@ -98,7 +90,7 @@ describe('Handlers api utils unit tests', () => {
           bodyInputType: Node.Api.APIBodyType.FORM_DATA,
         };
 
-        const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime as any);
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any);
         expect(rest).to.eql({
           ...baseOptions,
           method: data.method,
@@ -115,7 +107,7 @@ describe('Handlers api utils unit tests', () => {
           bodyInputType: Node.Api.APIBodyType.RAW_INPUT,
         };
 
-        const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime as any);
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any);
         expect(rest).to.eql({
           ...baseOptions,
           data: 'parsedJSON',
@@ -130,7 +122,7 @@ describe('Handlers api utils unit tests', () => {
           bodyInputType: Node.Api.APIBodyType.RAW_INPUT,
         };
 
-        const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime as any);
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any);
         expect(rest).to.eql({
           ...baseOptions,
           data,
@@ -152,7 +144,7 @@ describe('Handlers api utils unit tests', () => {
           bodyInputType: Node.Api.APIBodyType.FORM_DATA,
         };
 
-        const { validateStatus, data: formDataObj, ...rest } = await formatRequestConfig(data as any, runtime);
+        const { validateStatus, data: formDataObj, ...rest } = await formatRequestConfig(data as any);
         expect(rest).to.eql({
           ...baseOptions,
           headers: {
@@ -176,7 +168,7 @@ describe('Handlers api utils unit tests', () => {
           body: 'body-value',
         };
 
-        const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime);
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any);
         expect(rest).to.eql({
           ...baseOptions,
           data: 'body-value',
@@ -196,7 +188,7 @@ describe('Handlers api utils unit tests', () => {
           ],
         };
 
-        const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime);
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any);
         expect(rest).to.eql({
           ...baseOptions,
           data: 'querystring stringify',
@@ -216,7 +208,7 @@ describe('Handlers api utils unit tests', () => {
           body: 'body-value',
         };
 
-        const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime);
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any);
         expect(rest).to.eql({
           ...baseOptions,
           data: 'querystring stringify',
@@ -240,7 +232,7 @@ describe('Handlers api utils unit tests', () => {
           ],
         };
 
-        const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime);
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any);
         expect(rest).to.eql({
           ...baseOptions,
           data: { body1: 'bodyval' },
@@ -258,7 +250,7 @@ describe('Handlers api utils unit tests', () => {
         ],
       };
 
-      const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime);
+      const { validateStatus, ...rest } = await formatRequestConfig(data as any);
       expect(rest).to.eql({
         ...baseOptions,
         data: { body1: 'bodyval' },
@@ -272,7 +264,7 @@ describe('Handlers api utils unit tests', () => {
         body: {},
       };
 
-      const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime);
+      const { validateStatus, ...rest } = await formatRequestConfig(data as any);
       expect(rest).to.eql({
         ...baseOptions,
       });
