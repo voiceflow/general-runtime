@@ -19,8 +19,10 @@ class OutgoingApiLimiter {
     return `${this.REDIS_PREFIX}_${this.isPublic() ? 'public' : this.runtime.authorization!}_${hostname}`;
   }
 
-  private async getHostnameUses(hostname: string): Promise<string | null> {
-    return this.runtime.services.redis.get(this.makeRedisHostnameHash(hostname));
+  private async getHostnameUses(hostname: string): Promise<number | null> {
+    const uses = await this.runtime.services.redis.get(this.makeRedisHostnameHash(hostname));
+
+    return uses ? Number(uses) : null;
   }
 
   public async addHostnameUseAndShouldThrottle(hostname: string): Promise<boolean> {
@@ -28,12 +30,12 @@ class OutgoingApiLimiter {
     // if already existing
     if (uses) {
       // add one to count without updating expiry date
-      await this.runtime.services.redis.set(this.makeRedisHostnameHash(hostname), `${Number(uses) + 1}`, 'KEEPTTL');
+      await this.runtime.services.redis.set(this.makeRedisHostnameHash(hostname), `${uses + 1}`, 'KEEPTTL');
     } else {
       await this.runtime.services.redis.set(this.makeRedisHostnameHash(hostname), '1', 'EX', this.EXPIRY_LENGTH);
     }
     const numberCallsLimitForProject = this.isPublic() ? MIN_NUMBER_OF_CALLS_TO_THROTTLE_PUBLIC : MIN_NUMBER_OF_CALLS_TO_THROTTLE_PRIVATE;
-    return (uses ? Number(uses) + 1 : 1) > numberCallsLimitForProject;
+    return (uses ? uses + 1 : 1) > numberCallsLimitForProject;
   }
 }
 
