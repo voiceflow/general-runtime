@@ -66,7 +66,7 @@ export const ReduceKeyValue = (values: { key: string; val: string }[]) =>
     return acc;
   }, {});
 
-const validateUrl = async (urlString: string): Promise<string> => {
+const validateHostname = (urlString: string): string => {
   let url: URL;
   try {
     url = new URL(urlString);
@@ -80,6 +80,14 @@ const validateUrl = async (urlString: string): Promise<string> => {
     throw new VError(`url hostname cannot be localhost: ${urlString}`, VError.HTTP_STATUS.BAD_REQUEST);
   }
 
+  if (BLACKLISTED_URLS.some((regex) => regex.test(hostname))) {
+    throw new VError('url endpoint is blacklisted', VError.HTTP_STATUS.BAD_REQUEST);
+  }
+
+  return hostname;
+};
+
+const validateIP = async (hostname: string) => {
   // DNS.resolve returns an array of ips
   const ips = validator.isIP(hostname)
     ? [hostname]
@@ -91,16 +99,10 @@ const validateUrl = async (urlString: string): Promise<string> => {
   if (badIP) {
     throw new VError(`url resolves to IP: ${badIP} in prohibited range`, VError.HTTP_STATUS.BAD_REQUEST);
   }
-
-  if (BLACKLISTED_URLS.some((regex) => regex.test(hostname))) {
-    throw new VError('url endpoint is blacklisted', VError.HTTP_STATUS.BAD_REQUEST);
-  }
-
-  return hostname;
 };
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-export const formatRequestConfig = async (data: APINodeData, runtime: Runtime) => {
+export const formatRequestConfig = (data: APINodeData) => {
   const { method, bodyInputType, headers, body, params, url, content } = data;
 
   const options: AxiosRequestConfig = {
@@ -113,12 +115,6 @@ export const formatRequestConfig = async (data: APINodeData, runtime: Runtime) =
     // defines the max size of the http request content in bytes allowed
     maxBodyLength: 100000,
   };
-  const hostname = await validateUrl(url);
-
-  if (await runtime.outgoingApiLimiter.addHostnameUseAndShouldThrottle(hostname)) {
-    // if the use of the hostname is high, delay the api call but let it happen
-    await new Promise((resolve) => setTimeout(resolve, THROTTLE_DELAY));
-  }
 
   if (params && params.length > 0) {
     const formattedParams = ReduceKeyValue(params);
@@ -174,7 +170,15 @@ export const formatRequestConfig = async (data: APINodeData, runtime: Runtime) =
 
 export const makeAPICall = async (nodeData: APINodeData, runtime: Runtime) => {
   try {
-    const options = await formatRequestConfig(nodeData, runtime);
+    const hostname = validateHostname(nodeData.url);
+    await validateIP(hostname);
+
+    if (await runtime.outgoingApiLimiter.addHostnameUseAndShouldThrottle(hostname)) {
+      // if the use of the hostname is high, delay the api call but let it happen
+      await new Promise((resolve) => setTimeout(resolve, THROTTLE_DELAY));
+    }
+
+    const options = formatRequestConfig(nodeData);
 
     const { data, headers, status } = (await axios(options)) as AxiosResponse<{ VF_STATUS_CODE?: number; VF_HEADERS?: any }>;
 
