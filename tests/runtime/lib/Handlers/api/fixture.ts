@@ -12,15 +12,17 @@ export const baseData = {
     { key: 'param1', val: 'never' },
     { key: 'param1', val: 'paramval1' },
   ],
-  url: 'mock-url',
+  url: 'https://www.mockurl.com',
   content: 'mock-content',
 };
 
 const timeout = 29000;
 export const baseOptions = {
-  headers: { header1: 'headerval1' },
+  headers: { header1: 'headerval1', 'User-Agent': 'voiceflow-general-runtime' },
   params: { param1: 'paramval1' },
-  url: 'mock-url',
+  url: 'https://www.mockurl.com',
   method: Node.Api.APIMethod.POST,
   timeout,
+  maxBodyLength: 100000,
+  maxContentLength: 100000,
 };

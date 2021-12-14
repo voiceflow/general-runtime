@@ -64,48 +64,58 @@ describe('Handlers api utils unit tests', () => {
   });
 
   describe('formatRequestConfig', () => {
+    let runtime: any;
+    beforeEach(() => {
+      runtime = {
+        outgoingApiLimiter: {
+          addHostnameUseAndShouldThrottle: sinon.stub().resolves(false),
+        },
+      };
+    });
     afterEach(() => {
       sinon.restore();
     });
     describe('get method', () => {
-      it('raw input body type', () => {
+      it('raw input body type', async () => {
         const data = {
           ...baseData,
           method: Node.Api.APIMethod.GET,
           bodyInputType: Node.Api.APIBodyType.RAW_INPUT,
         };
 
-        const { validateStatus, ...rest } = formatRequestConfig(data as any);
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime as any);
         expect(rest).to.eql({
           ...baseOptions,
           method: data.method,
+          headers: { header1: baseOptions.headers.header1 },
         });
       });
 
-      it('form data body type', () => {
+      it('form data body type', async () => {
         const data = {
           ...baseData,
           method: Node.Api.APIMethod.GET,
           bodyInputType: Node.Api.APIBodyType.FORM_DATA,
         };
 
-        const { validateStatus, ...rest } = formatRequestConfig(data as any);
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime as any);
         expect(rest).to.eql({
           ...baseOptions,
           method: data.method,
+          headers: { header1: baseOptions.headers.header1 },
         });
       });
     });
 
     describe('raw input body', () => {
-      it('converts to json', () => {
+      it('converts to json', async () => {
         const parseStub = sinon.stub(JSON, 'parse').returns('parsedJSON');
         const data = {
           ...baseData,
           bodyInputType: Node.Api.APIBodyType.RAW_INPUT,
         };
 
-        const { validateStatus, ...rest } = formatRequestConfig(data as any);
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime as any);
         expect(rest).to.eql({
           ...baseOptions,
           data: 'parsedJSON',
@@ -113,14 +123,14 @@ describe('Handlers api utils unit tests', () => {
         expect(parseStub.args).to.eql([[data.content]]);
       });
 
-      it('catches error', () => {
+      it('catches error', async () => {
         const parseStub = sinon.stub(JSON, 'parse').throws('abc');
         const data = {
           ...baseData,
           bodyInputType: Node.Api.APIBodyType.RAW_INPUT,
         };
 
-        const { validateStatus, ...rest } = formatRequestConfig(data as any);
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime as any);
         expect(rest).to.eql({
           ...baseOptions,
           data,
@@ -130,7 +140,7 @@ describe('Handlers api utils unit tests', () => {
     });
 
     describe('formdata body', () => {
-      it('works', () => {
+      it('works', async () => {
         const formDataAppendSpy = sinon.spy(FormData.prototype, 'append');
         const formDataGetHeadersSpy = sinon.stub(FormData.prototype, 'getHeaders').returns({ someHeader: 'getHeadersReturn' as any });
         const data = {
@@ -142,7 +152,7 @@ describe('Handlers api utils unit tests', () => {
           bodyInputType: Node.Api.APIBodyType.FORM_DATA,
         };
 
-        const { validateStatus, data: formDataObj, ...rest } = formatRequestConfig(data as any);
+        const { validateStatus, data: formDataObj, ...rest } = await formatRequestConfig(data as any, runtime);
         expect(rest).to.eql({
           ...baseOptions,
           headers: {
@@ -159,14 +169,14 @@ describe('Handlers api utils unit tests', () => {
     });
 
     describe('string body', () => {
-      it('works', () => {
+      it('works', async () => {
         const data = {
           ...baseData,
           bodyInputType: 'abdef',
           body: 'body-value',
         };
 
-        const { validateStatus, ...rest } = formatRequestConfig(data as any);
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime);
         expect(rest).to.eql({
           ...baseOptions,
           data: 'body-value',
@@ -175,7 +185,7 @@ describe('Handlers api utils unit tests', () => {
     });
 
     describe('urlencoded body', () => {
-      it('works for array body', () => {
+      it('works for array body', async () => {
         const formDataGetHeadersSpy = sinon.stub(querystring, 'stringify').returns('querystring stringify');
         const data = {
           ...baseData,
@@ -186,7 +196,7 @@ describe('Handlers api utils unit tests', () => {
           ],
         };
 
-        const { validateStatus, ...rest } = formatRequestConfig(data as any);
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime);
         expect(rest).to.eql({
           ...baseOptions,
           data: 'querystring stringify',
@@ -198,7 +208,7 @@ describe('Handlers api utils unit tests', () => {
         expect(formDataGetHeadersSpy.args).to.eql([[{ body1: 'bodyval' }]]);
       });
 
-      it('works for non array body', () => {
+      it('works for non array body', async () => {
         const formDataGetHeadersSpy = sinon.stub(querystring, 'stringify').returns('querystring stringify');
         const data = {
           ...baseData,
@@ -206,7 +216,7 @@ describe('Handlers api utils unit tests', () => {
           body: 'body-value',
         };
 
-        const { validateStatus, ...rest } = formatRequestConfig(data as any);
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime);
         expect(rest).to.eql({
           ...baseOptions,
           data: 'querystring stringify',
@@ -220,7 +230,7 @@ describe('Handlers api utils unit tests', () => {
     });
 
     describe('keyvalue body', () => {
-      it('works', () => {
+      it('works', async () => {
         const data = {
           ...baseData,
           bodyInputType: 'keyValue',
@@ -230,7 +240,7 @@ describe('Handlers api utils unit tests', () => {
           ],
         };
 
-        const { validateStatus, ...rest } = formatRequestConfig(data as any);
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime);
         expect(rest).to.eql({
           ...baseOptions,
           data: { body1: 'bodyval' },
@@ -238,7 +248,7 @@ describe('Handlers api utils unit tests', () => {
       });
     });
 
-    it('does key value if other body and body is array', () => {
+    it('does key value if other body and body is array', async () => {
       const data = {
         ...baseData,
         bodyInputType: 'some-body',
@@ -248,21 +258,21 @@ describe('Handlers api utils unit tests', () => {
         ],
       };
 
-      const { validateStatus, ...rest } = formatRequestConfig(data as any);
+      const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime);
       expect(rest).to.eql({
         ...baseOptions,
         data: { body1: 'bodyval' },
       });
     });
 
-    it('returns basic options if bodytype is not raw,formdata,urlenc,keyValue and body is not array', () => {
+    it('returns basic options if bodytype is not raw,formdata,urlenc,keyValue and body is not array', async () => {
       const data = {
         ...baseData,
         bodyInputType: 'abcdef',
         body: {},
       };
 
-      const { validateStatus, ...rest } = formatRequestConfig(data as any);
+      const { validateStatus, ...rest } = await formatRequestConfig(data as any, runtime);
       expect(rest).to.eql({
         ...baseOptions,
       });
