@@ -52,9 +52,7 @@ describe('client unit tests', () => {
 
       expect(client.createRuntime(versionID, state as any, request as any, options as any)).to.eql(newRuntime);
       expect(runtimeStub.calledWithNew()).to.eql(true);
-      expect(runtimeStub.args).to.eql([
-        [versionID, state, request, { ..._.get(client, 'options'), ...options, authorization: undefined }, _.get(client, 'events')],
-      ]);
+      expect(runtimeStub.args).to.eql([[versionID, state, request, { ..._.get(client, 'options'), ...options }, _.get(client, 'events')]]);
     });
   });
 

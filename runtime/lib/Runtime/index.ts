@@ -13,7 +13,6 @@ export interface Options<DA extends DataAPI = DataAPI> {
   api: DA;
   handlers?: Handler<any>[];
   services?: Record<string, any>;
-  authorization?: string;
 }
 
 export interface State {
@@ -56,13 +55,11 @@ class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends Abstrac
 
   private programManager: ProgramManager;
 
-  public authorization: string | undefined;
-
   constructor(
     public versionID: string,
     state: State,
     private request: R | null = null,
-    { services = {}, handlers = [], api, authorization }: Options<DA>,
+    { services = {}, handlers = [], api }: Options<DA>,
     events: Lifecycle
   ) {
     super(events);
@@ -72,7 +69,6 @@ class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends Abstrac
     this.services = services;
     this.handlers = handlers;
     this.api = api;
-    this.authorization = authorization;
 
     this.stack = new Stack(state.stack, {
       willChange: createEvent(EventType.stackWillChange),

@@ -1,25 +1,20 @@
 import Runtime from '@/runtime/lib/Runtime';
 
-const MIN_NUMBER_OF_CALLS_TO_THROTTLE_PRIVATE = 5000;
-const MIN_NUMBER_OF_CALLS_TO_THROTTLE_PUBLIC = 1000;
+const MIN_NUMBER_OF_CALLS_TO_THROTTLE = 5000;
 
 class OutgoingApiLimiter {
   private REDIS_PREFIX = 'outgoing_api';
 
   // in seconds for the uses count to reset
-  private EXPIRY_LENGTH = 60;
+  private EXPIRY_LENGTH = 60 * 60 * 24;
 
   constructor(private runtime: Runtime) {}
 
-  private isPublic(): boolean {
-    return !this.runtime.authorization;
+  public makeRedisHostnameHash(hostname: string): string {
+    return `${this.REDIS_PREFIX}_${this.runtime.getVersionID()}_${hostname}`;
   }
 
-  private makeRedisHostnameHash(hostname: string): string {
-    return `${this.REDIS_PREFIX}_${this.isPublic() ? 'public' : this.runtime.authorization!}_${hostname}`;
-  }
-
-  private async getHostnameUses(hostname: string): Promise<number | null> {
+  public async getHostnameUses(hostname: string): Promise<number | null> {
     const uses = await this.runtime.services.redis.get(this.makeRedisHostnameHash(hostname));
 
     return uses ? Number(uses) : null;
@@ -34,8 +29,7 @@ class OutgoingApiLimiter {
     } else {
       await this.runtime.services.redis.set(this.makeRedisHostnameHash(hostname), '1', 'EX', this.EXPIRY_LENGTH);
     }
-    const numberCallsLimitForProject = this.isPublic() ? MIN_NUMBER_OF_CALLS_TO_THROTTLE_PUBLIC : MIN_NUMBER_OF_CALLS_TO_THROTTLE_PRIVATE;
-    return (uses ? uses + 1 : 1) > numberCallsLimitForProject;
+    return (uses ? uses + 1 : 1) > MIN_NUMBER_OF_CALLS_TO_THROTTLE;
   }
 }
 
