@@ -56,7 +56,7 @@ describe('runtime manager unit tests', () => {
         type: Request.RequestType.INTENT,
         payload: {},
       };
-      const context = { state, request, versionID: VERSION_ID, data: { api: { getProgram: 'api' } }, authorization: 'authorization-val' } as any;
+      const context = { state, request, versionID: VERSION_ID, data: { api: { getProgram: 'api' } } } as any;
       expect(await runtimeManager.handle(context)).to.eql({
         state: rawState,
         trace,
@@ -65,7 +65,7 @@ describe('runtime manager unit tests', () => {
         data: { api: { getProgram: 'api' } },
       });
       expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
-      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request, undefined, 'authorization-val']]);
+      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request]]);
       expect(runtime.update.callCount).to.eql(1);
     });
 
@@ -121,7 +121,7 @@ describe('runtime manager unit tests', () => {
         data: { api: { getProgram: 'api' }, config: { stopTypes: ['t1', 't2'] } },
       });
       expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
-      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request, undefined, 'authorization-val']]);
+      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request]]);
       expect(runtime.update.callCount).to.eql(1);
       expect(runtime.turn.set.args).to.eql([[TurnType.STOP_TYPES, context.data.config.stopTypes]]);
     });
@@ -161,7 +161,7 @@ describe('runtime manager unit tests', () => {
         payload: {},
       };
       const state = { foo: 'bar' };
-      const context = { state, request, versionID: VERSION_ID, data: { api: { getProgram: 'api' } }, authorization: 'authorization-val' } as any;
+      const context = { state, request, versionID: VERSION_ID, data: { api: { getProgram: 'api' } } } as any;
 
       expect(await runtimeManager.handle(context)).to.eql({
         state: rawState,
@@ -171,7 +171,7 @@ describe('runtime manager unit tests', () => {
         data: { api: { getProgram: 'api' } },
       });
       expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
-      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request, undefined, 'authorization-val']]);
+      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request]]);
       expect(utils.Handlers.callCount).to.eql(1);
     });
 
@@ -216,7 +216,7 @@ describe('runtime manager unit tests', () => {
         },
       };
       const state = { foo: 'bar' };
-      const context = { state, request, versionID: VERSION_ID, data: { api: { getProgram: 'api' } }, authorization: 'authorization-val' } as any;
+      const context = { state, request, versionID: VERSION_ID, data: { api: { getProgram: 'api' } } } as any;
 
       await runtimeManager.handle(context);
 
@@ -280,7 +280,7 @@ describe('runtime manager unit tests', () => {
         data: { api: { getProgram: 'api' } },
       });
       expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
-      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request, undefined, 'authorization-val']]);
+      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request]]);
       expect(runtime.update.callCount).to.eql(1);
       expect(runtime.variables.set.args).to.eql([
         [Variables.TIMESTAMP, 0],
