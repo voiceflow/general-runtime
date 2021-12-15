@@ -58,7 +58,6 @@ class Interact extends AbstractManager {
       state,
       request,
       userID,
-      authorization,
       versionID,
       data: { locale, config, reqHeaders: { authorization, origin, sessionid: sessionId } },
     });

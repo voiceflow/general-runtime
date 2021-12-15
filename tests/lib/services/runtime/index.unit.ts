@@ -111,7 +111,6 @@ describe('runtime manager unit tests', () => {
         request,
         versionID: VERSION_ID,
         data: { api: { getProgram: 'api' }, config: { stopTypes: ['t1', 't2'] } },
-        authorization: 'authorization-val',
       } as any;
       expect(await runtimeManager.handle(context)).to.eql({
         state: rawState,
@@ -270,7 +269,6 @@ describe('runtime manager unit tests', () => {
         request,
         versionID: VERSION_ID,
         data: { api: { getProgram: 'api' } },
-        authorization: 'authorization-val',
       } as any;
       expect(await runtimeManager.handle(context)).to.eql({
         state: rawState,
