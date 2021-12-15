@@ -46,7 +46,7 @@ class Project extends AbstractMiddleware {
 
         const project = await api.getProjectUsingAuthorization(req.headers.authorization);
         req.headers.project_id = project._id.toString();
-        req.params.versionID = project.liveVersion?.toString() ?? project.devVersion?.toString();
+        req.params.versionID = project.devVersion!.toString();
         return next();
       }
 
