@@ -45,7 +45,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
   public async handle({ versionID, userID, authorization, state, request, ...context }: Context): Promise<Context> {
     if (!isRuntimeRequest(request)) throw new Error(`invalid runtime request type: ${JSON.stringify(request)}`);
 
-    const runtime = this.createClient(context.data.api).createRuntime(versionID, state, request, undefined, authorization);
+    const runtime = this.createClient(context.data.api).createRuntime(versionID, state, request);
 
     if (isIntentRequest(request)) {
       const confidence = getReadableConfidence(request.payload.confidence);
