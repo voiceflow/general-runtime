@@ -1,6 +1,9 @@
 import { expect } from 'chai';
+import { Express } from 'express';
 import sinon from 'sinon';
-import request from 'supertest';
+import request, { SuperTest } from 'supertest';
+
+import Server from '@/server';
 
 import GetApp from '../getAppForTest';
 import fixtures from './fixture';
@@ -29,6 +32,7 @@ const tests = [
           project: {
             attachID: {
               PARAMS_VERSION_ID: 1,
+              HEADERS_VERSION_ID: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -74,6 +78,7 @@ const tests = [
           project: {
             attachID: {
               PARAMS_VERSION_ID: 1,
+              HEADERS_VERSION_ID: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -112,6 +117,7 @@ const tests = [
           project: {
             attachID: {
               PARAMS_VERSION_ID: 1,
+              HEADERS_VERSION_ID: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -142,6 +148,7 @@ const tests = [
           project: {
             attachID: {
               PARAMS_VERSION_ID: 1,
+              HEADERS_VERSION_ID: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -179,6 +186,7 @@ const tests = [
           project: {
             attachID: {
               PARAMS_VERSION_ID: 1,
+              HEADERS_VERSION_ID: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -224,6 +232,7 @@ const tests = [
           project: {
             attachID: {
               PARAMS_VERSION_ID: 1,
+              HEADERS_VERSION_ID: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -234,8 +243,8 @@ const tests = [
 ];
 
 describe('state route unit tests', () => {
-  let app;
-  let server;
+  let app: Express | null;
+  let server: Server;
 
   afterEach(async () => {
     sinon.restore();

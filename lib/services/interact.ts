@@ -39,7 +39,7 @@ class Interact extends AbstractManager {
     }
 
     metrics.generalRequest();
-    if (authorization?.match(/^VF[A-Z]{0,2}\./)) {
+    if (authorization?.startsWith('VF.')) {
       metrics.sdkRequest();
     }
 
