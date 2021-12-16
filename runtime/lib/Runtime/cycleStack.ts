@@ -24,8 +24,8 @@ const cycleStack = async (runtime: Runtime, depth = 0): Promise<void> => {
 
   const program = await runtime.getProgram(currentFrame.getProgramID());
 
-  // initialize frame with program properties
-  currentFrame.initialize(program);
+  // hydrate frame with program properties
+  currentFrame.hydrate(program);
 
   // generate combined variable state (global/local)
   const combinedVariables = createCombinedVariables(runtime.variables, currentFrame.variables);

@@ -55,11 +55,11 @@ describe('Runtime Stack Frame unit tests', () => {
     expect(frame.getCommands()).to.eql(commands);
   });
 
-  describe('initialize', () => {
-    it('already initialized', () => {
+  describe('hydrate', () => {
+    it('already hydrated', () => {
       const frame = new Frame({} as any);
-      _.set(frame, 'initialized', true);
-      frame.initialize(null as any);
+      _.set(frame, 'hydrated', true);
+      frame.hydrate(null as any);
       expect(frame.getNodeID()).to.eql(undefined);
     });
 
@@ -76,7 +76,7 @@ describe('Runtime Stack Frame unit tests', () => {
         getVariables: sinon.stub().returns(variables),
       };
 
-      frame.initialize(program as any);
+      frame.hydrate(program as any);
 
       expect(frame.getName()).to.eql(name);
       expect(frame.getNodeID()).to.eql(startNodeID);
@@ -95,7 +95,7 @@ describe('Runtime Stack Frame unit tests', () => {
         getVariables: sinon.stub().returns([]),
       };
 
-      frame.initialize(program as any);
+      frame.hydrate(program as any);
 
       expect(frame.getNodeID()).to.eql(nodeID);
       expect(_.get(frame, 'startNodeID')).to.eql(startNodeID);

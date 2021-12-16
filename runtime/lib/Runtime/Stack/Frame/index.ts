@@ -34,7 +34,7 @@ export interface Options {
 }
 
 class Frame {
-  private initialized = false;
+  private hydrated = false;
 
   private nodeID?: string | null;
 
@@ -74,12 +74,12 @@ class Frame {
     };
   }
 
-  public initialize(program: ProgramModel): void {
-    if (this.initialized) {
+  public hydrate(program: ProgramModel): void {
+    if (this.hydrated) {
       return;
     }
 
-    this.initialized = true;
+    this.hydrated = true;
 
     this.name = program.getName();
     this.commands = program.getCommands();
@@ -136,6 +136,10 @@ class Frame {
 
   public getName(): string | undefined {
     return this.name;
+  }
+
+  public isHydrated(): boolean {
+    return this.hydrated;
   }
 
   public setProgramID(programID: string): void {

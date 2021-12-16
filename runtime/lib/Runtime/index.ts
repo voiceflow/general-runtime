@@ -177,6 +177,18 @@ class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends Abstrac
     };
   }
 
+  public async hydrateStack(): Promise<void> {
+    await this.injectBaseProgram();
+    await Promise.all(
+      this.stack.getFrames().map(async (frame) => {
+        if (frame.isHydrated()) return;
+
+        const program = await this.getProgram(frame.getProgramID());
+        frame.hydrate(program);
+      })
+    );
+  }
+
   public getHandlers<T extends Handler = Handler>(): T[] {
     return this.handlers as T[];
   }
