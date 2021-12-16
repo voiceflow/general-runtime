@@ -25,7 +25,10 @@ class OutgoingApiLimiter {
     // if already existing
     if (uses) {
       // add one to count without updating expiry date
-      await this.runtime.services.redis.set(this.makeRedisHostnameHash(hostname), `${uses + 1}`, 'KEEPTTL');
+      // TODO: Once Redis on PROD is updated to version >6, replace the two lines below by
+      // await this.runtime.services.redis.set(this.makeRedisHostnameHash(hostname), `${uses + 1}`, 'KEEPTTL');
+      const curExpiry = await this.runtime.services.redis.ttl(this.makeRedisHostnameHash(hostname));
+      await this.runtime.services.redis.set(this.makeRedisHostnameHash(hostname), `${uses + 1}`, 'EX', curExpiry);
     } else {
       await this.runtime.services.redis.set(this.makeRedisHostnameHash(hostname), '1', 'EX', this.EXPIRY_LENGTH);
     }

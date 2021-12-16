@@ -6,6 +6,7 @@ import FormData from 'form-data';
 import ipRangeCheck from 'ip-range-check';
 import _ from 'lodash';
 import querystring from 'querystring';
+import safeJSONStringify from 'safe-json-stringify';
 import validator from 'validator';
 
 import Runtime from '@/runtime/lib/Runtime';
@@ -168,9 +169,13 @@ export const makeAPICall = async (nodeData: APINodeData, runtime: Runtime) => {
     const hostname = validateHostname(nodeData.url);
     await validateIP(hostname);
 
-    if (await runtime.outgoingApiLimiter.addHostnameUseAndShouldThrottle(hostname)) {
-      // if the use of the hostname is high, delay the api call but let it happen
-      await new Promise((resolve) => setTimeout(resolve, THROTTLE_DELAY));
+    try {
+      if (await runtime.outgoingApiLimiter.addHostnameUseAndShouldThrottle(hostname)) {
+        // if the use of the hostname is high, delay the api call but let it happen
+        await new Promise((resolve) => setTimeout(resolve, THROTTLE_DELAY));
+      }
+    } catch (error) {
+      runtime.trace.debug(`Outgoing Api Rate Limiter failed - Error: \n${safeJSONStringify(error.response?.data || error)}`, Node.NodeType.API);
     }
 
     const options = formatRequestConfig(nodeData);
