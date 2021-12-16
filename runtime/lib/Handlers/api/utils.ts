@@ -16,8 +16,6 @@ const PROHIBITED_IP_RANGES = ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '
 // Regex to match
 const BLACKLISTED_URLS: RegExp[] = [];
 
-const USER_AGENT = 'voiceflow-general-runtime';
-
 // Delay amount in ms for when max api call limit is reached
 const THROTTLE_DELAY = 2000;
 
@@ -161,9 +159,6 @@ export const formatRequestConfig = (data: APINodeData) => {
   }
 
   options.validateStatus = () => true;
-  if (!options.headers['User-Agent']) {
-    options.headers['User-Agent'] = USER_AGENT;
-  }
 
   return options;
 };

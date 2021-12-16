@@ -5,8 +5,8 @@ const MIN_NUMBER_OF_CALLS_TO_THROTTLE = 5000;
 class OutgoingApiLimiter {
   private REDIS_PREFIX = 'outgoing_api';
 
-  // in seconds for the uses count to reset
-  private EXPIRY_LENGTH = 60 * 60 * 24;
+  // 6 hours in seconds for the uses count to reset
+  private EXPIRY_LENGTH = 60 * 60 * 6;
 
   constructor(private runtime: Runtime) {}
 
