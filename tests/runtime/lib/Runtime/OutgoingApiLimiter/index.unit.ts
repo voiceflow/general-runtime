@@ -16,7 +16,10 @@ describe('Runtime OutgoingApiLimiter unit tests', () => {
 
   describe('getHostnameUses', () => {
     it('works with existing uses', async () => {
-      const runtime = { getVersionID: sinon.stub().returns('version-id'), services: { redis: { get: sinon.stub().resolves('3') } } };
+      const runtime = {
+        getVersionID: sinon.stub().returns('version-id'),
+        services: { redis: { get: sinon.stub().resolves('3'), ttl: sinon.stub().resolves(123) } },
+      };
 
       const outgoingApiLimiter = new OutgoingApiLimiter(runtime as any);
 
@@ -25,7 +28,10 @@ describe('Runtime OutgoingApiLimiter unit tests', () => {
     });
 
     it('works with no uses', async () => {
-      const runtime = { getVersionID: sinon.stub().returns('version-id'), services: { redis: { get: sinon.stub().resolves(null) } } };
+      const runtime = {
+        getVersionID: sinon.stub().returns('version-id'),
+        services: { redis: { get: sinon.stub().resolves(null), ttl: sinon.stub().resolves(123) } },
+      };
 
       const outgoingApiLimiter = new OutgoingApiLimiter(runtime as any);
 
@@ -38,31 +44,31 @@ describe('Runtime OutgoingApiLimiter unit tests', () => {
     it('works with existing uses less than max', async () => {
       const runtime = {
         getVersionID: sinon.stub().returns('version-id'),
-        services: { redis: { get: sinon.stub().resolves('3'), set: sinon.stub().resolves(undefined) } },
+        services: { redis: { get: sinon.stub().resolves('3'), set: sinon.stub().resolves(undefined), ttl: sinon.stub().resolves(123) } },
       };
 
       const outgoingApiLimiter = new OutgoingApiLimiter(runtime as any);
 
       expect(await outgoingApiLimiter.addHostnameUseAndShouldThrottle('hostname-val')).to.eql(false);
-      expect(runtime.services.redis.set.args).to.eql([['outgoing_api_version-id_hostname-val', '4', 'KEEPTTL']]);
+      expect(runtime.services.redis.set.args).to.eql([['outgoing_api_version-id_hostname-val', '4', 'EX', 123]]);
     });
 
     it('works with existing uses more than max', async () => {
       const runtime = {
         getVersionID: sinon.stub().returns('version-id'),
-        services: { redis: { get: sinon.stub().resolves('5001'), set: sinon.stub().resolves(undefined) } },
+        services: { redis: { get: sinon.stub().resolves('5001'), set: sinon.stub().resolves(undefined), ttl: sinon.stub().resolves(123) } },
       };
 
       const outgoingApiLimiter = new OutgoingApiLimiter(runtime as any);
 
       expect(await outgoingApiLimiter.addHostnameUseAndShouldThrottle('hostname-val')).to.eql(true);
-      expect(runtime.services.redis.set.args).to.eql([['outgoing_api_version-id_hostname-val', '5002', 'KEEPTTL']]);
+      expect(runtime.services.redis.set.args).to.eql([['outgoing_api_version-id_hostname-val', '5002', 'EX', 123]]);
     });
 
     it('works with no uses less', async () => {
       const runtime = {
         getVersionID: sinon.stub().returns('version-id'),
-        services: { redis: { get: sinon.stub().resolves(null), set: sinon.stub().resolves(undefined) } },
+        services: { redis: { get: sinon.stub().resolves(null), set: sinon.stub().resolves(undefined), ttl: sinon.stub().resolves(123) } },
       };
 
       const outgoingApiLimiter = new OutgoingApiLimiter(runtime as any);
