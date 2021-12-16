@@ -68,7 +68,7 @@ describe('Runtime OutgoingApiLimiter unit tests', () => {
       const outgoingApiLimiter = new OutgoingApiLimiter(runtime as any);
 
       expect(await outgoingApiLimiter.addHostnameUseAndShouldThrottle('hostname-val')).to.eql(false);
-      expect(runtime.services.redis.set.args).to.eql([['outgoing_api_version-id_hostname-val', '1', 'EX', 60 * 60 * 24]]);
+      expect(runtime.services.redis.set.args).to.eql([['outgoing_api_version-id_hostname-val', '1', 'EX', 60 * 60 * 6]]);
     });
   });
 });

@@ -18,7 +18,7 @@ export const baseData = {
 
 const timeout = 29000;
 export const baseOptions = {
-  headers: { header1: 'headerval1', 'User-Agent': 'voiceflow-general-runtime' },
+  headers: { header1: 'headerval1' },
   params: { param1: 'paramval1' },
   url: 'https://www.mockurl.com',
   method: Node.Api.APIMethod.POST,
