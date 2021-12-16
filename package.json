@@ -16,7 +16,7 @@
     "@types/workerpool": "^5.0.1",
     "@voiceflow/api-sdk": "3.3.5",
     "@voiceflow/backend-utils": "3.3.0",
-    "@voiceflow/base-types": "2.4.2",
+    "@voiceflow/base-types": "file:../libs/packages/base-types",
     "@voiceflow/body-parser": "^1.21.0",
     "@voiceflow/chat-types": "2.1.5",
     "@voiceflow/common": "6.7.1",
@@ -53,6 +53,7 @@
     "safe-json-stringify": "^1.2.0",
     "slate": "^0.65.3",
     "talisman": "^1.1.3",
+    "twilio": "^3.71.3",
     "vm2": "^3.9.5",
     "words-to-numbers": "^1.5.1",
     "workerpool": "^5.0.4"
