@@ -4,11 +4,12 @@ import { Action, Handler, HandlerFactory, IfV2Handler } from '@/runtime';
 
 import _V1Handler from '../_v1';
 import CaptureHandler from '../capture';
+import CaptureV2Handler from '../captureV2';
 import CommandHandler from '../command';
 import InteractionHandler from '../interaction';
 
 const _v1Handler = _V1Handler();
-export const eventHandlers = [CaptureHandler(), InteractionHandler(), _v1Handler, IfV2Handler({ _v1: _v1Handler })] as Handler[];
+export const eventHandlers = [CaptureHandler(), CaptureV2Handler(), InteractionHandler(), _v1Handler, IfV2Handler({ _v1: _v1Handler })] as Handler[];
 
 const utilsObj = {
   commandHandler: CommandHandler(),

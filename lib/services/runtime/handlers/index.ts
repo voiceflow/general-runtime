@@ -17,6 +17,7 @@ import { Config } from '@/types';
 
 import _V1Handler from './_v1';
 import CaptureHandler from './capture';
+import CaptureV2Handler from './captureV2';
 import InteractionHandler from './interaction';
 import SpeakHandler from './speak';
 import StateHandlers from './state';
@@ -31,6 +32,7 @@ export default ({ API_HANDLER_ENDPOINT, INTEGRATIONS_HANDLER_ENDPOINT, CODE_HAND
   SpeakHandler(),
   InteractionHandler(),
   CaptureHandler(),
+  CaptureV2Handler(),
   ResetHandler(),
   StreamHandler(),
   CodeHandler({ endpoint: CODE_HANDLER_ENDPOINT }),

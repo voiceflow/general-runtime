@@ -9,19 +9,19 @@ import { Constants } from '@voiceflow/general-types';
 import { Types as VoiceTypes } from '@voiceflow/voice-types';
 import _ from 'lodash';
 
+import { hasElicit } from '@/lib/services/runtime/handlers/utils/entity';
 import log from '@/logger';
 import { Context, ContextHandler } from '@/types';
 
 import { handleNLCDialog } from '../nlu/nlc';
 import { getNoneIntentRequest, NONE_INTENT } from '../nlu/utils';
-import { isIntentRequest } from '../runtime/types';
+import { isIntentRequest, StorageType } from '../runtime/types';
 import { outputTrace } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
 import { rectifyEntityValue } from './synonym';
 import {
   dmPrefix,
   fillStringEntities,
-  getDMPrefixIntentName,
   getEntitiesMap,
   getIntentEntityList,
   getUnfulfilledEntity,
@@ -35,14 +35,15 @@ export const utils = {
   isIntentInScope,
 };
 
-declare type DMStore = {
+export declare type DMStore = {
   intentRequest?: Request.IntentRequest;
+  priorIntent?: Request.IntentRequest;
 };
 
 @injectServices({ utils })
 class DialogManagement extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
   static setDMStore(context: Context, store: DMStore | undefined) {
-    return { ...context, state: { ...context.state, storage: { ...context.state.storage, dm: store } } };
+    return { ...context, state: { ...context.state, storage: { ...context.state.storage, [StorageType.DM]: store } } };
   }
 
   handleDMContext = (
@@ -50,23 +51,24 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     dmPrefixedResult: Request.IntentRequest,
     incomingRequest: Request.IntentRequest,
     languageModel: Models.PrototypeModel
-  ) => {
+  ): boolean => {
     const dmPrefixedResultName = dmPrefixedResult.payload.intent.name;
     log.trace(`[app] [runtime] [dm] DM-Prefixed inference result ${log.vars({ resultName: dmPrefixedResultName })}`);
 
     if (dmPrefixedResultName.startsWith(VF_DM_PREFIX)) {
       // Remove hash prefix entity from the DM-prefixed result
       dmPrefixedResult.payload.entities = dmPrefixedResult.payload.entities.filter((entity) => !entity.name.startsWith(VF_DM_PREFIX));
-
-      const expectedDMPrefixIntentName = getDMPrefixIntentName(dmStateStore.intentRequest!.payload.intent.name);
       const intentEntityList = getIntentEntityList(dmStateStore.intentRequest!.payload.intent.name, languageModel);
       // Check if the dmPrefixedResult entities are a subset of the intent's entity list
-      const isEntitySubset = dmPrefixedResult.payload.entities.some((dmEntity) => intentEntityList?.find((entity) => entity?.name === dmEntity.name));
-      if (expectedDMPrefixIntentName === dmPrefixedResultName || isEntitySubset) {
-        // CASE-B1 || CASE-B2_4: The prefixed and regular calls match the same intent OR
-        //                       the prefixed intent only contains entities that are in the target intent's entity list
+      const entitySubset = dmPrefixedResult.payload.entities.filter((dmEntity) => intentEntityList?.find((entity) => entity?.name === dmEntity.name));
+      if (dmPrefixedResult.payload.entities.length === 0) {
+        // CASE-B2_2: The prefixed intent has no entities extracted (except for the hash sentinel)
+        // Action:  Migrate the user to the regular intent
+        dmStateStore.intentRequest = incomingRequest;
+      } else if (entitySubset.length) {
+        // CASE-B2_4: the prefixed intent only contains entities that are in the target intent's entity list
         // Action: Use the entities extracted from the prefixed intent to overwrite any existing filled entities
-        dmPrefixedResult.payload.entities.forEach((entity) => {
+        entitySubset.forEach((entity) => {
           const storedEntity = dmStateStore.intentRequest!.payload.entities.find((stored) => stored.name === entity.name);
           if (!storedEntity) {
             dmStateStore.intentRequest!.payload.entities.push(entity); // Append entity
@@ -75,10 +77,6 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
           }
         });
         // TODO: Confidence-based selection of whether to switch intents
-      } else if (dmPrefixedResult.payload.entities.length === 0) {
-        // CASE-B2_2: The prefixed intent has no entities extracted (except for the hash sentinel)
-        // Action:  Migrate the user to the regular intent
-        dmStateStore.intentRequest = incomingRequest;
       } else {
         // (Unlikely) CASE-B2_3: The prefixed intent has entities that are not in the target intent's entity list
         // Action: return true; Fallback intent
@@ -114,7 +112,8 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     }
 
     const incomingRequest = context.request;
-    const dmStateStore: DMStore = { ...context.state.storage.dm };
+    const currentStore = context.state.storage[StorageType.DM];
+    const dmStateStore: DMStore = { ...currentStore, priorIntent: currentStore?.intentRequest };
 
     if (dmStateStore?.intentRequest) {
       log.debug('[app] [runtime] [dm] in dialog management context');
@@ -137,7 +136,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
         if (isFallback) {
           return {
-            ...DialogManagement.setDMStore(context, undefined),
+            ...DialogManagement.setDMStore(context, { ...dmStateStore, intentRequest: undefined }),
             request: getNoneIntentRequest(query),
           };
         }
@@ -151,7 +150,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
         if (resultNLC.payload.intent.name === NONE_INTENT) {
           return {
-            ...DialogManagement.setDMStore(context, undefined),
+            ...DialogManagement.setDMStore(context, { ...dmStateStore, intentRequest: undefined }),
             request: getNoneIntentRequest(query),
           };
         }
@@ -183,14 +182,19 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       const trace: Trace.AnyTrace[] = [];
 
       const prompt = _.sample(unfulfilledEntity.dialog.prompt)! as ChatTypes.Prompt | VoiceTypes.IntentPrompt<string>;
-      const variables = getEntitiesMap(dmStateStore!.intentRequest);
 
-      const output =
-        'content' in prompt
-          ? prompt.content
-          : fillStringEntities(inputToString(prompt, version.platformData.settings.defaultVoice), dmStateStore!.intentRequest);
+      if (hasElicit(incomingRequest) || !prompt) {
+        trace.push(outputTrace({ output: '' }));
+      } else if (prompt) {
+        const variables = getEntitiesMap(dmStateStore!.intentRequest);
 
-      trace.push(outputTrace({ output, variables }));
+        const output =
+          'content' in prompt
+            ? prompt.content
+            : fillStringEntities(inputToString(prompt, version.platformData.settings.defaultVoice), dmStateStore!.intentRequest);
+
+        trace.push(outputTrace({ output, variables }));
+      }
 
       return {
         ...context,

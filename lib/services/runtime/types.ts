@@ -19,6 +19,7 @@ export const isRuntimeRequest = (request: any): request is RuntimeRequest => {
 };
 
 export enum StorageType {
+  DM = 'dm',
   USER = 'user',
   LOCALE = 'locale',
   REPEAT = 'repeat',

@@ -65,6 +65,7 @@ export const dmPrefix = (contents: string) =>
     .digest('hex')
     .slice(-10);
 
+/** @deprecated we compare entity subsets directly for now, if nothing is filled, it might as well be a fallback */
 export const getDMPrefixIntentName = (intentName: string) => {
   return `${VF_DM_PREFIX}${dmPrefix(intentName)}_${intentName}`;
 };
@@ -79,7 +80,8 @@ export const isInteractionsInNode = (
   node: Models.BaseNode & { interactions?: Node.Interaction.NodeInteraction[] }
 ): node is Models.BaseNode & { interactions: Node.Interaction.NodeInteraction[] } => Array.isArray(node.interactions);
 
-export const isIntentInNode = (node: Models.BaseNode & { intent?: string }): node is Models.BaseNode & { intent: string } => !!node.intent;
+export const isIntentInNode = (node: Models.BaseNode & { intent?: { name?: string } }): node is Models.BaseNode & { intent: { name: string } } =>
+  typeof node.intent?.name === 'string';
 
 export const isIntentInScope = async ({ data: { api }, versionID, state, request }: Context) => {
   const client = new Client({
@@ -103,7 +105,7 @@ export const isIntentInScope = async ({ data: { api }, versionID, state, request
   // if no event handler can handle, intent req is out of scope => no dialog management required
   if (!eventHandlers.find((h) => h.canHandle(node as any, runtime, variables, program!))) return false;
 
-  if (isIntentInNode(node) && runtime.getRequest().payload?.intent?.name === node.intent) {
+  if (isIntentInNode(node) && runtime.getRequest().payload?.intent?.name === node.intent.name) {
     return true;
   }
   if (isInteractionsInNode(node)) {

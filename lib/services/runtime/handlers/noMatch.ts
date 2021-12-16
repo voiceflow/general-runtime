@@ -9,7 +9,7 @@ import { NoMatchCounterStorage, StorageType } from '../types';
 import { addButtonsIfExists, outputTrace, removeEmptyPrompts } from '../utils';
 import { addNoReplyTimeoutIfExists } from './noReply';
 
-type NoMatchNode = Request.NodeButton & (VoiceNode.Utils.NoMatchNode | ChatNode.Utils.NoMatchNode);
+export type NoMatchNode = Request.NodeButton & (VoiceNode.Utils.NoMatchNode | ChatNode.Utils.NoMatchNode);
 
 const utilsObj = {
   outputTrace,
