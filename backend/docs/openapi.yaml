@@ -57,7 +57,7 @@ info:
         const userInput = 'Hello world!'; // User's message to your Voiceflow project
 
         const body = {
-          request: {
+          action: {
             type: 'text',
             payload: userInput,
           },
@@ -88,16 +88,15 @@ info:
         import requests
 
         api_key = "VF.xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-        version_id = "xxxxxxxxxxxxxxxxxxxxxxxx"
 
         user_id = "user_123"  # Unique ID used to track conversation state
         user_input = "Hello world!"  # User's message to your Voiceflow project
 
-        body = {"request": {"type": "text", "payload": "Hello world!"}}
+        body = {"action": {"type": "text", "payload": "Hello world!"}}
 
         # Start a conversation
         response = requests.post(
-            f"https://general-runtime.voiceflow.com/state/{version_id}/user/{user_id}/interact",
+            f"https://general-runtime.voiceflow.com/state/user/{user_id}/interact",
             json=body,
             headers={"Authorization": api_key},
         )
@@ -137,7 +136,7 @@ tags:
 
       ### Nomenclature
       - `state` is the user metadata - what block they are currently on, what flow they are on, their variables
-      - `request` is an object representing a user's action or event
+      - `action` is an object representing a user's action or event
       - `trace` is an array of actions to take based on the request that the user made
   - name: Stateless API
     description: |
@@ -151,7 +150,7 @@ tags:
 
       ### Nomenclature
       - `state` is the user metadata - what block they are currently on, what flow they are on, their variables
-      - `request` is an object representing a user's action or event
+      - `action` is an object representing a user's action or event
       - `trace` is an array of actions to take based on the request that the user made
   - name: Custom Actions
     description: |
@@ -166,7 +165,7 @@ tags:
       In your request body call, you can specific which Custom Actions to **stop** on in the `config.stopTypes` field:
       ```
       {
-        "request": { "type": "text", "payload": "hello!" } // any request type here,
+        "action": { "type": "text", "payload": "hello!" } // any request type here,
         "config": {
           "stopTypes": ["Pay Credit Card"]
         }
@@ -196,7 +195,7 @@ tags:
 
       ```
       {
-        "request": { "type": "success" }
+        "action": { "type": "success" }
       }
       ```
 
@@ -216,7 +215,7 @@ tags:
       **Example Text Request:**
       ```
       {
-        "request": {
+        "action": {
           "type": "text", "payload": "can I get a pepperoni pizza?"
         }
       }
@@ -225,7 +224,7 @@ tags:
       **NLP Resolved Intent Request:**
       ```
       {
-        "request": {
+        "action": {
           "type": "intent",
           "payload": {
             "query": "can I get a pepperoni pizza?", // (optional) original raw string of user input
@@ -271,7 +270,7 @@ tags:
       *Note: on Step 5 any intent can be sent and resolved, it just needs to be the same intent to continue the entity filling*
   - name: No Reply Response
     description: |
-      When the user gives no response at all - remaining silent or away from keyboard, we can use no reply feature. 
+      When the user gives no response at all - remaining silent or away from keyboard, we can use no reply feature.
       Under any "User Input" type step, there is an option to "Add No Reply Response", and also designate a timeout period.
 
       ![Screen Shot 2021-12-02 at 11 29 26 AM](https://user-images.githubusercontent.com/5643574/144462791-b8e0f8bf-626e-453d-9dfb-78b0006ceaed.png)
@@ -288,12 +287,12 @@ tags:
         }
       ]
       ```
-      The responsibility of handling this is on your client calling the API. 
+      The responsibility of handling this is on your client calling the API.
       This would require a timer function of some kind that detects if the user has not responded within the `timeout` number of seconds.
       In which case, the next `request` is simply `null` to denote that the user has no replied, and the API will handle the following logic:
       ```
       {
-        request: {
+        action: {
           type: "no-reply" // Request.RequestType.NO_REPLY
         },
         // state, config, and other metadata here
@@ -330,7 +329,7 @@ paths:
         ```
         // -> request body, send user intention or event
         {
-          "request": {
+          "action": {
             "type": "text",
             "payload": "can I order a large pepperoni pizza"
           }
@@ -416,7 +415,7 @@ paths:
             schema:
               type: object
               properties:
-                request:
+                action:
                   $ref: '#/components/schemas/Request'
                 config:
                   $ref: '#/components/schemas/Config'
@@ -425,15 +424,15 @@ paths:
             examples:
               Text Request:
                 value:
-                  request:
+                  action:
                     type: text
                     payload: can I order a large pepperoni pizza
               Empty Request:
                 value:
-                  request: null
+                  action: null
               Intent Request:
                 value:
-                  request:
+                  action:
                     type: intent
                     payload:
                       query: I want a large pepperoni pizza
@@ -447,11 +446,11 @@ paths:
                       confidence: 0.5
               Launch Request:
                 value:
-                  request:
+                  action:
                     type: launch
               With Config:
                 value:
-                  request:
+                  action:
                     type: text
                     payload: I would like to order a huge pepperoni pizza
                   config:
@@ -473,7 +472,7 @@ paths:
                         $ref: '#/components/schemas/Trace'
                       state:
                         $ref: '#/components/schemas/State'
-                      request:
+                      action:
                         $ref: '#/components/schemas/Request'
                     required:
                       - trace
@@ -696,7 +695,7 @@ paths:
         - API Key:
             - ''
       description: |
-        The stateless API receives a request with `request` + `state`, and responds with a new `state` + `trace`. Here's what it looks like from the Voiceflow creator app prototype tool:
+        The stateless API receives a request with `action` + `state`, and responds with a new `state` + `trace`. Here's what it looks like from the Voiceflow creator app prototype tool:
 
         1. User says/types something, take user's text request and current `state` and sends it via webhook to the Dialog Management API.
         2. Dialog Management goes through each block/flow and updates the user `state`.
@@ -712,7 +711,7 @@ paths:
 
         ```
         {
-          "request": {
+          "action": {
             "type": "text",
             "payload": "What is the balance in my chequing account"
           },
@@ -761,8 +760,8 @@ paths:
         Notice that the `type: text` request got processed by the NLP handler to become an `type: intent` request.
         The `state` is updated, and a `trace` is generated in the API response.
 
-        To move the conversation forward, you can create a request object and pass it in the response body to `/interact/{versionID}` along with the state and optionally a `config` object.
-        This will return an updated `state`, an updated `request` (not shown in examples), and the trace array containing the traces to display.
+        To move the conversation forward, you can create an action object and pass it in the response body to `/interact` along with the state and optionally a `config` object.
+        This will return an updated `state`, an updated `action` (not shown in examples), and the trace array containing the traces to display.
 
         if `state` is undefined/empty, it will automatically use the **default state** (starting from the first block).
       requestBody:
@@ -771,7 +770,7 @@ paths:
             schema:
               type: object
               properties:
-                request:
+                action:
                   $ref: '#/components/schemas/Request'
                 state:
                   $ref: '#/components/schemas/State'
@@ -782,7 +781,7 @@ paths:
             examples:
               Text Request:
                 value:
-                  request:
+                  action:
                     type: text
                     payload: I would like to order a huge pepperoni pizza
                   state:
@@ -798,11 +797,11 @@ paths:
                     variables: {}
               Launch Request:
                 value:
-                  request:
+                  action:
                     type: launch
               With Config:
                 value:
-                  request:
+                  action:
                     type: text
                     payload: I would like to order a huge pepperoni pizza
                   state:
@@ -833,7 +832,7 @@ paths:
                     $ref: '#/components/schemas/Trace'
                   state:
                     $ref: '#/components/schemas/State'
-                  request:
+                  action:
                     $ref: '#/components/schemas/Request'
                 required:
                   - trace
