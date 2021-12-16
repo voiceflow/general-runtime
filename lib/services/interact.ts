@@ -15,14 +15,14 @@ class Interact extends AbstractManager {
 
   async handler(req: {
     params: { versionID: string; userID?: string };
-    body: { state?: State; request?: RuntimeRequest; config?: Request.RequestConfig };
+    body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: Request.RequestConfig };
     query: { locale?: string };
     headers: { authorization?: string; origin?: string; sessionid?: string };
   }) {
     const { analytics, runtime, metrics, nlu, tts, dialog, asr, speak, slots, state: stateManager, filter } = this.services;
 
     const {
-      body: { state, config = {} },
+      body: { action = null, state, config = {} },
       params: { versionID, userID },
       query: { locale },
       headers: { authorization, origin, sessionid: sessionId },
@@ -31,6 +31,9 @@ class Interact extends AbstractManager {
     let {
       body: { request = null },
     } = req;
+    // `request` prop is deprecated, replaced with `action`
+    // Internally the name request is still used
+    request = action ?? request;
 
     if (request?.type === Request.RequestType.LAUNCH && state) {
       state.stack = [];
