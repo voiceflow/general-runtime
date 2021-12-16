@@ -17,7 +17,12 @@ class InteractController extends AbstractController {
   }
 
   async handler(
-    req: Request<{ versionID: string }, null, { state?: State; request?: RuntimeRequest; config?: BaseRequest.RequestConfig }, { locale?: string }>
+    req: Request<
+      { versionID: string },
+      null,
+      { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig },
+      { locale?: string }
+    >
   ) {
     return this.services.interact.handler(req);
   }

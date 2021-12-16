@@ -9,7 +9,7 @@ import { AbstractManager } from './utils';
 class StateManagement extends AbstractManager {
   async interact(data: {
     params: { versionID: string; userID: string };
-    body: { state?: State; request?: RuntimeRequest; config?: Request.RequestConfig };
+    body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: Request.RequestConfig };
     query: { locale?: string; verbose?: boolean };
     headers: { authorization: string; project_id: string };
   }) {
