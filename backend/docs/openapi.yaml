@@ -18,11 +18,10 @@ info:
 
     1. **Create a project**. You need to first build a conversational project on *[Voiceflow Creator](https://creator.voiceflow.com)*.
     2. **Create API Key**. An admin of your Voiceflow workspace can create and manage API Keys under *Workspace Settings / Developers*.
-    3. **Get Version ID**. On your project, it is in the URL: `https://creator.voiceflow.com/project/{versionID}/canvas/...`
-    4. **Make a test call**. Use the examples below to make an API call. Make subsequent calls to the same endpoint,
+    3. **Make a test call**. Use the examples below to make an API call. Make subsequent calls to the same endpoint,
       changing the `payload` to reflect what the user might say. See how the response trace changes based on where in the project the user is.<br/>
-      *Make sure to replace the `{apiKey}` and `{versionID}` with what you've gathered on steps 2 and 3*.
-    5. **Implement your application**. Get familiar with the API by reading the rest of this documentation, and power the next conversation with your Voiceflow project!
+      *Make sure to replace the `{apiKey}` with what you've gathered on step 2*.
+    4. **Implement your application**. Get familiar with the API by reading the rest of this documentation, and power the next conversation with your Voiceflow project!
 
     The **state** API is the *easier implementation* compared to the **stateless** API. But they both achieve the same function.
 
@@ -32,12 +31,11 @@ info:
         <summary>cURL command line</summary>
 
         API_KEY='VF.xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-        VERSION_ID='xxxxxxxxxxxxxxxxxxxxxxxx'
 
         USER_ID='user_123'
         USER_INPUT='Hello world!'
 
-        curl --request POST "https://general-runtime.voiceflow.com/state/$VERSION_ID/user/$USER_ID/interact" \
+        curl --request POST "https://general-runtime.voiceflow.com/state/user/$USER_ID/interact" \
             --header "Authorization: $API_KEY" \
             --header 'Content-Type: application/json' \
             --data-raw "{
@@ -51,7 +49,6 @@ info:
         const axios = require('axios');
 
         const apiKey = 'VF.xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
-        const versionID = 'xxxxxxxxxxxxxxxxxxxxxxxx';
 
         const userID = 'user_123'; // Unique ID used to track conversation state
         const userInput = 'Hello world!'; // User's message to your Voiceflow project
@@ -68,7 +65,7 @@ info:
           const response = await axios({
             method: 'POST',
             baseURL: 'https://general-runtime.voiceflow.com',
-            url: `/state/${versionID}/user/${userID}/interact`,
+            url: `/state/user/${userID}/interact`,
             headers: {
               Authorization: apiKey,
             },
@@ -121,10 +118,7 @@ tags:
     description: |
       Voiceflow managed user state - **interact** is the only essential endpoint
 
-      All endpoints take in two parameters in the URL: `{versionID}` and `{userID}`.
-
-      ### versionID
-      `{versionID}` is in the URL on your project: `https://creator.voiceflow.com/project/{versionID}/canvas/...`
+      All endpoints take in a `{userID}` parameter to identify the caller and associate their state to the call.
 
       ### userID
       `{userID}` will need to be generated yourself - it should be something unique that easily references the person on the session - such as an username, email, device ID, or phone number.
@@ -134,6 +128,11 @@ tags:
       For example _".../user/**steve**/interact"_ is going to have a distinct conversation from _".../user/**alice**/interact"_
 
       *Ensure `{userID}` is consistent every time the same user calls these endpoints.*
+
+      By default, requests will target the dev version of your project. To specify a version, such as the live version, provide a `{versionID}` header.
+
+      ### versionID
+      `{versionID}` is in the URL on your project: `https://creator.voiceflow.com/project/{versionID}/canvas/...`
 
       ### Nomenclature
       - `state` is the user metadata - what block they are currently on, what flow they are on, their variables
@@ -271,7 +270,7 @@ tags:
       *Note: on Step 5 any intent can be sent and resolved, it just needs to be the same intent to continue the entity filling*
   - name: No Reply Response
     description: |
-      When the user gives no response at all - remaining silent or away from keyboard, we can use no reply feature. 
+      When the user gives no response at all - remaining silent or away from keyboard, we can use no reply feature.
       Under any "User Input" type step, there is an option to "Add No Reply Response", and also designate a timeout period.
 
       ![Screen Shot 2021-12-02 at 11 29 26 AM](https://user-images.githubusercontent.com/5643574/144462791-b8e0f8bf-626e-453d-9dfb-78b0006ceaed.png)
@@ -288,7 +287,7 @@ tags:
         }
       ]
       ```
-      The responsibility of handling this is on your client calling the API. 
+      The responsibility of handling this is on your client calling the API.
       This would require a timer function of some kind that detects if the user has not responded within the `timeout` number of seconds.
       In which case, the next `request` is simply `null` to denote that the user has no replied, and the API will handle the following logic:
       ```
@@ -300,7 +299,7 @@ tags:
       }
       ```
 paths:
-  '/state/{versionID}/user/{userID}/interact':
+  '/state/user/{userID}/interact':
     parameters:
       - schema:
           type: string
@@ -313,8 +312,8 @@ paths:
           type: string
           example: 5eb039bf90821520c2068cea
         name: versionID
-        in: path
-        required: true
+        in: header
+        required: false
         description: Voiceflow project version ID
     post:
       tags:
@@ -387,9 +386,9 @@ paths:
             - ''
       parameters:
         - name: versionID
-          in: path
+          in: header
           description: Voiceflow project version ID
-          required: true
+          required: false
           schema:
             type: string
             example: 5eb039bf90821520c2068cea
@@ -517,12 +516,12 @@ paths:
                         defaultPath: 0
         '404':
           description: Not Found
-  '/state/{versionID}/user/{userID}':
+  '/state/user/{userID}':
     parameters:
       - name: versionID
-        in: path
+        in: header
         description: Voiceflow project version ID
-        required: true
+        required: false
         schema:
           type: string
           example: 5eb039bf90821520c2068cea
@@ -623,12 +622,12 @@ paths:
         '200':
           description: OK
       description: Delete all state and session data for user.
-  '/state/{versionID}/user/{userID}/variables':
+  '/state/user/{userID}/variables':
     parameters:
       - name: versionID
-        in: path
+        in: header
         description: Voiceflow project version ID
-        required: true
+        required: false
         schema:
           type: string
           example: 5eb039bf90821520c2068cea
@@ -678,15 +677,15 @@ paths:
                 pizza_type: pepperoni
                 sessions: 5
         description: object full of variables to update
-  '/interact/{versionID}':
+  '/interact':
     parameters:
       - name: versionID
         schema:
           type: string
           example: 5eb039bf90821520c2068cea
-        in: path
+        in: header
         description: Voiceflow project version ID
-        required: true
+        required: false
     post:
       summary: interact
       tags:
@@ -761,7 +760,7 @@ paths:
         Notice that the `type: text` request got processed by the NLP handler to become an `type: intent` request.
         The `state` is updated, and a `trace` is generated in the API response.
 
-        To move the conversation forward, you can create a request object and pass it in the response body to `/interact/{versionID}` along with the state and optionally a `config` object.
+        To move the conversation forward, you can create a request object and pass it in the response body to `/interact` along with the state and optionally a `config` object.
         This will return an updated `state`, an updated `request` (not shown in examples), and the trace array containing the traces to display.
 
         if `state` is undefined/empty, it will automatically use the **default state** (starting from the first block).
@@ -897,14 +896,14 @@ paths:
                               event: {}
                       storage: {}
                       variables: {}
-  '/interact/{versionID}/state':
+  '/interact/state':
     parameters:
       - schema:
           type: string
           example: 5eb039bf90821520c2068cea
         name: versionID
-        in: path
-        required: true
+        in: header
+        required: false
         description: Voiceflow project version ID
     get:
       summary: default state
