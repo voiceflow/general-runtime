@@ -402,7 +402,6 @@ paths:
           in: query
           description: enable verbose responses
           required: false
-          default: false
           schema:
             type: boolean
             example: false
@@ -941,7 +940,7 @@ externalDocs:
   url: 'https://swagger.io/docs/specification/about/'
 components:
   securitySchemes:
-    API Key:
+    APIKey:
       type: apiKey
       in: header
       name: Authorization
@@ -1026,7 +1025,7 @@ components:
     TextRequest:
       title: Text Request
       type: object
-      requuired:
+      required:
         - type
         - payload
       properties:
