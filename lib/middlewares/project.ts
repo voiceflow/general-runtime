@@ -41,10 +41,14 @@ class Project extends AbstractMiddleware {
       // We can use the provided API key to look up the project and grab the latest version.
       if (!req.params.versionID && typeof req.headers.authorization === 'string') {
         if (!(api instanceof CreatorDataApi)) {
-          throw new VError('Only supported via Creator Data API');
+          throw new VError('Version lookup only supported via Creator Data API');
         }
 
         const project = await api.getProjectUsingAuthorization(req.headers.authorization);
+        if (!project) {
+          throw new VError('Cannot infer project version, provide a specific versionID header', 404);
+        }
+
         req.headers.project_id = project._id.toString();
         req.params.versionID = project.devVersion!.toString();
         return next();
@@ -54,7 +58,8 @@ class Project extends AbstractMiddleware {
       req.headers.project_id = projectID;
       return next();
     } catch (err) {
-      throw new VError('no permissions for this version');
+      if (err instanceof VError) throw err;
+      else throw new VError('no permissions for this version');
     }
   }
 }
