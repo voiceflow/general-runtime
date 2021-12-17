@@ -21,12 +21,14 @@ const TwilioHandler: HandlerFactory<Node.Integration.TwilioNode, IntegrationsOpt
 
     try {
       if (!node.action_data.to_number) {
+        console.log('akaka');
         throw new Error();
       }
       if (node.action_data.selected_action === Node.Twilio.TwilioActionType.CALL) {
         await twilioClient.calls.create({
           from: twilioNumber,
           to: node.action_data.to_number!,
+          url: node.action_data.text_message!,
         });
         nextId = node.success_id ?? null;
       } else if (node.action_data.selected_action === Node.Twilio.TwilioActionType.TEXT) {
@@ -37,9 +39,11 @@ const TwilioHandler: HandlerFactory<Node.Integration.TwilioNode, IntegrationsOpt
         });
         nextId = node.success_id ?? null;
       } else {
+        console.log('here');
         throw new Error();
       }
     } catch (error) {
+      console.log(error);
       runtime.trace.debug(`Twilio action failed - Error: \n${safeJSONStringify(error.response?.data || error)}`, Node.NodeType.TWILIO);
       nextId = node.fail_id ?? null;
     }

@@ -1,5 +1,4 @@
 import { Node } from '@voiceflow/base-types';
-import axios from 'axios';
 import _ from 'lodash';
 import safeJSONStringify from 'safe-json-stringify';
 
@@ -30,7 +29,7 @@ const CodeHandler: HandlerFactory<Node.Code.Node, CodeOptions | void> = ({ endpo
       if (useStrictVM) {
         data = await ivmExecute(reqData, callbacks);
       } else {
-        data = endpoint ? (await axios.post(endpoint, reqData)).data : vmExecute(reqData, testingEnv, callbacks);
+        data = vmExecute(reqData, testingEnv, callbacks);
       }
 
       // debugging changes find variable value differences
