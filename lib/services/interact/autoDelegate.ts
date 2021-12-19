@@ -3,7 +3,7 @@ import { Trace } from '@voiceflow/base-types';
 import { PartialContext } from '@/runtime';
 import { Context } from '@/types';
 
-const MAX_DELEGATION_TURNS = 3;
+export const MAX_DELEGATION_TURNS = 3;
 
 // mostly just saves us needing to traverse an array twice
 const filterAndGetLastRemovedValue = <A>(list: A[], filterFunc: (a: A) => boolean): [A[], A | null] => {
