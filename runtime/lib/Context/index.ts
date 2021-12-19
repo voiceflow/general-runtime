@@ -35,17 +35,12 @@ export class TurnBuilder<C extends Context<any, any, any>> extends ContextBuilde
     super();
   }
 
-  async handle(_request: PartialContext<C>) {
+  async handle(_request: PartialContext<C>): Promise<C> {
     return super.handle(await this.init.handle(_request));
   }
 
-  async resolve(_request: PartialContext<C>) {
-    const { request, state, trace } = await this.handle(_request);
-
-    return {
-      request,
-      state,
-      trace,
-    };
+  async resolve(handler: Promise<C>): Promise<Pick<C, 'request' | 'state' | 'trace'>> {
+    const { request, state, trace } = await handler;
+    return { request, state, trace };
   }
 }

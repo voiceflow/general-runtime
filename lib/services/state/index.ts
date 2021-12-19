@@ -1,4 +1,4 @@
-import { Models, Trace } from '@voiceflow/base-types';
+import { Models, Request, Trace } from '@voiceflow/base-types';
 
 import { PartialContext, State } from '@/runtime';
 import { Context, InitContextHandler } from '@/types';
@@ -60,6 +60,12 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
   async handle(context: PartialContext<Context>) {
     if (!context.versionID) {
       throw new Error('context versionID not defined');
+    }
+
+    if (context.request?.type === Request.RequestType.LAUNCH && context.state) {
+      context.state.stack = [];
+      context.state.storage = {};
+      context.request = null;
     }
 
     // cache per interaction (save version call during request/response cycle)

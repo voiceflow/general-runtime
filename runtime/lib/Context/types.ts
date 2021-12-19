@@ -3,13 +3,13 @@ import { Node } from '@voiceflow/base-types';
 import { State } from '@/runtime/lib/Runtime';
 
 export type Context<R = Record<string, unknown>, T = Node.Utils.BaseTraceFrame, D = Record<string, unknown>> = {
-  request: R;
-  state: Omit<State, 'trace'>;
-  versionID: string;
-  trace?: T[];
   end?: boolean;
   data: D;
+  state: Omit<State, 'trace'>;
+  trace?: T[];
   userID?: string;
+  request: R;
+  versionID: string;
 };
 
 export type ContextHandle<C extends Context<any, any, any>> = (request: C) => C | Promise<C>;

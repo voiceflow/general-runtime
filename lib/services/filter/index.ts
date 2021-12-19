@@ -37,7 +37,7 @@ class Filter extends AbstractManager<{ utils: typeof utils }> implements Context
               ...trace,
               payload: {
                 ...trace.payload,
-                message: sanitizeSSML(trace.payload.message),
+                message: this.services.utils.sanitizeSSML(trace.payload.message),
               },
             }
       );

@@ -5,6 +5,7 @@
 
 import { Request as BaseRequest } from '@voiceflow/base-types';
 
+import { ResponseContext } from '@/lib/services/interact';
 import { RuntimeRequest } from '@/lib/services/runtime/types';
 import { State } from '@/runtime';
 import { Request } from '@/types';
@@ -23,7 +24,7 @@ class InteractController extends AbstractController {
       { versionID: string },
       { locale?: string }
     >
-  ) {
+  ): Promise<ResponseContext> {
     return this.services.interact.handler(req);
   }
 }
