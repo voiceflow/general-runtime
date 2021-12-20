@@ -51,9 +51,9 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.dialog = new Dialog(services, config);
   services.slots = new Slots(services, config);
   services.filter = new Filter(services, config);
-  services.interact = new Interact(services, config);
   services.analytics = new Analytics(services, config);
   services.stateManagement = new StateManagement(services, config);
+  services.interact = new Interact(services, config);
 
   if (config.SESSIONS_SOURCE === Source.LOCAL) {
     services.session = new LocalSession(services, config);

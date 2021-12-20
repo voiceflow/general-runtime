@@ -163,7 +163,7 @@ describe('interact service unit tests', () => {
       [services.analytics],
       [services.speak, services.filter],
     ]);
-    expect(services.utils.autoDelegate.args).to.eql([[turnBuilder.handle, context]]);
+    expect(services.utils.autoDelegate.args).to.eql([[turnBuilder, context]]);
     expect(await turnBuilder.resolve.args[0][0]).to.eql(finalState);
   });
 });

@@ -69,7 +69,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       return turn.resolve(turn.handle(context));
     }
 
-    return turn.resolve(this.services.utils.autoDelegate(turn.handle, context));
+    return turn.resolve(this.services.utils.autoDelegate(turn, context));
   }
 }
 
