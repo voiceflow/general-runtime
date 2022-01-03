@@ -8,12 +8,12 @@ import { AbstractManager } from './utils';
 
 class StateManagement extends AbstractManager {
   async interact(data: {
-    params: { versionID: string; userID: string };
+    params: { userID: string };
     body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: Request.RequestConfig };
     query: { locale?: string; verbose?: boolean };
-    headers: { authorization: string; project_id: string };
+    headers: { authorization: string; projectID: string; versionID: string };
   }) {
-    let state = await this.services.session.getFromDb<State>(data.headers.project_id, data.params.userID);
+    let state = await this.services.session.getFromDb<State>(data.headers.projectID, data.params.userID);
     if (_.isEmpty(state)) {
       state = await this.reset(data);
     }
@@ -22,14 +22,14 @@ class StateManagement extends AbstractManager {
 
     const { state: updatedState, trace, request } = await this.services.interact.handler(data);
 
-    await this.services.session.saveToDb(data.headers.project_id, data.params.userID, updatedState);
+    await this.services.session.saveToDb(data.headers.projectID, data.params.userID, updatedState);
 
     return data.query.verbose ? { state: updatedState, trace, request } : trace;
   }
 
-  async reset(data: { headers: { authorization: string; project_id: string }; params: { versionID: string; userID: string } }) {
+  async reset(data: { headers: { authorization: string; projectID: string; versionID: string }; params: { userID: string } }) {
     const state = await this.services.interact.state(data);
-    await this.services.session.saveToDb(data.headers.project_id, data.params.userID, state);
+    await this.services.session.saveToDb(data.headers.projectID, data.params.userID, state);
     return state;
   }
 }

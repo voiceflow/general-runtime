@@ -54,31 +54,47 @@ describe('rateLimit middleware unit tests', () => {
     });
   });
 
-  describe('consume', () => {
+  describe('versionConsume', () => {
     it('next called', async () => {
-      const rateLimit = { consume: sinon.stub() };
-      const middleware = new RateLimit({ rateLimit } as any, {} as any);
+      const middleware = new RateLimit({} as any, {} as any);
+      const consume = sinon.stub(middleware, 'consume');
 
-      const req = 'req';
+      const req = { headers: { versionID: 'version-id' } };
       const res = 'res';
       const next = sinon.stub();
 
-      await middleware.consume(req as any, res as any, next);
+      await middleware.versionConsume(req as any, res as any, next);
 
-      expect(rateLimit.consume.args).to.eql([[req, res]]);
-      expect(next.callCount).to.eql(1);
+      expect(consume.args).to.eql([[res, next, { isPublic: true, resource: req.headers.versionID }]]);
+      expect(next.callCount).to.eql(0);
+    });
+
+    it('authorized', async () => {
+      const middleware = new RateLimit({} as any, {} as any);
+      const consume = sinon.stub(middleware, 'consume');
+
+      const req = { headers: { authorization: 'authkey' } };
+      const res = 'res';
+      const next = sinon.stub();
+
+      await middleware.versionConsume(req as any, res as any, next);
+
+      expect(consume.args).to.eql([[res, next, { isPublic: false, resource: req.headers.authorization }]]);
+      expect(next.callCount).to.eql(0);
     });
 
     it('throws', async () => {
-      const rateLimit = { consume: sinon.stub().throws(new Error('custom err')) };
-      const middleware = new RateLimit({ rateLimit } as any, {} as any);
+      const middleware = new RateLimit({} as any, {} as any);
+      const consume = sinon.stub(middleware, 'consume').throws(new Error('custom err'));
 
-      const req = 'req';
+      const req = { headers: { versionID: 'version-id' } };
       const res = 'res';
+      const next = sinon.stub();
 
-      await expect(middleware.consume(req as any, res as any, null as any)).to.eventually.rejectedWith('custom err');
+      await expect(middleware.versionConsume(req as any, res as any, next as any)).to.eventually.rejectedWith('custom err');
 
-      expect(rateLimit.consume.args).to.eql([[req, res]]);
+      expect(consume.args).to.eql([[res, next, { isPublic: true, resource: req.headers.versionID }]]);
+      expect(next.callCount).to.eql(0);
     });
   });
 });

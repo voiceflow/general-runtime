@@ -10,31 +10,44 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.use(bodyParser.json({ limit: BODY_PARSER_SIZE_LIMIT }));
   router.use(middlewares.rateLimit.verify);
 
-  router.post('/user/:userID/interact', middlewares.rateLimit.consume, middlewares.project.attachID, controllers.stateManagement.interact);
+  router.post('/user/:userID/interact', middlewares.rateLimit.versionConsume, middlewares.project.attachID, controllers.stateManagement.interact);
 
-  router.get('/user/:userID', middlewares.rateLimit.consume, middlewares.project.attachID, controllers.stateManagement.get);
+  router.get('/user/:userID', middlewares.rateLimit.versionConsume, middlewares.project.attachID, controllers.stateManagement.get);
 
-  router.put('/user/:userID', middlewares.rateLimit.consume, middlewares.project.attachID, controllers.stateManagement.update);
+  router.put('/user/:userID', middlewares.rateLimit.versionConsume, middlewares.project.attachID, controllers.stateManagement.update);
 
-  router.delete('/user/:userID', middlewares.rateLimit.consume, middlewares.project.attachID, controllers.stateManagement.delete);
+  router.delete('/user/:userID', middlewares.rateLimit.versionConsume, middlewares.project.attachID, controllers.stateManagement.delete);
 
-  router.post('/user/:userID', middlewares.rateLimit.consume, middlewares.project.attachID, controllers.stateManagement.reset);
+  router.post('/user/:userID', middlewares.rateLimit.versionConsume, middlewares.project.attachID, controllers.stateManagement.reset);
 
-  router.patch('/user/:userID/variables', middlewares.rateLimit.consume, middlewares.project.attachID, controllers.stateManagement.updateVariables);
+  router.patch(
+    '/user/:userID/variables',
+    middlewares.rateLimit.versionConsume,
+    middlewares.project.attachID,
+    controllers.stateManagement.updateVariables
+  );
 
-  router.post('/:versionID/user/:userID/interact', middlewares.rateLimit.consume, middlewares.project.attachID, controllers.stateManagement.interact);
+  // Legacy 1.0.0 routes with versionID in params
+  router.use(middlewares.project.unifyVersionID);
 
-  router.get('/:versionID/user/:userID', middlewares.rateLimit.consume, middlewares.project.attachID, controllers.stateManagement.get);
+  router.post(
+    '/:versionID/user/:userID/interact',
+    middlewares.rateLimit.versionConsume,
+    middlewares.project.attachID,
+    controllers.stateManagement.interact
+  );
 
-  router.put('/:versionID/user/:userID', middlewares.rateLimit.consume, middlewares.project.attachID, controllers.stateManagement.update);
+  router.get('/:versionID/user/:userID', middlewares.rateLimit.versionConsume, middlewares.project.attachID, controllers.stateManagement.get);
 
-  router.delete('/:versionID/user/:userID', middlewares.rateLimit.consume, middlewares.project.attachID, controllers.stateManagement.delete);
+  router.put('/:versionID/user/:userID', middlewares.rateLimit.versionConsume, middlewares.project.attachID, controllers.stateManagement.update);
 
-  router.post('/:versionID/user/:userID', middlewares.rateLimit.consume, middlewares.project.attachID, controllers.stateManagement.reset);
+  router.delete('/:versionID/user/:userID', middlewares.rateLimit.versionConsume, middlewares.project.attachID, controllers.stateManagement.delete);
+
+  router.post('/:versionID/user/:userID', middlewares.rateLimit.versionConsume, middlewares.project.attachID, controllers.stateManagement.reset);
 
   router.patch(
     '/:versionID/user/:userID/variables',
-    middlewares.rateLimit.consume,
+    middlewares.rateLimit.versionConsume,
     middlewares.project.attachID,
     controllers.stateManagement.updateVariables
   );

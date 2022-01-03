@@ -1,19 +1,15 @@
 import { Validator } from '@voiceflow/backend-utils';
 import VError from '@voiceflow/verror';
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 
 import { validate } from '@/lib/utils';
 import { CreatorDataApi } from '@/runtime';
+import { Request } from '@/types';
 
 import { AbstractMiddleware } from './utils';
 
-const { param, header } = Validator;
+const { header } = Validator;
 const VALIDATIONS = {
-  PARAMS: {
-    VERSION_ID: param('versionID')
-      .optional()
-      .isString(),
-  },
   HEADERS: {
     VERSION_ID: header('versionID')
       .optional()
@@ -26,20 +22,22 @@ const VALIDATIONS = {
 class Project extends AbstractMiddleware {
   static VALIDATIONS = VALIDATIONS;
 
+  async unifyVersionID(req: Request<{ versionID?: string }, null, { versionID?: string }>, _res: Response, next: NextFunction): Promise<void> {
+    // Version ID provided as param in older versions
+    req.headers.versionID = (req.headers.versionID as string | undefined) ?? req.params.versionID;
+    next();
+  }
+
   @validate({
-    PARAMS_VERSION_ID: VALIDATIONS.PARAMS.VERSION_ID,
     HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
     HEADERS_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION,
   })
-  async attachID(req: Request<{ versionID: string }>, _res: Response, next: NextFunction) {
+  async attachID(req: Request<Record<string, unknown>, unknown, { versionID?: string }>, _res: Response, next: NextFunction): Promise<void> {
     const api = await this.services.dataAPI.get(req.headers.authorization);
     try {
-      // Version ID can be provided as a header in newer endpoints
-      req.params.versionID = (req.headers.versionID as string) ?? req.params.versionID;
-
       // Facilitate supporting routes that require a versionID but do not have to supply one.
       // We can use the provided API key to look up the project and grab the latest version.
-      if (!req.params.versionID && typeof req.headers.authorization === 'string') {
+      if (!req.headers.versionID && typeof req.headers.authorization === 'string') {
         if (!(api instanceof CreatorDataApi)) {
           throw new VError('Version lookup only supported via Creator Data API');
         }
@@ -49,13 +47,17 @@ class Project extends AbstractMiddleware {
           throw new VError('Cannot infer project version, provide a specific versionID header', 404);
         }
 
-        req.headers.project_id = project._id.toString();
-        req.params.versionID = project.devVersion!.toString();
+        req.headers.projectID = project._id.toString();
+        req.headers.versionID = project.devVersion!.toString();
         return next();
       }
 
-      const { projectID } = await api.getVersion(req.params.versionID);
-      req.headers.project_id = projectID;
+      if (!req.headers.versionID) {
+        throw new Error();
+      }
+
+      const { projectID } = await api.getVersion(req.headers.versionID);
+      req.headers.projectID = projectID;
       return next();
     } catch (err) {
       if (err instanceof VError) throw err;

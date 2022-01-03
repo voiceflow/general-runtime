@@ -1151,21 +1151,21 @@
     "@typescript-eslint/types" "4.29.3"
     eslint-visitor-keys "^2.0.0"
 
-"@voiceflow/api-sdk@3.3.5":
-  version "3.3.5"
-  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-3.3.5.tgz#ef139faa8cbc4714d2a69f9f9fd51a9cd436515d"
-  integrity sha512-8WYi18gmph2sIWuEvmWsV36BE8Y9h87FI7cMddTO2oIdnyjsgU6uRXbNf2WnSLxTZWDLaU12RhQwFIVbTwD/IQ==
+"@voiceflow/api-sdk@3.4.6":
+  version "3.4.6"
+  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-3.4.6.tgz#6274e1e1490a02c1e98ad2fb4d203399afcff8fc"
+  integrity sha512-y7ary/L40bqlGda/npK31CknmGYQEMn3NCaOb5nIWykrWlDBE09lOU18HRJvTqP+rj1leJvd+wz9LXO8W2GPSA==
   dependencies:
-    "@voiceflow/base-types" "^2.4.2"
-    "@voiceflow/common" "^7.10.0"
+    "@voiceflow/base-types" "^2.5.5"
+    "@voiceflow/common" "^7.12.1"
     axios "^0.21.1"
     jwt-decode "^3.1.2"
     superstruct "^0.10.12"
 
-"@voiceflow/backend-utils@3.3.0":
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/backend-utils/-/backend-utils-3.3.0.tgz#e4af7d68462855286f9d06026c4191fafdd8b156"
-  integrity sha512-/Ns34pdNrcaih03ix3vYj33jDvtKqUb/N65jrHGj7La5DP0mMapMxK4L1VRSAd9OonLanxo1CJ2UfKq/Fr7czQ==
+"@voiceflow/backend-utils@4.2.2":
+  version "4.2.2"
+  resolved "https://registry.yarnpkg.com/@voiceflow/backend-utils/-/backend-utils-4.2.2.tgz#30b457d841139ea148ffd13f601cd02fe20e2db6"
+  integrity sha512-DI2cK2E6VgYPIC5Eo/G411BW27xNLZx1cwEJH6CM8jxd5LimOc1kiLEkMvowBfctLSuIUuD6Gmnlr9dfITyi/A==
   dependencies:
     "@types/bluebird" "^3.5.33"
     "@types/chai" "^4.2.16"
@@ -1174,10 +1174,12 @@
     "@types/lodash" "^4.14.168"
     "@types/luxon" "^1.26.4"
     "@types/sinon" "^10.0.0"
-    "@voiceflow/logger" "1.5.2"
+    "@voiceflow/common" "7.3.0"
+    "@voiceflow/logger" "1.6.0"
     "@voiceflow/verror" "^1.1.0"
     bluebird "^3.7.2"
     chai "^4.3.4"
+    dotenv "^10.0.0"
     express "^4.17.1"
     http-status "^1.4.2"
     lodash "^4.17.11"
@@ -1189,13 +1191,6 @@
   version "2.5.5"
   resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-2.5.5.tgz#a0b9bb35848138f6759ffdfebb7068a9be87325a"
   integrity sha512-1pz3I6h4uA3Pa5FhwY2b5+vXcEPy9Agy8p1gHze4MRuDYORfk208u+AQslFw+z8gNATN++HvSs/hlL+xOvZUjg==
-  dependencies:
-    slate "^0.63.0"
-
-"@voiceflow/base-types@^2.4.2":
-  version "2.4.2"
-  resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-2.4.2.tgz#ff8f4c79e2df53368c39ae0607b0c63dd813c236"
-  integrity sha512-Bhz5yGSlZUu7Obnba1FNkgFcKajoSjOXDeQeDR2avmOT90PmTxa9bjBzB2cvn+orGeCCKVNNZAGVCxp5FGWdNA==
   dependencies:
     slate "^0.63.0"
 
@@ -1230,17 +1225,10 @@
   dependencies:
     "@commitlint/config-conventional" "^12.1.4"
 
-"@voiceflow/common@6.7.1":
-  version "6.7.1"
-  resolved "https://registry.yarnpkg.com/@voiceflow/common/-/common-6.7.1.tgz#c6b8ad8f7a3b2008dce7146dd3d01ff4b68643c0"
-  integrity sha512-0ACgq44J5lWL5EudgEAPmlFc4aIYH8XaZNen9VZSrUHOVTVPaJBMgcf6R4QzG8b5QfLoebBewpfS5KebhqWTGg==
-  dependencies:
-    dotenv "^9.0.2"
-
-"@voiceflow/common@^7.10.0":
-  version "7.10.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/common/-/common-7.10.0.tgz#d16af6c32c7c90ffb438d6b43e132912fc0e94fc"
-  integrity sha512-p528iuqY/hpcMvcQDow67jD8+0m25qScOV76pkyq/7DI61PlakEjPs+iGhTBb84GhfUtyoXNvZ4AH05/6Vtv8Q==
+"@voiceflow/common@7.12.1", "@voiceflow/common@^7.12.1":
+  version "7.12.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/common/-/common-7.12.1.tgz#661b53f6e544422fe1414150afb2b8e6699d22b3"
+  integrity sha512-kuDCH5R8ibVmddWmRNqQVLEfrB2cXH3bw7XNmAl9SBih11xmQrL1UsN4jBJv+5h48kMSdRYu6O8Gzgt4X4hemA==
   dependencies:
     "@types/crypto-js" "^4.0.2"
     bson-objectid "^2.0.1"
@@ -1250,6 +1238,19 @@
     lodash "^4.17.21"
     number-to-words "^1.2.4"
     typescript-fsa "3.0.0"
+
+"@voiceflow/common@7.3.0":
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/common/-/common-7.3.0.tgz#3f05afd3bffec1947fa631543b48e6278239d00d"
+  integrity sha512-Z8FHrxOH8PuG4AXfzNdDVcJRrhCB0wdqwgQ9wCgys8dm4fO/DSwhgEsmNknRKfspsnNGwa41bWyBlPnpx1EKDA==
+  dependencies:
+    "@types/crypto-js" "^4.0.2"
+    bson-objectid "^2.0.1"
+    crypto-js "^4.1.1"
+    cuid "^2.1.8"
+    dayjs "^1.10.7"
+    lodash "^4.17.21"
+    number-to-words "^1.2.4"
 
 "@voiceflow/eslint-config@2.0.6":
   version "2.0.6"
@@ -1294,21 +1295,7 @@
   dependencies:
     current-git-branch "^1.1.0"
 
-"@voiceflow/logger@1.5.2":
-  version "1.5.2"
-  resolved "https://registry.yarnpkg.com/@voiceflow/logger/-/logger-1.5.2.tgz#da55a612f5ffaf17ec976f713b202b2f68a78bec"
-  integrity sha512-zp+yArdfUBrGSFf6Sw4T8q9apB3KWLNjt5tjGFimSna2lNJL0JV40hJAaPmb6YL4FVOzj8N0+ZL15uO7mUZGEA==
-  dependencies:
-    "@types/cls-hooked" "^4.3.1"
-    "@types/express-pino-logger" "^4.0.2"
-    "@voiceflow/pino" "6.11.2"
-    "@voiceflow/pino-pretty" "4.4.0"
-    "@zerollup/ts-transform-paths" "^1.7.18"
-    cls-hooked "^4.2.2"
-    nanoid "^3.1.20"
-    pino-http "5.3.0"
-
-"@voiceflow/logger@^1.6.0":
+"@voiceflow/logger@1.6.0", "@voiceflow/logger@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@voiceflow/logger/-/logger-1.6.0.tgz#83a2fe021513834b0b74bbb42b7698656fae9367"
   integrity sha512-m8aQI6LvhlCOkP2kQ0BZDgrwLjXl00UEhtcB04f90OI6lNM+HvP7vFEErDjnhTJDTYiYhhHQD5cT/zgS7ffS3A==
@@ -3291,15 +3278,15 @@ dot-prop@^5.1.0:
   dependencies:
     is-obj "^2.0.0"
 
+dotenv@^10.0.0:
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-10.0.0.tgz#3d4227b8fb95f81096cdd2b66653fb2c7085ba81"
+  integrity sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==
+
 dotenv@^8.2.0:
   version "8.6.0"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-8.6.0.tgz#061af664d19f7f4d8fc6e4ff9b584ce237adcb8b"
   integrity sha512-IrPdXQsk2BbzvCBGBOTmmSH5SodmqZNt4ERAZDmW4CT+tL8VtvinqywuANaFu4bOMWki16nqf0e4oC0QIaDr/g==
-
-dotenv@^9.0.2:
-  version "9.0.2"
-  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-9.0.2.tgz#dacc20160935a37dea6364aa1bef819fb9b6ab05"
-  integrity sha512-I9OvvrHp4pIARv4+x9iuewrWycX6CcZtoAu1XrzPxc5UygMJXJZYmBsynku8IkrJwgypE5DGNjDPmPRhDCptUg==
 
 dynamic-dedupe@^0.3.0:
   version "0.3.0"
