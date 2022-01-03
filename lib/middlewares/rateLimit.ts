@@ -21,7 +21,7 @@ class RateLimit extends RateLimitMiddleware<FullServiceMap, Config> {
     next();
   }
 
-  async consumeVersion(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async versionConsume(req: Request, res: Response, next: NextFunction): Promise<void> {
     const isPublic = RateLimitMiddleware.isUnauthorizedRequest(req);
 
     return this.consume(res, next, {
