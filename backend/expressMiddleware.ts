@@ -51,14 +51,6 @@ class ExpressMiddleware {
       return !req.timedout && next();
     });
 
-    // case-insensitively get a header
-    app.use((req, _res, next) => {
-      req.headers = new Proxy(req.headers, {
-        get: (_, name: string) => req.get(name),
-      });
-      next();
-    });
-
     // All valid routes handled here
     app.use(api(middlewares, controllers));
   }

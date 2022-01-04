@@ -7,9 +7,9 @@ import { Context } from '@/types';
 import { AbstractManager } from './utils';
 
 class Interact extends AbstractManager {
-  async state(data: { headers: { authorization?: string; origin?: string; versionID: string } }) {
+  async state(data: { headers: { authorization?: string; origin?: string; versionid: string } }) {
     const api = await this.services.dataAPI.get(data.headers.authorization);
-    const version = await api.getVersion(data.headers.versionID);
+    const version = await api.getVersion(data.headers.versionid);
     return this.services.state.generate(version);
   }
 
@@ -17,7 +17,7 @@ class Interact extends AbstractManager {
     params: { userID?: string };
     body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: Request.RequestConfig };
     query: { locale?: string };
-    headers: { authorization?: string; origin?: string; sessionid?: string; versionID: string };
+    headers: { authorization?: string; origin?: string; sessionid?: string; versionid: string };
   }) {
     const { analytics, runtime, metrics, nlu, tts, dialog, asr, speak, slots, state: stateManager, filter } = this.services;
 
@@ -25,7 +25,7 @@ class Interact extends AbstractManager {
       body: { action = null, state, config = {} },
       params: { userID },
       query: { locale },
-      headers: { versionID, authorization, origin, sessionid },
+      headers: { versionid: versionID, authorization, origin, sessionid },
     } = req;
 
     let {

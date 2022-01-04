@@ -11,7 +11,7 @@ import { AbstractMiddleware } from './utils';
 const { header } = Validator;
 const VALIDATIONS = {
   HEADERS: {
-    VERSION: header('version')
+    VERSION: header('versionid')
       .optional()
       .isString(),
     AUTHORIZATION: header('authorization')
@@ -24,7 +24,7 @@ class Project extends AbstractMiddleware {
 
   async unifyVersionID(req: Request<{ versionID?: string }, null, { version?: string }>, _res: Response, next: NextFunction): Promise<void> {
     // Version ID provided as param in older versions
-    req.headers.versionID = req.headers.versionID ?? req.params.versionID;
+    req.headers.versionid = req.headers.versionid ?? req.params.versionID;
     next();
   }
 
@@ -32,12 +32,12 @@ class Project extends AbstractMiddleware {
     HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION,
     HEADERS_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION,
   })
-  async attachID(req: Request<Record<string, unknown>, unknown, { versionID?: string }>, _res: Response, next: NextFunction): Promise<void> {
+  async attachID(req: Request<Record<string, unknown>, unknown, { versionid?: string }>, _res: Response, next: NextFunction): Promise<void> {
     const api = await this.services.dataAPI.get(req.headers.authorization);
     try {
       // Facilitate supporting routes that require a versionID but do not have to supply one.
       // We can use the provided API key to look up the project and grab the latest version.
-      if (!req.headers.versionID && typeof req.headers.authorization === 'string') {
+      if (!req.headers.versionid && typeof req.headers.authorization === 'string') {
         if (!(api instanceof CreatorDataApi)) {
           throw new VError('Version lookup only supported via Creator Data API');
         }
@@ -47,17 +47,17 @@ class Project extends AbstractMiddleware {
           throw new VError('Cannot infer project version, provide a specific version header', 404);
         }
 
-        req.headers.projectID = project._id.toString();
-        req.headers.versionID = project.devVersion!.toString();
+        req.headers.projectid = project._id.toString();
+        req.headers.versionid = project.devVersion!.toString();
         return next();
       }
 
-      if (!req.headers.versionID) {
+      if (!req.headers.versionid) {
         throw new Error();
       }
 
-      const { projectID } = await api.getVersion(req.headers.versionID);
-      req.headers.projectID = projectID;
+      const { projectID } = await api.getVersion(req.headers.versionid);
+      req.headers.projectid = projectID;
       return next();
     } catch (err) {
       if (err instanceof VError) throw err;
