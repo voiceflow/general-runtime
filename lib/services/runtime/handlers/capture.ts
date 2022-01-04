@@ -70,12 +70,9 @@ export const CaptureHandler: HandlerFactory<GeneralNode.Capture.Node | ChatNode.
         const { query } = request.payload;
         if (query) {
           const num = utils.wordsToNumbers(query);
+          const isValid = typeof num === 'number' && !Number.isNaN(num);
 
-          if (typeof num !== 'number' || Number.isNaN(num)) {
-            variables.set(node.variable, query);
-          } else {
-            variables.set(node.variable, num);
-          }
+          variables.set(node.variable, isValid ? num : query);
         }
       }
     }
