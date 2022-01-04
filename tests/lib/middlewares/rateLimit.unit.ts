@@ -59,13 +59,13 @@ describe('rateLimit middleware unit tests', () => {
       const middleware = new RateLimit({} as any, {} as any);
       const consume = sinon.stub(middleware, 'consume');
 
-      const req = { headers: { version: 'version-id' } };
+      const req = { headers: { versionID: 'version-id' } };
       const res = 'res';
       const next = sinon.stub();
 
       await middleware.versionConsume(req as any, res as any, next);
 
-      expect(consume.args).to.eql([[res, next, { isPublic: true, resource: req.headers.version }]]);
+      expect(consume.args).to.eql([[res, next, { isPublic: true, resource: req.headers.versionID }]]);
       expect(next.callCount).to.eql(0);
     });
 
@@ -87,13 +87,13 @@ describe('rateLimit middleware unit tests', () => {
       const middleware = new RateLimit({} as any, {} as any);
       const consume = sinon.stub(middleware, 'consume').throws(new Error('custom err'));
 
-      const req = { headers: { version: 'version-id' } };
+      const req = { headers: { versionID: 'version-id' } };
       const res = 'res';
       const next = sinon.stub();
 
       await expect(middleware.versionConsume(req as any, res as any, next as any)).to.eventually.rejectedWith('custom err');
 
-      expect(consume.args).to.eql([[res, next, { isPublic: true, resource: req.headers.version }]]);
+      expect(consume.args).to.eql([[res, next, { isPublic: true, resource: req.headers.versionID }]]);
       expect(next.callCount).to.eql(0);
     });
   });

@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import * as Express from 'express';
 import helmet from 'helmet';
-import _ from 'lodash';
+import _isObject from 'lodash/isObject';
 
 import CONFIG from '@/config';
 import { ControllerMap, MiddlewareMap } from '@/lib';
@@ -21,7 +21,7 @@ class ExpressMiddleware {
    * Attach express middleware to app
    */
   static attach(app: Express.Application, middlewares: MiddlewareMap, controllers: ControllerMap) {
-    if (!_.isObject(app) || !_.isObject(middlewares) || !_.isObject(controllers)) {
+    if (!_isObject(app) || !_isObject(middlewares) || !_isObject(controllers)) {
       throw new Error('must have app, middlewares, and controllers');
     }
 
@@ -49,6 +49,14 @@ class ExpressMiddleware {
       });
 
       return !req.timedout && next();
+    });
+
+    // case-insensitively get a header
+    app.use((req, _res, next) => {
+      req.headers = new Proxy(req.headers, {
+        get: (_, name: string) => req.get(name),
+      });
+      next();
     });
 
     // All valid routes handled here

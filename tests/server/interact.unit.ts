@@ -28,7 +28,7 @@ const tests = [
         middlewares: {
           project: {
             attachID: {
-              HEADERS_VERSION: 1,
+              HEADERS_VERSION_ID: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -58,7 +58,7 @@ const tests = [
         middlewares: {
           project: {
             attachID: {
-              HEADERS_VERSION: 1,
+              HEADERS_VERSION_ID: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
