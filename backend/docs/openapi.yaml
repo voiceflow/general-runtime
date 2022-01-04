@@ -381,7 +381,7 @@ paths:
         Each trace gets produced by a particular block on your Voiceflow project.
       operationId: stateInteract
       security:
-        - API Key:
+        - APIKey:
             - ''
       parameters:
         - name: versionID
@@ -535,7 +535,7 @@ paths:
       tags:
         - State API
       security:
-        - API Key:
+        - APIKey:
             - ''
       responses:
         '200':
@@ -565,7 +565,7 @@ paths:
         - State API
       operationId: postState
       security:
-        - API Key:
+        - APIKey:
             - ''
       responses:
         '200':
@@ -614,7 +614,7 @@ paths:
         - State API
       operationId: deleteState
       security:
-        - API Key:
+        - APIKey:
             - ''
       responses:
         '200':
@@ -641,7 +641,7 @@ paths:
       tags:
         - State API
       security:
-        - API Key:
+        - APIKey:
             - ''
       responses:
         '200':
@@ -690,7 +690,7 @@ paths:
         - Stateless API
       operationId: statelessInteract
       security:
-        - API Key:
+        - APIKey:
             - ''
       description: |
         The stateless API receives a request with `action` + `state`, and responds with a new `state` + `trace`. Here's what it looks like from the Voiceflow creator app prototype tool:
@@ -911,7 +911,7 @@ paths:
       tags:
         - Stateless API
       security:
-        - API Key:
+        - APIKey:
             - ''
       responses:
         '200':
