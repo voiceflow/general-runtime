@@ -28,7 +28,6 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   );
 
   // Legacy 1.0.0 routes with versionID in params
-
   router.post(
     '/:versionID/user/:userID/interact',
     middlewares.project.unifyVersionID,
