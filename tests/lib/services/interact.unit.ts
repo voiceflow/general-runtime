@@ -24,7 +24,7 @@ describe('interact service unit tests', () => {
   describe('handler', () => {
     it('works correctly', async () => {
       const data = {
-        headers: { authorization: 'auth', origin: 'origin', versionID: 'versionID' },
+        headers: { authorization: 'auth', origin: 'origin', version: 'versionID' },
         body: { state: { foo: 'bar' }, request: 'request', config: { tts: true } },
         params: {},
         query: { locale: 'locale' },
@@ -32,7 +32,7 @@ describe('interact service unit tests', () => {
       const context = {
         state: data.body.state,
         request: data.body.request,
-        versionID: data.headers.versionID,
+        versionID: data.headers.version,
         userID: undefined,
         data: {
           locale: data.query.locale,
@@ -71,7 +71,7 @@ describe('interact service unit tests', () => {
 
     it('launch request', async () => {
       const data = {
-        headers: { authorization: 'auth', origin: 'origin', sessionid: 'sessionid', versionID: 'versionID' },
+        headers: { authorization: 'auth', origin: 'origin', sessionid: 'sessionid', version: 'versionID' },
         body: {
           state: { foo: 'bar', stack: [{}, {}], storage: { foo: 'bar' } },
           request: { type: Request.RequestType.LAUNCH },
@@ -83,7 +83,7 @@ describe('interact service unit tests', () => {
       const context = {
         state: { ...data.body.state, stack: [], storage: {} },
         request: null,
-        versionID: data.headers.versionID,
+        versionID: data.headers.version,
         userID: undefined,
         data: {
           locale: data.query.locale,
@@ -123,7 +123,7 @@ describe('interact service unit tests', () => {
     it('omits TTS if specified in config', async () => {
       const data = {
         body: { state: { foo: 'bar' }, request: 'request', config: { tts: false } },
-        headers: { versionID: 'versionID' },
+        headers: { version: 'versionID' },
         params: {},
         query: { locale: 'locale' },
       };
@@ -131,7 +131,7 @@ describe('interact service unit tests', () => {
         state: data.body.state,
         userID: undefined,
         request: data.body.request,
-        versionID: data.headers.versionID,
+        versionID: data.headers.version,
         data: { locale: data.query.locale },
       };
 
@@ -153,7 +153,7 @@ describe('interact service unit tests', () => {
   it('omits TTS if config is unspecified', async () => {
     const data = {
       body: { state: { foo: 'bar' }, request: 'request' },
-      headers: { versionID: 'versionID' },
+      headers: { version: 'versionID' },
       params: {},
       query: { locale: 'locale' },
     };
@@ -161,7 +161,7 @@ describe('interact service unit tests', () => {
       state: data.body.state,
       userID: undefined,
       request: data.body.request,
-      versionID: data.headers.versionID,
+      versionID: data.headers.version,
       data: { locale: data.query.locale },
     };
 
@@ -179,7 +179,7 @@ describe('interact service unit tests', () => {
   it('omits TTS if tts is unspecified', async () => {
     const data = {
       body: { state: { foo: 'bar' }, request: 'request', config: {} },
-      headers: { versionID: 'versionID' },
+      headers: { version: 'versionID' },
       params: {},
       query: { locale: 'locale' },
     };
@@ -187,7 +187,7 @@ describe('interact service unit tests', () => {
       state: data.body.state,
       userID: undefined,
       request: data.body.request,
-      versionID: data.headers.versionID,
+      versionID: data.headers.version,
       data: { locale: data.query.locale },
     };
 

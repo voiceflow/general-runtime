@@ -28,25 +28,50 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   );
 
   // Legacy 1.0.0 routes with versionID in params
-  router.use(middlewares.project.unifyVersionID);
 
   router.post(
     '/:versionID/user/:userID/interact',
+    middlewares.project.unifyVersionID,
     middlewares.rateLimit.versionConsume,
     middlewares.project.attachID,
     controllers.stateManagement.interact
   );
 
-  router.get('/:versionID/user/:userID', middlewares.rateLimit.versionConsume, middlewares.project.attachID, controllers.stateManagement.get);
+  router.get(
+    '/:versionID/user/:userID',
+    middlewares.project.unifyVersionID,
+    middlewares.rateLimit.versionConsume,
+    middlewares.project.attachID,
+    controllers.stateManagement.get
+  );
 
-  router.put('/:versionID/user/:userID', middlewares.rateLimit.versionConsume, middlewares.project.attachID, controllers.stateManagement.update);
+  router.put(
+    '/:versionID/user/:userID',
+    middlewares.project.unifyVersionID,
+    middlewares.rateLimit.versionConsume,
+    middlewares.project.attachID,
+    controllers.stateManagement.update
+  );
 
-  router.delete('/:versionID/user/:userID', middlewares.rateLimit.versionConsume, middlewares.project.attachID, controllers.stateManagement.delete);
+  router.delete(
+    '/:versionID/user/:userID',
+    middlewares.project.unifyVersionID,
+    middlewares.rateLimit.versionConsume,
+    middlewares.project.attachID,
+    controllers.stateManagement.delete
+  );
 
-  router.post('/:versionID/user/:userID', middlewares.rateLimit.versionConsume, middlewares.project.attachID, controllers.stateManagement.reset);
+  router.post(
+    '/:versionID/user/:userID',
+    middlewares.project.unifyVersionID,
+    middlewares.rateLimit.versionConsume,
+    middlewares.project.attachID,
+    controllers.stateManagement.reset
+  );
 
   router.patch(
     '/:versionID/user/:userID/variables',
+    middlewares.project.unifyVersionID,
     middlewares.rateLimit.versionConsume,
     middlewares.project.attachID,
     controllers.stateManagement.updateVariables

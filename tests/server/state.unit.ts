@@ -31,7 +31,7 @@ const tests = [
         middlewares: {
           project: {
             attachID: {
-              HEADERS_VERSION_ID: 1,
+              HEADERS_VERSION: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -39,7 +39,8 @@ const tests = [
         controllers: {
           stateManagement: {
             interact: {
-              HEADERS_PROJECT_ID: 1,
+              HEADERS_PROJECT: 1,
+              HEADERS_VERSION: 1,
               QUERY_VERBOSE: 1,
             },
           },
@@ -69,14 +70,14 @@ const tests = [
         controllers: {
           stateManagement: {
             get: {
-              HEADERS_PROJECT_ID: 1,
+              HEADERS_PROJECT: 1,
             },
           },
         },
         middlewares: {
           project: {
             attachID: {
-              HEADERS_VERSION_ID: 1,
+              HEADERS_VERSION: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -107,14 +108,14 @@ const tests = [
           stateManagement: {
             update: {
               BODY_UPDATE_SESSION: 1,
-              HEADERS_PROJECT_ID: 1,
+              HEADERS_PROJECT: 1,
             },
           },
         },
         middlewares: {
           project: {
             attachID: {
-              HEADERS_VERSION_ID: 1,
+              HEADERS_VERSION: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -144,7 +145,7 @@ const tests = [
         middlewares: {
           project: {
             attachID: {
-              HEADERS_VERSION_ID: 1,
+              HEADERS_VERSION: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -152,7 +153,7 @@ const tests = [
         controllers: {
           stateManagement: {
             delete: {
-              HEADERS_PROJECT_ID: 1,
+              HEADERS_PROJECT: 1,
             },
           },
         },
@@ -181,7 +182,7 @@ const tests = [
         middlewares: {
           project: {
             attachID: {
-              HEADERS_VERSION_ID: 1,
+              HEADERS_VERSION: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -189,7 +190,8 @@ const tests = [
         controllers: {
           stateManagement: {
             reset: {
-              HEADERS_PROJECT_ID: 1,
+              HEADERS_PROJECT: 1,
+              HEADERS_VERSION: 1,
             },
           },
         },
@@ -218,7 +220,7 @@ const tests = [
         controllers: {
           stateManagement: {
             updateVariables: {
-              HEADERS_PROJECT_ID: 1,
+              HEADERS_PROJECT: 1,
               BODY_UPDATE_VARIABLES: 1,
             },
           },
@@ -226,7 +228,7 @@ const tests = [
         middlewares: {
           project: {
             attachID: {
-              HEADERS_VERSION_ID: 1,
+              HEADERS_VERSION: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -258,7 +260,7 @@ const tests = [
         middlewares: {
           project: {
             attachID: {
-              HEADERS_VERSION_ID: 1,
+              HEADERS_VERSION: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -266,7 +268,8 @@ const tests = [
         controllers: {
           stateManagement: {
             interact: {
-              HEADERS_PROJECT_ID: 1,
+              HEADERS_PROJECT: 1,
+              HEADERS_VERSION: 1,
               QUERY_VERBOSE: 1,
             },
           },
@@ -297,14 +300,14 @@ const tests = [
         controllers: {
           stateManagement: {
             get: {
-              HEADERS_PROJECT_ID: 1,
+              HEADERS_PROJECT: 1,
             },
           },
         },
         middlewares: {
           project: {
             attachID: {
-              HEADERS_VERSION_ID: 1,
+              HEADERS_VERSION: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -336,14 +339,14 @@ const tests = [
           stateManagement: {
             update: {
               BODY_UPDATE_SESSION: 1,
-              HEADERS_PROJECT_ID: 1,
+              HEADERS_PROJECT: 1,
             },
           },
         },
         middlewares: {
           project: {
             attachID: {
-              HEADERS_VERSION_ID: 1,
+              HEADERS_VERSION: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -374,7 +377,7 @@ const tests = [
         middlewares: {
           project: {
             attachID: {
-              HEADERS_VERSION_ID: 1,
+              HEADERS_VERSION: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -382,7 +385,7 @@ const tests = [
         controllers: {
           stateManagement: {
             delete: {
-              HEADERS_PROJECT_ID: 1,
+              HEADERS_PROJECT: 1,
             },
           },
         },
@@ -412,7 +415,7 @@ const tests = [
         middlewares: {
           project: {
             attachID: {
-              HEADERS_VERSION_ID: 1,
+              HEADERS_VERSION: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
@@ -420,7 +423,8 @@ const tests = [
         controllers: {
           stateManagement: {
             reset: {
-              HEADERS_PROJECT_ID: 1,
+              HEADERS_PROJECT: 1,
+              HEADERS_VERSION: 1,
             },
           },
         },
@@ -450,7 +454,7 @@ const tests = [
         controllers: {
           stateManagement: {
             updateVariables: {
-              HEADERS_PROJECT_ID: 1,
+              HEADERS_PROJECT: 1,
               BODY_UPDATE_VARIABLES: 1,
             },
           },
@@ -458,7 +462,7 @@ const tests = [
         middlewares: {
           project: {
             attachID: {
-              HEADERS_VERSION_ID: 1,
+              HEADERS_VERSION: 1,
               HEADERS_AUTHORIZATION: 1,
             },
           },
