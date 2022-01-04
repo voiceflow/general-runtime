@@ -11,7 +11,7 @@ import { AbstractMiddleware } from './utils';
 const { header } = Validator;
 const VALIDATIONS = {
   HEADERS: {
-    VERSION: header('versionID')
+    VERSION_ID: header('versionID')
       .optional()
       .isString(),
     AUTHORIZATION: header('authorization')
@@ -29,7 +29,7 @@ class Project extends AbstractMiddleware {
   }
 
   @validate({
-    HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION,
+    HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
     HEADERS_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION,
   })
   async attachID(req: Request<Record<string, unknown>, unknown, { versionID?: string }>, _res: Response, next: NextFunction): Promise<void> {
