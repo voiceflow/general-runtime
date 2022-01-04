@@ -12,7 +12,7 @@ import { Request } from '@/types';
 import { AbstractController } from './utils';
 
 class InteractController extends AbstractController {
-  async state(req: { headers: { authorization?: string; origin?: string; versionid: string } }) {
+  async state(req: { headers: { authorization?: string; origin?: string; versionID: string } }) {
     return this.services.interact.state(req);
   }
 
@@ -20,7 +20,7 @@ class InteractController extends AbstractController {
     req: Request<
       Record<string, unknown>,
       { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig },
-      { versionid: string },
+      { versionID: string },
       { locale?: string }
     >
   ) {

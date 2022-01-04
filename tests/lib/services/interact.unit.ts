@@ -32,7 +32,7 @@ describe('interact service unit tests', () => {
       const context = {
         state: data.body.state,
         request: data.body.request,
-        versionID: data.headers.versionid,
+        versionID: data.headers.versionID,
         userID: undefined,
         data: {
           locale: data.query.locale,
@@ -83,7 +83,7 @@ describe('interact service unit tests', () => {
       const context = {
         state: { ...data.body.state, stack: [], storage: {} },
         request: null,
-        versionID: data.headers.versionid,
+        versionID: data.headers.versionID,
         userID: undefined,
         data: {
           locale: data.query.locale,
@@ -131,7 +131,7 @@ describe('interact service unit tests', () => {
         state: data.body.state,
         userID: undefined,
         request: data.body.request,
-        versionID: data.headers.versionid,
+        versionID: data.headers.versionID,
         data: { locale: data.query.locale },
       };
 
@@ -161,7 +161,7 @@ describe('interact service unit tests', () => {
       state: data.body.state,
       userID: undefined,
       request: data.body.request,
-      versionID: data.headers.versionid,
+      versionID: data.headers.versionID,
       data: { locale: data.query.locale },
     };
 
@@ -187,7 +187,7 @@ describe('interact service unit tests', () => {
       state: data.body.state,
       userID: undefined,
       request: data.body.request,
-      versionID: data.headers.versionid,
+      versionID: data.headers.versionID,
       data: { locale: data.query.locale },
     };
 

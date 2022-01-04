@@ -65,7 +65,7 @@ describe('rateLimit middleware unit tests', () => {
 
       await middleware.versionConsume(req as any, res as any, next);
 
-      expect(consume.args).to.eql([[res, next, { isPublic: true, resource: req.headers.versionid }]]);
+      expect(consume.args).to.eql([[res, next, { isPublic: true, resource: req.headers.versionID }]]);
       expect(next.callCount).to.eql(0);
     });
 
@@ -93,7 +93,7 @@ describe('rateLimit middleware unit tests', () => {
 
       await expect(middleware.versionConsume(req as any, res as any, next as any)).to.eventually.rejectedWith('custom err');
 
-      expect(consume.args).to.eql([[res, next, { isPublic: true, resource: req.headers.versionid }]]);
+      expect(consume.args).to.eql([[res, next, { isPublic: true, resource: req.headers.versionID }]]);
       expect(next.callCount).to.eql(0);
     });
   });

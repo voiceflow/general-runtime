@@ -26,7 +26,7 @@ class RateLimit extends RateLimitMiddleware<FullServiceMap, Config> {
 
     return this.consume(res, next, {
       isPublic,
-      resource: isPublic ? req.headers.versionid : req.headers.authorization,
+      resource: isPublic ? req.headers.versionID : req.headers.authorization,
     });
   }
 }

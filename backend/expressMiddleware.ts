@@ -51,6 +51,19 @@ class ExpressMiddleware {
       return !req.timedout && next();
     });
 
+    // case-insensitive headers
+    app.use((req, _res, next) => {
+      req.headers = new Proxy(req.headers, {
+        get: (headers, name: string, receiver) => {
+          return Reflect.get(headers, name.toLocaleLowerCase(), receiver);
+        },
+        set: (headers, name: string, value, receiver) => {
+          return Reflect.set(headers, name.toLocaleLowerCase(), value, receiver);
+        },
+      });
+      next();
+    });
+
     // All valid routes handled here
     app.use(api(middlewares, controllers));
   }
