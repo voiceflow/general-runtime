@@ -60,6 +60,14 @@ export const CaptureV2Handler: HandlerFactory<GeneralNode.CaptureV2.Node | ChatN
 
     // on successful match
     if (isIntentRequest(request)) {
+      const handleCapturePath = () => {
+        runtime.trace.addTrace<Trace.PathTrace>({
+          type: BaseNode.Utils.TraceType.PATH,
+          payload: { path: 'capture' },
+        });
+        return node.nextId ?? null;
+      };
+
       const { query, intent } = request.payload;
       if (intent.name === node.intent?.name && node.intent.entities) {
         variables.merge(
@@ -68,16 +76,11 @@ export const CaptureV2Handler: HandlerFactory<GeneralNode.CaptureV2.Node | ChatN
             request.payload.entities
           )
         );
-
-        runtime.trace.addTrace<Trace.PathTrace>({
-          type: BaseNode.Utils.TraceType.PATH,
-          payload: { path: 'capture' },
-        });
-        return node.nextId ?? null;
+        return handleCapturePath();
       }
       if (node.variable) {
         variables.set(node.variable, query);
-        return node.nextId ?? null;
+        return handleCapturePath();
       }
     }
 

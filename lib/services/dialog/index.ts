@@ -35,7 +35,7 @@ export const utils = {
   isIntentInScope,
 };
 
-export declare type DMStore = {
+export type DMStore = {
   intentRequest?: Request.IntentRequest;
   priorIntent?: Request.IntentRequest;
 };

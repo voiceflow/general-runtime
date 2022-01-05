@@ -167,6 +167,26 @@ describe('dialog manager unit tests', () => {
         expect(result.end).to.be.true;
         expect(result.trace).to.eql(expectedTrace);
       });
+
+      it('returns empty entity prompt with elicit', async () => {
+        const request = { ...mockUnfulfilledIntentRequest, ELICIT: true };
+        const result = await dm.handle({
+          ...mockRegularContext,
+          request,
+        });
+
+        const expectedTrace = [
+          {
+            type: 'speak',
+            payload: {
+              message: '',
+              type: 'message',
+            },
+          },
+        ];
+        expect(result.end).to.be.true;
+        expect(result.trace).to.eql(expectedTrace);
+      });
     });
 
     describe('with fulfilled entities', () => {

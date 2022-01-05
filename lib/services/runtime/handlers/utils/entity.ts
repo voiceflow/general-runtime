@@ -19,7 +19,8 @@ export const setElicit = (request: Request.IntentRequest, elicit: boolean): Requ
   [VF_ELICIT]: elicit,
 });
 
-export const hasElicit = (request: Request.IntentRequest & { [VF_ELICIT]?: boolean }): boolean => !!request[VF_ELICIT];
+export const hasElicit = (request: Request.IntentRequest & { [VF_ELICIT]?: boolean }): request is Request.IntentRequest & { [VF_ELICIT]: true } =>
+  request[VF_ELICIT] === true;
 
 const noMatchHandler = NoMatchHandler();
 
@@ -30,16 +31,6 @@ export const EntityFillingNoMatchHandler = () => ({
     const priorIntentMatch = intents.includes(priorIntent?.payload.intent.name!) && priorIntent?.payload.entities.length;
 
     const nextRequest = (priorIntentMatch && setElicit(priorIntent!, false)) || defaultRequest;
-
-    // on first no match, explicitly prompt
-    // if (typeof runtime.storage.get(StorageType.NO_MATCHES_COUNTER) !== 'number' && nextRequest) {
-    //   runtime.trace.addTrace<Trace.GoToTrace>({
-    //     type: BaseNode.Utils.TraceType.GOTO,
-    //     payload: { request: nextRequest },
-    //   });
-    //   runtime.storage.set(StorageType.NO_MATCHES_COUNTER, 0);
-    //   return node.id;
-    // }
 
     const noMatchPath = noMatchHandler.handle(node, runtime, variables);
     if (noMatchPath === node.id && nextRequest) {
