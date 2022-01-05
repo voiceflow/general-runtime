@@ -132,6 +132,10 @@ class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends Abstrac
 
     // insert base program to the stack
     const program = await this.api.getProgram(this.versionID).catch(() => null);
+    if (!program) {
+      return;
+    }
+
     this.stack.unshift(
       new Frame({
         programID: this.versionID,
