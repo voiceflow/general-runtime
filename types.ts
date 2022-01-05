@@ -27,6 +27,9 @@ export interface Config extends RateLimitConfig {
   CODE_HANDLER_ENDPOINT: string | null;
   INTEGRATIONS_HANDLER_ENDPOINT: string;
   API_HANDLER_ENDPOINT: string | null;
+  API_MAX_TIMEOUT_MS: number;
+  API_MAX_CONTENT_LENGTH_BYTES: number;
+  API_MAX_BODY_LENGTH_BYTES: number;
 
   // Release information
   GIT_SHA: string | null;

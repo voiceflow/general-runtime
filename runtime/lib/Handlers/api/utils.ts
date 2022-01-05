@@ -9,6 +9,7 @@ import querystring from 'querystring';
 import safeJSONStringify from 'safe-json-stringify';
 import validator from 'validator';
 
+import CONFIG from '@/config';
 import Runtime from '@/runtime/lib/Runtime';
 
 export type APINodeData = Node.Api.NodeData['action_data'];
@@ -108,11 +109,11 @@ export const formatRequestConfig = (data: APINodeData) => {
     method,
     url,
     // If the request takes longer than `timeout` in ms, the request will be aborted
-    timeout: 20000,
+    timeout: CONFIG.API_MAX_TIMEOUT_MS,
     // defines the max size of the http response content in bytes allowed in node.js
-    maxContentLength: 1000000,
+    maxContentLength: CONFIG.API_MAX_CONTENT_LENGTH_BYTES,
     // defines the max size of the http request content in bytes allowed
-    maxBodyLength: 1000000,
+    maxBodyLength: CONFIG.API_MAX_BODY_LENGTH_BYTES,
   };
 
   if (params && params.length > 0) {
