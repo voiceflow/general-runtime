@@ -41,7 +41,7 @@
     "express-validator": "^6.3.0",
     "form-data": "3.0.0",
     "helmet": "^4.6.0",
-    "html-parse-stringify": "^1.0.3",
+    "html-parse-stringify": "^2.0.1",
     "immer": "^9.0.6",
     "ioredis": "^4.22.0",
     "ip-range-check": "^0.2.0",
