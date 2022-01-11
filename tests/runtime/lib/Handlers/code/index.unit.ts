@@ -85,6 +85,29 @@ describe('codeHandler unit tests', () => {
         ]);
       });
 
+      it('with undefined keys', async () => {
+        const codeHandler = CodeHandler({ endpoint: 'foo' });
+        const axiosPost = sinon.stub(axios, 'post').resolves({ data: { var1: undefined, var2: undefined, newVar: 5 } });
+
+        const node = { code: 'var1(); var2(); var3();', success_id: 'success-id' };
+        const runtime = { trace: { debug: sinon.stub() } };
+        const variables = {
+          merge: sinon.stub(),
+          getState: sinon.stub().returns({ var1: 1, var2: 2, var3: 3 }),
+        };
+        const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
+        expect(result).to.eql(node.success_id);
+        expect(axiosPost.args).to.eql([
+          ['foo', { code: node.code, variables: { var1: undefined, var2: undefined, var3: 3 }, keys: ['var1', 'var2'] }],
+        ]);
+        expect(runtime.trace.debug.args).to.eql([
+          [
+            'evaluating code - changes:  \n`{var1}`: `1` => `1.1`  \n`{var2}`: `2` => `2.2`  \n`{var3}`: `3` => `undefined`  \n`{newVar}`: `undefined` => `5`  \n',
+            Node.NodeType.CODE,
+          ],
+        ]);
+      });
+
       it('no variables changes', async () => {
         const codeHandler = CodeHandler({ endpoint: 'foo' });
         const axiosPost = sinon.stub(axios, 'post').resolves({ data: { var1: 1 } });

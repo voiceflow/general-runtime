@@ -99,3 +99,5 @@ export const vmExecute = (
     return acc;
   }, {});
 };
+
+export const getUndefinedKeys = (variables: Record<string, unknown>) => Object.keys(variables).filter((key) => variables[key] === undefined);
