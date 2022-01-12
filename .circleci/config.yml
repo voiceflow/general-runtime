@@ -77,6 +77,11 @@ jobs:
       - vfcommon/integration_tests:
           wait: true
       - sonarcloud/scan
+      # Save workspace for subsequent jobs (i.e. test)
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build
 
   build-push-image:
     executor: vfcommon/build-executor
@@ -120,18 +125,7 @@ jobs:
 
 # When should each job run and what are their dependencies?
 workflows:
-  # Update tracks, avoiding tags
-  update-track:
-    jobs:
-      - update-track:
-          context: dev-test
-          filters:
-            tags:
-              ignore: /.*/
-            branches:
-              ignore: master
-
-  # MErge Queue jobs
+  # Merge Queue jobs
   e2e:
     jobs:
       - vfcommon/test_e2e:
@@ -154,6 +148,15 @@ workflows:
           context: dev-test
           filters:
             <<: *ignore_staging_filters
+      - update-track:
+          context: dev-test
+          requires:
+            - test
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              ignore: master
       - vfcommon/release:
           <<: *slack-fail-post-step
           context: dev-test
