@@ -50,7 +50,7 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@dev:7fc1bca
+  vfcommon: voiceflow/common@dev:617c226
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
@@ -62,6 +62,7 @@ jobs:
       - vfcommon/install_node_modules:
           avoid_post_install_scripts: false
       - vfcommon/build:
+          container_folder_to_copy: 'build'
           request_remote_docker: true
           run_in_container: true
       - vfcommon/setup_dynamodb
