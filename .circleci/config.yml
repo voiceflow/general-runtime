@@ -50,12 +50,12 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@dev:e77df9e
+  vfcommon: voiceflow/common@dev:2a777f8
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
 
-  test:
+  install-and-build:
     executor: vfcommon/code-test-executor
     steps:
       - checkout
@@ -65,6 +65,19 @@ jobs:
           container_folder_to_copy: 'build'
           request_remote_docker: true
           run_in_container: true
+      # Save workspace for subsequent jobs (i.e. test)
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build
+            - node_modules
+
+  test:
+    executor: vfcommon/code-test-executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/voiceflow
       - vfcommon/setup_dynamodb
       - vfcommon/lint_report:
           run_in_background: true
@@ -77,11 +90,6 @@ jobs:
       - vfcommon/integration_tests:
           wait: true
       - sonarcloud/scan
-      # Save workspace for subsequent jobs (i.e. test)
-      - persist_to_workspace:
-          root: .
-          paths:
-            - build
 
   build-push-image:
     executor: vfcommon/build-executor
@@ -143,23 +151,27 @@ workflows:
   # Master (production)
   test-and-release-app:
     jobs:
+      - install-and-build:
+          <<: *slack-fail-post-step
+          context: dev-test
+          filters:
+            <<: *ignore_staging_filters
       - test:
           <<: *slack-fail-post-step
           context: dev-test
+          requires:
+            - install-and-build
           filters:
             <<: *ignore_staging_filters
       - update-track:
           context: dev-test
           requires:
-            - test
-          filters:
-            tags:
-              ignore: /.*/
-            branches:
-              ignore: master
+            - install-and-build
       - vfcommon/release:
           <<: *slack-fail-post-step
           context: dev-test
+          requires:
+            - test
           filters:
             branches:
               only: master
@@ -175,10 +187,16 @@ workflows:
 
   deploy-app:
     jobs:
+      - install-and-build:
+          <<: *prod_deploy_filters
+          context: dev-test
+          name: instal-and-build-release
       - build-push-image:
           <<: *prod_deploy_filters
           name: build-push-image
           context: dev-test
+          requires:
+            - instal-and-build-release
           image_repo: << pipeline.parameters.container-image-url >>
           release_pkg: << pipeline.parameters.npm-repo >>
       - update-track:
