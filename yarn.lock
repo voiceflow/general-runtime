@@ -1194,21 +1194,21 @@
     "@typescript-eslint/types" "4.29.3"
     eslint-visitor-keys "^2.0.0"
 
-"@voiceflow/api-sdk@3.4.6":
-  version "3.4.6"
-  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-3.4.6.tgz#6274e1e1490a02c1e98ad2fb4d203399afcff8fc"
-  integrity sha512-y7ary/L40bqlGda/npK31CknmGYQEMn3NCaOb5nIWykrWlDBE09lOU18HRJvTqP+rj1leJvd+wz9LXO8W2GPSA==
+"@voiceflow/api-sdk@3.4.12":
+  version "3.4.12"
+  resolved "https://registry.yarnpkg.com/@voiceflow/api-sdk/-/api-sdk-3.4.12.tgz#d7e845d9f2f2965a6fe4d2eeb11121ceb76ed2fa"
+  integrity sha512-rfxezda0KvP3tHBv8PY1Eflv3R1VFh75FC6sHOVsi0EhTnOji0CZXpa04IqMOCoItXZ9FvJPQ25Zu8tAXOsjlg==
   dependencies:
-    "@voiceflow/base-types" "^2.5.5"
-    "@voiceflow/common" "^7.12.1"
-    axios "^0.21.1"
+    "@voiceflow/base-types" "^2.6.1"
+    "@voiceflow/common" "^7.13.3"
+    axios "0.24.0"
     jwt-decode "^3.1.2"
     superstruct "^0.10.12"
 
-"@voiceflow/backend-utils@4.2.2":
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/@voiceflow/backend-utils/-/backend-utils-4.2.2.tgz#30b457d841139ea148ffd13f601cd02fe20e2db6"
-  integrity sha512-DI2cK2E6VgYPIC5Eo/G411BW27xNLZx1cwEJH6CM8jxd5LimOc1kiLEkMvowBfctLSuIUuD6Gmnlr9dfITyi/A==
+"@voiceflow/backend-utils@4.2.3":
+  version "4.2.3"
+  resolved "https://registry.yarnpkg.com/@voiceflow/backend-utils/-/backend-utils-4.2.3.tgz#d5141ee92f72af9d1e97c044f79eb370c1457e37"
+  integrity sha512-Kx7htR3AjebG0z3ltj5BOgpU0Fdyx9DKOdC1gFEba31aZGwzD52l6pprowOyb4iIEOit7uyEmQHWS+dKqPPNbg==
   dependencies:
     "@types/bluebird" "^3.5.33"
     "@types/chai" "^4.2.16"
@@ -1230,12 +1230,12 @@
     rate-limiter-flexible "^2.2.2"
     sinon "^10.0.0"
 
-"@voiceflow/base-types@2.5.5", "@voiceflow/base-types@^2.5.5":
-  version "2.5.5"
-  resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-2.5.5.tgz#a0b9bb35848138f6759ffdfebb7068a9be87325a"
-  integrity sha512-1pz3I6h4uA3Pa5FhwY2b5+vXcEPy9Agy8p1gHze4MRuDYORfk208u+AQslFw+z8gNATN++HvSs/hlL+xOvZUjg==
+"@voiceflow/base-types@2.6.1", "@voiceflow/base-types@^2.6.1":
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-2.6.1.tgz#3a6edda6dcf3ef942cf27aeda77ca245596e25e0"
+  integrity sha512-GSCQFgoK6fcz8g4529lfZY8O33/n8bgKPoZz1xTPg1gYi2KpXmiYhllElY3EBBKO/xsMERIYR0+ZRYp8t/U7TQ==
   dependencies:
-    slate "^0.63.0"
+    slate "0.72.3"
 
 "@voiceflow/body-parser@^1.21.0":
   version "1.21.0"
@@ -1254,24 +1254,24 @@
     secure-json-parse "^2.4.0"
     type-is "~1.6.18"
 
-"@voiceflow/chat-types@2.1.11":
-  version "2.1.11"
-  resolved "https://registry.yarnpkg.com/@voiceflow/chat-types/-/chat-types-2.1.11.tgz#6a555840c3287fcb435692b04209959a15ffd137"
-  integrity sha512-ef6pNbfBdQIIjv5pP4g0k18VN+A3ghZShkck6tBk3jvy7oDMSGm18HhlXSVEzOMpO1CTI+To8OfwOZO4qP84EA==
+"@voiceflow/chat-types@2.1.13":
+  version "2.1.13"
+  resolved "https://registry.yarnpkg.com/@voiceflow/chat-types/-/chat-types-2.1.13.tgz#af7582daa029394fc2eaf31c8888c7c8505d46ee"
+  integrity sha512-azEsM30Vvaf/72U53Q6V+FzIjVoN9U7VD00kPM48b+y2F08DcpfWawA1aOf/0BjKoMq7IZwhl1njTYs1itA1Ig==
   dependencies:
-    "@voiceflow/base-types" "^2.5.5"
+    "@voiceflow/base-types" "^2.6.1"
 
-"@voiceflow/commitlint-config@1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/commitlint-config/-/commitlint-config-1.1.0.tgz#736b9e099830834b4f85998242d4cff6b1968dfd"
-  integrity sha512-5bBAyKsjT7R/mDBDpfvS9l04srf2DfAMJnhKlJFkuSyFM3qm/by7k5DQxLMrZySKOKxbxhykaTM1zm7/e8/yzg==
+"@voiceflow/commitlint-config@1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/commitlint-config/-/commitlint-config-1.1.1.tgz#cb3cfa6807c77ad2932d400ac9fbe0f0c8853644"
+  integrity sha512-/HIWnPfiJ8PJ7FuvrOoYfLj1qc3eep+FvIITjG6tOQx2HxO6g1a44MjlFWJsyhfLHwqhkDE+fZbPdeSBPRN/nQ==
   dependencies:
     "@commitlint/config-conventional" "^12.1.4"
 
-"@voiceflow/common@7.12.1", "@voiceflow/common@^7.12.1":
-  version "7.12.1"
-  resolved "https://registry.yarnpkg.com/@voiceflow/common/-/common-7.12.1.tgz#661b53f6e544422fe1414150afb2b8e6699d22b3"
-  integrity sha512-kuDCH5R8ibVmddWmRNqQVLEfrB2cXH3bw7XNmAl9SBih11xmQrL1UsN4jBJv+5h48kMSdRYu6O8Gzgt4X4hemA==
+"@voiceflow/common@7.13.3", "@voiceflow/common@^7.13.3":
+  version "7.13.3"
+  resolved "https://registry.yarnpkg.com/@voiceflow/common/-/common-7.13.3.tgz#e07a1ede77c7087a73cd1ee120fc6a789992c9df"
+  integrity sha512-dik0AaeMNVmylzH2JaP75E4139uqr6XdsT5WiNeoo2GwEpTtsd2y7TeasjBPTF+FPGrcsZDOTu2M5pI64bZoiw==
   dependencies:
     "@types/crypto-js" "^4.0.2"
     bson-objectid "^2.0.1"
@@ -1323,18 +1323,18 @@
     eslint-plugin-xss "^0.1.9"
     typescript "^3.9.7"
 
-"@voiceflow/general-types@3.2.11":
-  version "3.2.11"
-  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-3.2.11.tgz#d254c1481e8b9e517fa218f6f2dda935d42cbc7d"
-  integrity sha512-+6D2jCsU5+kPpTdbduQQBRkcFD4IbCtlJlou2SlAteVfIVNk24Rdy2/TmcEE0wyM8bwBov/F5Q1wAWV92t732w==
+"@voiceflow/general-types@3.2.13":
+  version "3.2.13"
+  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-3.2.13.tgz#e2a237d37e58ea9dfae70e24833bfd63c3c83727"
+  integrity sha512-6KKC9eWUMZjdgkN7VtSD1XIdTsVTmlATTI+5CxEr4+GfogMyfzHPRl+/SEbZMWPLy9jTobg+dUy8EvWC1lbayA==
   dependencies:
-    "@voiceflow/base-types" "^2.5.5"
-    "@voiceflow/voice-types" "^2.1.11"
+    "@voiceflow/base-types" "^2.6.1"
+    "@voiceflow/voice-types" "^2.1.13"
 
-"@voiceflow/git-branch-check@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/git-branch-check/-/git-branch-check-1.2.0.tgz#773e07c5e4558283b8f94a0e7e05b88e637bc3d0"
-  integrity sha512-t+c50h+brJHwXbPDNoOT9Q2WYKWGd7usHNsp0B8qI0IBJLdH/CKTAsV+4gxO2IS8jMXVNxcyE2r25tHO3zRsFQ==
+"@voiceflow/git-branch-check@1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/git-branch-check/-/git-branch-check-1.2.1.tgz#66c9e8884fa4961e38ac5d6efc682171e0501b94"
+  integrity sha512-dtbd18TKASj0AKdDQmmpy3ZxIcv0vQDhP3XYIHGl/VuDJjmXUUaYog+ENZ6u7ow9OkJa2bKk5VmRyJhHivM4tg==
   dependencies:
     current-git-branch "^1.1.0"
 
@@ -1352,17 +1352,17 @@
     nanoid "^3.1.20"
     pino-http "5.3.0"
 
-"@voiceflow/metrics@1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/metrics/-/metrics-1.1.0.tgz#7dc7787b8e84ee11516e321a47989441b45435ed"
-  integrity sha512-6lKC12c+yRK3Omeqjx18eHrFunTlMbFQeRXmOD99xtQPm0t7VpbwX1kEhAY1yUNkV58ALVjYotPx366UgXZE+g==
+"@voiceflow/metrics@1.1.5":
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/@voiceflow/metrics/-/metrics-1.1.5.tgz#ac581dfbda565e19ce1fe3ea423c82b6fad3ef3b"
+  integrity sha512-xCUBQJNcIoiDBHfu8A9ZegAa58jpE/yyl/0hLWai6Bwd0wFtTiXrXSN/OseSeeMFQloklvPm/73mILrP1KxVAg==
   dependencies:
     "@opentelemetry/api" "1.0.3"
     "@opentelemetry/api-metrics" "0.26.0"
     "@opentelemetry/exporter-prometheus" "0.26.0"
     "@opentelemetry/sdk-metrics-base" "0.26.0"
     "@types/chai" "^4.3.0"
-    axios "^0.24.0"
+    axios "0.24.0"
     chai "^4.3.4"
     get-port "^5.1.1"
 
@@ -1407,10 +1407,10 @@
     quick-format-unescaped "^4.0.1"
     sonic-boom "^1.0.2"
 
-"@voiceflow/prettier-config@1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@voiceflow/prettier-config/-/prettier-config-1.0.5.tgz#307caf65040ae0c0539ecb8531b9e403381f11ab"
-  integrity sha512-yM35E7UI0fD8yMgL7JImljvMLZVU+jCz/latc2s2e7Nlbr9kiMpO0FArjkaXVIghhcUeQ0y04lsFUHRu3kMzmA==
+"@voiceflow/prettier-config@1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@voiceflow/prettier-config/-/prettier-config-1.0.6.tgz#c06ba240703eaed4516bc8719a23604a37ff6d83"
+  integrity sha512-Q1VChvhTYGw/jtg2YBrFwd9wjqogvQaSppTrqNaOvmq9tgqLOPgZC20zBAwbM5JX6UPC6bKXN0qit0LLddC/kw==
 
 "@voiceflow/verror@^1.1.0":
   version "1.1.0"
@@ -1419,12 +1419,12 @@
   dependencies:
     http-status "^1.3.2"
 
-"@voiceflow/voice-types@2.1.11", "@voiceflow/voice-types@^2.1.11":
-  version "2.1.11"
-  resolved "https://registry.yarnpkg.com/@voiceflow/voice-types/-/voice-types-2.1.11.tgz#89249751545a9513f1bd4720b2839bbadec90ad2"
-  integrity sha512-VtY2WqXTj4xoIff+T0zN7oQEpxgXRUV9hRXxtGh/l/eWovA1cEFnWu7V3RgMwvRB2DTV7+lzlc0qjLE3fH93uA==
+"@voiceflow/voice-types@2.1.13", "@voiceflow/voice-types@^2.1.13":
+  version "2.1.13"
+  resolved "https://registry.yarnpkg.com/@voiceflow/voice-types/-/voice-types-2.1.13.tgz#02c1cac449bb5c56ee6e5c4943ba69f1b2d96ad6"
+  integrity sha512-zoMx00Ez5ftEo1/5dLDCX0uuvk33gd+h1s0WLb6uoX0dxzm8mY02LwegryIfiLq6jbdMgLof485j6iihtTFtHA==
   dependencies:
-    "@voiceflow/base-types" "^2.5.5"
+    "@voiceflow/base-types" "^2.6.1"
 
 "@vue/compiler-core@3.1.5":
   version "3.1.5"
@@ -1886,19 +1886,19 @@ axe-core@^4.0.2:
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.3.1.tgz#0c6a076e4a1c3e0544ba6a9479158f9be7a7928e"
   integrity sha512-3WVgVPs/7OnKU3s+lqMtkv3wQlg3WxK1YifmpJSDO0E1aPBrZWlrrTO6cxRqCXLuX2aYgCljqXIQd0VnRidV0g==
 
+axios@0.24.0:
+  version "0.24.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.24.0.tgz#804e6fa1e4b9c5288501dd9dff56a7a0940d20d6"
+  integrity sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==
+  dependencies:
+    follow-redirects "^1.14.4"
+
 axios@^0.21.1:
   version "0.21.2"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.2.tgz#21297d5084b2aeeb422f5d38e7be4fbb82239017"
   integrity sha512-87otirqUw3e8CzHTMO+/9kh/FSgXt/eVDvipijwDtEuwbkySWZ9SBm6VEubmJ/kLKEoLQV/POhxXFb66bfekfg==
   dependencies:
     follow-redirects "^1.14.0"
-
-axios@^0.24.0:
-  version "0.24.0"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.24.0.tgz#804e6fa1e4b9c5288501dd9dff56a7a0940d20d6"
-  integrity sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==
-  dependencies:
-    follow-redirects "^1.14.4"
 
 axobject-query@^2.2.0:
   version "2.2.0"
@@ -5153,6 +5153,11 @@ is-plain-object@^3.0.0:
   resolved "https://registry.yarnpkg.com/is-plain-object/-/is-plain-object-3.0.1.tgz#662d92d24c0aa4302407b0d45d21f2251c85f85b"
   integrity sha512-Xnpx182SBMrr/aBik8y+GuR4U1L9FqMSojwDQwPMmxyC6bvEqly9UBCxhauBF5vNh2gwWJNX6oDV7O+OM4z34g==
 
+is-plain-object@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/is-plain-object/-/is-plain-object-5.0.0.tgz#4427f50ab3429e9025ea7d52e9043a9ef4159344"
+  integrity sha512-VRSzKkbMm5jMDoKLbltAkFQ5Qr7VDiTFGXxYFXXowVj387GeGNOCsOH6Msy00SGZ3Fp84b1Naa1psqgcCIEP5Q==
+
 is-regex@^1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/is-regex/-/is-regex-1.1.3.tgz#d029f9aff6448b93ebbe3f33dac71511fdcbef9f"
@@ -8105,16 +8110,13 @@ slash@^3.0.0:
   resolved "https://registry.yarnpkg.com/slash/-/slash-3.0.0.tgz#6539be870c165adbd5240220dbe361f1bc4d4634"
   integrity sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==
 
-slate@^0.63.0:
-  version "0.63.0"
-  resolved "https://registry.yarnpkg.com/slate/-/slate-0.63.0.tgz#63a50c45a8971d350a3ebeef25e10cd9fa5c7726"
-  integrity sha512-np24XIRsGbwVgKQR6DWLorTRQD7arUKiztCKsepBNiYtMxHqjR76i2nJA6pdGn6Vj9q88Afi9eYwCsfnzy2hBA==
+slate@0.72.3:
+  version "0.72.3"
+  resolved "https://registry.yarnpkg.com/slate/-/slate-0.72.3.tgz#c74eb85133b975b2d44d219462c127cdb992e76b"
+  integrity sha512-ALsYQHKTN4rC+iHnOJzV+aC4AHdhoPkBWrfEK3W/LbXOzPrR+wL80a66OZiYg9Xb0QeGzlLSGdOOFQd2ix9Wmg==
   dependencies:
-    "@types/esrever" "^0.2.0"
-    esrever "^0.2.0"
-    fast-deep-equal "^3.1.3"
-    immer "^8.0.1"
-    is-plain-object "^3.0.0"
+    immer "^9.0.6"
+    is-plain-object "^5.0.0"
     tiny-warning "^1.0.3"
 
 slate@^0.65.3:
