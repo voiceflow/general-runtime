@@ -44,7 +44,7 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@dev:d15beef
+  vfcommon: voiceflow/common@dev:f993943
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
@@ -66,7 +66,6 @@ jobs:
       - vfcommon/unit_tests:
           run_in_background: true
       - vfcommon/integration_tests:
-          run_in_background: true
           wait: true
       - sonarcloud/scan
 
