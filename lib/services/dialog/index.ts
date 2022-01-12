@@ -55,7 +55,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     const dmPrefixedResultName = dmPrefixedResult.payload.intent.name;
     log.trace(`[app] [runtime] [dm] DM-Prefixed inference result ${log.vars({ resultName: dmPrefixedResultName })}`);
 
-    if (dmPrefixedResultName.startsWith(VF_DM_PREFIX) || dmPrefixedResultName === dmStateStore.intentRequest?.payload.intent.name) {
+    if (dmPrefixedResultName.startsWith(VF_DM_PREFIX)) {
       // Remove hash prefix entity from the DM-prefixed result
       dmPrefixedResult.payload.entities = dmPrefixedResult.payload.entities.filter((entity) => !entity.name.startsWith(VF_DM_PREFIX));
       const intentEntityList = getIntentEntityList(dmStateStore.intentRequest!.payload.intent.name, languageModel);
@@ -72,7 +72,6 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
             storedEntity.value = entity.value; // Update entity value
           }
         });
-        // TODO: Confidence-based selection of whether to switch intents
       } else {
         // CASE-B2_2: The prefixed intent has no entities extracted (except for the hash sentinel)
         // Action:  Migrate the user to the regular intent
