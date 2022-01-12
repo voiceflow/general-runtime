@@ -35,10 +35,11 @@ defaults:
         - staging
         - trying
 
-  ignore_staging_filters: &ignore_staging_filters
+  ignore_trying_staging_filters: &ignore_trying_staging_filters
     branches:
       ignore:
         - staging
+        - trying
 
   slack-fail-post-step: &slack-fail-post-step
     post-steps:
@@ -50,7 +51,7 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@dev:2a777f8
+  vfcommon: voiceflow/common@dev:e3a9ed8
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
@@ -91,45 +92,6 @@ jobs:
           wait: true
       - sonarcloud/scan
 
-  build-push-image:
-    executor: vfcommon/build-executor
-    parameters:
-      image_repo:
-        description: The container image repository
-        type: string
-      image_tag:
-        description: The container image tag
-        type: string
-        default: ""
-      release_pkg:
-        description: The npm package name to be released
-        type: string
-        default: ""
-      dockerfile:
-        description: Name of the Dockerfile to build
-        type: string
-        default: Dockerfile
-    steps:
-      - vfcommon/build_push_image:
-          image_repo: << parameters.image_repo >>
-          release_pkg: << parameters.release_pkg >>
-          image_tag: << parameters.image_tag >>
-          dockerfile: << parameters.dockerfile >>
-
-  post-image-push-actions:
-    executor: vfcommon/build-executor
-    steps:
-      - vfcommon/post_image_push_actions:
-          namespace: << pipeline.parameters.k8s-namespace >>
-          target: << pipeline.parameters.k8s-asset >>
-          tagged: true
-
-  update-track:
-    executor: vfcommon/build-executor
-    steps:
-      - vfcommon/update_track:
-          image_repo: << pipeline.parameters.container-image-url >>
-          component: << pipeline.parameters.track-component >>
 
 # When should each job run and what are their dependencies?
 workflows:
@@ -155,16 +117,18 @@ workflows:
           <<: *slack-fail-post-step
           context: dev-test
           filters:
-            <<: *ignore_staging_filters
+            <<: *ignore_trying_staging_filters
       - test:
           <<: *slack-fail-post-step
           context: dev-test
           requires:
             - install-and-build
           filters:
-            <<: *ignore_staging_filters
-      - update-track:
+            <<: *ignore_trying_staging_filters
+      - vfcommon/update_track:
           context: dev-test
+          image_repo: << pipeline.parameters.container-image-url >>
+          track_component: << pipeline.parameters.track-component >>
           requires:
             - install-and-build
       - vfcommon/release:
@@ -191,7 +155,7 @@ workflows:
           <<: *prod_deploy_filters
           context: dev-test
           name: instal-and-build-release
-      - build-push-image:
+      - vfcommon/build_push_image:
           <<: *prod_deploy_filters
           name: build-push-image
           context: dev-test
@@ -199,18 +163,23 @@ workflows:
             - instal-and-build-release
           image_repo: << pipeline.parameters.container-image-url >>
           release_pkg: << pipeline.parameters.npm-repo >>
-      - update-track:
+      - vfcommon/update_track:
           <<: *prod_deploy_filters
           context: dev-test
           name: update-track-release
+          image_repo: << pipeline.parameters.container-image-url >>
+          track_component: << pipeline.parameters.track-component >>
           requires:
             - build-push-image
-      - post-image-push-actions:
+      - vfcommon/post_image_push_actions:
           <<: *prod_deploy_filters
+          namespace: << pipeline.parameters.k8s-namespace >>
+          target: << pipeline.parameters.k8s-asset >>
+          tagged: true
           context: dev-test
           requires:
             - update-track-release
-      - build-push-image:
+      - vfcommon/build_push_image:
           <<: *prod_deploy_filters
           name: build-push-image-e2e
           context: dev-test
