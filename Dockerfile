@@ -16,7 +16,7 @@ ENV BUILD_URL=${build_BUILD_URL}
 
 WORKDIR /usr/src/app
 COPY build ./
-COPY pacakge.json ./
+COPY package.json ./
 
 RUN echo $NPM_TOKEN > .npmrc && \
   yarn install --production && \
