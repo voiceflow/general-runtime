@@ -29,6 +29,12 @@ defaults:
       tags:
         only: /^v[0-9]*(\.[0-9]*)*$/
 
+  trying_staging_filters: &trying_staging_filters
+    branches:
+      only:
+        - staging
+        - trying
+
   ignore_staging_filters: &ignore_staging_filters
     branches:
       ignore:
@@ -44,7 +50,7 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@dev:f993943
+  vfcommon: voiceflow/common@dev:bd594f0
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
@@ -55,7 +61,9 @@ jobs:
       - checkout
       - vfcommon/install_node_modules:
           avoid_post_install_scripts: false
-      - vfcommon/build
+      - vfcommon/build:
+          request_remote_docker: true
+          run_in_container: true
       - vfcommon/setup_dynamodb
       - vfcommon/lint_report:
           run_in_background: true
@@ -122,21 +130,9 @@ workflows:
             branches:
               ignore: master
 
-  # Master (production)
-  test-and-release-app:
+  # MErge Queue jobs
+  e2e:
     jobs:
-      - test:
-          <<: *slack-fail-post-step
-          context: dev-test
-          filters:
-            <<: *ignore_staging_filters
-      - e2e-approval: # <<< A job that will require manual approval in the CircleCI web application.
-          type: approval # <<< This key-value pair will set your workflow to a status of "On Hold"
-          filters:
-            branches:
-              ignore: master
-      - vfcommon/dummy_job:
-          context: dev-test
       - vfcommon/test_e2e:
           <<: *slack-fail-post-step
           github_username: GITHUB_USERNAME
@@ -146,17 +142,20 @@ workflows:
           vf_service_name: "general-runtime"
           vf_service_port: "8005"
           context: dev-test
-          requires:
-           - e2e-approval
-           - vfcommon/dummy_job
+          filters:
+            <<: *trying_staging_filters
+
+  # Master (production)
+  test-and-release-app:
+    jobs:
+      - test:
+          <<: *slack-fail-post-step
+          context: dev-test
           filters:
             <<: *ignore_staging_filters
       - vfcommon/release:
           <<: *slack-fail-post-step
           context: dev-test
-          requires:
-            - vfcommon/test_e2e
-            - test
           filters:
             branches:
               only: master
