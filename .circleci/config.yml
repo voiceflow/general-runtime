@@ -44,42 +44,10 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@0.0.270
+  vfcommon: voiceflow/common@dev:4eb360a
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
-
-  e2e-check:
-    executor: vfcommon/e2e-executor
-    steps:
-      - vfcommon/init_e2e_docker:
-          checkout: true
-          install_node_modules: true
-          avoid_post_install_scripts: false
-          github_username: GITHUB_USERNAME
-          github_token: GITHUB_TOKEN
-          cache_prefix: e2e
-      # Service dependencies
-      - vfcommon/setup_vf_service_docker:
-          service_name: server-data-api
-          github_username: GITHUB_USERNAME
-          github_token: GITHUB_TOKEN
-      - vfcommon/check_service_running:
-          port: "8011"
-      - vfcommon/setup_vf_service_docker:
-          service_name: creator-api
-          github_username: GITHUB_USERNAME
-          github_token: GITHUB_TOKEN
-      - vfcommon/check_service_running:
-          port: "8003"
-      - vfcommon/setup_vf_service_docker:
-          service_name: general-service
-          github_username: GITHUB_USERNAME
-          github_token: GITHUB_TOKEN
-      - vfcommon/check_service_running:
-          port: "8006"
-      - vfcommon/check_e2e:
-          port: "8005"
 
   test:
     executor: vfcommon/code-test-executor
@@ -87,14 +55,19 @@ jobs:
       - checkout
       - vfcommon/install_node_modules:
           avoid_post_install_scripts: false
-      - vfcommon/setup_dynamodb
-      - vfcommon/lint_report
-      - vfcommon/lint_dockerfile
-      - vfcommon/dependency_tests:
-          step_name: Dependency Tests
       - vfcommon/build
-      - vfcommon/unit_tests
-      - vfcommon/integration_tests
+      - vfcommon/setup_dynamodb
+      - vfcommon/lint_report:
+          run_in_background: true
+      - vfcommon/lint_dockerfile:
+          run_in_background: true
+      - vfcommon/dependency_tests:
+          run_in_background: true
+      - vfcommon/unit_tests:
+          run_in_background: true
+      - vfcommon/integration_tests:
+          run_in_background: true
+          wait: true
       - sonarcloud/scan
 
   build-push-image:
@@ -153,12 +126,6 @@ workflows:
   # Master (production)
   test-and-release-app:
     jobs:
-      - e2e-check:
-          <<: *slack-fail-post-step
-          context: dev-test
-          filters:
-            <<: *ignore_staging_filters
-
       - test:
           <<: *slack-fail-post-step
           context: dev-test
@@ -189,7 +156,6 @@ workflows:
           <<: *slack-fail-post-step
           context: dev-test
           requires:
-            - e2e-check
             - vfcommon/test_e2e
             - test
           filters:
