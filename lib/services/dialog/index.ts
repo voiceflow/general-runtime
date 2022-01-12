@@ -61,12 +61,8 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       const intentEntityList = getIntentEntityList(dmStateStore.intentRequest!.payload.intent.name, languageModel);
       // Check if the dmPrefixedResult entities are a subset of the intent's entity list
       const entitySubset = dmPrefixedResult.payload.entities.filter((dmEntity) => intentEntityList?.find((entity) => entity?.name === dmEntity.name));
-      if (dmPrefixedResult.payload.entities.length === 0) {
-        // CASE-B2_2: The prefixed intent has no entities extracted (except for the hash sentinel)
-        // Action:  Migrate the user to the regular intent
-        dmStateStore.intentRequest = incomingRequest;
-      } else if (entitySubset.length) {
-        // CASE-B2_4: the prefixed intent only contains entities that are in the target intent's entity list
+      if (entitySubset.length) {
+        // CASE-B1: the prefixed intent only contains entities that are in the target intent's entity list
         // Action: Use the entities extracted from the prefixed intent to overwrite any existing filled entities
         entitySubset.forEach((entity) => {
           const storedEntity = dmStateStore.intentRequest!.payload.entities.find((stored) => stored.name === entity.name);
@@ -78,9 +74,9 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         });
         // TODO: Confidence-based selection of whether to switch intents
       } else {
-        // (Unlikely) CASE-B2_3: The prefixed intent has entities that are not in the target intent's entity list
-        // Action: return true; Fallback intent
-        return true;
+        // CASE-B2_2: The prefixed intent has no entities extracted (except for the hash sentinel)
+        // Action:  Migrate the user to the regular intent
+        dmStateStore.intentRequest = incomingRequest;
       }
     } else if (dmPrefixedResultName === incomingRequest.payload.intent.name) {
       // CASE-A1: The prefixed and regular calls match the same (non-DM) intent that is different from the original intent

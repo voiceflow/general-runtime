@@ -62,18 +62,6 @@ describe('dialog manager unit tests', () => {
   describe('DM-context handler', () => {
     const dm = createDM();
 
-    describe('CASE-B2_2: no entities extracted from DM-prefixed call', () => {
-      it('Migrates DM context to the regular intent', async () => {
-        const dmState = {
-          intentRequest: mockUnfulfilledIntentRequest,
-        };
-        const result = await dm.handleDMContext(dmState, mockDMPrefixedNoEntityResult, mockRegularNoEntityResult, mockLM);
-
-        expect(result).to.be.false; // No fallback intent
-        expect(dmState.intentRequest).to.deep.equal(mockRegularNoEntityResult);
-      });
-    });
-
     describe('CASE-B1: DM-prefixed and regular calls match the same intent', () => {
       it('Upserts the DM state store with the new extracted entities', async () => {
         const dmState = {
@@ -89,7 +77,7 @@ describe('dialog manager unit tests', () => {
       });
     });
 
-    describe('CASE-B2_4: DM-prefixed call contains entities that are a strict subset of the entities of the target intent', () => {
+    describe('CASE-B1: DM-prefixed call contains entities that are a strict subset of the entities of the target intent', () => {
       it('Upserts the DM state store with the new extracted entities', async () => {
         const dmState = {
           intentRequest: mockRegularNoEntityResult,
@@ -103,14 +91,27 @@ describe('dialog manager unit tests', () => {
       });
     });
 
-    describe("CASE-B2_3: DM-prefixed call has entities that are not in the target intent's entity list", () => {
-      it('Returns FallBack intent', async () => {
+    describe('CASE-B2: no entities extracted from DM-prefixed call', () => {
+      it('Migrates DM context to the regular intent', async () => {
+        const dmState = {
+          intentRequest: mockUnfulfilledIntentRequest,
+        };
+        const result = await dm.handleDMContext(dmState, mockDMPrefixedNoEntityResult, mockRegularNoEntityResult, mockLM);
+
+        expect(result).to.be.false; // No fallback intent
+        expect(dmState.intentRequest).to.deep.equal(mockRegularNoEntityResult);
+      });
+    });
+
+    describe("CASE-B2: DM-prefixed call has entities that are not in the target intent's entity list", () => {
+      it('Returns incoming intent', async () => {
         const dmState = {
           intentRequest: mockRegularNoEntityResult,
         };
-        const result = await dm.handleDMContext(dmState, mockDMPrefixedNonSubsetEntityResult, mockRegularNoEntityResult, mockLM);
+        const result = await dm.handleDMContext(dmState, mockDMPrefixedNonSubsetEntityResult, mockRegularUnrelatedResult, mockLM);
 
-        expect(result).to.be.true; // trigger fallback intent
+        expect(result).to.be.false;
+        expect(dmState.intentRequest).to.eql(mockRegularUnrelatedResult);
       });
     });
 
