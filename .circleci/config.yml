@@ -50,17 +50,10 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@dev:514b875
+  vfcommon: voiceflow/common@dev:da5de89
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
-
-  sync_branches:
-    executor: vfcommon/build-executor
-    steps:
-      - vfcommon/sync_branches:
-          checkout: true
-          ssh_key: << pipeline.parameters.ssh-fingerprint >>
 
   install-and-build:
     executor: vfcommon/code-test-executor
@@ -119,8 +112,6 @@ workflows:
   # Master (production)
   test-and-release-app:
     jobs:
-      - sync_branches:
-          context: dev-test
       - install-and-build:
           <<: *slack-fail-post-step
           context: dev-test
@@ -150,6 +141,16 @@ workflows:
           filters:
             branches:
               only: master
+      - vfcommon/sync_branches:
+          check_commit_message: "[bugfix]"
+          ssh_key: << pipeline.parameters.ssh-fingerprint >>
+          context: dev-test
+          requires:
+            - test
+            - vfcommon/release
+          filters:
+            branches:
+              only: master
       - vfcommon/generate_technical_documentation:
           <<: *slack-fail-post-step
           context: dev-test
@@ -160,6 +161,8 @@ workflows:
             branches:
               only: master
 
+
+  # Update Production branch
   deploy-app:
     jobs:
       - install-and-build:
@@ -200,3 +203,17 @@ workflows:
           image_tag: "latest-master-e2e"
           requires:
             - install-and-build-release
+
+  # Cron Production update
+  update-production-branch:
+    when:
+      and:
+        - equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+        - equal: [ "update-production-branch", << pipeline.schedule.name >> ]
+    jobs:
+      - vfcommon/sync_branches:
+          ssh_key: << pipeline.parameters.ssh-fingerprint >>
+          context: dev-test
+          filters:
+            branches:
+              only: xavier/new-cicd/VF-2657
