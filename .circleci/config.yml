@@ -34,6 +34,12 @@ defaults:
         ignore:
           - production
 
+  ignore_prod_break_glass_deploy_filters: &ignore_prod_break_glass_deploy_filters
+      branches:
+        ignore:
+          - production
+          - /^break-glass.*$/
+
   trying_staging_filters: &trying_staging_filters
     branches:
       only:
@@ -50,27 +56,10 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@dev:5a5a340
+  vfcommon: voiceflow/common@dev:3a51a5e
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
-
-  install-and-build:
-    executor: vfcommon/code-test-executor
-    steps:
-      - checkout
-      - vfcommon/install_node_modules:
-          avoid_post_install_scripts: false
-      - vfcommon/build:
-          container_folder_to_copy: 'build'
-          request_remote_docker: true
-          run_in_container: true
-      # Save workspace for subsequent jobs (i.e. test)
-      - persist_to_workspace:
-          root: .
-          paths:
-            - build
-            - node_modules
 
   test:
     executor: vfcommon/code-test-executor
@@ -95,7 +84,7 @@ jobs:
 # When should each job run and what are their dependencies?
 workflows:
   # Merge Queue jobs
-  e2e:
+  queue-jobs:
     when:
       not:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
@@ -118,27 +107,28 @@ workflows:
       not:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
-      - install-and-build:
+      - vfcommon/install_and_build:
           <<: *slack-fail-post-step
           context: dev-test
+          avoid_post_install_scripts: false
           filters:
             <<: *ignore_prod_deploy_filters
       - test:
           <<: *slack-fail-post-step
           context: dev-test
           requires:
-            - install-and-build
+            - vfcommon/install_and_build
           filters:
-            <<: *ignore_prod_deploy_filters
+            <<: *ignore_prod_break_glass_deploy_filters
       - vfcommon/update_track:
           context: dev-test
           image_repo: << pipeline.parameters.container-image-url >>
           track_component: << pipeline.parameters.track-component >>
           requires:
             - test
-            - install-and-build
+            - vfcommon/install_and_build
           filters:
-            <<: *ignore_prod_deploy_filters
+            <<: *ignore_prod_break_glass_deploy_filters
       - vfcommon/release:
           <<: *slack-fail-post-step
           context: dev-test
@@ -151,6 +141,7 @@ workflows:
           check_commit_message: "[bugfix]"
           ssh_key: << pipeline.parameters.ssh-fingerprint >>
           context: dev-test
+          name: sync-branches-bugfix
           requires:
             - test
             - vfcommon/release
@@ -174,8 +165,9 @@ workflows:
       not:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
-      - install-and-build:
+      - vfcommon/install_and_build:
           <<: *prod_deploy_filters
+          avoid_post_install_scripts: false
           context: dev-test
           name: install-and-build-release
       - vfcommon/build_push_image:
@@ -223,6 +215,7 @@ workflows:
       - vfcommon/sync_branches:
           checkout: true
           ssh_key: << pipeline.parameters.ssh-fingerprint >>
+          name: sync-branches-scheduled
           context: dev-test
           filters:
             branches:
