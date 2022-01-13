@@ -50,7 +50,7 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@dev:b857f1d
+  vfcommon: voiceflow/common@dev:514b875
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
@@ -60,6 +60,7 @@ jobs:
     steps:
       - vfcommon/sync_branches:
           checkout: true
+          check_commit_message: "[bugfix]"
           ssh_key: << pipeline.parameters.ssh-fingerprint >>
 
   install-and-build:
