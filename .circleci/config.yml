@@ -38,7 +38,7 @@ defaults:
       branches:
         ignore:
           - production
-          - break-glass*
+          - break-glass.*
 
   trying_staging_filters: &trying_staging_filters
     branches:
