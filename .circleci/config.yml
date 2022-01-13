@@ -212,6 +212,7 @@ workflows:
         - equal: [ "update-production-branch", << pipeline.schedule.name >> ]
     jobs:
       - vfcommon/sync_branches:
+          checkout: true
           ssh_key: << pipeline.parameters.ssh-fingerprint >>
           context: dev-test
           filters:
