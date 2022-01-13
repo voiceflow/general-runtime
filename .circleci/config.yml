@@ -59,6 +59,7 @@ jobs:
     executor: vfcommon/code-test-executor
     steps:
       - vfcommon/sync_branches:
+          checkout: true
           ssh_key: << pipeline.parameters.ssh-fingerprint >>
 
   install-and-build:
@@ -119,7 +120,6 @@ workflows:
   test-and-release-app:
     jobs:
       - sync_branches:
-          checkout: true
           context: dev-test
       - install-and-build:
           <<: *slack-fail-post-step
