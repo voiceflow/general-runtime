@@ -1,8 +1,5 @@
-status = ["ci/circleci: sleep"]
-# Uncomment this to use a two hour timeout.
-# The default is one hour.
-timeout_sec = 360
+status = ["ci/circleci: test_e2e"]
 delete_merged_branches = true
 use_squash_merge = true
 cut_body_after = "### Implementation details. How do you make this change?"
-
+required_approvals=1
