@@ -25,9 +25,8 @@ defaults:
   prod_deploy_filters: &prod_deploy_filters
     filters:
       branches:
-        ignore: /.*/
-      tags:
-        only: /^v[0-9]*(\.[0-9]*)*$/
+        only:
+          - production
 
   trying_staging_filters: &trying_staging_filters
     branches:
@@ -35,10 +34,11 @@ defaults:
         - staging
         - trying
 
-  ignore_trying_staging_filters: &ignore_trying_staging_filters
+  ignore_trying_staging_production_filters: &ignore_trying_staging_production_filters
     branches:
       ignore:
         - staging
+        - production
         - trying
 
   slack-fail-post-step: &slack-fail-post-step
@@ -117,14 +117,14 @@ workflows:
           <<: *slack-fail-post-step
           context: dev-test
           filters:
-            <<: *ignore_trying_staging_filters
+            <<: *ignore_trying_staging_production_filters
       - test:
           <<: *slack-fail-post-step
           context: dev-test
           requires:
             - install-and-build
           filters:
-            <<: *ignore_trying_staging_filters
+            <<: *ignore_trying_staging_production_filters
       - vfcommon/update_track:
           context: dev-test
           image_repo: << pipeline.parameters.container-image-url >>
