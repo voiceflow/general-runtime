@@ -56,7 +56,7 @@ orbs:
 jobs:
 
   sync_branches:
-    executor: vfcommon/code-test-executor
+    executor: vfcommon/build-executor
     steps:
       - vfcommon/sync_branches:
           checkout: true
