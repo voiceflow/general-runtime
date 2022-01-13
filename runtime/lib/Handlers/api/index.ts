@@ -3,13 +3,13 @@ import { deepVariableSubstitution } from '@voiceflow/common';
 import _ from 'lodash';
 import safeJSONStringify from 'safe-json-stringify';
 
-import { HandlerFactory } from '@/runtime/lib/Handler';
+import Handler from '@/runtime/lib/Handler';
 
 import { APINodeData, makeAPICall, ResponseConfig } from './utils';
 
 export const USER_AGENT_KEY = 'User-Agent';
 export const USER_AGENT = 'Voiceflow/1.0.0 (+https://voiceflow.com)';
-const APIHandler: HandlerFactory<Node.Integration.Node, ResponseConfig | void> = (config = {}) => ({
+const APIHandler = (config: ResponseConfig = {}): Handler<Node.Integration.Node> => ({
   canHandle: (node) => node.type === Node.NodeType.INTEGRATIONS && node.selected_integration === Node.Utils.IntegrationType.CUSTOM_API,
   handle: async (node, runtime, variables) => {
     let nextId: string | null = null;
