@@ -60,7 +60,6 @@ jobs:
     steps:
       - vfcommon/sync_branches:
           checkout: true
-          check_commit_message: "[bugfix]"
           ssh_key: << pipeline.parameters.ssh-fingerprint >>
 
   install-and-build:
