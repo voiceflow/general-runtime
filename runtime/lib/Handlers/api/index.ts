@@ -22,7 +22,7 @@ const APIHandler = (config: ResponseConfig = {}): Handler<Node.Integration.Node>
         actionBodyData.headers = [...headers, { key: USER_AGENT_KEY, val: USER_AGENT }];
       }
 
-      const data = await makeAPICall(actionBodyData, runtime, config as ResponseConfig);
+      const data = await makeAPICall(actionBodyData, runtime, config);
 
       // add mapped variables to variables store
       variables.merge(data.variables);
