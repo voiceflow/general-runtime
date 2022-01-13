@@ -61,4 +61,3 @@ External services needed to run certain blocks (API, Zapier, Google Docs, Code)
 
 - `INTEGRATIONS_HANDLER_ENDPOINT` - cloud endpoint for zapier/google blocks - not available if `general-runtime` is ran as standalone
 - `CODE_HANDLER_ENDPOINT` - stateless cloud service endpoint to execute the code block. Leave undefined to run custom code locally
-- `API_HANDLER_ENDPOINT` - stateless cloud endpoint for the API block to make requests. Leave undefined to make requests locally

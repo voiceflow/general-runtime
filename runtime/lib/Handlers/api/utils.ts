@@ -9,7 +9,6 @@ import querystring from 'querystring';
 import safeJSONStringify from 'safe-json-stringify';
 import validator from 'validator';
 
-import CONFIG from '@/config';
 import Runtime from '@/runtime/lib/Runtime';
 
 export type APINodeData = Node.Api.NodeData['action_data'];
@@ -101,19 +100,25 @@ const validateIP = async (hostname: string) => {
   }
 };
 
+export interface ResponseConfig {
+  timeout?: number | null;
+  maxContentLength?: number | null;
+  maxBodyLength?: number | null;
+}
+
 // eslint-disable-next-line sonarjs/cognitive-complexity
-export const formatRequestConfig = (data: APINodeData) => {
+export const formatRequestConfig = (data: APINodeData, config: ResponseConfig) => {
   const { method, bodyInputType, headers, body, params, url, content } = data;
 
   const options: AxiosRequestConfig = {
     method,
     url,
     // If the request takes longer than `timeout` in ms, the request will be aborted
-    timeout: CONFIG.API_MAX_TIMEOUT_MS,
+    timeout: config?.timeout ?? 20000,
     // defines the max size of the http response content in bytes allowed in node.js
-    maxContentLength: CONFIG.API_MAX_CONTENT_LENGTH_BYTES,
+    maxContentLength: config?.maxContentLength ?? 1000000,
     // defines the max size of the http request content in bytes allowed
-    maxBodyLength: CONFIG.API_MAX_BODY_LENGTH_BYTES,
+    maxBodyLength: config?.maxBodyLength ?? 1000000,
   };
 
   if (params && params.length > 0) {
@@ -165,7 +170,7 @@ export const formatRequestConfig = (data: APINodeData) => {
   return options;
 };
 
-export const makeAPICall = async (nodeData: APINodeData, runtime: Runtime) => {
+export const makeAPICall = async (nodeData: APINodeData, runtime: Runtime, config: ResponseConfig) => {
   try {
     const hostname = validateHostname(nodeData.url);
     await validateIP(hostname);
@@ -179,7 +184,7 @@ export const makeAPICall = async (nodeData: APINodeData, runtime: Runtime) => {
       runtime.trace.debug(`Outgoing Api Rate Limiter failed - Error: \n${safeJSONStringify(error.response?.data || error)}`, Node.NodeType.API);
     }
 
-    const options = formatRequestConfig(nodeData);
+    const options = formatRequestConfig(nodeData, config);
 
     const { data, headers, status } = (await axios(options)) as AxiosResponse<{ VF_STATUS_CODE?: number; VF_HEADERS?: any }>;
 

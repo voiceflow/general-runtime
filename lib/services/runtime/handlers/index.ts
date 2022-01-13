@@ -27,7 +27,13 @@ import VisualHandler from './visual';
 
 const _v1Handler = _V1Handler();
 
-export default ({ API_HANDLER_ENDPOINT, INTEGRATIONS_HANDLER_ENDPOINT, CODE_HANDLER_ENDPOINT }: Config) => [
+export default ({
+  API_MAX_TIMEOUT_MS,
+  API_MAX_BODY_LENGTH_BYTES,
+  API_MAX_CONTENT_LENGTH_BYTES,
+  INTEGRATIONS_HANDLER_ENDPOINT,
+  CODE_HANDLER_ENDPOINT,
+}: Config) => [
   ...StateHandlers(),
   SpeakHandler(),
   InteractionHandler(),
@@ -40,7 +46,7 @@ export default ({ API_HANDLER_ENDPOINT, INTEGRATIONS_HANDLER_ENDPOINT, CODE_HAND
   FlowHandler(),
   IfHandler(),
   IfV2Handler({ _v1: _v1Handler }),
-  APIHandler({ customAPIEndpoint: API_HANDLER_ENDPOINT }),
+  APIHandler({ timeout: API_MAX_TIMEOUT_MS, maxBodyLength: API_MAX_BODY_LENGTH_BYTES, maxContentLength: API_MAX_CONTENT_LENGTH_BYTES }),
   IntegrationsHandler({ integrationsEndpoint: INTEGRATIONS_HANDLER_ENDPOINT }),
   RandomHandler(),
   SetHandler(),
