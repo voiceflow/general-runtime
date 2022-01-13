@@ -22,23 +22,22 @@ parameters:
 
 # Reusable YAML chunks
 defaults:
+
   prod_deploy_filters: &prod_deploy_filters
     filters:
       branches:
         only:
           - production
 
+  ignore_prod_deploy_filters: &ignore_prod_deploy_filters
+      branches:
+        ignore:
+          - production
+
   trying_staging_filters: &trying_staging_filters
     branches:
       only:
         - staging
-        - trying
-
-  ignore_trying_staging_production_filters: &ignore_trying_staging_production_filters
-    branches:
-      ignore:
-        - staging
-        - production
         - trying
 
   slack-fail-post-step: &slack-fail-post-step
@@ -51,10 +50,16 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@dev:e3a9ed8
+  vfcommon: voiceflow/common@dev:90cafd0
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
+
+  sync_branches:
+    executor: vfcommon/code-test-executor
+    steps:
+      - vfcommon/sync_branches:
+          ssh_key: << pipeline.parameters.ssh-fingerprint >>
 
   install-and-build:
     executor: vfcommon/code-test-executor
@@ -113,24 +118,28 @@ workflows:
   # Master (production)
   test-and-release-app:
     jobs:
+      - sync_branches
       - install-and-build:
           <<: *slack-fail-post-step
           context: dev-test
           filters:
-            <<: *ignore_trying_staging_production_filters
+            <<: *ignore_prod_deploy_filters
       - test:
           <<: *slack-fail-post-step
           context: dev-test
           requires:
             - install-and-build
           filters:
-            <<: *ignore_trying_staging_production_filters
+            <<: *ignore_prod_deploy_filters
       - vfcommon/update_track:
           context: dev-test
           image_repo: << pipeline.parameters.container-image-url >>
           track_component: << pipeline.parameters.track-component >>
           requires:
+            - test
             - install-and-build
+          filters:
+            <<: *ignore_prod_deploy_filters
       - vfcommon/release:
           <<: *slack-fail-post-step
           context: dev-test
@@ -154,13 +163,13 @@ workflows:
       - install-and-build:
           <<: *prod_deploy_filters
           context: dev-test
-          name: instal-and-build-release
+          name: install-and-build-release
       - vfcommon/build_push_image:
           <<: *prod_deploy_filters
           name: build-push-image
           context: dev-test
           requires:
-            - instal-and-build-release
+            - install-and-build-release
           image_repo: << pipeline.parameters.container-image-url >>
           release_pkg: << pipeline.parameters.npm-repo >>
       - vfcommon/update_track:
@@ -171,6 +180,7 @@ workflows:
           track_component: << pipeline.parameters.track-component >>
           requires:
             - build-push-image
+            - install-and-build-release
       - vfcommon/post_image_push_actions:
           <<: *prod_deploy_filters
           namespace: << pipeline.parameters.k8s-namespace >>
@@ -186,3 +196,5 @@ workflows:
           image_repo: << pipeline.parameters.container-image-url >>
           dockerfile: "Dockerfile.e2e"
           image_tag: "latest-master-e2e"
+          requires:
+            - install-and-build-release
