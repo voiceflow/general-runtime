@@ -50,7 +50,7 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@dev:da5de89
+  vfcommon: voiceflow/common@dev:5a5a340
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
@@ -96,6 +96,9 @@ jobs:
 workflows:
   # Merge Queue jobs
   e2e:
+    when:
+      not:
+        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
       - vfcommon/test_e2e:
           <<: *slack-fail-post-step
@@ -111,6 +114,9 @@ workflows:
 
   # Master (production)
   test-and-release-app:
+    when:
+      not:
+        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
       - install-and-build:
           <<: *slack-fail-post-step
@@ -164,6 +170,9 @@ workflows:
 
   # Update Production branch
   deploy-app:
+    when:
+      not:
+        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
       - install-and-build:
           <<: *prod_deploy_filters
