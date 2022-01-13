@@ -118,7 +118,8 @@ workflows:
   # Master (production)
   test-and-release-app:
     jobs:
-      - sync_branches
+      - sync_branches:
+          context: dev-test
       - install-and-build:
           <<: *slack-fail-post-step
           context: dev-test
