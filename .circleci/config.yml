@@ -226,4 +226,4 @@ workflows:
           context: dev-test
           filters:
             branches:
-              only: xavier/new-cicd/VF-2657
+              only: master
