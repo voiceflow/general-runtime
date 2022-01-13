@@ -34,6 +34,12 @@ defaults:
         ignore:
           - production
 
+  ignore_prod_break_glass_deploy_filters: &ignore_prod_break_glass_deploy_filters
+      branches:
+        ignore:
+          - production
+          - break-glass*
+
   trying_staging_filters: &trying_staging_filters
     branches:
       only:
@@ -129,7 +135,7 @@ workflows:
           requires:
             - install-and-build
           filters:
-            <<: *ignore_prod_deploy_filters
+            <<: *ignore_prod_break_glass_deploy_filters
       - vfcommon/update_track:
           context: dev-test
           image_repo: << pipeline.parameters.container-image-url >>
@@ -138,7 +144,7 @@ workflows:
             - test
             - install-and-build
           filters:
-            <<: *ignore_prod_deploy_filters
+            <<: *ignore_prod_break_glass_deploy_filters
       - vfcommon/release:
           <<: *slack-fail-post-step
           context: dev-test
@@ -151,6 +157,7 @@ workflows:
           check_commit_message: "[bugfix]"
           ssh_key: << pipeline.parameters.ssh-fingerprint >>
           context: dev-test
+          name: sync-branches-bugfix
           requires:
             - test
             - vfcommon/release
@@ -223,6 +230,7 @@ workflows:
       - vfcommon/sync_branches:
           checkout: true
           ssh_key: << pipeline.parameters.ssh-fingerprint >>
+          name: sync-branches-scheduled
           context: dev-test
           filters:
             branches:
