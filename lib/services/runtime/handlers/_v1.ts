@@ -11,7 +11,6 @@ import { findEventMatcher } from './event';
 const utilsObj = {
   commandHandler: CommandHandler(),
   findEventMatcher,
-  replaceVariables,
 };
 
 export const _V1Handler: HandlerFactory<Node._v1.Node, typeof utilsObj> = (utils) => ({
@@ -41,9 +40,12 @@ export const _V1Handler: HandlerFactory<Node._v1.Node, typeof utilsObj> = (utils
     }
 
     const variablesMap = variables.getState();
+    const type = replaceVariables(node.type, variablesMap);
+    const payload = typeof node.payload === 'string' ? replaceVariables(node.payload, variablesMap) : node.payload;
+
     runtime.trace.addTrace<Node.Utils.BaseTraceFrame<unknown>>({
-      type: utils.replaceVariables(node.type, variablesMap),
-      payload: node.payload === 'string' ? utils.replaceVariables(node.payload, variablesMap) : node.payload,
+      type,
+      payload,
       defaultPath: node.defaultPath,
       paths: node.paths.map((path) => ({ label: path.label, event: path.event! })),
     });
