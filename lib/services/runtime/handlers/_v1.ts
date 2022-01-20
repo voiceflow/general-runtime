@@ -1,5 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import { Node } from '@voiceflow/base-types';
+import { replaceVariables } from '@voiceflow/common';
 
 import { Action, HandlerFactory } from '@/runtime';
 
@@ -10,6 +11,7 @@ import { findEventMatcher } from './event';
 const utilsObj = {
   commandHandler: CommandHandler(),
   findEventMatcher,
+  replaceVariables,
 };
 
 export const _V1Handler: HandlerFactory<Node._v1.Node, typeof utilsObj> = (utils) => ({
@@ -38,9 +40,10 @@ export const _V1Handler: HandlerFactory<Node._v1.Node, typeof utilsObj> = (utils
       return null;
     }
 
+    const variablesMap = variables.getState();
     runtime.trace.addTrace<Node.Utils.BaseTraceFrame<unknown>>({
-      type: node.type,
-      payload: node.payload,
+      type: utils.replaceVariables(node.type, variablesMap),
+      payload: node.payload === 'string' ? utils.replaceVariables(node.payload, variablesMap) : node.payload,
       defaultPath: node.defaultPath,
       paths: node.paths.map((path) => ({ label: path.label, event: path.event! })),
     });
