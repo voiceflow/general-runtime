@@ -174,37 +174,33 @@ export const formatRequestConfig = (data: APINodeData, config: ResponseConfig) =
 };
 
 export const makeAPICall = async (nodeData: APINodeData, runtime: Runtime, config: ResponseConfig) => {
+  const hostname = validateHostname(nodeData.url);
+  await validateIP(hostname);
+
   try {
-    const hostname = validateHostname(nodeData.url);
-    await validateIP(hostname);
-
-    try {
-      if (await runtime.outgoingApiLimiter.addHostnameUseAndShouldThrottle(hostname)) {
-        // if the use of the hostname is high, delay the api call but let it happen
-        await new Promise((resolve) => setTimeout(resolve, THROTTLE_DELAY));
-      }
-    } catch (error) {
-      runtime.trace.debug(`Outgoing Api Rate Limiter failed - Error: \n${safeJSONStringify(error.response?.data || error)}`, Node.NodeType.API);
+    if (await runtime.outgoingApiLimiter.addHostnameUseAndShouldThrottle(hostname)) {
+      // if the use of the hostname is high, delay the api call but let it happen
+      await new Promise((resolve) => setTimeout(resolve, THROTTLE_DELAY));
     }
-
-    const options = formatRequestConfig(nodeData, config);
-
-    const { data, headers, status } = (await axios(options)) as AxiosResponse<{ VF_STATUS_CODE?: number; VF_HEADERS?: any }>;
-
-    if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
-      data.VF_STATUS_CODE = status;
-      data.VF_HEADERS = headers;
-    }
-
-    const newVariables = Object.fromEntries((nodeData.mapping ?? []).filter((map) => map.var).map((map) => [map.var, getVariable(map.path, data)]));
-
-    // remove all undefined variables
-    Object.keys(newVariables).forEach((variable) => {
-      if (newVariables[variable] === undefined) delete newVariables[variable];
-    });
-
-    return { variables: newVariables, response: { data, headers, status } };
-  } catch (e) {
-    throw e;
+  } catch (error) {
+    runtime.trace.debug(`Outgoing Api Rate Limiter failed - Error: \n${safeJSONStringify(error.response?.data || error)}`, Node.NodeType.API);
   }
+
+  const options = formatRequestConfig(nodeData, config);
+
+  const { data, headers, status } = (await axios(options)) as AxiosResponse<{ VF_STATUS_CODE?: number; VF_HEADERS?: any }>;
+
+  if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
+    data.VF_STATUS_CODE = status;
+    data.VF_HEADERS = headers;
+  }
+
+  const newVariables = Object.fromEntries((nodeData.mapping ?? []).filter((map) => map.var).map((map) => [map.var, getVariable(map.path, data)]));
+
+  // remove all undefined variables
+  Object.keys(newVariables).forEach((variable) => {
+    if (newVariables[variable] === undefined) delete newVariables[variable];
+  });
+
+  return { variables: newVariables, response: { data, headers, status } };
 };
