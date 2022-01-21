@@ -12,6 +12,8 @@ import {
   mockDMPrefixedNonSubsetEntityResult,
   mockDMPrefixedUnrelatedSingleEntityResult,
   mockDMPrefixUnrelatedResult,
+  mockEntityFillingTrace,
+  mockEntityFillingTraceWithElicit,
   mockFulfilledIntentRequest,
   mockLM,
   mockRegularContext,
@@ -164,6 +166,7 @@ describe('dialog manager unit tests', () => {
               type: 'message',
             },
           },
+          mockEntityFillingTrace,
         ];
         expect(result.end).to.be.true;
         expect(result.trace).to.eql(expectedTrace);
@@ -176,15 +179,7 @@ describe('dialog manager unit tests', () => {
           request,
         });
 
-        const expectedTrace = [
-          {
-            type: 'speak',
-            payload: {
-              message: '',
-              type: 'message',
-            },
-          },
-        ];
+        const expectedTrace = [mockEntityFillingTraceWithElicit];
         expect(result.end).to.be.true;
         expect(result.trace).to.eql(expectedTrace);
       });

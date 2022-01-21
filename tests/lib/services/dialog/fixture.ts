@@ -1,4 +1,6 @@
 import { Request } from '@voiceflow/base-types';
+import { RequestType } from '@voiceflow/base-types/build/common/request';
+import { EntityFillingTrace, TraceType } from '@voiceflow/base-types/build/common/trace';
 import sinon from 'sinon';
 
 import CacheDataAPI from '@/lib/services/state/cacheDataAPI';
@@ -515,5 +517,21 @@ export const mockEntityNonSynonymRequest: Request.IntentRequest = {
         value: 'medium',
       },
     ],
+  },
+};
+
+export const mockEntityFillingTrace: EntityFillingTrace = {
+  type: TraceType.ENTITY_FILLING,
+  payload: {
+    entityToFill: 'flavor',
+    intent: mockUnfulfilledIntentRequest,
+  },
+};
+
+export const mockEntityFillingTraceWithElicit: EntityFillingTrace = {
+  type: TraceType.ENTITY_FILLING,
+  payload: {
+    entityToFill: 'flavor',
+    intent: { ...mockUnfulfilledIntentRequest, ELICIT: true } as any,
   },
 };
