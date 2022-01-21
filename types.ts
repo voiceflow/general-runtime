@@ -36,7 +36,7 @@ export interface Config extends RateLimitConfig {
   SEM_VER: string | null;
   BUILD_URL: string | null;
 
-  GENERAL_SERVICE_ENDPOINT: string;
+  GENERAL_SERVICE_ENDPOINT: string | null;
 
   CREATOR_API_ENDPOINT: string | null;
   CREATOR_API_AUTHORIZATION: string | null;

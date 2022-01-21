@@ -36,6 +36,9 @@ class TTS extends AbstractManager<{ utils: typeof utils }> implements ContextHan
 
   handle = async (context: Context) => {
     if (!context.trace) context.trace = [];
+    if (!this.config.GENERAL_SERVICE_ENDPOINT) {
+      return context;
+    }
 
     const trace = await Promise.all(
       context.trace.map(async (frame) => {
