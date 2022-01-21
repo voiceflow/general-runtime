@@ -119,6 +119,9 @@ export const formatRequestConfig = (data: APINodeData, config: ResponseConfig) =
     maxContentLength: config?.maxContentLength ?? 1000000,
     // defines the max size of the http request content in bytes allowed
     maxBodyLength: config?.maxBodyLength ?? 1000000,
+    // Don't throw if the status code was bad (ex. a 500)
+    // This closer matches the behavior of fetch(), where only network errors will cause an exception to be thrown
+    validateStatus: null,
   };
 
   if (params && params.length > 0) {
