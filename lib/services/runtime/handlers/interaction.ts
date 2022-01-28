@@ -41,12 +41,13 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
       return utils.noReplyHandler.handle(node, runtime, variables);
     }
 
-    for (let i = 0; i < node.interactions.length; i++) {
-      const { event, nextId } = node.interactions[i];
+    if (runtime.storage.get(StorageType.PREVIOUS_NODE_ID) !== node.id) {
+      for (let i = 0; i < node.interactions.length; i++) {
+        const { event, nextId } = node.interactions[i];
 
-      const matcher = utils.findEventMatcher({ event, runtime, variables });
+        const matcher = utils.findEventMatcher({ event, runtime, variables });
+        if (!matcher) continue;
 
-      if (matcher) {
         // allow handler to apply side effects
         matcher.sideEffect();
 

@@ -1,5 +1,6 @@
 /* eslint-disable no-await-in-loop */
 
+import { StorageType } from '@/lib/services/runtime/types';
 import { Action } from '@/runtime';
 import { EventType } from '@/runtime/lib/Lifecycle';
 import ProgramModel from '@/runtime/lib/Program';
@@ -36,6 +37,8 @@ const cycleHandler = async (runtime: Runtime, program: ProgramModel, variableSta
           await runtime.callEvent(EventType.handlerWillHandle, { node, variables: variableState });
 
           nextID = await handler.handle(_node, runtime, variableState, program);
+
+          runtime.storage.set(StorageType.PREVIOUS_NODE_ID, _node.id);
 
           await runtime.callEvent(EventType.handlerDidHandle, { node, variables: variableState });
         }
