@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 
-import { StorageType } from '@/lib/services/runtime/types';
 import { Action } from '@/runtime';
+import { Storage as StorageType } from '@/runtime/lib/Constants/flags';
 import { EventType } from '@/runtime/lib/Lifecycle';
 import ProgramModel from '@/runtime/lib/Program';
 import Runtime from '@/runtime/lib/Runtime';

@@ -3,6 +3,7 @@ import { Node as ChatNode } from '@voiceflow/chat-types';
 import { Node as GeneralNode } from '@voiceflow/general-types';
 
 import { Action, HandlerFactory } from '@/runtime';
+import { Storage } from '@/runtime/lib/Constants/flags';
 
 import { StorageType } from '../types';
 import { addButtonsIfExists } from '../utils';
@@ -41,7 +42,7 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
       return utils.noReplyHandler.handle(node, runtime, variables);
     }
 
-    if (runtime.storage.get(StorageType.PREVIOUS_NODE_ID) !== node.id) {
+    if (runtime.storage.get(Storage.PREVIOUS_NODE_ID) !== node.id) {
       for (let i = 0; i < node.interactions.length; i++) {
         const { event, nextId } = node.interactions[i];
 

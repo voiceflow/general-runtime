@@ -30,7 +30,6 @@ export enum StorageType {
   STREAM_FINISHED = 'streamFinished',
   NO_MATCHES_COUNTER = 'noMatchesCounter',
   NO_REPLIES_COUNTER = 'noRepliesCounter',
-  PREVIOUS_NODE_ID = 'previousNodeID',
 }
 
 export enum StreamAction {
