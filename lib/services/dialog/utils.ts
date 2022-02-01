@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import { Models, Node, Request } from '@voiceflow/base-types';
-import { SLOT_REGEXP } from '@voiceflow/common';
+import { SLOT_REGEXP, VF_DM_PREFIX } from '@voiceflow/common';
 // import { Node } from '@voiceflow/general-types';
 import * as crypto from 'crypto';
 import _ from 'lodash';
@@ -12,8 +12,6 @@ import Client from '@/runtime/lib/Client';
 import { Context } from '@/types';
 
 import { eventHandlers } from '../runtime/handlers/state/preliminary';
-
-export const VF_DM_PREFIX = 'dm_';
 
 export const inputToString = ({ text, voice }: Models.IntentInput, defaultVoice: string | null) => {
   const currentVoice = voice || defaultVoice;

@@ -20,7 +20,7 @@
     "@voiceflow/base-types": "2.5.5",
     "@voiceflow/body-parser": "^1.21.0",
     "@voiceflow/chat-types": "2.1.11",
-    "@voiceflow/common": "7.12.1",
+    "@voiceflow/common": "7.17.0",
     "@voiceflow/general-types": "3.2.11",
     "@voiceflow/logger": "^1.6.0",
     "@voiceflow/metrics": "1.1.0",

@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-expressions */
+import { VF_DM_PREFIX } from '@voiceflow/common';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -21,7 +22,7 @@ describe('dialog manager utilities unit tests', () => {
       const hash = utils.dmPrefix(intentName);
       const result = utils.getDMPrefixIntentName(intentName);
 
-      expect(result).to.equal(`${utils.VF_DM_PREFIX}${hash}_${intentName}`);
+      expect(result).to.equal(`${VF_DM_PREFIX}${hash}_${intentName}`);
     });
   });
 

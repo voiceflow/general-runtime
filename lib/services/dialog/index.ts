@@ -5,6 +5,7 @@
 
 import { Models, Request, Trace } from '@voiceflow/base-types';
 import { Types as ChatTypes } from '@voiceflow/chat-types';
+import { VF_DM_PREFIX } from '@voiceflow/common';
 import { Constants } from '@voiceflow/general-types';
 import { Types as VoiceTypes } from '@voiceflow/voice-types';
 import _ from 'lodash';
@@ -19,16 +20,7 @@ import { isIntentRequest, StorageType } from '../runtime/types';
 import { outputTrace } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
 import { rectifyEntityValue } from './synonym';
-import {
-  dmPrefix,
-  fillStringEntities,
-  getEntitiesMap,
-  getIntentEntityList,
-  getUnfulfilledEntity,
-  inputToString,
-  isIntentInScope,
-  VF_DM_PREFIX,
-} from './utils';
+import { fillStringEntities, getEntitiesMap, getIntentEntityList, getUnfulfilledEntity, inputToString, isIntentInScope } from './utils';
 
 export const utils = {
   outputTrace,
