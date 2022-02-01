@@ -41,20 +41,24 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
       return utils.noReplyHandler.handle(node, runtime, variables);
     }
 
-    for (let i = 0; i < node.interactions.length; i++) {
-      const { event, nextId } = node.interactions[i];
+    if (runtime.storage.get(StorageType.GOTO_FROM_NODE_ID) !== node.id) {
+      for (let i = 0; i < node.interactions.length; i++) {
+        const { event, nextId } = node.interactions[i];
 
-      const matcher = utils.findEventMatcher({ event, runtime, variables });
+        const matcher = utils.findEventMatcher({ event, runtime, variables });
+        if (!matcher) continue;
 
-      if (matcher) {
         // allow handler to apply side effects
         matcher.sideEffect();
 
         if ((event as BaseNode.Utils.IntentEvent).goTo) {
+          const { request } = (event as BaseNode.Utils.IntentEvent).goTo!;
           runtime.trace.addTrace<Trace.GoToTrace>({
             type: BaseNode.Utils.TraceType.GOTO,
-            payload: { request: (event as BaseNode.Utils.IntentEvent).goTo!.request },
+            payload: { request },
           });
+
+          runtime.storage.set(StorageType.GOTO_FROM_NODE_ID, node.id);
 
           // stop on itself to await for new intent request coming in
           return node.id;
@@ -67,6 +71,8 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
 
         return nextId || null;
       }
+    } else {
+      runtime.storage.delete(StorageType.GOTO_FROM_NODE_ID);
     }
 
     // check if there is a command in the stack that fulfills request
