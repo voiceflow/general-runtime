@@ -283,7 +283,10 @@ describe('Interaction handler', () => {
               noReplyHandler: { canHandle: sinon.stub().returns(false) },
             };
 
-            const node = { id: 'node-id', interactions: [{ event: { foo: 'bar', goTo: { request: 'request' } } }] };
+            const node = {
+              id: 'node-id',
+              interactions: [{ event: { type: Node.Utils.EventType.INTENT, foo: 'bar', goTo: { request: 'request' } } }],
+            };
             const runtime = {
               getAction: sinon.stub().returns(Action.REQUEST),
               setAction: sinon.stub(),
