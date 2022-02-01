@@ -29,15 +29,18 @@ defaults:
         only:
           - production
 
-  ignore_prod_deploy_filters: &ignore_prod_deploy_filters
+  ignore_master_prod_break_glass_deploy_filters: &ignore_master_prod_break_glass_deploy_filters
       branches:
         ignore:
+          - master
           - production
+          - /^break-glass.*$/
 
-  ignore_prod_break_glass_deploy_filters: &ignore_prod_break_glass_deploy_filters
+
+  ignore_break_glass_deploy_filters: &ignore_break_glass_deploy_filters
+    filters:
       branches:
         ignore:
-          - production
           - /^break-glass.*$/
 
   trying_staging_filters: &trying_staging_filters
@@ -56,7 +59,7 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@dev:822c315
+  vfcommon: voiceflow/common@dev:59e4d00
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
@@ -111,82 +114,70 @@ workflows:
           <<: *slack-fail-post-step
           context: dev-test
           avoid_post_install_scripts: false
+
+      - test:
+          <<: *slack-fail-post-step
+          context: dev-test
+          name: test-master
+          requires:
+            - vfcommon/install_and_build
           filters:
-            <<: *ignore_prod_deploy_filters
+            branches:
+              only: master
+
       - test:
           <<: *slack-fail-post-step
           context: dev-test
           requires:
             - vfcommon/install_and_build
           filters:
-            <<: *ignore_prod_break_glass_deploy_filters
+            <<: *ignore_master_prod_break_glass_deploy_filters
+
       - vfcommon/update_track:
+          <<: *ignore_break_glass_deploy_filters
           context: dev-test
           image_repo: << pipeline.parameters.container-image-url >>
           track_component: << pipeline.parameters.track-component >>
           requires:
-            - test
+            - test-master
             - vfcommon/install_and_build
-          filters:
-            <<: *ignore_prod_break_glass_deploy_filters
+
       - vfcommon/release:
           <<: *slack-fail-post-step
           context: dev-test
           requires:
-            - test
+            - vfcommon/install_and_build
+            - test-master
           filters:
             branches:
               only: master
+
       - vfcommon/sync_branches:
           check_commit_message: "[bugfix]"
           ssh_key: << pipeline.parameters.ssh-fingerprint >>
           context: dev-test
           name: sync-branches-bugfix
           requires:
+            - vfcommon/install_and_build
+            - test-master
             - test
             - vfcommon/release
           filters:
             branches:
               only: master
+
       - vfcommon/generate_technical_documentation:
           <<: *slack-fail-post-step
           context: dev-test
           requires:
+            - test-master
             - test
             - vfcommon/release
           filters:
             branches:
               only: master
 
-
-  # Update Production branch
-  deploy-app:
-    when:
-      not:
-        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
-    jobs:
-      - vfcommon/install_and_build:
-          <<: *prod_deploy_filters
-          avoid_post_install_scripts: false
-          context: dev-test
-          name: install-and-build-release
-      - vfcommon/build_push_image:
-          <<: *prod_deploy_filters
-          name: build-push-image
-          context: dev-test
-          requires:
-            - install-and-build-release
-          image_repo: << pipeline.parameters.container-image-url >>
-          release_pkg: << pipeline.parameters.npm-repo >>
-      - vfcommon/update_track:
-          <<: *prod_deploy_filters
-          context: dev-test
-          name: update-track-release
-          image_repo: << pipeline.parameters.container-image-url >>
-          track_component: << pipeline.parameters.track-component >>
-          requires:
-            - build-push-image
-            - install-and-build-release
+      # Update Production branch
       - vfcommon/post_image_push_actions:
           <<: *prod_deploy_filters
           namespace: << pipeline.parameters.k8s-namespace >>
@@ -194,7 +185,8 @@ workflows:
           tagged: true
           context: dev-test
           requires:
-            - update-track-release
+            - vfcommon/update_track
+
       - vfcommon/build_push_image:
           <<: *prod_deploy_filters
           name: build-push-image-e2e
@@ -203,7 +195,8 @@ workflows:
           dockerfile: "Dockerfile.e2e"
           image_tag: "latest-master-e2e"
           requires:
-            - install-and-build-release
+            - vfcommon/update_track
+
 
   # Cron Production update
   update-production-branch:
