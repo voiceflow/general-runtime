@@ -137,7 +137,7 @@ workflows:
           <<: *ignore_break_glass_deploy_filters
           context: dev-test
           image_repo: << pipeline.parameters.container-image-url >>
-          track_component: << pipeline.parameters.track-component >>
+          component: << pipeline.parameters.track-component >>
           requires:
             - test-master
             - vfcommon/install_and_build
