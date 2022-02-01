@@ -22,10 +22,6 @@ const utilsObj = {
   addNoReplyTimeoutIfExists,
 };
 
-const isIntentEvent = (event: BaseNode.Utils.BaseEvent): event is BaseNode.Utils.IntentEvent => {
-  return 'goTo' in event;
-};
-
 export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | ChatNode.Interaction.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => !!node.interactions,
   handle: (node, runtime, variables) => {
@@ -55,7 +51,7 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
         // allow handler to apply side effects
         matcher.sideEffect();
 
-        if (isIntentEvent(event) && event.goTo != null) {
+        if (BaseNode.Utils.isIntentEvent(event) && event.goTo != null) {
           const { request } = event.goTo!;
           runtime.trace.addTrace<Trace.GoToTrace>({
             type: BaseNode.Utils.TraceType.GOTO,
