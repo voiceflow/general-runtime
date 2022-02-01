@@ -1,10 +1,10 @@
 /* eslint-disable no-unused-expressions */
 import { Request } from '@voiceflow/base-types';
+import { VF_DM_PREFIX } from '@voiceflow/common';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import DialogManager, { utils as defaultUtils } from '@/lib/services/dialog';
-import * as utils from '@/lib/services/dialog/utils';
 
 import {
   mockDMPrefixedMultipleEntityResult,
@@ -190,7 +190,7 @@ describe('dialog manager unit tests', () => {
         const result = await dm.handle(mockRegularContext);
 
         const resultEntities = (result.request as Request.IntentRequest).payload.entities;
-        const hasDMPrefix = resultEntities.some((entity) => entity.name.startsWith(utils.VF_DM_PREFIX));
+        const hasDMPrefix = resultEntities.some((entity) => entity.name.startsWith(VF_DM_PREFIX));
         expect(hasDMPrefix).to.be.false;
       });
 
