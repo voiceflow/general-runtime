@@ -67,7 +67,7 @@ describe('dialog manager utilities unit tests', () => {
     it('returns undefined if all required entities are fulfilled', () => {
       const result = utils.getUnfulfilledEntity(mockFulfilledIntentRequest, mockLM);
 
-      expect(result).to.be.undefined;
+      expect(result).to.be.null;
     });
   });
 

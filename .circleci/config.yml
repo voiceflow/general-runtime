@@ -39,7 +39,7 @@ defaults:
       - vfcommon/notify_slack:
           channel: dev_general
           event: fail
-          mentions: "@eng_integrations"
+          mentions: "@eng_platform"
           template: basic_fail_1
           branch_pattern: master
 

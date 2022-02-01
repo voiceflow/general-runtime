@@ -23,9 +23,9 @@ describe('_v1 handler unit tests', () => {
         it('works', () => {
           const node = {
             id: 'node-id',
-            type: 'trace',
+            type: 'trace {var1}',
             stop: true,
-            payload: { foo: 'bar' },
+            payload: "{ foo: 'bar {var1}' }",
             paths: [
               { event: {}, label: 'label1', nextID: '1' },
               { event: {}, nextID: '2' },
@@ -37,13 +37,14 @@ describe('_v1 handler unit tests', () => {
             turn: { get: sinon.stub().returns(null) },
           };
           const handler = _V1Handler({} as any);
+          const variables = { getState: sinon.stub().returns({ var1: 'variable1' }) };
 
-          expect(handler.handle(node as any, runtime as any, null as any, null as any)).to.eql(node.id);
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
           expect(runtime.trace.addTrace.args).to.eql([
             [
               {
-                type: node.type,
-                payload: node.payload,
+                type: 'trace variable1',
+                payload: "{ foo: 'bar variable1' }",
                 paths: [
                   { event: {}, label: 'label1' },
                   { event: {}, label: undefined },
@@ -72,8 +73,9 @@ describe('_v1 handler unit tests', () => {
             turn: { get: sinon.stub().returns(['type1', 'the trace block', 'type3']) },
           };
           const handler = _V1Handler({} as any);
+          const variables = { getState: sinon.stub().returns({}) };
 
-          expect(handler.handle(node as any, runtime as any, null as any, null as any)).to.eql(node.id);
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
           expect(runtime.trace.addTrace.args).to.eql([
             [
               {
@@ -109,8 +111,9 @@ describe('_v1 handler unit tests', () => {
             turn: { get: sinon.stub().returns(undefined) },
           };
           const handler = _V1Handler({} as any);
+          const variables = { getState: sinon.stub().returns({}) };
 
-          expect(handler.handle(node as any, runtime as any, null as any, null as any)).to.eql(null);
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
           expect(runtime.trace.addTrace.args).to.eql([
             [
               {
@@ -145,8 +148,9 @@ describe('_v1 handler unit tests', () => {
             turn: { get: sinon.stub().returns(null) },
           };
           const handler = _V1Handler({} as any);
+          const variables = { getState: sinon.stub().returns({}) };
 
-          expect(handler.handle(node as any, runtime as any, null as any, null as any)).to.eql(null);
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
           expect(runtime.trace.addTrace.args).to.eql([
             [
               {
@@ -181,8 +185,9 @@ describe('_v1 handler unit tests', () => {
             turn: { get: sinon.stub().returns(false) },
           };
           const handler = _V1Handler({} as any);
+          const variables = { getState: sinon.stub().returns({}) };
 
-          expect(handler.handle(node as any, runtime as any, null as any, null as any)).to.eql('2');
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('2');
           expect(runtime.trace.addTrace.args).to.eql([
             [
               {
@@ -235,7 +240,7 @@ describe('_v1 handler unit tests', () => {
           getAction: sinon.stub().returns(Action.REQUEST),
           trace: { addTrace: sinon.stub() },
         };
-        const variables = { var1: 'val1' };
+        const variables = { getState: sinon.stub().returns({ var1: 'val1' }) };
         const handler = _V1Handler({ commandHandler, findEventMatcher } as any);
 
         expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('command-id');
@@ -266,7 +271,7 @@ describe('_v1 handler unit tests', () => {
           getAction: sinon.stub().returns(Action.REQUEST),
           trace: { addTrace: sinon.stub() },
         };
-        const variables = { var1: 'val1' };
+        const variables = { getState: sinon.stub().returns({ var1: 'val1' }) };
         const handler = _V1Handler({ findEventMatcher } as any);
 
         expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('next-id2');
@@ -296,7 +301,7 @@ describe('_v1 handler unit tests', () => {
           getAction: sinon.stub().returns(Action.REQUEST),
           trace: { addTrace: sinon.stub() },
         };
-        const variables = { var1: 'val1' };
+        const variables = { getState: sinon.stub().returns({ var1: 'val1' }) };
         const handler = _V1Handler({ findEventMatcher } as any);
 
         expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);

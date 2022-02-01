@@ -5,14 +5,10 @@ import _ from 'lodash';
 
 import { Runtime, Store } from '@/runtime';
 
-import { NoMatchCounterStorage, StorageType } from '../types';
-import { outputTrace, removeEmptyPrompts } from '../utils';
+import { NoReplyCounterStorage, StorageType } from '../types';
+import { addButtonsIfExists, outputTrace, removeEmptyPrompts } from '../utils';
 
-type NoReplyNode = VoiceNode.Utils.NoReplyNode | ChatNode.Utils.NoReplyNode;
-
-const utilsObj = {
-  outputTrace,
-};
+type NoReplyNode = Request.NodeButton & (VoiceNode.Utils.NoReplyNode | ChatNode.Utils.NoReplyNode);
 
 const removeEmptyNoReplies = (node: NoReplyNode) => {
   const noReplies: Array<Text.SlateTextValue | string> = node.noReply?.prompts ?? (node.reprompt ? [node.reprompt] : null) ?? [];
@@ -29,12 +25,18 @@ export const addNoReplyTimeoutIfExists = (node: NoReplyNode, runtime: Runtime): 
   });
 };
 
+const utilsObj = {
+  outputTrace,
+  addButtonsIfExists,
+  addNoReplyTimeoutIfExists,
+};
+
 export const NoReplyHandler = (utils: typeof utilsObj) => ({
   canHandle: (runtime: Runtime) => runtime.getRequest() === null || Request.isNoReplyRequest(runtime.getRequest()),
   handle: (node: NoReplyNode, runtime: Runtime, variables: Store) => {
     const nonEmptyNoReplies = removeEmptyNoReplies(node);
 
-    const noReplyCounter = runtime.storage.get<NoMatchCounterStorage>(StorageType.NO_REPLIES_COUNTER) ?? 0;
+    const noReplyCounter = runtime.storage.get<NoReplyCounterStorage>(StorageType.NO_REPLIES_COUNTER) ?? 0;
 
     if (noReplyCounter >= nonEmptyNoReplies.length) {
       // clean up no replies counter
@@ -59,7 +61,8 @@ export const NoReplyHandler = (utils: typeof utilsObj) => ({
 
     runtime.trace.addTrace(utils.outputTrace({ output, variables: variables.getState() }));
 
-    addNoReplyTimeoutIfExists(node, runtime);
+    utils.addButtonsIfExists(node, runtime, variables);
+    utils.addNoReplyTimeoutIfExists(node, runtime);
 
     return node.id;
   },

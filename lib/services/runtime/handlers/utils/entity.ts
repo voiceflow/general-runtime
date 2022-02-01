@@ -30,13 +30,22 @@ export const EntityFillingNoMatchHandler = () => ({
     const priorIntent = runtime.storage.get<DMStore>(StorageType.DM)?.priorIntent;
     const priorIntentMatch = intents.includes(priorIntent?.payload.intent.name!) && priorIntent?.payload.entities.length;
 
-    const nextRequest = (priorIntentMatch && setElicit(priorIntent!, false)) || defaultRequest;
+    const nextRequest = (priorIntentMatch && priorIntent) || defaultRequest;
+
+    if (typeof runtime.storage.get(StorageType.NO_MATCHES_COUNTER) !== 'number' && nextRequest) {
+      runtime.storage.set(StorageType.NO_MATCHES_COUNTER, 0);
+      runtime.trace.addTrace<Trace.GoToTrace>({
+        type: BaseNode.Utils.TraceType.GOTO,
+        payload: { request: setElicit(nextRequest, false) },
+      });
+      return node.id;
+    }
 
     const noMatchPath = noMatchHandler.handle(node, runtime, variables);
     if (noMatchPath === node.id && nextRequest) {
       runtime.trace.addTrace<Trace.GoToTrace>({
         type: BaseNode.Utils.TraceType.GOTO,
-        payload: { request: nextRequest },
+        payload: { request: setElicit(nextRequest, true) },
       });
     }
     return noMatchPath;

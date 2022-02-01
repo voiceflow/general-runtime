@@ -23,18 +23,24 @@ export const getSlotNameByID = (id: string, model: Models.PrototypeModel) => {
   return model.slots.find((lmEntity) => lmEntity.key === id)?.name;
 };
 
-export const getUnfulfilledEntity = (intentRequest: Request.IntentRequest, model: Models.PrototypeModel) => {
-  const intentModel = model.intents.find((intent) => intent.name === intentRequest.payload.intent.name);
-  const extractedEntities = intentRequest.payload.entities;
+export const getUnfulfilledEntity = (
+  intentRequest: Request.IntentRequest,
+  model: Models.PrototypeModel
+): (Models.IntentSlot & { name: string }) | null => {
+  const intentModelSlots = model.intents.find((intent) => intent.name === intentRequest.payload.intent.name)?.slots || [];
+  const extractedEntityNames = new Set(intentRequest.payload.entities.map((entity) => entity.name));
 
-  return intentModel?.slots?.find((modelIntentEntity) => {
+  for (const modelIntentEntity of intentModelSlots) {
     if (modelIntentEntity.required) {
+      const entityName = getSlotNameByID(modelIntentEntity.id, model);
       // If the required model intent entity is not found in the extracted entity, this is the entity model to return
-      return !extractedEntities.some((extractedEntity) => extractedEntity.name === getSlotNameByID(modelIntentEntity.id, model));
+      if (entityName && !extractedEntityNames.has(entityName)) {
+        return { ...modelIntentEntity, name: entityName };
+      }
     }
+  }
 
-    return false;
-  });
+  return null;
 };
 
 // replace all found entities with their value, if no value, empty string

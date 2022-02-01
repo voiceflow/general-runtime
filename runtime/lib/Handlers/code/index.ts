@@ -5,7 +5,7 @@ import safeJSONStringify from 'safe-json-stringify';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
-import { ivmExecute, vmExecute } from './utils';
+import { getUndefinedKeys, ivmExecute, vmExecute } from './utils';
 
 export type CodeOptions = {
   endpoint?: string | null;
@@ -25,18 +25,22 @@ const CodeHandler: HandlerFactory<Node.Code.Node, CodeOptions | void> = ({ endpo
         variables: variablesState,
       };
 
-      let data: Record<string, any>;
+      let newVariableState: Record<string, any>;
       // useStrictVM used for IfV2 and SetV2 to use isolated-vm
       if (useStrictVM) {
-        data = await ivmExecute(reqData, callbacks);
+        newVariableState = await ivmExecute(reqData, callbacks);
+      } else if (endpoint) {
+        // pass undefined keys explicitly because they are not sent via http JSON
+        newVariableState = (await axios.post(endpoint, { ...reqData, keys: getUndefinedKeys(reqData.variables) })).data;
       } else {
-        data = endpoint ? (await axios.post(endpoint, reqData)).data : vmExecute(reqData, testingEnv, callbacks);
+        // execute locally
+        newVariableState = vmExecute(reqData, testingEnv, callbacks);
       }
 
       // debugging changes find variable value differences
-      const changes = _.union(Object.keys(variablesState), Object.keys(data)).reduce<string>((acc, variable) => {
-        if (!_.isEqual(variablesState[variable], data[variable])) {
-          acc += `\`{${variable}}\`: \`${JSON.stringify(variablesState[variable])}\` => \`${JSON.stringify(data[variable])}\`  \n`;
+      const changes = _.union(Object.keys(variablesState), Object.keys(newVariableState)).reduce<string>((acc, variable) => {
+        if (!_.isEqual(variablesState[variable], newVariableState[variable])) {
+          acc += `\`{${variable}}\`: \`${JSON.stringify(variablesState[variable])}\` => \`${JSON.stringify(newVariableState[variable])}\`  \n`;
         }
 
         return acc;
@@ -44,7 +48,7 @@ const CodeHandler: HandlerFactory<Node.Code.Node, CodeOptions | void> = ({ endpo
 
       runtime.trace.debug(`evaluating code - ${changes ? `changes:  \n${changes}` : 'no variable changes'}`, Node.NodeType.CODE);
 
-      variables.merge(data);
+      variables.merge(newVariableState);
 
       return node.success_id ?? null;
     } catch (error) {

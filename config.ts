@@ -31,14 +31,13 @@ const CONFIG: Config = {
   // integrations block
   INTEGRATIONS_HANDLER_ENDPOINT: getOptionalProcessEnv('INTEGRATIONS_HANDLER_ENDPOINT') || 'none',
   // api-block
-  API_HANDLER_ENDPOINT: getOptionalProcessEnv('API_HANDLER_ENDPOINT'),
-  API_MAX_TIMEOUT_MS: Number(getOptionalProcessEnv('API_MAX_TIMEOUT_MS', '20000')),
-  API_MAX_CONTENT_LENGTH_BYTES: Number(getOptionalProcessEnv('API_MAX_CONTENT_LENGTH_BYTES', '1000000')),
-  API_MAX_BODY_LENGTH_BYTES: Number(getOptionalProcessEnv('API_MAX_BODY_LENGTH_BYTES', '1000000')),
+  API_MAX_TIMEOUT_MS: Number(getOptionalProcessEnv('API_MAX_TIMEOUT_MS')) || null,
+  API_MAX_CONTENT_LENGTH_BYTES: Number(getOptionalProcessEnv('API_MAX_CONTENT_LENGTH_BYTES')) || null,
+  API_MAX_BODY_LENGTH_BYTES: Number(getOptionalProcessEnv('API_MAX_BODY_LENGTH_BYTES')) || null,
 
   PROJECT_SOURCE: getOptionalProcessEnv('PROJECT_SOURCE'),
 
-  GENERAL_SERVICE_ENDPOINT: getRequiredProcessEnv('GENERAL_SERVICE_ENDPOINT'), // voiceflow nlu/tts services
+  GENERAL_SERVICE_ENDPOINT: getOptionalProcessEnv('GENERAL_SERVICE_ENDPOINT'), // voiceflow nlu/tts services
 
   // server-data-api config
   VF_DATA_ENDPOINT: getOptionalProcessEnv('VF_DATA_ENDPOINT'), // server-data-api endpoint
