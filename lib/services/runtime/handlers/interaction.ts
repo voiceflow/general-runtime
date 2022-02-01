@@ -11,7 +11,6 @@ import { findEventMatcher } from './event';
 import NoMatchHandler from './noMatch';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from './noReply';
 import RepeatHandler from './repeat';
-import { isIntentEvent } from './utils';
 
 const utilsObj = {
   repeatHandler: RepeatHandler(),
@@ -21,6 +20,10 @@ const utilsObj = {
   findEventMatcher,
   addButtonsIfExists,
   addNoReplyTimeoutIfExists,
+};
+
+const isIntentEvent = (event: BaseNode.Utils.BaseEvent): event is BaseNode.Utils.IntentEvent => {
+  return 'goTo' in event;
 };
 
 export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | ChatNode.Interaction.Node, typeof utilsObj> = (utils) => ({
