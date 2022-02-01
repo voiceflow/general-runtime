@@ -49,7 +49,6 @@ describe('Runtime cycleHandler unit tests', () => {
       end: sinon.stub(),
       hasEnded: sinon.stub().returns(true),
       getAction: sinon.stub().returns(Action.RUNNING),
-      storage: { set: sinon.stub() },
     };
     const node = { id: nodeID };
     const program = { getNode: sinon.stub().returns(node) };
