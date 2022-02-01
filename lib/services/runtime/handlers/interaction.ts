@@ -11,6 +11,7 @@ import { findEventMatcher } from './event';
 import NoMatchHandler from './noMatch';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from './noReply';
 import RepeatHandler from './repeat';
+import { isIntentEvent } from './utils';
 
 const utilsObj = {
   repeatHandler: RepeatHandler(),
@@ -51,8 +52,8 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
         // allow handler to apply side effects
         matcher.sideEffect();
 
-        if ((event as BaseNode.Utils.IntentEvent).goTo) {
-          const { request } = (event as BaseNode.Utils.IntentEvent).goTo!;
+        if (isIntentEvent(event) && event.goTo != null) {
+          const { request } = event.goTo!;
           runtime.trace.addTrace<Trace.GoToTrace>({
             type: BaseNode.Utils.TraceType.GOTO,
             payload: { request },
@@ -71,9 +72,9 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
 
         return nextId || null;
       }
-    } else {
-      runtime.storage.delete(StorageType.GOTO_FROM_NODE_ID);
     }
+
+    runtime.storage.delete(StorageType.GOTO_FROM_NODE_ID);
 
     // check if there is a command in the stack that fulfills request
     if (utils.commandHandler.canHandle(runtime)) {
