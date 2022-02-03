@@ -292,7 +292,7 @@ tags:
       ```
       {
         action: {
-          type: "no-reply" // Request.RequestType.NO_REPLY
+          type: "no-reply" //  BaseRequest.RequestType.NO_REPLY
         },
         // state, config, and other metadata here
       }
