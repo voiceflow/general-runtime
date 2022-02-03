@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 
 import Handler, { HandlerFactory } from '@/runtime/lib/Handler';
 
@@ -6,18 +6,18 @@ import { TurnType } from '../Constants/flags';
 import CodeHandler from './code';
 
 export type IfV2Options = {
-  _v1: Handler<Node._v1.Node>;
+  _v1: Handler<BaseNode._v1.Node>;
 };
 
 type DebugError = { index: number; expression: string; msg: string };
 
-const IfV2Handler: HandlerFactory<Node.IfV2.Node, IfV2Options> = ({ _v1 }) => ({
+const IfV2Handler: HandlerFactory<BaseNode.IfV2.Node, IfV2Options> = ({ _v1 }) => ({
   canHandle: (node) => {
-    return node.type === Node.NodeType.IF_V2;
+    return node.type === BaseNode.NodeType.IF_V2;
   },
   handle: async (node, runtime, variables, program) => {
-    if (runtime.turn.get<string[]>(TurnType.STOP_TYPES)?.includes(Node.NodeType.IF_V2)) {
-      return _v1.handle(node as Node._v1.Node, runtime, variables, program);
+    if (runtime.turn.get<string[]>(TurnType.STOP_TYPES)?.includes(BaseNode.NodeType.IF_V2)) {
+      return _v1.handle(node as BaseNode._v1.Node, runtime, variables, program);
     }
 
     let outputPortIndex = -1;
@@ -55,20 +55,20 @@ const IfV2Handler: HandlerFactory<Node.IfV2.Node, IfV2Options> = ({ _v1 }) => ({
     const codeTemplate = `try { ${code} } catch (err) {}`;
 
     await codeHandler.handle(
-      { code: codeTemplate, id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE', type: Node.NodeType.CODE },
+      { code: codeTemplate, id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE', type: BaseNode.NodeType.CODE },
       runtime,
       variables,
       program
     );
 
-    debugErrors.forEach((err) => runtime.trace.debug(`Error condition ${err.index} - "${err.expression}": ${err.msg}`, Node.NodeType.IF_V2));
+    debugErrors.forEach((err) => runtime.trace.debug(`Error condition ${err.index} - "${err.expression}": ${err.msg}`, BaseNode.NodeType.IF_V2));
 
     if (outputPortIndex !== -1) {
-      runtime.trace.debug(`condition matched - taking path ${outputPortIndex + 1}`, Node.NodeType.IF_V2);
+      runtime.trace.debug(`condition matched - taking path ${outputPortIndex + 1}`, BaseNode.NodeType.IF_V2);
       return node.paths[outputPortIndex].nextID;
     }
 
-    runtime.trace.debug('no conditions matched - taking else path', Node.NodeType.IF_V2);
+    runtime.trace.debug('no conditions matched - taking else path', BaseNode.NodeType.IF_V2);
 
     return node.payload.elseId || null;
   },

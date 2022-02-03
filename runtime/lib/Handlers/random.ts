@@ -1,17 +1,17 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 
 import { S } from '@/runtime/lib/Constants';
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
 type RandomStorage = Partial<Record<string, (string | null)[]>>;
 
-const randomHandler: HandlerFactory<Node.Random.Node> = () => ({
+const randomHandler: HandlerFactory<BaseNode.Random.Node> = () => ({
   canHandle: (node) => !!node.random,
   handle: async (node, runtime) => {
     let nextId: string | null;
 
     if (!node.nextIds.length) {
-      runtime.trace.debug('no random paths connected - exiting', Node.NodeType.RANDOM);
+      runtime.trace.debug('no random paths connected - exiting', BaseNode.NodeType.RANDOM);
       return null;
     }
 
@@ -53,7 +53,7 @@ const randomHandler: HandlerFactory<Node.Random.Node> = () => ({
       nextId = node.nextIds[Math.floor(Math.random() * node.nextIds.length)];
     }
 
-    runtime.trace.debug('going down random path', Node.NodeType.RANDOM);
+    runtime.trace.debug('going down random path', BaseNode.NodeType.RANDOM);
 
     return nextId;
   },

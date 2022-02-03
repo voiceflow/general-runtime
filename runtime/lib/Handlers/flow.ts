@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 
 import { S } from '@/runtime/lib/Constants';
 import { HandlerFactory } from '@/runtime/lib/Handler';
@@ -6,7 +6,7 @@ import Frame from '@/runtime/lib/Runtime/Stack/Frame';
 
 import { mapStores } from '../Runtime/utils/variables';
 
-const FlowHandler: HandlerFactory<Node.Flow.Node> = () => ({
+const FlowHandler: HandlerFactory<BaseNode.Flow.Node> = () => ({
   canHandle: (node) => !!node.diagram_id,
   handle: (node, runtime, variables) => {
     if (!node.diagram_id) {
@@ -31,7 +31,7 @@ const FlowHandler: HandlerFactory<Node.Flow.Node> = () => ({
 
     runtime.stack.push(newFrame);
 
-    runtime.trace.debug(`entering flow \`${newFrame.getName() || newFrame.getProgramID()}\``, Node.NodeType.FLOW);
+    runtime.trace.debug(`entering flow \`${newFrame.getName() || newFrame.getProgramID()}\``, BaseNode.NodeType.FLOW);
 
     return null;
   },

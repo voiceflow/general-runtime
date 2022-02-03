@@ -1,4 +1,4 @@
-import { Request } from '@voiceflow/base-types';
+import { BaseRequest } from '@voiceflow/base-types';
 import sinon from 'sinon';
 
 const version = {
@@ -32,7 +32,7 @@ export const context = {
 
 export const NATO_REQUEST_1 = {
   request: {
-    type: Request.RequestType.INTENT,
+    type: BaseRequest.RequestType.INTENT,
     payload: {
       intent: {
         name: 'foo',
@@ -100,7 +100,7 @@ export const NATO_REQUEST_1 = {
 
 export const NATO_REQUEST_2 = {
   request: {
-    type: Request.RequestType.INTENT,
+    type: BaseRequest.RequestType.INTENT,
     payload: {
       intent: {
         name: 'foo',
@@ -139,7 +139,7 @@ export const NATO_REQUEST_2 = {
 
 export const NATO_REQUEST_3 = {
   request: {
-    type: Request.RequestType.INTENT,
+    type: BaseRequest.RequestType.INTENT,
     payload: {
       intent: {
         name: 'foo',

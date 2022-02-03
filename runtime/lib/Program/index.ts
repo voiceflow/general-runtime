@@ -1,15 +1,15 @@
-import { Models } from '@voiceflow/base-types';
+import { BaseModels } from '@voiceflow/base-types';
 
-type MinimalProgram = Partial<Models.Program> & Pick<Models.Program, 'id' | 'lines' | 'startId'>;
+type MinimalProgram = Partial<BaseModels.Program.Model> & Pick<BaseModels.Program.Model, 'id' | 'lines' | 'startId'>;
 
 export class ProgramModel {
   private id: string;
 
   private name?: string;
 
-  private nodes: Record<string, Models.BaseNode>;
+  private nodes: Record<string, BaseModels.BaseNode>;
 
-  private commands: Models.BaseCommand[] = [];
+  private commands: BaseModels.BaseCommand[] = [];
 
   private variables: string[] = [];
 
@@ -28,7 +28,7 @@ export class ProgramModel {
     return this.id;
   }
 
-  public getNode(nodeID?: string | null): Models.BaseNode | null {
+  public getNode(nodeID?: string | null): BaseModels.BaseNode | null {
     // eslint-disable-next-line no-prototype-builtins
     if (!(nodeID && this.nodes.hasOwnProperty(nodeID))) {
       return null;
@@ -40,7 +40,7 @@ export class ProgramModel {
     };
   }
 
-  public getCommands<T extends Models.BaseCommand = Models.BaseCommand>(): T[] {
+  public getCommands<T extends BaseModels.BaseCommand = BaseModels.BaseCommand>(): T[] {
     return this.commands as T[];
   }
 

@@ -1,18 +1,19 @@
-import { Node, Request, Text } from '@voiceflow/base-types';
+import { BaseNode, BaseRequest, BaseText } from '@voiceflow/base-types';
 
 import { Runtime } from '@/runtime';
 
-export type RuntimeRequest = Request.BaseRequest | null;
+export type RuntimeRequest = BaseRequest.BaseRequest | null;
 
 export type GeneralRuntime = Runtime<RuntimeRequest>;
 
-export const isTextRequest = (request?: RuntimeRequest | null): request is Request.TextRequest =>
-  !!request && Request.isTextRequest(request) && typeof request.payload === 'string';
+export const isTextRequest = (request?: RuntimeRequest | null): request is BaseRequest.TextRequest =>
+  !!request && BaseRequest.isTextRequest(request) && typeof request.payload === 'string';
 
-export const isIntentRequest = (request?: RuntimeRequest | null): request is Request.IntentRequest =>
-  !!request && Request.isIntentRequest(request) && !!request.payload?.intent?.name && Array.isArray(request.payload.entities);
+export const isIntentRequest = (request?: RuntimeRequest | null): request is BaseRequest.IntentRequest =>
+  !!request && BaseRequest.isIntentRequest(request) && !!request.payload?.intent?.name && Array.isArray(request.payload.entities);
 
-export const isActionRequest = (request?: RuntimeRequest | null): request is Request.ActionRequest => !!request && Request.isActionRequest(request);
+export const isActionRequest = (request?: RuntimeRequest | null): request is BaseRequest.ActionRequest =>
+  !!request && BaseRequest.isActionRequest(request);
 
 export const isRuntimeRequest = (request: any): request is RuntimeRequest => {
   return request === null || !!(typeof request.type === 'string' && !!request.type);
@@ -53,10 +54,10 @@ export type StreamPlayStorage = {
   token: string;
   action: StreamAction;
   offset: number;
-  nodeID: NonNullable<Node.Utils.NodeID>;
-  nextID?: Node.Utils.NodeID;
-  pauseID?: Node.Utils.NodeID;
-  previousID?: Node.Utils.NodeID;
+  nodeID: NonNullable<BaseNode.Utils.NodeID>;
+  nextID?: BaseNode.Utils.NodeID;
+  pauseID?: BaseNode.Utils.NodeID;
+  previousID?: BaseNode.Utils.NodeID;
 };
 
 export type StreamPauseStorage = {
@@ -85,7 +86,7 @@ export enum TurnType {
   STOP_TYPES = 'stopTypes',
 }
 
-export type Output = Text.SlateTextValue | string;
+export type Output = BaseText.SlateTextValue | string;
 
 export type TurnData = Partial<{
   [TurnType.PREVIOUS_OUTPUT]: Output;

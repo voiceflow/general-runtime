@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 
-import { Request as BaseRequest } from '@voiceflow/base-types';
+import { BaseRequest } from '@voiceflow/base-types';
 
 import { ResponseContext } from '@/lib/services/interact';
 import { RuntimeRequest } from '@/lib/services/runtime/types';

@@ -1,14 +1,15 @@
-import { Models } from '@voiceflow/base-types';
+import { BaseModels } from '@voiceflow/base-types';
 import { AxiosInstance, AxiosStatic } from 'axios';
+import { AnyRecord } from 'dns';
 import moize from 'moize';
 import { ObjectId } from 'mongodb';
 
 import { DataAPI, Display } from './types';
 
 class ServerDataAPI<
-  P extends Models.Program<any, any>,
-  V extends Models.Version<any>,
-  PJ extends Models.Project<any, any> = Models.Project<Models.BasePlatformData, Models.BasePlatformData>
+  P extends BaseModels.Program.Model<any, any>,
+  V extends BaseModels.Version.Model<any>,
+  PJ extends BaseModels.Project.Model<any, any> = BaseModels.Project.Model<AnyRecord, AnyRecord>
 > implements DataAPI<P, V, PJ> {
   protected client!: AxiosInstance;
 

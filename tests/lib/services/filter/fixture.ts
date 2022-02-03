@@ -1,29 +1,29 @@
-import { Node as BaseNode, Trace } from '@voiceflow/base-types';
+import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 
 import { Context, PartialContext } from '@/runtime';
 
-export const BLOCK_TRACE_START: Trace.BlockTrace = {
+export const BLOCK_TRACE_START: BaseTrace.BlockTrace = {
   type: BaseNode.Utils.TraceType.BLOCK,
   payload: {
     blockID: 'start00000000000000000000',
   },
 };
 
-export const DEBUG_TRACE: Trace.DebugTrace = {
+export const DEBUG_TRACE: BaseTrace.DebugTrace = {
   type: BaseNode.Utils.TraceType.DEBUG,
   payload: {
     message: 'beginning flow',
   },
 };
 
-export const BLOCK_TRACE_MIDDLE: Trace.BlockTrace = {
+export const BLOCK_TRACE_MIDDLE: BaseTrace.BlockTrace = {
   type: BaseNode.Utils.TraceType.BLOCK,
   payload: {
     blockID: '60216838334555678f8370be',
   },
 };
 
-export const SPEAK_TRACE_SSML: Trace.SpeakTrace = {
+export const SPEAK_TRACE_SSML: BaseTrace.SpeakTrace = {
   type: BaseNode.Utils.TraceType.SPEAK,
   payload: {
     message: '<prosody rate="x-fast">Welcome to Voiceflow Burger</prosody>',
@@ -31,7 +31,7 @@ export const SPEAK_TRACE_SSML: Trace.SpeakTrace = {
   },
 };
 
-export const SPEAK_TRACE_NO_SSML: Trace.SpeakTrace = {
+export const SPEAK_TRACE_NO_SSML: BaseTrace.SpeakTrace = {
   type: BaseNode.Utils.TraceType.SPEAK,
   payload: {
     message: 'Welcome to Voiceflow Burger',
@@ -39,7 +39,7 @@ export const SPEAK_TRACE_NO_SSML: Trace.SpeakTrace = {
   },
 };
 
-export const CHOICE_TRACE: Trace.ChoiceTrace = {
+export const CHOICE_TRACE: BaseTrace.ChoiceTrace = {
   type: BaseNode.Utils.TraceType.CHOICE,
   payload: {
     buttons: [],

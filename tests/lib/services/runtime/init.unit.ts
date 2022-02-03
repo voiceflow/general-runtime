@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -49,7 +49,7 @@ describe('runtime init service unit tests', () => {
       expect(runtime.trace.addTrace.args).to.eql([
         [
           {
-            type: Node.Utils.TraceType.FLOW,
+            type: BaseNode.Utils.TraceType.FLOW,
             payload: { diagramID: programID, name },
           },
         ],
@@ -143,7 +143,7 @@ describe('runtime init service unit tests', () => {
         expect(topFrame.storage.delete.args).to.eql([[FrameType.CALLED_COMMAND]]);
 
         expect(runtime.trace.addTrace.args).to.eql([
-          [{ type: Node.Utils.TraceType.SPEAK, payload: { message: output, type: Node.Speak.TraceSpeakType.MESSAGE } }],
+          [{ type: BaseNode.Utils.TraceType.SPEAK, payload: { message: output, type: BaseNode.Speak.TraceSpeakType.MESSAGE } }],
         ]);
       });
     });
@@ -161,7 +161,7 @@ describe('runtime init service unit tests', () => {
       const fn = client.setEvent.args[2][1];
       fn({ runtime, node });
 
-      expect(runtime.trace.addTrace.args).to.eql([[{ type: Node.Utils.TraceType.BLOCK, payload: { blockID: 'node-id' } }]]);
+      expect(runtime.trace.addTrace.args).to.eql([[{ type: BaseNode.Utils.TraceType.BLOCK, payload: { blockID: 'node-id' } }]]);
     });
   });
 
@@ -184,7 +184,7 @@ describe('runtime init service unit tests', () => {
         fn({ runtime });
 
         expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-        expect(runtime.trace.addTrace.args).to.eql([[{ type: Node.Utils.TraceType.END, payload: undefined }]]);
+        expect(runtime.trace.addTrace.args).to.eql([[{ type: BaseNode.Utils.TraceType.END, payload: undefined }]]);
       });
 
       it('works with empty stack and turn is end', () => {
@@ -250,11 +250,11 @@ describe('runtime init service unit tests', () => {
           expect(runtime.trace.addTrace.args).to.eql([
             [
               {
-                type: Node.Utils.TraceType.STREAM,
-                payload: { src: stream.src, token: stream.token, action: Node.Stream.TraceStreamAction.LOOP },
+                type: BaseNode.Utils.TraceType.STREAM,
+                payload: { src: stream.src, token: stream.token, action: BaseNode.Stream.TraceStreamAction.LOOP },
               },
             ],
-            [{ type: Node.Utils.TraceType.END, payload: undefined }],
+            [{ type: BaseNode.Utils.TraceType.END, payload: undefined }],
           ]);
         });
 
@@ -278,11 +278,11 @@ describe('runtime init service unit tests', () => {
           expect(runtime.trace.addTrace.args).to.eql([
             [
               {
-                type: Node.Utils.TraceType.STREAM,
-                payload: { src: stream.src, token: stream.token, action: Node.Stream.TraceStreamAction.PLAY },
+                type: BaseNode.Utils.TraceType.STREAM,
+                payload: { src: stream.src, token: stream.token, action: BaseNode.Stream.TraceStreamAction.PLAY },
               },
             ],
-            [{ type: Node.Utils.TraceType.END, payload: undefined }],
+            [{ type: BaseNode.Utils.TraceType.END, payload: undefined }],
           ]);
         });
       });
@@ -307,11 +307,11 @@ describe('runtime init service unit tests', () => {
           expect(runtime.trace.addTrace.args).to.eql([
             [
               {
-                type: Node.Utils.TraceType.STREAM,
-                payload: { src: stream.src, token: stream.token, action: Node.Stream.TraceStreamAction.LOOP },
+                type: BaseNode.Utils.TraceType.STREAM,
+                payload: { src: stream.src, token: stream.token, action: BaseNode.Stream.TraceStreamAction.LOOP },
               },
             ],
-            [{ type: Node.Utils.TraceType.END, payload: undefined }],
+            [{ type: BaseNode.Utils.TraceType.END, payload: undefined }],
           ]);
         });
 
@@ -335,8 +335,8 @@ describe('runtime init service unit tests', () => {
           expect(runtime.trace.addTrace.args).to.eql([
             [
               {
-                type: Node.Utils.TraceType.STREAM,
-                payload: { src: stream.src, token: stream.token, action: Node.Stream.TraceStreamAction.PLAY },
+                type: BaseNode.Utils.TraceType.STREAM,
+                payload: { src: stream.src, token: stream.token, action: BaseNode.Stream.TraceStreamAction.PLAY },
               },
             ],
           ]);
@@ -363,8 +363,8 @@ describe('runtime init service unit tests', () => {
           expect(runtime.trace.addTrace.args).to.eql([
             [
               {
-                type: Node.Utils.TraceType.STREAM,
-                payload: { src: stream.src, token: stream.token, action: Node.Stream.TraceStreamAction.PAUSE },
+                type: BaseNode.Utils.TraceType.STREAM,
+                payload: { src: stream.src, token: stream.token, action: BaseNode.Stream.TraceStreamAction.PAUSE },
               },
             ],
           ]);
@@ -388,7 +388,7 @@ describe('runtime init service unit tests', () => {
           fn({ runtime });
 
           expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-          expect(runtime.trace.addTrace.args).to.eql([[{ type: Node.Utils.TraceType.END, payload: undefined }]]);
+          expect(runtime.trace.addTrace.args).to.eql([[{ type: BaseNode.Utils.TraceType.END, payload: undefined }]]);
         });
 
         it('works with not at end', () => {

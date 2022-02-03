@@ -1,5 +1,4 @@
-import { Node } from '@voiceflow/base-types';
-import axios from 'axios';
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import _ from 'lodash';
 import sinon from 'sinon';
@@ -23,15 +22,15 @@ describe('tts manager unit tests', () => {
       const context = {
         data: { locale: 'locale-value' },
         random: 'random',
-        trace: [{ type: Node.Utils.TraceType.SPEAK, payload: { message: 'trace-message' } }],
+        trace: [{ type: BaseNode.Utils.TraceType.SPEAK, payload: { message: 'trace-message' } }],
       };
       const postStub = sinon.stub().returns(Promise.resolve({ data: ['payload-value1', 'payload-value2'] }));
       const tts = new TTSManager({ axios: { post: postStub }, utils: { ...defaultUtils } } as any, { GENERAL_SERVICE_ENDPOINT: 'vf' } as any);
       expect(await tts.handle(context as any)).to.eql({
         ...context,
         trace: [
-          { type: Node.Utils.TraceType.SPEAK, payload: 'payload-value1' },
-          { type: Node.Utils.TraceType.SPEAK, payload: 'payload-value2' },
+          { type: BaseNode.Utils.TraceType.SPEAK, payload: 'payload-value1' },
+          { type: BaseNode.Utils.TraceType.SPEAK, payload: 'payload-value2' },
         ],
       });
     });
@@ -47,7 +46,7 @@ describe('tts manager unit tests', () => {
       const context = {
         data: { locale: 'locale-value' },
         random: 'random',
-        trace: [{ type: Node.Utils.TraceType.SPEAK, payload: { message: 'trace-message' } }],
+        trace: [{ type: BaseNode.Utils.TraceType.SPEAK, payload: { message: 'trace-message' } }],
       };
       const tts = new TTSManager({ utils: { ...defaultUtils } } as any, {} as any);
 

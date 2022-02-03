@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import VError from '@voiceflow/verror';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { promises as DNS } from 'dns';
@@ -11,7 +11,7 @@ import validator from 'validator';
 
 import Runtime from '@/runtime/lib/Runtime';
 
-export type APINodeData = Node.Api.NodeData['action_data'];
+export type APINodeData = BaseNode.Api.NodeData['action_data'];
 const PROHIBITED_IP_RANGES = ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '127.0.0.0/8', '0.0.0.0/8', 'fd00::/8', '169.254.169.254/32'];
 
 // Regex to match
@@ -136,17 +136,17 @@ export const formatRequestConfig = (data: APINodeData, config: ResponseConfig) =
   if (!options.headers) options.headers = {};
 
   // do not parse body if GET request
-  if (method === Node.Api.APIMethod.GET) {
+  if (method === BaseNode.Api.APIMethod.GET) {
     return options;
   }
-  if (bodyInputType === Node.Api.APIBodyType.RAW_INPUT) {
+  if (bodyInputType === BaseNode.Api.APIBodyType.RAW_INPUT) {
     // attempt to convert into JSON
     try {
       options.data = JSON.parse(content);
     } catch (e) {
       options.data = data;
     }
-  } else if (bodyInputType === Node.Api.APIBodyType.FORM_DATA) {
+  } else if (bodyInputType === BaseNode.Api.APIBodyType.FORM_DATA) {
     const formData = new FormData();
     body.forEach((b) => {
       if (b.key) {
@@ -155,7 +155,7 @@ export const formatRequestConfig = (data: APINodeData, config: ResponseConfig) =
     });
     options.headers = { ...options.headers, ...formData.getHeaders() };
     options.data = formData;
-  } else if (bodyInputType === Node.Api.APIBodyType.URL_ENCODED) {
+  } else if (bodyInputType === BaseNode.Api.APIBodyType.URL_ENCODED) {
     if (Array.isArray(body)) {
       options.data = querystring.stringify(ReduceKeyValue(body));
     } else {
@@ -183,7 +183,7 @@ export const makeAPICall = async (nodeData: APINodeData, runtime: Runtime, confi
       await new Promise((resolve) => setTimeout(resolve, THROTTLE_DELAY));
     }
   } catch (error) {
-    runtime.trace.debug(`Outgoing Api Rate Limiter failed - Error: \n${safeJSONStringify(error.response?.data || error)}`, Node.NodeType.API);
+    runtime.trace.debug(`Outgoing Api Rate Limiter failed - Error: \n${safeJSONStringify(error.response?.data || error)}`, BaseNode.NodeType.API);
   }
 
   const options = formatRequestConfig(nodeData, config);

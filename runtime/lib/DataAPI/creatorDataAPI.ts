@@ -1,12 +1,12 @@
 import Voiceflow, { Client } from '@voiceflow/api-sdk';
-import { Models } from '@voiceflow/base-types';
+import { AnyRecord, BaseModels } from '@voiceflow/base-types';
 
 import { DataAPI } from './types';
 
 class CreatorDataAPI<
-  P extends Models.Program<any, any>,
-  V extends Models.Version<any>,
-  PJ extends Models.Project<any, any> = Models.Project<Models.BasePlatformData, Models.BasePlatformData>
+  P extends BaseModels.Program.Model<any, any>,
+  V extends BaseModels.Version.Model<any>,
+  PJ extends BaseModels.Project.Model<any, any> = BaseModels.Project.Model<AnyRecord, AnyRecord>
 > implements DataAPI<P, V, PJ> {
   protected client: Client;
 

@@ -1,8 +1,8 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 
 import { State } from '@/runtime/lib/Runtime';
 
-export type Context<R = Record<string, unknown>, T = Node.Utils.BaseTraceFrame, D = Record<string, unknown>> = {
+export type Context<R = Record<string, unknown>, T = BaseNode.Utils.BaseTraceFrame, D = Record<string, unknown>> = {
   end?: boolean;
   data: D;
   state: Omit<State, 'trace'>;

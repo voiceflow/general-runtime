@@ -1,14 +1,14 @@
-import { Program, Project, Version } from '@voiceflow/general-types';
+import { VoiceflowProgram, VoiceflowProject, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 
 import { DataAPI } from '@/runtime';
 
 // cache any versions or project it comes across
-class CacheDataAPI implements DataAPI<Program.GeneralProgram, Version.GeneralVersion, Project.GeneralProject> {
-  private projects: Record<string, Project.GeneralProject> = {};
+class CacheDataAPI implements DataAPI<VoiceflowProgram.Program, VoiceflowVersion.Version, VoiceflowProject.Project> {
+  private projects: Record<string, VoiceflowProject.Project> = {};
 
-  private versions: Record<string, Version.GeneralVersion> = {};
+  private versions: Record<string, VoiceflowVersion.Version> = {};
 
-  constructor(private api: DataAPI<Program.GeneralProgram, Version.GeneralVersion>) {}
+  constructor(private api: DataAPI<VoiceflowProgram.Program, VoiceflowVersion.Version>) {}
 
   async getProgram(programID: string) {
     return this.api.getProgram(programID);
@@ -23,7 +23,7 @@ class CacheDataAPI implements DataAPI<Program.GeneralProgram, Version.GeneralVer
 
   async getProject(projectID: string) {
     if (!(projectID in this.projects)) {
-      this.projects[projectID] = (await this.api.getProject(projectID)) as Project.GeneralProject;
+      this.projects[projectID] = (await this.api.getProject(projectID)) as VoiceflowProject.Project;
     }
 
     return this.projects[projectID];

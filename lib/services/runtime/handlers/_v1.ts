@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-syntax */
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { replaceVariables } from '@voiceflow/common';
 
 import { Action, HandlerFactory } from '@/runtime';
@@ -13,7 +13,7 @@ const utilsObj = {
   findEventMatcher,
 };
 
-export const _V1Handler: HandlerFactory<Node._v1.Node, typeof utilsObj> = (utils) => ({
+export const _V1Handler: HandlerFactory<BaseNode._v1.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => node._v === 1,
   handle: (node, runtime, variables) => {
     const defaultPath = node.paths[node.defaultPath!]?.nextID || null;
@@ -43,7 +43,7 @@ export const _V1Handler: HandlerFactory<Node._v1.Node, typeof utilsObj> = (utils
     const type = replaceVariables(node.type, variablesMap);
     const payload = typeof node.payload === 'string' ? replaceVariables(node.payload, variablesMap) : node.payload;
 
-    runtime.trace.addTrace<Node.Utils.BaseTraceFrame<unknown>>({
+    runtime.trace.addTrace<BaseNode.Utils.BaseTraceFrame<unknown>>({
       type,
       payload,
       defaultPath: node.defaultPath,

@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import FormData from 'form-data';
 import querystring from 'querystring';
@@ -71,8 +71,8 @@ describe('Handlers api utils unit tests', () => {
       it('raw input body type', async () => {
         const data = {
           ...baseData,
-          method: Node.Api.APIMethod.GET,
-          bodyInputType: Node.Api.APIBodyType.RAW_INPUT,
+          method: BaseNode.Api.APIMethod.GET,
+          bodyInputType: BaseNode.Api.APIBodyType.RAW_INPUT,
         };
 
         const { validateStatus, ...rest } = await formatRequestConfig(data as any);
@@ -86,8 +86,8 @@ describe('Handlers api utils unit tests', () => {
       it('form data body type', async () => {
         const data = {
           ...baseData,
-          method: Node.Api.APIMethod.GET,
-          bodyInputType: Node.Api.APIBodyType.FORM_DATA,
+          method: BaseNode.Api.APIMethod.GET,
+          bodyInputType: BaseNode.Api.APIBodyType.FORM_DATA,
         };
 
         const { validateStatus, ...rest } = await formatRequestConfig(data as any);
@@ -104,7 +104,7 @@ describe('Handlers api utils unit tests', () => {
         const parseStub = sinon.stub(JSON, 'parse').returns('parsedJSON');
         const data = {
           ...baseData,
-          bodyInputType: Node.Api.APIBodyType.RAW_INPUT,
+          bodyInputType: BaseNode.Api.APIBodyType.RAW_INPUT,
         };
 
         const { validateStatus, ...rest } = await formatRequestConfig(data as any);
@@ -119,7 +119,7 @@ describe('Handlers api utils unit tests', () => {
         const parseStub = sinon.stub(JSON, 'parse').throws('abc');
         const data = {
           ...baseData,
-          bodyInputType: Node.Api.APIBodyType.RAW_INPUT,
+          bodyInputType: BaseNode.Api.APIBodyType.RAW_INPUT,
         };
 
         const { validateStatus, ...rest } = await formatRequestConfig(data as any);
@@ -141,7 +141,7 @@ describe('Handlers api utils unit tests', () => {
             { key: 'a', val: 'b' },
             { key: 'c', val: 'd' },
           ],
-          bodyInputType: Node.Api.APIBodyType.FORM_DATA,
+          bodyInputType: BaseNode.Api.APIBodyType.FORM_DATA,
         };
 
         const { validateStatus, data: formDataObj, ...rest } = await formatRequestConfig(data as any);
@@ -181,7 +181,7 @@ describe('Handlers api utils unit tests', () => {
         const formDataGetHeadersSpy = sinon.stub(querystring, 'stringify').returns('querystring stringify');
         const data = {
           ...baseData,
-          bodyInputType: Node.Api.APIBodyType.URL_ENCODED,
+          bodyInputType: BaseNode.Api.APIBodyType.URL_ENCODED,
           body: [
             { key: 'body1', val: 'never' },
             { key: 'body1', val: 'bodyval' },
@@ -204,7 +204,7 @@ describe('Handlers api utils unit tests', () => {
         const formDataGetHeadersSpy = sinon.stub(querystring, 'stringify').returns('querystring stringify');
         const data = {
           ...baseData,
-          bodyInputType: Node.Api.APIBodyType.URL_ENCODED,
+          bodyInputType: BaseNode.Api.APIBodyType.URL_ENCODED,
           body: 'body-value',
         };
 

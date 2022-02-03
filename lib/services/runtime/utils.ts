@@ -1,4 +1,4 @@
-import { Models, Node, Request, Text, Trace } from '@voiceflow/base-types';
+import { BaseModels, BaseNode, BaseRequest, BaseText, BaseTrace } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables, transformStringVariableToNumber } from '@voiceflow/common';
 import cuid from 'cuid';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
@@ -13,8 +13,8 @@ import { Output } from './types';
 export const EMPTY_AUDIO_STRING = '<audio src=""/>';
 
 export const mapEntities = (
-  mappings: Models.SlotMapping[],
-  entities: Request.IntentRequest['payload']['entities'] = [],
+  mappings: BaseModels.SlotMapping[],
+  entities: BaseRequest.IntentRequest['payload']['entities'] = [],
   overwrite = false
 ): Record<string, string | number | null> => {
   const variables: Record<string, string | number | null> = {};
@@ -28,7 +28,7 @@ export const mapEntities = (
   );
 
   if (mappings && entities) {
-    mappings.forEach((map: Models.SlotMapping) => {
+    mappings.forEach((map: BaseModels.SlotMapping) => {
       if (!map.slot) return;
 
       const toVariable = map.variable;
@@ -46,15 +46,15 @@ export const mapEntities = (
   return variables;
 };
 
-export const slateInjectVariables = (slateValue: Text.SlateTextValue, variables: Record<string, unknown>): Text.SlateTextValue => {
+export const slateInjectVariables = (slateValue: BaseText.SlateTextValue, variables: Record<string, unknown>): BaseText.SlateTextValue => {
   // return undefined to recursively clone object https://stackoverflow.com/a/52956848
   const customizer = (value: any) => (_isString(value) ? replaceVariables(value, variables, undefined, { trim: false }) : undefined);
 
   return _cloneDeepWith(slateValue, customizer);
 };
 
-export const addButtonsIfExists = <N extends Request.NodeButton>(node: N, runtime: Runtime, variables: Store): void => {
-  let buttons: Request.AnyRequestButton[] = [];
+export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(node: N, runtime: Runtime, variables: Store): void => {
+  let buttons: BaseRequest.AnyRequestButton[] = [];
 
   if (node.buttons?.length) {
     buttons = node.buttons
@@ -62,7 +62,7 @@ export const addButtonsIfExists = <N extends Request.NodeButton>(node: N, runtim
       .map(({ name, request }) => {
         const processedName = replaceVariables(name, variables.getState());
 
-        if (Request.isTextRequest(request)) {
+        if (BaseRequest.isTextRequest(request)) {
           return {
             name: processedName,
             request: {
@@ -72,7 +72,7 @@ export const addButtonsIfExists = <N extends Request.NodeButton>(node: N, runtim
           };
         }
 
-        if (Request.isIntentRequest(request)) {
+        if (BaseRequest.isIntentRequest(request)) {
           return {
             name: processedName,
             request: {
@@ -111,15 +111,15 @@ export const addButtonsIfExists = <N extends Request.NodeButton>(node: N, runtim
     buttons = node.chips.map(({ label }) => {
       const name = replaceVariables(label, variables.getState());
 
-      return { name, request: { type: Request.RequestType.TEXT, payload: name } };
+      return { name, request: { type: BaseRequest.RequestType.TEXT, payload: name } };
     });
   }
 
   buttons = _uniqBy(buttons, (button) => button.name);
 
   if (buttons.length) {
-    runtime.trace.addTrace<Trace.ChoiceTrace>({
-      type: Node.Utils.TraceType.CHOICE,
+    runtime.trace.addTrace<BaseTrace.ChoiceTrace>({
+      type: BaseNode.Utils.TraceType.CHOICE,
       payload: { buttons },
     });
   }
@@ -127,13 +127,13 @@ export const addButtonsIfExists = <N extends Request.NodeButton>(node: N, runtim
 
 export const getReadableConfidence = (confidence?: number): string => ((confidence ?? 1) * 100).toFixed(2);
 
-export const slateToPlaintext = (content: Readonly<Text.SlateTextValue> = []): string =>
+export const slateToPlaintext = (content: Readonly<BaseText.SlateTextValue> = []): string =>
   content
     .map((n) => Slate.Node.string(n))
     .join('\n')
     .trim();
 
-export const removeEmptyPrompts = (prompts: Array<Text.SlateTextValue | string>): Array<Text.SlateTextValue | string> =>
+export const removeEmptyPrompts = (prompts: Array<BaseText.SlateTextValue | string>): Array<BaseText.SlateTextValue | string> =>
   prompts.filter((prompt) => prompt != null && (_isString(prompt) ? prompt !== EMPTY_AUDIO_STRING : !!slateToPlaintext(prompt)));
 
 interface OutputParams<V> {
@@ -141,9 +141,9 @@ interface OutputParams<V> {
   variables?: Record<string, unknown>;
 }
 
-export function outputTrace(params: OutputParams<Text.SlateTextValue>): Trace.TextTrace;
-export function outputTrace(params: OutputParams<string>): Trace.SpeakTrace;
-export function outputTrace(params: OutputParams<Output>): Trace.TextTrace | Trace.SpeakTrace;
+export function outputTrace(params: OutputParams<BaseText.SlateTextValue>): BaseTrace.TextTrace;
+export function outputTrace(params: OutputParams<string>): BaseTrace.SpeakTrace;
+export function outputTrace(params: OutputParams<Output>): BaseTrace.TextTrace | BaseTrace.SpeakTrace;
 export function outputTrace({ output, variables = {} }: OutputParams<Output>) {
   const sanitizedVars = sanitizeVariables(variables);
 
@@ -152,14 +152,14 @@ export function outputTrace({ output, variables = {} }: OutputParams<Output>) {
     const message = slateToPlaintext(content);
 
     return {
-      type: Node.Utils.TraceType.TEXT,
+      type: BaseNode.Utils.TraceType.TEXT,
       payload: { slate: { id: cuid.slug(), content }, message },
     };
   }
   const message = replaceVariables(output || '', sanitizedVars);
 
   return {
-    type: Node.Utils.TraceType.SPEAK,
-    payload: { message, type: Node.Speak.TraceSpeakType.MESSAGE },
+    type: BaseNode.Utils.TraceType.SPEAK,
+    payload: { message, type: BaseNode.Speak.TraceSpeakType.MESSAGE },
   };
 }

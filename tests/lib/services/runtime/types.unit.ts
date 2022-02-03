@@ -1,4 +1,4 @@
-import { Request } from '@voiceflow/base-types';
+import { BaseRequest } from '@voiceflow/base-types';
 import { expect } from 'chai';
 
 import { isRuntimeRequest } from '@/lib/services/runtime/types';

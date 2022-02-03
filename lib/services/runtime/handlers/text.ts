@@ -1,4 +1,4 @@
-import { Node, Trace } from '@voiceflow/base-types';
+import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { sanitizeVariables } from '@voiceflow/common';
 import _sample from 'lodash/sample';
 
@@ -15,8 +15,8 @@ const handlerUtils = {
   slateInjectVariables,
 };
 
-export const TextHandler: HandlerFactory<Node.Text.Node, typeof handlerUtils> = (utils) => ({
-  canHandle: (node) => node.type === Node.NodeType.TEXT,
+export const TextHandler: HandlerFactory<BaseNode.Text.Node, typeof handlerUtils> = (utils) => ({
+  canHandle: (node) => node.type === BaseNode.NodeType.TEXT,
   handle: (node, runtime, variables) => {
     const slate = utils._sample(node.texts);
 
@@ -27,8 +27,8 @@ export const TextHandler: HandlerFactory<Node.Text.Node, typeof handlerUtils> = 
         const message = utils.slateToPlaintext(content);
 
         runtime.stack.top().storage.set<Output>(FrameType.OUTPUT, content);
-        runtime.trace.addTrace<Trace.TextTrace>({
-          type: Node.Utils.TraceType.TEXT,
+        runtime.trace.addTrace<BaseTrace.TextTrace>({
+          type: BaseNode.Utils.TraceType.TEXT,
           payload: { slate: { ...slate, content }, message },
         });
       } catch (error) {

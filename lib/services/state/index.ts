@@ -1,4 +1,4 @@
-import { Models, Request, Trace } from '@voiceflow/base-types';
+import { BaseModels, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 
 import { PartialContext, State } from '@/runtime';
 import { Context, InitContextHandler } from '@/types';
@@ -20,7 +20,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
    * generate a context for a new session
    * @param versionID - project version to generate the context for
    */
-  generate({ prototype, rootDiagramID }: Models.Version<any>, state?: State): State {
+  generate({ prototype, rootDiagramID }: BaseModels.Version.Model<any>, state?: State): State {
     const DEFAULT_STACK = [{ programID: rootDiagramID, storage: {}, variables: {} }];
 
     const stack =
@@ -44,7 +44,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
   }
 
   // initialize all entities and variables to 0, it is important that they are defined
-  initializeVariables({ prototype, variables }: Models.Version<any>, state: State) {
+  initializeVariables({ prototype, variables }: BaseModels.Version.Model<any>, state: State) {
     const entities = prototype?.model.slots.map(({ name }) => name) || [];
 
     return {
@@ -62,7 +62,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
       throw new Error('context versionID not defined');
     }
 
-    if (context.request?.type === Request.RequestType.LAUNCH && context.state) {
+    if (context.request?.type === BaseRequest.RequestType.LAUNCH && context.state) {
       context.state.stack = [];
       context.state.storage = {};
       context.request = null;
@@ -85,7 +85,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     return {
       ...context,
       state: this.initializeVariables(version, state),
-      trace: [] as Trace.AnyTrace[],
+      trace: [] as BaseTrace.AnyTrace[],
       request: context.request || null,
       versionID: context.versionID,
       data: { ...context.data, locale, api },

@@ -1,6 +1,6 @@
-import { Node as BaseNode, Trace } from '@voiceflow/base-types';
-import { Node as ChatNode } from '@voiceflow/chat-types';
-import { Node as GeneralNode } from '@voiceflow/general-types';
+import { BaseNode, BaseTrace } from '@voiceflow/base-types';
+import { ChatNode } from '@voiceflow/chat-types';
+import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory } from '@/runtime';
 
@@ -22,7 +22,7 @@ const utilsObj = {
   addNoReplyTimeoutIfExists,
 };
 
-export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | ChatNode.Interaction.Node, typeof utilsObj> = (utils) => ({
+export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node | ChatNode.Interaction.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => !!node.interactions,
   handle: (node, runtime, variables) => {
     if (runtime.getAction() === Action.RUNNING) {
@@ -53,7 +53,7 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
 
         if (BaseNode.Utils.isIntentEvent(event) && event.goTo != null) {
           const { request } = event.goTo!;
-          runtime.trace.addTrace<Trace.GoToTrace>({
+          runtime.trace.addTrace<BaseTrace.GoToTrace>({
             type: BaseNode.Utils.TraceType.GOTO,
             payload: { request },
           });
@@ -64,7 +64,7 @@ export const InteractionHandler: HandlerFactory<GeneralNode.Interaction.Node | C
           return node.id;
         }
 
-        runtime.trace.addTrace<Trace.PathTrace>({
+        runtime.trace.addTrace<BaseTrace.PathTrace>({
           type: BaseNode.Utils.TraceType.PATH,
           payload: { path: `choice:${i + 1}` },
         });

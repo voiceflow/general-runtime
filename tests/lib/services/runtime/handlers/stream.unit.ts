@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -9,12 +9,12 @@ describe('stream handler unit tests', async () => {
   describe('canHandle', () => {
     it('false', () => {
       expect(StreamHandler(null as any).canHandle({ type: 'diff type' } as any, null as any, null as any, null as any)).to.eql(false);
-      expect(StreamHandler(null as any).canHandle({ type: Node.NodeType.STREAM } as any, null as any, null as any, null as any)).to.eql(false);
+      expect(StreamHandler(null as any).canHandle({ type: BaseNode.NodeType.STREAM } as any, null as any, null as any, null as any)).to.eql(false);
     });
 
     it('true', () => {
       expect(
-        StreamHandler(null as any).canHandle({ type: Node.NodeType.STREAM, src: 'url-src' } as any, null as any, null as any, null as any)
+        StreamHandler(null as any).canHandle({ type: BaseNode.NodeType.STREAM, src: 'url-src' } as any, null as any, null as any, null as any)
       ).to.eql(true);
     });
   });

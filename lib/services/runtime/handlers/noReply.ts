@@ -1,6 +1,6 @@
-import { Node as BaseNode, Request, Text, Trace } from '@voiceflow/base-types';
-import { Node as ChatNode } from '@voiceflow/chat-types';
-import { Node as VoiceNode } from '@voiceflow/voice-types';
+import { BaseNode, BaseRequest, BaseText, BaseTrace } from '@voiceflow/base-types';
+import { ChatNode } from '@voiceflow/chat-types';
+import { VoiceNode } from '@voiceflow/voice-types';
 import _ from 'lodash';
 
 import { Runtime, Store } from '@/runtime';
@@ -8,10 +8,10 @@ import { Runtime, Store } from '@/runtime';
 import { NoReplyCounterStorage, StorageType } from '../types';
 import { addButtonsIfExists, outputTrace, removeEmptyPrompts } from '../utils';
 
-type NoReplyNode = Request.NodeButton & (VoiceNode.Utils.NoReplyNode | ChatNode.Utils.NoReplyNode);
+type NoReplyNode = BaseRequest.NodeButton & (VoiceNode.Utils.NoReplyNode | ChatNode.Utils.NoReplyNode);
 
 const removeEmptyNoReplies = (node: NoReplyNode) => {
-  const noReplies: Array<Text.SlateTextValue | string> = node.noReply?.prompts ?? (node.reprompt ? [node.reprompt] : null) ?? [];
+  const noReplies: Array<BaseText.SlateTextValue | string> = node.noReply?.prompts ?? (node.reprompt ? [node.reprompt] : null) ?? [];
 
   return removeEmptyPrompts(noReplies);
 };
@@ -19,7 +19,7 @@ const removeEmptyNoReplies = (node: NoReplyNode) => {
 export const addNoReplyTimeoutIfExists = (node: NoReplyNode, runtime: Runtime): void => {
   if (!node.noReply?.timeout) return;
 
-  runtime.trace.addTrace<Trace.NoReplyTrace>({
+  runtime.trace.addTrace<BaseTrace.NoReplyTrace>({
     type: BaseNode.Utils.TraceType.NO_REPLY,
     payload: { timeout: node.noReply.timeout },
   });
@@ -32,7 +32,7 @@ const utilsObj = {
 };
 
 export const NoReplyHandler = (utils: typeof utilsObj) => ({
-  canHandle: (runtime: Runtime) => runtime.getRequest() === null || Request.isNoReplyRequest(runtime.getRequest()),
+  canHandle: (runtime: Runtime) => runtime.getRequest() === null || BaseRequest.isNoReplyRequest(runtime.getRequest()),
   handle: (node: NoReplyNode, runtime: Runtime, variables: Store) => {
     const nonEmptyNoReplies = removeEmptyNoReplies(node);
 
@@ -42,7 +42,7 @@ export const NoReplyHandler = (utils: typeof utilsObj) => ({
       // clean up no replies counter
       runtime.storage.delete(StorageType.NO_REPLIES_COUNTER);
 
-      runtime.trace.addTrace<Trace.PathTrace>({
+      runtime.trace.addTrace<BaseTrace.PathTrace>({
         type: BaseNode.Utils.TraceType.PATH,
         payload: { path: 'choice:noReply' },
       });
@@ -50,12 +50,12 @@ export const NoReplyHandler = (utils: typeof utilsObj) => ({
       return node.noReply?.nodeID ?? null;
     }
 
-    runtime.trace.addTrace<Trace.PathTrace>({
+    runtime.trace.addTrace<BaseTrace.PathTrace>({
       type: BaseNode.Utils.TraceType.PATH,
       payload: { path: 'reprompt' },
     });
 
-    const output = node.noReply?.randomize ? _.sample<string | Text.SlateTextValue>(nonEmptyNoReplies) : nonEmptyNoReplies?.[noReplyCounter];
+    const output = node.noReply?.randomize ? _.sample<string | BaseText.SlateTextValue>(nonEmptyNoReplies) : nonEmptyNoReplies?.[noReplyCounter];
 
     runtime.storage.set(StorageType.NO_REPLIES_COUNTER, noReplyCounter + 1);
 

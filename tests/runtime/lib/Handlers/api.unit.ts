@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -24,7 +24,7 @@ describe('API Handler unit tests', () => {
       const apiHandler = APIHandler();
       expect(
         apiHandler.canHandle(
-          { type: 'integrations', selected_integration: Node.Utils.IntegrationType.CUSTOM_API } as any,
+          { type: 'integrations', selected_integration: BaseNode.Utils.IntegrationType.CUSTOM_API } as any,
           null as any,
           null as any,
           null as any
@@ -44,7 +44,7 @@ describe('API Handler unit tests', () => {
       const makeAPICallStub = sinon.stub(APIUtils, 'makeAPICall').resolves(resultVariables.data as any);
 
       const node = {
-        selected_integration: Node.Utils.IntegrationType.CUSTOM_API,
+        selected_integration: BaseNode.Utils.IntegrationType.CUSTOM_API,
         selected_action: 'Make a GET Request',
         action_data: ACTION_DATA,
       };
@@ -52,7 +52,7 @@ describe('API Handler unit tests', () => {
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 
       expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
-      expect(runtime.trace.debug.args).to.eql([['API call successfully triggered', Node.NodeType.API]]);
+      expect(runtime.trace.debug.args).to.eql([['API call successfully triggered', BaseNode.NodeType.API]]);
       expect(makeAPICallStub.args).to.eql([[AGENT_ACTION_DATA, runtime, config]]);
       expect(variables.merge.args).to.eql([[resultVariables.data.variables]]);
     });
@@ -63,7 +63,7 @@ describe('API Handler unit tests', () => {
       const makeAPICallStub = sinon.stub(APIUtils, 'makeAPICall').resolves(resultVariables.data as any);
 
       const node = {
-        selected_integration: Node.Utils.IntegrationType.CUSTOM_API,
+        selected_integration: BaseNode.Utils.IntegrationType.CUSTOM_API,
         selected_action: 'Make a GET Request',
         action_data: ACTION_DATA,
       };
@@ -71,7 +71,7 @@ describe('API Handler unit tests', () => {
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 
       expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
-      expect(runtime.trace.debug.args).to.eql([['API call successfully triggered', Node.NodeType.API]]);
+      expect(runtime.trace.debug.args).to.eql([['API call successfully triggered', BaseNode.NodeType.API]]);
       expect(makeAPICallStub.args).to.eql([[AGENT_ACTION_DATA, runtime, {}]]);
       expect(variables.merge.args).to.eql([[resultVariables.data.variables]]);
     });
@@ -86,7 +86,7 @@ describe('API Handler unit tests', () => {
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 
       expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
-      expect(runtime.trace.debug.args).to.eql([[`API call returned status code ${resultVariables.data.response.status}`, Node.NodeType.API]]);
+      expect(runtime.trace.debug.args).to.eql([[`API call returned status code ${resultVariables.data.response.status}`, BaseNode.NodeType.API]]);
     });
 
     it('error status with fail_id', async () => {
@@ -99,7 +99,7 @@ describe('API Handler unit tests', () => {
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 
       expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.fail_id);
-      expect(runtime.trace.debug.args).to.eql([[`API call returned status code ${resultVariables.data.response.status}`, Node.NodeType.API]]);
+      expect(runtime.trace.debug.args).to.eql([[`API call returned status code ${resultVariables.data.response.status}`, BaseNode.NodeType.API]]);
     });
 
     describe('fails', () => {
@@ -113,7 +113,7 @@ describe('API Handler unit tests', () => {
         const variables = { getState: sinon.stub().returns({}) };
 
         expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
-        expect(runtime.trace.debug.args).to.eql([[`API call failed - Error: \n"${axiosErr.response.data}"`, Node.NodeType.API]]);
+        expect(runtime.trace.debug.args).to.eql([[`API call failed - Error: \n"${axiosErr.response.data}"`, BaseNode.NodeType.API]]);
         expect(makeAPICallStub.args).to.eql([[AGENT_ACTION_DATA, runtime, {}]]);
       });
 
@@ -127,7 +127,7 @@ describe('API Handler unit tests', () => {
 
         expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.fail_id);
         expect(makeAPICallStub.args).to.eql([[AGENT_ACTION_DATA, runtime, {}]]);
-        expect(runtime.trace.debug.args).to.eql([['API call failed - Error: \n{"name":"error5"}', Node.NodeType.API]]);
+        expect(runtime.trace.debug.args).to.eql([['API call failed - Error: \n{"name":"error5"}', BaseNode.NodeType.API]]);
       });
     });
   });

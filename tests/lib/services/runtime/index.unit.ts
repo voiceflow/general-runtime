@@ -1,4 +1,4 @@
-import { Node, Request } from '@voiceflow/base-types';
+import { BaseNode, BaseRequest } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -53,7 +53,7 @@ describe('runtime manager unit tests', () => {
 
       const state = { foo2: 'bar2' };
       const request = {
-        type: Request.RequestType.INTENT,
+        type: BaseRequest.RequestType.INTENT,
         payload: {},
       };
       const context = { state, request, versionID: VERSION_ID, data: { api: { getProgram: 'api' } } } as any;
@@ -103,7 +103,7 @@ describe('runtime manager unit tests', () => {
 
       const state = { foo2: 'bar2' };
       const request = {
-        type: Request.RequestType.TEXT,
+        type: BaseRequest.RequestType.TEXT,
         payload: 'hi',
       };
       const context = {
@@ -156,7 +156,7 @@ describe('runtime manager unit tests', () => {
       const runtimeManager = new RuntimeManager({ ...services, utils: { ...defaultUtils, ...utils } } as any, config as any);
 
       const request = {
-        type: Request.RequestType.INTENT,
+        type: BaseRequest.RequestType.INTENT,
         payload: {},
       };
       const state = { foo: 'bar' };
@@ -206,7 +206,7 @@ describe('runtime manager unit tests', () => {
       const runtimeManager = new RuntimeManager({ ...services, utils: { ...defaultUtils, ...utils } } as any, config as any);
 
       const request = {
-        type: Request.RequestType.INTENT,
+        type: BaseRequest.RequestType.INTENT,
         payload: {
           query: 'hello world',
           intent: { name: 'name' },
@@ -219,7 +219,7 @@ describe('runtime manager unit tests', () => {
 
       await runtimeManager.handle(context);
 
-      expect(runtime.trace.debug.args).to.eql([['matched intent **name** - confidence interval _86.12%_', Node.NodeType.INTENT]]);
+      expect(runtime.trace.debug.args).to.eql([['matched intent **name** - confidence interval _86.12%_', BaseNode.NodeType.INTENT]]);
       expect(runtime.variables.set.args).to.eql([
         ['intent_confidence', 86.12],
         ['last_utterance', 'hello world'],
@@ -260,7 +260,7 @@ describe('runtime manager unit tests', () => {
 
       const state = { foo2: 'bar2' };
       const request = {
-        type: Request.RequestType.INTENT,
+        type: BaseRequest.RequestType.INTENT,
         payload: {},
       };
       const context = {

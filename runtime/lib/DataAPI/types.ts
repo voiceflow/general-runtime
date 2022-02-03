@@ -1,11 +1,11 @@
-import { Models } from '@voiceflow/base-types';
+import { AnyRecord, BaseModels } from '@voiceflow/base-types';
 
 export type Display = { document?: string };
 
 export interface DataAPI<
-  P extends Models.Program<any, any> = Models.Program<Models.BaseNode, Models.BaseCommand>,
-  V extends Models.Version<any> = Models.Version<Models.VersionPlatformData>,
-  PJ extends Models.Project<any, any> = Models.Project<Models.BasePlatformData, Models.BasePlatformData>
+  P extends BaseModels.Program.Model<any, any> = BaseModels.Program.Model<BaseModels.BaseNode, BaseModels.BaseCommand>,
+  V extends BaseModels.Version.Model<any> = BaseModels.Version.Model<BaseModels.Version.PlatformData>,
+  PJ extends BaseModels.Project.Model<any, any> = BaseModels.Project.Model<AnyRecord, AnyRecord>
 > {
   init(): Promise<void>;
 

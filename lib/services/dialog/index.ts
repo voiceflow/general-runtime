@@ -3,12 +3,11 @@
  * @packageDocumentation
  */
 
-import { Models, Request, Trace } from '@voiceflow/base-types';
-import { TraceType } from '@voiceflow/base-types/build/common/trace';
-import { Types as ChatTypes } from '@voiceflow/chat-types';
+import { BaseModels, BaseRequest, BaseTrace } from '@voiceflow/base-types';
+import { ChatModels } from '@voiceflow/chat-types';
 import { VF_DM_PREFIX } from '@voiceflow/common';
-import { Constants } from '@voiceflow/general-types';
-import { Types as VoiceTypes } from '@voiceflow/voice-types';
+import { VoiceModels } from '@voiceflow/voice-types';
+import { VoiceflowConstants, VoiceflowNode, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
 import { hasElicit } from '@/lib/services/runtime/handlers/utils/entity';
@@ -29,8 +28,8 @@ export const utils = {
 };
 
 export type DMStore = {
-  intentRequest?: Request.IntentRequest;
-  priorIntent?: Request.IntentRequest;
+  intentRequest?: BaseRequest.IntentRequest;
+  priorIntent?: BaseRequest.IntentRequest;
 };
 
 @injectServices({ utils })
@@ -41,9 +40,9 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
   handleDMContext = (
     dmStateStore: DMStore,
-    dmPrefixedResult: Request.IntentRequest,
-    incomingRequest: Request.IntentRequest,
-    languageModel: Models.PrototypeModel
+    dmPrefixedResult: BaseRequest.IntentRequest,
+    incomingRequest: BaseRequest.IntentRequest,
+    languageModel: BaseModels.PrototypeModel
   ): boolean => {
     const dmPrefixedResultName = dmPrefixedResult.payload.intent.name;
     const incomingRequestName = incomingRequest.payload.intent.name;
@@ -138,7 +137,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         const resultNLC = handleNLCDialog({
           query,
           model: version.prototype.model,
-          locale: version.prototype.data!.locales[0] as Constants.Locale,
+          locale: version.prototype.data!.locales[0] as VoiceflowConstants.Locale,
           dmRequest: dmStateStore.intentRequest,
         });
 
@@ -173,22 +172,24 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     if (unfulfilledEntity) {
       // There are unfulfilled required entities -> return dialog management prompt
       // Assemble return string by populating the inline entity values
-      const trace: Trace.AnyTrace[] = [];
+      const trace: BaseTrace.AnyTrace[] = [];
 
-      const prompt = _.sample(unfulfilledEntity.dialog.prompt)! as ChatTypes.Prompt | VoiceTypes.IntentPrompt<string>;
+      const prompt = _.sample(unfulfilledEntity.dialog.prompt)! as ChatModels.Prompt | VoiceModels.IntentPrompt<VoiceflowConstants.Voice>;
 
       if (!hasElicit(incomingRequest) && prompt) {
         const variables = getEntitiesMap(dmStateStore!.intentRequest);
 
-        const output =
-          'content' in prompt
-            ? prompt.content
-            : fillStringEntities(inputToString(prompt, version.platformData.settings.defaultVoice), dmStateStore!.intentRequest);
+        const output = VoiceflowNode.Prompt.isIntentVoicePrompt(prompt)
+          ? fillStringEntities(
+              inputToString(prompt, (version as VoiceflowVersion.VoiceVersion).platformData.settings.defaultVoice),
+              dmStateStore!.intentRequest
+            )
+          : prompt.content;
 
         trace.push(outputTrace({ output, variables }));
       }
       trace.push({
-        type: TraceType.ENTITY_FILLING,
+        type: BaseTrace.TraceType.ENTITY_FILLING,
         payload: {
           entityToFill: unfulfilledEntity.name,
           intent: dmStateStore.intentRequest,

@@ -1,4 +1,4 @@
-import { Node as BaseNode, Trace } from '@voiceflow/base-types';
+import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 
 import { FrameType, GeneralRuntime } from '@/lib/services/runtime/types';
 import { extractFrameCommand, Frame, Store } from '@/runtime';
@@ -36,7 +36,7 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
 
     // interrupting command where it jumps to a node in the existing stack
     if (command.type === BaseNode.Utils.CommandType.JUMP) {
-      trace.addTrace<Trace.PathTrace>({
+      trace.addTrace<BaseTrace.PathTrace>({
         type: BaseNode.Utils.TraceType.PATH,
         payload: { path: 'jump' },
       });
@@ -55,7 +55,7 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
 
     // push command, adds a new frame
     if (command.type === BaseNode.Utils.CommandType.PUSH && command.diagramID) {
-      trace.addTrace<Trace.PathTrace>({
+      trace.addTrace<BaseTrace.PathTrace>({
         type: BaseNode.Utils.TraceType.PATH,
         payload: { path: 'push' },
       });

@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -12,7 +12,7 @@ describe('ifHandler unit tests', () => {
   describe('canHandle', () => {
     it('false', () => {
       expect(ifHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
-      expect(ifHandler.canHandle({ type: Node.NodeType.IF_V2 } as any, null as any, null as any, null as any)).to.eql(false);
+      expect(ifHandler.canHandle({ type: BaseNode.NodeType.IF_V2 } as any, null as any, null as any, null as any)).to.eql(false);
     });
 
     it('true', () => {
@@ -47,9 +47,9 @@ describe('ifHandler unit tests', () => {
       expect(runtime.callEvent.args[0][1].error.toString()).to.eql(evaluateError);
 
       expect(runtime.trace.debug.args).to.eql([
-        [`unable to resolve expression \`${node.expressions[0]}\`  \n\`${evaluateError}\``, Node.NodeType.IF],
-        ['evaluating path 2: `second` to `5`', Node.NodeType.IF],
-        ['condition true - taking path 2', Node.NodeType.IF],
+        [`unable to resolve expression \`${node.expressions[0]}\`  \n\`${evaluateError}\``, BaseNode.NodeType.IF],
+        ['evaluating path 2: `second` to `5`', BaseNode.NodeType.IF],
+        ['condition true - taking path 2', BaseNode.NodeType.IF],
       ]);
     });
 
@@ -70,9 +70,9 @@ describe('ifHandler unit tests', () => {
       ]);
 
       expect(runtime.trace.debug.args).to.eql([
-        ['evaluating path 1: `first` to `undefined`', Node.NodeType.IF],
-        ['evaluating path 2: `second` to `0`', Node.NodeType.IF],
-        ['condition true - taking path 2', Node.NodeType.IF],
+        ['evaluating path 1: `first` to `undefined`', BaseNode.NodeType.IF],
+        ['evaluating path 2: `second` to `0`', BaseNode.NodeType.IF],
+        ['condition true - taking path 2', BaseNode.NodeType.IF],
       ]);
     });
 
@@ -91,8 +91,8 @@ describe('ifHandler unit tests', () => {
         expect(await ifHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.elseId);
 
         expect(runtime.trace.debug.args).to.eql([
-          ['evaluating path 1: `first` to `undefined`', Node.NodeType.IF],
-          ['no conditions matched - taking else path', Node.NodeType.IF],
+          ['evaluating path 1: `first` to `undefined`', BaseNode.NodeType.IF],
+          ['no conditions matched - taking else path', BaseNode.NodeType.IF],
         ]);
       });
 
@@ -106,8 +106,8 @@ describe('ifHandler unit tests', () => {
         expect(await ifHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
 
         expect(runtime.trace.debug.args).to.eql([
-          ['evaluating path 1: `first` to `undefined`', Node.NodeType.IF],
-          ['no conditions matched - taking else path', Node.NodeType.IF],
+          ['evaluating path 1: `first` to `undefined`', BaseNode.NodeType.IF],
+          ['no conditions matched - taking else path', BaseNode.NodeType.IF],
         ]);
       });
     });

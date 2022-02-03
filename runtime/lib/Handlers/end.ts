@@ -1,8 +1,8 @@
-import { Node, Trace } from '@voiceflow/base-types';
+import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
-const EndHandler: HandlerFactory<Node.Exit.Node> = () => ({
+const EndHandler: HandlerFactory<BaseNode.Exit.Node> = () => ({
   canHandle: (node) => !!node.end,
   handle: (_, runtime): null => {
     runtime.stack.top().setNodeID(null);
@@ -13,8 +13,8 @@ const EndHandler: HandlerFactory<Node.Exit.Node> = () => ({
     }
 
     runtime.turn.set('end', true);
-    runtime.trace.addTrace<Trace.ExitTrace>({ type: Node.Utils.TraceType.END, payload: null });
-    runtime.trace.debug('exiting session - saving location/resolving stack', Node.NodeType.EXIT);
+    runtime.trace.addTrace<BaseTrace.ExitTrace>({ type: BaseNode.Utils.TraceType.END, payload: null });
+    runtime.trace.debug('exiting session - saving location/resolving stack', BaseNode.NodeType.EXIT);
 
     runtime.end();
 

@@ -3,8 +3,8 @@
  * @packageDocumentation
  */
 
-import { Models, Request } from '@voiceflow/base-types';
-import { Constants } from '@voiceflow/general-types';
+import { BaseModels, BaseRequest } from '@voiceflow/base-types';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { isTextRequest } from '@/lib/services/runtime/types';
 import { Context, ContextHandler } from '@/types';
@@ -20,7 +20,17 @@ export const utils = {};
  * random
  */
 class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  async predict({ query, model, locale, projectID }: { query: string; model?: Models.PrototypeModel; locale?: Constants.Locale; projectID: string }) {
+  async predict({
+    query,
+    model,
+    locale,
+    projectID,
+  }: {
+    query: string;
+    model?: BaseModels.PrototypeModel;
+    locale?: VoiceflowConstants.Locale;
+    projectID: string;
+  }) {
     // 1. first try restricted regex (no open slots) - exact string match
     if (model && locale) {
       const intent = handleNLCCommand({ query, model, locale, openSlot: false });
@@ -31,7 +41,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
 
     // 2. next try to resolve with luis NLP on general-service
     const { data } = await this.services.axios
-      .post<Request.IntentRequest | null>(`${this.config.GENERAL_SERVICE_ENDPOINT}/runtime/${projectID}/predict`, {
+      .post<BaseRequest.IntentRequest | null>(`${this.config.GENERAL_SERVICE_ENDPOINT}/runtime/${projectID}/predict`, {
         query,
       })
       .catch(() => ({ data: null }));
@@ -72,7 +82,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     const request = await this.predict({
       query: context.request.payload,
       model: version.prototype?.model,
-      locale: version.prototype?.data.locales[0] as Constants.Locale,
+      locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
       projectID: version.projectID,
     });
 

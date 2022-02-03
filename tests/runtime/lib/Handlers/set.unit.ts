@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -12,7 +12,7 @@ describe('setHandler unit tests', () => {
   describe('canHandle', () => {
     it('false', () => {
       expect(setHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
-      expect(setHandler.canHandle({ type: Node.NodeType.SET_V2 } as any, null as any, null as any, null as any)).to.eql(false);
+      expect(setHandler.canHandle({ type: BaseNode.NodeType.SET_V2 } as any, null as any, null as any, null as any)).to.eql(false);
     });
 
     it('true', () => {
@@ -56,10 +56,10 @@ describe('setHandler unit tests', () => {
         [node.sets[3].variable, 5],
       ]);
       expect(runtime.trace.debug.args).to.eql([
-        ['unable to resolve expression `` for `{undefined}`  \n`Error: No Variable Defined`', Node.NodeType.SET],
-        ['setting `{v1}`  \nevaluating `v1-expression` to `undefined`', Node.NodeType.SET],
-        ['setting `{v2}`  \nevaluating `v2-expression` to `undefined`', Node.NodeType.SET],
-        ['setting `{v3}`  \nevaluating `v3-expression` to `5`', Node.NodeType.SET],
+        ['unable to resolve expression `` for `{undefined}`  \n`Error: No Variable Defined`', BaseNode.NodeType.SET],
+        ['setting `{v1}`  \nevaluating `v1-expression` to `undefined`', BaseNode.NodeType.SET],
+        ['setting `{v2}`  \nevaluating `v2-expression` to `undefined`', BaseNode.NodeType.SET],
+        ['setting `{v3}`  \nevaluating `v3-expression` to `5`', BaseNode.NodeType.SET],
       ]);
       expect(runtime.callEvent.callCount).to.eql(1);
       expect(runtime.callEvent.args[0][0]).to.eql(EventType.handlerDidCatch);

@@ -1,7 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { replaceVariables } from '@voiceflow/common';
-import { Constants } from '@voiceflow/general-types';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { HandlerFactory } from '@/runtime';
 
@@ -22,9 +22,9 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
     const request = runtime.getRequest();
     const intentName = isIntentRequest(request) ? request.payload.intent.name : null;
 
-    let nextId: Node.Utils.NodeID = null;
+    let nextId: BaseNode.Utils.NodeID = null;
 
-    if (intentName === Constants.IntentName.PAUSE) {
+    if (intentName === VoiceflowConstants.IntentName.PAUSE) {
       if (streamPlay.pauseID) {
         // If it is linked to something else, save current pause state
         runtime.storage.set<StreamPauseStorage>(StorageType.STREAM_PAUSE, { id: streamPlay.nodeID, offset: streamPlay.offset });
@@ -42,20 +42,20 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
 
         runtime.end();
       }
-    } else if (intentName === Constants.IntentName.RESUME) {
+    } else if (intentName === VoiceflowConstants.IntentName.RESUME) {
       runtime.storage.produce<StorageData>((draft) => {
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.RESUME;
       });
 
       runtime.end();
-    } else if (intentName === Constants.IntentName.START_OVER || intentName === Constants.IntentName.REPEAT) {
+    } else if (intentName === VoiceflowConstants.IntentName.START_OVER || intentName === VoiceflowConstants.IntentName.REPEAT) {
       runtime.storage.produce<StorageData>((draft) => {
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.START;
         draft[StorageType.STREAM_PLAY]!.offset = 0;
       });
 
       runtime.end();
-    } else if (intentName === Constants.IntentName.NEXT || streamPlay.action === StreamAction.NEXT) {
+    } else if (intentName === VoiceflowConstants.IntentName.NEXT || streamPlay.action === StreamAction.NEXT) {
       if (streamPlay.nextID) {
         nextId = streamPlay.nextID;
       }
@@ -63,7 +63,7 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
       runtime.storage.produce<StorageData>((draft) => {
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.END;
       });
-    } else if (intentName === Constants.IntentName.PREVIOUS) {
+    } else if (intentName === VoiceflowConstants.IntentName.PREVIOUS) {
       if (streamPlay.previousID) {
         nextId = streamPlay.previousID;
       }
@@ -71,7 +71,7 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
       runtime.storage.produce<StorageData>((draft) => {
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.END;
       });
-    } else if (intentName === Constants.IntentName.CANCEL) {
+    } else if (intentName === VoiceflowConstants.IntentName.CANCEL) {
       runtime.storage.produce<StorageData>((draft) => {
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.PAUSE;
       });

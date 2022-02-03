@@ -1,7 +1,7 @@
-import { Node as BaseNode, Request, Trace } from '@voiceflow/base-types';
+import { BaseNode, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 import { NodeType } from '@voiceflow/base-types/build/common/node';
-import { Node as ChatNode } from '@voiceflow/chat-types';
-import { Node as GeneralNode } from '@voiceflow/general-types';
+import { ChatNode } from '@voiceflow/chat-types';
+import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 import wordsToNumbers from 'words-to-numbers';
 
 import { Action, HandlerFactory } from '@/runtime';
@@ -21,7 +21,7 @@ const utilsObj = {
   addNoReplyTimeoutIfExists,
 };
 
-export const CaptureHandler: HandlerFactory<GeneralNode.Capture.Node | ChatNode.Capture.Node, typeof utilsObj> = (utils) => ({
+export const CaptureHandler: HandlerFactory<VoiceflowNode.Capture.Node | ChatNode.Capture.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => !!node.variable || node.type === NodeType.CAPTURE,
   handle: (node, runtime, variables) => {
     if (runtime.getAction() === Action.RUNNING) {
@@ -29,9 +29,9 @@ export const CaptureHandler: HandlerFactory<GeneralNode.Capture.Node | ChatNode.
       utils.addNoReplyTimeoutIfExists(node, runtime);
 
       if (node.intent) {
-        runtime.trace.addTrace<Trace.GoToTrace>({
+        runtime.trace.addTrace<BaseTrace.GoToTrace>({
           type: BaseNode.Utils.TraceType.GOTO,
-          payload: { request: { type: Request.RequestType.INTENT, payload: { intent: { name: node.intent }, query: '', entities: [] } } },
+          payload: { request: { type: BaseRequest.RequestType.INTENT, payload: { intent: { name: node.intent }, query: '', entities: [] } } },
         });
       }
 
@@ -77,7 +77,7 @@ export const CaptureHandler: HandlerFactory<GeneralNode.Capture.Node | ChatNode.
       }
     }
 
-    runtime.trace.addTrace<Trace.PathTrace>({
+    runtime.trace.addTrace<BaseTrace.PathTrace>({
       type: BaseNode.Utils.TraceType.PATH,
       payload: { path: 'capture' },
     });

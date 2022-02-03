@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -23,14 +23,14 @@ describe('speak manager unit tests', () => {
           payload: {
             ...malformedTrace1.payload,
             src: audioUrl,
-            type: Node.Speak.TraceSpeakType.AUDIO,
+            type: BaseNode.Speak.TraceSpeakType.AUDIO,
           },
         },
         {
           ...malformedTrace2,
           payload: {
             ...malformedTrace2.payload,
-            type: Node.Speak.TraceSpeakType.MESSAGE,
+            type: BaseNode.Speak.TraceSpeakType.MESSAGE,
           },
         },
         DB_VISUAL_TRACE,

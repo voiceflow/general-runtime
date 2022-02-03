@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import axios from 'axios';
 import _ from 'lodash';
 import safeJSONStringify from 'safe-json-stringify';
@@ -14,7 +14,12 @@ export type CodeOptions = {
   testingEnv?: boolean;
 };
 
-const CodeHandler: HandlerFactory<Node.Code.Node, CodeOptions | void> = ({ endpoint, callbacks, useStrictVM = false, testingEnv = false } = {}) => ({
+const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
+  endpoint,
+  callbacks,
+  useStrictVM = false,
+  testingEnv = false,
+} = {}) => ({
   canHandle: (node) => !!node.code,
   handle: async (node, runtime, variables) => {
     try {
@@ -46,13 +51,13 @@ const CodeHandler: HandlerFactory<Node.Code.Node, CodeOptions | void> = ({ endpo
         return acc;
       }, '');
 
-      runtime.trace.debug(`evaluating code - ${changes ? `changes:  \n${changes}` : 'no variable changes'}`, Node.NodeType.CODE);
+      runtime.trace.debug(`evaluating code - ${changes ? `changes:  \n${changes}` : 'no variable changes'}`, BaseNode.NodeType.CODE);
 
       variables.merge(newVariableState);
 
       return node.success_id ?? null;
     } catch (error) {
-      runtime.trace.debug(`unable to resolve code  \n\`${safeJSONStringify(error.response?.data || error.toString())}\``, Node.NodeType.CODE);
+      runtime.trace.debug(`unable to resolve code  \n\`${safeJSONStringify(error.response?.data || error.toString())}\``, BaseNode.NodeType.CODE);
 
       return node.fail_id ?? null;
     }

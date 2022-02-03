@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
@@ -6,8 +6,8 @@ import CodeHandler from './code';
 
 export type SetV2Options = Record<string, never>;
 
-const SetV2Handler: HandlerFactory<Node.SetV2.Node, SetV2Options | void> = () => ({
-  canHandle: (node) => node.type === Node.NodeType.SET_V2,
+const SetV2Handler: HandlerFactory<BaseNode.SetV2.Node, SetV2Options | void> = () => ({
+  canHandle: (node) => node.type === BaseNode.NodeType.SET_V2,
   handle: async (node, runtime, variables, program) => {
     // use isolated-vm
     const codeHandler = CodeHandler({ useStrictVM: true });
@@ -28,7 +28,7 @@ const SetV2Handler: HandlerFactory<Node.SetV2.Node, SetV2Options | void> = () =>
         `;
     });
 
-    await codeHandler.handle({ code, id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE', type: Node.NodeType.CODE }, runtime, variables, program);
+    await codeHandler.handle({ code, id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE', type: BaseNode.NodeType.CODE }, runtime, variables, program);
 
     return node.nextId || null;
   },

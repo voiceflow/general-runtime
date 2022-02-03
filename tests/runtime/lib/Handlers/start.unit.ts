@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -23,14 +23,14 @@ describe('startHandler unit tests', () => {
       const node = { nextId: 'next-id' };
       const runtime = { trace: { debug: sinon.stub() } };
       expect(startHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql(node.nextId);
-      expect(runtime.trace.debug.args).to.eql([['beginning flow', Node.NodeType.START]]);
+      expect(runtime.trace.debug.args).to.eql([['beginning flow', BaseNode.NodeType.START]]);
     });
 
     it('no nextId', () => {
       const node = {};
       const runtime = { trace: { debug: sinon.stub() } };
       expect(startHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql(null);
-      expect(runtime.trace.debug.args).to.eql([['beginning flow', Node.NodeType.START]]);
+      expect(runtime.trace.debug.args).to.eql([['beginning flow', BaseNode.NodeType.START]]);
     });
   });
 });

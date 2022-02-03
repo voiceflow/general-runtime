@@ -1,4 +1,4 @@
-import { Request } from '@voiceflow/base-types';
+import { BaseRequest } from '@voiceflow/base-types';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
@@ -24,11 +24,11 @@ describe('nlu manager unit tests', () => {
     it('works', async () => {
       const version = { _id: 'version-id', projectID: 'project-id' };
       const oldRequest = {
-        type: Request.RequestType.TEXT,
+        type: BaseRequest.RequestType.TEXT,
         payload: 'query',
       };
       const newRequest = {
-        type: Request.RequestType.INTENT,
+        type: BaseRequest.RequestType.INTENT,
         payload: {
           intent: {
             name: 'queryIntent',
@@ -56,7 +56,7 @@ describe('nlu manager unit tests', () => {
 
     it('throws on invalid version', async () => {
       const oldRequest = {
-        type: Request.RequestType.TEXT,
+        type: BaseRequest.RequestType.TEXT,
         payload: 'query',
       };
       const services = {
@@ -74,7 +74,7 @@ describe('nlu manager unit tests', () => {
 
     it('rejects non text requests', async () => {
       const oldRequest = {
-        type: Request.RequestType.INTENT,
+        type: BaseRequest.RequestType.INTENT,
         payload: 'query',
       };
       const services = {

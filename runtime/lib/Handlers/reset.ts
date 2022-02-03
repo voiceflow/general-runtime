@@ -1,8 +1,8 @@
-import { Models } from '@voiceflow/base-types';
+import { BaseModels } from '@voiceflow/base-types';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
-export interface ResetNode extends Models.BaseNode {
+export interface ResetNode extends BaseModels.BaseNode {
   reset?: boolean;
 }
 

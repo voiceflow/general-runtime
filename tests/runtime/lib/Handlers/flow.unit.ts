@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -50,7 +50,7 @@ describe('flowHandler unit tests', () => {
       expect(newFrame.storage.set.args).to.eql([[S.OUTPUT_MAP, undefined]]);
       expect(topFrame.setNodeID.args).to.eql([[node.nextId]]);
       expect(runtime.stack.push.args).to.eql([[newFrame]]);
-      expect(runtime.trace.debug.args).to.eql([[`entering flow \`${newFrame.getProgramID()}\``, Node.NodeType.FLOW]]);
+      expect(runtime.trace.debug.args).to.eql([[`entering flow \`${newFrame.getProgramID()}\``, BaseNode.NodeType.FLOW]]);
     });
 
     it('with variable_map', () => {
@@ -98,7 +98,7 @@ describe('flowHandler unit tests', () => {
       ]);
       expect(topFrame.setNodeID.args).to.eql([[null]]);
       expect(runtime.stack.push.args).to.eql([[newFrame]]);
-      expect(runtime.trace.debug.args).to.eql([[`entering flow \`${newFrame.getName()}\``, Node.NodeType.FLOW]]);
+      expect(runtime.trace.debug.args).to.eql([[`entering flow \`${newFrame.getName()}\``, BaseNode.NodeType.FLOW]]);
     });
   });
 });

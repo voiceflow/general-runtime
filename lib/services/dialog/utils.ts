@@ -1,9 +1,7 @@
 /* eslint-disable no-restricted-syntax */
-import { Models, Node, Request } from '@voiceflow/base-types';
+import { BaseModels, BaseNode, BaseRequest } from '@voiceflow/base-types';
 import { SLOT_REGEXP, VF_DM_PREFIX } from '@voiceflow/common';
-// import { Node } from '@voiceflow/general-types';
 import * as crypto from 'crypto';
-import _ from 'lodash';
 
 import CommandHandler from '@/lib/services/runtime/handlers/command';
 import { findEventMatcher } from '@/lib/services/runtime/handlers/event';
@@ -13,20 +11,20 @@ import { Context } from '@/types';
 
 import { eventHandlers } from '../runtime/handlers/state/preliminary';
 
-export const inputToString = ({ text, voice }: Models.IntentInput, defaultVoice: string | null) => {
+export const inputToString = ({ text, voice }: BaseModels.IntentInput, defaultVoice: string | null) => {
   const currentVoice = voice || defaultVoice;
 
   return currentVoice?.trim() ? `<voice name="${currentVoice}">${text}</voice>` : text;
 };
 
-export const getSlotNameByID = (id: string, model: Models.PrototypeModel) => {
+export const getSlotNameByID = (id: string, model: BaseModels.PrototypeModel) => {
   return model.slots.find((lmEntity) => lmEntity.key === id)?.name;
 };
 
 export const getUnfulfilledEntity = (
-  intentRequest: Request.IntentRequest,
-  model: Models.PrototypeModel
-): (Models.IntentSlot & { name: string }) | null => {
+  intentRequest: BaseRequest.IntentRequest,
+  model: BaseModels.PrototypeModel
+): (BaseModels.IntentSlot & { name: string }) | null => {
   const intentModelSlots = model.intents.find((intent) => intent.name === intentRequest.payload.intent.name)?.slots || [];
   const extractedEntityNames = new Set(intentRequest.payload.entities.map((entity) => entity.name));
 
@@ -49,14 +47,14 @@ export const replaceSlots = (input: string, variables: Record<string, string>) =
   input.replace(SLOT_REGEXP, (_match, inner) => variables[inner] || '');
 
 // create a dictionary of all entities from Entity[] => { [entity.name]: entity.value }
-export const getEntitiesMap = (intentRequest: Request.IntentRequest): Record<string, string> =>
+export const getEntitiesMap = (intentRequest: BaseRequest.IntentRequest): Record<string, string> =>
   intentRequest.payload.entities.reduce<Record<string, string>>(
     (acc, entity) => ({ ...acc, ...(entity.value && { [entity.name]: entity.value }) }),
     {}
   );
 
 // Populates all entities in a given string
-export const fillStringEntities = (input = '', intentRequest: Request.IntentRequest) => {
+export const fillStringEntities = (input = '', intentRequest: BaseRequest.IntentRequest) => {
   const entityMap = getEntitiesMap(intentRequest);
 
   return replaceSlots(input, entityMap);
@@ -74,18 +72,19 @@ export const getDMPrefixIntentName = (intentName: string) => {
   return `${VF_DM_PREFIX}${dmPrefix(intentName)}_${intentName}`;
 };
 
-export const getIntentEntityList = (intentName: string, model: Models.PrototypeModel) => {
+export const getIntentEntityList = (intentName: string, model: BaseModels.PrototypeModel) => {
   const intentModel = model.intents.find((intent) => intent.name === intentName);
   const intentEntityIDs = intentModel?.slots?.map((entity) => entity.id);
   return intentEntityIDs?.map((id) => model.slots.find((entity) => entity.key === id));
 };
 
 export const isInteractionsInNode = (
-  node: Models.BaseNode & { interactions?: Node.Interaction.NodeInteraction[] }
-): node is Models.BaseNode & { interactions: Node.Interaction.NodeInteraction[] } => Array.isArray(node.interactions);
+  node: BaseModels.BaseNode & { interactions?: BaseNode.Interaction.NodeInteraction[] }
+): node is BaseModels.BaseNode & { interactions: BaseNode.Interaction.NodeInteraction[] } => Array.isArray(node.interactions);
 
-export const isIntentInNode = (node: Models.BaseNode & { intent?: { name?: string } }): node is Models.BaseNode & { intent: { name: string } } =>
-  typeof node.intent?.name === 'string';
+export const isIntentInNode = (
+  node: BaseModels.BaseNode & { intent?: { name?: string } }
+): node is BaseModels.BaseNode & { intent: { name: string } } => typeof node.intent?.name === 'string';
 
 export const isIntentInScope = async ({ data: { api }, versionID, state, request }: Context) => {
   const client = new Client({

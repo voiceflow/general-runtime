@@ -1,5 +1,5 @@
 /* eslint-disable max-nested-callbacks */
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -90,7 +90,7 @@ describe('Command handler', () => {
 
     describe('command type jump', () => {
       it('no top of stack', () => {
-        const commandObj = { event: { foo: 'bar' }, type: Node.Utils.CommandType.JUMP, nextID: 'next-id' };
+        const commandObj = { event: { foo: 'bar' }, type: BaseNode.Utils.CommandType.JUMP, nextID: 'next-id' };
         const index = 1;
         const sideEffectStub = sinon.stub();
         const utils = {
@@ -113,13 +113,13 @@ describe('Command handler', () => {
         expect(runtime.stack.getSize.callCount).to.eql(0);
         expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
         expect(setNodeID.args).to.eql([[commandObj.nextID]]);
-        expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`, Node.NodeType.COMMAND]]);
+        expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`, BaseNode.NodeType.COMMAND]]);
         expect(runtime.trace.addTrace.args).to.eql([[JumpPathTrace]]);
       });
 
       describe('top of stack', () => {
         it('with nextID', () => {
-          const commandObj = { event: { foo: 'bar' }, type: Node.Utils.CommandType.JUMP, nextID: 'next-id' };
+          const commandObj = { event: { foo: 'bar' }, type: BaseNode.Utils.CommandType.JUMP, nextID: 'next-id' };
           const index = 2;
           const sideEffectStub = sinon.stub();
           const utils = {
@@ -141,12 +141,12 @@ describe('Command handler', () => {
           expect(sideEffectStub.callCount).to.eql(1);
           expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
           expect(setNodeID.args).to.eql([[commandObj.nextID]]);
-          expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`, Node.NodeType.COMMAND]]);
+          expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`, BaseNode.NodeType.COMMAND]]);
           expect(runtime.trace.addTrace.args).to.eql([[JumpPathTrace]]);
         });
 
         it('no nextID', () => {
-          const commandObj = { event: { foo: 'bar' }, type: Node.Utils.CommandType.JUMP };
+          const commandObj = { event: { foo: 'bar' }, type: BaseNode.Utils.CommandType.JUMP };
           const index = 2;
           const sideEffectStub = sinon.stub();
           const utils = {
@@ -168,7 +168,7 @@ describe('Command handler', () => {
           expect(sideEffectStub.callCount).to.eql(1);
           expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
           expect(setNodeID.args).to.eql([[null]]);
-          expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`, Node.NodeType.COMMAND]]);
+          expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`, BaseNode.NodeType.COMMAND]]);
           expect(runtime.trace.addTrace.args).to.eql([[JumpPathTrace]]);
         });
       });
@@ -176,7 +176,7 @@ describe('Command handler', () => {
 
     describe('command type push', () => {
       it('no diagramID', () => {
-        const commandObj = { event: { foo: 'bar' }, type: Node.Utils.CommandType.PUSH };
+        const commandObj = { event: { foo: 'bar' }, type: BaseNode.Utils.CommandType.PUSH };
         const sideEffectStub = sinon.stub();
         const utils = {
           findEventMatcher: sinon.stub().returns({ sideEffect: sideEffectStub }),
@@ -194,7 +194,7 @@ describe('Command handler', () => {
       });
 
       it('with diagramID', () => {
-        const commandObj = { event: { foo: 'bar' }, type: Node.Utils.CommandType.PUSH, diagramID: 'diagram-id' };
+        const commandObj = { event: { foo: 'bar' }, type: BaseNode.Utils.CommandType.PUSH, diagramID: 'diagram-id' };
         const sideEffectStub = sinon.stub();
         const utils = {
           findEventMatcher: sinon.stub().returns({ sideEffect: sideEffectStub }),
@@ -214,7 +214,7 @@ describe('Command handler', () => {
         expect(utils.getCommand.args).to.eql([[runtime]]);
         expect(utils.findEventMatcher.args).to.eql([[{ event: commandObj.event, runtime, variables }]]);
         expect(sideEffectStub.callCount).to.eql(1);
-        expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - adding command flow`, Node.NodeType.COMMAND]]);
+        expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - adding command flow`, BaseNode.NodeType.COMMAND]]);
         expect(storageSetStub.args).to.eql([[FrameType.CALLED_COMMAND, true]]);
         expect(utils.Frame.args).to.eql([[{ programID: commandObj.diagramID }]]);
         expect(runtime.stack.push.args).to.eql([[{}]]);

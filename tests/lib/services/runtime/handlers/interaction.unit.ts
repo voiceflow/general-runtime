@@ -1,5 +1,5 @@
 /* eslint-disable max-nested-callbacks */
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -49,7 +49,7 @@ describe('Interaction handler', () => {
 
         const node = {
           id: 'node-id',
-          interactions: [{}, { event: { type: 'random' } }, { event: { type: Node.Utils.EventType.INTENT, intent: 'intent-name' } }],
+          interactions: [{}, { event: { type: 'random' } }, { event: { type: BaseNode.Utils.EventType.INTENT, intent: 'intent-name' } }],
         };
         const runtime = {
           getAction: sinon.stub().returns(Action.RUNNING),
@@ -285,7 +285,7 @@ describe('Interaction handler', () => {
 
             const node = {
               id: 'node-id',
-              interactions: [{ event: { type: Node.Utils.EventType.INTENT, foo: 'bar', goTo: { request: 'request' } } }],
+              interactions: [{ event: { type: BaseNode.Utils.EventType.INTENT, foo: 'bar', goTo: { request: 'request' } } }],
             };
             const runtime = {
               getAction: sinon.stub().returns(Action.REQUEST),

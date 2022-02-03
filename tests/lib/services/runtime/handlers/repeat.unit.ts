@@ -1,5 +1,5 @@
 import { Request, Version } from '@voiceflow/base-types';
-import { Constants } from '@voiceflow/general-types';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -7,7 +7,7 @@ import { RepeatHandler } from '@/lib/services/runtime/handlers/repeat';
 import { FrameType, StorageType, TurnType } from '@/lib/services/runtime/types';
 
 describe('repeat handler', () => {
-  const intentRequest = { type: Request.RequestType.INTENT, payload: { intent: { name: Constants.IntentName.REPEAT }, entities: [] } };
+  const intentRequest = { type: Request.RequestType.INTENT, payload: { intent: { name: VoiceflowConstants.IntentName.REPEAT }, entities: [] } };
 
   afterEach(() => {
     sinon.restore();

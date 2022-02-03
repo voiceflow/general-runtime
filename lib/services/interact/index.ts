@@ -1,4 +1,4 @@
-import { Request, Trace } from '@voiceflow/base-types';
+import { BaseRequest, BaseTrace } from '@voiceflow/base-types';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
 import { State, TurnBuilder } from '@/runtime';
@@ -10,7 +10,7 @@ import autoDelegate from './autoDelegate';
 export interface ResponseContext {
   request: RuntimeRequest;
   state: State;
-  trace?: Trace.AnyTrace[];
+  trace?: BaseTrace.AnyTrace[];
 }
 
 const utils = {
@@ -28,7 +28,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
 
   async handler(req: {
     params: { userID?: string };
-    body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: Request.RequestConfig };
+    body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
     query: { locale?: string };
     headers: { authorization?: string; origin?: string; sessionid?: string; versionID: string };
   }): Promise<ResponseContext> {

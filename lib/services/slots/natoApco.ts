@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
-import { Request } from '@voiceflow/base-types';
-import { Constants } from '@voiceflow/general-types';
+import { BaseRequest } from '@voiceflow/base-types';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 interface Slot {
   type: {
@@ -22,7 +22,7 @@ const natoApcoExceptions = new Map([
   ['for', 4],
 ]);
 
-const processQuery = (query: string, entityVerboseValue: Request.VerboseValue[]): QueryWord[] => {
+const processQuery = (query: string, entityVerboseValue: BaseRequest.VerboseValue[]): QueryWord[] => {
   const splitQuery = query.split(' ');
   const processed: QueryWord[] = [];
   let startIndex = 0;
@@ -56,10 +56,10 @@ const processQuery = (query: string, entityVerboseValue: Request.VerboseValue[])
 // The only exceptions to taking the first letter of the strings is '00' and '000'.
 // This function also adds multi-digit numbers and other exceptions to entity.value if
 // they are between detected NATO/APCO words.
-export const natoApcoConverter = (entities: Request.Entity[], slots: Slot[], query: string) => {
+export const natoApcoConverter = (entities: BaseRequest.Entity[], slots: Slot[], query: string) => {
   entities.forEach((entity) => {
     slots.forEach((slot) => {
-      if (entity.name === slot.name && slot.type.value === Constants.SlotType.NATOAPCO) {
+      if (entity.name === slot.name && slot.type.value === VoiceflowConstants.SlotType.NATOAPCO) {
         // if using regex raw value will not be populated
         if (!Array.isArray(entity.verboseValue)) {
           const splitValue = entity.value.split(' ').map((value) => [value]);

@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -16,7 +16,7 @@ describe('ifV2 handler unit tests', () => {
     });
 
     it('true', () => {
-      expect(IfV2Handler({} as any).canHandle({ type: Node.NodeType.IF_V2 } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(IfV2Handler({} as any).canHandle({ type: BaseNode.NodeType.IF_V2 } as any, null as any, null as any, null as any)).to.eql(true);
     });
   });
 
@@ -30,7 +30,7 @@ describe('ifV2 handler unit tests', () => {
         sinon.stub(CodeHandler, 'default').returns(codeHandler as any);
 
         const node = { payload: { expressions: [] }, paths: [] };
-        const runtime = { trace: { debug: sinon.stub() }, turn: { get: sinon.stub().returns([Node.NodeType.IF_V2]) } };
+        const runtime = { trace: { debug: sinon.stub() }, turn: { get: sinon.stub().returns([BaseNode.NodeType.IF_V2]) } };
         const variables = { var1: 'val1' };
         const program = { lines: [] };
 
@@ -62,7 +62,7 @@ describe('ifV2 handler unit tests', () => {
               code:
                 'try { \n            try {\n              if(eval(`a && b`)) {\n                setOutputPort(0);\n                throw(null);\n              }\n            } catch (err) {\n              if (err != null) {\n                addDebugError({ index: 1, expression: `a && b`, msg: err.toString() });\n              } else {\n                // matched - exit early\n                throw(null);\n              }\n            }\n        \n            try {\n              if(eval(`arr.includes(a) && !b`)) {\n                setOutputPort(1);\n                throw(null);\n              }\n            } catch (err) {\n              if (err != null) {\n                addDebugError({ index: 2, expression: `arr.includes(a) && !b`, msg: err.toString() });\n              } else {\n                // matched - exit early\n                throw(null);\n              }\n            }\n         } catch (err) {}',
               id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE',
-              type: Node.NodeType.CODE,
+              type: BaseNode.NodeType.CODE,
             },
             runtime,
             variables,
@@ -70,7 +70,7 @@ describe('ifV2 handler unit tests', () => {
           ],
         ]);
 
-        expect(runtime.trace.debug.args).to.eql([['no conditions matched - taking else path', Node.NodeType.IF_V2]]);
+        expect(runtime.trace.debug.args).to.eql([['no conditions matched - taking else path', BaseNode.NodeType.IF_V2]]);
       });
 
       it('no elseId', async () => {
@@ -105,9 +105,9 @@ describe('ifV2 handler unit tests', () => {
         expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(node.paths[2].nextID);
 
         expect(runtime.trace.debug.args).to.eql([
-          ['evaluating code - no variable changes', Node.NodeType.CODE],
-          [`Error condition 2 - "${node.payload.expressions[1]}": SyntaxError: Unexpected token ')'`, Node.NodeType.IF_V2],
-          ['condition matched - taking path 3', Node.NodeType.IF_V2],
+          ['evaluating code - no variable changes', BaseNode.NodeType.CODE],
+          [`Error condition 2 - "${node.payload.expressions[1]}": SyntaxError: Unexpected token ')'`, BaseNode.NodeType.IF_V2],
+          ['condition matched - taking path 3', BaseNode.NodeType.IF_V2],
         ]);
       });
     });

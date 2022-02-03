@@ -1,4 +1,4 @@
-import { Node as BaseNode, Request, Trace } from '@voiceflow/base-types';
+import { BaseNode, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 
 import { DMStore } from '@/lib/services/dialog';
 import NoMatchHandler, { NoMatchNode } from '@/lib/services/runtime/handlers/noMatch';
@@ -8,24 +8,25 @@ import { StorageType } from '../../types';
 
 export const VF_ELICIT = 'ELICIT';
 
-export const entityFillingRequest = (name: string): Request.IntentRequest => ({
-  type: Request.RequestType.INTENT,
+export const entityFillingRequest = (name: string): BaseRequest.IntentRequest => ({
+  type: BaseRequest.RequestType.INTENT,
   payload: { intent: { name }, query: '', entities: [] },
 });
 
 /** @description when VF_ELICIT is true, it will skip the entity prompt during entity filling */
-export const setElicit = (request: Request.IntentRequest, elicit: boolean): Request.IntentRequest & { [VF_ELICIT]: boolean } => ({
+export const setElicit = (request: BaseRequest.IntentRequest, elicit: boolean): BaseRequest.IntentRequest & { [VF_ELICIT]: boolean } => ({
   ...request,
   [VF_ELICIT]: elicit,
 });
 
-export const hasElicit = (request: Request.IntentRequest & { [VF_ELICIT]?: boolean }): request is Request.IntentRequest & { [VF_ELICIT]: true } =>
-  request[VF_ELICIT] === true;
+export const hasElicit = (
+  request: BaseRequest.IntentRequest & { [VF_ELICIT]?: boolean }
+): request is BaseRequest.IntentRequest & { [VF_ELICIT]: true } => request[VF_ELICIT] === true;
 
 const noMatchHandler = NoMatchHandler();
 
 export const EntityFillingNoMatchHandler = () => ({
-  handle: (node: NoMatchNode, runtime: Runtime, variables: Store) => (intents: string[] = [], defaultRequest?: Request.IntentRequest) => {
+  handle: (node: NoMatchNode, runtime: Runtime, variables: Store) => (intents: string[] = [], defaultRequest?: BaseRequest.IntentRequest) => {
     // see if the prior entity filling intent is within context
     const priorIntent = runtime.storage.get<DMStore>(StorageType.DM)?.priorIntent;
     const priorIntentMatch = intents.includes(priorIntent?.payload.intent.name!) && priorIntent?.payload.entities.length;
@@ -34,7 +35,7 @@ export const EntityFillingNoMatchHandler = () => ({
 
     if (typeof runtime.storage.get(StorageType.NO_MATCHES_COUNTER) !== 'number' && nextRequest) {
       runtime.storage.set(StorageType.NO_MATCHES_COUNTER, 0);
-      runtime.trace.addTrace<Trace.GoToTrace>({
+      runtime.trace.addTrace<BaseTrace.GoToTrace>({
         type: BaseNode.Utils.TraceType.GOTO,
         payload: { request: setElicit(nextRequest, false) },
       });
@@ -43,7 +44,7 @@ export const EntityFillingNoMatchHandler = () => ({
 
     const noMatchPath = noMatchHandler.handle(node, runtime, variables);
     if (noMatchPath === node.id && nextRequest) {
-      runtime.trace.addTrace<Trace.GoToTrace>({
+      runtime.trace.addTrace<BaseTrace.GoToTrace>({
         type: BaseNode.Utils.TraceType.GOTO,
         payload: { request: setElicit(nextRequest, true) },
       });

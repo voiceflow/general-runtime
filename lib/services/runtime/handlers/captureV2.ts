@@ -1,7 +1,7 @@
-import { Node as BaseNode, Trace } from '@voiceflow/base-types';
+import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { NodeType } from '@voiceflow/base-types/build/common/node';
-import { Node as ChatNode } from '@voiceflow/chat-types';
-import { Node as GeneralNode } from '@voiceflow/general-types';
+import { ChatNode } from '@voiceflow/chat-types';
+import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory } from '@/runtime';
 
@@ -21,7 +21,7 @@ const utilsObj = {
   entityFillingNoMatchHandler: EntityFillingNoMatchHandler(),
 };
 
-export const CaptureV2Handler: HandlerFactory<GeneralNode.CaptureV2.Node | ChatNode.CaptureV2.Node, typeof utilsObj> = (utils) => ({
+export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node | ChatNode.CaptureV2.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => node.type === NodeType.CAPTURE_V2,
   handle: (node, runtime, variables) => {
     const captureIntentName = node.intent?.name;
@@ -29,8 +29,8 @@ export const CaptureV2Handler: HandlerFactory<GeneralNode.CaptureV2.Node | ChatN
     if (runtime.getAction() === Action.RUNNING) {
       utils.addNoReplyTimeoutIfExists(node, runtime);
       if (captureIntentName) {
-        runtime.trace.addTrace<Trace.GoToTrace>({
-          type: Trace.TraceType.GOTO,
+        runtime.trace.addTrace<BaseTrace.GoToTrace>({
+          type: BaseTrace.TraceType.GOTO,
           payload: { request: setElicit(entityFillingRequest(captureIntentName), true) },
         });
       }
@@ -61,7 +61,7 @@ export const CaptureV2Handler: HandlerFactory<GeneralNode.CaptureV2.Node | ChatN
     // on successful match
     if (isIntentRequest(request)) {
       const handleCapturePath = () => {
-        runtime.trace.addTrace<Trace.PathTrace>({
+        runtime.trace.addTrace<BaseTrace.PathTrace>({
           type: BaseNode.Utils.TraceType.PATH,
           payload: { path: 'capture' },
         });

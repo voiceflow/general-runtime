@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 
 import { HandlerFactory } from '@/runtime';
 
@@ -9,9 +9,9 @@ const utilsObj = {
   commandHandler: CommandHandler(),
 };
 
-export const OneShotIntentHandler: HandlerFactory<Node.Start.Node, typeof utilsObj> = (utils) => ({
+export const OneShotIntentHandler: HandlerFactory<BaseNode.Start.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node, runtime) => {
-    return isIntentRequest(runtime.getRequest()) && runtime.stack.getSize() <= 2 && node.type === Node.NodeType.START;
+    return isIntentRequest(runtime.getRequest()) && runtime.stack.getSize() <= 2 && node.type === BaseNode.NodeType.START;
   },
   handle: (node, runtime, variables) => {
     if (utils.commandHandler.canHandle(runtime)) {

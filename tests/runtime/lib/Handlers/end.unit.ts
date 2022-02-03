@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -46,7 +46,7 @@ describe('EndHandler unit tests', () => {
       expect(runtime.stack.isEmpty.callCount).to.eql(2);
       expect(runtime.turn.set.args).to.eql([['end', true]]);
       expect(runtime.end.callCount).to.eql(1);
-      expect(runtime.trace.debug.args).to.eql([['exiting session - saving location/resolving stack', Node.NodeType.EXIT]]);
+      expect(runtime.trace.debug.args).to.eql([['exiting session - saving location/resolving stack', BaseNode.NodeType.EXIT]]);
     });
   });
 });

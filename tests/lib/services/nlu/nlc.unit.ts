@@ -1,7 +1,7 @@
-import { Request } from '@voiceflow/base-types';
-import { Constants } from '@voiceflow/general-types';
+import { BaseRequest } from '@voiceflow/base-types';
 import * as NLC from '@voiceflow/natural-language-commander';
 import * as standardSlots from '@voiceflow/natural-language-commander/dist/lib/standardSlots';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -161,7 +161,7 @@ describe('nlu nlc service unit tests', () => {
       const confidence = 0.8;
 
       expect(nlcToIntent(intent, query, confidence)).to.eql({
-        type: Request.RequestType.INTENT,
+        type: BaseRequest.RequestType.INTENT,
         payload: {
           query,
           intent: { name: intent.intent },
@@ -183,7 +183,7 @@ describe('nlu nlc service unit tests', () => {
       };
 
       registerBuiltInIntents(nlcObj as any, locale as any);
-      const registerIntentArgs = Constants.DEFAULT_INTENTS_MAP.en.map(({ name, samples }) => [{ intent: name, utterances: samples }]);
+      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.en.map(({ name, samples }) => [{ intent: name, utterances: samples }]);
       expect(nlcObj.registerIntent.args).to.eql(registerIntentArgs);
     });
 
@@ -196,7 +196,7 @@ describe('nlu nlc service unit tests', () => {
       };
 
       registerBuiltInIntents(nlcObj as any);
-      const registerIntentArgs = Constants.DEFAULT_INTENTS_MAP.en.map(({ name, samples }) => [{ intent: name, utterances: samples }]);
+      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.en.map(({ name, samples }) => [{ intent: name, utterances: samples }]);
       expect(nlcObj.registerIntent.args).to.eql(registerIntentArgs);
     });
 
@@ -210,7 +210,7 @@ describe('nlu nlc service unit tests', () => {
       };
 
       registerBuiltInIntents(nlcObj as any, locale as any);
-      const registerIntentArgs = Constants.DEFAULT_INTENTS_MAP.es.map(({ name, samples }) => [{ intent: name, utterances: samples }]);
+      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.es.map(({ name, samples }) => [{ intent: name, utterances: samples }]);
       expect(nlcObj.registerIntent.args).to.eql(registerIntentArgs);
     });
   });

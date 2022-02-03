@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -34,7 +34,7 @@ describe('runtime utils service unit tests', () => {
       expect(runtime.trace.addTrace.args).to.eql([
         [
           {
-            type: Node.Utils.TraceType.CHOICE,
+            type: BaseNode.Utils.TraceType.CHOICE,
             payload: {
               buttons: [
                 { name: 'l1', request: { type: 'text', payload: 'l1' } },
@@ -62,7 +62,7 @@ describe('runtime utils service unit tests', () => {
       expect(runtime.trace.addTrace.args).to.eql([
         [
           {
-            type: Node.Utils.TraceType.CHOICE,
+            type: BaseNode.Utils.TraceType.CHOICE,
             payload: {
               buttons: [
                 {

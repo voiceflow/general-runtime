@@ -1,4 +1,4 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -17,7 +17,7 @@ describe('setV2 handler unit tests', () => {
     });
 
     it('true', () => {
-      expect(SetV2Handler().canHandle({ type: Node.NodeType.SET_V2 } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(SetV2Handler().canHandle({ type: BaseNode.NodeType.SET_V2 } as any, null as any, null as any, null as any)).to.eql(true);
     });
   });
 
@@ -49,7 +49,7 @@ describe('setV2 handler unit tests', () => {
             code:
               '\n        let evaluated;\n    \n            evaluated = eval(`undefined`);\n            a = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;\n        \n            evaluated = eval(`NaN`);\n            b = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;\n        \n            evaluated = eval(`(1 + 8)/3`);\n            c = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;\n        ',
             id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE',
-            type: Node.NodeType.CODE,
+            type: BaseNode.NodeType.CODE,
           },
           runtime,
           variables,

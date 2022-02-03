@@ -1,4 +1,4 @@
-import { Trace } from '@voiceflow/base-types';
+import { BaseTrace } from '@voiceflow/base-types';
 
 import * as Ingest from '@/ingest';
 import log from '@/logger';
@@ -12,7 +12,7 @@ type GeneralTurnBody = Ingest.TurnBody<{
   end?: boolean;
 }>;
 
-type GeneralInteractBody = Ingest.InteractBody<Trace.AnyTrace | RuntimeRequest>;
+type GeneralInteractBody = Ingest.InteractBody<BaseTrace.AnyTrace | RuntimeRequest>;
 
 export class AnalyticsSystem extends AbstractClient {
   private ingestClient?: Ingest.Api<GeneralInteractBody, GeneralTurnBody>;
@@ -35,7 +35,7 @@ export class AnalyticsSystem extends AbstractClient {
     eventID: Ingest.Event;
     turnID: string;
     timestamp: Date;
-    trace?: Trace.AnyTrace;
+    trace?: BaseTrace.AnyTrace;
     request?: RuntimeRequest;
   }): GeneralInteractBody {
     let format: string;
@@ -96,7 +96,7 @@ export class AnalyticsSystem extends AbstractClient {
     versionID,
     timestamp,
   }: {
-    fullTrace: readonly Trace.AnyTrace[];
+    fullTrace: readonly BaseTrace.AnyTrace[];
     turnID: string;
     versionID: string;
     timestamp: Date;

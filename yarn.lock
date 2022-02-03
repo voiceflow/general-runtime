@@ -1241,6 +1241,13 @@
   dependencies:
     slate "0.63.0"
 
+"@voiceflow/base-types@^2.8.0":
+  version "2.8.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-2.8.0.tgz#39d3136fb098ca3a4ea68be99ab25c299b6c7033"
+  integrity sha512-6nQ2t5N01UZAWFmW/tns8RquE1Z8GDFe5hE+f3a1ixb2zUutYaHOCpMf8ObNgDYEbdsEBQhOzBJ5dHloK+CLXw==
+  dependencies:
+    slate "0.63.0"
+
 "@voiceflow/body-parser@^1.21.1":
   version "1.21.1"
   resolved "https://registry.yarnpkg.com/@voiceflow/body-parser/-/body-parser-1.21.1.tgz#363c0bdd43880dfe932e59c81c537cb49db63da0"
@@ -1264,6 +1271,13 @@
   integrity sha512-xP7PLby5SmwuvZofSD6PdNH72K9KY82iYMmmJOznG4PgvRYOYoG3mXponuoTfl8oG0qfopy6h+U0U17XXn4SPA==
   dependencies:
     "@voiceflow/base-types" "^2.7.5"
+
+"@voiceflow/chat-types@^2.2.0":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/chat-types/-/chat-types-2.2.1.tgz#a0d7f95b81b5f9449b85dc0b62a7f0d9091e0ea7"
+  integrity sha512-kbc3WJls4E5mefaTPX54/z4c+xIFckpMTwuygLfXwq+RqHIbeEusVfmnC51hfmQQL8Mu08vy37CAjFT4YleYZQ==
+  dependencies:
+    "@voiceflow/base-types" "^2.8.0"
 
 "@voiceflow/commitlint-config@1.1.1":
   version "1.1.1"
@@ -1314,14 +1328,6 @@
     eslint-plugin-sonarjs "^0.4.0"
     eslint-plugin-xss "^0.1.9"
     typescript "^3.9.7"
-
-"@voiceflow/general-types@3.2.20":
-  version "3.2.20"
-  resolved "https://registry.yarnpkg.com/@voiceflow/general-types/-/general-types-3.2.20.tgz#6286218fc511fa7b1a58c2e0dfe18e1ddb6c1db2"
-  integrity sha512-FjemQPGS47XTf2EmbpyrjOYBVhZPdN6i7OuCSxc1jMbz34vpMx0QNwIp04iQXryikGCf5aUvwiT4NUlcGHGtFg==
-  dependencies:
-    "@voiceflow/base-types" "^2.7.5"
-    "@voiceflow/voice-types" "^2.1.19"
 
 "@voiceflow/git-branch-check@1.2.3":
   version "1.2.3"
@@ -1417,6 +1423,15 @@
   integrity sha512-pHwwSZuOsBOGVcClYhVcQ7L5yYR4Hnn3g8l9OZXOiw/Ii1QdvpB+P/u1Ww41fdJeJcop6P0BLtKBCpT/lrjPkw==
   dependencies:
     "@voiceflow/base-types" "^2.7.5"
+
+"@voiceflow/voiceflow-types@^3.2.20":
+  version "3.2.20"
+  resolved "https://registry.yarnpkg.com/@voiceflow/voiceflow-types/-/voiceflow-types-3.2.20.tgz#07b708d0a843826844feff0d7c6eba264d091623"
+  integrity sha512-+MmZqp7K5KXGZ3nzcU/VLpM+D8LXGHwnztZHExsqitX1qX7Hfddxe5gL9GVH+TvtyXsDQHFw8JfLQK0H26ep3w==
+  dependencies:
+    "@voiceflow/base-types" "^2.7.5"
+    "@voiceflow/chat-types" "^2.2.0"
+    "@voiceflow/voice-types" "^2.1.19"
 
 "@vue/compiler-core@3.1.5":
   version "3.1.5"

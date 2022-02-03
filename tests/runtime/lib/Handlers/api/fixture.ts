@@ -1,7 +1,7 @@
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 
 export const baseData = {
-  method: Node.Api.APIMethod.POST,
+  method: BaseNode.Api.APIMethod.POST,
   bodyInputType: '',
   headers: [
     { key: 'header1', val: 'never' },
@@ -21,7 +21,7 @@ export const baseOptions = {
   headers: { header1: 'headerval1' },
   params: { param1: 'paramval1' },
   url: 'https://www.mockurl.com',
-  method: Node.Api.APIMethod.POST,
+  method: BaseNode.Api.APIMethod.POST,
   timeout,
   maxBodyLength: 1000000,
   maxContentLength: 1000000,

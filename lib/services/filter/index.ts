@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 
-import { Node } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 
 import { Context, ContextHandler } from '@/types';
 
@@ -23,14 +23,14 @@ class Filter extends AbstractManager<{ utils: typeof utils }> implements Context
 
     let traces = context.trace || [];
 
-    const excludeTypes = config.excludeTypes || [Node.Utils.TraceType.BLOCK, Node.Utils.TraceType.DEBUG, Node.Utils.TraceType.FLOW];
+    const excludeTypes = config.excludeTypes || [BaseNode.Utils.TraceType.BLOCK, BaseNode.Utils.TraceType.DEBUG, BaseNode.Utils.TraceType.FLOW];
     traces = traces.filter((trace) => !excludeTypes.includes(trace.type));
 
     if (config.stripSSML !== false) {
       traces = traces?.map((trace) =>
         !(
-          trace.type === Node.Utils.TraceType.SPEAK &&
-          (trace.payload.type === Node.Speak.TraceSpeakType.MESSAGE || trace.payload.type === Node.Speak.TraceSpeakType.AUDIO)
+          trace.type === BaseNode.Utils.TraceType.SPEAK &&
+          (trace.payload.type === BaseNode.Speak.TraceSpeakType.MESSAGE || trace.payload.type === BaseNode.Speak.TraceSpeakType.AUDIO)
         )
           ? trace
           : {
