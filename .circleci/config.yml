@@ -114,7 +114,6 @@ workflows:
       - vfcommon/install_and_build:
           <<: *slack-fail-post-step
           context: dev-test
-          avoid_post_install_scripts: false
 
       - test:
           <<: *slack-fail-post-step
