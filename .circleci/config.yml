@@ -138,6 +138,7 @@ workflows:
           context: dev-test
           image_repo: << pipeline.parameters.container-image-url >>
           component: << pipeline.parameters.track-component >>
+          release_pkg: << pipeline.parameters.npm-repo >>
           requires:
             - test-master
             - vfcommon/install_and_build
