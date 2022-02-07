@@ -59,7 +59,7 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@0.0.275
+  vfcommon: voiceflow/common@dev:ffaf4dc
   sonarcloud: sonarsource/sonarcloud@1.0.2
 
 jobs:
