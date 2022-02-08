@@ -27,7 +27,7 @@ type CaptureEntireResponseNode = CaptureNode & {
   variable: string;
 };
 
-const isConfidenceScoreAbove = (threshold: number, confidence: number) => typeof confidence === 'number' && confidence > threshold;
+const isConfidenceScoreAbove = (threshold: number, confidence: number) => typeof confidence !== 'number' || confidence > threshold;
 
 const isNodeCapturingEntity = (node: CaptureNode): node is CaptureEntityNode =>
   typeof node.intent?.name === 'string' && typeof node.intent?.entities != null;
