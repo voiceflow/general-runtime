@@ -194,6 +194,7 @@ describe('CaptureV2 handler', () => {
               },
               entities: [],
               query: 'capture this',
+              confidence: 0.9,
             },
           };
           const runtime = {
