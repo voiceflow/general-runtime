@@ -7,7 +7,7 @@ import { BaseModels, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 import { ChatModels } from '@voiceflow/chat-types';
 import { VF_DM_PREFIX } from '@voiceflow/common';
 import { VoiceModels } from '@voiceflow/voice-types';
-import { VoiceflowConstants, VoiceflowNode, VoiceflowVersion } from '@voiceflow/voiceflow-types';
+import { VoiceflowConstants, VoiceflowUtils, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
 import { hasElicit } from '@/lib/services/runtime/handlers/utils/entity';
@@ -179,7 +179,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       if (!hasElicit(incomingRequest) && prompt) {
         const variables = getEntitiesMap(dmStateStore!.intentRequest);
 
-        const output = VoiceflowNode.Prompt.isIntentVoicePrompt(prompt)
+        const output = VoiceflowUtils.prompt.isIntentVoicePrompt(prompt)
           ? fillStringEntities(
               inputToString(prompt, (version as VoiceflowVersion.VoiceVersion).platformData.settings.defaultVoice),
               dmStateStore!.intentRequest
