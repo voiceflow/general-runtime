@@ -116,9 +116,7 @@ export const isIntentInScope = async ({ data: { api }, versionID, state, request
     for (const interaction of node.interactions) {
       const { event } = interaction;
 
-      if (findEventMatcher({ event, runtime, variables })) {
-        return true;
-      }
+      return !!findEventMatcher({ event, runtime });
     }
   }
 

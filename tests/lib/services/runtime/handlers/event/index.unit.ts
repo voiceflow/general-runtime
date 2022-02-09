@@ -2,7 +2,7 @@ import { BaseNode, BaseRequest } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { findEventMatcher, generalEventMatcher, hasEventMatch, intentEventMatcher } from '@/lib/services/runtime/handlers/event';
+import { findEventMatcher, generalEventMatcher, intentEventMatcher } from '@/lib/services/runtime/handlers/event';
 import * as utils from '@/lib/services/runtime/utils';
 
 describe('event handlers unit tests', () => {
@@ -110,13 +110,14 @@ describe('event handlers unit tests', () => {
         const mapEntitiesStub = sinon.stub(utils, 'mapEntities').returns(mapEntitiesOutput);
 
         const request = { payload: {} };
-        const context = { event: {}, runtime: { getRequest: sinon.stub().returns(request) }, variables: { merge: sinon.stub() } };
+        const context = { event: {}, runtime: { getRequest: sinon.stub().returns(request) } };
+        const variables = { merge: sinon.stub() };
 
-        intentEventMatcher.sideEffect(context as any);
+        intentEventMatcher.sideEffect(context as any)(variables as any);
 
         expect(context.runtime.getRequest.callCount).to.eql(1);
         expect(mapEntitiesStub.args).to.eql([[[], []]]);
-        expect(context.variables.merge.args).to.eql([[mapEntitiesOutput]]);
+        expect(variables.merge.args).to.eql([[mapEntitiesOutput]]);
       });
 
       it('entities and mappings', () => {
@@ -127,32 +128,15 @@ describe('event handlers unit tests', () => {
         const context = {
           event: { mappings: ['m1', 'm2'] },
           runtime: { getRequest: sinon.stub().returns(request) },
-          variables: { merge: sinon.stub() },
         };
+        const variables = { merge: sinon.stub() };
 
-        intentEventMatcher.sideEffect(context as any);
+        intentEventMatcher.sideEffect(context as any)(variables as any);
 
         expect(context.runtime.getRequest.callCount).to.eql(1);
         expect(mapEntitiesStub.args).to.eql([[context.event.mappings, request.payload.entities]]);
-        expect(context.variables.merge.args).to.eql([[mapEntitiesOutput]]);
+        expect(variables.merge.args).to.eql([[mapEntitiesOutput]]);
       });
-    });
-  });
-
-  describe('hasEventMatch', () => {
-    it('false', () => {
-      expect(hasEventMatch(null, { getRequest: sinon.stub().returns(null) } as any)).to.eql(false);
-    });
-
-    it('true', () => {
-      expect(
-        hasEventMatch(
-          { type: BaseNode.Utils.EventType.INTENT, intent: 'intent_name' } as any,
-          {
-            getRequest: sinon.stub().returns({ type: BaseRequest.RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [] } }),
-          } as any
-        )
-      ).to.eql(true);
     });
   });
 

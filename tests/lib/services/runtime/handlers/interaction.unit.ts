@@ -145,7 +145,7 @@ describe('Interaction handler', () => {
 
             expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
             expect(runtime.getAction.callCount).to.eql(1);
-            expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime, variables }]]);
+            expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime }]]);
             expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
             expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
             expect(utils.noMatchHandler.handle.args).to.eql([[node, runtime, variables]]);
@@ -271,7 +271,7 @@ describe('Interaction handler', () => {
 
             expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.interactions[0].nextId);
             expect(runtime.getAction.callCount).to.eql(1);
-            expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime, variables }]]);
+            expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime }]]);
             expect(sideEffect.callCount).to.eql(1);
             expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', payload: { path: 'choice:1' } }]]);
           });
@@ -299,7 +299,7 @@ describe('Interaction handler', () => {
 
             expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
             expect(runtime.getAction.callCount).to.eql(1);
-            expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime, variables }]]);
+            expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime }]]);
             expect(sideEffect.callCount).to.eql(1);
             expect(runtime.trace.addTrace.args).to.eql([[{ type: 'goto', payload: { request: node.interactions[0].event.goTo.request } }]]);
           });
@@ -335,7 +335,7 @@ describe('Interaction handler', () => {
 
             expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.interactions[3].nextId);
             expect(runtime.getAction.callCount).to.eql(1);
-            expect(utils.findEventMatcher.args[3]).to.eql([{ event: node.interactions[3].event, runtime, variables }]);
+            expect(utils.findEventMatcher.args[3]).to.eql([{ event: node.interactions[3].event, runtime }]);
             expect(sideEffect.callCount).to.eql(1);
             expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', payload: { path: 'choice:4' } }]]);
           });
@@ -360,7 +360,7 @@ describe('Interaction handler', () => {
 
             expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
             expect(runtime.getAction.callCount).to.eql(1);
-            expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime, variables }]]);
+            expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime }]]);
             expect(sideEffect.callCount).to.eql(1);
             expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', payload: { path: 'choice:1' } }]]);
           });

@@ -6,7 +6,6 @@ export { default as Handler, HandlerFactory } from './lib/Handler';
 export { default as Program } from './lib/Program';
 export { EventType, Event, EventCallback, CallbackEvent } from './lib/Lifecycle';
 export * from './lib/Constants';
-export * from './lib/Util';
 export * from './lib/Handlers';
 export * from './lib/DataAPI';
 export * from './lib/Context';
