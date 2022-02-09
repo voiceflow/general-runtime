@@ -18,11 +18,11 @@ export const intentEventMatcher = {
     if ((context.event as BaseNode.Utils.IntentEvent).intent !== request.payload.intent.name) return false;
     return true;
   },
-  sideEffect: (context: { runtime: Runtime<BaseRequest.IntentRequest>; event: BaseNode.Utils.IntentEvent; variables: Store }) => {
+  sideEffect: (context: { runtime: Runtime<BaseRequest.IntentRequest>; event: BaseNode.Utils.IntentEvent }) => (variables: Store): void => {
     // use event slot mappings map request entities to variables
     const request = context.runtime.getRequest() as BaseRequest.IntentRequest;
     const entities = request.payload.entities || [];
-    context.variables.merge(mapEntities(context.event.mappings || entitiesToMappings(entities), entities));
+    variables.merge(mapEntities(context.event.mappings || entitiesToMappings(entities), entities));
   },
 };
 
@@ -43,19 +43,16 @@ export const generalEventMatcher = {
     return true;
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  sideEffect: (_context: { runtime: Runtime<BaseRequest.IntentRequest>; event: GeneralEvent; variables: Store }) => {
+  sideEffect: () => (): void => {
     // to-do: trace event side effect management
   },
 };
 
 const EVENT_MATCHERS = [intentEventMatcher, generalEventMatcher];
 
-export const findEventMatcher = (context: { event: BaseNode.Utils.BaseEvent | null; runtime: GeneralRuntime; variables: Store }) => {
+export const findEventMatcher = (context: { event: BaseNode.Utils.BaseEvent | null; runtime: GeneralRuntime }) => {
   const matcher = EVENT_MATCHERS.find((m) => m.match(context));
 
   if (!matcher) return null;
-  return { ...matcher, sideEffect: () => matcher.sideEffect(context as any) };
+  return { ...matcher, sideEffect: matcher.sideEffect(context as any) };
 };
-
-export const hasEventMatch = (event: BaseNode.Utils.BaseEvent | null, runtime: GeneralRuntime) =>
-  !!EVENT_MATCHERS.find((m) => m.match({ event, runtime }));

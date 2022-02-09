@@ -246,7 +246,7 @@ describe('_v1 handler unit tests', () => {
         expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('command-id');
         expect(commandHandler.canHandle.args).to.eql([[runtime]]);
         expect(commandHandler.handle.args).to.eql([[runtime, variables]]);
-        expect(findEventMatcher.args).to.eql([[{ event: node.paths[0].event, runtime, variables }]]);
+        expect(findEventMatcher.args).to.eql([[{ event: node.paths[0].event, runtime }]]);
       });
 
       it('path match', () => {
@@ -275,11 +275,8 @@ describe('_v1 handler unit tests', () => {
         const handler = _V1Handler({ findEventMatcher } as any);
 
         expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('next-id2');
-        expect(findEventMatcher.args).to.eql([
-          [{ event: node.paths[0].event, runtime, variables }],
-          [{ event: node.paths[1].event, runtime, variables }],
-        ]);
-        expect(matcher.sideEffect.args).to.eql([[]]);
+        expect(findEventMatcher.args).to.eql([[{ event: node.paths[0].event, runtime }], [{ event: node.paths[1].event, runtime }]]);
+        expect(matcher.sideEffect.args).to.eql([[variables]]);
       });
 
       it('path match but no nextID', () => {
@@ -305,11 +302,8 @@ describe('_v1 handler unit tests', () => {
         const handler = _V1Handler({ findEventMatcher } as any);
 
         expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
-        expect(findEventMatcher.args).to.eql([
-          [{ event: node.paths[0].event, runtime, variables }],
-          [{ event: node.paths[1].event, runtime, variables }],
-        ]);
-        expect(matcher.sideEffect.args).to.eql([[]]);
+        expect(findEventMatcher.args).to.eql([[{ event: node.paths[0].event, runtime }], [{ event: node.paths[1].event, runtime }]]);
+        expect(matcher.sideEffect.args).to.eql([[variables]]);
       });
     });
   });

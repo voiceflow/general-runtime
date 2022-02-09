@@ -23,10 +23,10 @@ export const _V1Handler: HandlerFactory<BaseNode._v1.Node, typeof utilsObj> = (u
       for (const traceEvent of node.paths) {
         const { event = null, nextID } = traceEvent;
 
-        const matcher = utils.findEventMatcher({ event, runtime, variables });
+        const matcher = utils.findEventMatcher({ event, runtime });
         if (matcher) {
           // allow handler to apply side effects
-          matcher.sideEffect();
+          matcher.sideEffect(variables);
           return nextID || null;
         }
       }

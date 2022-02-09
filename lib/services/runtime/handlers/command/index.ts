@@ -1,20 +1,29 @@
+/* eslint-disable no-restricted-syntax */
 import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 
 import { FrameType, GeneralRuntime } from '@/lib/services/runtime/types';
-import { extractFrameCommand, Frame, Store } from '@/runtime';
+import { Frame, Store } from '@/runtime';
 
-import { findEventMatcher, hasEventMatch } from './event';
+import { findEventMatcher } from '../event';
 
-export const getCommand = (runtime: GeneralRuntime, extractFrame: typeof extractFrameCommand) => {
-  const frameMatch = (command: BaseNode.Utils.AnyCommand | null) => hasEventMatch(command?.event || null, runtime);
+// search the stack and see if any commands match
+export const getCommand = (runtime: GeneralRuntime, matcher = findEventMatcher) => {
+  const frames = runtime.stack.getFrames();
 
-  return extractFrame<BaseNode.Utils.AnyCommand>(runtime.stack, frameMatch) || null;
+  for (let index = frames.length - 1; index >= 0; index--) {
+    const commands = frames[index]?.getCommands<BaseNode.Utils.AnyCommand>();
+
+    for (const command of commands) {
+      const match = matcher({ event: command?.event || null, runtime });
+      if (match) return { index, command, match };
+    }
+  }
+  return null;
 };
 
 const utilsObj = {
   Frame,
-  getCommand: (runtime: GeneralRuntime) => getCommand(runtime, extractFrameCommand),
-  findEventMatcher,
+  getCommand,
 };
 
 /**
@@ -24,15 +33,11 @@ const utilsObj = {
 export const CommandHandler = (utils: typeof utilsObj) => ({
   canHandle: (runtime: GeneralRuntime): boolean => !!utils.getCommand(runtime),
   handle: (runtime: GeneralRuntime, variables: Store): string | null => {
-    const res = utils.getCommand(runtime);
-
-    const { command, index } = res!;
-    const { event } = command;
-    const { stack, trace } = runtime;
-
+    const { command, index, match } = utils.getCommand(runtime)!;
     // allow matcher to apply side effects
-    const matcher = utils.findEventMatcher({ event, runtime, variables });
-    if (matcher) matcher.sideEffect();
+    match.sideEffect(variables);
+
+    const { stack, trace } = runtime;
 
     // interrupting command where it jumps to a node in the existing stack
     if (command.type === BaseNode.Utils.CommandType.JUMP) {

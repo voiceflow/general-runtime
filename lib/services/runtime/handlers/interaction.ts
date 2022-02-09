@@ -2,7 +2,7 @@ import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { ChatNode } from '@voiceflow/chat-types';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 
-import { Action, HandlerFactory } from '@/runtime';
+import { Action, HandlerFactory, Runtime } from '@/runtime';
 
 import { StorageType } from '../types';
 import { addButtonsIfExists } from '../utils';
@@ -45,11 +45,11 @@ export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node |
       for (let i = 0; i < node.interactions.length; i++) {
         const { event, nextId } = node.interactions[i];
 
-        const matcher = utils.findEventMatcher({ event, runtime, variables });
+        const matcher = utils.findEventMatcher({ event, runtime });
         if (!matcher) continue;
 
         // allow handler to apply side effects
-        matcher.sideEffect();
+        matcher.sideEffect(variables);
 
         if (BaseNode.Utils.isIntentEvent(event) && event.goTo != null) {
           const { request } = event.goTo!;
