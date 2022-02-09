@@ -156,6 +156,7 @@ workflows:
       - vfcommon/sync_branches:
           check_commit_message: "[bugfix]"
           ssh_key: << pipeline.parameters.ssh-fingerprint >>
+          checkout: true
           context: dev-test
           name: sync-branches-bugfix
           requires:
