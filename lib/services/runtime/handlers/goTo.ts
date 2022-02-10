@@ -33,4 +33,4 @@ const GoToHandler: HandlerFactory<BaseNode.GoTo.Node, typeof utilsObj> = (utils)
   },
 });
 
-export default GoToHandler;
+export default () => GoToHandler(utilsObj);
