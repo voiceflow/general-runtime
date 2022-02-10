@@ -169,6 +169,6 @@
     "test:integration": "NODE_ENV=test nyc --report-dir=nyc_coverage_integration ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.it.ts'",
     "test:run": "NODE_ENV=test nyc ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.{unit,it}.ts'",
     "test:single": "NODE_ENV=test ts-mocha --paths --opts ./config/tests/mocha.opts",
-    "test:unit": "NODE_ENV=test nyc --report-dir=nyc_coverage_unit ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.unit.ts'"
+    "test:unit": "yarn && NODE_ENV=test nyc --report-dir=nyc_coverage_unit ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.unit.ts'"
   }
 }
