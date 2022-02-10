@@ -155,7 +155,7 @@ describe('event handlers unit tests', () => {
             },
           } as any)!
         )
-      ).to.eql(['match', 'sideEffect']);
+      ).to.eql(['sideEffect']);
     });
   });
 });

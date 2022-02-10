@@ -4,30 +4,32 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { CommandHandler, getCommand as GetCommand } from '@/lib/services/runtime/handlers/command';
+import * as EventHandler from '@/lib/services/runtime/handlers/event';
 import { FrameType } from '@/lib/services/runtime/types';
 
 const JumpPathTrace = { type: 'path', payload: { path: 'jump' } };
 const PushPathTrace = { type: 'path', payload: { path: 'push' } };
 
-describe('Util unit tests', () => {
-  describe('getCommand', () => {
-    it('matched', () => {
-      const frames = [
-        { getCommands: sinon.stub().returns([{ event: 'c1' }, { event: 'c2' }]) },
-        { getCommands: sinon.stub().returns([{ event: 'c3' }, { event: 'c4' }]) },
-      ];
-      const stack = { getFrames: sinon.stub().returns(frames) };
-      const runtime = { stack, getRequest: () => 'c4' };
-      const matcher = (c: any) => c.event === c.runtime.getRequest() && 'matcher';
-      expect(GetCommand(runtime as any, matcher as any)).to.eql({ index: 1, command: { event: 'c4' }, match: 'matcher' });
-    });
+describe('getCommand', () => {
+  afterEach(() => {
+    sinon.restore();
+  });
+  it('matched', () => {
+    const frames = [
+      { getCommands: sinon.stub().returns([{ event: 'c1' }, { event: 'c2' }]) },
+      { getCommands: sinon.stub().returns([{ event: 'c3' }, { event: 'c4' }]) },
+    ];
+    const stack = { getFrames: sinon.stub().returns(frames) };
+    const runtime = { stack, getRequest: () => 'c4' };
+    sinon.stub(EventHandler, 'findEventMatcher').callsFake((c: any) => c.event === c.runtime.getRequest() && ('matcher' as any));
+    expect(GetCommand(runtime as any)).to.eql({ index: 1, command: { event: 'c4' }, match: 'matcher' });
+  });
 
-    it('not matched', () => {
-      const stack = { getFrames: sinon.stub().returns([{ getCommands: sinon.stub().returns([{ event: 'c1' }, { event: 'c2' }]) }]) };
-      const runtime = { stack };
-      const matcher = () => false;
-      expect(GetCommand(runtime as any, matcher as any)).to.eql(null);
-    });
+  it('not matched', () => {
+    const stack = { getFrames: sinon.stub().returns([{ getCommands: sinon.stub().returns([{ event: 'c1' }, { event: 'c2' }]) }]) };
+    const runtime = { stack };
+    sinon.stub(EventHandler, 'findEventMatcher').callsFake(() => false as any);
+    expect(GetCommand(runtime as any)).to.eql(null);
   });
 });
 
@@ -38,7 +40,7 @@ describe('Command handler', () => {
       const runtime = {};
 
       expect(CommandHandler({ getCommand } as any).canHandle(runtime as any)).to.eql(false);
-      expect(getCommand.args).to.eql([[runtime]]);
+      expect(getCommand.args).to.eql([[runtime, undefined]]);
     });
 
     it('true', () => {
@@ -46,7 +48,7 @@ describe('Command handler', () => {
       const runtime = {};
 
       expect(CommandHandler({ getCommand } as any).canHandle(runtime as any)).to.eql(true);
-      expect(getCommand.args).to.eql([[runtime]]);
+      expect(getCommand.args).to.eql([[runtime, undefined]]);
     });
   });
 
@@ -63,7 +65,7 @@ describe('Command handler', () => {
       const variables = { var1: 'val1' };
 
       expect(handler.handle(runtime as any, variables as any)).to.eql(null);
-      expect(utils.getCommand.args).to.eql([[runtime]]);
+      expect(utils.getCommand.args).to.eql([[runtime, undefined]]);
       expect(sideEffectStub.args).to.eql([[variables]]);
     });
 
@@ -85,7 +87,7 @@ describe('Command handler', () => {
         const variables = { var1: 'val1' };
 
         expect(handler.handle(runtime as any, variables as any)).to.eql(null);
-        expect(utils.getCommand.args).to.eql([[runtime]]);
+        expect(utils.getCommand.args).to.eql([[runtime, undefined]]);
         expect(sideEffectStub.args).to.eql([[variables]]);
         expect(runtime.stack.getSize.callCount).to.eql(0);
         expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
@@ -112,7 +114,7 @@ describe('Command handler', () => {
           const variables = { var1: 'val1' };
 
           expect(handler.handle(runtime as any, variables as any)).to.eql(null);
-          expect(utils.getCommand.args).to.eql([[runtime]]);
+          expect(utils.getCommand.args).to.eql([[runtime, undefined]]);
           expect(sideEffectStub.args).to.eql([[variables]]);
           expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
           expect(setNodeID.args).to.eql([[commandObj.nextID]]);
@@ -137,7 +139,7 @@ describe('Command handler', () => {
           const variables = { var1: 'val1' };
 
           expect(handler.handle(runtime as any, variables as any)).to.eql(null);
-          expect(utils.getCommand.args).to.eql([[runtime]]);
+          expect(utils.getCommand.args).to.eql([[runtime, undefined]]);
           expect(sideEffectStub.args).to.eql([[variables]]);
           expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
           expect(setNodeID.args).to.eql([[null]]);
@@ -160,7 +162,7 @@ describe('Command handler', () => {
         const variables = { var1: 'val1' };
 
         expect(handler.handle(runtime as any, variables as any)).to.eql(null);
-        expect(utils.getCommand.args).to.eql([[runtime]]);
+        expect(utils.getCommand.args).to.eql([[runtime, undefined]]);
         expect(sideEffectStub.args).to.eql([[variables]]);
       });
 
@@ -181,7 +183,7 @@ describe('Command handler', () => {
         const variables = { var1: 'val1' };
 
         expect(handler.handle(runtime as any, variables as any)).to.eql(null);
-        expect(utils.getCommand.args).to.eql([[runtime]]);
+        expect(utils.getCommand.args).to.eql([[runtime, undefined]]);
         expect(sideEffectStub.args).to.eql([[variables]]);
         expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - adding command flow`, BaseNode.NodeType.COMMAND]]);
         expect(storageSetStub.args).to.eql([[FrameType.CALLED_COMMAND, true]]);
