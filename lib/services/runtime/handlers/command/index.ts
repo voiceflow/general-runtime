@@ -6,7 +6,7 @@ import { Frame, Store } from '@/runtime';
 
 import { findEventMatcher } from '../event';
 
-interface CommandOptions {
+export interface CommandOptions {
   diagramID?: string;
 }
 interface CommandMatch {

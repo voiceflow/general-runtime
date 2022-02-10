@@ -3,7 +3,6 @@ import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { HandlerFactory } from '@/runtime/lib/Handler';
 import { Action } from '@/runtime/lib/Runtime';
 
-import { StorageType } from '../types';
 import CommandHandler from './command';
 
 const utilsObj = {
