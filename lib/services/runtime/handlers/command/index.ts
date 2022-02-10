@@ -4,14 +4,14 @@ import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { FrameType, GeneralRuntime } from '@/lib/services/runtime/types';
 import { Frame, Store } from '@/runtime';
 
-import { findEventMatcher } from '../event';
+import { EventMatcher, findEventMatcher } from '../event';
 
 export interface CommandOptions {
   diagramID?: string;
 }
 interface CommandMatch {
   index: number;
-  match: { sideEffect: (variables: Store) => void };
+  match: EventMatcher;
   command: BaseNode.Utils.AnyCommand;
 }
 
@@ -23,17 +23,18 @@ export const getCommand = (runtime: GeneralRuntime, options: CommandOptions = {}
     const commands = frames[index]?.getCommands<BaseNode.Utils.AnyCommand>();
 
     for (const command of commands) {
-      const match = findEventMatcher({ event: command?.event || null, runtime });
-
       if (options.diagramID && command.diagramID && options.diagramID !== command.diagramID) {
         continue;
       }
+
+      const match = findEventMatcher({ event: command?.event || null, runtime });
 
       if (match) {
         return { index, command, match };
       }
     }
   }
+
   return null;
 };
 

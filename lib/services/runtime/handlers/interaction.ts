@@ -2,7 +2,7 @@ import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { ChatNode } from '@voiceflow/chat-types';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 
-import { Action, HandlerFactory, Runtime } from '@/runtime';
+import { Action, HandlerFactory } from '@/runtime';
 
 import { StorageType } from '../types';
 import { addButtonsIfExists } from '../utils';
