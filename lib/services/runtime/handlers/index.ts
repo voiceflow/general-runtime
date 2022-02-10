@@ -18,6 +18,7 @@ import { Config } from '@/types';
 import _V1Handler from './_v1';
 import CaptureHandler from './capture';
 import CaptureV2Handler from './captureV2';
+import GoToHandler from './goTo';
 import InteractionHandler from './interaction';
 import SpeakHandler from './speak';
 import StateHandlers from './state';
@@ -36,6 +37,7 @@ export default ({
 }: Config) => [
   ...StateHandlers(),
   SpeakHandler(),
+  GoToHandler(),
   InteractionHandler(),
   CaptureV2Handler(),
   CaptureHandler(),
