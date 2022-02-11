@@ -68,7 +68,8 @@ jobs:
     executor: vfcommon/code-test-executor
     steps:
       - checkout
-      - vfcommon/install_node_modules
+      - vfcommon/install_node_modules:
+          avoid_post_install_scripts: false
       - attach_workspace:
           at: ~/voiceflow
       - vfcommon/setup_dynamodb
