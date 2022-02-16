@@ -22,11 +22,9 @@ const GoToHandler: HandlerFactory<BaseNode.GoTo.Node, typeof utilsObj> = (utils)
       return node.id;
     }
 
-    const commandOptions = { diagramID: node.diagramID || undefined };
-
     // check if there is a command in the stack that fulfills request
-    if (utils.commandHandler.canHandle(runtime, commandOptions)) {
-      return utils.commandHandler.handle(runtime, variables, commandOptions);
+    if (utils.commandHandler.canHandle(runtime)) {
+      return utils.commandHandler.handle(runtime, variables);
     }
 
     return node.noMatch?.nodeID || null;

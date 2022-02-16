@@ -6,9 +6,6 @@ import { Frame, Store } from '@/runtime';
 
 import { EventMatcher, findEventMatcher } from '../event';
 
-export interface CommandOptions {
-  diagramID?: string;
-}
 interface CommandMatch {
   index: number;
   match: EventMatcher;
@@ -16,18 +13,14 @@ interface CommandMatch {
 }
 
 // search the stack and see if any commands match
-export const getCommand = (runtime: GeneralRuntime, options: CommandOptions = {}): CommandMatch | null => {
+export const getCommand = (runtime: GeneralRuntime): CommandMatch | null => {
   const frames = runtime.stack.getFrames();
 
   for (let index = frames.length - 1; index >= 0; index--) {
     const commands = frames[index]?.getCommands<BaseNode.Utils.AnyCommand>();
 
     for (const command of commands) {
-      if (options.diagramID && command.diagramID && options.diagramID !== command.diagramID) {
-        continue;
-      }
-
-      const match = findEventMatcher({ event: command?.event || null, runtime });
+      const match = findEventMatcher({ event: command?.event || null, runtime, diagramID: command?.diagramID });
 
       if (match) {
         return { index, command, match };
@@ -48,9 +41,9 @@ const utilsObj = {
  * handlers push and jump commands
  */
 export const CommandHandler = (utils: typeof utilsObj) => ({
-  canHandle: (runtime: GeneralRuntime, options?: CommandOptions): boolean => !!utils.getCommand(runtime, options),
-  handle: (runtime: GeneralRuntime, variables: Store, options?: CommandOptions): string | null => {
-    const { command, index, match } = utils.getCommand(runtime, options)!;
+  canHandle: (runtime: GeneralRuntime): boolean => !!utils.getCommand(runtime),
+  handle: (runtime: GeneralRuntime, variables: Store): string | null => {
+    const { command, index, match } = utils.getCommand(runtime)!;
     // allow matcher to apply side effects
     match.sideEffect(variables);
 

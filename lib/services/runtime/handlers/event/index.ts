@@ -10,6 +10,7 @@ const entitiesToMappings = (entities: BaseRequest.Entity[]) => entities.map(({ n
 export interface MatchContext {
   event: BaseNode.Utils.BaseEvent | null;
   runtime: GeneralRuntime;
+  diagramID?: string | null;
 }
 
 export interface SideEffectContext<
@@ -33,6 +34,7 @@ export const intentEventMatcher: Matcher<BaseRequest.IntentRequest, BaseNode.Uti
     const request = context.runtime.getRequest();
 
     if (!isIntentRequest(request)) return false;
+    if (request.diagramID && context.diagramID && request.diagramID !== context.diagramID) return false;
     if (!context.event || !BaseNode.Utils.isIntentEvent(context.event)) return false;
     if (context.event.intent !== request.payload.intent.name) return false;
 
