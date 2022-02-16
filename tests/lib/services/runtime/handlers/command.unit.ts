@@ -40,7 +40,7 @@ describe('Command handler', () => {
       const runtime = {};
 
       expect(CommandHandler({ getCommand } as any).canHandle(runtime as any)).to.eql(false);
-      expect(getCommand.args).to.eql([[runtime, undefined]]);
+      expect(getCommand.args).to.eql([[runtime]]);
     });
 
     it('true', () => {
@@ -48,7 +48,7 @@ describe('Command handler', () => {
       const runtime = {};
 
       expect(CommandHandler({ getCommand } as any).canHandle(runtime as any)).to.eql(true);
-      expect(getCommand.args).to.eql([[runtime, undefined]]);
+      expect(getCommand.args).to.eql([[runtime]]);
     });
   });
 
@@ -65,7 +65,7 @@ describe('Command handler', () => {
       const variables = { var1: 'val1' };
 
       expect(handler.handle(runtime as any, variables as any)).to.eql(null);
-      expect(utils.getCommand.args).to.eql([[runtime, undefined]]);
+      expect(utils.getCommand.args).to.eql([[runtime]]);
       expect(sideEffectStub.args).to.eql([[variables]]);
     });
 
@@ -87,7 +87,7 @@ describe('Command handler', () => {
         const variables = { var1: 'val1' };
 
         expect(handler.handle(runtime as any, variables as any)).to.eql(null);
-        expect(utils.getCommand.args).to.eql([[runtime, undefined]]);
+        expect(utils.getCommand.args).to.eql([[runtime]]);
         expect(sideEffectStub.args).to.eql([[variables]]);
         expect(runtime.stack.getSize.callCount).to.eql(0);
         expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
@@ -114,7 +114,7 @@ describe('Command handler', () => {
           const variables = { var1: 'val1' };
 
           expect(handler.handle(runtime as any, variables as any)).to.eql(null);
-          expect(utils.getCommand.args).to.eql([[runtime, undefined]]);
+          expect(utils.getCommand.args).to.eql([[runtime]]);
           expect(sideEffectStub.args).to.eql([[variables]]);
           expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
           expect(setNodeID.args).to.eql([[commandObj.nextID]]);
@@ -139,7 +139,7 @@ describe('Command handler', () => {
           const variables = { var1: 'val1' };
 
           expect(handler.handle(runtime as any, variables as any)).to.eql(null);
-          expect(utils.getCommand.args).to.eql([[runtime, undefined]]);
+          expect(utils.getCommand.args).to.eql([[runtime]]);
           expect(sideEffectStub.args).to.eql([[variables]]);
           expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
           expect(setNodeID.args).to.eql([[null]]);
@@ -162,7 +162,7 @@ describe('Command handler', () => {
         const variables = { var1: 'val1' };
 
         expect(handler.handle(runtime as any, variables as any)).to.eql(null);
-        expect(utils.getCommand.args).to.eql([[runtime, undefined]]);
+        expect(utils.getCommand.args).to.eql([[runtime]]);
         expect(sideEffectStub.args).to.eql([[variables]]);
       });
 
@@ -183,7 +183,7 @@ describe('Command handler', () => {
         const variables = { var1: 'val1' };
 
         expect(handler.handle(runtime as any, variables as any)).to.eql(null);
-        expect(utils.getCommand.args).to.eql([[runtime, undefined]]);
+        expect(utils.getCommand.args).to.eql([[runtime]]);
         expect(sideEffectStub.args).to.eql([[variables]]);
         expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - adding command flow`, BaseNode.NodeType.COMMAND]]);
         expect(storageSetStub.args).to.eql([[FrameType.CALLED_COMMAND, true]]);
