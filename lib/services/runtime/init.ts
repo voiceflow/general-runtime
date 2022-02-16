@@ -1,4 +1,4 @@
-import { BaseNode, BaseTrace } from '@voiceflow/base-types';
+import { BaseNode, BaseTrace, BaseUtils } from '@voiceflow/base-types';
 
 import Client, { EventType } from '@/runtime';
 
@@ -35,9 +35,11 @@ const init = (client: Client) => {
     runtime.trace.addTrace(outputTrace({ output }));
   });
 
-  client.setEvent(EventType.handlerWillHandle, ({ runtime, node }) =>
-    runtime.trace.addTrace<BaseTrace.BlockTrace>({ type: BaseNode.Utils.TraceType.BLOCK, payload: { blockID: node.id } })
-  );
+  client.setEvent(EventType.handlerWillHandle, ({ runtime, node }) => {
+    // runtime only nodes don't have associated node on the FE
+    if (BaseUtils.nodeType.isRuntimeOnly(node.type)) return;
+    runtime.trace.addTrace<BaseTrace.BlockTrace>({ type: BaseNode.Utils.TraceType.BLOCK, payload: { blockID: node.id } });
+  });
 
   client.setEvent(EventType.updateDidExecute, ({ runtime }) => {
     const stream = runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY);
