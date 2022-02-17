@@ -45,6 +45,7 @@ describe('interact service unit tests', () => {
             authorization: data.headers.authorization,
             origin: data.headers.origin,
             sessionid: undefined,
+            platform: undefined,
           },
         },
       };
@@ -130,7 +131,7 @@ describe('interact service unit tests', () => {
   it('autoDelegates', async () => {
     const data = {
       body: { state: { foo: 'bar' }, request: 'request' },
-      headers: { versionID: 'versionID', authorization: 'auth', origin: 'origin', sessionid: 'sessionid' },
+      headers: { versionID: 'versionID', authorization: 'auth', origin: 'origin', sessionid: 'sessionid', platform: 'platform' },
       params: {},
       query: { locale: 'locale' },
     };
@@ -142,7 +143,12 @@ describe('interact service unit tests', () => {
       data: {
         locale: data.query.locale,
         config: {},
-        reqHeaders: { authorization: data.headers.authorization, origin: data.headers.origin, sessionid: data.headers.sessionid },
+        reqHeaders: {
+          authorization: data.headers.authorization,
+          origin: data.headers.origin,
+          sessionid: data.headers.sessionid,
+          platform: data.headers.platform,
+        },
       },
     };
 
