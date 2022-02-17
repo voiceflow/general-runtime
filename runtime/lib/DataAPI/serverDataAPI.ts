@@ -52,13 +52,13 @@ class ServerDataAPI<
     return data ?? null;
   };
 
-  public getProgram = async (programID: string) => {
+  public getProgram = async (programID: string): Promise<P> => {
     const { data } = await this.client.get<P>(`/diagrams/${programID}`);
 
     return data;
   };
 
-  public getVersion = async (versionID: string) => {
+  public getVersion = async (versionID: string): Promise<V> => {
     const { data } = await this.client.get<V>(`/version/${versionID}`);
 
     return data;

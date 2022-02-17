@@ -1,7 +1,7 @@
 import { BaseRequest, BaseTrace } from '@voiceflow/base-types';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
-import { State, TurnBuilder } from '@/runtime';
+import { PartialContext, State, TurnBuilder } from '@/runtime';
 import { Context } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
@@ -30,7 +30,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
     params: { userID?: string };
     body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
     query: { locale?: string };
-    headers: { authorization?: string; origin?: string; sessionid?: string; versionID: string };
+    headers: { authorization?: string; origin?: string; sessionid?: string; versionID: string; platform?: string };
   }): Promise<ResponseContext> {
     const { analytics, runtime, metrics, nlu, tts, dialog, asr, speak, slots, state: stateManager, filter } = this.services;
 
@@ -40,18 +40,22 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       body: { state, config = {}, action = null, request = null },
       params: { userID },
       query: { locale },
-      headers: { versionID, authorization, origin, sessionid },
+      headers: { versionID, authorization, origin, sessionid, platform },
     } = req;
 
     metrics.generalRequest();
     if (authorization?.startsWith('VF.')) metrics.sdkRequest();
 
-    const context = {
+    const context: PartialContext<Context> = {
+      data: {
+        locale,
+        config,
+        reqHeaders: { authorization, origin, sessionid, platform },
+      },
       state,
-      request: action ?? request,
       userID,
+      request: action ?? request,
       versionID,
-      data: { locale, config, reqHeaders: { authorization, origin, sessionid } },
     };
 
     const turn = new this.services.utils.TurnBuilder<Context>(stateManager);

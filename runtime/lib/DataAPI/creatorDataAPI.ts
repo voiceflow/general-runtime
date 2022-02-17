@@ -4,8 +4,8 @@ import { AnyRecord, BaseModels } from '@voiceflow/base-types';
 import { DataAPI } from './types';
 
 class CreatorDataAPI<
-  P extends BaseModels.Program.Model<any, any>,
-  V extends BaseModels.Version.Model<any>,
+  P extends BaseModels.Program.Model<any, any> = BaseModels.Program.Model<any, any>,
+  V extends BaseModels.Version.Model<any> = BaseModels.Version.Model<any>,
   PJ extends BaseModels.Project.Model<any, any> = BaseModels.Project.Model<AnyRecord, AnyRecord>
 > implements DataAPI<P, V, PJ> {
   protected client: Client;

@@ -34,6 +34,7 @@ class Project extends AbstractMiddleware {
   })
   async attachID(req: Request<Record<string, unknown>, unknown, { versionID?: string }>, _res: Response, next: NextFunction): Promise<void> {
     const api = await this.services.dataAPI.get(req.headers.authorization);
+
     try {
       // Facilitate supporting routes that require a versionID but do not have to supply one.
       // We can use the provided API key to look up the project and grab the latest version.
@@ -47,8 +48,10 @@ class Project extends AbstractMiddleware {
           throw new VError('Cannot infer project version, provide a specific version header', 404);
         }
 
+        req.headers.prototype = 'api';
         req.headers.projectID = project._id.toString();
         req.headers.versionID = project.devVersion!.toString();
+
         return next();
       }
 
@@ -57,7 +60,9 @@ class Project extends AbstractMiddleware {
       }
 
       const { projectID } = await api.getVersion(req.headers.versionID);
+
       req.headers.projectID = projectID;
+
       return next();
     } catch (err) {
       if (err instanceof VError) throw err;

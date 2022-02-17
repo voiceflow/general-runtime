@@ -78,6 +78,7 @@ export class AnalyticsSystem extends AbstractClient {
     return {
       eventId: eventID,
       request: {
+        platform: metadata.data.reqHeaders?.platform,
         session_id: sessionId,
         version_id: versionID,
         state: metadata.state,
@@ -147,7 +148,7 @@ export class AnalyticsSystem extends AbstractClient {
           await this.ingestClient?.doIngest(interactIngestBody);
 
           // Voiceflow response
-          return this.processTrace({ fullTrace: metadata.trace ?? [], turnID: response.data.turn_id, versionID, timestamp });
+          await this.processTrace({ fullTrace: metadata.trace ?? [], turnID: response.data.turn_id, versionID, timestamp });
         }
         break;
       }

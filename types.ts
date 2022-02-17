@@ -96,13 +96,14 @@ export type Class<T, A extends any[]> = { new (...args: A): T };
 export type AnyClass = Class<any, any[]>;
 
 export type ContextData = {
-  locale?: string;
   api: CacheDataAPI;
+  locale?: string;
   config?: BaseRequest.RequestConfig;
   reqHeaders?: {
-    authorization?: string;
     origin?: string;
+    platform?: string;
     sessionid?: string;
+    authorization?: string;
   };
 };
 

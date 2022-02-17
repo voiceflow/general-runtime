@@ -5,8 +5,8 @@ import * as Path from 'path';
 import { DataAPI } from './types';
 
 class LocalDataAPI<
-  P extends BaseModels.Program.Model<any, any>,
-  V extends BaseModels.Version.Model<any>,
+  P extends BaseModels.Program.Model<any, any> = BaseModels.Program.Model<any, any>,
+  V extends BaseModels.Version.Model<any> = BaseModels.Version.Model<any>,
   PJ extends BaseModels.Project.Model<any, any> = BaseModels.Project.Model<AnyRecord, AnyRecord>
 > implements DataAPI<P, V, PJ> {
   private version: V;

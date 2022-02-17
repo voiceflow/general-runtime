@@ -1,3 +1,5 @@
+import { AnyRecord } from '@voiceflow/base-types';
+
 import Handler from '@/runtime/lib/Handler';
 import Lifecycle, { AbstractLifecycle, Event, EventType } from '@/runtime/lib/Lifecycle';
 import cycleStack from '@/runtime/lib/Runtime/cycleStack';
@@ -9,10 +11,10 @@ import Store, { State as StorageState } from './Store';
 import Trace from './Trace';
 import ProgramManager from './utils/programManager';
 
-export interface Options<DA extends DataAPI = DataAPI> {
+export interface Options<DA extends DataAPI = DataAPI, S extends AnyRecord = AnyRecord> {
   api: DA;
   handlers?: Handler<any>[];
-  services?: Record<string, any>;
+  services?: S;
 }
 
 export interface State {
@@ -29,7 +31,7 @@ export enum Action {
   END,
 }
 
-class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends AbstractLifecycle {
+class Runtime<R extends any = any, DA extends DataAPI = DataAPI, S extends AnyRecord = AnyRecord> extends AbstractLifecycle {
   public turn: Store;
 
   public stack: Stack;
@@ -43,7 +45,7 @@ class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends Abstrac
   public trace: Trace;
 
   // services
-  public services: Record<string, any>;
+  public services: S;
 
   public api: DA;
 
@@ -59,7 +61,7 @@ class Runtime<R extends any = any, DA extends DataAPI = DataAPI> extends Abstrac
     public versionID: string,
     state: State,
     private request: R | null = null,
-    { services = {}, handlers = [], api }: Options<DA>,
+    { services = {} as S, handlers = [], api }: Options<DA, S>,
     events: Lifecycle
   ) {
     super(events);

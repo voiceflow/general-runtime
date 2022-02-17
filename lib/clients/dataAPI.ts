@@ -1,4 +1,4 @@
-import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
+import { VoiceflowConstants, VoiceflowProgram, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 
 import { CreatorDataApi, LocalDataApi } from '@/runtime';
 import { Config } from '@/types';
@@ -10,13 +10,13 @@ import Static from './static';
  * Build all clients
  */
 class DataAPI {
-  localDataApi?: LocalDataApi<any, any>;
+  localDataApi?: LocalDataApi<VoiceflowProgram.Program, VoiceflowVersion.Version>;
 
   remoteDataApi?: RemoteDataAPI;
 
   creatorAPIAuthorization?: string;
 
-  creatorDataApi?: (authorization: string) => CreatorDataApi<any, any, any>;
+  creatorDataApi?: (authorization: string) => CreatorDataApi<VoiceflowProgram.Program, VoiceflowVersion.Version>;
 
   constructor(config: Config, API = { LocalDataApi, RemoteDataAPI, CreatorDataApi }) {
     const { PROJECT_SOURCE, ADMIN_SERVER_DATA_API_TOKEN, VF_DATA_ENDPOINT, CREATOR_API_AUTHORIZATION, CREATOR_API_ENDPOINT } = config;

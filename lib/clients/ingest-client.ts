@@ -21,6 +21,7 @@ export interface TurnBody<T> {
     state?: State;
     timestamp?: string;
     metadata?: T;
+    platform?: string;
   };
 }
 
