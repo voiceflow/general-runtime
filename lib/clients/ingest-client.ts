@@ -1,7 +1,5 @@
 import Axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
-import { State } from '@/runtime/lib/Runtime';
-
 export enum Event {
   INTERACT = 'interact',
   TURN = 'turn',
@@ -18,7 +16,6 @@ export interface TurnBody<T> {
   request: {
     version_id?: string;
     session_id?: string;
-    state?: State;
     timestamp?: string;
     metadata?: T;
   };

@@ -80,7 +80,6 @@ export class AnalyticsSystem extends AbstractClient {
       request: {
         session_id: sessionId,
         version_id: versionID,
-        state: metadata.state,
         timestamp: timestamp.toISOString(),
         metadata: {
           end: metadata.end,
