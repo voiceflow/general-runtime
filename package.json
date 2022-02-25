@@ -27,7 +27,7 @@
     "@voiceflow/verror": "^1.1.0",
     "@voiceflow/voice-types": "2.4.2",
     "@voiceflow/voiceflow-types": "^3.4.11",
-    "ajv": "6.12.2",
+    "ajv": "6.12.3",
     "axios": "^0.21.1",
     "compression": "^1.7.4",
     "connect-timeout": "^1.9.0",
