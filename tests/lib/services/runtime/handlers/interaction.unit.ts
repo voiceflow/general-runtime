@@ -123,6 +123,32 @@ describe('Interaction handler', () => {
             expect(utils.noMatchHandler.handle.args).to.eql([[node, runtime, variables]]);
           });
 
+          it('local scope', () => {
+            const utils = {
+              commandHandler: { canHandle: sinon.stub() },
+              repeatHandler: { canHandle: sinon.stub().returns(false) },
+              noReplyHandler: { canHandle: sinon.stub().returns(false) },
+              noMatchHandler: { handle: sinon.stub().returns('else-id') },
+            };
+
+            const node = { id: 'node-id', interactions: [], intentScope: BaseNode.Utils.IntentScope.NODE };
+            const runtime = {
+              getAction: sinon.stub().returns(Action.REQUEST),
+              getRequest: sinon.stub().returns({}),
+              setAction: sinon.stub(),
+              trace: { addTrace: sinon.stub() },
+              storage: { delete: sinon.stub(), get: sinon.stub(), set: sinon.stub() },
+            };
+            const variables = { var1: 'val1' };
+            const handler = InteractionHandler(utils as any);
+
+            expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('else-id');
+            expect(runtime.getAction.callCount).to.eql(1);
+            expect(utils.commandHandler.canHandle.callCount).to.eql(0);
+            expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
+            expect(utils.noMatchHandler.handle.args).to.eql([[node, runtime, variables]]);
+          });
+
           it('no matcher', () => {
             const utils = {
               commandHandler: { canHandle: sinon.stub().returns(false) },

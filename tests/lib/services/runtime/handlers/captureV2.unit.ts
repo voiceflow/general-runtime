@@ -1,4 +1,5 @@
 /* eslint-disable max-nested-callbacks */
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -169,6 +170,50 @@ describe('CaptureV2 handler', () => {
           expect(runtime.getRequest.callCount).to.eql(1);
           expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', payload: { path: 'capture' } }]]);
           expect(variables.merge.args).to.eql([[{ entity1: 'value1' }]]);
+        });
+
+        it('local scope', () => {
+          const utils = {
+            commandHandler: {
+              canHandle: sinon.stub(),
+            },
+            repeatHandler: {
+              canHandle: sinon.stub().returns(false),
+            },
+            noReplyHandler: {
+              canHandle: sinon.stub().returns(false),
+            },
+          };
+          const handler = CaptureV2Handler(utils as any);
+
+          const node = {
+            id: 'node-id',
+            intent: { name: 'intent1', entities: ['entity1', 'entity2'] },
+            intentScope: BaseNode.Utils.IntentScope.NODE,
+            nextId: 'next-id',
+          };
+          const request = {
+            type: 'intent',
+            payload: {
+              intent: {
+                name: 'intent1',
+              },
+              entities: [],
+            },
+          };
+          const runtime = {
+            getAction: sinon.stub().returns(Action.REQUEST),
+            getRequest: sinon.stub().returns(request),
+            trace: { addTrace: sinon.stub() },
+            storage: { delete: sinon.stub() },
+          };
+          const variables = { merge: sinon.stub() };
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
+
+          expect(utils.commandHandler.canHandle.callCount).to.eql(0);
+          expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
+          expect(runtime.getRequest.callCount).to.eql(1);
+          expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', payload: { path: 'capture' } }]]);
         });
 
         it('capture entire reply', () => {
