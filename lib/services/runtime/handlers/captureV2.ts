@@ -72,11 +72,14 @@ export const CaptureV2Handler: HandlerFactory<CaptureNode, typeof utilsObj> = (u
     const request = runtime.getRequest();
 
     // If capturing the entire user response, we need a high confidence to leave to another capture step
-    if (!isNodeCapturingEntireResponse(node) || isConfidenceScoreAbove(ENTIRE_RESPONSE_CONFIDENCE_THRESHOLD, request.payload?.confidence)) {
-      // check if there is a command in the stack that fulfills request
-      if (utils.commandHandler.canHandle(runtime)) {
-        return utils.commandHandler.handle(runtime, variables);
-      }
+    const lowConfidence =
+      isNodeCapturingEntireResponse(node) && !isConfidenceScoreAbove(ENTIRE_RESPONSE_CONFIDENCE_THRESHOLD, request.payload?.confidence);
+
+    const isLocalScope = node.intentScope === BaseNode.Utils.IntentScope.NODE;
+
+    // check if there is a command in the stack that fulfills request
+    if (!isLocalScope && !lowConfidence && utils.commandHandler.canHandle(runtime)) {
+      return utils.commandHandler.handle(runtime, variables);
     }
 
     if (utils.repeatHandler.canHandle(runtime)) {

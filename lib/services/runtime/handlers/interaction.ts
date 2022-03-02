@@ -70,7 +70,7 @@ export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node |
     }
 
     // check if there is a command in the stack that fulfills request
-    if (utils.commandHandler.canHandle(runtime)) {
+    if (utils.commandHandler.canHandle(runtime) && node.intentScope !== BaseNode.Utils.IntentScope.NODE) {
       return utils.commandHandler.handle(runtime, variables);
     }
 
