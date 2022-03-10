@@ -823,7 +823,7 @@
     "@types/qs" "*"
     "@types/range-parser" "*"
 
-"@types/express@*", "@types/express@^4.17.11", "@types/express@^4.17.13":
+"@types/express@*", "@types/express@^4.17.13":
   version "4.17.13"
   resolved "https://registry.yarnpkg.com/@types/express/-/express-4.17.13.tgz#a76e2995728999bab51a33fabce1d705a3709034"
   integrity sha512-6bSZTPaTIACxn48l50SR+axgrqm6qXFIxrdAKaG6PaJk3+zuUr35hBlgT7vOmJcum+OEaIBLtHV/qloEAFITeA==
@@ -1200,13 +1200,12 @@
     jwt-decode "^3.1.2"
     superstruct "^0.10.12"
 
-"@voiceflow/backend-utils@4.3.1":
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/@voiceflow/backend-utils/-/backend-utils-4.3.1.tgz#ac7d488d8c0de2e78b977554ee96197e89e6ae91"
-  integrity sha512-Pck1GKOFghq2k1BvW62YG4MFxIKZJpOwkrE/wZ1kKaDcn5tmTaVn1+KuYIAy38HAScqS4HiATeGf3ojqygAFLw==
+"@voiceflow/backend-utils@4.4.0":
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/backend-utils/-/backend-utils-4.4.0.tgz#337ea4be23378be4284e76d90f5bae64cac0092b"
+  integrity sha512-HJo5iYyuirE00oDfDDLIvb+Py9UKeKgXJ5KD361hBhlPLyIy1Zj18iw6/MUStcIkJzWH676XFSGCBtTWpx1NDA==
   dependencies:
     "@types/chai" "^4.2.16"
-    "@types/express" "^4.17.11"
     "@types/ioredis" "^4.26.4"
     "@types/lodash" "^4.14.168"
     "@types/luxon" "^1.26.4"
@@ -1215,7 +1214,7 @@
     "@voiceflow/verror" "^1.1.0"
     chai "^4.3.4"
     dotenv "^10.0.0"
-    express "^4.17.1"
+    http-errors "^2.0.0"
     http-status "^1.4.2"
     lodash "^4.17.11"
     luxon "^1.21.3"
@@ -3123,6 +3122,11 @@ depcheck@^1.3.1:
     semver "^7.3.2"
     yargs "^16.1.0"
 
+depd@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/depd/-/depd-2.0.0.tgz#b696163cc757560d09cf22cc8fad1571b79e76df"
+  integrity sha512-g7nH6P6dyDioJogAAGprGpCtVImJhpPk/roCzdb3fIh61/s/nPsfR6onyMwkCAR/OlC3yBC0lESvUoQEAssIrw==
+
 depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/depd/-/depd-1.1.2.tgz#9bcd52e14c097763e749b274c4346ed2e560b5a9"
@@ -4749,6 +4753,17 @@ http-errors@1.8.1:
     inherits "2.0.4"
     setprototypeof "1.2.0"
     statuses ">= 1.5.0 < 2"
+    toidentifier "1.0.1"
+
+http-errors@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/http-errors/-/http-errors-2.0.0.tgz#b7774a1486ef73cf7667ac9ae0858c012c57b9d3"
+  integrity sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==
+  dependencies:
+    depd "2.0.0"
+    inherits "2.0.4"
+    setprototypeof "1.2.0"
+    statuses "2.0.1"
     toidentifier "1.0.1"
 
 http-errors@~1.6.1:
@@ -8357,6 +8372,11 @@ static-extend@^0.1.1:
   dependencies:
     define-property "^0.2.5"
     object-copy "^0.1.0"
+
+statuses@2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/statuses/-/statuses-2.0.1.tgz#55cb000ccf1d48728bd23c685a063998cf1a1b63"
+  integrity sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==
 
 "statuses@>= 1.4.0 < 2", "statuses@>= 1.5.0 < 2", statuses@~1.5.0:
   version "1.5.0"

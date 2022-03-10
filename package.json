@@ -16,7 +16,7 @@
     "@types/mathjs": "^6.0.4",
     "@types/workerpool": "^5.0.1",
     "@voiceflow/api-sdk": "3.10.0",
-    "@voiceflow/backend-utils": "4.3.1",
+    "@voiceflow/backend-utils": "4.4.0",
     "@voiceflow/base-types": "2.17.0",
     "@voiceflow/body-parser": "^1.21.1",
     "@voiceflow/chat-types": "2.6.0",
