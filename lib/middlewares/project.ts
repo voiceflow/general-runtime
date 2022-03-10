@@ -56,7 +56,7 @@ class Project extends AbstractMiddleware {
       }
 
       if (!req.headers.versionID) {
-        throw new Error();
+        throw new VError('Missing version-id header', 400);
       }
 
       const { projectID } = await api.getVersion(req.headers.versionID);
