@@ -62,10 +62,15 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
       throw new Error('context versionID not defined');
     }
 
-    if (context.request?.type === BaseRequest.RequestType.LAUNCH && context.state) {
+    if (context.request && BaseRequest.isLaunchRequest(context.request) && context.state) {
       context.state.stack = [];
       context.state.storage = {};
       context.request = null;
+    }
+
+    // sanitize incoming intents
+    if (context.request && BaseRequest.isIntentRequest(context.request) && !context.request.payload.entities) {
+      context.request.payload.entities = [];
     }
 
     // cache per interaction (save version call during request/response cycle)
