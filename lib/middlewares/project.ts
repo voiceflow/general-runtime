@@ -43,9 +43,9 @@ class Project extends AbstractMiddleware {
           throw new VError('Version lookup only supported via Creator Data API');
         }
 
-        const project = await api.getProjectUsingAuthorization(req.headers.authorization);
+        const project = await api.getProjectUsingAuthorization(req.headers.authorization).catch(() => null);
         if (!project) {
-          throw new VError('Cannot infer project version, provide a specific version header', 404);
+          throw new VError('Cannot infer project version, provide a specific version in the versionID header', 404);
         }
 
         req.headers.prototype = 'api';
@@ -56,7 +56,7 @@ class Project extends AbstractMiddleware {
       }
 
       if (!req.headers.versionID) {
-        throw new VError('Missing version-id header', 400);
+        throw new VError('Missing versionID header', 400);
       }
 
       const { projectID } = await api.getVersion(req.headers.versionID);
