@@ -81,6 +81,7 @@ export const CaptureHandler: HandlerFactory<VoiceflowNode.Capture.Node | ChatNod
       type: BaseNode.Utils.TraceType.PATH,
       payload: { path: 'capture' },
     });
+
     return node.nextId || null;
   },
 });

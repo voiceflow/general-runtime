@@ -10,7 +10,7 @@ import { VoiceModels } from '@voiceflow/voice-types';
 import { VoiceflowConstants, VoiceflowUtils, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
-import { hasElicit } from '@/lib/services/runtime/handlers/utils/entity';
+import { hasElicit, setElicit } from '@/lib/services/runtime/handlers/utils/entity';
 import log from '@/logger';
 import { Context, ContextHandler } from '@/types';
 
@@ -104,12 +104,11 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     const incomingRequest = context.request;
     const currentStore = context.state.storage[StorageType.DM];
     const dmStateStore: DMStore = { ...currentStore, priorIntent: currentStore?.intentRequest };
+    const { query } = incomingRequest.payload;
 
     // if there is an existing entity filling request
     if (dmStateStore?.intentRequest) {
       log.debug('[app] [runtime] [dm] in entity filling context');
-
-      const { query } = incomingRequest.payload;
 
       try {
         const prefix = dmPrefix(dmStateStore.intentRequest.payload.intent.name);
@@ -204,7 +203,17 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     }
 
     // No more unfulfilled required entities -> populate the request object with the final intent and extracted entities from the DM state store
-    context.request = rectifyEntityValue(dmStateStore!.intentRequest, version.prototype.model);
+    let intentRequest = rectifyEntityValue(dmStateStore!.intentRequest, version.prototype.model);
+
+    // to show correct query in the transcripts
+    intentRequest.payload.query = query;
+
+    if (!unfulfilledEntity) {
+      // removing elicit from the request to show the last intent in the transcript
+      intentRequest = setElicit(intentRequest, false);
+    }
+
+    context.request = intentRequest;
 
     // Clear the DM state store
     return DialogManagement.setDMStore(context, undefined);
