@@ -1,5 +1,5 @@
 import { BaseModels, BaseNode, BaseRequest, BaseText, BaseTrace } from '@voiceflow/base-types';
-import { replaceVariables, sanitizeVariables, transformStringVariableToNumber } from '@voiceflow/common';
+import { replaceVariables, sanitizeVariables, transformStringVariableToNumber, Utils } from '@voiceflow/common';
 import cuid from 'cuid';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
 import _isString from 'lodash/isString';
@@ -53,6 +53,18 @@ export const slateInjectVariables = (slateValue: BaseText.SlateTextValue, variab
   return _cloneDeepWith(slateValue, customizer);
 };
 
+const processActions = (actions: BaseRequest.Action.BaseAction<unknown>[] | undefined, variables: Store) =>
+  actions?.map((action) => {
+    if (BaseRequest.Action.isOpenURLAction(action)) {
+      return {
+        ...action,
+        payload: { ...action.payload, url: replaceVariables(action.payload.url, variables.getState()) },
+      };
+    }
+
+    return action;
+  });
+
 export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(node: N, runtime: Runtime, variables: Store): void => {
   let buttons: BaseRequest.AnyRequestButton[] = [];
 
@@ -72,6 +84,8 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(node: N, ru
           };
         }
 
+        const actions = processActions(request.payload?.actions, variables);
+
         if (BaseRequest.isIntentRequest(request)) {
           return {
             name: processedName,
@@ -81,6 +95,7 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(node: N, ru
                 ...request.payload,
                 query: replaceVariables(request.payload.query, variables.getState()),
                 label: request.payload.label && replaceVariables(request.payload.label, variables.getState()),
+                actions,
               },
             },
           };
@@ -94,6 +109,7 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(node: N, ru
               payload: {
                 ...request.payload,
                 label: replaceVariables(request.payload.label, variables.getState()),
+                actions,
               },
             },
           };
@@ -101,7 +117,10 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(node: N, ru
 
         return {
           name: processedName,
-          request,
+          request: {
+            ...request,
+            payload: !Utils.object.isObject(request.payload) ? request.payload : { ...request.payload, actions },
+          },
         };
       });
   }
