@@ -67,7 +67,7 @@ describe('runtime utils service unit tests', () => {
               buttons: [
                 {
                   name: 'button value1',
-                  request: { type: 'intent', payload: { label: undefined, intent: { name: 'intent' }, query: 'button value1' } },
+                  request: { type: 'intent', payload: { actions: undefined, label: undefined, intent: { name: 'intent' }, query: 'button value1' } },
                 },
                 { name: 'button value2 ', request: { type: 'text', payload: 'value2' } },
               ],
