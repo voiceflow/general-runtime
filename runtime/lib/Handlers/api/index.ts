@@ -29,14 +29,17 @@ const APIHandler = (config: ResponseConfig = {}): Handler<BaseNode.Integration.N
 
       // if custom api returned error http status nextId to fail port, otherwise success
       if (data.response.status >= 400) {
-        runtime.trace.debug(`API call returned status code ${data.response.status}`, BaseNode.NodeType.API);
+        runtime.trace.debug(
+          `API call error - \n${safeJSONStringify({ status: data.response.status, data: data.response.data })}`,
+          BaseNode.NodeType.API
+        );
         nextId = node.fail_id ?? null;
       } else {
         runtime.trace.debug('API call successfully triggered', BaseNode.NodeType.API);
         nextId = node.success_id ?? null;
       }
     } catch (error) {
-      runtime.trace.debug(`API call failed - Error: \n${safeJSONStringify(error.response?.data || error)}`, BaseNode.NodeType.API);
+      runtime.trace.debug(`API call failed - Error: \n${safeJSONStringify(error?.message || error)}`, BaseNode.NodeType.API);
       nextId = node.fail_id ?? null;
     }
 
