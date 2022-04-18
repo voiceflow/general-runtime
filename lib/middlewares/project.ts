@@ -34,14 +34,16 @@ class Project extends AbstractMiddleware {
     HEADERS_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION,
   })
   async attachID(req: Request<Record<string, unknown>, unknown, { versionID?: string }>, _res: Response, next: NextFunction): Promise<void> {
-    const api = await this.services.dataAPI.get(req.headers.authorization);
+    const api = await this.services.dataAPI.get(req.headers.authorization).catch((error) => {
+      throw new VError(`invalid API key: ${error}`, VError.HTTP_STATUS.UNAUTHORIZED);
+    });
 
     try {
       // Facilitate supporting routes that require a versionID but do not have to supply one.
       // We can use the provided API key to look up the project and grab the latest version.
       if (!req.headers.versionID && BaseModels.ApiKey.isDialogManagerAPIKey(req.headers.authorization)) {
         if (!(api instanceof CreatorDataApi)) {
-          throw new VError('Version lookup only supported via Creator Data API');
+          throw new VError('Version lookup only supported via Creator Data API', VError.HTTP_STATUS.UNAUTHORIZED);
         }
 
         const project = await api.getProjectUsingAuthorization(req.headers.authorization).catch(() => null);
@@ -67,7 +69,7 @@ class Project extends AbstractMiddleware {
       return next();
     } catch (err) {
       if (err instanceof VError) throw err;
-      else throw new VError('no permissions for this version');
+      else throw new VError('no permissions for this version', VError.HTTP_STATUS.UNAUTHORIZED);
     }
   }
 }
