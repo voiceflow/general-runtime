@@ -41,8 +41,8 @@ describe('EndHandler unit tests', () => {
       expect(endHandler.handle(null as any, runtime as any, null as any, null as any)).to.eql(null);
       expect(runtime.stack.pop.callCount).to.eql(1);
       expect(frame.setNodeID.args).to.eql([[null]]);
-      expect(frame.getNodeID.callCount).to.eql(2);
-      expect(runtime.stack.top.callCount).to.eql(3);
+      expect(frame.getNodeID.callCount).to.eql(1);
+      expect(runtime.stack.top.callCount).to.eql(2);
       expect(runtime.stack.isEmpty.callCount).to.eql(2);
       expect(runtime.turn.set.args).to.eql([['end', true]]);
       expect(runtime.end.callCount).to.eql(1);
