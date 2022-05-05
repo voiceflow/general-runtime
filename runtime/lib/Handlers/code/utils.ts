@@ -62,12 +62,12 @@ export const ivmExecute = async (data: { code: string; variables: Record<string,
   }
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export const vmExecute = (
   data: { code: string; variables: Record<string, any> },
-  testingEnv = false /* set to true when running in testing env */,
+  testingEnv?: boolean | undefined /* set to true when running in testing env */,
   callbacks?: Record<string, (...args: any) => any>
 ) => {
+  const testingEnvValue = testingEnv ?? false;
   const vm = new VM({
     timeout: 1000,
     sandbox: {
@@ -89,7 +89,7 @@ export const vmExecute = (
             });
           })();`;
 
-  vm.run(`${testingEnv ? '' : clearContext} ${data.code}`);
+  vm.run(`${testingEnvValue ? '' : clearContext} ${data.code}`);
 
   return Object.keys(data.variables).reduce<Record<string, any>>((acc, key) => {
     const newValue = vm.getGlobal(key);

@@ -261,12 +261,7 @@ describe('_v1 handler unit tests', () => {
           ],
         };
         const matcher = { sideEffect: sinon.stub() };
-        const findEventMatcher = sinon
-          .stub()
-          .onFirstCall()
-          .returns(null)
-          .onSecondCall()
-          .returns(matcher);
+        const findEventMatcher = sinon.stub().onFirstCall().returns(null).onSecondCall().returns(matcher);
         const runtime = {
           getAction: sinon.stub().returns(Action.REQUEST),
           trace: { addTrace: sinon.stub() },
@@ -288,12 +283,7 @@ describe('_v1 handler unit tests', () => {
           paths: [{ event: { name: 'event1' }, nextID: 'next-id' }, { event: { name: 'event2' } }],
         };
         const matcher = { sideEffect: sinon.stub() };
-        const findEventMatcher = sinon
-          .stub()
-          .onFirstCall()
-          .returns(null)
-          .onSecondCall()
-          .returns(matcher);
+        const findEventMatcher = sinon.stub().onFirstCall().returns(null).onSecondCall().returns(matcher);
         const runtime = {
           getAction: sinon.stub().returns(Action.REQUEST),
           trace: { addTrace: sinon.stub() },

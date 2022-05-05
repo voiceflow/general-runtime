@@ -47,7 +47,7 @@ export enum StreamAudioDirective {
   REPLACE_ALL = 'REPLACE_ALL',
 }
 
-export type StreamPlayStorage = {
+export interface StreamPlayStorage {
   src: string;
   loop: boolean;
   token: string;
@@ -57,12 +57,12 @@ export type StreamPlayStorage = {
   nextID?: BaseNode.Utils.NodeID;
   pauseID?: BaseNode.Utils.NodeID;
   previousID?: BaseNode.Utils.NodeID;
-};
+}
 
-export type StreamPauseStorage = {
+export interface StreamPauseStorage {
   id: string;
   offset: number;
-};
+}
 
 export type NoMatchCounterStorage = number;
 export type NoReplyCounterStorage = number;

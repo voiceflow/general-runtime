@@ -45,6 +45,7 @@ describe('rateLimit middleware unit tests', () => {
         await expect(middleware.verify(req as any, null as any, null as any)).to.eventually.rejectedWith('Auth Key Required');
       });
 
+      // eslint-disable-next-line sonarjs/no-identical-functions
       it('origin doesnt match and no auth', async () => {
         const middleware = new RateLimit({} as any, {} as any);
         const req = { headers: {} };

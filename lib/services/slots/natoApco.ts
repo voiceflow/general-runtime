@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { BaseRequest } from '@voiceflow/base-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
@@ -16,7 +15,7 @@ interface QueryWord {
   isNatoApco: boolean;
 }
 
-const firstLetterExpections = ['00', '000'];
+const firstLetterExpections = new Set(['00', '000']);
 const natoApcoExceptions = new Map([
   ['to', 2],
   ['for', 4],
@@ -57,23 +56,24 @@ const processQuery = (query: string, entityVerboseValue: BaseRequest.VerboseValu
 // This function also adds multi-digit numbers and other exceptions to entity.value if
 // they are between detected NATO/APCO words.
 export const natoApcoConverter = (entities: BaseRequest.Entity[], slots: Slot[], query: string) => {
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   entities.forEach((entity) => {
     slots.forEach((slot) => {
       if (entity.name === slot.name && slot.type.value === VoiceflowConstants.SlotType.NATOAPCO) {
         // if using regex raw value will not be populated
         if (!Array.isArray(entity.verboseValue)) {
           const splitValue = entity.value.split(' ').map((value) => [value]);
-          entity.value = splitValue.reduce((acc, cur) => (firstLetterExpections.includes(cur[0]) ? acc + cur[0] : acc + cur[0][0]), '').toUpperCase();
+          entity.value = splitValue.reduce((acc, cur) => (firstLetterExpections.has(cur[0]) ? acc + cur[0] : acc + cur[0][0]), '').toUpperCase();
         } else {
           const processedQuery = processQuery(query, entity.verboseValue);
           entity.value = '';
           processedQuery.forEach((word, i) => {
             if (word.isNatoApco) {
               // Word was detected by LUIS successfully
-              entity.value += firstLetterExpections.includes(word.canonicalText) ? word.canonicalText : word.canonicalText[0];
+              entity.value += firstLetterExpections.has(word.canonicalText) ? word.canonicalText : word.canonicalText[0];
             } else if ((i > 0 && processedQuery[i - 1].isNatoApco) || (i < processedQuery.length - 1 && processedQuery[i + 1].isNatoApco)) {
               // Word was not detected by LUIS, check if it was missed and should be included
-              if (word.rawText.match(/^[0-9]+$/)) {
+              if (word.rawText.match(/^\d+$/)) {
                 entity.value += word.rawText;
                 word.isNatoApco = true;
               } else if (natoApcoExceptions.has(word.rawText)) {

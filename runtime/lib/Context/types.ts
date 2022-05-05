@@ -2,7 +2,7 @@ import { BaseNode } from '@voiceflow/base-types';
 
 import { State } from '@/runtime/lib/Runtime';
 
-export type Context<R = Record<string, unknown>, T = BaseNode.Utils.BaseTraceFrame, D = Record<string, unknown>> = {
+export interface Context<R = Record<string, unknown>, T = BaseNode.Utils.BaseTraceFrame, D = Record<string, unknown>> {
   end?: boolean;
   data: D;
   state: Omit<State, 'trace'>;
@@ -10,7 +10,7 @@ export type Context<R = Record<string, unknown>, T = BaseNode.Utils.BaseTraceFra
   userID?: string;
   request: R;
   versionID: string;
-};
+}
 
 export type ContextHandle<C extends Context<any, any, any>> = (request: C) => C | Promise<C>;
 

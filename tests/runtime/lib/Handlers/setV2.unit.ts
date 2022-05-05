@@ -46,8 +46,7 @@ describe('setV2 handler unit tests', () => {
       expect(codeHandler.handle.args).to.eql([
         [
           {
-            code:
-              '\n        let evaluated;\n    \n            evaluated = eval(`undefined`);\n            a = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;\n        \n            evaluated = eval(`NaN`);\n            b = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;\n        \n            evaluated = eval(`(1 + 8)/3`);\n            c = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;\n        ',
+            code: '\n        let evaluated;\n    \n            evaluated = eval(`undefined`);\n            a = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;\n        \n            evaluated = eval(`NaN`);\n            b = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;\n        \n            evaluated = eval(`(1 + 8)/3`);\n            c = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;\n        ',
             id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE',
             type: BaseNode.NodeType.CODE,
           },

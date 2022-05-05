@@ -8,14 +8,14 @@ import { HandlerFactory } from '@/runtime/lib/Handler';
 
 import { ENDPOINTS_MAP, resultMappings } from './utils';
 
-export type IntegrationsOptions = {
+export interface IntegrationsOptions {
   integrationsEndpoint: string;
-};
+}
 
-const VALID_INTEGRATIONS = [BaseNode.Utils.IntegrationType.ZAPIER, BaseNode.Utils.IntegrationType.GOOGLE_SHEETS];
+const VALID_INTEGRATIONS = new Set([BaseNode.Utils.IntegrationType.ZAPIER, BaseNode.Utils.IntegrationType.GOOGLE_SHEETS]);
 
 const IntegrationsHandler: HandlerFactory<BaseNode.Integration.Node, IntegrationsOptions> = ({ integrationsEndpoint }) => ({
-  canHandle: (node) => node.type === BaseNode.NodeType.INTEGRATIONS && VALID_INTEGRATIONS.includes(node.selected_integration),
+  canHandle: (node) => node.type === BaseNode.NodeType.INTEGRATIONS && VALID_INTEGRATIONS.has(node.selected_integration),
   handle: async (node, runtime, variables) => {
     if (!node.selected_integration || !node.selected_action) {
       runtime.trace.debug('no integration or action specified - fail by default', BaseNode.NodeType.INTEGRATIONS);

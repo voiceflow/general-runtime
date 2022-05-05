@@ -174,6 +174,7 @@ const popOpStackUntil = (
 
 // shunting-yard algorithm parses mathematical expressions specified in infix notation
 // it returns a postfix notation string
+// eslint-disable-next-line sonarjs/cognitive-complexity
 const shuntingYard = async (expression: string, variables: Record<string, any>): Promise<Array<string>> => {
   const RPN = [];
   const operatorStack = new Stack();
@@ -181,7 +182,7 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
   let i = 0;
   while (i < expression.length) {
     const currToken = expression[i];
-    if (currToken.match(/[0-9]/) || (currToken === '-' && expression[i + 1] && expression[i + 1].match(/[0-9]/))) {
+    if (currToken.match(/\d/) || (currToken === '-' && expression[i + 1] && expression[i + 1].match(/\d/))) {
       // Matched a number
       let num = '';
       let dotCount = 0;
@@ -192,7 +193,7 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
       }
 
       // Get all the digits, even if float
-      while (i < expression.length && expression[i].match(/^([0-9]|\.)$/)) {
+      while (i < expression.length && expression[i].match(/^([\d.])$/)) {
         num += expression[i];
         i++;
 
@@ -207,7 +208,7 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
 
       RPN.push(parseFloat(num));
       i--;
-    } else if (currToken.match(/^(=|>|<|&|\|)$/)) {
+    } else if (currToken.match(/^([&<=>|])$/)) {
       // Matched a function/special operator
       if (currToken === '|' || currToken === '&' || currToken === '=') {
         // Peek ahead and check for validity
@@ -253,7 +254,7 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
         },
         true
       );
-    } else if (currToken.match(/^(\+|-|\*|\/|\^|!)$/)) {
+    } else if (currToken.match(/^([!*+/^-])$/)) {
       // Special case: check for !=
       if (currToken === '!' && expression[i + 1] === '=') {
         operatorStack.push('!=');
@@ -308,7 +309,7 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
       let variable = '';
 
       // Find the object it belong to
-      while (expression[i].match(/^[a-z]|[0-9]|_$/)) {
+      while (expression[i].match(/^[a-z]|\d|_$/)) {
         object += expression[i];
         i++;
       }
@@ -319,7 +320,7 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
         RPN.push(true);
       } else {
         // Find the variable it's referencing within that object
-        const varMatch = expression.substring(i).match(/\['.*?'\]/);
+        const varMatch = expression.substring(i).match(/\['.*?']/);
         if (varMatch && varMatch.index === 0) {
           variable = varMatch[0].substring(2, varMatch[0].length - 2);
           i += varMatch[0].length;
@@ -347,7 +348,6 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
   return RPN;
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export const evaluateExpression = async (expression: string | number, variables: Record<string, any>) => {
   try {
     const RPN = await shuntingYard(expression.toString(), variables);
@@ -362,5 +362,5 @@ export const evaluateExpression = async (expression: string | number, variables:
 
 export const regexExpression = (expression: string | number) => {
   if (_.isNumber(expression)) return expression;
-  return expression.replace(/v\['([A-Za-z0-9_]{0,32})'\]/g, (_m, inner) => `{${inner}}`);
+  return expression.replace(/v\['(\w{0,32})']/g, (_m, inner) => `{${inner}}`);
 };

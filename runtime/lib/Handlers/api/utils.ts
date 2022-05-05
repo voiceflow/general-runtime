@@ -21,14 +21,14 @@ const BLACKLISTED_URLS: RegExp[] = [];
 const THROTTLE_DELAY = 2000;
 
 export const stringToNumIfNumeric = (str: string): string | number => {
-  /* eslint-disable-next-line */
-  if (_.isString(str) && !isNaN(str as any) && str.length < 16) {
+  if (str && typeof str.valueOf() === 'string' && !Number.isNaN(str as any) && str.length < 16) {
     return Number(str);
   }
 
   return str;
 };
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export const getVariable = (path: string, data: any) => {
   if (!path || typeof path !== 'string') {
     return undefined;
@@ -79,6 +79,7 @@ const validateHostname = (urlString: string): string => {
     throw new VError(`url hostname cannot be localhost: ${urlString}`, VError.HTTP_STATUS.BAD_REQUEST);
   }
 
+  // eslint-disable-next-line sonarjs/no-empty-collection
   if (BLACKLISTED_URLS.some((regex) => regex.test(hostname))) {
     throw new VError('url endpoint is blacklisted', VError.HTTP_STATUS.BAD_REQUEST);
   }
@@ -180,7 +181,9 @@ export const makeAPICall = async (nodeData: APINodeData, runtime: Runtime, confi
   try {
     if (await runtime.outgoingApiLimiter.addHostnameUseAndShouldThrottle(hostname)) {
       // if the use of the hostname is high, delay the api call but let it happen
-      await new Promise((resolve) => setTimeout(resolve, THROTTLE_DELAY));
+      await new Promise((resolve) => {
+        setTimeout(resolve, THROTTLE_DELAY);
+      });
     }
   } catch (error) {
     runtime.trace.debug(`Outgoing Api Rate Limiter failed - Error: \n${safeJSONStringify(error.response?.data || error)}`, BaseNode.NodeType.API);

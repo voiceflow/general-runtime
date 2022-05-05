@@ -1,6 +1,8 @@
 import { AnyRecord, BaseModels } from '@voiceflow/base-types';
 
-export type Display = { document?: string };
+export interface Display {
+  document?: string;
+}
 
 export interface DataAPI<
   P extends BaseModels.Program.Model<any, any> = BaseModels.Program.Model<BaseModels.BaseNode, BaseModels.BaseCommand>,

@@ -8,6 +8,7 @@ import { HandlerFactory } from '@/runtime';
 import { FrameType, Output } from '../types';
 
 // TODO: probably we can remove it, since prompt is not used in the node handler, and does not exist in general service handler
+// eslint-disable-next-line you-dont-need-lodash-underscore/is-string
 const isPromptSpeak = (node: VoiceflowNode.Speak.Node & { prompt?: unknown }) => _.isString(node.prompt) && node.prompt !== 'true';
 
 const SpeakHandler: HandlerFactory<VoiceflowNode.Speak.Node> = () => ({
@@ -24,7 +25,7 @@ const SpeakHandler: HandlerFactory<VoiceflowNode.Speak.Node> = () => ({
 
     const sanitizedVars = sanitizeVariables(variables.getState());
 
-    if (_.isString(speak)) {
+    if (speak && typeof speak.valueOf() === 'string') {
       // in case a variable's value is a text containing another variable (i.e text2="say {text}")
       const output = replaceVariables(replaceVariables(speak, sanitizedVars), sanitizedVars);
 

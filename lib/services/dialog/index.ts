@@ -27,10 +27,10 @@ export const utils = {
   isIntentInScope,
 };
 
-export type DMStore = {
+export interface DMStore {
   intentRequest?: BaseRequest.IntentRequest;
   priorIntent?: BaseRequest.IntentRequest;
-};
+}
 
 @injectServices({ utils })
 class DialogManagement extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
@@ -86,6 +86,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     return false;
   };
 
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   handle = async (context: Context) => {
     if (!isIntentRequest(context.request)) {
       return context;
@@ -121,7 +122,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
         // Remove the dmPrefix from entity values that it has accidentally been attached to
         dmPrefixedResult.payload.entities.forEach((entity) => {
-          entity.value = _.isString(entity.value) ? entity.value.replace(prefix, '').trim() : entity.value;
+          entity.value = entity.value && typeof entity.value.valueOf() === 'string' ? entity.value.replace(prefix, '').trim() : entity.value;
         });
 
         const isFallback = this.handleDMContext(dmStateStore, dmPrefixedResult, incomingRequest, version.prototype.model);

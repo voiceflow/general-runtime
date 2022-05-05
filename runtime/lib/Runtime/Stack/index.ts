@@ -1,15 +1,13 @@
-/* eslint-disable no-unused-expressions */
-
 import produce from 'immer';
 
 import { Event, EventType } from '@/runtime/lib/Lifecycle';
 
 import Frame, { State as FrameState } from './Frame';
 
-type Handlers = {
+interface Handlers {
   didChange?: (event: Event<EventType.stackDidChange>) => void;
   willChange?: (event: Event<EventType.stackWillChange>) => void;
-};
+}
 
 class Stack {
   static getFrames(stack: FrameState[]): Frame[] {
@@ -18,8 +16,8 @@ class Stack {
 
   private frames: Frame[] = [];
 
-  constructor(stack: FrameState[] = [], private handlers: Handlers) {
-    this.frames = Stack.getFrames(stack);
+  constructor(stack: FrameState[], private handlers: Handlers) {
+    this.frames = Stack.getFrames(stack ?? []);
   }
 
   public getState(): FrameState[] {

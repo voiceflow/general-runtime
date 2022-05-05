@@ -63,7 +63,7 @@ export const generalEventMatcher: Matcher<BaseRequest.BaseRequest, BaseNode.Util
 
     return true;
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   sideEffect: () => () => {
     // to-do: trace event side effect management
   },

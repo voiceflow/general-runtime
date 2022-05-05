@@ -1,7 +1,7 @@
 import { State } from '@/runtime';
 
-export { default as MongoSession } from './mongo';
 export { default as LocalSession } from './local';
+export { default as MongoSession } from './mongo';
 
 export interface Session {
   saveToDb(projectID: string, userID: string, state: State): Promise<void>;

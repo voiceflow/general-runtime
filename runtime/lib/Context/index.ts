@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 

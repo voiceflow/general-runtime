@@ -19,12 +19,7 @@ describe('noMatch handler unit tests', () => {
       const runtime = {
         storage: {
           produce: sinon.stub(),
-          get: sinon
-            .stub()
-            .onFirstCall()
-            .returns(undefined)
-            .onSecondCall()
-            .returns(1),
+          get: sinon.stub().onFirstCall().returns(undefined).onSecondCall().returns(1),
           set: sinon.stub(),
           delete: sinon.stub(),
         },
@@ -110,12 +105,7 @@ describe('noMatch handler unit tests', () => {
       const runtime = {
         storage: {
           produce: sinon.stub(),
-          get: sinon
-            .stub()
-            .onFirstCall()
-            .returns(0)
-            .onSecondCall()
-            .returns(1),
+          get: sinon.stub().onFirstCall().returns(0).onSecondCall().returns(1),
           set: sinon.stub(),
           delete: sinon.stub(),
         },
@@ -157,12 +147,7 @@ describe('noMatch handler unit tests', () => {
       const runtime = {
         storage: {
           produce: sinon.stub(),
-          get: sinon
-            .stub()
-            .onFirstCall()
-            .returns(0)
-            .onSecondCall()
-            .returns(1),
+          get: sinon.stub().onFirstCall().returns(0).onSecondCall().returns(1),
           set: sinon.stub(),
           delete: sinon.stub(),
         },
@@ -190,12 +175,7 @@ describe('noMatch handler unit tests', () => {
       const runtime = {
         storage: {
           produce: sinon.stub(),
-          get: sinon
-            .stub()
-            .onFirstCall()
-            .returns(0)
-            .onSecondCall()
-            .returns(1),
+          get: sinon.stub().onFirstCall().returns(0).onSecondCall().returns(1),
           set: sinon.stub(),
           delete: sinon.stub(),
         },
@@ -223,12 +203,7 @@ describe('noMatch handler unit tests', () => {
       const runtime = {
         storage: {
           produce: sinon.stub(),
-          get: sinon
-            .stub()
-            .onFirstCall()
-            .returns(0)
-            .onSecondCall()
-            .returns(1),
+          get: sinon.stub().onFirstCall().returns(0).onSecondCall().returns(1),
           set: sinon.stub(),
           delete: sinon.stub(),
         },
@@ -255,12 +230,7 @@ describe('noMatch handler unit tests', () => {
       const runtime = {
         storage: {
           produce: sinon.stub(),
-          get: sinon
-            .stub()
-            .onFirstCall()
-            .returns(0)
-            .onSecondCall()
-            .returns(1),
+          get: sinon.stub().onFirstCall().returns(0).onSecondCall().returns(1),
           set: sinon.stub(),
           delete: sinon.stub(),
         },
@@ -297,12 +267,7 @@ describe('noMatch handler unit tests', () => {
       const runtime = {
         storage: {
           produce: sinon.stub(),
-          get: sinon
-            .stub()
-            .onFirstCall()
-            .returns(0)
-            .onSecondCall()
-            .returns(1),
+          get: sinon.stub().onFirstCall().returns(0).onSecondCall().returns(1),
           set: sinon.stub(),
           delete: sinon.stub(),
         },
@@ -328,12 +293,7 @@ describe('noMatch handler unit tests', () => {
       const runtime = {
         storage: {
           produce: sinon.stub(),
-          get: sinon
-            .stub()
-            .onFirstCall()
-            .returns(0)
-            .onSecondCall()
-            .returns(1),
+          get: sinon.stub().onFirstCall().returns(0).onSecondCall().returns(1),
           set: sinon.stub(),
           delete: sinon.stub(),
         },
@@ -359,12 +319,7 @@ describe('noMatch handler unit tests', () => {
       const runtime = {
         storage: {
           produce: sinon.stub(),
-          get: sinon
-            .stub()
-            .onFirstCall()
-            .returns(0)
-            .onSecondCall()
-            .returns(1),
+          get: sinon.stub().onFirstCall().returns(0).onSecondCall().returns(1),
           set: sinon.stub(),
           delete: sinon.stub(),
         },

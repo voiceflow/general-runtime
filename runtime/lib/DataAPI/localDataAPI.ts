@@ -8,7 +8,8 @@ class LocalDataAPI<
   P extends BaseModels.Program.Model<any, any> = BaseModels.Program.Model<any, any>,
   V extends BaseModels.Version.Model<any> = BaseModels.Version.Model<any>,
   PJ extends BaseModels.Project.Model<any, any> = BaseModels.Project.Model<AnyRecord, AnyRecord>
-> implements DataAPI<P, V, PJ> {
+> implements DataAPI<P, V, PJ>
+{
   private version: V;
 
   private project: PJ;

@@ -18,6 +18,7 @@ export const registerSlots = (nlc: NLC, { slots }: BaseModels.PrototypeModel, op
           nlc.addSlotType({ type: slot.name, matcher: /[\S\s]*/ });
         }
       } else {
+        // eslint-disable-next-line you-dont-need-lodash-underscore/flatten
         const matcher = _.flatten(slot.inputs.map((input) => input.split(',')))
           .map((value) => value.trim())
           .filter(Boolean);
@@ -102,6 +103,7 @@ export const createNLC = ({
   return nlc;
 };
 
+// eslint-disable-next-line default-param-last
 export const nlcToIntent = (intent: IIntentFullfilment | null, query = '', confidence?: number): BaseRequest.IntentRequest =>
   (intent && {
     type: BaseRequest.RequestType.INTENT,

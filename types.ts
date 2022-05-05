@@ -92,10 +92,12 @@ export type Middleware = (req: Request, res: Response, next: Next) => Promise<vo
 
 export type MiddlewareGroup = Record<string, Middleware>;
 
-export type Class<T, A extends any[]> = { new (...args: A): T };
+export interface Class<T, A extends any[]> {
+  new (...args: A): T;
+}
 export type AnyClass = Class<any, any[]>;
 
-export type ContextData = {
+export interface ContextData {
   api: CacheDataAPI;
   locale?: string;
   config?: BaseRequest.RequestConfig;
@@ -105,7 +107,7 @@ export type ContextData = {
     sessionid?: string;
     authorization?: string;
   };
-};
+}
 
 export type Context = Runtime.Context<RuntimeRequest, BaseTrace.AnyTrace, ContextData>;
 export type ContextHandler = Runtime.ContextHandler<Context>;

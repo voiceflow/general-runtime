@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { ArrayField, ObjectField, StringField } from '@/lib/controllers/schemaTypes';
 
 const StackFrame = {

@@ -13,12 +13,7 @@ describe('auto delegate unit tests', () => {
     const trace2 = [{ type: 'trace2' }];
 
     const turn = {
-      handle: sinon
-        .stub()
-        .onFirstCall()
-        .resolves({ trace: trace1 })
-        .onSecondCall()
-        .resolves({ trace: trace2, request: 'finalRequest' }),
+      handle: sinon.stub().onFirstCall().resolves({ trace: trace1 }).onSecondCall().resolves({ trace: trace2, request: 'finalRequest' }),
     };
 
     expect(await autoDelegate(turn as any, context as any)).to.eql({ trace: [trace1[0], trace2[0]], request: 'finalRequest' });

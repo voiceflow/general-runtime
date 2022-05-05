@@ -1,8 +1,8 @@
-/* eslint-disable no-unused-expressions */
-
 import produce, { Draft } from 'immer';
 
-export type State = { readonly [k: string]: any };
+export interface State {
+  readonly [k: string]: any;
+}
 
 type DidUpdate = (prevState: State, state: State) => void;
 type WillUpdate = (state: State, nextState: State) => void;
@@ -57,7 +57,7 @@ class Store {
     return this.store as S;
   }
 
-  public get<T extends unknown>(key: string): undefined | T {
+  public get<T>(key: string): undefined | T {
     return this.store[key];
   }
 
@@ -84,7 +84,7 @@ class Store {
     this.update({ ...this.store, ...payload });
   }
 
-  public set<T extends unknown>(key: string, value: T): void {
+  public set<T>(key: string, value: T): void {
     this.update({ ...this.store, [key]: value });
   }
 

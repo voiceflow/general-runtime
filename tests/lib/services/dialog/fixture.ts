@@ -262,6 +262,7 @@ export const mockDMPrefixedUnrelatedSingleEntityResult: BaseRequest.IntentReques
   payload: {
     query: 'cd55d3ff73dce9bbb75edc60ab5c81be I want a small chicken wings',
     intent: {
+      // eslint-disable-next-line no-secrets/no-secrets
       name: 'dm_cd55d3ff73dce9bbb75edc60ab5c81be_wings_order',
     },
     entities: [
@@ -293,6 +294,7 @@ export const mockDMPrefixedNoEntityResult: BaseRequest.IntentRequest = {
   payload: {
     query: 'b5c1b7fae5e4c5b87a39e68d8e27028f I want a pizza',
     intent: {
+      // eslint-disable-next-line no-secrets/no-secrets
       name: 'dm_b5c1b7fae5e4c5b87a39e68d8e27028f_pizza_order',
     },
     entities: [
@@ -329,6 +331,7 @@ export const mockDMPrefixedMultipleEntityResult: BaseRequest.IntentRequest = {
   payload: {
     query: 'b5c1b7fae5e4c5b87a39e68d8e27028f I want a large pepperoni pizza',
     intent: {
+      // eslint-disable-next-line no-secrets/no-secrets
       name: 'dm_b5c1b7fae5e4c5b87a39e68d8e27028f_pizza_order',
     },
     entities: [
@@ -369,6 +372,7 @@ export const mockDMPrefixedSingleEntityResult: BaseRequest.IntentRequest = {
   payload: {
     query: 'b5c1b7fae5e4c5b87a39e68d8e27028f I want a small pizza',
     intent: {
+      // eslint-disable-next-line no-secrets/no-secrets
       name: 'dm_b5c1b7fae5e4c5b87a39e68d8e27028f_pizza_order',
     },
     entities: [
@@ -415,9 +419,9 @@ export const mockVersion = {
   },
 };
 
-export const mockDataAPI = ({
+export const mockDataAPI = {
   getVersion: sinon.stub().resolves(mockVersion),
-} as any) as CacheDataAPI;
+} as any as CacheDataAPI;
 
 export const mockFulfilledIntentRequest: BaseRequest.IntentRequest = {
   type: BaseRequest.RequestType.INTENT,

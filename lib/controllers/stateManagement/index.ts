@@ -14,18 +14,11 @@ const VALIDATIONS = {
     OBJECT: body().exists(),
   },
   HEADERS: {
-    PROJECT_ID: header('projectID')
-      .exists()
-      .isString(),
-    VERSION_ID: header('versionID')
-      .exists()
-      .isString(),
+    PROJECT_ID: header('projectID').exists().isString(),
+    VERSION_ID: header('versionID').exists().isString(),
   },
   QUERY: {
-    VERBOSE: query('verbose')
-      .isBoolean()
-      .optional()
-      .toBoolean(),
+    VERBOSE: query('verbose').isBoolean().optional().toBoolean(),
   },
 };
 

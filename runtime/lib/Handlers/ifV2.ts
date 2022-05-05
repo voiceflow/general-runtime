@@ -5,11 +5,15 @@ import Handler, { HandlerFactory } from '@/runtime/lib/Handler';
 import { TurnType } from '../Constants/flags';
 import CodeHandler from './code';
 
-export type IfV2Options = {
+export interface IfV2Options {
   _v1: Handler<BaseNode._v1.Node>;
-};
+}
 
-type DebugError = { index: number; expression: string; msg: string };
+interface DebugError {
+  index: number;
+  expression: string;
+  msg: string;
+}
 
 const IfV2Handler: HandlerFactory<BaseNode.IfV2.Node, IfV2Options> = ({ _v1 }) => ({
   canHandle: (node) => {
@@ -21,11 +25,11 @@ const IfV2Handler: HandlerFactory<BaseNode.IfV2.Node, IfV2Options> = ({ _v1 }) =
     }
 
     let outputPortIndex = -1;
-    const setOutputPort = function(index: number) {
+    const setOutputPort = function (index: number) {
       outputPortIndex = index;
     };
     const debugErrors: Array<DebugError> = [];
-    const addDebugError = function(err: DebugError) {
+    const addDebugError = function (err: DebugError) {
       debugErrors.push(err);
     };
 

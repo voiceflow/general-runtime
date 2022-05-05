@@ -12,12 +12,8 @@ import { AbstractMiddleware } from './utils';
 const { header } = Validator;
 const VALIDATIONS = {
   HEADERS: {
-    VERSION_ID: header('versionID')
-      .optional()
-      .isString(),
-    AUTHORIZATION: header('authorization')
-      .exists()
-      .isString(),
+    VERSION_ID: header('versionID').optional().isString(),
+    AUTHORIZATION: header('authorization').exists().isString(),
   },
 };
 class Project extends AbstractMiddleware {

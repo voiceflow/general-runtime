@@ -26,10 +26,12 @@ export const hasElicit = (
 const noMatchHandler = NoMatchHandler();
 
 export const EntityFillingNoMatchHandler = () => ({
-  handle: (node: NoMatchNode, runtime: Runtime, variables: Store) => (intents: string[] = [], defaultRequest?: BaseRequest.IntentRequest) => {
+  handle: (node: NoMatchNode, runtime: Runtime, variables: Store) => (intents: string[] | undefined, defaultRequest?: BaseRequest.IntentRequest) => {
+    const intentsArray = intents ?? [];
     // see if the prior entity filling intent is within context
     const priorIntent = runtime.storage.get<DMStore>(StorageType.DM)?.priorIntent;
-    const priorIntentMatch = intents.includes(priorIntent?.payload.intent.name!) && priorIntent?.payload.entities.length;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+    const priorIntentMatch = intentsArray.includes(priorIntent?.payload.intent.name!) && priorIntent?.payload.entities.length;
 
     const nextRequest = (priorIntentMatch && priorIntent) || defaultRequest;
 

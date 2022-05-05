@@ -7,12 +7,12 @@ import { HandlerFactory } from '@/runtime/lib/Handler';
 
 import { getUndefinedKeys, ivmExecute, vmExecute } from './utils';
 
-export type CodeOptions = {
+export interface CodeOptions {
   endpoint?: string | null;
   callbacks?: Record<string, (...args: any) => any>;
   useStrictVM?: boolean;
   testingEnv?: boolean;
-};
+}
 
 const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
   endpoint,
@@ -51,6 +51,7 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
         return acc;
       }, '');
 
+      // eslint-disable-next-line sonarjs/no-nested-template-literals
       runtime.trace.debug(`evaluating code - ${changes ? `changes:  \n${changes}` : 'no variable changes'}`, BaseNode.NodeType.CODE);
 
       variables.merge(newVariableState);

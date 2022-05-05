@@ -92,12 +92,7 @@ describe('Runtime cycleHandler unit tests', () => {
     const runtime = {
       callEvent: sinon.stub(),
       stack: {
-        getFrames: sinon
-          .stub()
-          .onFirstCall()
-          .returns([])
-          .onSecondCall()
-          .returns([{}]),
+        getFrames: sinon.stub().onFirstCall().returns([]).onSecondCall().returns([{}]),
         top: sinon.stub().returns(referenceFrame),
       },
       getHandlers: sinon.stub().returns(handlers),

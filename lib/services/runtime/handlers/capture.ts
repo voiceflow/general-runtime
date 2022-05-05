@@ -23,6 +23,7 @@ const utilsObj = {
 
 export const CaptureHandler: HandlerFactory<VoiceflowNode.Capture.Node | ChatNode.Capture.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => !!node.variable || node.type === NodeType.CAPTURE,
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (node, runtime, variables) => {
     if (runtime.getAction() === Action.RUNNING) {
       utils.addButtonsIfExists(node, runtime, variables);

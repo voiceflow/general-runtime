@@ -31,7 +31,7 @@ export enum Action {
   END,
 }
 
-class Runtime<R extends any = any, DA extends DataAPI = DataAPI, S extends AnyRecord = AnyRecord> extends AbstractLifecycle {
+class Runtime<R = any, DA extends DataAPI = DataAPI, S extends AnyRecord = AnyRecord> extends AbstractLifecycle {
   public turn: Store;
 
   public stack: Stack;
@@ -66,7 +66,10 @@ class Runtime<R extends any = any, DA extends DataAPI = DataAPI, S extends AnyRe
   ) {
     super(events);
 
-    const createEvent = <K extends EventType>(type: K) => (event: Event<K>) => this.callEvent(type, event);
+    const createEvent =
+      <K extends EventType>(type: K) =>
+      (event: Event<K>) =>
+        this.callEvent(type, event);
 
     this.services = services;
     this.handlers = handlers;

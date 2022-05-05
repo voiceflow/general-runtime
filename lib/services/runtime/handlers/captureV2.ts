@@ -34,6 +34,7 @@ const utilsObj = {
 
 export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => node.type === NodeType.CAPTURE_V2,
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (node, runtime, variables) => {
     const captureIntentName = node.intent?.name;
 

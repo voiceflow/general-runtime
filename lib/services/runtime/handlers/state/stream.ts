@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-duplicate-string */
 import { BaseNode } from '@voiceflow/base-types';
 import { replaceVariables } from '@voiceflow/common';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
@@ -16,6 +15,7 @@ const utilsObj = {
 export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) => ({
   canHandle: (_, runtime) =>
     !!runtime.storage.get(StorageType.STREAM_PLAY) && runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY)!.action !== StreamAction.END,
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (_, runtime, variables) => {
     const streamPlay = runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY)!;
 

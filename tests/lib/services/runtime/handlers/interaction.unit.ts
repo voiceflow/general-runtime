@@ -333,10 +333,7 @@ describe('Interaction handler', () => {
           it('iterate events', () => {
             const sideEffect = sinon.stub();
             const utils = {
-              findEventMatcher: sinon
-                .stub()
-                .onCall(3)
-                .returns({ sideEffect }),
+              findEventMatcher: sinon.stub().onCall(3).returns({ sideEffect }),
               noReplyHandler: { canHandle: sinon.stub().returns(false) },
             };
 

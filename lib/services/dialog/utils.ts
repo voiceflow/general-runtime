@@ -54,18 +54,14 @@ export const getEntitiesMap = (intentRequest: BaseRequest.IntentRequest): Record
   );
 
 // Populates all entities in a given string
-export const fillStringEntities = (input = '', intentRequest: BaseRequest.IntentRequest) => {
+export const fillStringEntities = (input: string | undefined, intentRequest: BaseRequest.IntentRequest) => {
+  const inputValue = input ?? '';
   const entityMap = getEntitiesMap(intentRequest);
 
-  return replaceSlots(input, entityMap);
+  return replaceSlots(inputValue, entityMap);
 };
 
-export const dmPrefix = (contents: string) =>
-  crypto
-    .createHash('sha256')
-    .update(contents)
-    .digest('hex')
-    .slice(-10);
+export const dmPrefix = (contents: string) => crypto.createHash('sha256').update(contents).digest('hex').slice(-10);
 
 /** @deprecated we compare entity subsets directly for now, if nothing is filled, it might as well be a fallback */
 export const getDMPrefixIntentName = (intentName: string) => {

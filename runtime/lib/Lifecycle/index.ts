@@ -1,7 +1,8 @@
+/* eslint-disable max-classes-per-file */
 import Runtime from '../Runtime';
 import { CallbackEvent, Event, EventCallback, EventCallbackMap, EventType } from './types';
 
-export { EventType, Event, EventCallbackMap, EventCallback, CallbackEvent };
+export { CallbackEvent, Event, EventCallback, EventCallbackMap, EventType };
 
 class Lifecycle {
   private events: Partial<EventCallbackMap> = {};
