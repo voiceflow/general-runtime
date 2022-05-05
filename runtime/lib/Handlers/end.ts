@@ -8,7 +8,7 @@ const EndHandler: HandlerFactory<BaseNode.Exit.Node> = () => ({
     runtime.stack.top().setNodeID(null);
 
     // pop all program frames that are already ended
-    while (!runtime.stack.top().getNodeID() && !runtime.stack.isEmpty()) {
+    while (!runtime.stack.isEmpty() && !runtime.stack.top().getNodeID()) {
       runtime.stack.pop();
     }
 
