@@ -4,9 +4,9 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { promises as DNS } from 'dns';
 import FormData from 'form-data';
 import ipRangeCheck from 'ip-range-check';
+import safeJSONStringify from 'json-stringify-safe';
 import _ from 'lodash';
 import querystring from 'querystring';
-import safeJSONStringify from 'safe-json-stringify';
 import validator from 'validator';
 
 import Runtime from '@/runtime/lib/Runtime';

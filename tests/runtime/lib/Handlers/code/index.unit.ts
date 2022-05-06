@@ -1,7 +1,7 @@
 import { BaseNode } from '@voiceflow/base-types';
 import axios from 'axios';
 import { expect } from 'chai';
-import safeJSONStringify from 'safe-json-stringify';
+import safeJSONStringify from 'json-stringify-safe';
 import sinon from 'sinon';
 
 import CodeHandler from '@/runtime/lib/Handlers/code';

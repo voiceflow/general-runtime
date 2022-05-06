@@ -1,7 +1,7 @@
 import { BaseNode } from '@voiceflow/base-types';
 import { deepVariableSubstitution } from '@voiceflow/common';
+import safeJSONStringify from 'json-stringify-safe';
 import _ from 'lodash';
-import safeJSONStringify from 'safe-json-stringify';
 
 import Handler from '@/runtime/lib/Handler';
 

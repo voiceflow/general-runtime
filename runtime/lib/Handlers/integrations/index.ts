@@ -1,8 +1,8 @@
 import { BaseNode } from '@voiceflow/base-types';
 import { deepVariableSubstitution } from '@voiceflow/common';
 import axios from 'axios';
+import safeJSONStringify from 'json-stringify-safe';
 import _ from 'lodash';
-import safeJSONStringify from 'safe-json-stringify';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
