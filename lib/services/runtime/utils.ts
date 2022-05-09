@@ -47,8 +47,7 @@ export const mapEntities = (
 
 export const slateInjectVariables = (slateValue: BaseText.SlateTextValue, variables: Record<string, unknown>): BaseText.SlateTextValue => {
   // return undefined to recursively clone object https://stackoverflow.com/a/52956848
-  const customizer = (value: any) =>
-    value && typeof value.valueOf() === 'string' ? replaceVariables(value, variables, undefined, { trim: false }) : undefined;
+  const customizer = (value: any) => (typeof value === 'string' ? replaceVariables(value, variables, undefined, { trim: false }) : undefined);
 
   return _cloneDeepWith(slateValue, customizer);
 };
@@ -154,7 +153,7 @@ export const slateToPlaintext = (content: Readonly<BaseText.SlateTextValue> = []
     .trim();
 
 export const removeEmptyPrompts = (prompts: Array<BaseText.SlateTextValue | string>): Array<BaseText.SlateTextValue | string> =>
-  prompts.filter((prompt) => prompt != null && (_isString(prompt) ? prompt !== EMPTY_AUDIO_STRING : !!slateToPlaintext(prompt)));
+  prompts.filter((prompt) => prompt != null && (typeof prompt === 'string' ? prompt !== EMPTY_AUDIO_STRING : !!slateToPlaintext(prompt)));
 
 interface OutputParams<V> {
   output?: V;

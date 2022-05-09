@@ -21,7 +21,7 @@ const BLACKLISTED_URLS: RegExp[] = [];
 const THROTTLE_DELAY = 2000;
 
 export const stringToNumIfNumeric = (str: string): string | number => {
-  if (str && typeof str.valueOf() === 'string' && !Number.isNaN(str as any) && str.length < 16) {
+  if (typeof str === 'string' && !Number.isNaN(Number(str)) && str.length < 16) {
     return Number(str);
   }
 

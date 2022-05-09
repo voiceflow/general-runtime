@@ -1,6 +1,4 @@
-/* eslint-disable max-classes-per-file */
-/* eslint-disable no-await-in-loop */
-/* eslint-disable no-restricted-syntax */
+/* eslint-disable max-classes-per-file, no-await-in-loop, no-restricted-syntax */
 
 import { Context, ContextHandler, InitContextHandler, PartialContext } from './types';
 

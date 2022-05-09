@@ -36,21 +36,21 @@ describe('dialog manager utilities unit tests', () => {
 
   describe('fillStringEntities', () => {
     it('fills a given string with slot notation with actual slot values', () => {
-      const result = utils.fillStringEntities('I want {{[size].tjl3zwj}} {{[size].tjl3zwj}} chicken wings', mockUnfulfilledIntentRequest);
+      const result = utils.fillStringEntities(mockUnfulfilledIntentRequest, 'I want {{[size].tjl3zwj}} {{[size].tjl3zwj}} chicken wings');
 
       expect(result).to.equal('I want large large chicken wings');
     });
 
     it("doesn't modify a string without entity placeholders", () => {
       const input = 'I want some chicken wings';
-      const result = utils.fillStringEntities(input, mockUnfulfilledIntentRequest);
+      const result = utils.fillStringEntities(mockUnfulfilledIntentRequest, input);
 
       expect(result).to.equal(input);
     });
 
     it('Fills unpopulated entity placeholders with an empty string', () => {
       const input = 'I want some {{[foo].bar}} chicken wings';
-      const result = utils.fillStringEntities(input, mockUnfulfilledIntentRequest);
+      const result = utils.fillStringEntities(mockUnfulfilledIntentRequest, input);
 
       expect(result).to.equal('I want some  chicken wings');
     });

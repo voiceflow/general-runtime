@@ -11,6 +11,7 @@
     "fixpack",
     "husky",
     "lint-staged",
-    "http-status"
+    "http-status",
+    "eslint-import-resolver-typescript"
   ]
 }

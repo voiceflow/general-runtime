@@ -421,7 +421,7 @@ export const mockVersion = {
 
 export const mockDataAPI = {
   getVersion: sinon.stub().resolves(mockVersion),
-} as any as CacheDataAPI;
+} as unknown as CacheDataAPI;
 
 export const mockFulfilledIntentRequest: BaseRequest.IntentRequest = {
   type: BaseRequest.RequestType.INTENT,

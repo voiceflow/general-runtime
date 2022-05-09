@@ -1,8 +1,7 @@
+import { AnyRecord } from '@voiceflow/base-types';
 import produce, { Draft } from 'immer';
 
-export interface State {
-  readonly [k: string]: any;
-}
+export type State = Readonly<AnyRecord>;
 
 type DidUpdate = (prevState: State, state: State) => void;
 type WillUpdate = (state: State, nextState: State) => void;

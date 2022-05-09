@@ -54,11 +54,10 @@ export const getEntitiesMap = (intentRequest: BaseRequest.IntentRequest): Record
   );
 
 // Populates all entities in a given string
-export const fillStringEntities = (input: string | undefined, intentRequest: BaseRequest.IntentRequest) => {
-  const inputValue = input ?? '';
+export const fillStringEntities = (intentRequest: BaseRequest.IntentRequest, input = '') => {
   const entityMap = getEntitiesMap(intentRequest);
 
-  return replaceSlots(inputValue, entityMap);
+  return replaceSlots(input, entityMap);
 };
 
 export const dmPrefix = (contents: string) => crypto.createHash('sha256').update(contents).digest('hex').slice(-10);
