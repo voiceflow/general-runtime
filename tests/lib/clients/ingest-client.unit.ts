@@ -18,7 +18,7 @@ describe('Ingest client', () => {
       expect(await client.doIngest(body as any)).to.eql('axios response');
 
       expect(axios.post.callCount).to.eql(1);
-      expect(axios.post.getCall(0).args).to.deep.eq(['/v1/ingest', body]);
+      expect(axios.post.getCall(0).args).to.deep.eq(['/logs/ingest', body]);
     });
   });
 });

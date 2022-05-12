@@ -11,33 +11,28 @@ export enum RequestType {
   RESPONSE = 'response',
 }
 
-export interface TurnBody<T> {
-  eventId: Event;
-  request: {
-    version_id?: string;
-    session_id?: string;
-    timestamp?: string;
-    metadata?: T;
-    platform?: string;
-  };
+export interface InteractionBody<M, T> {
+  projectID?: string;
+  versionID?: string;
+  sessionID?: string;
+  startTime?: string;
+  metadata?: M;
+  platform?: string;
+  traces?: TraceBody<T>[];
 }
 
-export interface InteractBody<T> {
-  eventId: Event;
-  request: {
-    turn_id?: string;
-    type?: string;
-    format?: string;
-    payload?: T;
-    timestamp?: string;
-  };
+export interface TraceBody<T> {
+  type?: string;
+  format?: string;
+  payload?: T;
+  startTime?: string;
 }
 
-export interface TurnResponse {
-  turn_id: string;
+export interface InteractionResponse {
+  success: boolean;
 }
 
-export class Api<IB extends InteractBody<unknown>, TB extends TurnBody<unknown>> {
+export class Api<IB extends InteractionBody<unknown, unknown>> {
   private axios: AxiosInstance;
 
   public constructor(endpoint: string, authorization?: string) {
@@ -54,7 +49,7 @@ export class Api<IB extends InteractBody<unknown>, TB extends TurnBody<unknown>>
     this.axios = Axios.create(config);
   }
 
-  public doIngest = async (body: IB | TB) => this.axios.post<TurnResponse>('/v1/ingest', body);
+  public doIngest = async (body: IB) => this.axios.post<InteractionResponse>('/logs/ingest', body);
 }
 
 export const Client = (endpoint: string, authorization: string | undefined) => new Api(endpoint, authorization);

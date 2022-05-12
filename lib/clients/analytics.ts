@@ -1,4 +1,5 @@
 import { BaseTrace } from '@voiceflow/base-types';
+import { EmptyObject } from '@voiceflow/common';
 
 import * as Ingest from '@/ingest';
 import log from '@/logger';
@@ -7,15 +8,12 @@ import { Config, Context } from '@/types';
 import { RuntimeRequest } from '../services/runtime/types';
 import { AbstractClient } from './utils';
 
-type GeneralTurnBody = Ingest.TurnBody<{
-  locale?: string;
-  end?: boolean;
-}>;
-
-type GeneralInteractBody = Ingest.InteractBody<BaseTrace.AnyTrace | RuntimeRequest>;
+// eslint-disable-next-line max-len
+type GeneralInteractionBody = Ingest.InteractionBody<{ locale?: string; end?: boolean }, BaseTrace.AnyTrace | RuntimeRequest | EmptyObject>;
+type GeneralTraceBody = Ingest.TraceBody<BaseTrace.AnyTrace | RuntimeRequest>;
 
 export class AnalyticsSystem extends AbstractClient {
-  private ingestClient?: Ingest.Api<GeneralInteractBody, GeneralTurnBody>;
+  private ingestClient?: Ingest.Api<GeneralInteractionBody>;
 
   constructor(config: Config) {
     super(config);
@@ -25,141 +23,87 @@ export class AnalyticsSystem extends AbstractClient {
     }
   }
 
-  private createInteractBody({
-    eventID,
-    turnID,
+  private createTraceBody({
+    fullTrace,
     timestamp,
-    trace,
-    request,
+    metadata,
   }: {
-    eventID: Ingest.Event;
-    turnID: string;
+    fullTrace: readonly BaseTrace.AnyTrace[];
     timestamp: Date;
-    trace?: BaseTrace.AnyTrace;
-    request?: RuntimeRequest;
-  }): GeneralInteractBody {
-    let format: string;
+    metadata: Context;
+  }): GeneralTraceBody[] {
+    // add milliseconds to maintain order
+    const unixTime = timestamp.getTime() + 1;
 
-    if (trace) {
-      format = 'trace';
-    } else if (request) {
-      format = 'request';
-    } else {
-      format = 'launch';
-    }
-
-    return {
-      eventId: eventID,
-      request: {
-        turn_id: turnID,
-
-        type: (trace ?? request)?.type ?? 'launch',
-        payload: trace ?? request ?? {},
-        format,
-        timestamp: timestamp.toISOString(),
-      },
-    } as GeneralInteractBody;
+    return fullTrace.map((trace, idx) => ({
+      startTime: new Date(unixTime + idx).toISOString(),
+      type: (trace ?? metadata.request).type,
+      payload: trace ?? metadata.request,
+      format: trace ? 'trace' : 'request',
+    }));
   }
 
-  private createTurnBody({
+  private createInteractionBody({
+    projectID,
     versionID,
-    eventID,
     metadata,
     timestamp,
   }: {
+    projectID: string;
     versionID: string;
-    eventID: Ingest.Event;
     metadata: Context;
     timestamp: Date;
-  }): GeneralTurnBody {
-    const sessionId =
-      metadata.data.reqHeaders?.sessionid ??
-      (metadata.state?.variables ? `${versionID}.${metadata.state.variables.user_id}` : versionID);
+  }): GeneralInteractionBody {
+    const sessionID =
+      metadata.data.reqHeaders?.sessionid ?? (metadata.state?.variables ? `${versionID}.${metadata.state.variables.user_id}` : versionID);
 
     return {
-      eventId: eventID,
-      request: {
-        platform: metadata.data.reqHeaders?.platform,
-        session_id: sessionId,
-        version_id: versionID,
-        timestamp: timestamp.toISOString(),
-        metadata: {
-          end: metadata.end,
-          locale: metadata.data.locale,
-        },
+      projectID,
+      platform: metadata.data.reqHeaders?.platform,
+      sessionID,
+      versionID,
+      startTime: timestamp.toISOString(),
+      metadata: {
+        end: metadata.end,
+        locale: metadata.data.locale,
       },
+      traces: [
+        // launch trace
+        {
+          type: 'launch',
+          payload: {},
+          format: metadata.request ? 'request' : 'launch',
+          startTime: timestamp.toISOString(),
+        },
+        // remaining traces
+        ...this.createTraceBody({
+          fullTrace: metadata.trace ?? [],
+          timestamp,
+          metadata,
+        }),
+      ],
     };
   }
 
-  private async processTrace({
-    fullTrace,
-    turnID,
-    versionID,
-    timestamp,
-  }: {
-    fullTrace: readonly BaseTrace.AnyTrace[];
-    turnID: string;
-    versionID: string;
-    timestamp: Date;
-  }): Promise<void> {
-    log.trace(`[analytics] process trace ${log.vars({ turnID, versionID })}`);
-    // add milliseconds to put it behind response, and to maintain interact order
-    const unixTime = timestamp.getTime() + 1;
-
-    // eslint-disable-next-line no-restricted-syntax
-    for (const [index, trace] of fullTrace.entries()) {
-      const interactIngestBody = this.createInteractBody({
-        eventID: Ingest.Event.INTERACT,
-        turnID,
-        timestamp: new Date(unixTime + index),
-        trace,
-      });
-
-      if (this.ingestClient) {
-        // eslint-disable-next-line no-await-in-loop
-        await this.ingestClient.doIngest(interactIngestBody);
-      }
-    }
-  }
-
   async track({
+    projectID,
     versionID,
     event,
     metadata,
     timestamp,
   }: {
+    projectID: string;
     versionID: string;
     event: Ingest.Event;
     metadata: Context;
     timestamp: Date;
   }): Promise<void> {
-    log.trace(`[analytics] track ${log.vars({ versionID })}`);
+    log.trace(`[analytics] process trace ${log.vars({ versionID })}`);
     switch (event) {
       case Ingest.Event.TURN: {
-        const turnIngestBody = this.createTurnBody({ versionID, eventID: event, metadata, timestamp });
+        const turnIngestBody = this.createInteractionBody({ projectID, versionID, metadata, timestamp });
+        await this.ingestClient?.doIngest(turnIngestBody);
 
-        // User/initial interact
-        const response = await this.ingestClient?.doIngest(turnIngestBody);
-
-        if (response) {
-          // Request
-          const interactIngestBody = this.createInteractBody({
-            eventID: Ingest.Event.INTERACT,
-            turnID: response.data.turn_id,
-            timestamp,
-            trace: undefined,
-            request: metadata.request,
-          });
-          await this.ingestClient?.doIngest(interactIngestBody);
-
-          // Voiceflow response
-          await this.processTrace({
-            fullTrace: metadata.trace ?? [],
-            turnID: response.data.turn_id,
-            versionID,
-            timestamp,
-          });
-        }
         break;
       }
       case Ingest.Event.INTERACT:

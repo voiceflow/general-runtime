@@ -32,7 +32,7 @@ describe('Analytics client unit tests', () => {
       ).to.eventually.rejectedWith(RangeError);
     });
 
-    it('works with turn events', () => {
+    it('works with turn events', async () => {
       const config = {
         ANALYTICS_WRITE_KEY: 'write key',
         ANALYTICS_ENDPOINT: 'http://localhost/analytics',
@@ -51,12 +51,13 @@ describe('Analytics client unit tests', () => {
 
       const client = AnalyticsClient(config as any);
 
-      const ingestClient = { doIngest: sinon.stub().resolves({ data: { turn_id: 1 } }) };
+      const ingestClient = { doIngest: sinon.stub().resolves({ data: { success: true } }) };
 
       (client as any).ingestClient = ingestClient;
       const timestamp = new Date();
 
-      client.track({ versionID: 'id', event: Event.TURN, metadata: metadata as any, timestamp });
+      const ingestResponse = await client.track({ versionID: 'id', event: Event.TURN, metadata: metadata as any, timestamp });
+      expect(ingestResponse).to.equal(undefined);
     });
   });
 });
