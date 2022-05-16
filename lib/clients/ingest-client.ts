@@ -29,10 +29,13 @@ export interface TraceBody<T> {
 }
 
 export interface InteractionResponse {
-  success: boolean;
+  turnID: string;
+}
+export interface InteractionCountResponse {
+  count: number;
 }
 
-export class Api<IB extends InteractionBody<unknown, unknown>> {
+export class Api<IB extends InteractionBody<unknown, unknown>, TB extends TraceBody<unknown>> {
   private axios: AxiosInstance;
 
   public constructor(endpoint: string, authorization?: string) {
@@ -49,7 +52,15 @@ export class Api<IB extends InteractionBody<unknown, unknown>> {
     this.axios = Axios.create(config);
   }
 
-  public doIngest = async (body: IB) => this.axios.post<InteractionResponse>('/logs/ingest', body);
+  public ingestInteraction = async (body: IB) => this.axios.post<InteractionResponse>('/transcripts/interaction', body);
+
+  public ingestTrace = async (interactionID: string, body: TB) =>
+    this.axios.post<InteractionResponse>(`/transcripts/interaction/${interactionID}/trace`, body);
+
+  public getSessionTranscripts = async (sessionID: string) => this.axios.get<InteractionResponse>(`/transcripts/session/${sessionID}`);
+
+  public getSessionTranscriptsCount = async (sessionID: string) =>
+    this.axios.get<InteractionCountResponse>(`/transcripts/session/${sessionID}/count`);
 }
 
 export const Client = (endpoint: string, authorization: string | undefined) => new Api(endpoint, authorization);

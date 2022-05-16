@@ -34,6 +34,7 @@ describe('interact service unit tests', () => {
         state: data.body.state,
         request: data.body.request,
         versionID: data.headers.versionID,
+        projectID: undefined,
         userID: undefined,
         data: {
           locale: data.query.locale,
@@ -146,6 +147,7 @@ describe('interact service unit tests', () => {
       userID: undefined,
       request: data.body.request,
       versionID: data.headers.versionID,
+      projectID: undefined,
       data: {
         locale: data.query.locale,
         config: {},

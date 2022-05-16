@@ -10,6 +10,7 @@ export interface Context<R = Record<string, unknown>, T = BaseNode.Utils.BaseTra
   userID?: string;
   request: R;
   versionID: string;
+  projectID: string;
 }
 
 export type ContextHandle<C extends Context<any, any, any>> = (request: C) => C | Promise<C>;

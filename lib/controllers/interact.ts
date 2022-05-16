@@ -21,7 +21,7 @@ class InteractController extends AbstractController {
     req: Request<
       Record<string, unknown>,
       { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig },
-      { versionID: string },
+      { versionID: string; projectID: string },
       { locale?: string }
     >
   ): Promise<ResponseContext> {

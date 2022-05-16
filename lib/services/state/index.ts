@@ -93,6 +93,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
       trace: [] as BaseTrace.AnyTrace[],
       request: context.request || null,
       versionID: context.versionID,
+      projectID: version.projectID,
       data: { ...context.data, locale, api },
     };
   }

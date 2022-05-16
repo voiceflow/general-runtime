@@ -11,6 +11,7 @@ describe('Analytics client unit tests', () => {
 
       expect(
         client.track({
+          projectID: 'projectID',
           versionID: 'id',
           event: 'unknown event' as any,
           metadata: {} as any,
@@ -24,6 +25,7 @@ describe('Analytics client unit tests', () => {
 
       expect(
         client.track({
+          projectID: 'projectID',
           versionID: 'id',
           event: Event.INTERACT,
           metadata: {} as any,
@@ -51,12 +53,12 @@ describe('Analytics client unit tests', () => {
 
       const client = AnalyticsClient(config as any);
 
-      const ingestClient = { doIngest: sinon.stub().resolves({ data: { success: true } }) };
+      const ingestClient = { ingestInteraction: sinon.stub().resolves({ data: { turnID: 'turnID' } }) };
 
       (client as any).ingestClient = ingestClient;
       const timestamp = new Date();
 
-      const ingestResponse = await client.track({ versionID: 'id', event: Event.TURN, metadata: metadata as any, timestamp });
+      const ingestResponse = await client.track({ projectID: 'projectID', versionID: 'id', event: Event.TURN, metadata: metadata as any, timestamp });
       expect(ingestResponse).to.equal(undefined);
     });
   });

@@ -13,7 +13,7 @@ type GeneralInteractionBody = Ingest.InteractionBody<{ locale?: string; end?: bo
 type GeneralTraceBody = Ingest.TraceBody<BaseTrace.AnyTrace | RuntimeRequest>;
 
 export class AnalyticsSystem extends AbstractClient {
-  private ingestClient?: Ingest.Api<GeneralInteractionBody>;
+  private ingestClient?: Ingest.Api<GeneralInteractionBody, GeneralTraceBody>;
 
   constructor(config: Config) {
     super(config);
@@ -101,8 +101,8 @@ export class AnalyticsSystem extends AbstractClient {
     log.trace(`[analytics] process trace ${log.vars({ versionID })}`);
     switch (event) {
       case Ingest.Event.TURN: {
-        const turnIngestBody = this.createInteractionBody({ projectID, versionID, metadata, timestamp });
-        await this.ingestClient?.doIngest(turnIngestBody);
+        const interactionBody = this.createInteractionBody({ projectID, versionID, metadata, timestamp });
+        await this.ingestClient?.ingestInteraction(interactionBody);
 
         break;
       }

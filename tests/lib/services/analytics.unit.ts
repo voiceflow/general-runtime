@@ -17,20 +17,17 @@ describe('analytics manager unit tests', () => {
   });
 
   it('works correctly', async () => {
-    const projectID = '1234';
-    const findOne = sinon.stub().resolves({ projectID });
     const services = {
       analyticsClient: {
-        track: sinon.stub().resolves('done'),
+        track: sinon.stub().resolves(),
       },
-      mongo: { db: { collection: sinon.stub().returns({ findOne }) } },
     };
     const analytics = new AnalyticsManager(services as any, {} as any);
-    const context = { versionID: 1, data: '_context123' };
+    const context = { versionID: 1, projectID: '1234', data: '_context123' };
     expect(analytics.handle(context as any)).to.eql(context);
 
-    expect((await Promise.resolve(services.analyticsClient.track)).args).to.eql([
-      [{ projectID, versionID: context.versionID, event: Event.TURN, metadata: context, timestamp: clock.Date() }],
+    expect(services.analyticsClient.track.args).to.eql([
+      [{ projectID: context.projectID, versionID: context.versionID, event: Event.TURN, metadata: context, timestamp: clock.Date() }],
     ]);
   });
 });

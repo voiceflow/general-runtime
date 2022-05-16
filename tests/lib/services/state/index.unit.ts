@@ -16,6 +16,7 @@ const version = {
       variables: { variable1: 1, variable2: 2 },
     },
   },
+  projectID: 'projectID',
   variables: ['variable1'],
   rootDiagramID: 'a',
 };
@@ -86,6 +87,7 @@ describe('state manager unit tests', () => {
 
       const context = {
         versionID: VERSION_ID,
+        projectID: version.projectID,
         data: { foo: 'bar' },
       } as any;
 
@@ -94,6 +96,7 @@ describe('state manager unit tests', () => {
       expect(newContext).to.eql({
         request: null,
         versionID: VERSION_ID,
+        projectID: version.projectID,
         state,
         trace: [],
         data: {
@@ -136,6 +139,7 @@ describe('state manager unit tests', () => {
       const context = {
         state: {},
         versionID: VERSION_ID,
+        projectID: version.projectID,
         data: { foo: 'bar' },
       } as any;
 
@@ -144,6 +148,7 @@ describe('state manager unit tests', () => {
       expect(newContext).to.eql({
         request: null,
         versionID: VERSION_ID,
+        projectID: version.projectID,
         state,
         trace: [],
         data: {
@@ -169,6 +174,7 @@ describe('state manager unit tests', () => {
       const context = {
         state: { stack: [] },
         versionID: VERSION_ID,
+        projectID: version.projectID,
         data: { foo: 'bar' },
       } as any;
 
@@ -177,6 +183,7 @@ describe('state manager unit tests', () => {
       expect(newContext).to.eql({
         request: null,
         versionID: VERSION_ID,
+        projectID: version.projectID,
         state,
         trace: [],
         data: {
