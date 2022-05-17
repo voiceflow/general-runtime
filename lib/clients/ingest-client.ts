@@ -18,14 +18,13 @@ export interface InteractionBody<M, T> {
   startTime?: string;
   metadata?: M;
   platform?: string;
+  action?: TraceBody<T>;
   traces?: TraceBody<T>[];
 }
 
 export interface TraceBody<T> {
   type?: string;
-  format?: string;
   payload?: T;
-  startTime?: string;
 }
 
 export interface InteractionResponse {

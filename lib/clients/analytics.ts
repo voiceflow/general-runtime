@@ -23,23 +23,10 @@ export class AnalyticsSystem extends AbstractClient {
     }
   }
 
-  private createTraceBody({
-    fullTrace,
-    timestamp,
-    metadata,
-  }: {
-    fullTrace: readonly BaseTrace.AnyTrace[];
-    timestamp: Date;
-    metadata: Context;
-  }): GeneralTraceBody[] {
-    // add milliseconds to maintain order
-    const unixTime = timestamp.getTime() + 1;
-
-    return fullTrace.map((trace, idx) => ({
-      startTime: new Date(unixTime + idx).toISOString(),
+  private createTraceBody({ fullTrace, metadata }: { fullTrace: readonly BaseTrace.AnyTrace[]; metadata: Context }): GeneralTraceBody[] {
+    return fullTrace.map((trace) => ({
       type: (trace ?? metadata.request).type,
       payload: trace ?? metadata.request,
-      format: trace ? 'trace' : 'request',
     }));
   }
 
@@ -67,21 +54,14 @@ export class AnalyticsSystem extends AbstractClient {
         end: metadata.end,
         locale: metadata.data.locale,
       },
-      traces: [
-        // launch trace
-        {
-          type: 'launch',
-          payload: {},
-          format: metadata.request ? 'request' : 'launch',
-          startTime: timestamp.toISOString(),
-        },
-        // remaining traces
-        ...this.createTraceBody({
-          fullTrace: metadata.trace ?? [],
-          timestamp,
-          metadata,
-        }),
-      ],
+      action: {
+        type: metadata.request ? 'request' : 'launch',
+        payload: {},
+      },
+      traces: this.createTraceBody({
+        fullTrace: metadata.trace ?? [],
+        metadata,
+      }),
     };
   }
 

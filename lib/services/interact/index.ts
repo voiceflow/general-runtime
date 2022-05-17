@@ -30,7 +30,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
     params: { userID?: string };
     body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
     query: { locale?: string };
-    headers: { authorization?: string; origin?: string; sessionid?: string; versionID: string; projectID: string; platform?: string };
+    headers: { authorization?: string; origin?: string; sessionid?: string; versionID: string; platform?: string };
   }): Promise<ResponseContext> {
     const {
       analytics,
@@ -52,7 +52,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       body: { state, config = {}, action = null, request = null },
       params: { userID },
       query: { locale },
-      headers: { versionID, authorization, origin, sessionid, platform, projectID },
+      headers: { versionID, authorization, origin, sessionid, platform },
     } = req;
 
     metrics.generalRequest();
@@ -68,7 +68,6 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       userID,
       request: action ?? request,
       versionID,
-      projectID,
     };
 
     const turn = new this.services.utils.TurnBuilder<Context>(stateManager);
