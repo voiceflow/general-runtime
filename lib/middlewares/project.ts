@@ -5,7 +5,7 @@ import { NextFunction, Response } from 'express';
 
 import { validate } from '@/lib/utils';
 import { CreatorDataApi } from '@/runtime';
-import { Request } from '@/types';
+import { PredictionStage, Request } from '@/types';
 
 import { AbstractMiddleware } from './utils';
 
@@ -38,37 +38,67 @@ class Project extends AbstractMiddleware {
     _res: Response,
     next: NextFunction
   ): Promise<void> {
-    const api = await this.services.dataAPI.get(req.headers.authorization).catch((error) => {
-      throw new VError(`invalid API key: ${error}`, VError.HTTP_STATUS.UNAUTHORIZED);
-    });
+    const { versionID, authorization: apiKey } = req.headers;
 
     try {
+      const api = await this.services.dataAPI.get(apiKey).catch((error) => {
+        throw new VError(`invalid API key: ${error}`, VError.HTTP_STATUS.UNAUTHORIZED);
+      });
+
+      if (!BaseModels.ApiKey.isDialogManagerAPIKey(apiKey)) {
+        throw new VError('Invalid Dialog Manager API Key', 400);
+      }
+
+      if (!(api instanceof CreatorDataApi)) {
+        throw new VError('Version lookup only supported via Creator Data API', VError.HTTP_STATUS.UNAUTHORIZED);
+      }
+      const project = await api.getProjectUsingAuthorization(apiKey).catch(() => null);
+      if (!project) {
+        throw new VError('Cannot infer project version, provide a specific version in the versionID header', 404);
+      }
+
+      const { devVersion, liveVersion, _id: projectID } = project;
+
+      // CASE 1
       // Facilitate supporting routes that require a versionID but do not have to supply one.
       // We can use the provided API key to look up the project and grab the latest version.
-      if (!req.headers.versionID && BaseModels.ApiKey.isDialogManagerAPIKey(req.headers.authorization)) {
-        if (!(api instanceof CreatorDataApi)) {
-          throw new VError('Version lookup only supported via Creator Data API', VError.HTTP_STATUS.UNAUTHORIZED);
-        }
-
-        const project = await api.getProjectUsingAuthorization(req.headers.authorization).catch(() => null);
-        if (!project) {
-          throw new VError('Cannot infer project version, provide a specific version in the versionID header', 404);
-        }
-
+      if (!versionID) {
         req.headers.prototype = 'api';
-        req.headers.projectID = project._id.toString();
-        req.headers.versionID = project.devVersion!.toString();
+        req.headers.versionID = devVersion;
+
+        req.headers.projectID = projectID;
+        req.headers.stage = PredictionStage.DEVELOPMENT;
 
         return next();
       }
 
-      if (!req.headers.versionID) {
+      // CASE 2 - VersionID was supplied
+      if (!versionID) {
         throw new VError('Missing versionID header', 400);
       }
 
-      const { projectID } = await api.getVersion(req.headers.versionID);
-
       req.headers.projectID = projectID;
+
+      // Resolve versionID if it is an alias like 'production'
+      if (Object.values<string>(PredictionStage).includes(versionID)) {
+        req.headers.versionID = versionID === PredictionStage.PROD ? liveVersion : devVersion;
+
+        if (!req.headers.versionID) {
+          throw new VError(`There is no published model for '${versionID}'`, 404);
+        }
+      }
+
+      // Attach the `stage` based on the version that was provided.
+      switch (req.headers.versionID) {
+        case liveVersion:
+          req.headers.stage = PredictionStage.PROD;
+          break;
+        case devVersion:
+          req.headers.stage = PredictionStage.DEVELOPMENT;
+          break;
+        default:
+          throw new VError(`Provided version ID is neither the published development version nor the production version`, 404);
+      }
 
       return next();
     } catch (err) {
