@@ -1,7 +1,8 @@
 import { BaseTrace } from '@voiceflow/base-types';
 import { EmptyObject } from '@voiceflow/common';
+import { Api as IngestApi, Client as IngestClient } from '@voiceflow/event-ingestion-service/build/lib/client';
+import { Event, IngestableInteraction, IngestableTrace } from '@voiceflow/event-ingestion-service/build/lib/types';
 
-import * as Ingest from '@/ingest';
 import log from '@/logger';
 import { Config, Context } from '@/types';
 
@@ -9,20 +10,21 @@ import { RuntimeRequest } from '../services/runtime/types';
 import { AbstractClient } from './utils';
 
 // eslint-disable-next-line max-len
-type GeneralInteractionBody = Ingest.InteractionBody<{ locale?: string; end?: boolean }, BaseTrace.AnyTrace | RuntimeRequest | EmptyObject>;
-type GeneralTraceBody = Ingest.TraceBody<BaseTrace.AnyTrace | RuntimeRequest>;
+type GeneralInteractionBody = IngestableInteraction<{ locale?: string; end?: boolean }, BaseTrace.AnyTrace | RuntimeRequest | EmptyObject>;
+type GeneralTraceBody = IngestableTrace<BaseTrace.AnyTrace | RuntimeRequest>;
 
 export class AnalyticsSystem extends AbstractClient {
-  private ingestClient?: Ingest.Api<GeneralInteractionBody, GeneralTraceBody>;
+  private ingestClient?: IngestApi<GeneralInteractionBody, GeneralTraceBody>;
 
   constructor(config: Config) {
     super(config);
 
     if (config.INGEST_WEBHOOK_ENDPOINT) {
-      this.ingestClient = Ingest.Client(config.INGEST_WEBHOOK_ENDPOINT, undefined);
+      this.ingestClient = IngestClient(config.INGEST_WEBHOOK_ENDPOINT, undefined);
     }
   }
 
+  // eslint-disable-next-line max-len
   private createTraceBody({ fullTrace, metadata }: { fullTrace: readonly BaseTrace.AnyTrace[]; metadata: Context }): GeneralTraceBody[] {
     return fullTrace.map((trace) => ({
       type: (trace ?? metadata.request).type,
@@ -46,7 +48,7 @@ export class AnalyticsSystem extends AbstractClient {
 
     return {
       projectID,
-      platform: metadata.data.reqHeaders?.platform,
+      platform: metadata.data.reqHeaders?.platform ?? '',
       sessionID,
       versionID,
       startTime: timestamp.toISOString(),
@@ -56,7 +58,7 @@ export class AnalyticsSystem extends AbstractClient {
       },
       action: {
         type: metadata.request ? 'request' : 'launch',
-        payload: {},
+        payload: metadata.request ?? {},
       },
       traces: this.createTraceBody({
         fullTrace: metadata.trace ?? [],
@@ -74,19 +76,19 @@ export class AnalyticsSystem extends AbstractClient {
   }: {
     projectID: string;
     versionID: string;
-    event: Ingest.Event;
+    event: Event;
     metadata: Context;
     timestamp: Date;
   }): Promise<void> {
     log.trace(`[analytics] process trace ${log.vars({ versionID })}`);
     switch (event) {
-      case Ingest.Event.TURN: {
+      case Event.TURN: {
         const interactionBody = this.createInteractionBody({ projectID, versionID, metadata, timestamp });
         await this.ingestClient?.ingestInteraction(interactionBody);
 
         break;
       }
-      case Ingest.Event.INTERACT:
+      case Event.INTERACT:
         throw new RangeError('INTERACT events are not supported');
       default:
         throw new RangeError(`Unknown event type: ${event}`);

@@ -1,4 +1,5 @@
-import { Event } from '@/lib/clients/ingest-client';
+import { Event } from '@voiceflow/event-ingestion-service/build/lib/types';
+
 import log from '@/logger';
 import { Context, ContextHandler } from '@/types';
 

@@ -1,7 +1,7 @@
+import { Event } from '@voiceflow/event-ingestion-service/build/lib/types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { Event } from '@/lib/clients/ingest-client';
 import AnalyticsManager from '@/lib/services/analytics';
 
 describe('analytics manager unit tests', () => {
