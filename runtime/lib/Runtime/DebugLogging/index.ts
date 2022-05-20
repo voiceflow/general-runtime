@@ -79,7 +79,7 @@ export default class DebugLogging {
 
   recordGlobalLog<Kind extends RuntimeLogs.Kinds.GlobalLogKind, Level extends RuntimeLogs.LogLevel>(
     kind: Kind,
-    message: Message<Extract<RuntimeLogs.Log, { kind: Kind; level: Level }>>,
+    message: Message<Extract<RuntimeLogs.Logs.GlobalLog, { kind: `global.${Kind}`; level: Level }>>,
     // @ts-expect-error TS is technically correct here, but the overloads ensure that the default log level value actually corresponds to the log levels at runtime
     level: Level = RuntimeLogs.LogLevel.INFO
   ): void {
