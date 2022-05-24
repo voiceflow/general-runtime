@@ -21,7 +21,7 @@
     "@voiceflow/body-parser": "^1.21.1",
     "@voiceflow/chat-types": "2.7.22",
     "@voiceflow/common": "7.27.0",
-    "@voiceflow/event-ingestion-service": "1.0.0",
+    "@voiceflow/event-ingestion-service": "1.0.4",
     "@voiceflow/logger": "^1.6.1",
     "@voiceflow/metrics": "1.3.1",
     "@voiceflow/natural-language-commander": "^0.5.1",
