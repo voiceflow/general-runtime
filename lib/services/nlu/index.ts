@@ -87,7 +87,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       model: version.prototype?.model,
       locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
       projectID: version.projectID,
-      isProduction: context.data.stage === PredictionStage.PROD,
+      isProduction: context.data.stage === PredictionStage.PRODUCTION,
     });
 
     return { ...context, request };
