@@ -109,7 +109,7 @@ export enum PredictionStage {
       *and* production.
    */
   DEVELOPMENT = 'development',
-  PROD = 'production',
+  PRODUCTION = 'production',
 }
 
 export interface ContextData {

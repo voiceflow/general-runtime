@@ -81,7 +81,7 @@ class Project extends AbstractMiddleware {
 
       // Resolve versionID if it is an alias like 'production'
       if (Object.values<string>(PredictionStage).includes(versionID)) {
-        req.headers.versionID = versionID === PredictionStage.PROD ? liveVersion : devVersion;
+        req.headers.versionID = versionID === PredictionStage.PRODUCTION ? liveVersion : devVersion;
 
         if (!req.headers.versionID) {
           throw new VError(`There is no published model for '${versionID}'`, 404);
@@ -91,7 +91,7 @@ class Project extends AbstractMiddleware {
       // Attach the `stage` based on the version that was provided.
       switch (req.headers.versionID) {
         case liveVersion:
-          req.headers.stage = PredictionStage.PROD;
+          req.headers.stage = PredictionStage.PRODUCTION;
           break;
         case devVersion:
           req.headers.stage = PredictionStage.DEVELOPMENT;
