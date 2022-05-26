@@ -3,7 +3,7 @@ import { RuntimeLogs } from '@voiceflow/base-types';
 
 import { SharedValidations } from '@/lib/validations';
 import { State } from '@/runtime';
-import { Request } from '@/types';
+import { PredictionStage, Request } from '@/types';
 
 import { customAJV, validate } from '../../utils';
 import { AbstractController } from '../utils';
@@ -37,7 +37,7 @@ class StateManagementController extends AbstractController {
     req: Request<
       { userID: string },
       any,
-      { projectID: string; authorization: string; versionID: string },
+      { projectID: string; authorization: string; versionID: string; stage: PredictionStage },
       { verbose?: boolean; logs: RuntimeLogs.LogLevel }
     >
   ) {
