@@ -82,7 +82,7 @@
     "@types/sinon": "^7.5.1",
     "@types/supertest": "^2.0.8",
     "@types/validator": "^13.7.0",
-    "@voiceflow/commitlint-config": "1.1.1",
+    "@voiceflow/commitlint-config": "2.0.0",
     "@voiceflow/eslint-config": "6.0.1",
     "@voiceflow/git-branch-check": "1.2.3",
     "@voiceflow/prettier-config": "1.0.7",
