@@ -32,8 +32,7 @@ export const resolveLogLevel = (value: LogLevelResolvable): RuntimeLogs.LogLevel
     case true:
       return DEFAULT_LOG_LEVEL;
     // Opt in with a specific log level
-    default: {
+    default:
       return value;
-    }
   }
 };
