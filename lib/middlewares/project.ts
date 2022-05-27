@@ -46,15 +46,16 @@ class Project extends AbstractMiddleware {
       });
 
       if (!BaseModels.ApiKey.isDialogManagerAPIKey(apiKey)) {
-        throw new VError('Invalid Dialog Manager API Key', 400);
+        throw new VError('invalid Dialog Manager API Key', 400);
       }
 
       if (!(api instanceof CreatorDataApi)) {
-        throw new VError('Version lookup only supported via Creator Data API', VError.HTTP_STATUS.UNAUTHORIZED);
+        throw new VError('version lookup only supported via Creator Data API', VError.HTTP_STATUS.UNAUTHORIZED);
       }
+
       const project = await api.getProjectUsingAuthorization(apiKey).catch(() => null);
       if (!project) {
-        throw new VError('Cannot infer project version, provide a specific version in the versionID header', 404);
+        throw new VError('cannot infer project version, provide a specific version in the versionID header', 404);
       }
 
       const { devVersion, liveVersion, _id: projectID } = project;
@@ -74,7 +75,7 @@ class Project extends AbstractMiddleware {
 
       // CASE 2 - VersionID was supplied
       if (!versionID) {
-        throw new VError('Missing versionID header', 400);
+        throw new VError('missing versionID header', 400);
       }
 
       req.headers.projectID = projectID;
@@ -84,7 +85,7 @@ class Project extends AbstractMiddleware {
         req.headers.versionID = versionID === PredictionStage.PRODUCTION ? liveVersion : devVersion;
 
         if (!req.headers.versionID) {
-          throw new VError(`There is no published model for '${versionID}'`, 404);
+          throw new VError(`there is no published model for '${versionID}'`, 404);
         }
       }
 
@@ -97,7 +98,7 @@ class Project extends AbstractMiddleware {
           req.headers.stage = PredictionStage.DEVELOPMENT;
           break;
         default:
-          throw new VError(`Provided version ID is neither the published development version nor the production version`, 404);
+          throw new VError(`provided version ID is neither the published development version nor the production version`, 404);
       }
 
       return next();

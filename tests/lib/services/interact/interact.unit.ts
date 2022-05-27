@@ -3,6 +3,7 @@ import sinon from 'sinon';
 
 import Interact from '@/lib/services/interact';
 import { TurnBuilder } from '@/runtime';
+import { PredictionStage } from '@/types';
 
 const output = (context: any, state: string, params?: any) => ({ ...context, ...params, state, end: false });
 
@@ -26,7 +27,7 @@ describe('interact service unit tests', () => {
   describe('handler', () => {
     it('works correctly', async () => {
       const data = {
-        headers: { authorization: 'auth', origin: 'origin', versionID: 'versionID' },
+        headers: { authorization: 'auth', origin: 'origin', versionID: 'versionID', stage: PredictionStage.PRODUCTION },
         body: { state: { foo: 'bar' }, request: 'request', config: { tts: true, selfDelegate: true } },
         params: {},
         query: { locale: 'locale' },
@@ -43,6 +44,7 @@ describe('interact service unit tests', () => {
             tts: true,
             selfDelegate: true,
           },
+          stage: PredictionStage.PRODUCTION,
           reqHeaders: {
             authorization: data.headers.authorization,
             origin: data.headers.origin,
@@ -140,6 +142,7 @@ describe('interact service unit tests', () => {
         origin: 'origin',
         sessionid: 'sessionid',
         platform: 'platform',
+        stage: PredictionStage.DEVELOPMENT,
       },
       params: {},
       query: { locale: 'locale' },
@@ -159,6 +162,7 @@ describe('interact service unit tests', () => {
           sessionid: data.headers.sessionid,
           platform: data.headers.platform,
         },
+        stage: PredictionStage.DEVELOPMENT,
       },
     };
 
