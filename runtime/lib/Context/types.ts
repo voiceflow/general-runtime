@@ -1,4 +1,4 @@
-import { BaseNode } from '@voiceflow/base-types';
+import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 
 import { State } from '@/runtime/lib/Runtime';
 
@@ -11,6 +11,11 @@ export interface Context<R = Record<string, unknown>, T = BaseNode.Utils.BaseTra
   request: R;
   versionID: string;
   projectID: string;
+  /**
+   * The most verbose logs to receive in runtime logging.
+   * If this field is missing do not update the maximum log level for this turn.
+   */
+  maxLogLevel?: RuntimeLogs.LogLevel;
 }
 
 export type ContextHandle<C extends Context<any, any, any>> = (request: C) => C | Promise<C>;

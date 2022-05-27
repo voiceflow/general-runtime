@@ -11,6 +11,9 @@ export class TraceLogBuffer implements RuntimeLogs.LogBuffer {
 
   private readonly addTrace: AddTraceFn;
 
+  /**
+   * @param addTraceFn - A function that will be called to add a trace to the runtime's trace array
+   */
   constructor(addTraceFn: AddTraceFn) {
     this.addTrace = addTraceFn.bind(addTraceFn);
   }

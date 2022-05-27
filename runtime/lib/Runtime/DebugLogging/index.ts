@@ -3,12 +3,10 @@ import { RuntimeLogs } from '@voiceflow/base-types';
 import Runtime from '..';
 import Trace from '../Trace';
 import { TraceLogBuffer } from './traceLogBuffer';
-import { AddTraceFn, getISO8601Timestamp } from './utils';
+import { AddTraceFn, DEFAULT_LOG_LEVEL, getISO8601Timestamp } from './utils';
 
 type Message<T extends RuntimeLogs.Log> = T['message'];
 type RemovePrefix<Prefix extends string, T extends string> = T extends `${Prefix}${infer T}` ? T : never;
-
-const DEFAULT_LOG_LEVEL = RuntimeLogs.LogLevel.INFO;
 
 type PossibleStepLogLevel = RuntimeLogs.Logs.StepLog['level'];
 type PossibleStepLogKind = RemovePrefix<'step.', RuntimeLogs.Logs.StepLog['kind']>;
@@ -19,10 +17,22 @@ type PossibleGlobalLogKind = RemovePrefix<'global.', RuntimeLogs.Logs.GlobalLog[
 export default class DebugLogging {
   private readonly logBuffer: RuntimeLogs.AsyncLogBuffer;
 
+  /** The most verbose log level that will be be logged. */
+  maxLogLevel: RuntimeLogs.LogLevel = DEFAULT_LOG_LEVEL;
+
+  /**
+   * @param runtime - The runtime to use for logging.
+   */
   constructor(runtime: Runtime);
 
+  /**
+   * @param trace - The trace to use for logging.
+   */
   constructor(trace: Trace);
 
+  /**
+   * @param addTraceFn - A function that will be called to add a trace to the runtime's trace array
+   */
   constructor(addTraceFn: AddTraceFn);
 
   constructor(addTraceResolvable: Runtime | Trace | AddTraceFn) {
@@ -41,32 +51,45 @@ export default class DebugLogging {
     this.logBuffer = new TraceLogBuffer(addTrace);
   }
 
-  /** Record a runtime debug log for a step at the given log level (or {@link DEFAULT_LOG_LEVEL the default log level} if not specified). */
+  /** Returns whether a runtime debug log with the provided log level should be logged using this {@link DebugLogging}'s maximum log level. */
+  shouldLog(level: RuntimeLogs.LogLevel): boolean {
+    return level <= this.maxLogLevel;
+  }
+
+  /**
+   * Record a runtime debug log for a step at the given log level (or {@link DEFAULT_LOG_LEVEL the default log level} if not specified).
+   * Nothing will be logged if the configured maximum log level is less verbose than the log level provided to this method.
+   */
   recordStepLog<Kind extends PossibleStepLogKind, Level extends PossibleStepLogLevel>(
     kind: Kind,
     message: Message<Extract<RuntimeLogs.Logs.StepLog, { kind: `step.${Kind}`; level: Level }>>,
     level?: Level
   ): void {
-    const log: RuntimeLogs.Logs.StepLog = {
-      kind: `step.${kind}` as any,
-      message,
-      level: (level ?? DEFAULT_LOG_LEVEL) as any,
-      timestamp: getISO8601Timestamp(),
-    };
-
-    this.logBuffer.push(log);
+    this.recordLog(`step.${kind}`, message, level);
   }
 
-  /** Record a runtime debug log for a global event at the given log level (or {@link DEFAULT_LOG_LEVEL the default log level} if not specified). */
+  /**
+   * Record a runtime debug log for a global event at the given log level (or {@link DEFAULT_LOG_LEVEL the default log level} if not specified).
+   * Nothing will be logged if the configured log level is less verbose than the log level provided to this method.
+   */
   recordGlobalLog<Kind extends PossibleGlobalLogKind, Level extends PossibleGlobalLogLevel>(
     kind: Kind,
     message: Message<Extract<RuntimeLogs.Logs.GlobalLog, { kind: `global.${Kind}`; level: Level }>>,
     level?: Level
   ): void {
-    const log: RuntimeLogs.Logs.GlobalLog = {
-      kind: `global.${kind}`,
-      message,
-      level: level ?? DEFAULT_LOG_LEVEL,
+    this.recordLog(`global.${kind}`, message, level);
+  }
+
+  /** Record a log. Private method, has no typesafety to guarantee you don't record a log which doesn't conform to the spec. */
+  private recordLog(kind: RuntimeLogs.Log['kind'], message: Message<RuntimeLogs.Log>, level: RuntimeLogs.LogLevel = DEFAULT_LOG_LEVEL): void {
+    if (!this.shouldLog(level)) {
+      return;
+    }
+
+    const log: RuntimeLogs.Log = {
+      kind: kind as any,
+      message: message as any,
+      level: level as any,
       timestamp: getISO8601Timestamp(),
     };
 
