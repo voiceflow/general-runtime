@@ -23,7 +23,7 @@ export class TraceLogBuffer implements RuntimeLogs.LogBuffer {
     throw new Error('Do not call this method, there are never any logs to flush');
   }
 
-  push(...logs: RuntimeLogs.Log[]): void {
+  push(...logs: readonly RuntimeLogs.Log[]): void {
     logs.map((log) => createLogTrace(log)).forEach((trace) => this.addTrace(trace));
   }
 }
