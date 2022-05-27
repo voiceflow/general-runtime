@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "ES2021",
     "moduleResolution": "node",
     "module": "commonjs",
     "declaration": true,
@@ -25,7 +25,7 @@
     "listEmittedFiles": false,
     "listFiles": false,
     "pretty": true,
-    "lib": ["es2020"],
+    "lib": ["ES2021"],
     "outDir": "./build",
     "baseUrl": ".",
     "paths": {
