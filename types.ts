@@ -61,7 +61,7 @@ export interface Config extends RateLimitConfig {
 
   ANALYTICS_ENDPOINT: string | null;
   ANALYTICS_WRITE_KEY: string | null;
-  INGEST_WEBHOOK_ENDPOINT: string | null;
+  INGEST_V2_WEBHOOK_ENDPOINT: string | null;
 }
 
 export interface Request<

@@ -38,7 +38,7 @@ describe('Analytics client unit tests', () => {
       const config = {
         ANALYTICS_WRITE_KEY: 'write key',
         ANALYTICS_ENDPOINT: 'http://localhost/analytics',
-        INGEST_WEBHOOK_ENDPOINT: 'http://localhost/ingest',
+        INGEST_V2_WEBHOOK_ENDPOINT: 'http://localhost/ingest',
       };
 
       const metadata = {

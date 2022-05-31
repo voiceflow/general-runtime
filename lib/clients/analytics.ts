@@ -19,8 +19,8 @@ export class AnalyticsSystem extends AbstractClient {
   constructor(config: Config) {
     super(config);
 
-    if (config.INGEST_WEBHOOK_ENDPOINT) {
-      this.ingestClient = IngestClient(config.INGEST_WEBHOOK_ENDPOINT, undefined);
+    if (config.INGEST_V2_WEBHOOK_ENDPOINT) {
+      this.ingestClient = IngestClient(config.INGEST_V2_WEBHOOK_ENDPOINT, undefined);
     }
   }
 
