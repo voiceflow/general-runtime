@@ -9,5 +9,15 @@ module.exports = {
   rules: {
     'import/no-cycle': 'off',
     'no-param-reassign': 'warn',
+    'max-len': [
+      'error',
+      {
+        code: 120,
+        ignoreUrls: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true,
+        ignoreRegExpLiterals: true,
+      },
+    ],
   },
 };
