@@ -19,7 +19,11 @@ const VALIDATIONS = {
 class Project extends AbstractMiddleware {
   static VALIDATIONS = VALIDATIONS;
 
-  async unifyVersionID(req: Request<{ versionID?: string }, null, { version?: string }>, _res: Response, next: NextFunction): Promise<void> {
+  async unifyVersionID(
+    req: Request<{ versionID?: string }, null, { version?: string }>,
+    _res: Response,
+    next: NextFunction
+  ): Promise<void> {
     // Version ID provided as param in older versions
     req.headers.versionID = req.headers.versionID ?? req.params.versionID;
     next();
@@ -29,7 +33,11 @@ class Project extends AbstractMiddleware {
     HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
     HEADERS_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION,
   })
-  async attachID(req: Request<Record<string, unknown>, unknown, { versionID?: string }>, _res: Response, next: NextFunction): Promise<void> {
+  async attachID(
+    req: Request<Record<string, unknown>, unknown, { versionID?: string }>,
+    _res: Response,
+    next: NextFunction
+  ): Promise<void> {
     const api = await this.services.dataAPI.get(req.headers.authorization).catch((error) => {
       throw new VError(`invalid API key: ${error}`, VError.HTTP_STATUS.UNAUTHORIZED);
     });

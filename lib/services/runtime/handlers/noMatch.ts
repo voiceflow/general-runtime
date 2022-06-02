@@ -58,7 +58,9 @@ export const NoMatchHandler = (utils: typeof utilsObj) => ({
       payload: { path: 'reprompt' },
     });
 
-    const output = node.noMatch?.randomize ? _.sample<string | BaseText.SlateTextValue>(nonEmptyNoMatches) : nonEmptyNoMatches?.[noMatchCounter];
+    const output = node.noMatch?.randomize
+      ? _.sample<string | BaseText.SlateTextValue>(nonEmptyNoMatches)
+      : nonEmptyNoMatches?.[noMatchCounter];
 
     runtime.storage.set(StorageType.NO_MATCHES_COUNTER, noMatchCounter + 1);
 

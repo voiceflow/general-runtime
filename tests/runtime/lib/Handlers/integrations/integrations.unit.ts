@@ -18,14 +18,24 @@ describe('integrationsHandler unit tests', () => {
     it('unexpected integration', () => {
       const integrationsHandler = IntegrationsHandler(DEFAULT_OPTIONS);
       expect(
-        integrationsHandler.canHandle({ type: 'integrations', selected_integration: 'Custom API' } as any, null as any, null as any, null as any)
+        integrationsHandler.canHandle(
+          { type: 'integrations', selected_integration: 'Custom API' } as any,
+          null as any,
+          null as any,
+          null as any
+        )
       ).to.eql(false);
     });
 
     it('true', () => {
       const integrationsHandler = IntegrationsHandler(DEFAULT_OPTIONS);
       expect(
-        integrationsHandler.canHandle({ type: 'integrations', selected_integration: 'Zapier' } as any, null as any, null as any, null as any)
+        integrationsHandler.canHandle(
+          { type: 'integrations', selected_integration: 'Zapier' } as any,
+          null as any,
+          null as any,
+          null as any
+        )
       ).to.eql(true);
     });
   });
@@ -40,8 +50,12 @@ describe('integrationsHandler unit tests', () => {
       const node = { fail_id: 'fail-id' };
       const runtime = { trace: { debug: sinon.stub() } };
 
-      expect(await integrationsHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql(node.fail_id);
-      expect(runtime.trace.debug.args).to.eql([['no integration or action specified - fail by default', BaseNode.NodeType.INTEGRATIONS]]);
+      expect(await integrationsHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql(
+        node.fail_id
+      );
+      expect(runtime.trace.debug.args).to.eql([
+        ['no integration or action specified - fail by default', BaseNode.NodeType.INTEGRATIONS],
+      ]);
     });
 
     it('no selected_action', async () => {
@@ -50,7 +64,9 @@ describe('integrationsHandler unit tests', () => {
       const runtime = { trace: { debug: sinon.stub() } };
 
       expect(await integrationsHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql(null);
-      expect(runtime.trace.debug.args).to.eql([['no integration or action specified - fail by default', BaseNode.NodeType.INTEGRATIONS]]);
+      expect(runtime.trace.debug.args).to.eql([
+        ['no integration or action specified - fail by default', BaseNode.NodeType.INTEGRATIONS],
+      ]);
     });
 
     describe('http call fails', () => {
@@ -64,14 +80,18 @@ describe('integrationsHandler unit tests', () => {
         const runtime = { trace: { debug: sinon.stub() } };
         const variables = { getState: sinon.stub().returns({}) };
 
-        expect(await integrationsHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+        expect(await integrationsHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+          null
+        );
         expect(runtime.trace.debug.args).to.eql([
           [
             `action **${node.selected_action}** for integration **${node.selected_integration}** failed  \n"${axiosErr.response.data}"`,
             BaseNode.NodeType.INTEGRATIONS,
           ],
         ]);
-        expect(axiosPost.args).to.eql([[`${integrationsEndpoint}${ENDPOINTS_MAP[node.selected_integration][node.selected_action]}`, undefined]]);
+        expect(axiosPost.args).to.eql([
+          [`${integrationsEndpoint}${ENDPOINTS_MAP[node.selected_integration][node.selected_action]}`, undefined],
+        ]);
       });
 
       it('with fail_id', async () => {
@@ -83,9 +103,14 @@ describe('integrationsHandler unit tests', () => {
         const runtime = { trace: { debug: sinon.stub() } };
         const variables = { getState: sinon.stub().returns({}) };
 
-        expect(await integrationsHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.fail_id);
+        expect(await integrationsHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+          node.fail_id
+        );
         expect(runtime.trace.debug.args).to.eql([
-          [`action **${node.selected_action}** for integration **${node.selected_integration}** failed  \nundefined`, BaseNode.NodeType.INTEGRATIONS],
+          [
+            `action **${node.selected_action}** for integration **${node.selected_integration}** failed  \nundefined`,
+            BaseNode.NodeType.INTEGRATIONS,
+          ],
         ]);
       });
     });
@@ -100,14 +125,18 @@ describe('integrationsHandler unit tests', () => {
       const runtime = { trace: { debug: sinon.stub() } };
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 
-      expect(await integrationsHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.success_id);
+      expect(await integrationsHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+        node.success_id
+      );
       expect(runtime.trace.debug.args).to.eql([
         [
           `action **${node.selected_action}** for integration **${node.selected_integration}** successfully triggered`,
           BaseNode.NodeType.INTEGRATIONS,
         ],
       ]);
-      expect(axiosPost.args).to.eql([[`${integrationsEndpoint}${ENDPOINTS_MAP[node.selected_integration][node.selected_action]}`, undefined]]);
+      expect(axiosPost.args).to.eql([
+        [`${integrationsEndpoint}${ENDPOINTS_MAP[node.selected_integration][node.selected_action]}`, undefined],
+      ]);
       expect(variables.merge.args).to.eql([[{}]]);
     });
   });

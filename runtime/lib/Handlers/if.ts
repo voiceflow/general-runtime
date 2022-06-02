@@ -6,7 +6,8 @@ import { EventType } from '@/runtime/lib/Lifecycle';
 import { evaluateExpression, regexExpression } from './utils/shuntingYard';
 
 const IfHandler: HandlerFactory<BaseNode.If.Node> = () => ({
-  canHandle: (node: any) => !!(node.type !== BaseNode.NodeType.IF_V2 && node.expressions && node.expressions.length < 101),
+  canHandle: (node: any) =>
+    !!(node.type !== BaseNode.NodeType.IF_V2 && node.expressions && node.expressions.length < 101),
   handle: async (node, runtime, variables) => {
     for (let i = 0; i < node.expressions.length; i++) {
       try {
@@ -25,7 +26,10 @@ const IfHandler: HandlerFactory<BaseNode.If.Node> = () => ({
           return node.nextIds[i];
         }
       } catch (error) {
-        runtime.trace.debug(`unable to resolve expression \`${regexExpression(node.expressions[i])}\`  \n\`${error}\``, BaseNode.NodeType.IF);
+        runtime.trace.debug(
+          `unable to resolve expression \`${regexExpression(node.expressions[i])}\`  \n\`${error}\``,
+          BaseNode.NodeType.IF
+        );
         // eslint-disable-next-line no-await-in-loop
         await runtime.callEvent(EventType.handlerDidCatch, { error });
       }

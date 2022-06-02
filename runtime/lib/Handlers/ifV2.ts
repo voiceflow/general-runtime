@@ -65,7 +65,9 @@ const IfV2Handler: HandlerFactory<BaseNode.IfV2.Node, IfV2Options> = ({ _v1 }) =
       program
     );
 
-    debugErrors.forEach((err) => runtime.trace.debug(`Error condition ${err.index} - "${err.expression}": ${err.msg}`, BaseNode.NodeType.IF_V2));
+    debugErrors.forEach((err) =>
+      runtime.trace.debug(`Error condition ${err.index} - "${err.expression}": ${err.msg}`, BaseNode.NodeType.IF_V2)
+    );
 
     if (outputPortIndex !== -1) {
       runtime.trace.debug(`condition matched - taking path ${outputPortIndex + 1}`, BaseNode.NodeType.IF_V2);

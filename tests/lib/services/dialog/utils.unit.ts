@@ -36,7 +36,10 @@ describe('dialog manager utilities unit tests', () => {
 
   describe('fillStringEntities', () => {
     it('fills a given string with slot notation with actual slot values', () => {
-      const result = utils.fillStringEntities(mockUnfulfilledIntentRequest, 'I want {{[size].tjl3zwj}} {{[size].tjl3zwj}} chicken wings');
+      const result = utils.fillStringEntities(
+        mockUnfulfilledIntentRequest,
+        'I want {{[size].tjl3zwj}} {{[size].tjl3zwj}} chicken wings'
+      );
 
       expect(result).to.equal('I want large large chicken wings');
     });
@@ -77,7 +80,11 @@ describe('dialog manager utilities unit tests', () => {
       const nodeID = 'node-id';
       const node = { nodeID };
       const program = { getNode: sinon.stub().returns(node) };
-      const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
+      const currentFrame = {
+        getProgramID: sinon.stub().returns(programID),
+        getNodeID: sinon.stub().returns(nodeID),
+        variables: { var2: 'val2' },
+      };
       const runtime = {
         stack: { top: sinon.stub().returns(currentFrame) },
         getProgram: sinon.stub().resolves(program),
@@ -115,7 +122,11 @@ describe('dialog manager utilities unit tests', () => {
       const programID = 'program-id';
       const nodeID = 'node-id';
       const program = { getNode: sinon.stub().returns(null) };
-      const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
+      const currentFrame = {
+        getProgramID: sinon.stub().returns(programID),
+        getNodeID: sinon.stub().returns(nodeID),
+        variables: { var2: 'val2' },
+      };
       const runtime = {
         stack: { top: sinon.stub().returns(currentFrame) },
         getProgram: sinon.stub().resolves(program),
@@ -145,7 +156,11 @@ describe('dialog manager utilities unit tests', () => {
       const nodeID = 'node-id';
       const node = { nodeID };
       const program = { getNode: sinon.stub().returns(node) };
-      const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
+      const currentFrame = {
+        getProgramID: sinon.stub().returns(programID),
+        getNodeID: sinon.stub().returns(nodeID),
+        variables: { var2: 'val2' },
+      };
       const runtime = {
         stack: { top: sinon.stub().returns(currentFrame) },
         getProgram: sinon.stub().resolves(program),
@@ -175,7 +190,11 @@ describe('dialog manager utilities unit tests', () => {
       const nodeID = 'node-id';
       const node = { nodeID, interactions: [{ event: 'event' }] };
       const program = { getNode: sinon.stub().returns(node) };
-      const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
+      const currentFrame = {
+        getProgramID: sinon.stub().returns(programID),
+        getNodeID: sinon.stub().returns(nodeID),
+        variables: { var2: 'val2' },
+      };
       const runtime = {
         stack: { top: sinon.stub().returns(currentFrame) },
         getProgram: sinon.stub().resolves(program),
@@ -208,7 +227,11 @@ describe('dialog manager utilities unit tests', () => {
       const nodeID = 'node-id';
       const node = { nodeID, interactions: [{ event: 'event' }] };
       const program = { getNode: sinon.stub().returns(node) };
-      const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
+      const currentFrame = {
+        getProgramID: sinon.stub().returns(programID),
+        getNodeID: sinon.stub().returns(nodeID),
+        variables: { var2: 'val2' },
+      };
       const runtime = {
         stack: { top: sinon.stub().returns(currentFrame) },
         getProgram: sinon.stub().resolves(program),
@@ -240,7 +263,11 @@ describe('dialog manager utilities unit tests', () => {
       const nodeID = 'node-id';
       const node = { nodeID, variable: 'var1' };
       const program = { getNode: sinon.stub().returns(node) };
-      const currentFrame = { getProgramID: sinon.stub().returns(programID), getNodeID: sinon.stub().returns(nodeID), variables: { var2: 'val2' } };
+      const currentFrame = {
+        getProgramID: sinon.stub().returns(programID),
+        getNodeID: sinon.stub().returns(nodeID),
+        variables: { var2: 'val2' },
+      };
       const runtime = {
         stack: { top: sinon.stub().returns(currentFrame) },
         getProgram: sinon.stub().resolves(program),

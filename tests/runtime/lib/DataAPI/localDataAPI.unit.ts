@@ -22,7 +22,10 @@ describe('localDataAPI client unit tests', () => {
       join: sinon.stub().returns('join-val'),
     };
 
-    const LocalDataApi = new LocalDataAPI({ projectSource: 'projectSource-val' }, { fs: stubFS as any, path: path as any });
+    const LocalDataApi = new LocalDataAPI(
+      { projectSource: 'projectSource-val' },
+      { fs: stubFS as any, path: path as any }
+    );
     LocalDataApi.init();
 
     expect(jsonParseStub.args).to.eql([['readFileSync-val']]);
@@ -63,7 +66,10 @@ describe('localDataAPI client unit tests', () => {
       join: sinon.stub().returns('join-val'),
     };
 
-    const LocalDataApi = new LocalDataAPI({ projectSource: 'projectSource-val' }, { fs: stubFS as any, path: path as any });
+    const LocalDataApi = new LocalDataAPI(
+      { projectSource: 'projectSource-val' },
+      { fs: stubFS as any, path: path as any }
+    );
 
     expect(await LocalDataApi.getVersion()).to.eql(content.version);
   });
@@ -82,7 +88,10 @@ describe('localDataAPI client unit tests', () => {
       join: sinon.stub().returns('join-val'),
     };
     const versionID = 'versionID';
-    const creatorDataAPI = new LocalDataAPI({ projectSource: 'project-source' } as any, { fs: stubFS as any, path: path as any } as any);
+    const creatorDataAPI = new LocalDataAPI(
+      { projectSource: 'project-source' } as any,
+      { fs: stubFS as any, path: path as any } as any
+    );
 
     expect(await creatorDataAPI.unhashVersionID(versionID)).to.eql(versionID);
   });
@@ -103,7 +112,10 @@ describe('localDataAPI client unit tests', () => {
       join: sinon.stub().returns('join-val'),
     };
 
-    const LocalDataApi = new LocalDataAPI({ projectSource: 'projectSource-val' }, { fs: stubFS as any, path: path as any });
+    const LocalDataApi = new LocalDataAPI(
+      { projectSource: 'projectSource-val' },
+      { fs: stubFS as any, path: path as any }
+    );
 
     expect(await LocalDataApi.getProgram('a')).to.eql('b');
   });
@@ -122,7 +134,10 @@ describe('localDataAPI client unit tests', () => {
       join: sinon.stub().returns('join-val'),
     };
 
-    const LocalDataApi = new LocalDataAPI({ projectSource: 'projectSource-val' }, { fs: stubFS as any, path: path as any });
+    const LocalDataApi = new LocalDataAPI(
+      { projectSource: 'projectSource-val' },
+      { fs: stubFS as any, path: path as any }
+    );
 
     expect(await LocalDataApi.getProject()).to.eql(content.project);
   });
@@ -141,7 +156,10 @@ describe('localDataAPI client unit tests', () => {
       join: sinon.stub().returns('join-val'),
     };
 
-    const LocalDataApi = new LocalDataAPI({ projectSource: 'projectSource-val' }, { fs: stubFS as any, path: path as any });
+    const LocalDataApi = new LocalDataAPI(
+      { projectSource: 'projectSource-val' },
+      { fs: stubFS as any, path: path as any }
+    );
 
     expect(await LocalDataApi.fetchDisplayById()).to.eql(null);
   });

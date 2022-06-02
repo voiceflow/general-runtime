@@ -26,7 +26,9 @@ describe('dataAPI client unit tests', () => {
     };
 
     expect(await new DataAPI(config as any, API as any).get()).to.eql({ type: 'local' });
-    expect(API.LocalDataApi.args).to.eql([[{ projectSource: config.PROJECT_SOURCE }, { fs: Static.fs, path: Static.path }]]);
+    expect(API.LocalDataApi.args).to.eql([
+      [{ projectSource: config.PROJECT_SOURCE }, { fs: Static.fs, path: Static.path }],
+    ]);
     expect(API.CreatorDataApi.callCount).to.eql(0);
     expect(API.RemoteDataAPI.callCount).to.eql(1);
   });
@@ -47,7 +49,11 @@ describe('dataAPI client unit tests', () => {
     expect(await new DataAPI(config as any, API as any).get()).to.eql({ type: 'remote' });
     expect(API.RemoteDataAPI.args).to.eql([
       [
-        { platform: VoiceflowConstants.PlatformType.GENERAL, adminToken: config.ADMIN_SERVER_DATA_API_TOKEN, dataEndpoint: config.VF_DATA_ENDPOINT },
+        {
+          platform: VoiceflowConstants.PlatformType.GENERAL,
+          adminToken: config.ADMIN_SERVER_DATA_API_TOKEN,
+          dataEndpoint: config.VF_DATA_ENDPOINT,
+        },
         { axios: Static.axios },
       ],
     ]);
@@ -72,13 +78,17 @@ describe('dataAPI client unit tests', () => {
     const dataAPI = new DataAPI(config as any, API as any);
 
     expect(await dataAPI.get()).to.eql({ type: 'creator', init: initStub });
-    expect(API.CreatorDataApi.args).to.eql([[{ endpoint: `${config.CREATOR_API_ENDPOINT}/v2`, authorization: config.CREATOR_API_AUTHORIZATION }]]);
+    expect(API.CreatorDataApi.args).to.eql([
+      [{ endpoint: `${config.CREATOR_API_ENDPOINT}/v2`, authorization: config.CREATOR_API_AUTHORIZATION }],
+    ]);
     expect(initStub.callCount).to.eql(1);
     expect(API.LocalDataApi.callCount).to.eql(0);
     expect(API.RemoteDataAPI.callCount).to.eql(0);
 
     expect(await dataAPI.get('new auth')).to.eql({ type: 'creator', init: initStub });
-    expect(API.CreatorDataApi.secondCall.args).to.eql([{ endpoint: `${config.CREATOR_API_ENDPOINT}/v2`, authorization: 'new auth' }]);
+    expect(API.CreatorDataApi.secondCall.args).to.eql([
+      { endpoint: `${config.CREATOR_API_ENDPOINT}/v2`, authorization: 'new auth' },
+    ]);
   });
 
   it('fails if no data API env configuration set', () => {

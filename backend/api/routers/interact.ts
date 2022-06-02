@@ -15,9 +15,19 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.post('/', middlewares.rateLimit.versionConsume, middlewares.project.attachID, controllers.interact.handler);
 
   // Legacy 1.0.0 routes with versionID in params
-  router.get('/:versionID/state', middlewares.project.unifyVersionID, middlewares.rateLimit.versionConsume, controllers.interact.state);
+  router.get(
+    '/:versionID/state',
+    middlewares.project.unifyVersionID,
+    middlewares.rateLimit.versionConsume,
+    controllers.interact.state
+  );
 
-  router.post('/:versionID', middlewares.project.unifyVersionID, middlewares.rateLimit.versionConsume, controllers.interact.handler);
+  router.post(
+    '/:versionID',
+    middlewares.project.unifyVersionID,
+    middlewares.rateLimit.versionConsume,
+    controllers.interact.handler
+  );
 
   return router;
 };

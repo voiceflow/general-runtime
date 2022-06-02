@@ -50,7 +50,10 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     if (isIntentRequest(request)) {
       const confidence = getReadableConfidence(request.payload.confidence);
 
-      runtime.trace.debug(`matched intent **${request.payload.intent.name}** - confidence interval _${confidence}%_`, BaseNode.NodeType.INTENT);
+      runtime.trace.debug(
+        `matched intent **${request.payload.intent.name}** - confidence interval _${confidence}%_`,
+        BaseNode.NodeType.INTENT
+      );
 
       runtime.variables.set(Variables.INTENT_CONFIDENCE, Number(confidence));
 

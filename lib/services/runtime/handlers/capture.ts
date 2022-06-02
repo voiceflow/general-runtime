@@ -21,7 +21,9 @@ const utilsObj = {
   addNoReplyTimeoutIfExists,
 };
 
-export const CaptureHandler: HandlerFactory<VoiceflowNode.Capture.Node | ChatNode.Capture.Node, typeof utilsObj> = (utils) => ({
+export const CaptureHandler: HandlerFactory<VoiceflowNode.Capture.Node | ChatNode.Capture.Node, typeof utilsObj> = (
+  utils
+) => ({
   canHandle: (node) => !!node.variable || node.type === NodeType.CAPTURE,
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (node, runtime, variables) => {
@@ -32,7 +34,12 @@ export const CaptureHandler: HandlerFactory<VoiceflowNode.Capture.Node | ChatNod
       if (node.intent) {
         runtime.trace.addTrace<BaseTrace.GoToTrace>({
           type: BaseNode.Utils.TraceType.GOTO,
-          payload: { request: { type: BaseRequest.RequestType.INTENT, payload: { intent: { name: node.intent }, query: '', entities: [] } } },
+          payload: {
+            request: {
+              type: BaseRequest.RequestType.INTENT,
+              payload: { intent: { name: node.intent }, query: '', entities: [] },
+            },
+          },
         });
       }
 

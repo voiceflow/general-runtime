@@ -32,7 +32,19 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
     query: { locale?: string };
     headers: { authorization?: string; origin?: string; sessionid?: string; versionID: string; platform?: string };
   }): Promise<ResponseContext> {
-    const { analytics, runtime, metrics, nlu, tts, dialog, asr, speak, slots, state: stateManager, filter } = this.services;
+    const {
+      analytics,
+      runtime,
+      metrics,
+      nlu,
+      tts,
+      dialog,
+      asr,
+      speak,
+      slots,
+      state: stateManager,
+      filter,
+    } = this.services;
 
     const {
       // `request` prop is deprecated, replaced with `action`

@@ -5,7 +5,8 @@ import { Runtime, Store } from '@/runtime';
 
 import { mapEntities } from '../../utils';
 
-const entitiesToMappings = (entities: BaseRequest.Entity[]) => entities.map(({ name }) => ({ slot: name, variable: name }));
+const entitiesToMappings = (entities: BaseRequest.Entity[]) =>
+  entities.map(({ name }) => ({ slot: name, variable: name }));
 
 export interface MatchContext {
   event: BaseNode.Utils.BaseEvent | null;

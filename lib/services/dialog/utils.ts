@@ -25,7 +25,8 @@ export const getUnfulfilledEntity = (
   intentRequest: BaseRequest.IntentRequest,
   model: BaseModels.PrototypeModel
 ): (BaseModels.IntentSlot & { name: string }) | null => {
-  const intentModelSlots = model.intents.find((intent) => intent.name === intentRequest.payload.intent.name)?.slots || [];
+  const intentModelSlots =
+    model.intents.find((intent) => intent.name === intentRequest.payload.intent.name)?.slots || [];
   const extractedEntityNames = new Set(intentRequest.payload.entities.map((entity) => entity.name));
 
   for (const modelIntentEntity of intentModelSlots) {
@@ -75,7 +76,8 @@ export const getIntentEntityList = (intentName: string, model: BaseModels.Protot
 
 export const isInteractionsInNode = (
   node: BaseModels.BaseNode & { interactions?: BaseNode.Interaction.NodeInteraction[] }
-): node is BaseModels.BaseNode & { interactions: BaseNode.Interaction.NodeInteraction[] } => Array.isArray(node.interactions);
+): node is BaseModels.BaseNode & { interactions: BaseNode.Interaction.NodeInteraction[] } =>
+  Array.isArray(node.interactions);
 
 export const isIntentInNode = (
   node: BaseModels.BaseNode & { intent?: { name?: string } }

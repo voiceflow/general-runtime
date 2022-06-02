@@ -17,7 +17,9 @@ describe('speak handler unit tests', async () => {
     });
 
     it('true', async () => {
-      expect(speakHandler.canHandle({ random_speak: ['a', 'b', 'c'] } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(
+        speakHandler.canHandle({ random_speak: ['a', 'b', 'c'] } as any, null as any, null as any, null as any)
+      ).to.eql(true);
       expect(speakHandler.canHandle({ prompt: 'false' } as any, null as any, null as any, null as any)).to.eql(true);
       expect(speakHandler.canHandle({ speak: 'hi' } as any, null as any, null as any, null as any)).to.eql(true);
     });
@@ -65,7 +67,9 @@ describe('speak handler unit tests', async () => {
       expect(speakHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
       // output has vars replaced and numbers turned to 2digits floats
       expect(topFrame.storage.set.args).to.eql([[FrameType.OUTPUT, 'random 1.23 or here']]);
-      expect(runtime.trace.addTrace.args).to.eql([[{ type: 'speak', payload: { message: 'random 1.23 or here', type: 'message' } }]]);
+      expect(runtime.trace.addTrace.args).to.eql([
+        [{ type: 'speak', payload: { message: 'random 1.23 or here', type: 'message' } }],
+      ]);
     });
 
     it('speak is not string', () => {

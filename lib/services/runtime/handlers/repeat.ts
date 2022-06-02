@@ -26,7 +26,9 @@ export const RepeatHandler = (utils: typeof utilsObj) => ({
     const top = runtime.stack.top();
 
     const output =
-      repeat === BaseVersion.RepeatType.ALL ? runtime.turn.get<Output>(TurnType.PREVIOUS_OUTPUT) : top.storage.get<Output>(FrameType.OUTPUT);
+      repeat === BaseVersion.RepeatType.ALL
+        ? runtime.turn.get<Output>(TurnType.PREVIOUS_OUTPUT)
+        : top.storage.get<Output>(FrameType.OUTPUT);
 
     runtime.trace.addTrace(utils.outputTrace({ output }));
 

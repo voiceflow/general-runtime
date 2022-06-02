@@ -12,11 +12,15 @@ describe('ifHandler unit tests', () => {
   describe('canHandle', () => {
     it('false', () => {
       expect(ifHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
-      expect(ifHandler.canHandle({ type: BaseNode.NodeType.IF_V2 } as any, null as any, null as any, null as any)).to.eql(false);
+      expect(
+        ifHandler.canHandle({ type: BaseNode.NodeType.IF_V2 } as any, null as any, null as any, null as any)
+      ).to.eql(false);
     });
 
     it('true', () => {
-      expect(ifHandler.canHandle({ expressions: ['a', 'b'] } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(ifHandler.canHandle({ expressions: ['a', 'b'] } as any, null as any, null as any, null as any)).to.eql(
+        true
+      );
     });
   });
 
@@ -36,7 +40,9 @@ describe('ifHandler unit tests', () => {
       const variablesState = 'variables-state';
       const variables = { getState: sinon.stub().returns(variablesState) };
 
-      expect(await ifHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextIds[1]);
+      expect(await ifHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+        node.nextIds[1]
+      );
       expect(shuntingYardStub.args).to.eql([
         [node.expressions[0], { v: variablesState }],
         [node.expressions[1], { v: variablesState }],
@@ -63,7 +69,9 @@ describe('ifHandler unit tests', () => {
       const variablesState = 'variables-state';
       const variables = { getState: sinon.stub().returns(variablesState) };
 
-      expect(await ifHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextIds[1]);
+      expect(await ifHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+        node.nextIds[1]
+      );
       expect(shuntingYardStub.args).to.eql([
         [node.expressions[0], { v: variablesState }],
         [node.expressions[1], { v: variablesState }],

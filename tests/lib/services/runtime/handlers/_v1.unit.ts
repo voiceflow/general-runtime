@@ -270,7 +270,10 @@ describe('_v1 handler unit tests', () => {
         const handler = _V1Handler({ findEventMatcher } as any);
 
         expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('next-id2');
-        expect(findEventMatcher.args).to.eql([[{ event: node.paths[0].event, runtime }], [{ event: node.paths[1].event, runtime }]]);
+        expect(findEventMatcher.args).to.eql([
+          [{ event: node.paths[0].event, runtime }],
+          [{ event: node.paths[1].event, runtime }],
+        ]);
         expect(matcher.sideEffect.args).to.eql([[variables]]);
       });
 
@@ -292,7 +295,10 @@ describe('_v1 handler unit tests', () => {
         const handler = _V1Handler({ findEventMatcher } as any);
 
         expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
-        expect(findEventMatcher.args).to.eql([[{ event: node.paths[0].event, runtime }], [{ event: node.paths[1].event, runtime }]]);
+        expect(findEventMatcher.args).to.eql([
+          [{ event: node.paths[0].event, runtime }],
+          [{ event: node.paths[1].event, runtime }],
+        ]);
         expect(matcher.sideEffect.args).to.eql([[variables]]);
       });
     });

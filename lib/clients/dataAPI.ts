@@ -19,7 +19,13 @@ class DataAPI {
   creatorDataApi?: (authorization: string) => CreatorDataApi<VoiceflowProgram.Program, VoiceflowVersion.Version>;
 
   constructor(config: Config, API = { LocalDataApi, RemoteDataAPI, CreatorDataApi }) {
-    const { PROJECT_SOURCE, ADMIN_SERVER_DATA_API_TOKEN, VF_DATA_ENDPOINT, CREATOR_API_AUTHORIZATION, CREATOR_API_ENDPOINT } = config;
+    const {
+      PROJECT_SOURCE,
+      ADMIN_SERVER_DATA_API_TOKEN,
+      VF_DATA_ENDPOINT,
+      CREATOR_API_AUTHORIZATION,
+      CREATOR_API_ENDPOINT,
+    } = config;
 
     if (CREATOR_API_ENDPOINT) {
       this.creatorAPIAuthorization = CREATOR_API_AUTHORIZATION || '';
@@ -38,7 +44,11 @@ class DataAPI {
     // fetch from server-data-api
     if (ADMIN_SERVER_DATA_API_TOKEN && VF_DATA_ENDPOINT) {
       this.remoteDataApi = new API.RemoteDataAPI(
-        { platform: VoiceflowConstants.PlatformType.GENERAL, adminToken: ADMIN_SERVER_DATA_API_TOKEN, dataEndpoint: VF_DATA_ENDPOINT },
+        {
+          platform: VoiceflowConstants.PlatformType.GENERAL,
+          adminToken: ADMIN_SERVER_DATA_API_TOKEN,
+          dataEndpoint: VF_DATA_ENDPOINT,
+        },
         { axios: Static.axios }
       );
     }

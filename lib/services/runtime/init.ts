@@ -38,7 +38,10 @@ const init = (client: Client) => {
   client.setEvent(EventType.handlerWillHandle, ({ runtime, node }) => {
     // runtime only nodes don't have associated node on the FE
     if (BaseUtils.nodeType.isRuntimeOnly(node.type)) return;
-    runtime.trace.addTrace<BaseTrace.BlockTrace>({ type: BaseNode.Utils.TraceType.BLOCK, payload: { blockID: node.id } });
+    runtime.trace.addTrace<BaseTrace.BlockTrace>({
+      type: BaseNode.Utils.TraceType.BLOCK,
+      payload: { blockID: node.id },
+    });
   });
 
   client.setEvent(EventType.updateDidExecute, ({ runtime }) => {
@@ -52,7 +55,11 @@ const init = (client: Client) => {
         case StreamAction.RESUME:
           runtime.trace.addTrace<BaseNode.Stream.TraceFrame>({
             type: BaseNode.Utils.TraceType.STREAM,
-            payload: { src, token, action: loop ? BaseNode.Stream.TraceStreamAction.LOOP : BaseNode.Stream.TraceStreamAction.PLAY },
+            payload: {
+              src,
+              token,
+              action: loop ? BaseNode.Stream.TraceStreamAction.LOOP : BaseNode.Stream.TraceStreamAction.PLAY,
+            },
           });
           break;
         case StreamAction.PAUSE:

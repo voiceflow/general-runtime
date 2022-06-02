@@ -20,12 +20,16 @@ describe('getCommand', () => {
     ];
     const stack = { getFrames: sinon.stub().returns(frames) };
     const runtime = { stack, getRequest: () => 'c4' };
-    sinon.stub(EventHandler, 'findEventMatcher').callsFake((c: any) => c.event === c.runtime.getRequest() && ('matcher' as any));
+    sinon
+      .stub(EventHandler, 'findEventMatcher')
+      .callsFake((c: any) => c.event === c.runtime.getRequest() && ('matcher' as any));
     expect(GetCommand(runtime as any)).to.eql({ index: 1, command: { event: 'c4' }, match: 'matcher' });
   });
 
   it('not matched', () => {
-    const stack = { getFrames: sinon.stub().returns([{ getCommands: sinon.stub().returns([{ event: 'c1' }, { event: 'c2' }]) }]) };
+    const stack = {
+      getFrames: sinon.stub().returns([{ getCommands: sinon.stub().returns([{ event: 'c1' }, { event: 'c2' }]) }]),
+    };
     const runtime = { stack };
     sinon.stub(EventHandler, 'findEventMatcher').callsFake(() => false as any);
     expect(GetCommand(runtime as any)).to.eql(null);
@@ -91,7 +95,9 @@ describe('Command handler', () => {
         expect(runtime.stack.getSize.callCount).to.eql(0);
         expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
         expect(setNodeID.args).to.eql([[commandObj.nextID]]);
-        expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`, BaseNode.NodeType.COMMAND]]);
+        expect(runtime.trace.debug.args).to.eql([
+          [`matched command **${commandObj.type}** - jumping to node`, BaseNode.NodeType.COMMAND],
+        ]);
         expect(runtime.trace.addTrace.args).to.eql([[JumpPathTrace]]);
       });
 
@@ -117,7 +123,9 @@ describe('Command handler', () => {
           expect(sideEffectStub.args).to.eql([[variables]]);
           expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
           expect(setNodeID.args).to.eql([[commandObj.nextID]]);
-          expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`, BaseNode.NodeType.COMMAND]]);
+          expect(runtime.trace.debug.args).to.eql([
+            [`matched command **${commandObj.type}** - jumping to node`, BaseNode.NodeType.COMMAND],
+          ]);
           expect(runtime.trace.addTrace.args).to.eql([[JumpPathTrace]]);
         });
 
@@ -142,7 +150,9 @@ describe('Command handler', () => {
           expect(sideEffectStub.args).to.eql([[variables]]);
           expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
           expect(setNodeID.args).to.eql([[null]]);
-          expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - jumping to node`, BaseNode.NodeType.COMMAND]]);
+          expect(runtime.trace.debug.args).to.eql([
+            [`matched command **${commandObj.type}** - jumping to node`, BaseNode.NodeType.COMMAND],
+          ]);
           expect(runtime.trace.addTrace.args).to.eql([[JumpPathTrace]]);
         });
       });
@@ -184,7 +194,9 @@ describe('Command handler', () => {
         expect(handler.handle(runtime as any, variables as any)).to.eql(null);
         expect(utils.getCommand.args).to.eql([[runtime]]);
         expect(sideEffectStub.args).to.eql([[variables]]);
-        expect(runtime.trace.debug.args).to.eql([[`matched command **${commandObj.type}** - adding command flow`, BaseNode.NodeType.COMMAND]]);
+        expect(runtime.trace.debug.args).to.eql([
+          [`matched command **${commandObj.type}** - adding command flow`, BaseNode.NodeType.COMMAND],
+        ]);
         expect(storageSetStub.args).to.eql([[FrameType.CALLED_COMMAND, true]]);
         expect(utils.Frame.args).to.eql([[{ programID: commandObj.diagramID }]]);
         expect(runtime.stack.push.args).to.eql([[{}]]);

@@ -14,7 +14,10 @@ export const entityFillingRequest = (name: string): BaseRequest.IntentRequest =>
 });
 
 /** @description when VF_ELICIT is true, it will skip the entity prompt during entity filling */
-export const setElicit = (request: BaseRequest.IntentRequest, elicit: boolean): BaseRequest.IntentRequest & { [VF_ELICIT]: boolean } => ({
+export const setElicit = (
+  request: BaseRequest.IntentRequest,
+  elicit: boolean
+): BaseRequest.IntentRequest & { [VF_ELICIT]: boolean } => ({
   ...request,
   [VF_ELICIT]: elicit,
 });
@@ -26,29 +29,34 @@ export const hasElicit = (
 const noMatchHandler = NoMatchHandler();
 
 export const EntityFillingNoMatchHandler = () => ({
-  handle: (node: NoMatchNode, runtime: Runtime, variables: Store) => (intents?: string[], defaultRequest?: BaseRequest.IntentRequest) => {
-    // see if the prior entity filling intent is within context
-    const priorIntent = runtime.storage.get<DMStore>(StorageType.DM)?.priorIntent;
-    const priorIntentMatch = !!priorIntent && (intents ?? []).includes(priorIntent.payload.intent.name) && priorIntent?.payload.entities.length;
+  handle:
+    (node: NoMatchNode, runtime: Runtime, variables: Store) =>
+    (intents?: string[], defaultRequest?: BaseRequest.IntentRequest) => {
+      // see if the prior entity filling intent is within context
+      const priorIntent = runtime.storage.get<DMStore>(StorageType.DM)?.priorIntent;
+      const priorIntentMatch =
+        !!priorIntent &&
+        (intents ?? []).includes(priorIntent.payload.intent.name) &&
+        priorIntent?.payload.entities.length;
 
-    const nextRequest = (priorIntentMatch && priorIntent) || defaultRequest;
+      const nextRequest = (priorIntentMatch && priorIntent) || defaultRequest;
 
-    if (typeof runtime.storage.get(StorageType.NO_MATCHES_COUNTER) !== 'number' && nextRequest) {
-      runtime.storage.set(StorageType.NO_MATCHES_COUNTER, 0);
-      runtime.trace.addTrace<BaseTrace.GoToTrace>({
-        type: BaseNode.Utils.TraceType.GOTO,
-        payload: { request: setElicit(nextRequest, false) },
-      });
-      return node.id;
-    }
+      if (typeof runtime.storage.get(StorageType.NO_MATCHES_COUNTER) !== 'number' && nextRequest) {
+        runtime.storage.set(StorageType.NO_MATCHES_COUNTER, 0);
+        runtime.trace.addTrace<BaseTrace.GoToTrace>({
+          type: BaseNode.Utils.TraceType.GOTO,
+          payload: { request: setElicit(nextRequest, false) },
+        });
+        return node.id;
+      }
 
-    const noMatchPath = noMatchHandler.handle(node, runtime, variables);
-    if (noMatchPath === node.id && nextRequest) {
-      runtime.trace.addTrace<BaseTrace.GoToTrace>({
-        type: BaseNode.Utils.TraceType.GOTO,
-        payload: { request: setElicit(nextRequest, true) },
-      });
-    }
-    return noMatchPath;
-  },
+      const noMatchPath = noMatchHandler.handle(node, runtime, variables);
+      if (noMatchPath === node.id && nextRequest) {
+        runtime.trace.addTrace<BaseTrace.GoToTrace>({
+          type: BaseNode.Utils.TraceType.GOTO,
+          payload: { request: setElicit(nextRequest, true) },
+        });
+      }
+      return noMatchPath;
+    },
 });

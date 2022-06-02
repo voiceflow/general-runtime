@@ -131,7 +131,13 @@ describe('interact service unit tests', () => {
   it('autoDelegates', async () => {
     const data = {
       body: { state: { foo: 'bar' }, request: 'request' },
-      headers: { versionID: 'versionID', authorization: 'auth', origin: 'origin', sessionid: 'sessionid', platform: 'platform' },
+      headers: {
+        versionID: 'versionID',
+        authorization: 'auth',
+        origin: 'origin',
+        sessionid: 'sessionid',
+        platform: 'platform',
+      },
       params: {},
       query: { locale: 'locale' },
     };
@@ -153,7 +159,11 @@ describe('interact service unit tests', () => {
     };
 
     const finalState = { state: 'finalState', request: 'finalRequest', trace: 'finalTrace' };
-    const turnBuilder = { addHandlers: sinon.stub(), resolve: sinon.stub().resolves('resolved-state'), handle: 'handle' };
+    const turnBuilder = {
+      addHandlers: sinon.stub(),
+      resolve: sinon.stub().resolves('resolved-state'),
+      handle: 'handle',
+    };
     const services = {
       ...buildServices(context),
       utils: {

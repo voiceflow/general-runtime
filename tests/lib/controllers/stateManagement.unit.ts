@@ -22,7 +22,11 @@ describe('stateManagement controller unit tests', () => {
       const services = { session: { getFromDb: sinon.stub().resolves(output) } };
       const controller = new StateManagement(services as any, {} as any);
 
-      const req = { headers: { projectID: 'project-id', versionID: 'version-id' }, params: { userID: 'user-id' }, body: {} };
+      const req = {
+        headers: { projectID: 'project-id', versionID: 'version-id' },
+        params: { userID: 'user-id' },
+        body: {},
+      };
       expect(await controller.get(req as any)).to.eql(output);
       expect(services.session.getFromDb.args).to.eql([[req.headers.projectID, req.params.userID]]);
     });
@@ -33,7 +37,11 @@ describe('stateManagement controller unit tests', () => {
       const services = { session: { saveToDb: sinon.stub().resolves() } };
       const controller = new StateManagement(services as any, {} as any);
 
-      const req = { headers: { projectID: 'project-id', versionID: 'version-id' }, params: { userID: 'user-id' }, body: { foo: 'bar' } };
+      const req = {
+        headers: { projectID: 'project-id', versionID: 'version-id' },
+        params: { userID: 'user-id' },
+        body: { foo: 'bar' },
+      };
       expect(await controller.update(req as any)).to.eql(req.body);
       expect(services.session.saveToDb.args).to.eql([[req.headers.projectID, req.params.userID, req.body]]);
     });
@@ -45,7 +53,11 @@ describe('stateManagement controller unit tests', () => {
       const services = { session: { deleteFromDb: sinon.stub().resolves(output) } };
       const controller = new StateManagement(services as any, {} as any);
 
-      const req = { headers: { projectID: 'project-id', versionID: 'version-id' }, params: { userID: 'user-id' }, body: {} };
+      const req = {
+        headers: { projectID: 'project-id', versionID: 'version-id' },
+        params: { userID: 'user-id' },
+        body: {},
+      };
       expect(await controller.delete(req as any)).to.eql(output);
       expect(services.session.deleteFromDb.args).to.eql([[req.headers.projectID, req.params.userID]]);
     });
@@ -70,7 +82,11 @@ describe('stateManagement controller unit tests', () => {
       const controller = new StateManagement(services as any, {} as any);
 
       const body = { b: 3, c: 4 };
-      const req = { headers: { projectID: 'project-id', versionID: 'version-id' }, params: { userID: 'user-id' }, body };
+      const req = {
+        headers: { projectID: 'project-id', versionID: 'version-id' },
+        params: { userID: 'user-id' },
+        body,
+      };
 
       const expectedState = { ...output, variables: { ...output.variables, ...body } };
       expect(await controller.updateVariables(req as any)).to.eql(expectedState);

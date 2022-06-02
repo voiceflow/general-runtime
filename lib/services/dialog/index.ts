@@ -20,7 +20,15 @@ import { isIntentRequest, StorageType } from '../runtime/types';
 import { outputTrace } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
 import { rectifyEntityValue } from './synonym';
-import { dmPrefix, fillStringEntities, getEntitiesMap, getIntentEntityList, getUnfulfilledEntity, inputToString, isIntentInScope } from './utils';
+import {
+  dmPrefix,
+  fillStringEntities,
+  getEntitiesMap,
+  getIntentEntityList,
+  getUnfulfilledEntity,
+  inputToString,
+  isIntentInScope,
+} from './utils';
 
 export const utils = {
   outputTrace,
@@ -52,15 +60,21 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
     if (dmPrefixedResultName.startsWith(VF_DM_PREFIX) || dmPrefixedResultName === expectedIntentName) {
       // Remove hash prefix entity from the DM-prefixed result
-      dmPrefixedResult.payload.entities = dmPrefixedResult.payload.entities.filter((entity) => !entity.name.startsWith(VF_DM_PREFIX));
+      dmPrefixedResult.payload.entities = dmPrefixedResult.payload.entities.filter(
+        (entity) => !entity.name.startsWith(VF_DM_PREFIX)
+      );
       const intentEntityList = getIntentEntityList(expectedIntentName, languageModel);
       // Check if the dmPrefixedResult entities are a subset of the intent's entity list
-      const entitySubset = dmPrefixedResult.payload.entities.filter((dmEntity) => intentEntityList?.find((entity) => entity?.name === dmEntity.name));
+      const entitySubset = dmPrefixedResult.payload.entities.filter((dmEntity) =>
+        intentEntityList?.find((entity) => entity?.name === dmEntity.name)
+      );
       if (entitySubset.length) {
         // CASE-B1: the prefixed intent only contains entities that are in the target intent's entity list
         // Action: Use the entities extracted from the prefixed intent to overwrite any existing filled entities
         entitySubset.forEach((entity) => {
-          const storedEntity = dmStateStore.intentRequest!.payload.entities.find((stored) => stored.name === entity.name);
+          const storedEntity = dmStateStore.intentRequest!.payload.entities.find(
+            (stored) => stored.name === entity.name
+          );
           if (!storedEntity) {
             dmStateStore.intentRequest!.payload.entities.push(entity); // Append entity
           } else {
@@ -125,7 +139,12 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
           entity.value = typeof entity.value === 'string' ? entity.value.replace(prefix, '').trim() : entity.value;
         });
 
-        const isFallback = this.handleDMContext(dmStateStore, dmPrefixedResult, incomingRequest, version.prototype.model);
+        const isFallback = this.handleDMContext(
+          dmStateStore,
+          dmPrefixedResult,
+          incomingRequest,
+          version.prototype.model
+        );
 
         if (isFallback) {
           return {
@@ -174,7 +193,9 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       // Assemble return string by populating the inline entity values
       const trace: BaseTrace.AnyTrace[] = [];
 
-      const prompt = _.sample(unfulfilledEntity.dialog.prompt)! as ChatModels.Prompt | VoiceModels.IntentPrompt<VoiceflowConstants.Voice>;
+      const prompt = _.sample(unfulfilledEntity.dialog.prompt)! as
+        | ChatModels.Prompt
+        | VoiceModels.IntentPrompt<VoiceflowConstants.Voice>;
 
       if (!hasElicit(incomingRequest) && prompt) {
         const variables = getEntitiesMap(dmStateStore!.intentRequest);

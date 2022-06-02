@@ -12,7 +12,9 @@ describe('CaptureV2 handler', () => {
     });
 
     it('true', () => {
-      expect(CaptureV2Handler(null as any).canHandle({ type: 'captureV2' } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(
+        CaptureV2Handler(null as any).canHandle({ type: 'captureV2' } as any, null as any, null as any, null as any)
+      ).to.eql(true);
     });
   });
 
@@ -37,7 +39,13 @@ describe('CaptureV2 handler', () => {
         [
           {
             type: 'goto',
-            payload: { request: { type: 'intent', payload: { intent: { name: node.intent.name }, entities: [], query: '' }, ELICIT: true } },
+            payload: {
+              request: {
+                type: 'intent',
+                payload: { intent: { name: node.intent.name }, entities: [], query: '' },
+                ELICIT: true,
+              },
+            },
           },
         ],
       ]);
@@ -142,7 +150,11 @@ describe('CaptureV2 handler', () => {
           };
           const handler = CaptureV2Handler(utils as any);
 
-          const node = { id: 'node-id', intent: { name: 'intent1', entities: ['entity1', 'entity2'] }, nextId: 'next-id' };
+          const node = {
+            id: 'node-id',
+            intent: { name: 'intent1', entities: ['entity1', 'entity2'] },
+            nextId: 'next-id',
+          };
           const request = {
             type: 'intent',
             payload: {
@@ -291,7 +303,10 @@ describe('CaptureV2 handler', () => {
           expect(runtime.getRequest.callCount).to.eql(1);
           expect(utils.entityFillingNoMatchHandler.handle.args).to.eql([[node, runtime, variables]]);
           expect(noMatchHandler.args).to.eql([
-            [[node.intent.name], { type: 'intent', payload: { intent: { name: node.intent.name }, entities: [], query: '' } }],
+            [
+              [node.intent.name],
+              { type: 'intent', payload: { intent: { name: node.intent.name }, entities: [], query: '' } },
+            ],
           ]);
         });
       });
@@ -364,7 +379,10 @@ describe('CaptureV2 handler', () => {
           expect(runtime.getRequest.callCount).to.eql(1);
           expect(utils.entityFillingNoMatchHandler.handle.args).to.eql([[node, runtime, variables]]);
           expect(noMatchHandler.args).to.eql([
-            [[node.intent.name], { type: 'intent', payload: { intent: { name: node.intent.name }, entities: [], query: '' } }],
+            [
+              [node.intent.name],
+              { type: 'intent', payload: { intent: { name: node.intent.name }, entities: [], query: '' } },
+            ],
           ]);
         });
       });

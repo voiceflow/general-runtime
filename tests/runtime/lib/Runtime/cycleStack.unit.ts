@@ -35,9 +35,11 @@ describe('Runtime cycleStack unit tests', () => {
       stack: {
         getSize: sinon.stub().returns(1),
         get: sinon.stub().returns(null),
-        top: sinon
-          .stub()
-          .returns({ getProgramID: sinon.stub().returns('program-id'), hydrate: sinon.stub(), variables: { var1: 'val1', var2: 'val2' } }),
+        top: sinon.stub().returns({
+          getProgramID: sinon.stub().returns('program-id'),
+          hydrate: sinon.stub(),
+          variables: { var1: 'val1', var2: 'val2' },
+        }),
         getFrames: sinon.stub().returns({}),
       },
       hasEnded: sinon.stub().returns(true),
@@ -54,11 +56,17 @@ describe('Runtime cycleStack unit tests', () => {
     it('runtime ended', async () => {
       const cycleHandlerStub = sinon.stub(cycleHandler, 'default');
       const combinedVariables = {};
-      const createCombinedVariablesStub = sinon.stub(utils, 'createCombinedVariables').returns(combinedVariables as any);
+      const createCombinedVariablesStub = sinon
+        .stub(utils, 'createCombinedVariables')
+        .returns(combinedVariables as any);
       const saveCombinedVariablesStub = sinon.stub(utils, 'saveCombinedVariables');
 
       const programID = 'program-id';
-      const currentFrame = { getProgramID: sinon.stub().returns(programID), hydrate: sinon.stub(), variables: { var1: 'val1', var2: 'val2' } };
+      const currentFrame = {
+        getProgramID: sinon.stub().returns(programID),
+        hydrate: sinon.stub(),
+        variables: { var1: 'val1', var2: 'val2' },
+      };
       const currentFrames = {};
       const program = {};
 
@@ -100,9 +108,11 @@ describe('Runtime cycleStack unit tests', () => {
         stack: {
           getSize: sinon.stub().onFirstCall().returns(1).onSecondCall().returns(0),
           get: sinon.stub().returns(null),
-          top: sinon
-            .stub()
-            .returns({ getProgramID: sinon.stub().returns('program-id'), hydrate: sinon.stub(), variables: { var1: 'val1', var2: 'val2' } }),
+          top: sinon.stub().returns({
+            getProgramID: sinon.stub().returns('program-id'),
+            hydrate: sinon.stub(),
+            variables: { var1: 'val1', var2: 'val2' },
+          }),
           getFrames: sinon.stub().onFirstCall().returns([{}]).onSecondCall().returns([]),
         },
         end: sinon.stub(),
@@ -130,9 +140,11 @@ describe('Runtime cycleStack unit tests', () => {
             pop: sinon.stub().returns(null),
             getSize: sinon.stub().onFirstCall().returns(1).onSecondCall().returns(0),
             get: sinon.stub().returns(null),
-            top: sinon
-              .stub()
-              .returns({ getProgramID: sinon.stub().returns('program-id'), hydrate: sinon.stub(), variables: { var1: 'val1', var2: 'val2' } }),
+            top: sinon.stub().returns({
+              getProgramID: sinon.stub().returns('program-id'),
+              hydrate: sinon.stub(),
+              variables: { var1: 'val1', var2: 'val2' },
+            }),
             getFrames: sinon.stub().returns([]),
           },
           end: sinon.stub(),
@@ -163,7 +175,11 @@ describe('Runtime cycleStack unit tests', () => {
             pop: sinon.stub().returns({ storage: { get: sinon.stub().returns(OUTPUT_MAP) } }),
             getSize: sinon.stub().onFirstCall().returns(1).onSecondCall().returns(0),
             get: sinon.stub().returns(null),
-            top: sinon.stub().returns({ getProgramID: sinon.stub().returns('program-id'), hydrate: sinon.stub(), variables: topFrameVariables }),
+            top: sinon.stub().returns({
+              getProgramID: sinon.stub().returns('program-id'),
+              hydrate: sinon.stub(),
+              variables: topFrameVariables,
+            }),
             getFrames: sinon.stub().returns([]),
           },
           end: sinon.stub(),

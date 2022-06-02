@@ -11,20 +11,26 @@ describe('stream state handler unit tests', () => {
     describe('false', () => {
       it('no stream play', () => {
         const runtime = { storage: { get: sinon.stub().returns(null) } };
-        expect(StreamStateHandler(null as any).canHandle(null as any, runtime as any, null as any, null as any)).to.eql(false);
+        expect(StreamStateHandler(null as any).canHandle(null as any, runtime as any, null as any, null as any)).to.eql(
+          false
+        );
         expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
       });
 
       it('end action', () => {
         const runtime = { storage: { get: sinon.stub().returns({ action: StreamAction.END }) } };
-        expect(StreamStateHandler(null as any).canHandle(null as any, runtime as any, null as any, null as any)).to.eql(false);
+        expect(StreamStateHandler(null as any).canHandle(null as any, runtime as any, null as any, null as any)).to.eql(
+          false
+        );
         expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY], [StorageType.STREAM_PLAY]]);
       });
     });
 
     it('true', () => {
       const runtime = { storage: { get: sinon.stub().returns({ action: 'play' }) } };
-      expect(StreamStateHandler(null as any).canHandle(null as any, runtime as any, null as any, null as any)).to.eql(true);
+      expect(StreamStateHandler(null as any).canHandle(null as any, runtime as any, null as any, null as any)).to.eql(
+        true
+      );
       expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY], [StorageType.STREAM_PLAY]]);
     });
   });
@@ -86,7 +92,10 @@ describe('stream state handler unit tests', () => {
       describe('IntentName.PAUSE', () => {
         it('with pauseID', () => {
           const utils = {};
-          const request = { type: BaseRequest.RequestType.INTENT, payload: { intent: { name: VoiceflowConstants.IntentName.PAUSE }, entities: [] } };
+          const request = {
+            type: BaseRequest.RequestType.INTENT,
+            payload: { intent: { name: VoiceflowConstants.IntentName.PAUSE }, entities: [] },
+          };
           const streamPlay = { pauseID: 'pause-id', nodeID: 'node-id', offset: 100 };
           const runtime = {
             getRequest: sinon.stub().returns(request),
@@ -98,7 +107,9 @@ describe('stream state handler unit tests', () => {
           expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(streamPlay.pauseID);
           expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
           expect(runtime.getRequest.callCount).to.eql(1);
-          expect(runtime.storage.set.args).to.eql([[StorageType.STREAM_PAUSE, { id: streamPlay.nodeID, offset: streamPlay.offset }]]);
+          expect(runtime.storage.set.args).to.eql([
+            [StorageType.STREAM_PAUSE, { id: streamPlay.nodeID, offset: streamPlay.offset }],
+          ]);
 
           expect(runtime.storage.produce.callCount).to.eql(1);
           const fn1 = runtime.storage.produce.args[0][0];
@@ -109,7 +120,10 @@ describe('stream state handler unit tests', () => {
 
         it('no pauseID', () => {
           const utils = {};
-          const request = { type: BaseRequest.RequestType.INTENT, payload: { intent: { name: VoiceflowConstants.IntentName.PAUSE }, entities: [] } };
+          const request = {
+            type: BaseRequest.RequestType.INTENT,
+            payload: { intent: { name: VoiceflowConstants.IntentName.PAUSE }, entities: [] },
+          };
           const runtime = {
             getRequest: sinon.stub().returns(request),
             storage: { get: sinon.stub().returns({}), produce: sinon.stub() },
@@ -134,7 +148,10 @@ describe('stream state handler unit tests', () => {
 
       it('IntentName.RESUME', () => {
         const utils = {};
-        const request = { type: BaseRequest.RequestType.INTENT, payload: { intent: { name: VoiceflowConstants.IntentName.RESUME }, entities: [] } };
+        const request = {
+          type: BaseRequest.RequestType.INTENT,
+          payload: { intent: { name: VoiceflowConstants.IntentName.RESUME }, entities: [] },
+        };
         const runtime = {
           getRequest: sinon.stub().returns(request),
           storage: { get: sinon.stub().returns({}), produce: sinon.stub() },
@@ -185,7 +202,10 @@ describe('stream state handler unit tests', () => {
 
       it('IntentName.REPEAT', () => {
         const utils = {};
-        const request = { type: BaseRequest.RequestType.INTENT, payload: { intent: { name: VoiceflowConstants.IntentName.REPEAT }, entities: [] } };
+        const request = {
+          type: BaseRequest.RequestType.INTENT,
+          payload: { intent: { name: VoiceflowConstants.IntentName.REPEAT }, entities: [] },
+        };
         const runtime = {
           getRequest: sinon.stub().returns(request),
           storage: { get: sinon.stub().returns({}), produce: sinon.stub() },
@@ -211,7 +231,10 @@ describe('stream state handler unit tests', () => {
         it('intent', () => {
           const nextID = 'next-id';
           const utils = {};
-          const request = { type: BaseRequest.RequestType.INTENT, payload: { intent: { name: VoiceflowConstants.IntentName.NEXT }, entities: [] } };
+          const request = {
+            type: BaseRequest.RequestType.INTENT,
+            payload: { intent: { name: VoiceflowConstants.IntentName.NEXT }, entities: [] },
+          };
           const runtime = {
             getRequest: sinon.stub().returns(request),
             storage: { get: sinon.stub().returns({ nextID }), produce: sinon.stub() },
@@ -232,7 +255,10 @@ describe('stream state handler unit tests', () => {
 
         it('streamAction', () => {
           const utils = {};
-          const request = { type: BaseRequest.RequestType.INTENT, payload: { intent: { name: 'random' }, entities: [] } };
+          const request = {
+            type: BaseRequest.RequestType.INTENT,
+            payload: { intent: { name: 'random' }, entities: [] },
+          };
           const runtime = {
             getRequest: sinon.stub().returns(request),
             storage: { get: sinon.stub().returns({ action: StreamAction.NEXT }), produce: sinon.stub() },
@@ -305,7 +331,10 @@ describe('stream state handler unit tests', () => {
 
       it('IntentName.Cancel', () => {
         const utils = {};
-        const request = { type: BaseRequest.RequestType.INTENT, payload: { intent: { name: VoiceflowConstants.IntentName.CANCEL }, entities: [] } };
+        const request = {
+          type: BaseRequest.RequestType.INTENT,
+          payload: { intent: { name: VoiceflowConstants.IntentName.CANCEL }, entities: [] },
+        };
         const runtime = {
           getRequest: sinon.stub().returns(request),
           storage: { get: sinon.stub().returns({}), produce: sinon.stub() },

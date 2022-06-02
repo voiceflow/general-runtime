@@ -18,7 +18,10 @@ const autoDelegateTurn = async (turn: TurnBuilder<Context>, initContext: Partial
     context = await turn.handle(context || initContext);
     if (!context.trace) break;
 
-    const [filteredTrace, goToTrace] = Utils.array.filterAndGetLastRemovedValue(context.trace, (frame) => !isGoToTrace(frame));
+    const [filteredTrace, goToTrace] = Utils.array.filterAndGetLastRemovedValue(
+      context.trace,
+      (frame) => !isGoToTrace(frame)
+    );
     trace.push(...filteredTrace);
 
     if (isGoToTrace(goToTrace)) {

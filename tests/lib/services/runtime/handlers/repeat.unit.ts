@@ -7,7 +7,10 @@ import { RepeatHandler } from '@/lib/services/runtime/handlers/repeat';
 import { FrameType, StorageType, TurnType } from '@/lib/services/runtime/types';
 
 describe('repeat handler', () => {
-  const intentRequest = { type: BaseRequest.RequestType.INTENT, payload: { intent: { name: VoiceflowConstants.IntentName.REPEAT }, entities: [] } };
+  const intentRequest = {
+    type: BaseRequest.RequestType.INTENT,
+    payload: { intent: { name: VoiceflowConstants.IntentName.REPEAT }, entities: [] },
+  };
 
   afterEach(() => {
     sinon.restore();
@@ -15,7 +18,10 @@ describe('repeat handler', () => {
 
   describe('can handle', () => {
     it('true', () => {
-      const runtime = { getRequest: sinon.stub().returns(intentRequest), storage: { get: sinon.stub().returns(BaseVersion.RepeatType.ALL) } };
+      const runtime = {
+        getRequest: sinon.stub().returns(intentRequest),
+        storage: { get: sinon.stub().returns(BaseVersion.RepeatType.ALL) },
+      };
       expect(RepeatHandler({} as any).canHandle(runtime as any)).to.eql(true);
       expect(runtime.storage.get.args[0][0]).to.eql(StorageType.REPEAT);
       expect(runtime.getRequest.callCount).to.eql(1);

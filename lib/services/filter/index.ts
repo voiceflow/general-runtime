@@ -23,14 +23,19 @@ class Filter extends AbstractManager<{ utils: typeof utils }> implements Context
 
     let traces = context.trace || [];
 
-    const excludeTypes = config.excludeTypes || [BaseNode.Utils.TraceType.BLOCK, BaseNode.Utils.TraceType.DEBUG, BaseNode.Utils.TraceType.FLOW];
+    const excludeTypes = config.excludeTypes || [
+      BaseNode.Utils.TraceType.BLOCK,
+      BaseNode.Utils.TraceType.DEBUG,
+      BaseNode.Utils.TraceType.FLOW,
+    ];
     traces = traces.filter((trace) => !excludeTypes.includes(trace.type));
 
     if (config.stripSSML !== false) {
       traces = traces?.map((trace) =>
         !(
           trace.type === BaseNode.Utils.TraceType.SPEAK &&
-          (trace.payload.type === BaseNode.Speak.TraceSpeakType.MESSAGE || trace.payload.type === BaseNode.Speak.TraceSpeakType.AUDIO)
+          (trace.payload.type === BaseNode.Speak.TraceSpeakType.MESSAGE ||
+            trace.payload.type === BaseNode.Speak.TraceSpeakType.AUDIO)
         )
           ? trace
           : {

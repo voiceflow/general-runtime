@@ -14,7 +14,10 @@ export const ENDPOINTS_MAP: Record<string, Record<string, string>> = {
   },
 };
 
-export const resultMappings = (node: BaseNode.Integration.Node, resultData: any): Record<string, string | number | null> => {
+export const resultMappings = (
+  node: BaseNode.Integration.Node,
+  resultData: any
+): Record<string, string | number | null> => {
   switch (node.selected_integration) {
     case BaseNode.Utils.IntegrationType.GOOGLE_SHEETS: {
       const newVariables: Record<string, string | number | null> = {};
@@ -29,7 +32,9 @@ export const resultMappings = (node: BaseNode.Integration.Node, resultData: any)
           // @ts-ignore
           const isRowNumber = col === 'row_number';
 
-          newVariables[toVar] = transformStringVariableToNumber(isRowNumber ? resultData._cell_location.row : resultData[col]);
+          newVariables[toVar] = transformStringVariableToNumber(
+            isRowNumber ? resultData._cell_location.row : resultData[col]
+          );
         });
       }
       return newVariables;

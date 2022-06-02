@@ -49,7 +49,10 @@ describe('runtime manager unit tests', () => {
 
       const config = {};
 
-      const runtimeManager = new RuntimeManager({ ...services, utils: { ...defaultUtils, ...utils } } as any, config as any);
+      const runtimeManager = new RuntimeManager(
+        { ...services, utils: { ...defaultUtils, ...utils } } as any,
+        config as any
+      );
 
       const state = { foo2: 'bar2' };
       const request = {
@@ -99,7 +102,10 @@ describe('runtime manager unit tests', () => {
 
       const config = {};
 
-      const runtimeManager = new RuntimeManager({ ...services, utils: { ...defaultUtils, ...utils } } as any, config as any);
+      const runtimeManager = new RuntimeManager(
+        { ...services, utils: { ...defaultUtils, ...utils } } as any,
+        config as any
+      );
 
       const state = { foo2: 'bar2' };
       const request = {
@@ -153,7 +159,10 @@ describe('runtime manager unit tests', () => {
 
       const config = {};
 
-      const runtimeManager = new RuntimeManager({ ...services, utils: { ...defaultUtils, ...utils } } as any, config as any);
+      const runtimeManager = new RuntimeManager(
+        { ...services, utils: { ...defaultUtils, ...utils } } as any,
+        config as any
+      );
 
       const request = {
         type: BaseRequest.RequestType.INTENT,
@@ -203,7 +212,10 @@ describe('runtime manager unit tests', () => {
 
       const config = {};
 
-      const runtimeManager = new RuntimeManager({ ...services, utils: { ...defaultUtils, ...utils } } as any, config as any);
+      const runtimeManager = new RuntimeManager(
+        { ...services, utils: { ...defaultUtils, ...utils } } as any,
+        config as any
+      );
 
       const request = {
         type: BaseRequest.RequestType.INTENT,
@@ -219,7 +231,9 @@ describe('runtime manager unit tests', () => {
 
       await runtimeManager.handle(context);
 
-      expect(runtime.trace.debug.args).to.eql([['matched intent **name** - confidence interval _86.12%_', BaseNode.NodeType.INTENT]]);
+      expect(runtime.trace.debug.args).to.eql([
+        ['matched intent **name** - confidence interval _86.12%_', BaseNode.NodeType.INTENT],
+      ]);
       expect(runtime.variables.set.args).to.eql([
         ['intent_confidence', 86.12],
         ['last_utterance', 'hello world'],
@@ -256,7 +270,10 @@ describe('runtime manager unit tests', () => {
 
       const config = {};
 
-      const runtimeManager = new RuntimeManager({ ...services, utils: { ...defaultUtils, ...utils } } as any, config as any);
+      const runtimeManager = new RuntimeManager(
+        { ...services, utils: { ...defaultUtils, ...utils } } as any,
+        config as any
+      );
 
       const state = { foo2: 'bar2' };
       const request = {

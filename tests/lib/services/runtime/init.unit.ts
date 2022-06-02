@@ -121,7 +121,11 @@ describe('runtime init service unit tests', () => {
             delete: sinon.stub(),
           },
         };
-        const runtime = { stack: { top: sinon.stub().returns(topFrame) }, storage: { produce: sinon.stub() }, trace: { addTrace: sinon.stub() } };
+        const runtime = {
+          stack: { top: sinon.stub().returns(topFrame) },
+          storage: { produce: sinon.stub() },
+          trace: { addTrace: sinon.stub() },
+        };
         init(client as any);
 
         expect(client.setEvent.args[1][0]).to.eql(EventType.frameDidFinish);
@@ -134,7 +138,12 @@ describe('runtime init service unit tests', () => {
         expect(topFrame.storage.delete.args).to.eql([[FrameType.CALLED_COMMAND]]);
 
         expect(runtime.trace.addTrace.args).to.eql([
-          [{ type: BaseNode.Utils.TraceType.SPEAK, payload: { message: output, type: BaseNode.Speak.TraceSpeakType.MESSAGE } }],
+          [
+            {
+              type: BaseNode.Utils.TraceType.SPEAK,
+              payload: { message: output, type: BaseNode.Speak.TraceSpeakType.MESSAGE },
+            },
+          ],
         ]);
       });
     });
@@ -152,7 +161,9 @@ describe('runtime init service unit tests', () => {
       const fn = client.setEvent.args[2][1];
       fn({ runtime, node });
 
-      expect(runtime.trace.addTrace.args).to.eql([[{ type: BaseNode.Utils.TraceType.BLOCK, payload: { blockID: 'node-id' } }]]);
+      expect(runtime.trace.addTrace.args).to.eql([
+        [{ type: BaseNode.Utils.TraceType.BLOCK, payload: { blockID: 'node-id' } }],
+      ]);
     });
   });
 

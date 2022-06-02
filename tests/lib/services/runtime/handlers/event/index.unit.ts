@@ -64,7 +64,10 @@ describe('event handlers unit tests', () => {
         expect(
           intentEventMatcher.match({
             runtime: {
-              getRequest: sinon.stub().returns({ type: BaseRequest.RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [] } }),
+              getRequest: sinon.stub().returns({
+                type: BaseRequest.RequestType.INTENT,
+                payload: { intent: { name: 'intent_name' }, entities: [] },
+              }),
             },
           } as any)
         ).to.eql(false);
@@ -75,7 +78,10 @@ describe('event handlers unit tests', () => {
           intentEventMatcher.match({
             event: { type: 'random' },
             runtime: {
-              getRequest: sinon.stub().returns({ type: BaseRequest.RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [] } }),
+              getRequest: sinon.stub().returns({
+                type: BaseRequest.RequestType.INTENT,
+                payload: { intent: { name: 'intent_name' }, entities: [] },
+              }),
             },
           } as any)
         ).to.eql(false);
@@ -86,7 +92,10 @@ describe('event handlers unit tests', () => {
           intentEventMatcher.match({
             event: { type: BaseNode.Utils.EventType.INTENT, intent: 'different_name' },
             runtime: {
-              getRequest: sinon.stub().returns({ type: BaseRequest.RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [] } }),
+              getRequest: sinon.stub().returns({
+                type: BaseRequest.RequestType.INTENT,
+                payload: { intent: { name: 'intent_name' }, entities: [] },
+              }),
             },
           } as any)
         ).to.eql(false);
@@ -97,7 +106,10 @@ describe('event handlers unit tests', () => {
           intentEventMatcher.match({
             event: { type: BaseNode.Utils.EventType.INTENT, intent: 'intent_name' },
             runtime: {
-              getRequest: sinon.stub().returns({ type: BaseRequest.RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [] } }),
+              getRequest: sinon.stub().returns({
+                type: BaseRequest.RequestType.INTENT,
+                payload: { intent: { name: 'intent_name' }, entities: [] },
+              }),
             },
           } as any)
         ).to.eql(true);
@@ -142,7 +154,9 @@ describe('event handlers unit tests', () => {
 
   describe('findEventMatcher', () => {
     it('not found', () => {
-      expect(findEventMatcher({ event: null, runtime: { getRequest: sinon.stub().returns(null) } } as any)).to.eql(null);
+      expect(findEventMatcher({ event: null, runtime: { getRequest: sinon.stub().returns(null) } } as any)).to.eql(
+        null
+      );
     });
 
     it('found', () => {
@@ -151,7 +165,10 @@ describe('event handlers unit tests', () => {
           findEventMatcher({
             event: { type: BaseNode.Utils.EventType.INTENT, intent: 'intent_name' },
             runtime: {
-              getRequest: sinon.stub().returns({ type: BaseRequest.RequestType.INTENT, payload: { intent: { name: 'intent_name' }, entities: [] } }),
+              getRequest: sinon.stub().returns({
+                type: BaseRequest.RequestType.INTENT,
+                payload: { intent: { name: 'intent_name' }, entities: [] },
+              }),
             },
           } as any)!
         )

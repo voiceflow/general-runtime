@@ -41,7 +41,9 @@ describe('codeHandler unit tests', () => {
         const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
         expect(result).to.eql(null);
         expect(axiosPost.args).to.eql([['foo', { code: node.code, variables: {}, keys: [] }]]);
-        expect(runtime.trace.debug.args).to.eql([[`unable to resolve code  \n\`${safeJSONStringify(err.response.data)}\``, BaseNode.NodeType.CODE]]);
+        expect(runtime.trace.debug.args).to.eql([
+          [`unable to resolve code  \n\`${safeJSONStringify(err.response.data)}\``, BaseNode.NodeType.CODE],
+        ]);
       });
 
       it('with fail_id', async () => {
@@ -55,7 +57,9 @@ describe('codeHandler unit tests', () => {
         const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
         expect(result).to.eql(node.fail_id);
         expect(axiosPost.args).to.eql([['foo', { code: node.code, variables: {}, keys: [] }]]);
-        expect(runtime.trace.debug.args).to.eql([[`unable to resolve code  \n\`"${error.toString()}"\``, BaseNode.NodeType.CODE]]);
+        expect(runtime.trace.debug.args).to.eql([
+          [`unable to resolve code  \n\`"${error.toString()}"\``, BaseNode.NodeType.CODE],
+        ]);
       });
     });
 
@@ -76,7 +80,9 @@ describe('codeHandler unit tests', () => {
         };
         const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
         expect(result).to.eql(node.success_id);
-        expect(axiosPost.args).to.eql([['foo', { code: node.code, variables: { var1: 1, var2: 2, var3: 3 }, keys: [] }]]);
+        expect(axiosPost.args).to.eql([
+          ['foo', { code: node.code, variables: { var1: 1, var2: 2, var3: 3 }, keys: [] }],
+        ]);
         expect(runtime.trace.debug.args).to.eql([
           [
             'evaluating code - changes:  \n`{var1}`: `1` => `1.1`  \n`{var2}`: `2` => `2.2`  \n`{var3}`: `3` => `undefined`  \n`{newVar}`: `undefined` => `5`  \n',
@@ -98,7 +104,10 @@ describe('codeHandler unit tests', () => {
         const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
         expect(result).to.eql(node.success_id);
         expect(axiosPost.args).to.eql([
-          ['foo', { code: node.code, variables: { var1: undefined, var2: undefined, var3: 3 }, keys: ['var1', 'var2'] }],
+          [
+            'foo',
+            { code: node.code, variables: { var1: undefined, var2: undefined, var3: 3 }, keys: ['var1', 'var2'] },
+          ],
         ]);
         expect(runtime.trace.debug.args).to.eql([
           [
@@ -139,7 +148,9 @@ describe('codeHandler unit tests', () => {
         };
         const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
         expect(result).to.eql(node.success_id);
-        expect(vmExecuteStub.args).to.eql([[{ code: node.code, variables: { var1: 1, var2: 2, var3: 3 } }, false, undefined]]);
+        expect(vmExecuteStub.args).to.eql([
+          [{ code: node.code, variables: { var1: 1, var2: 2, var3: 3 } }, false, undefined],
+        ]);
         expect(runtime.trace.debug.args).to.eql([
           [
             'evaluating code - changes:  \n`{var1}`: `1` => `1.1`  \n`{var2}`: `2` => `2.2`  \n`{var3}`: `3` => `undefined`  \n`{newVar}`: `undefined` => `5`  \n',
@@ -192,7 +203,9 @@ describe('codeHandler unit tests', () => {
         };
         const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
         expect(result).to.eql(node.success_id);
-        expect(ivmExecuteStub.args).to.eql([[{ code: node.code, variables: { var1: 1, var2: 2, var3: 3 } }, undefined]]);
+        expect(ivmExecuteStub.args).to.eql([
+          [{ code: node.code, variables: { var1: 1, var2: 2, var3: 3 } }, undefined],
+        ]);
         expect(runtime.trace.debug.args).to.eql([
           [
             'evaluating code - changes:  \n`{var1}`: `1` => `1.1`  \n`{var2}`: `2` => `2.2`  \n`{var3}`: `3` => `undefined`  \n`{newVar}`: `undefined` => `5`  \n',

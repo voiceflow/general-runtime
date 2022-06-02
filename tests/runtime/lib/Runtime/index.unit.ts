@@ -58,7 +58,13 @@ describe('Runtime unit', () => {
     const ProgramManagerStub = sinon.stub(ProgramManager, 'default');
     ProgramManagerStub.returns({ get: getProgram });
 
-    const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, { api: { getProgram } }, null as any);
+    const runtime = new Runtime(
+      null as any,
+      { stack: [] } as any,
+      undefined as any,
+      { api: { getProgram } },
+      null as any
+    );
 
     const programId = 'program-id';
     expect(runtime.getProgram(programId)).to.eql(program);

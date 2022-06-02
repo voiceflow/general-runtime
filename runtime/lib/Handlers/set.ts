@@ -17,13 +17,17 @@ const setHandler: HandlerFactory<BaseNode.Set.Node> = () => ({
           const value = !!evaluated || !Number.isNaN(evaluated as any) ? evaluated : undefined;
           // assign only if truthy or not literally NaN
           runtime.trace.debug(
-            `setting \`{${set.variable}}\`  \nevaluating \`${regexExpression(set.expression)}\` to \`${value?.toString?.()}\``,
+            `setting \`{${set.variable}}\`  \nevaluating \`${regexExpression(
+              set.expression
+            )}\` to \`${value?.toString?.()}\``,
             BaseNode.NodeType.SET
           );
           variables.set(set.variable, value);
         } catch (error) {
           runtime.trace.debug(
-            `unable to resolve expression \`${regexExpression(set.expression)}\` for \`{${set.variable}}\`  \n\`${error}\``,
+            `unable to resolve expression \`${regexExpression(set.expression)}\` for \`{${
+              set.variable
+            }}\`  \n\`${error}\``,
             BaseNode.NodeType.SET
           );
           await runtime.callEvent(EventType.handlerDidCatch, { error });

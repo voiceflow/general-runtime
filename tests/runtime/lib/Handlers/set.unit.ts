@@ -12,7 +12,9 @@ describe('setHandler unit tests', () => {
   describe('canHandle', () => {
     it('false', () => {
       expect(setHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
-      expect(setHandler.canHandle({ type: BaseNode.NodeType.SET_V2 } as any, null as any, null as any, null as any)).to.eql(false);
+      expect(
+        setHandler.canHandle({ type: BaseNode.NodeType.SET_V2 } as any, null as any, null as any, null as any)
+      ).to.eql(false);
     });
 
     it('true', () => {

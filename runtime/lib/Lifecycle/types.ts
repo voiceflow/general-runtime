@@ -120,13 +120,20 @@ export interface EventMap<TF extends BaseNode.Utils.BaseTraceFrame> {
   [EventType.traceWillAdd]: TraceWillAddEvent<TF | BaseTrace.DebugTrace>;
 }
 
-export type Event<K extends EventType, TF extends BaseNode.Utils.BaseTraceFrame = BaseNode.Utils.BaseTraceFrame> = EventMap<TF>[K];
-export type CallbackEvent<K extends EventType, TF extends BaseNode.Utils.BaseTraceFrame = BaseNode.Utils.BaseTraceFrame> = Event<K, TF> & {
+export type Event<
+  K extends EventType,
+  TF extends BaseNode.Utils.BaseTraceFrame = BaseNode.Utils.BaseTraceFrame
+> = EventMap<TF>[K];
+export type CallbackEvent<
+  K extends EventType,
+  TF extends BaseNode.Utils.BaseTraceFrame = BaseNode.Utils.BaseTraceFrame
+> = Event<K, TF> & {
   runtime: Runtime;
 };
-export type EventCallback<K extends EventType, TF extends BaseNode.Utils.BaseTraceFrame = BaseNode.Utils.BaseTraceFrame> = (
-  event: CallbackEvent<K, TF>
-) => void | Promise<void>;
+export type EventCallback<
+  K extends EventType,
+  TF extends BaseNode.Utils.BaseTraceFrame = BaseNode.Utils.BaseTraceFrame
+> = (event: CallbackEvent<K, TF>) => void | Promise<void>;
 export type EventCallbackMap<TF extends BaseNode.Utils.BaseTraceFrame = BaseNode.Utils.BaseTraceFrame> = {
   [key in EventType]: EventCallback<key, TF>;
 };

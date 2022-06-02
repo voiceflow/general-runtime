@@ -48,7 +48,11 @@ export default ({
   FlowHandler(),
   IfHandler(),
   IfV2Handler({ _v1: _v1Handler }),
-  APIHandler({ timeout: API_MAX_TIMEOUT_MS, maxBodyLength: API_MAX_BODY_LENGTH_BYTES, maxContentLength: API_MAX_CONTENT_LENGTH_BYTES }),
+  APIHandler({
+    timeout: API_MAX_TIMEOUT_MS,
+    maxBodyLength: API_MAX_BODY_LENGTH_BYTES,
+    maxContentLength: API_MAX_CONTENT_LENGTH_BYTES,
+  }),
   IntegrationsHandler({ integrationsEndpoint: INTEGRATIONS_HANDLER_ENDPOINT }),
   RandomHandler(),
   SetHandler(),

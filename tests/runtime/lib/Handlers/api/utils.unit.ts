@@ -4,7 +4,12 @@ import FormData from 'form-data';
 import querystring from 'querystring';
 import sinon from 'sinon';
 
-import { formatRequestConfig, getVariable, ReduceKeyValue, stringToNumIfNumeric } from '@/runtime/lib/Handlers/api/utils';
+import {
+  formatRequestConfig,
+  getVariable,
+  ReduceKeyValue,
+  stringToNumIfNumeric,
+} from '@/runtime/lib/Handlers/api/utils';
 
 import { baseData, baseOptions } from './fixture';
 
@@ -134,7 +139,9 @@ describe('Handlers api utils unit tests', () => {
     describe('formdata body', () => {
       it('works', async () => {
         const formDataAppendSpy = sinon.spy(FormData.prototype, 'append');
-        const formDataGetHeadersSpy = sinon.stub(FormData.prototype, 'getHeaders').returns({ someHeader: 'getHeadersReturn' as any });
+        const formDataGetHeadersSpy = sinon
+          .stub(FormData.prototype, 'getHeaders')
+          .returns({ someHeader: 'getHeadersReturn' as any });
         const data = {
           ...baseData,
           body: [

@@ -8,7 +8,12 @@ describe('handlers integrations utils unit tests', () => {
     describe('GOOGLE_SHEETS', () => {
       it('no mappings', () => {
         const resultData = { foo: 'bar' };
-        expect(resultMappings({ selected_integration: BaseNode.Utils.IntegrationType.GOOGLE_SHEETS } as any, resultData as any)).to.eql({});
+        expect(
+          resultMappings(
+            { selected_integration: BaseNode.Utils.IntegrationType.GOOGLE_SHEETS } as any,
+            resultData as any
+          )
+        ).to.eql({});
       });
 
       it('with mappings', () => {
@@ -28,11 +33,15 @@ describe('handlers integrations utils unit tests', () => {
 
     it('CUSTOM_API', () => {
       const resultData = { foo: 'bar' };
-      expect(resultMappings({ selected_integration: BaseNode.Utils.IntegrationType.CUSTOM_API } as any, resultData as any)).to.eql(resultData);
+      expect(
+        resultMappings({ selected_integration: BaseNode.Utils.IntegrationType.CUSTOM_API } as any, resultData as any)
+      ).to.eql(resultData);
     });
 
     it('ZAPIER', () => {
-      expect(resultMappings({ selected_integration: BaseNode.Utils.IntegrationType.ZAPIER } as any, null as any)).to.eql({});
+      expect(
+        resultMappings({ selected_integration: BaseNode.Utils.IntegrationType.ZAPIER } as any, null as any)
+      ).to.eql({});
     });
   });
 });

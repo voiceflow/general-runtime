@@ -15,7 +15,12 @@ describe('creatorDataAPI client unit tests', () => {
         generateClient: VFClient,
       });
 
-      const config = { endpoint: '_endpoint', authorization: '_authorization', clientKey: '_clientKey', prototype: true };
+      const config = {
+        endpoint: '_endpoint',
+        authorization: '_authorization',
+        clientKey: '_clientKey',
+        prototype: true,
+      };
 
       const creatorDataAPI = new CreatorDataAPI(config, VF as any);
       await creatorDataAPI.init();
@@ -47,7 +52,12 @@ describe('creatorDataAPI client unit tests', () => {
         generateClient: VFClient,
       });
 
-      const config = { endpoint: '_endpoint', authorization: '_authorization', clientKey: '_clientKey', prototype: true };
+      const config = {
+        endpoint: '_endpoint',
+        authorization: '_authorization',
+        clientKey: '_clientKey',
+        prototype: true,
+      };
       const creatorDataAPI = new CreatorDataAPI(config, VF as any);
 
       expect(await creatorDataAPI.fetchDisplayById()).to.eql(null);
@@ -58,7 +68,10 @@ describe('creatorDataAPI client unit tests', () => {
     it('prototype', async () => {
       const programID = 'programID';
       const program = 'program';
-      const Client = { program: { get: sinon.stub().resolves(program) }, prototypeProgram: { get: sinon.stub().resolves(program) } };
+      const Client = {
+        program: { get: sinon.stub().resolves(program) },
+        prototypeProgram: { get: sinon.stub().resolves(program) },
+      };
       const VFClient = sinon.stub().returns(Client);
       const VF = sinon.stub().returns({
         generateClient: VFClient,
@@ -75,13 +88,21 @@ describe('creatorDataAPI client unit tests', () => {
     it('no prototype', async () => {
       const programID = 'programID';
       const program = 'program';
-      const Client = { program: { get: sinon.stub().resolves(program) }, prototypeProgram: { get: sinon.stub().resolves(program) } };
+      const Client = {
+        program: { get: sinon.stub().resolves(program) },
+        prototypeProgram: { get: sinon.stub().resolves(program) },
+      };
       const VFClient = sinon.stub().returns(Client);
       const VF = sinon.stub().returns({
         generateClient: VFClient,
       });
 
-      const config = { endpoint: '_endpoint', authorization: '_authorization', clientKey: '_clientKey', prototype: false };
+      const config = {
+        endpoint: '_endpoint',
+        authorization: '_authorization',
+        clientKey: '_clientKey',
+        prototype: false,
+      };
       const creatorDataAPI = new CreatorDataAPI(config, VF as any);
 
       expect(await creatorDataAPI.getProgram(programID)).to.eql(program);

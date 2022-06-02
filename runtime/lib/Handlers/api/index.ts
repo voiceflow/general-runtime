@@ -10,11 +10,16 @@ import { APINodeData, makeAPICall, ResponseConfig } from './utils';
 export const USER_AGENT_KEY = 'User-Agent';
 export const USER_AGENT = 'Voiceflow/1.0.0 (+https://voiceflow.com)';
 const APIHandler = (config: ResponseConfig = {}): Handler<BaseNode.Integration.Node> => ({
-  canHandle: (node) => node.type === BaseNode.NodeType.INTEGRATIONS && node.selected_integration === BaseNode.Utils.IntegrationType.CUSTOM_API,
+  canHandle: (node) =>
+    node.type === BaseNode.NodeType.INTEGRATIONS &&
+    node.selected_integration === BaseNode.Utils.IntegrationType.CUSTOM_API,
   handle: async (node, runtime, variables) => {
     let nextId: string | null = null;
     try {
-      const actionBodyData = deepVariableSubstitution(_.cloneDeep(node.action_data), variables.getState()) as APINodeData;
+      const actionBodyData = deepVariableSubstitution(
+        _.cloneDeep(node.action_data),
+        variables.getState()
+      ) as APINodeData;
 
       // override user agent
       const headers = actionBodyData.headers || [];
@@ -39,7 +44,10 @@ const APIHandler = (config: ResponseConfig = {}): Handler<BaseNode.Integration.N
         nextId = node.success_id ?? null;
       }
     } catch (error) {
-      runtime.trace.debug(`API call failed - Error: \n${safeJSONStringify(error?.message || error)}`, BaseNode.NodeType.API);
+      runtime.trace.debug(
+        `API call failed - Error: \n${safeJSONStringify(error?.message || error)}`,
+        BaseNode.NodeType.API
+      );
       nextId = node.fail_id ?? null;
     }
 

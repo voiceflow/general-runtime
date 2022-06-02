@@ -8,23 +8,60 @@ describe('preliminary handler unit tests', () => {
   describe('canHandle', () => {
     it('not expected request', () => {
       const runtime = { getRequest: sinon.stub().returns(null) };
-      expect(PreliminaryHandlerFactory({ eventHandlers: [] } as any).canHandle(null as any, runtime as any, null as any, null as any)).to.eql(false);
+      expect(
+        PreliminaryHandlerFactory({ eventHandlers: [] } as any).canHandle(
+          null as any,
+          runtime as any,
+          null as any,
+          null as any
+        )
+      ).to.eql(false);
     });
 
     it('action not request', () => {
-      const runtime = { getRequest: sinon.stub().returns({ payload: { name: 'event1' } }), getAction: sinon.stub().returns(Action.RUNNING) };
-      expect(PreliminaryHandlerFactory({ eventHandlers: [] } as any).canHandle(null as any, runtime as any, null as any, null as any)).to.eql(false);
+      const runtime = {
+        getRequest: sinon.stub().returns({ payload: { name: 'event1' } }),
+        getAction: sinon.stub().returns(Action.RUNNING),
+      };
+      expect(
+        PreliminaryHandlerFactory({ eventHandlers: [] } as any).canHandle(
+          null as any,
+          runtime as any,
+          null as any,
+          null as any
+        )
+      ).to.eql(false);
     });
 
     it('handler found', () => {
-      const runtime = { getRequest: sinon.stub().returns({ payload: { name: 'event1' } }), getAction: sinon.stub().returns(Action.REQUEST) };
+      const runtime = {
+        getRequest: sinon.stub().returns({ payload: { name: 'event1' } }),
+        getAction: sinon.stub().returns(Action.REQUEST),
+      };
       const eventHandlers = [{ canHandle: sinon.stub().returns(true) }];
-      expect(PreliminaryHandlerFactory({ eventHandlers } as any).canHandle(null as any, runtime as any, null as any, null as any)).to.eql(false);
+      expect(
+        PreliminaryHandlerFactory({ eventHandlers } as any).canHandle(
+          null as any,
+          runtime as any,
+          null as any,
+          null as any
+        )
+      ).to.eql(false);
     });
 
     it('true', () => {
-      const runtime = { getRequest: sinon.stub().returns({ payload: { name: 'event1' } }), getAction: sinon.stub().returns(Action.REQUEST) };
-      expect(PreliminaryHandlerFactory({ eventHandlers: [] } as any).canHandle(null as any, runtime as any, null as any, null as any)).to.eql(true);
+      const runtime = {
+        getRequest: sinon.stub().returns({ payload: { name: 'event1' } }),
+        getAction: sinon.stub().returns(Action.REQUEST),
+      };
+      expect(
+        PreliminaryHandlerFactory({ eventHandlers: [] } as any).canHandle(
+          null as any,
+          runtime as any,
+          null as any,
+          null as any
+        )
+      ).to.eql(true);
     });
   });
 

@@ -12,10 +12,16 @@ export interface IntegrationsOptions {
   integrationsEndpoint: string;
 }
 
-const VALID_INTEGRATIONS = new Set([BaseNode.Utils.IntegrationType.ZAPIER, BaseNode.Utils.IntegrationType.GOOGLE_SHEETS]);
+const VALID_INTEGRATIONS = new Set([
+  BaseNode.Utils.IntegrationType.ZAPIER,
+  BaseNode.Utils.IntegrationType.GOOGLE_SHEETS,
+]);
 
-const IntegrationsHandler: HandlerFactory<BaseNode.Integration.Node, IntegrationsOptions> = ({ integrationsEndpoint }) => ({
-  canHandle: (node) => node.type === BaseNode.NodeType.INTEGRATIONS && VALID_INTEGRATIONS.has(node.selected_integration),
+const IntegrationsHandler: HandlerFactory<BaseNode.Integration.Node, IntegrationsOptions> = ({
+  integrationsEndpoint,
+}) => ({
+  canHandle: (node) =>
+    node.type === BaseNode.NodeType.INTEGRATIONS && VALID_INTEGRATIONS.has(node.selected_integration),
   handle: async (node, runtime, variables) => {
     if (!node.selected_integration || !node.selected_action) {
       runtime.trace.debug('no integration or action specified - fail by default', BaseNode.NodeType.INTEGRATIONS);
@@ -29,7 +35,10 @@ const IntegrationsHandler: HandlerFactory<BaseNode.Integration.Node, Integration
 
       const actionBodyData = deepVariableSubstitution(_.cloneDeep(node.action_data), variables.getState());
 
-      const { data } = await axios.post(`${integrationsEndpoint}${ENDPOINTS_MAP[selectedIntegration][selectedAction]}`, actionBodyData);
+      const { data } = await axios.post(
+        `${integrationsEndpoint}${ENDPOINTS_MAP[selectedIntegration][selectedAction]}`,
+        actionBodyData
+      );
 
       // map result data to variables
       const mappedVariables = resultMappings(node, data);
@@ -43,7 +52,9 @@ const IntegrationsHandler: HandlerFactory<BaseNode.Integration.Node, Integration
       nextId = node.success_id ?? null;
     } catch (error) {
       runtime.trace.debug(
-        `action **${node.selected_action}** for integration **${node.selected_integration}** failed  \n${safeJSONStringify(error.response?.data)}`,
+        `action **${node.selected_action}** for integration **${
+          node.selected_integration
+        }** failed  \n${safeJSONStringify(error.response?.data)}`,
         BaseNode.NodeType.INTEGRATIONS
       );
       nextId = node.fail_id ?? null;

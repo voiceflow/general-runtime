@@ -22,7 +22,10 @@ const utilsObj = {
   addNoReplyTimeoutIfExists,
 };
 
-export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node | ChatNode.Interaction.Node, typeof utilsObj> = (utils) => ({
+export const InteractionHandler: HandlerFactory<
+  VoiceflowNode.Interaction.Node | ChatNode.Interaction.Node,
+  typeof utilsObj
+> = (utils) => ({
   canHandle: (node) => !!node.interactions,
   handle: (node, runtime, variables) => {
     if (runtime.getAction() === Action.RUNNING) {

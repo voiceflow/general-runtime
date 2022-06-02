@@ -27,7 +27,10 @@ class StateManagement extends AbstractManager {
     return data.query.verbose ? { state: updatedState, trace, request } : trace;
   }
 
-  async reset(data: { headers: { authorization: string; projectID: string; versionID: string }; params: { userID: string } }) {
+  async reset(data: {
+    headers: { authorization: string; projectID: string; versionID: string };
+    params: { userID: string };
+  }) {
     const state = await this.services.interact.state(data);
     await this.services.session.saveToDb(data.headers.projectID, data.params.userID, state);
     return state;

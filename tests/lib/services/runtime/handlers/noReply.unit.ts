@@ -31,7 +31,11 @@ describe('noReply handler unit tests', () => {
         getState: sinon.stub().returns({ counter: 5.2345 }),
       };
 
-      const noMatchHandler = NoReplyHandler({ outputTrace, addButtonsIfExists: sinon.stub(), addNoReplyTimeoutIfExists: sinon.stub() });
+      const noMatchHandler = NoReplyHandler({
+        outputTrace,
+        addButtonsIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
+      });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args).to.eql([
         [RepromptPathTrace],
@@ -67,7 +71,11 @@ describe('noReply handler unit tests', () => {
         getState: sinon.stub().returns({}),
       };
 
-      const noMatchHandler = NoReplyHandler({ outputTrace, addButtonsIfExists: sinon.stub(), addNoReplyTimeoutIfExists: sinon.stub() });
+      const noMatchHandler = NoReplyHandler({
+        outputTrace,
+        addButtonsIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
+      });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(null);
     });
 
@@ -91,7 +99,11 @@ describe('noReply handler unit tests', () => {
         getState: sinon.stub().returns({}),
       };
 
-      const noMatchHandler = NoReplyHandler({ outputTrace, addButtonsIfExists: sinon.stub(), addNoReplyTimeoutIfExists: sinon.stub() });
+      const noMatchHandler = NoReplyHandler({
+        outputTrace,
+        addButtonsIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
+      });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql('node-id');
       expect(runtime.trace.addTrace.args).to.eql([[NoReplyPathTrace]]);
     });
@@ -119,7 +131,11 @@ describe('noReply handler unit tests', () => {
         getState: sinon.stub().returns({}),
       };
 
-      const noMatchHandler = NoReplyHandler({ outputTrace, addButtonsIfExists: sinon.stub(), addNoReplyTimeoutIfExists: sinon.stub() });
+      const noMatchHandler = NoReplyHandler({
+        outputTrace,
+        addButtonsIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
+      });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
       expect(node.noReply.prompts.includes(runtime.trace.addTrace.args[1][0].payload.message)).to.eql(true);
     });
@@ -147,7 +163,11 @@ describe('noReply handler unit tests', () => {
         getState: sinon.stub().returns({}),
       };
 
-      const noMatchHandler = NoReplyHandler({ outputTrace, addButtonsIfExists: sinon.stub(), addNoReplyTimeoutIfExists: sinon.stub() });
+      const noMatchHandler = NoReplyHandler({
+        outputTrace,
+        addButtonsIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
+      });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(NON_NULL_STRING);
     });
@@ -175,7 +195,11 @@ describe('noReply handler unit tests', () => {
         getState: sinon.stub().returns({}),
       };
 
-      const noMatchHandler = NoReplyHandler({ outputTrace, addButtonsIfExists: sinon.stub(), addNoReplyTimeoutIfExists: sinon.stub() });
+      const noMatchHandler = NoReplyHandler({
+        outputTrace,
+        addButtonsIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
+      });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(NON_NULL_STRING);
     });
@@ -202,7 +226,11 @@ describe('noReply handler unit tests', () => {
         getState: sinon.stub().returns({ counter: 5.2345 }),
       };
 
-      const noMatchHandler = NoReplyHandler({ outputTrace, addButtonsIfExists: sinon.stub(), addNoReplyTimeoutIfExists: sinon.stub() });
+      const noMatchHandler = NoReplyHandler({
+        outputTrace,
+        addButtonsIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
+      });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args).to.eql([
         [RepromptPathTrace],

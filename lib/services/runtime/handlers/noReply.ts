@@ -11,7 +11,8 @@ import { addButtonsIfExists, outputTrace, removeEmptyPrompts } from '../utils';
 type NoReplyNode = BaseRequest.NodeButton & (VoiceNode.Utils.NoReplyNode | ChatNode.Utils.NoReplyNode);
 
 const removeEmptyNoReplies = (node: NoReplyNode) => {
-  const noReplies: Array<BaseText.SlateTextValue | string> = node.noReply?.prompts ?? (node.reprompt ? [node.reprompt] : null) ?? [];
+  const noReplies: Array<BaseText.SlateTextValue | string> =
+    node.noReply?.prompts ?? (node.reprompt ? [node.reprompt] : null) ?? [];
 
   return removeEmptyPrompts(noReplies);
 };
@@ -55,7 +56,9 @@ export const NoReplyHandler = (utils: typeof utilsObj) => ({
       payload: { path: 'reprompt' },
     });
 
-    const output = node.noReply?.randomize ? _.sample<string | BaseText.SlateTextValue>(nonEmptyNoReplies) : nonEmptyNoReplies?.[noReplyCounter];
+    const output = node.noReply?.randomize
+      ? _.sample<string | BaseText.SlateTextValue>(nonEmptyNoReplies)
+      : nonEmptyNoReplies?.[noReplyCounter];
 
     runtime.storage.set(StorageType.NO_REPLIES_COUNTER, noReplyCounter + 1);
 

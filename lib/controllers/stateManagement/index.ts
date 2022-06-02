@@ -30,7 +30,14 @@ class StateManagementController extends AbstractController {
     HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
     QUERY_VERBOSE: VALIDATIONS.QUERY.VERBOSE,
   })
-  async interact(req: Request<{ userID: string }, any, { projectID: string; authorization: string; versionID: string }, { verbose?: boolean }>) {
+  async interact(
+    req: Request<
+      { userID: string },
+      any,
+      { projectID: string; authorization: string; versionID: string },
+      { verbose?: boolean }
+    >
+  ) {
     return this.services.stateManagement.interact(req);
   }
 
@@ -39,7 +46,10 @@ class StateManagementController extends AbstractController {
     return this.services.session.getFromDb(req.headers.projectID, req.params.userID);
   }
 
-  @validate({ BODY_UPDATE_SESSION: VALIDATIONS.BODY.UPDATE_SESSION, HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID })
+  @validate({
+    BODY_UPDATE_SESSION: VALIDATIONS.BODY.UPDATE_SESSION,
+    HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID,
+  })
   async update(req: Request<{ userID: string }, State, { projectID: string }>) {
     await this.services.session.saveToDb(req.headers.projectID, req.params.userID, req.body);
     return req.body;

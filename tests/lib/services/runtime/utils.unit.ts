@@ -2,7 +2,13 @@ import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { addButtonsIfExists, getReadableConfidence, mapEntities, slateInjectVariables, slateToPlaintext } from '@/lib/services/runtime/utils';
+import {
+  addButtonsIfExists,
+  getReadableConfidence,
+  mapEntities,
+  slateInjectVariables,
+  slateToPlaintext,
+} from '@/lib/services/runtime/utils';
 
 describe('runtime utils service unit tests', () => {
   describe('getReadableConfidence', () => {
@@ -50,7 +56,10 @@ describe('runtime utils service unit tests', () => {
     it('with buttons', () => {
       const node = {
         buttons: [
-          { name: 'button {var1}', request: { type: 'intent', payload: { intent: { name: 'intent' }, query: 'button {var1}' } } },
+          {
+            name: 'button {var1}',
+            request: { type: 'intent', payload: { intent: { name: 'intent' }, query: 'button {var1}' } },
+          },
           { name: 'button {var2} ', request: { type: 'text', payload: '{var2}' } },
         ],
       };
@@ -67,7 +76,15 @@ describe('runtime utils service unit tests', () => {
               buttons: [
                 {
                   name: 'button value1',
-                  request: { type: 'intent', payload: { actions: undefined, label: undefined, intent: { name: 'intent' }, query: 'button value1' } },
+                  request: {
+                    type: 'intent',
+                    payload: {
+                      actions: undefined,
+                      label: undefined,
+                      intent: { name: 'intent' },
+                      query: 'button value1',
+                    },
+                  },
                 },
                 { name: 'button value2 ', request: { type: 'text', payload: 'value2' } },
               ],
@@ -84,7 +101,11 @@ describe('runtime utils service unit tests', () => {
       const variableState = { var1: 'first', var2: 'second', var3: ['third', 'fourth'] };
       const slate = {
         id: '1',
-        content: [{ text: 'test {var1}', underline: true, property: 'prop {var3}' }, { text: ' ' }, { children: [{ text: ' nice {var2} var' }] }],
+        content: [
+          { text: 'test {var1}', underline: true, property: 'prop {var3}' },
+          { text: ' ' },
+          { children: [{ text: ' nice {var2} var' }] },
+        ],
       };
 
       const expectedSlate = {

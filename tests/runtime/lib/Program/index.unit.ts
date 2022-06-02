@@ -16,7 +16,13 @@ describe('Program unit tests', () => {
       const variables = 'variables';
       const commands = 'commands';
       const startId = 'start-id';
-      const program = new Program({ id, lines: nodes as any, variables: variables as any, commands: commands as any, startId });
+      const program = new Program({
+        id,
+        lines: nodes as any,
+        variables: variables as any,
+        commands: commands as any,
+        startId,
+      });
       expect(program.getID()).to.eql(id);
       expect(program.getRaw()).to.eql(nodes);
       expect(program.getVariables()).to.eql(variables);

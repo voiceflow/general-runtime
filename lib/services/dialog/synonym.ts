@@ -3,7 +3,8 @@ import damerauLevenshteinDistance from 'talisman/metrics/damerau-levenshtein';
 import dice from 'talisman/metrics/dice';
 
 // converts levenshteinDistance to percentage
-const damerauLevenshtein = (a: string, b: string) => 1 - damerauLevenshteinDistance(a, b) / Math.max(a.length, b.length);
+const damerauLevenshtein = (a: string, b: string) =>
+  1 - damerauLevenshteinDistance(a, b) / Math.max(a.length, b.length);
 
 // creates a score between a and b out of 100
 // compound function leveraging algos with bias
@@ -61,7 +62,10 @@ export const getSynonym = (_query: string, _samples: string[] = [], tolerance = 
   return _query;
 };
 
-export const rectifyEntityValue = (intentReq: BaseRequest.IntentRequest, model: BaseModels.PrototypeModel): BaseRequest.IntentRequest => {
+export const rectifyEntityValue = (
+  intentReq: BaseRequest.IntentRequest,
+  model: BaseModels.PrototypeModel
+): BaseRequest.IntentRequest => {
   intentReq.payload.entities.forEach((entity) => {
     const entityDefinition = model.slots.find((item) => item.name === entity.name);
     if (!entityDefinition) return;

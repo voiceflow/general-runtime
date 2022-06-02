@@ -17,7 +17,9 @@ describe('API Handler unit tests', () => {
 
     it('false with type integrations', () => {
       const apiHandler = APIHandler();
-      expect(apiHandler.canHandle({ type: 'integrations' } as any, null as any, null as any, null as any)).to.eql(false);
+      expect(apiHandler.canHandle({ type: 'integrations' } as any, null as any, null as any, null as any)).to.eql(
+        false
+      );
     });
 
     it('true', () => {
@@ -81,7 +83,11 @@ describe('API Handler unit tests', () => {
       const resultVariables = { data: { variables: {}, response: { status: 401 } } };
       sinon.stub(APIUtils, 'makeAPICall').resolves(resultVariables.data as any);
 
-      const node = { selected_integration: 'Custom API', selected_action: 'Make a GET Request', action_data: ACTION_DATA };
+      const node = {
+        selected_integration: 'Custom API',
+        selected_action: 'Make a GET Request',
+        action_data: ACTION_DATA,
+      };
       const runtime = { trace: { debug: sinon.stub() } };
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 
@@ -94,7 +100,12 @@ describe('API Handler unit tests', () => {
       const resultVariables = { data: { variables: {}, response: { status: 401 } } };
       sinon.stub(APIUtils, 'makeAPICall').resolves(resultVariables.data as any);
 
-      const node = { fail_id: 'fail-id', selected_integration: 'Custom API', selected_action: 'Make a GET Request', action_data: ACTION_DATA };
+      const node = {
+        fail_id: 'fail-id',
+        selected_integration: 'Custom API',
+        selected_action: 'Make a GET Request',
+        action_data: ACTION_DATA,
+      };
       const runtime = { trace: { debug: sinon.stub() } };
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 
@@ -113,7 +124,9 @@ describe('API Handler unit tests', () => {
         const variables = { getState: sinon.stub().returns({}) };
 
         expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
-        expect(runtime.trace.debug.args).to.eql([[`API call failed - Error: \n${JSON.stringify(axiosErr)}`, BaseNode.NodeType.API]]);
+        expect(runtime.trace.debug.args).to.eql([
+          [`API call failed - Error: \n${JSON.stringify(axiosErr)}`, BaseNode.NodeType.API],
+        ]);
         expect(makeAPICallStub.args).to.eql([[AGENT_ACTION_DATA, runtime, {}]]);
       });
 
@@ -121,13 +134,22 @@ describe('API Handler unit tests', () => {
         const apiHandler = APIHandler();
         const makeAPICallStub = sinon.stub(APIUtils, 'makeAPICall').throws('error5');
 
-        const node = { fail_id: 'fail-id', selected_integration: 'Zapier', selected_action: 'Start a Zap', action_data: ACTION_DATA };
+        const node = {
+          fail_id: 'fail-id',
+          selected_integration: 'Zapier',
+          selected_action: 'Start a Zap',
+          action_data: ACTION_DATA,
+        };
         const runtime = { trace: { debug: sinon.stub() } };
         const variables = { getState: sinon.stub().returns({}) };
 
-        expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.fail_id);
+        expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+          node.fail_id
+        );
         expect(makeAPICallStub.args).to.eql([[AGENT_ACTION_DATA, runtime, {}]]);
-        expect(runtime.trace.debug.args).to.eql([['API call failed - Error: \n{"name":"error5"}', BaseNode.NodeType.API]]);
+        expect(runtime.trace.debug.args).to.eql([
+          ['API call failed - Error: \n{"name":"error5"}', BaseNode.NodeType.API],
+        ]);
       });
     });
   });

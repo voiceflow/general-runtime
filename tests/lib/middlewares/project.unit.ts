@@ -11,7 +11,9 @@ describe('project middleware unit tests', () => {
       const middleware = new Project(services as any, {} as any);
 
       const req = { headers: { authorization: 'auth', versionID: 'version-id' } };
-      await expect(middleware.attachID(req as any, null as any, null as any)).to.eventually.rejectedWith('no permissions for this version');
+      await expect(middleware.attachID(req as any, null as any, null as any)).to.eventually.rejectedWith(
+        'no permissions for this version'
+      );
       expect(services.dataAPI.get.args).to.eql([[req.headers.authorization]]);
       expect(api.getVersion.args).to.eql([[req.headers.versionID]]);
     });
@@ -29,7 +31,11 @@ describe('project middleware unit tests', () => {
       expect(next.callCount).to.eql(1);
       expect(services.dataAPI.get.args).to.eql([[req.headers.authorization]]);
       expect(api.getVersion.args).to.eql([[req.headers.versionID]]);
-      expect(req.headers).to.eql({ authorization: req.headers.authorization, projectID: version.projectID, versionID: req.headers.versionID });
+      expect(req.headers).to.eql({
+        authorization: req.headers.authorization,
+        projectID: version.projectID,
+        versionID: req.headers.versionID,
+      });
     });
   });
 });

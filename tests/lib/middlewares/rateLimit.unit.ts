@@ -42,7 +42,9 @@ describe('rateLimit middleware unit tests', () => {
         const middleware = new RateLimit({} as any, {} as any);
         const req = { headers: {} };
 
-        await expect(middleware.verify(req as any, null as any, null as any)).to.eventually.rejectedWith('Auth Key Required');
+        await expect(middleware.verify(req as any, null as any, null as any)).to.eventually.rejectedWith(
+          'Auth Key Required'
+        );
       });
 
       // eslint-disable-next-line sonarjs/no-identical-functions
@@ -50,7 +52,9 @@ describe('rateLimit middleware unit tests', () => {
         const middleware = new RateLimit({} as any, {} as any);
         const req = { headers: {} };
 
-        await expect(middleware.verify(req as any, null as any, null as any)).to.eventually.rejectedWith('Auth Key Required');
+        await expect(middleware.verify(req as any, null as any, null as any)).to.eventually.rejectedWith(
+          'Auth Key Required'
+        );
       });
     });
   });
@@ -92,7 +96,9 @@ describe('rateLimit middleware unit tests', () => {
       const res = 'res';
       const next = sinon.stub();
 
-      await expect(middleware.versionConsume(req as any, res as any, next as any)).to.eventually.rejectedWith('custom err');
+      await expect(middleware.versionConsume(req as any, res as any, next as any)).to.eventually.rejectedWith(
+        'custom err'
+      );
 
       expect(consume.args).to.eql([[res, next, { isPublic: true, resource: req.headers.versionID }]]);
       expect(next.callCount).to.eql(0);

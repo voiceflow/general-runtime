@@ -11,7 +11,13 @@ describe('Runtime utils ProgramManager', () => {
 
   it('get', async () => {
     const programID = 'program-id';
-    const data = { id: programID, startId: 'start-id', variables: { var: 'val' }, lines: [{ b1: 'v1' }, { b2: 'v2' }], commands: [{ c1: 'v1' }] };
+    const data = {
+      id: programID,
+      startId: 'start-id',
+      variables: { var: 'val' },
+      lines: [{ b1: 'v1' }, { b2: 'v2' }],
+      commands: [{ c1: 'v1' }],
+    };
     const runtime = {
       api: { getProgram: sinon.stub().resolves(data) },
       callEvent: sinon.stub(),

@@ -43,22 +43,33 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
       }
 
       // debugging changes find variable value differences
-      const changes = _.union(Object.keys(variablesState), Object.keys(newVariableState)).reduce<string>((acc, variable) => {
-        if (!_.isEqual(variablesState[variable], newVariableState[variable])) {
-          acc += `\`{${variable}}\`: \`${JSON.stringify(variablesState[variable])}\` => \`${JSON.stringify(newVariableState[variable])}\`  \n`;
-        }
+      const changes = _.union(Object.keys(variablesState), Object.keys(newVariableState)).reduce<string>(
+        (acc, variable) => {
+          if (!_.isEqual(variablesState[variable], newVariableState[variable])) {
+            acc += `\`{${variable}}\`: \`${JSON.stringify(variablesState[variable])}\` => \`${JSON.stringify(
+              newVariableState[variable]
+            )}\`  \n`;
+          }
 
-        return acc;
-      }, '');
+          return acc;
+        },
+        ''
+      );
 
       // eslint-disable-next-line sonarjs/no-nested-template-literals
-      runtime.trace.debug(`evaluating code - ${changes ? `changes:  \n${changes}` : 'no variable changes'}`, BaseNode.NodeType.CODE);
+      runtime.trace.debug(
+        `evaluating code - ${changes ? `changes:  \n${changes}` : 'no variable changes'}`,
+        BaseNode.NodeType.CODE
+      );
 
       variables.merge(newVariableState);
 
       return node.success_id ?? null;
     } catch (error) {
-      runtime.trace.debug(`unable to resolve code  \n\`${safeJSONStringify(error.response?.data || error.toString())}\``, BaseNode.NodeType.CODE);
+      runtime.trace.debug(
+        `unable to resolve code  \n\`${safeJSONStringify(error.response?.data || error.toString())}\``,
+        BaseNode.NodeType.CODE
+      );
 
       return node.fail_id ?? null;
     }

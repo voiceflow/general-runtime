@@ -6,8 +6,15 @@ import sinon from 'sinon';
 import ServerDataAPI from '@/runtime/lib/DataAPI/serverDataAPI';
 
 const getServerDataApi = async (axiosInstance: Record<string, (...args: any[]) => any>) => {
-  const axios = { create: sinon.stub().returns(axiosInstance), post: sinon.stub().returns({ data: { token: 'secret-token' } }) };
-  const testConfig = { platform: VoiceflowConstants.PlatformType.ALEXA, dataEndpoint: 'data-endpoint', adminToken: 'admin-token' };
+  const axios = {
+    create: sinon.stub().returns(axiosInstance),
+    post: sinon.stub().returns({ data: { token: 'secret-token' } }),
+  };
+  const testConfig = {
+    platform: VoiceflowConstants.PlatformType.ALEXA,
+    dataEndpoint: 'data-endpoint',
+    adminToken: 'admin-token',
+  };
 
   const client = new ServerDataAPI(testConfig, { axios } as any);
   await client.init();

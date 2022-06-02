@@ -12,7 +12,15 @@ import validator from 'validator';
 import Runtime from '@/runtime/lib/Runtime';
 
 export type APINodeData = BaseNode.Api.NodeData['action_data'];
-const PROHIBITED_IP_RANGES = ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '127.0.0.0/8', '0.0.0.0/8', 'fd00::/8', '169.254.169.254/32'];
+const PROHIBITED_IP_RANGES = [
+  '10.0.0.0/8',
+  '172.16.0.0/12',
+  '192.168.0.0/16',
+  '127.0.0.0/8',
+  '0.0.0.0/8',
+  'fd00::/8',
+  '169.254.169.254/32',
+];
 
 // Regex to match
 const BLACKLISTED_URLS: RegExp[] = [];
@@ -186,19 +194,27 @@ export const makeAPICall = async (nodeData: APINodeData, runtime: Runtime, confi
       });
     }
   } catch (error) {
-    runtime.trace.debug(`Outgoing Api Rate Limiter failed - Error: \n${safeJSONStringify(error.response?.data || error)}`, BaseNode.NodeType.API);
+    runtime.trace.debug(
+      `Outgoing Api Rate Limiter failed - Error: \n${safeJSONStringify(error.response?.data || error)}`,
+      BaseNode.NodeType.API
+    );
   }
 
   const options = formatRequestConfig(nodeData, config);
 
-  const { data, headers, status } = (await axios(options)) as AxiosResponse<{ VF_STATUS_CODE?: number; VF_HEADERS?: any }>;
+  const { data, headers, status } = (await axios(options)) as AxiosResponse<{
+    VF_STATUS_CODE?: number;
+    VF_HEADERS?: any;
+  }>;
 
   if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
     data.VF_STATUS_CODE = status;
     data.VF_HEADERS = headers;
   }
 
-  const newVariables = Object.fromEntries((nodeData.mapping ?? []).filter((map) => map.var).map((map) => [map.var, getVariable(map.path, data)]));
+  const newVariables = Object.fromEntries(
+    (nodeData.mapping ?? []).filter((map) => map.var).map((map) => [map.var, getVariable(map.path, data)])
+  );
 
   // remove all undefined variables
   Object.keys(newVariables).forEach((variable) => {

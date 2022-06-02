@@ -16,12 +16,14 @@ const ENTIRE_RESPONSE_CONFIDENCE_THRESHOLD = 0.6;
 type CaptureWithIntent = VoiceflowNode.CaptureV2.Node & { intent: Required<BaseNode.CaptureV2.NodeIntent> };
 type CaptureWithVariable = VoiceflowNode.CaptureV2.Node & { variable: string };
 
-const isConfidenceScoreAbove = (threshold: number, confidence: number) => typeof confidence !== 'number' || confidence > threshold;
+const isConfidenceScoreAbove = (threshold: number, confidence: number) =>
+  typeof confidence !== 'number' || confidence > threshold;
 
 const isNodeCapturingEntity = (node: VoiceflowNode.CaptureV2.Node): node is CaptureWithIntent =>
   typeof node.intent?.name === 'string' && typeof node.intent?.entities != null;
 
-const isNodeCapturingEntireResponse = (node: VoiceflowNode.CaptureV2.Node): node is CaptureWithVariable => typeof node.variable === 'string';
+const isNodeCapturingEntireResponse = (node: VoiceflowNode.CaptureV2.Node): node is CaptureWithVariable =>
+  typeof node.variable === 'string';
 
 const utilsObj = {
   repeatHandler: RepeatHandler(),
@@ -64,7 +66,8 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, type
 
     // If capturing the entire user response, we need a high confidence to leave to another capture step
     const lowConfidence =
-      isNodeCapturingEntireResponse(node) && !isConfidenceScoreAbove(ENTIRE_RESPONSE_CONFIDENCE_THRESHOLD, request.payload?.confidence);
+      isNodeCapturingEntireResponse(node) &&
+      !isConfidenceScoreAbove(ENTIRE_RESPONSE_CONFIDENCE_THRESHOLD, request.payload?.confidence);
 
     const isLocalScope = node.intentScope === BaseNode.Utils.IntentScope.NODE;
 
@@ -109,7 +112,9 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, type
 
     const noMatchHandler = utils.entityFillingNoMatchHandler.handle(node, runtime, variables);
 
-    return captureIntentName ? noMatchHandler([captureIntentName], entityFillingRequest(captureIntentName)) : noMatchHandler();
+    return captureIntentName
+      ? noMatchHandler([captureIntentName], entityFillingRequest(captureIntentName))
+      : noMatchHandler();
   },
 });
 

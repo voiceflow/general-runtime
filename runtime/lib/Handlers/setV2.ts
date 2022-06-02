@@ -28,7 +28,12 @@ const SetV2Handler: HandlerFactory<BaseNode.SetV2.Node, SetV2Options | void> = (
         `;
     });
 
-    await codeHandler.handle({ code, id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE', type: BaseNode.NodeType.CODE }, runtime, variables, program);
+    await codeHandler.handle(
+      { code, id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE', type: BaseNode.NodeType.CODE },
+      runtime,
+      variables,
+      program
+    );
 
     return node.nextId || null;
   },

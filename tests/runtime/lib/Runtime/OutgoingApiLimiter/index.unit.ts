@@ -44,7 +44,13 @@ describe('Runtime OutgoingApiLimiter unit tests', () => {
     it('works with existing uses less than max', async () => {
       const runtime = {
         getVersionID: sinon.stub().returns('version-id'),
-        services: { redis: { get: sinon.stub().resolves('3'), set: sinon.stub().resolves(undefined), ttl: sinon.stub().resolves(123) } },
+        services: {
+          redis: {
+            get: sinon.stub().resolves('3'),
+            set: sinon.stub().resolves(undefined),
+            ttl: sinon.stub().resolves(123),
+          },
+        },
       };
 
       const outgoingApiLimiter = new OutgoingApiLimiter(runtime as any);
@@ -56,7 +62,13 @@ describe('Runtime OutgoingApiLimiter unit tests', () => {
     it('works with existing uses more than max', async () => {
       const runtime = {
         getVersionID: sinon.stub().returns('version-id'),
-        services: { redis: { get: sinon.stub().resolves('5001'), set: sinon.stub().resolves(undefined), ttl: sinon.stub().resolves(123) } },
+        services: {
+          redis: {
+            get: sinon.stub().resolves('5001'),
+            set: sinon.stub().resolves(undefined),
+            ttl: sinon.stub().resolves(123),
+          },
+        },
       };
 
       const outgoingApiLimiter = new OutgoingApiLimiter(runtime as any);
@@ -68,13 +80,21 @@ describe('Runtime OutgoingApiLimiter unit tests', () => {
     it('works with no uses less', async () => {
       const runtime = {
         getVersionID: sinon.stub().returns('version-id'),
-        services: { redis: { get: sinon.stub().resolves(null), set: sinon.stub().resolves(undefined), ttl: sinon.stub().resolves(123) } },
+        services: {
+          redis: {
+            get: sinon.stub().resolves(null),
+            set: sinon.stub().resolves(undefined),
+            ttl: sinon.stub().resolves(123),
+          },
+        },
       };
 
       const outgoingApiLimiter = new OutgoingApiLimiter(runtime as any);
 
       expect(await outgoingApiLimiter.addHostnameUseAndShouldThrottle('hostname-val')).to.eql(false);
-      expect(runtime.services.redis.set.args).to.eql([['outgoing_api_version-id_hostname-val', '1', 'EX', 60 * 60 * 6]]);
+      expect(runtime.services.redis.set.args).to.eql([
+        ['outgoing_api_version-id_hostname-val', '1', 'EX', 60 * 60 * 6],
+      ]);
     });
   });
 });

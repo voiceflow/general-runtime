@@ -26,7 +26,10 @@ import {
 
 const createDM = () => {
   const services = {};
-  return new DialogManager({ utils: { ...defaultUtils, isIntentInScope: sinon.stub().resolves(true) }, ...services } as any, {} as any);
+  return new DialogManager(
+    { utils: { ...defaultUtils, isIntentInScope: sinon.stub().resolves(true) }, ...services } as any,
+    {} as any
+  );
 };
 
 describe('dialog manager unit tests', () => {
@@ -40,7 +43,9 @@ describe('dialog manager unit tests', () => {
         dataAPI: { getVersion: sinon.stub().resolves() },
       };
       const dm = new DialogManager({ utils: { ...defaultUtils }, ...services } as any, {} as any);
-      const result = dm.handle({ request: { type: 'intent', payload: { entities: [], intent: { name: 'intent_name' } } } } as any);
+      const result = dm.handle({
+        request: { type: 'intent', payload: { entities: [], intent: { name: 'intent_name' } } },
+      } as any);
 
       await expect(result).to.eventually.be.rejected;
     });
@@ -49,7 +54,10 @@ describe('dialog manager unit tests', () => {
       const services = {
         dataAPI: { getVersion: sinon.stub().resolves({ prototype: { model: true } }) },
       };
-      const dm = new DialogManager({ utils: { ...defaultUtils, isIntentInScope: sinon.stub().resolves(false) }, ...services } as any, {} as any);
+      const dm = new DialogManager(
+        { utils: { ...defaultUtils, isIntentInScope: sinon.stub().resolves(false) }, ...services } as any,
+        {} as any
+      );
       const context = {
         request: { type: 'intent', payload: { entities: [], intent: { name: 'intent_name' } } },
         state: { storage: {} },
@@ -69,7 +77,12 @@ describe('dialog manager unit tests', () => {
         const dmState = {
           intentRequest: mockRegularSingleEntityResult,
         };
-        const result = await dm.handleDMContext(dmState, mockDMPrefixedMultipleEntityResult, mockRegularMultipleEntityResult, mockLM);
+        const result = await dm.handleDMContext(
+          dmState,
+          mockDMPrefixedMultipleEntityResult,
+          mockRegularMultipleEntityResult,
+          mockLM
+        );
         const sizeEntityValue = dmState.intentRequest.payload.entities.find((entity) => entity.name === 'size');
         const toppingEntityValue = dmState.intentRequest.payload.entities.find((entity) => entity.name === 'topping');
 
@@ -85,7 +98,12 @@ describe('dialog manager unit tests', () => {
           intentRequest: mockRegularNoEntityResult,
         };
 
-        const result = await dm.handleDMContext(dmState, mockDMPrefixedUnrelatedSingleEntityResult, mockRegularUnrelatedResult, mockLM);
+        const result = await dm.handleDMContext(
+          dmState,
+          mockDMPrefixedUnrelatedSingleEntityResult,
+          mockRegularUnrelatedResult,
+          mockLM
+        );
         const sizeEntityValue = dmState.intentRequest.payload.entities.find((entity) => entity.name === 'size');
 
         expect(result).to.be.false; // No fallback intent
@@ -98,7 +116,12 @@ describe('dialog manager unit tests', () => {
         const dmState = {
           intentRequest: mockUnfulfilledIntentRequest,
         };
-        const result = await dm.handleDMContext(dmState, mockDMPrefixedNoEntityResult, mockRegularNoEntityResult, mockLM);
+        const result = await dm.handleDMContext(
+          dmState,
+          mockDMPrefixedNoEntityResult,
+          mockRegularNoEntityResult,
+          mockLM
+        );
 
         expect(result).to.be.false; // No fallback intent
         expect(dmState.intentRequest).to.deep.equal(mockRegularNoEntityResult);
@@ -110,7 +133,12 @@ describe('dialog manager unit tests', () => {
         const dmState = {
           intentRequest: mockRegularNoEntityResult,
         };
-        const result = await dm.handleDMContext(dmState, mockDMPrefixedNonSubsetEntityResult, mockRegularUnrelatedResult, mockLM);
+        const result = await dm.handleDMContext(
+          dmState,
+          mockDMPrefixedNonSubsetEntityResult,
+          mockRegularUnrelatedResult,
+          mockLM
+        );
 
         expect(result).to.be.false;
         expect(dmState.intentRequest).to.eql(mockRegularUnrelatedResult);
@@ -123,7 +151,12 @@ describe('dialog manager unit tests', () => {
           intentRequest: mockRegularNoEntityResult,
         };
 
-        const result = await dm.handleDMContext(dmState, mockDMPrefixUnrelatedResult, mockRegularUnrelatedResult, mockLM);
+        const result = await dm.handleDMContext(
+          dmState,
+          mockDMPrefixUnrelatedResult,
+          mockRegularUnrelatedResult,
+          mockLM
+        );
 
         expect(result).to.be.false; // no fallback intent
         expect(dmState.intentRequest.payload.intent.name).to.be.equal('wings_order');

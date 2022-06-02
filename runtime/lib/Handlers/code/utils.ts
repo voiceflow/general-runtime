@@ -11,7 +11,10 @@ const ISOLATED_VM_LIMITS = {
   maxExecutionTimeMs: 1 * 1000,
 };
 
-export const ivmExecute = async (data: { code: string; variables: Record<string, any> }, callbacks?: Record<string, (...args: any) => any>) => {
+export const ivmExecute = async (
+  data: { code: string; variables: Record<string, any> },
+  callbacks?: Record<string, (...args: any) => any>
+) => {
   // Create isolate with 8mb max memory
   const isolate = new ivm.Isolate({ memoryLimit: ISOLATED_VM_LIMITS.maxMemoryMB });
   try {
@@ -100,4 +103,5 @@ export const vmExecute = (
   }, {});
 };
 
-export const getUndefinedKeys = (variables: Record<string, unknown>) => Object.keys(variables).filter((key) => variables[key] === undefined);
+export const getUndefinedKeys = (variables: Record<string, unknown>) =>
+  Object.keys(variables).filter((key) => variables[key] === undefined);

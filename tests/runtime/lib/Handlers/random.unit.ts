@@ -59,7 +59,10 @@ describe('randomHandler unit tests', () => {
           const nextIds = ['one', 'two', 'three'];
           const node = { id: 'node-id', nextIds, random: 2 };
 
-          const runtime = { trace: { debug: sinon.stub() }, storage: new Store({ [S.RANDOMS]: { [node.id]: ['one', 'three'] } }) };
+          const runtime = {
+            trace: { debug: sinon.stub() },
+            storage: new Store({ [S.RANDOMS]: { [node.id]: ['one', 'three'] } }),
+          };
           const result = await randomHandler.handle(node as any, runtime as any, null as any, null as any);
           // only one option possible left
           expect(result).to.eql('two');
@@ -71,7 +74,10 @@ describe('randomHandler unit tests', () => {
           const nextIds = ['one', 'two', 'three'];
           const node = { id: 'node-id', nextIds, random: 2 };
 
-          const runtime = { trace: { debug: sinon.stub() }, storage: new Store({ [S.RANDOMS]: { [node.id]: nextIds } }) };
+          const runtime = {
+            trace: { debug: sinon.stub() },
+            storage: new Store({ [S.RANDOMS]: { [node.id]: nextIds } }),
+          };
           const result = await randomHandler.handle(node as any, runtime as any, null as any, null as any);
           // result is one of the ids in nextIds
           expect(nextIds.includes(result as string)).to.eql(true);

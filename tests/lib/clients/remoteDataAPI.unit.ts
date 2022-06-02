@@ -16,7 +16,11 @@ describe('remoteDataAPI client unit tests', () => {
       create: sinon.stub().returns({ get: axiosClientGetMock }),
       post: sinon.stub().returns({ data: { token: 'secret-token' } }),
     };
-    const testConfig = { platform: VoiceflowConstants.PlatformType.ALEXA, dataEndpoint: 'data-endpoint', adminToken: 'admin-token' };
+    const testConfig = {
+      platform: VoiceflowConstants.PlatformType.ALEXA,
+      dataEndpoint: 'data-endpoint',
+      adminToken: 'admin-token',
+    };
     const arg = 'mock-program-id';
 
     const client = new RemoteDataAPI(testConfig, { axios } as any);

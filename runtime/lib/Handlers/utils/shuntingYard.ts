@@ -120,7 +120,10 @@ const evaluatePostfix = (postfixExpression: Array<string>) => {
     const tokenStack = new Stack();
     // eslint-disable-next-line no-restricted-syntax
     for (const i in postfixExpression) {
-      if (typeof postfixExpression[i] === 'string' && postfixExpression[i].match(/^(\+|-|\*|\/|\^|==|&&|\|\||>|>=|<|<=|!|!=)$/)) {
+      if (
+        typeof postfixExpression[i] === 'string' &&
+        postfixExpression[i].match(/^(\+|-|\*|\/|\^|==|&&|\|\||>|>=|<|<=|!|!=)$/)
+      ) {
         // postfixExpression is an operator
 
         const operand2 = tokenStack.pop();
@@ -267,7 +270,8 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
             topOp !== '(' &&
             (topOp.match(/^(==|>|>=|<|<=|!=|&&|\|\|)$/) ||
               operatorAttributes[topOp].prec > operatorAttributes[currToken].prec ||
-              (operatorAttributes[topOp].prec === operatorAttributes[currToken].prec && operatorAttributes[topOp].assoc === 'L'))
+              (operatorAttributes[topOp].prec === operatorAttributes[currToken].prec &&
+                operatorAttributes[topOp].assoc === 'L'))
           );
         });
         operatorStack.push(currToken);
@@ -277,7 +281,10 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
       let stringVal = '';
       i++;
       while (i < expression.length) {
-        if (expression[i] === "'" && (expression[i + 1] === undefined || expression[i + 1] === ')' || expression[i + 1] === ' ')) {
+        if (
+          expression[i] === "'" &&
+          (expression[i + 1] === undefined || expression[i + 1] === ')' || expression[i + 1] === ' ')
+        ) {
           break;
         }
         stringVal += expression[i];
@@ -291,7 +298,10 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
       let stringVal = '';
       i++;
       while (i < expression.length) {
-        if (expression[i] === '$' && (expression[i + 1] === undefined || expression[i + 1] === ')' || expression[i + 1] === ' ')) {
+        if (
+          expression[i] === '$' &&
+          (expression[i + 1] === undefined || expression[i + 1] === ')' || expression[i + 1] === ' ')
+        ) {
           break;
         }
         stringVal += expression[i];

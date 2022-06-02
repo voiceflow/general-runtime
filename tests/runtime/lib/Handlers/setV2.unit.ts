@@ -17,7 +17,9 @@ describe('setV2 handler unit tests', () => {
     });
 
     it('true', () => {
-      expect(SetV2Handler().canHandle({ type: BaseNode.NodeType.SET_V2 } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(
+        SetV2Handler().canHandle({ type: BaseNode.NodeType.SET_V2 } as any, null as any, null as any, null as any)
+      ).to.eql(true);
     });
   });
 

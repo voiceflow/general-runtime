@@ -6,7 +6,14 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import * as nlc from '@/lib/services/nlu/nlc';
-import { createNLC, handleNLCCommand, handleNLCDialog, nlcToIntent, registerBuiltInIntents, registerSlots } from '@/lib/services/nlu/nlc';
+import {
+  createNLC,
+  handleNLCCommand,
+  handleNLCDialog,
+  nlcToIntent,
+  registerBuiltInIntents,
+  registerSlots,
+} from '@/lib/services/nlu/nlc';
 import * as utils from '@/lib/services/nlu/utils';
 
 import { customTypeSlots, regexMatcherSlots } from './fixture';
@@ -180,7 +187,9 @@ describe('nlu nlc service unit tests', () => {
       };
 
       registerBuiltInIntents(nlcObj as any, locale as any);
-      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.en.map(({ name, samples }) => [{ intent: name, utterances: samples }]);
+      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.en.map(({ name, samples }) => [
+        { intent: name, utterances: samples },
+      ]);
       expect(nlcObj.registerIntent.args).to.eql(registerIntentArgs);
     });
 
@@ -190,7 +199,9 @@ describe('nlu nlc service unit tests', () => {
       };
 
       registerBuiltInIntents(nlcObj as any);
-      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.en.map(({ name, samples }) => [{ intent: name, utterances: samples }]);
+      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.en.map(({ name, samples }) => [
+        { intent: name, utterances: samples },
+      ]);
       expect(nlcObj.registerIntent.args).to.eql(registerIntentArgs);
     });
 
@@ -201,7 +212,9 @@ describe('nlu nlc service unit tests', () => {
       };
 
       registerBuiltInIntents(nlcObj as any, locale as any);
-      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.es.map(({ name, samples }) => [{ intent: name, utterances: samples }]);
+      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.es.map(({ name, samples }) => [
+        { intent: name, utterances: samples },
+      ]);
       expect(nlcObj.registerIntent.args).to.eql(registerIntentArgs);
     });
   });

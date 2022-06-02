@@ -24,7 +24,10 @@ describe('Runtime Trace unit tests', () => {
 
     it('does not add frame', () => {
       const runtime = { callEvent: sinon.stub() };
-      const fakeFn = (_event: string, utils: { frame: BaseNode.Utils.BaseTraceFrame; stop: (...args: any[]) => any }) => {
+      const fakeFn = (
+        _event: string,
+        utils: { frame: BaseNode.Utils.BaseTraceFrame; stop: (...args: any[]) => any }
+      ) => {
         utils.stop();
       };
       runtime.callEvent.callsFake(fakeFn);

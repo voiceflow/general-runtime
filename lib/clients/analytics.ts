@@ -73,7 +73,8 @@ export class AnalyticsSystem extends AbstractClient {
     timestamp: Date;
   }): GeneralTurnBody {
     const sessionId =
-      metadata.data.reqHeaders?.sessionid ?? (metadata.state?.variables ? `${versionID}.${metadata.state.variables.user_id}` : versionID);
+      metadata.data.reqHeaders?.sessionid ??
+      (metadata.state?.variables ? `${versionID}.${metadata.state.variables.user_id}` : versionID);
 
     return {
       eventId: eventID,
@@ -107,7 +108,12 @@ export class AnalyticsSystem extends AbstractClient {
 
     // eslint-disable-next-line no-restricted-syntax
     for (const [index, trace] of fullTrace.entries()) {
-      const interactIngestBody = this.createInteractBody({ eventID: Ingest.Event.INTERACT, turnID, timestamp: new Date(unixTime + index), trace });
+      const interactIngestBody = this.createInteractBody({
+        eventID: Ingest.Event.INTERACT,
+        turnID,
+        timestamp: new Date(unixTime + index),
+        trace,
+      });
 
       if (this.ingestClient) {
         // eslint-disable-next-line no-await-in-loop
@@ -147,7 +153,12 @@ export class AnalyticsSystem extends AbstractClient {
           await this.ingestClient?.doIngest(interactIngestBody);
 
           // Voiceflow response
-          await this.processTrace({ fullTrace: metadata.trace ?? [], turnID: response.data.turn_id, versionID, timestamp });
+          await this.processTrace({
+            fullTrace: metadata.trace ?? [],
+            turnID: response.data.turn_id,
+            versionID,
+            timestamp,
+          });
         }
         break;
       }

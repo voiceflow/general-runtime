@@ -10,11 +10,15 @@ describe('startHandler unit tests', () => {
   describe('canHandle', () => {
     it('false', () => {
       expect(startHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
-      expect(startHandler.canHandle({ start: true, nextId: null } as any, null as any, null as any, null as any)).to.eql(false);
+      expect(
+        startHandler.canHandle({ start: true, nextId: null } as any, null as any, null as any, null as any)
+      ).to.eql(false);
     });
 
     it('true', () => {
-      expect(startHandler.canHandle({ start: true, nextId: 'next-id' } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(
+        startHandler.canHandle({ start: true, nextId: 'next-id' } as any, null as any, null as any, null as any)
+      ).to.eql(true);
     });
   });
 

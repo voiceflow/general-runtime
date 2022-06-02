@@ -45,9 +45,13 @@ export const mapEntities = (
   return variables;
 };
 
-export const slateInjectVariables = (slateValue: BaseText.SlateTextValue, variables: Record<string, unknown>): BaseText.SlateTextValue => {
+export const slateInjectVariables = (
+  slateValue: BaseText.SlateTextValue,
+  variables: Record<string, unknown>
+): BaseText.SlateTextValue => {
   // return undefined to recursively clone object https://stackoverflow.com/a/52956848
-  const customizer = (value: any) => (typeof value === 'string' ? replaceVariables(value, variables, undefined, { trim: false }) : undefined);
+  const customizer = (value: any) =>
+    typeof value === 'string' ? replaceVariables(value, variables, undefined, { trim: false }) : undefined;
 
   return _cloneDeepWith(slateValue, customizer);
 };
@@ -65,7 +69,11 @@ const processActions = (actions: BaseRequest.Action.BaseAction<unknown>[] | unde
   });
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(node: N, runtime: Runtime, variables: Store): void => {
+export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
+  node: N,
+  runtime: Runtime,
+  variables: Store
+): void => {
   let buttons: BaseRequest.AnyRequestButton[] = [];
 
   if (node.buttons?.length) {
@@ -152,8 +160,13 @@ export const slateToPlaintext = (content: Readonly<BaseText.SlateTextValue> = []
     .join('\n')
     .trim();
 
-export const removeEmptyPrompts = (prompts: Array<BaseText.SlateTextValue | string>): Array<BaseText.SlateTextValue | string> =>
-  prompts.filter((prompt) => prompt != null && (typeof prompt === 'string' ? prompt !== EMPTY_AUDIO_STRING : !!slateToPlaintext(prompt)));
+export const removeEmptyPrompts = (
+  prompts: Array<BaseText.SlateTextValue | string>
+): Array<BaseText.SlateTextValue | string> =>
+  prompts.filter(
+    (prompt) =>
+      prompt != null && (typeof prompt === 'string' ? prompt !== EMPTY_AUDIO_STRING : !!slateToPlaintext(prompt))
+  );
 
 interface OutputParams<V> {
   output?: V;

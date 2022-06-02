@@ -8,13 +8,27 @@ import { StorageType, StreamAction } from '@/lib/services/runtime/types';
 describe('stream handler unit tests', async () => {
   describe('canHandle', () => {
     it('false', () => {
-      expect(StreamHandler(null as any).canHandle({ type: 'diff type' } as any, null as any, null as any, null as any)).to.eql(false);
-      expect(StreamHandler(null as any).canHandle({ type: BaseNode.NodeType.STREAM } as any, null as any, null as any, null as any)).to.eql(false);
+      expect(
+        StreamHandler(null as any).canHandle({ type: 'diff type' } as any, null as any, null as any, null as any)
+      ).to.eql(false);
+      expect(
+        StreamHandler(null as any).canHandle(
+          { type: BaseNode.NodeType.STREAM } as any,
+          null as any,
+          null as any,
+          null as any
+        )
+      ).to.eql(false);
     });
 
     it('true', () => {
       expect(
-        StreamHandler(null as any).canHandle({ type: BaseNode.NodeType.STREAM, src: 'url-src' } as any, null as any, null as any, null as any)
+        StreamHandler(null as any).canHandle(
+          { type: BaseNode.NodeType.STREAM, src: 'url-src' } as any,
+          null as any,
+          null as any,
+          null as any
+        )
       ).to.eql(true);
     });
   });
@@ -25,7 +39,14 @@ describe('stream handler unit tests', async () => {
       const replaceVariablesStub = sinon.stub().returns('url');
       const handler = StreamHandler({ replaceVariables: replaceVariablesStub });
 
-      const node = { src: 'url-src', loop: false, id: 'id', nextID: 'next-id', pauseID: 'pause-id', previousID: 'previous-id' };
+      const node = {
+        src: 'url-src',
+        loop: false,
+        id: 'id',
+        nextID: 'next-id',
+        pauseID: 'pause-id',
+        previousID: 'previous-id',
+      };
       const runtime = { storage: { set: sinon.stub(), get: sinon.stub().returns(null) }, end: sinon.stub() };
       const variablesMap = { var1: 'val1', var2: 'val2' };
       const variables = { getState: sinon.stub().returns(variablesMap) };
@@ -56,8 +77,18 @@ describe('stream handler unit tests', async () => {
       const replaceVariablesStub = sinon.stub().returns('url');
       const handler = StreamHandler({ replaceVariables: replaceVariablesStub });
 
-      const node = { src: 'url-src', loop: false, id: 'id', nextID: 'next-id', pauseID: 'pause-id', previousID: 'previous-id' };
-      const runtime = { storage: { set: sinon.stub(), get: sinon.stub().returns({ id: 'id2' }), delete: sinon.stub() }, end: sinon.stub() };
+      const node = {
+        src: 'url-src',
+        loop: false,
+        id: 'id',
+        nextID: 'next-id',
+        pauseID: 'pause-id',
+        previousID: 'previous-id',
+      };
+      const runtime = {
+        storage: { set: sinon.stub(), get: sinon.stub().returns({ id: 'id2' }), delete: sinon.stub() },
+        end: sinon.stub(),
+      };
       const variablesMap = { var1: 'val1', var2: 'val2' };
       const variables = { getState: sinon.stub().returns(variablesMap) };
 
@@ -89,10 +120,22 @@ describe('stream handler unit tests', async () => {
       const handler = StreamHandler({ replaceVariables: replaceVariablesStub });
 
       const nodeID = 'id';
-      const node = { src: 'url-src', loop: false, id: nodeID, nextID: 'next-id', pauseID: 'pause-id', previousID: 'previous-id' };
+      const node = {
+        src: 'url-src',
+        loop: false,
+        id: nodeID,
+        nextID: 'next-id',
+        pauseID: 'pause-id',
+        previousID: 'previous-id',
+      };
       const streamPause = { id: nodeID, offset: 100 };
       const runtime = {
-        storage: { set: sinon.stub(), get: sinon.stub().returns(streamPause), delete: sinon.stub(), produce: sinon.stub() },
+        storage: {
+          set: sinon.stub(),
+          get: sinon.stub().returns(streamPause),
+          delete: sinon.stub(),
+          produce: sinon.stub(),
+        },
         end: sinon.stub(),
       };
       const variablesMap = { var1: 'val1', var2: 'val2' };

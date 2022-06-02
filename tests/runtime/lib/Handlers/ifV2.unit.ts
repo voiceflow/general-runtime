@@ -12,11 +12,20 @@ describe('ifV2 handler unit tests', () => {
 
   describe('canHandle', () => {
     it('false', () => {
-      expect(IfV2Handler({} as any).canHandle({ type: 'random' } as any, null as any, null as any, null as any)).to.eql(false);
+      expect(IfV2Handler({} as any).canHandle({ type: 'random' } as any, null as any, null as any, null as any)).to.eql(
+        false
+      );
     });
 
     it('true', () => {
-      expect(IfV2Handler({} as any).canHandle({ type: BaseNode.NodeType.IF_V2 } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(
+        IfV2Handler({} as any).canHandle(
+          { type: BaseNode.NodeType.IF_V2 } as any,
+          null as any,
+          null as any,
+          null as any
+        )
+      ).to.eql(true);
     });
   });
 
@@ -30,7 +39,10 @@ describe('ifV2 handler unit tests', () => {
         sinon.stub(CodeHandler, 'default').returns(codeHandler as any);
 
         const node = { payload: { expressions: [] }, paths: [] };
-        const runtime = { trace: { debug: sinon.stub() }, turn: { get: sinon.stub().returns([BaseNode.NodeType.IF_V2]) } };
+        const runtime = {
+          trace: { debug: sinon.stub() },
+          turn: { get: sinon.stub().returns([BaseNode.NodeType.IF_V2]) },
+        };
         const variables = { var1: 'val1' };
         const program = { lines: [] };
 
@@ -50,7 +62,9 @@ describe('ifV2 handler unit tests', () => {
         const variables = { var1: 'val1' };
         const program = { lines: [] };
 
-        expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(node.payload.elseId);
+        expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(
+          node.payload.elseId
+        );
 
         expect(CodeHandlerStub.calledOnce).to.eql(true);
         expect(Object.keys((CodeHandlerStub.args[0][0] as any).callbacks)).to.eql(['setOutputPort', 'addDebugError']);
@@ -69,7 +83,9 @@ describe('ifV2 handler unit tests', () => {
           ],
         ]);
 
-        expect(runtime.trace.debug.args).to.eql([['no conditions matched - taking else path', BaseNode.NodeType.IF_V2]]);
+        expect(runtime.trace.debug.args).to.eql([
+          ['no conditions matched - taking else path', BaseNode.NodeType.IF_V2],
+        ]);
       });
 
       it('no elseId', async () => {
@@ -95,17 +111,27 @@ describe('ifV2 handler unit tests', () => {
             expressions: ['a && b', 'a + b)', 'arr.includes(a) && !b', 'a === 3'], // second condition is malformed. forth condition is also true, but we exit early when there's a match
             elseId: 'else-id',
           },
-          paths: [{ nextID: 'first-next' }, { nextID: 'second-next' }, { nextID: 'third-next' }, { nextID: 'forth-next' }],
+          paths: [
+            { nextID: 'first-next' },
+            { nextID: 'second-next' },
+            { nextID: 'third-next' },
+            { nextID: 'forth-next' },
+          ],
         };
         const runtime = { trace: { debug: sinon.stub() }, turn: { get: sinon.stub().returns(null) } };
         const variables = { getState: sinon.stub().returns({ a: 3, b: false, arr: [1, 3, 5] }), merge: sinon.stub() };
         const program = { lines: [] };
 
-        expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(node.paths[2].nextID);
+        expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(
+          node.paths[2].nextID
+        );
 
         expect(runtime.trace.debug.args).to.eql([
           ['evaluating code - no variable changes', BaseNode.NodeType.CODE],
-          [`Error condition 2 - "${node.payload.expressions[1]}": SyntaxError: Unexpected token ')'`, BaseNode.NodeType.IF_V2],
+          [
+            `Error condition 2 - "${node.payload.expressions[1]}": SyntaxError: Unexpected token ')'`,
+            BaseNode.NodeType.IF_V2,
+          ],
           ['condition matched - taking path 3', BaseNode.NodeType.IF_V2],
         ]);
       });

@@ -10,7 +10,10 @@ export const isTextRequest = (request?: RuntimeRequest | null): request is BaseR
   !!request && BaseRequest.isTextRequest(request) && typeof request.payload === 'string';
 
 export const isIntentRequest = (request?: RuntimeRequest | null): request is BaseRequest.IntentRequest =>
-  !!request && BaseRequest.isIntentRequest(request) && !!request.payload?.intent?.name && Array.isArray(request.payload.entities);
+  !!request &&
+  BaseRequest.isIntentRequest(request) &&
+  !!request.payload?.intent?.name &&
+  Array.isArray(request.payload.entities);
 
 export const isActionRequest = (request?: RuntimeRequest | null): request is BaseRequest.ActionRequest =>
   !!request && BaseRequest.isActionRequest(request);

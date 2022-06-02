@@ -42,7 +42,10 @@ class Store {
   }
 
   static formatPayload(payload: State): State {
-    return Object.keys(payload).reduce((acc, key) => Object.assign(acc, { [key]: Store.formatPayloadValue(payload[key]) }), {});
+    return Object.keys(payload).reduce(
+      (acc, key) => Object.assign(acc, { [key]: Store.formatPayloadValue(payload[key]) }),
+      {}
+    );
   }
 
   constructor(payload: State = {}, { didUpdate, willUpdate }: { didUpdate?: DidUpdate; willUpdate?: WillUpdate } = {}) {

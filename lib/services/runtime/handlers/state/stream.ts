@@ -4,7 +4,14 @@ import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { HandlerFactory } from '@/runtime';
 
-import { isIntentRequest, StorageData, StorageType, StreamAction, StreamPauseStorage, StreamPlayStorage } from '../../types';
+import {
+  isIntentRequest,
+  StorageData,
+  StorageType,
+  StreamAction,
+  StreamPauseStorage,
+  StreamPlayStorage,
+} from '../../types';
 import CommandHandler from '../command';
 
 const utilsObj = {
@@ -14,7 +21,8 @@ const utilsObj = {
 
 export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) => ({
   canHandle: (_, runtime) =>
-    !!runtime.storage.get(StorageType.STREAM_PLAY) && runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY)!.action !== StreamAction.END,
+    !!runtime.storage.get(StorageType.STREAM_PLAY) &&
+    runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY)!.action !== StreamAction.END,
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (_, runtime, variables) => {
     const streamPlay = runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY)!;
@@ -27,7 +35,10 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
     if (intentName === VoiceflowConstants.IntentName.PAUSE) {
       if (streamPlay.pauseID) {
         // If it is linked to something else, save current pause state
-        runtime.storage.set<StreamPauseStorage>(StorageType.STREAM_PAUSE, { id: streamPlay.nodeID, offset: streamPlay.offset });
+        runtime.storage.set<StreamPauseStorage>(StorageType.STREAM_PAUSE, {
+          id: streamPlay.nodeID,
+          offset: streamPlay.offset,
+        });
 
         nextId = streamPlay.pauseID;
 
@@ -48,7 +59,10 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
       });
 
       runtime.end();
-    } else if (intentName === VoiceflowConstants.IntentName.START_OVER || intentName === VoiceflowConstants.IntentName.REPEAT) {
+    } else if (
+      intentName === VoiceflowConstants.IntentName.START_OVER ||
+      intentName === VoiceflowConstants.IntentName.REPEAT
+    ) {
       runtime.storage.produce<StorageData>((draft) => {
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.START;
         draft[StorageType.STREAM_PLAY]!.offset = 0;

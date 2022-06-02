@@ -63,15 +63,22 @@ export const natoApcoConverter = (entities: BaseRequest.Entity[], slots: Slot[],
         // if using regex raw value will not be populated
         if (!Array.isArray(entity.verboseValue)) {
           const splitValue = entity.value.split(' ').map((value) => [value]);
-          entity.value = splitValue.reduce((acc, cur) => (firstLetterExpections.has(cur[0]) ? acc + cur[0] : acc + cur[0][0]), '').toUpperCase();
+          entity.value = splitValue
+            .reduce((acc, cur) => (firstLetterExpections.has(cur[0]) ? acc + cur[0] : acc + cur[0][0]), '')
+            .toUpperCase();
         } else {
           const processedQuery = processQuery(query, entity.verboseValue);
           entity.value = '';
           processedQuery.forEach((word, i) => {
             if (word.isNatoApco) {
               // Word was detected by LUIS successfully
-              entity.value += firstLetterExpections.has(word.canonicalText) ? word.canonicalText : word.canonicalText[0];
-            } else if ((i > 0 && processedQuery[i - 1].isNatoApco) || (i < processedQuery.length - 1 && processedQuery[i + 1].isNatoApco)) {
+              entity.value += firstLetterExpections.has(word.canonicalText)
+                ? word.canonicalText
+                : word.canonicalText[0];
+            } else if (
+              (i > 0 && processedQuery[i - 1].isNatoApco) ||
+              (i < processedQuery.length - 1 && processedQuery[i + 1].isNatoApco)
+            ) {
               // Word was not detected by LUIS, check if it was missed and should be included
               if (word.rawText.match(/^\d+$/)) {
                 entity.value += word.rawText;

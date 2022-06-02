@@ -8,12 +8,16 @@ describe('text handler unit tests', async () => {
 
   describe('canHandle', () => {
     it('false', async () => {
-      expect(TextHandler(null as any).canHandle({ type: 'speak' } as any, null as any, null as any, null as any)).to.eql(false);
+      expect(
+        TextHandler(null as any).canHandle({ type: 'speak' } as any, null as any, null as any, null as any)
+      ).to.eql(false);
       expect(TextHandler(null as any).canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
     });
 
     it('true', async () => {
-      expect(TextHandler(null as any).canHandle({ type: 'text' } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(TextHandler(null as any).canHandle({ type: 'text' } as any, null as any, null as any, null as any)).to.eql(
+        true
+      );
     });
   });
 
@@ -45,7 +49,9 @@ describe('text handler unit tests', async () => {
 
       const textHandler = TextHandler(utils as any);
       expect(textHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
-      expect(runtime.trace.addTrace.args).to.eql([[{ type: 'text', payload: { slate: newSlate, message: 'plainText' } }]]);
+      expect(runtime.trace.addTrace.args).to.eql([
+        [{ type: 'text', payload: { slate: newSlate, message: 'plainText' } }],
+      ]);
       expect(variables.getState.callCount).to.eql(1);
       expect(utils._sample.args).to.eql([[node.texts]]);
       expect(utils.sanitizeVariables.args).to.eql([['vars']]);
