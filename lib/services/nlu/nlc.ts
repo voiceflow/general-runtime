@@ -102,9 +102,9 @@ export const createNLC = ({
   return nlc;
 };
 
-// eslint-disable-next-line default-param-last
 export const nlcToIntent = (
   intent: IIntentFullfilment | null,
+  // eslint-disable-next-line default-param-last
   query = '',
   confidence?: number
 ): BaseRequest.IntentRequest =>

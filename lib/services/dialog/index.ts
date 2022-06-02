@@ -87,7 +87,8 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         dmStateStore.intentRequest = incomingRequest;
       }
     } else if (dmPrefixedResultName === incomingRequestName) {
-      // CASE-A1: The prefixed and regular calls match the same (non-DM) intent that is different from the original intent
+      // CASE-A1: The prefixed and regular calls match the same (non-DM) intent
+      // that is different from the original intent
       // Action: Migrate user to the new intent and extract all the available entities
       dmStateStore.intentRequest = incomingRequest;
     } else {
@@ -224,7 +225,8 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       };
     }
 
-    // No more unfulfilled required entities -> populate the request object with the final intent and extracted entities from the DM state store
+    // No more unfulfilled required entities -> populate the request object with
+    // the final intent and extracted entities from the DM state store
     let intentRequest = rectifyEntityValue(dmStateStore!.intentRequest, version.prototype.model);
 
     // to show correct query in the transcripts

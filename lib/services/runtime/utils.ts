@@ -68,11 +68,11 @@ const processActions = (actions: BaseRequest.Action.BaseAction<unknown>[] | unde
     return action;
   });
 
-// eslint-disable-next-line sonarjs/cognitive-complexity
 export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
   node: N,
   runtime: Runtime,
   variables: Store
+  // eslint-disable-next-line sonarjs/cognitive-complexity
 ): void => {
   let buttons: BaseRequest.AnyRequestButton[] = [];
 
