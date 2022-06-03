@@ -1,8 +1,8 @@
 import { Validator } from '@voiceflow/backend-utils';
 import { RuntimeLogs } from '@voiceflow/base-types';
 
+import { SharedValidations } from '@/lib/validations';
 import { State } from '@/runtime';
-import { isLogLevelResolvable, resolveLogLevel } from '@/runtime/lib/Runtime/DebugLogging/utils';
 import { Request } from '@/types';
 
 import { customAJV, validate } from '../../utils';
@@ -21,12 +21,6 @@ const VALIDATIONS = {
   },
   QUERY: {
     VERBOSE: query('verbose').isBoolean().optional().toBoolean(),
-    LOGS: query('logs')
-      .optional()
-      // TODO: Need to test these validations. Also, I might be misusing .if() and should maybe just be doing .custom()
-      .if((value: unknown) => isLogLevelResolvable(value))
-      .withMessage('must be a known log level, boolean, or undefined')
-      .customSanitizer(resolveLogLevel),
   },
 };
 
@@ -37,7 +31,7 @@ class StateManagementController extends AbstractController {
     HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID,
     HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
     QUERY_VERBOSE: VALIDATIONS.QUERY.VERBOSE,
-    QUERY_LOGS: VALIDATIONS.QUERY.LOGS,
+    QUERY_LOGS: SharedValidations.Runtime.QUERY.LOGS,
   })
   async interact(
     req: Request<
