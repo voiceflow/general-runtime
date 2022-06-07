@@ -98,7 +98,10 @@ class Project extends AbstractMiddleware {
           req.headers.stage = PredictionStage.DEVELOPMENT;
           break;
         default:
-          throw new VError(`provided version ID is neither the published development version nor the production version`, 404);
+          throw new VError(
+            `provided version ID is neither the published development version nor the production version`,
+            404
+          );
       }
 
       return next();
