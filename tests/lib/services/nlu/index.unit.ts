@@ -53,7 +53,10 @@ describe('nlu manager unit tests', () => {
       expect(await nlu.handle(context as any)).to.eql({ ...context, request: newRequest });
       expect(context.data.api.getVersion.args).to.eql([[context.versionID]]);
       expect(services.axios.post.args).to.eql([
-        [`${GENERAL_SERVICE_ENDPOINT}/runtime/${version.projectID}/predict`, { query: oldRequest.payload, isProduction: false }],
+        [
+          `${GENERAL_SERVICE_ENDPOINT}/runtime/${version.projectID}/predict`,
+          { query: oldRequest.payload, isProduction: false },
+        ],
       ]);
     });
 
@@ -135,7 +138,9 @@ describe('nlu manager unit tests', () => {
         isProduction: false,
       };
 
-      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand').returns({ payload: { intent: { name: NONE_INTENT } } } as any);
+      const handleNLCCommandStub = sinon
+        .stub(NLC, 'handleNLCCommand')
+        .returns({ payload: { intent: { name: NONE_INTENT } } } as any);
 
       expect(await nlu.predict(arg)).to.eql('data-val');
       expect(services.axios.post.args).to.eql([
@@ -158,7 +163,9 @@ describe('nlu manager unit tests', () => {
         isProduction: false,
       };
 
-      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand').returns({ payload: { intent: { name: 'abcdefg' } } } as any);
+      const handleNLCCommandStub = sinon
+        .stub(NLC, 'handleNLCCommand')
+        .returns({ payload: { intent: { name: 'abcdefg' } } } as any);
 
       expect(await nlu.predict(arg)).to.eql('data-val');
       expect(services.axios.post.args).to.eql([
@@ -180,7 +187,9 @@ describe('nlu manager unit tests', () => {
         projectID: 'projectID',
         isProduction: true,
       };
-      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand').returns({ payload: { intent: { name: 'abcdefg' } } } as any);
+      const handleNLCCommandStub = sinon
+        .stub(NLC, 'handleNLCCommand')
+        .returns({ payload: { intent: { name: 'abcdefg' } } } as any);
 
       await expect(nlu.predict(arg)).to.be.rejectedWith(Error);
       expect(services.axios.post.args).to.eql([
@@ -203,7 +212,9 @@ describe('nlu manager unit tests', () => {
         projectID: 'projectID',
         isProduction: true,
       };
-      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand').returns({ payload: { intent: { name: 'abcdefg' } } } as any);
+      const handleNLCCommandStub = sinon
+        .stub(NLC, 'handleNLCCommand')
+        .returns({ payload: { intent: { name: 'abcdefg' } } } as any);
 
       await expect(nlu.predict(arg)).to.be.rejectedWith(Error);
       expect(services.axios.post.args).to.eql([
@@ -225,7 +236,9 @@ describe('nlu manager unit tests', () => {
         projectID: 'projectID',
         isProduction: true,
       };
-      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand').returns({ payload: { intent: { name: NONE_INTENT } } } as any);
+      const handleNLCCommandStub = sinon
+        .stub(NLC, 'handleNLCCommand')
+        .returns({ payload: { intent: { name: NONE_INTENT } } } as any);
 
       expect(await nlu.predict(arg)).to.eql({ payload: { intent: { name: NONE_INTENT } } });
       expect(handleNLCCommandStub.callCount).to.eql(2);
