@@ -27,7 +27,15 @@ describe('analytics manager unit tests', () => {
     expect(analytics.handle(context as any)).to.eql(context);
 
     expect(services.analyticsClient.track.args).to.eql([
-      [{ projectID: context.projectID, versionID: context.versionID, event: Event.TURN, metadata: context, timestamp: clock.Date() }],
+      [
+        {
+          projectID: context.projectID,
+          versionID: context.versionID,
+          event: Event.TURN,
+          metadata: context,
+          timestamp: clock.Date(),
+        },
+      ],
     ]);
   });
 });

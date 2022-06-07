@@ -58,7 +58,13 @@ describe('Analytics client unit tests', () => {
       (client as any).ingestClient = ingestClient;
       const timestamp = new Date();
 
-      const ingestResponse = await client.track({ projectID: 'projectID', versionID: 'id', event: Event.TURN, metadata: metadata as any, timestamp });
+      const ingestResponse = await client.track({
+        projectID: 'projectID',
+        versionID: 'id',
+        event: Event.TURN,
+        metadata: metadata as any,
+        timestamp,
+      });
       expect(ingestResponse).to.equal(undefined);
     });
   });

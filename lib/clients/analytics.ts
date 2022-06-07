@@ -9,8 +9,10 @@ import { Config, Context } from '@/types';
 import { RuntimeRequest } from '../services/runtime/types';
 import { AbstractClient } from './utils';
 
-// eslint-disable-next-line max-len
-type GeneralInteractionBody = IngestableInteraction<{ locale?: string; end?: boolean }, BaseTrace.AnyTrace | RuntimeRequest | EmptyObject>;
+type GeneralInteractionBody = IngestableInteraction<
+  { locale?: string; end?: boolean },
+  BaseTrace.AnyTrace | RuntimeRequest | EmptyObject
+>;
 type GeneralTraceBody = IngestableTrace<BaseTrace.AnyTrace | RuntimeRequest>;
 
 export class AnalyticsSystem extends AbstractClient {
@@ -24,8 +26,13 @@ export class AnalyticsSystem extends AbstractClient {
     }
   }
 
-  // eslint-disable-next-line max-len
-  private createTraceBody({ fullTrace, metadata }: { fullTrace: readonly BaseTrace.AnyTrace[]; metadata: Context }): GeneralTraceBody[] {
+  private createTraceBody({
+    fullTrace,
+    metadata,
+  }: {
+    fullTrace: readonly BaseTrace.AnyTrace[];
+    metadata: Context;
+  }): GeneralTraceBody[] {
     return fullTrace.map((trace) => ({
       type: (trace ?? metadata.request).type,
       payload: trace ?? metadata.request,
@@ -44,7 +51,8 @@ export class AnalyticsSystem extends AbstractClient {
     timestamp: Date;
   }): GeneralInteractionBody {
     const sessionID =
-      metadata.data.reqHeaders?.sessionid ?? (metadata.state?.variables ? `${versionID}.${metadata.state.variables.user_id}` : versionID);
+      metadata.data.reqHeaders?.sessionid ??
+      (metadata.state?.variables ? `${versionID}.${metadata.state.variables.user_id}` : versionID);
 
     return {
       projectID,
