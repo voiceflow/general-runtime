@@ -15,11 +15,16 @@ export type AddTraceFn = (trace: BaseNode.Utils.BaseTraceFrame) => void;
 export type LogLevelResolvable = RuntimeLogs.LogLevel | boolean | `${boolean}` | undefined;
 
 export const isLogLevelResolvable = (value: unknown): value is LogLevelResolvable => {
-  if (typeof value === 'string') {
-    return value === 'true' || value === 'false' || RuntimeLogs.isLogLevel(value);
+  switch (value) {
+    case 'true':
+    case 'false':
+    case true:
+    case false:
+    case undefined:
+      return true;
+    default:
+      return typeof value === 'string' && RuntimeLogs.isLogLevel(value);
   }
-
-  return typeof value === 'boolean' || value === undefined;
 };
 
 export const resolveLogLevel = (value: LogLevelResolvable): RuntimeLogs.LogLevel => {
