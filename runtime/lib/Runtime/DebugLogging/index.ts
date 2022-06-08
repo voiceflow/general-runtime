@@ -65,7 +65,26 @@ export default class DebugLogging {
   }
 
   /**
-   * Record a runtime debug log for a step at the given log level (or {@link DEFAULT_LOG_LEVEL the default log level} if not specified).
+   * Record a runtime debug log for a step at {@link DEFAULT_LOG_LEVEL the default log level}.
+   * Nothing will be logged if the configured maximum log level is less verbose than {@link DEFAULT_LOG_LEVEL the default log level}.
+   */
+  recordStepLog<Kind extends PossibleStepLogKind>(
+    kind: Kind,
+    message: Message<Extract<RuntimeLogs.Logs.StepLog, { kind: `step.${Kind}`; level: typeof DEFAULT_LOG_LEVEL }>>
+  ): void;
+
+  /**
+   * Record a runtime debug log for a step at the given log level.
+   * Nothing will be logged if the configured maximum log level is less verbose than the log level provided to this method.
+   */
+  recordStepLog<Kind extends PossibleStepLogKind, Level extends PossibleStepLogLevel>(
+    kind: Kind,
+    message: Message<Extract<RuntimeLogs.Logs.StepLog, { kind: `step.${Kind}`; level: Level }>>,
+    level: Level
+  ): void;
+
+  /**
+   * Record a runtime debug log for a step at the given log level (or {@link DEFAULT_LOG_LEVEL the default log level} if no level is provided).
    * Nothing will be logged if the configured maximum log level is less verbose than the log level provided to this method.
    */
   recordStepLog<Kind extends PossibleStepLogKind, Level extends PossibleStepLogLevel>(
@@ -75,6 +94,25 @@ export default class DebugLogging {
   ): void {
     this.recordLog(`step.${kind}`, message, level);
   }
+
+  /**
+   * Record a runtime debug log for a global event at {@link DEFAULT_LOG_LEVEL the default log level}.
+   * Nothing will be logged if the configured maximum log level is less verbose than {@link DEFAULT_LOG_LEVEL the default log level}.
+   */
+  recordGlobalLog<Kind extends PossibleGlobalLogKind>(
+    kind: Kind,
+    message: Message<Extract<RuntimeLogs.Logs.GlobalLog, { kind: `global.${Kind}`; level: typeof DEFAULT_LOG_LEVEL }>>
+  ): void;
+
+  /**
+   * Record a runtime debug log for a global event at the given log level.
+   * Nothing will be logged if the configured log level is less verbose than the log level provided to this method.
+   */
+  recordGlobalLog<Kind extends PossibleGlobalLogKind, Level extends PossibleGlobalLogLevel>(
+    kind: Kind,
+    message: Message<Extract<RuntimeLogs.Logs.GlobalLog, { kind: `global.${Kind}`; level: Level }>>,
+    level: Level
+  ): void;
 
   /**
    * Record a runtime debug log for a global event at the given log level (or {@link DEFAULT_LOG_LEVEL the default log level} if not specified).
