@@ -1,4 +1,4 @@
-import { RuntimeLogs } from '@voiceflow/base-types';
+import { BaseModels, BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 
 import Runtime from '..';
 import Trace from '../Trace';
@@ -15,6 +15,14 @@ type PossibleGlobalLogLevel = RuntimeLogs.Logs.GlobalLog['level'];
 type PossibleGlobalLogKind = RemovePrefix<'global.', RuntimeLogs.Logs.GlobalLog['kind']>;
 
 export default class DebugLogging {
+  public static createPathReference(node: BaseModels.BaseNode): RuntimeLogs.PathReference {
+    return {
+      stepID: node.id,
+      // The fallback here deviates from the spec but is necessary to avoid simply throwing an error when a path leads to a node that isn't mappable to a standard component name
+      componentName: RuntimeLogs.Kinds.nodeTypeToStepLogKind(node.type as BaseNode.NodeType) ?? (node.type as any),
+    };
+  }
+
   private readonly logBuffer: RuntimeLogs.AsyncLogBuffer;
 
   /** The most verbose log level that will be be logged. */
