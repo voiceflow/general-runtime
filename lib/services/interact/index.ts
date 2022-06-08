@@ -29,7 +29,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
   async handler(req: {
     params: { userID?: string };
     body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
-    query: { locale?: string; maxLogLevel: RuntimeLogs.LogLevel };
+    query: { locale?: string; logs: RuntimeLogs.LogLevel };
     headers: { authorization?: string; origin?: string; sessionid?: string; versionID: string; platform?: string };
   }): Promise<ResponseContext> {
     const {
@@ -51,7 +51,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       // Internally the name request is still used
       body: { state, config = {}, action = null, request = null },
       params: { userID },
-      query: { locale, maxLogLevel },
+      query: { locale, logs: maxLogLevel },
       headers: { versionID, authorization, origin, sessionid, platform },
     } = req;
 

@@ -30,13 +30,7 @@ class InteractController extends AbstractController {
       { locale?: string; logs: RuntimeLogs.LogLevel }
     >
   ): Promise<ResponseContext> {
-    return this.services.interact.handler({
-      ...req,
-      query: {
-        ...req.query,
-        maxLogLevel: req.query.logs,
-      },
-    });
+    return this.services.interact.handler(req);
   }
 }
 

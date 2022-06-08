@@ -10,7 +10,7 @@ class StateManagement extends AbstractManager {
   async interact(data: {
     params: { userID: string };
     body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
-    query: { locale?: string; verbose?: boolean; maxLogLevel: RuntimeLogs.LogLevel };
+    query: { locale?: string; verbose?: boolean; logs: RuntimeLogs.LogLevel };
     headers: { authorization: string; projectID: string; versionID: string };
   }) {
     let state = await this.services.session.getFromDb<State>(data.headers.projectID, data.params.userID);
