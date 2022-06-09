@@ -4,10 +4,11 @@
  */
 
 import { BaseModels, BaseRequest } from '@voiceflow/base-types';
+import VError from '@voiceflow/verror';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { isTextRequest } from '@/lib/services/runtime/types';
-import { Context, ContextHandler, PredictionStage } from '@/types';
+import { Context, ContextHandler, VersionTag } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
 import { handleNLCCommand } from './nlc';
@@ -24,15 +25,15 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     query,
     model,
     locale,
-    projectID,
-    isProduction,
+    tag,
+    nlp,
   }: {
     query: string;
     model?: BaseModels.PrototypeModel;
     locale?: VoiceflowConstants.Locale;
-    projectID: string;
-    isProduction: boolean;
-  }) {
+    tag: string;
+    nlp: BaseModels.Project.PrototypeNLP | undefined;
+  }): Promise<BaseRequest.IntentRequest> {
     // 1. first try restricted regex (no open slots) - exact string match
     if (model && locale) {
       const intent = handleNLCCommand({ query, model, locale, openSlot: false });
@@ -41,24 +42,29 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       }
     }
 
-    // 2. next try to resolve with luis NLP on general-service
-    const { data } = await this.services.axios
-      .post<BaseRequest.IntentRequest | null>(`${this.config.GENERAL_SERVICE_ENDPOINT}/runtime/${projectID}/predict`, {
-        query,
-        isProduction,
-      })
-      .catch(() => ({ data: null }));
+    // 2. next try to resolve with luis NLP
+    if (nlp && nlp.appID && nlp.resourceID) {
+      const { appID, resourceID } = nlp;
 
-    if (data) {
-      return data;
+      const { data } = await this.services.axios
+        .post(`${this.config.LUIS_SERVICE_ENDPOINT}/predict/${appID}`, {
+          query,
+          resourceID,
+          tag,
+        })
+        .catch(() => ({ data: null }));
+
+      if (data) {
+        return data;
+      }
     }
 
     // 3. finally try open regex slot matching
     if (!model) {
-      throw new Error('Model not found!');
+      throw new VError('Model not found', 404);
     }
     if (!locale) {
-      throw new Error('Locale not found!');
+      throw new VError('Locale not found', 404);
     }
     return handleNLCCommand({ query, model, locale, openSlot: true });
   }
@@ -76,18 +82,22 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       };
     }
 
-    const version = await context.data.api.getVersion(context.versionID);
-
+    const version = await context.data.api.getVersion(context.versionID).catch(() => null);
     if (!version) {
-      throw new Error('Version not found!');
+      throw new VError('Version not found', 404);
+    }
+
+    const project = await context.data.api.getProject(version.projectID).catch(() => null);
+    if (!project) {
+      throw new VError('Project not found', 404);
     }
 
     const request = await this.predict({
       query: context.request.payload,
       model: version.prototype?.model,
       locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
-      projectID: version.projectID,
-      isProduction: context.data.stage === PredictionStage.PRODUCTION,
+      tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
+      nlp: project.prototype?.nlp,
     });
 
     return { ...context, request };
