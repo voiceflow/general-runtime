@@ -14,11 +14,11 @@ class SlotsService extends AbstractManager<{ utils: typeof utils }> implements C
     }
 
     const version = await context.data.api.getVersion(context.versionID);
-    const slots = version.prototype?.model.slots;
-
     if (!version) {
       throw new Error('Version not found!');
     }
+
+    const slots = version.prototype?.model.slots;
     if (!slots) {
       return context;
     }

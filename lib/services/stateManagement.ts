@@ -3,7 +3,6 @@ import _ from 'lodash';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
 import { State } from '@/runtime';
-import { PredictionStage } from '@/types';
 
 import { AbstractManager } from './utils';
 
@@ -12,7 +11,7 @@ class StateManagement extends AbstractManager {
     params: { userID: string };
     body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
     query: { locale?: string; verbose?: boolean; logs: RuntimeLogs.LogLevel };
-    headers: { authorization: string; projectID: string; versionID: string; stage: PredictionStage  };
+    headers: { authorization: string; projectID: string; versionID: string };
   }) {
     let state = await this.services.session.getFromDb<State>(data.headers.projectID, data.params.userID);
     if (_.isEmpty(state)) {

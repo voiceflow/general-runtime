@@ -40,7 +40,7 @@ describe('dialog manager unit tests', () => {
   describe('general handler', () => {
     it('fails if version is not found', async () => {
       const services = {
-        dataAPI: { getVersion: sinon.stub().resolves() },
+        dataAPI: { getVersion: sinon.stub().resolves(), getProject: sinon.stub().resolves() },
       };
       const dm = new DialogManager({ utils: { ...defaultUtils }, ...services } as any, {} as any);
       const result = dm.handle({
@@ -52,7 +52,10 @@ describe('dialog manager unit tests', () => {
 
     it('exits early if intent not in scope', async () => {
       const services = {
-        dataAPI: { getVersion: sinon.stub().resolves({ prototype: { model: true } }) },
+        dataAPI: {
+          getVersion: sinon.stub().resolves({ prototype: { model: true } }),
+          getProject: sinon.stub().resolves({}),
+        },
       };
       const dm = new DialogManager(
         { utils: { ...defaultUtils, isIntentInScope: sinon.stub().resolves(false) }, ...services } as any,

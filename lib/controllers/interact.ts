@@ -8,7 +8,7 @@ import { BaseRequest, RuntimeLogs } from '@voiceflow/base-types';
 import { ResponseContext } from '@/lib/services/interact';
 import { RuntimeRequest } from '@/lib/services/runtime/types';
 import { State } from '@/runtime';
-import { PredictionStage, Request } from '@/types';
+import { Request } from '@/types';
 
 import { validate } from '../utils';
 import { SharedValidations } from '../validations';
@@ -24,9 +24,9 @@ class InteractController extends AbstractController {
   })
   async handler(
     req: Request<
-      Record<string, unknown>,
+      { userID: string },
       { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig },
-      { versionID: string; stage: PredictionStage },
+      { authorization: string; versionID: string; },
       { locale?: string; logs: RuntimeLogs.LogLevel }
     >
   ): Promise<ResponseContext> {

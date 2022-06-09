@@ -5,6 +5,7 @@ import StateManager, { utils as defaultUtils } from '@/lib/services/state';
 
 const VERSION_ID = 'version_id';
 const version = {
+  _id: VERSION_ID,
   prototype: {
     data: {
       locales: ['en-US'],
