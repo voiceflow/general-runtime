@@ -3,8 +3,9 @@ import { RuntimeLogs } from '@voiceflow/base-types';
 import { AddTraceFn, createLogTrace } from './utils';
 
 /**
- * This class implements {@link RuntimeLogs.LogBuffer} by using the {@link Runtime.trace runtime's trace array} as the underlying buffer.
- * This means that calling {@link push()} will immediately add the provided logs to the trace without any need to {@link flush()} them.
+ * This class implements {@link RuntimeLogs.LogBuffer} by using the {@link Runtime.trace runtime's trace array} as the
+ * underlying buffer. This means that calling {@link push()} will immediately add the provided logs to the trace without
+ * any need to {@link flush()} them.
  */
 export class TraceLogBuffer implements RuntimeLogs.LogBuffer {
   readonly bufferSize = 0;

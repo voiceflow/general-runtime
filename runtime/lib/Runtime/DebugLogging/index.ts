@@ -18,7 +18,8 @@ export default class DebugLogging {
   public static createPathReference(node: BaseModels.BaseNode): RuntimeLogs.PathReference {
     return {
       stepID: node.id,
-      // The fallback here deviates from the spec but is necessary to avoid simply throwing an error when a path leads to a node that isn't mappable to a standard component name
+      // The fallback here deviates from the spec but is necessary to avoid simply throwing an error when a path leads
+      // to a node that isn't mappable to a standard component name
       componentName: RuntimeLogs.Kinds.nodeTypeToStepLogKind(node.type as BaseNode.NodeType) ?? (node.type as any),
     };
   }
@@ -59,14 +60,18 @@ export default class DebugLogging {
     this.logBuffer = new TraceLogBuffer(addTrace);
   }
 
-  /** Returns whether a runtime debug log with the provided log level should be logged using this {@link DebugLogging}'s maximum log level. */
+  /**
+   * Returns whether a runtime debug log with the provided log level should be logged using this {@link DebugLogging}'s
+   * maximum log level.
+   */
   shouldLog(level: RuntimeLogs.LogLevel): boolean {
     return level <= this.maxLogLevel;
   }
 
   /**
    * Record a runtime debug log for a step at {@link DEFAULT_LOG_LEVEL the default log level}.
-   * Nothing will be logged if the configured maximum log level is less verbose than {@link DEFAULT_LOG_LEVEL the default log level}.
+   * Nothing will be logged if the configured maximum log level is less verbose than
+   * {@link DEFAULT_LOG_LEVEL the default log level}.
    */
   recordStepLog<Kind extends PossibleStepLogKind>(
     kind: Kind,
@@ -75,7 +80,8 @@ export default class DebugLogging {
 
   /**
    * Record a runtime debug log for a step at the given log level.
-   * Nothing will be logged if the configured maximum log level is less verbose than the log level provided to this method.
+   * Nothing will be logged if the configured maximum log level is less verbose than the log level provided to this
+   * method.
    */
   recordStepLog<Kind extends PossibleStepLogKind, Level extends PossibleStepLogLevel>(
     kind: Kind,
@@ -84,8 +90,9 @@ export default class DebugLogging {
   ): void;
 
   /**
-   * Record a runtime debug log for a step at the given log level (or {@link DEFAULT_LOG_LEVEL the default log level} if no level is provided).
-   * Nothing will be logged if the configured maximum log level is less verbose than the log level provided to this method.
+   * Record a runtime debug log for a step at the given log level (or {@link DEFAULT_LOG_LEVEL the default log level}
+   * if no level is provided). Nothing will be logged if the configured maximum log level is less verbose than the log
+   * level provided to this method.
    */
   recordStepLog<Kind extends PossibleStepLogKind, Level extends PossibleStepLogLevel>(
     kind: Kind,
@@ -97,7 +104,8 @@ export default class DebugLogging {
 
   /**
    * Record a runtime debug log for a global event at {@link DEFAULT_LOG_LEVEL the default log level}.
-   * Nothing will be logged if the configured maximum log level is less verbose than {@link DEFAULT_LOG_LEVEL the default log level}.
+   * Nothing will be logged if the configured maximum log level is less verbose than
+   * {@link DEFAULT_LOG_LEVEL the default log level}.
    */
   recordGlobalLog<Kind extends PossibleGlobalLogKind>(
     kind: Kind,
@@ -115,8 +123,9 @@ export default class DebugLogging {
   ): void;
 
   /**
-   * Record a runtime debug log for a global event at the given log level (or {@link DEFAULT_LOG_LEVEL the default log level} if not specified).
-   * Nothing will be logged if the configured log level is less verbose than the log level provided to this method.
+   * Record a runtime debug log for a global event at the given log level (or
+   * {@link DEFAULT_LOG_LEVEL the default log level} if not specified). Nothing will be logged if the configured log
+   * level is less verbose than the log level provided to this method.
    */
   recordGlobalLog<Kind extends PossibleGlobalLogKind, Level extends PossibleGlobalLogLevel>(
     kind: Kind,
@@ -126,8 +135,15 @@ export default class DebugLogging {
     this.recordLog(`global.${kind}`, message, level);
   }
 
-  /** Record a log. Private method, has no typesafety to guarantee you don't record a log which doesn't conform to the spec. */
-  private recordLog(kind: RuntimeLogs.Log['kind'], message: Message<RuntimeLogs.Log>, level: RuntimeLogs.LogLevel = DEFAULT_LOG_LEVEL): void {
+  /**
+   * Record a log. Private method, has no typesafety to guarantee you don't record a log which doesn't conform to the
+   * spec.
+   */
+  private recordLog(
+    kind: RuntimeLogs.Log['kind'],
+    message: Message<RuntimeLogs.Log>,
+    level: RuntimeLogs.LogLevel = DEFAULT_LOG_LEVEL
+  ): void {
     if (!this.shouldLog(level)) {
       return;
     }
