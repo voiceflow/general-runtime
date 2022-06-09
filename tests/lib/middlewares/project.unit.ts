@@ -1,100 +1,99 @@
-import VError from '@voiceflow/verror';
 import { expect } from 'chai';
-import { Request, Response } from 'express';
 import sinon from 'sinon';
 
 import Project from '@/lib/middlewares/project';
 
 describe('project middleware unit tests', () => {
-  const getMockRequest = <P, B, H>({ params, body, headers }: { params?: P; body?: B; headers?: H } = {}): Request<
-    P,
-    B,
-    H
-  > => ({ params, body, headers } as any);
-  const getMockResponse = (): Response => ({} as any);
-  const getMockNext = () => sinon.fake();
+  describe('attachID', () => {
+    const validDMAPIKey = 'VF.DM.api-key';
+    const invalidDMAPIKey = 'invalid-key';
 
-  describe('resolveVersionAlias', () => {
-    it('does not look up alias if version ID is not an alias tag', async () => {
-      // arrange
-      const middleware = new Project({} as any, {} as any);
+    it('throws while retrieving creator data api', async () => {
+      const errMsg = 'Unspecified error';
+      const services = { dataAPI: { get: sinon.stub().rejects(errMsg) } };
+      const req = { headers: { authorization: invalidDMAPIKey } };
 
-      const req = getMockRequest({ headers: { versionID: 'abc' } });
-      const res = getMockResponse();
-      const next = getMockNext();
-
-      // act
-      await middleware.resolveVersionAlias(req, res, next);
-
-      // assert
-      expect(next.callCount).to.equal(1);
-      expect(next.args[0].length).to.equal(0);
-      expect(req.headers.versionID).to.equal('abc');
-    });
-
-    it('rejects if the dataAPI cannot be instantiated', async () => {
-      // arrange
-      const services = {
-        dataAPI: { get: sinon.stub().rejects() },
-      };
       const middleware = new Project(services as any, {} as any);
 
-      const req = getMockRequest({ headers: { versionID: 'development' } });
-      const res = getMockResponse();
-      const next = getMockNext();
-
-      // act
-      await middleware.resolveVersionAlias(req, res, next);
-
-      // assert
-      expect(next.callCount).to.equal(1);
-      expect(next.args[0][0]).to.be.instanceOf(VError);
+      await expect(middleware.attachID(req as any, null as any, null as any)).to.be.eventually.rejectedWith(
+        `invalid API key: ${errMsg}`
+      );
+      expect(services.dataAPI.get.args).to.eql([[req.headers.authorization]]);
     });
 
-    it('rejects if a project cannot be found', async () => {
-      // arrange
-      const api = {
-        getProjectUsingAuthorization: sinon.stub().rejects(),
-      };
-      const services = {
-        dataAPI: { get: sinon.stub().resolves(api) },
-      };
+    it('throws if invalid API key provided', async () => {
+      const api = {};
+      const services = { dataAPI: { get: sinon.stub().resolves(api) } };
+      const req = { headers: { authorization: invalidDMAPIKey } };
+
       const middleware = new Project(services as any, {} as any);
 
-      const req = getMockRequest({ headers: { versionID: 'development' } });
-      const res = getMockResponse();
-      const next = getMockNext();
-
-      // act
-      await middleware.resolveVersionAlias(req, res, next);
-
-      // assert
-      expect(next.callCount).to.equal(1);
-      expect(next.args[0][0]).to.be.instanceOf(VError);
+      await expect(middleware.attachID(req as any, null as any, null as any)).to.be.eventually.rejectedWith(
+        `invalid Dialog Manager API Key`
+      );
     });
 
-    it('changes versionID based on tag', async () => {
-      // arrange
-      const api = {
-        getProjectUsingAuthorization: sinon.stub().resolves({
-          liveVersion: '1',
-          devVersion: '2',
-        }),
-      };
-      const services = {
-        dataAPI: { get: sinon.stub().resolves(api) },
-      };
+    it('throws if api is not an instanceof CreatorDataApi', async () => {
+      const api = {};
+      const services = { dataAPI: { get: sinon.stub().resolves(api) } };
+      const req = { headers: { authorization: validDMAPIKey } };
+
       const middleware = new Project(services as any, {} as any);
 
-      const req = getMockRequest({ headers: { versionID: 'production' } });
-      const res = getMockResponse();
-      const next = getMockNext();
-
-      // act
-      await middleware.resolveVersionAlias(req, res, next);
-
-      // assert
-      expect(req.headers.versionID).to.equal('1');
+      await expect(middleware.attachID(req as any, null as any, null as any)).to.be.eventually.rejectedWith(
+        `version lookup only supported via Creator Data API`
+      );
     });
+
+    /*
+    it('throws if project cannot be inferred', async () => {
+      const api = Object.create(CreatorDataApi.prototype);
+      api.getProjectUsingAuthorization = sinon.stub().throws();
+      const services = { dataAPI: { get: sinon.stub().resolves(api) } };
+      const req = { headers: { authorization: validDMAPIKey } };
+
+      const middleware = new Project(services as any, {} as any);
+
+      await expect(middleware.attachID(req as any, null as any, null as any))
+       .to.be.eventually.rejectedWith(
+         `cannot infer project version, provide a specific version in the versionID header`
+        );
+    });
+
+    it('throws', async () => {
+      // Must mock `CreatorDataApi` to pass `instanceof` test
+      const api = Object.create(CreatorDataApi.prototype);
+      api.getVersion = sinon.stub().throws();
+
+      const services = { dataAPI: { get: sinon.stub().resolves(api) } };
+      const middleware = new Project(services as any, {} as any);
+
+      const req = { headers: { authorization: 'VF.DM.api-key', versionID: 'version-id' } };
+      await expect(middleware.attachID(req as any, null as any, null as any))
+        .to.eventually.rejectedWith('no permissions for this version');
+      expect(services.dataAPI.get.args).to.eql([[req.headers.authorization]]);
+      expect(api.getVersion.args).to.eql([[req.headers.versionID]]);
+    });
+
+    it('calls next', async () => {
+      const version = { projectID: 'project-id' };
+      const api = { getVersion: sinon.stub().resolves(version) };
+      const services = { dataAPI: { get: sinon.stub().resolves(api) } };
+      const middleware = new Project(services as any, {} as any);
+
+      const req = { headers: { authorization: 'auth', versionID: 'version-id' } };
+      const next = sinon.stub();
+      await middleware.attachID(req as any, null as any, next as any);
+
+      expect(next.callCount).to.eql(1);
+      expect(services.dataAPI.get.args).to.eql([[req.headers.authorization]]);
+      expect(api.getVersion.args).to.eql([[req.headers.versionID]]);
+      expect(req.headers).to.eql({ 
+        authorization: req.headers.authorization, 
+        projectID: version.projectID, 
+        versionID: req.headers.versionID 
+      });
+    });
+    */
   });
 });

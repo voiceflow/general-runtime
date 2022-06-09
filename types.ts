@@ -37,7 +37,6 @@ export interface Config extends RateLimitConfig {
   BUILD_URL: string | null;
 
   GENERAL_SERVICE_ENDPOINT: string | null;
-  LUIS_SERVICE_ENDPOINT: string | null;
 
   CREATOR_API_ENDPOINT: string | null;
   CREATOR_API_AUTHORIZATION: string | null;
@@ -98,18 +97,24 @@ export interface Class<T, A extends any[]> {
 }
 export type AnyClass = Class<any, any[]>;
 
-export enum VersionTag {
+export enum PredictionStage {
+  /*
+      LUIS only has staging and production slots. For our purposes, we implement
+      a VF "development" version (`devVersion`) by hitting a LUIS model on its staging slot,
+      that is, VF development === LUIS staging.
+      
+      On a future VF NLU, we might have our own convention like development, staging,
+      *and* production.
+   */
   DEVELOPMENT = 'development',
   PRODUCTION = 'production',
 }
-
-export const isVersionTag = (value: unknown): value is VersionTag =>
-  value === VersionTag.DEVELOPMENT || value === VersionTag.PRODUCTION;
 
 export interface ContextData {
   api: CacheDataAPI;
   locale?: string;
   config?: BaseRequest.RequestConfig;
+  stage?: PredictionStage;
   reqHeaders?: {
     origin?: string;
     platform?: string;

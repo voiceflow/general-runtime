@@ -2,7 +2,7 @@ import { BaseRequest, BaseTrace } from '@voiceflow/base-types';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
 import { PartialContext, State, TurnBuilder } from '@/runtime';
-import { Context } from '@/types';
+import { Context, PredictionStage } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
 import autoDelegate from './autoDelegate';
@@ -20,7 +20,7 @@ const utils = {
 
 @injectServices({ utils })
 class Interact extends AbstractManager<{ utils: typeof utils }> {
-  async state(data: { headers: { authorization: string; versionID: string } }): Promise<State> {
+  async state(data: { headers: { authorization?: string; origin?: string; versionID: string } }): Promise<State> {
     const api = await this.services.dataAPI.get(data.headers.authorization);
     const version = await api.getVersion(data.headers.versionID);
     return this.services.state.generate(version);
@@ -30,7 +30,14 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
     params: { userID?: string };
     body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
     query: { locale?: string };
-    headers: { authorization: string; versionID: string; origin?: string; sessionid?: string; platform?: string };
+    headers: {
+      authorization?: string;
+      origin?: string;
+      sessionid?: string;
+      versionID: string;
+      platform?: string;
+      stage: PredictionStage;
+    };
   }): Promise<ResponseContext> {
     const {
       analytics,
@@ -52,7 +59,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       body: { state, config = {}, action = null, request = null },
       params: { userID },
       query: { locale },
-      headers: { authorization, versionID, origin, sessionid, platform },
+      headers: { versionID, authorization, origin, sessionid, platform, stage },
     } = req;
 
     metrics.generalRequest();
@@ -62,6 +69,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       data: {
         locale,
         config,
+        stage,
         reqHeaders: { authorization, origin, sessionid, platform },
       },
       state,
