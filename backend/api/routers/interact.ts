@@ -10,36 +10,20 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.use(bodyParser.json({ limit: BODY_PARSER_SIZE_LIMIT }));
   router.use(middlewares.rateLimit.verify);
 
-  router.get(
-    '/state',
-    middlewares.project.resolveVersionAlias,
-    middlewares.rateLimit.versionConsume,
-    controllers.interact.state
-  );
+  const commonMiddleware = [middlewares.rateLimit.versionConsume];
+  const interactMiddleware = [middlewares.project.resolveVersionAlias, ...commonMiddleware];
+  const legacyMiddleware = [
+    middlewares.project.unifyVersionID,
+    middlewares.project.resolveVersionAliasLegacy,
+    ...commonMiddleware,
+  ];
 
-  router.post(
-    '/',
-    middlewares.project.resolveVersionAlias,
-    middlewares.rateLimit.versionConsume,
-    controllers.interact.handler
-  );
+  router.get('/state', interactMiddleware, controllers.interact.state);
+  router.post('/', interactMiddleware, controllers.interact.handler);
 
   // Legacy 1.0.0 routes with versionID in params
-  router.get(
-    '/:versionID/state',
-    middlewares.project.unifyVersionID,
-    middlewares.project.resolveVersionAlias,
-    middlewares.rateLimit.versionConsume,
-    controllers.interact.state
-  );
-
-  router.post(
-    '/:versionID',
-    middlewares.project.unifyVersionID,
-    middlewares.project.resolveVersionAlias,
-    middlewares.rateLimit.versionConsume,
-    controllers.interact.handler
-  );
+  router.get('/:versionID/state', legacyMiddleware, controllers.interact.state);
+  router.post('/:versionID', legacyMiddleware, controllers.interact.handler);
 
   return router;
 };
