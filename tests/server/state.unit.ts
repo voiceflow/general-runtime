@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { Express } from 'express';
 import sinon from 'sinon';
-import request, { SuperTest } from 'supertest';
+import request from 'supertest';
 
 import Server from '@/server';
 

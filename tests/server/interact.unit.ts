@@ -65,6 +65,13 @@ const tests = [
             },
           },
         },
+        controllers: {
+          interact: {
+            handler: {
+              QUERY_LOGS: 1,
+            },
+          },
+        },
       },
     },
   },
@@ -104,7 +111,15 @@ const tests = [
           versionConsume: 1,
         },
       },
-      validations: {},
+      validations: {
+        controllers: {
+          interact: {
+            handler: {
+              QUERY_LOGS: 1,
+            },
+          },
+        },
+      },
     },
   },
 ];
