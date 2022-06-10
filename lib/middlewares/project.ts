@@ -10,8 +10,10 @@ import { AbstractMiddleware } from './utils';
 
 const VALIDATIONS = {
   HEADERS: {
-    VERSION_ID: Validator.header('versionID').exists().isString(),
-    AUTHORIZATION: Validator.header('authorization').exists().isString(),
+    VERSION_ID: Validator.header('versionID').isString().exists(),
+    AUTHORIZATION: Validator.header('authorization').isString().exists(),
+    VERSION_ID_OPTIONAL: Validator.header('versionID').isString().optional(),
+    AUTHORIZATION_OPTIONAL: Validator.header('authorization').isString().optional(),
   },
   PARAMS: {
     VERSION_ID: Validator.param('versionID').optional().isString(),
@@ -21,8 +23,7 @@ class Project extends AbstractMiddleware {
   static VALIDATIONS = VALIDATIONS;
 
   @validate({
-    HEADER_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION,
-    HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID.optional(),
+    HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID_OPTIONAL,
     PARAMS_VERSION_ID: VALIDATIONS.PARAMS.VERSION_ID,
   })
   async unifyVersionID(
@@ -38,13 +39,9 @@ class Project extends AbstractMiddleware {
     next();
   }
 
-  @validate({
-    HEADER_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION,
-    HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
-  })
-  async resolveVersionAlias(
+  async attachVersionID(
     req: Request<any, any, { versionID?: string }>,
-    _res: Response,
+    _: Response,
     next: NextFunction
   ): Promise<void> {
     try {
@@ -73,7 +70,56 @@ class Project extends AbstractMiddleware {
 
       return next();
     } catch (err) {
-      return next(err instanceof VError ? err : new VError('Unknown error'));
+      return next(err instanceof VError ? err : new VError('Unknown error', VError.HTTP_STATUS.INTERNAL_SERVER_ERROR));
+    }
+  }
+
+  @validate({
+    HEADER_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION,
+    HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
+  })
+  async resolveVersionAlias(
+    req: Request<any, any, { versionID?: string }>,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    return this.attachVersionID(req, res, next);
+  }
+
+  @validate({
+    HEADER_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION_OPTIONAL,
+    HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
+  })
+  async resolveVersionAliasLegacy(
+    req: Request<any, any, { versionID?: string }>,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    return this.attachVersionID(req, res, next);
+  }
+
+  @validate({
+    HEADER_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION,
+    HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
+  })
+  async attachProjectID(
+    req: Request<any, any, { versionID?: string }>,
+    _: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const api = await this.services.dataAPI.get(req.headers.authorization).catch((error) => {
+      throw new VError(`invalid API key: ${error}`, VError.HTTP_STATUS.UNAUTHORIZED);
+    });
+
+    try {
+      if (!req.headers.versionID) {
+        throw new VError('Missing versionID, could not resolve project');
+      }
+      const { projectID } = await api.getVersion(req.headers.versionID);
+      req.headers.projectID = projectID;
+      return next();
+    } catch (err) {
+      return next(err instanceof VError ? err : new VError('Unknown error', VError.HTTP_STATUS.INTERNAL_SERVER_ERROR));
     }
   }
 }
