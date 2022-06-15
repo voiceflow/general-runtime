@@ -10,7 +10,7 @@ import { AbstractMiddleware } from './utils';
 
 const VALIDATIONS = {
   HEADERS: {
-    VERSION_ID: Validator.header('versionID').isString().exists(),
+    VERSION_ID: Validator.header('versionID').isString().optional(),
     AUTHORIZATION: Validator.header('authorization').isString().exists(),
     VERSION_ID_OPTIONAL: Validator.header('versionID').isString().optional(),
     AUTHORIZATION_OPTIONAL: Validator.header('authorization').isString().optional(),
@@ -45,7 +45,9 @@ class Project extends AbstractMiddleware {
     next: NextFunction
   ): Promise<void> {
     try {
-      if (!isVersionTag(req.headers.versionID)) {
+      const versionID = req.headers.versionID || VersionTag.DEVELOPMENT;
+
+      if (!isVersionTag(versionID)) {
         return next();
       }
 
