@@ -1,7 +1,7 @@
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { BaseNode } from '@/../libs/packages/base-types/build/common';
 import SpeakHandler from '@/lib/services/runtime/handlers/speak';
 import { FrameType } from '@/lib/services/runtime/types';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
