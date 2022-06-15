@@ -4,7 +4,7 @@ import { HandlerFactory } from '@/runtime/lib/Handler';
 
 const EndHandler: HandlerFactory<BaseNode.Exit.Node> = () => ({
   canHandle: (node) => !!node.end,
-  handle: (node, runtime, _store): null => {
+  handle: (node, runtime): null => {
     runtime.stack.top().setNodeID(null);
 
     // pop all program frames that are already ended
