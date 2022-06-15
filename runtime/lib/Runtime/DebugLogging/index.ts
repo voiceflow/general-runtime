@@ -6,6 +6,7 @@ import { TraceLogBuffer } from './traceLogBuffer';
 import { AddTraceFn, DEFAULT_LOG_LEVEL, getISO8601Timestamp } from './utils';
 
 type Message<T extends RuntimeLogs.Log> = T['message'];
+type SimpleStepMessage<T extends RuntimeLogs.Logs.StepLog> = Omit<Message<T>, keyof RuntimeLogs.PathReference>;
 type RemovePrefix<Prefix extends string, T extends string> = T extends `${Prefix}${infer T}` ? T : never;
 
 type PossibleStepLogLevel = RuntimeLogs.Logs.StepLog['level'];
@@ -65,7 +66,7 @@ export default class DebugLogging {
    * maximum log level.
    */
   shouldLog(level: RuntimeLogs.LogLevel): boolean {
-    return level <= this.maxLogLevel;
+    return RuntimeLogs.getValueForLogLevel(level) <= RuntimeLogs.getValueForLogLevel(this.maxLogLevel);
   }
 
   /**
@@ -75,7 +76,10 @@ export default class DebugLogging {
    */
   recordStepLog<Kind extends PossibleStepLogKind>(
     kind: Kind,
-    message: Message<Extract<RuntimeLogs.Logs.StepLog, { kind: `step.${Kind}`; level: typeof DEFAULT_LOG_LEVEL }>>
+    node: BaseModels.BaseNode,
+    message: SimpleStepMessage<
+      Extract<RuntimeLogs.Logs.StepLog, { kind: `step.${Kind}`; level: typeof DEFAULT_LOG_LEVEL }>
+    >
   ): void;
 
   /**
@@ -85,7 +89,8 @@ export default class DebugLogging {
    */
   recordStepLog<Kind extends PossibleStepLogKind, Level extends PossibleStepLogLevel>(
     kind: Kind,
-    message: Message<Extract<RuntimeLogs.Logs.StepLog, { kind: `step.${Kind}`; level: Level }>>,
+    node: BaseModels.BaseNode,
+    message: SimpleStepMessage<Extract<RuntimeLogs.Logs.StepLog, { kind: `step.${Kind}`; level: Level }>>,
     level: Level
   ): void;
 
@@ -96,10 +101,11 @@ export default class DebugLogging {
    */
   recordStepLog<Kind extends PossibleStepLogKind, Level extends PossibleStepLogLevel>(
     kind: Kind,
-    message: Message<Extract<RuntimeLogs.Logs.StepLog, { kind: `step.${Kind}`; level: Level }>>,
+    node: BaseModels.BaseNode,
+    message: SimpleStepMessage<Extract<RuntimeLogs.Logs.StepLog, { kind: `step.${Kind}`; level: Level }>>,
     level?: Level
   ): void {
-    this.recordLog(`step.${kind}`, message, level);
+    this.recordLog(`step.${kind}`, { ...message, ...DebugLogging.createPathReference(node) }, level);
   }
 
   /**

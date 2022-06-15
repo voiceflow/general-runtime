@@ -1,4 +1,4 @@
-import { BaseNode } from '@voiceflow/base-types';
+import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 import { EventType } from '@/runtime/lib/Lifecycle';
@@ -8,6 +8,8 @@ import { evaluateExpression, regexExpression } from './utils/shuntingYard';
 const setHandler: HandlerFactory<BaseNode.Set.Node> = () => ({
   canHandle: (node: any) => !!(node.type !== BaseNode.NodeType.SET_V2 && node.sets && node.sets.length < 21),
   handle: async (node, runtime, variables) => {
+    const { changedVariables }: RuntimeLogs.ChangedVariables<any, string> = { changedVariables: {} };
+
     await Promise.all(
       node.sets.map(async (set) => {
         try {
@@ -23,6 +25,10 @@ const setHandler: HandlerFactory<BaseNode.Set.Node> = () => ({
             BaseNode.NodeType.SET
           );
           variables.set(set.variable, value);
+          changedVariables[set.variable] = {
+            before: variables.get(set.variable) ?? null,
+            after: value ?? null,
+          };
         } catch (error) {
           runtime.trace.debug(
             `unable to resolve expression \`${regexExpression(set.expression)}\` for \`{${
@@ -34,6 +40,8 @@ const setHandler: HandlerFactory<BaseNode.Set.Node> = () => ({
         }
       })
     );
+
+    runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.SET, node, { changedVariables });
 
     return node.nextId || null;
   },

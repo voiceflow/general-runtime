@@ -1,17 +1,23 @@
-import { BaseNode } from '@voiceflow/base-types';
+import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
+import assert from 'assert';
 
 import { S } from '@/runtime/lib/Constants';
 import { HandlerFactory } from '@/runtime/lib/Handler';
+
+import DebugLogging from '../Runtime/DebugLogging';
 
 type RandomStorage = Partial<Record<string, (string | null)[]>>;
 
 const randomHandler: HandlerFactory<BaseNode.Random.Node> = () => ({
   canHandle: (node) => !!node.random,
-  handle: async (node, runtime) => {
+  handle: async (node, runtime, _variables, program) => {
     let nextId: string | null;
 
     if (!node.nextIds.length) {
       runtime.trace.debug('no random paths connected - exiting', BaseNode.NodeType.RANDOM);
+      runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.RANDOM, node, {
+        path: null,
+      });
       return null;
     }
 
@@ -53,7 +59,11 @@ const randomHandler: HandlerFactory<BaseNode.Random.Node> = () => ({
       nextId = node.nextIds[Math.floor(Math.random() * node.nextIds.length)];
     }
 
+    assert(nextId);
     runtime.trace.debug('going down random path', BaseNode.NodeType.RANDOM);
+    runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.RANDOM, node, {
+      path: DebugLogging.createPathReference(program.getNode(nextId)!),
+    });
 
     return nextId;
   },
