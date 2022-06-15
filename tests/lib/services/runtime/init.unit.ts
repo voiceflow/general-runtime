@@ -234,7 +234,16 @@ describe('runtime init service unit tests', () => {
       describe('START action', () => {
         it('works with truthy loop', () => {
           const client = { setEvent: sinon.stub() };
-          const stream = { action: StreamAction.START, src: 'src-val', token: 'token-val', loop: true };
+          const stream = {
+            action: StreamAction.START,
+            src: 'src-val',
+            token: 'token-val',
+            loop: true,
+            backgroundImage: 'background-image-val',
+            description: 'description-val',
+            iconImage: 'icon-image-val',
+            title: 'title-val',
+          };
           const runtime = {
             stack: { isEmpty: sinon.stub().returns(true) },
             storage: { get: sinon.stub().returns(stream) },
@@ -258,6 +267,10 @@ describe('runtime init service unit tests', () => {
                   token: stream.token,
                   action: BaseNode.Stream.TraceStreamAction.LOOP,
                   loop: true,
+                  backgroundImage: stream.backgroundImage,
+                  description: stream.description,
+                  iconImage: stream.iconImage,
+                  title: stream.title,
                 },
               },
             ],
@@ -267,7 +280,16 @@ describe('runtime init service unit tests', () => {
 
         it('works with falsy loop value', () => {
           const client = { setEvent: sinon.stub() };
-          const stream = { action: StreamAction.START, src: 'src-val', token: 'token-val', loop: false };
+          const stream = {
+            action: StreamAction.START,
+            src: 'src-val',
+            token: 'token-val',
+            loop: false,
+            backgroundImage: 'background-image-val',
+            description: 'description-val',
+            iconImage: 'icon-image-val',
+            title: 'title-val',
+          };
           const runtime = {
             stack: { isEmpty: sinon.stub().returns(true) },
             storage: { get: sinon.stub().returns(stream) },
@@ -291,6 +313,10 @@ describe('runtime init service unit tests', () => {
                   token: stream.token,
                   action: BaseNode.Stream.TraceStreamAction.PLAY,
                   loop: false,
+                  backgroundImage: stream.backgroundImage,
+                  description: stream.description,
+                  iconImage: stream.iconImage,
+                  title: stream.title,
                 },
               },
             ],
@@ -301,7 +327,16 @@ describe('runtime init service unit tests', () => {
       describe('RESUME action', () => {
         it('works with truthy loop', () => {
           const client = { setEvent: sinon.stub() };
-          const stream = { action: StreamAction.RESUME, src: 'src-val', token: 'token-val', loop: true };
+          const stream = {
+            action: StreamAction.RESUME,
+            src: 'src-val',
+            token: 'token-val',
+            loop: true,
+            backgroundImage: 'background-image-val',
+            description: 'description-val',
+            iconImage: 'icon-image-val',
+            title: 'title-val',
+          };
           const runtime = {
             stack: { isEmpty: sinon.stub().returns(true) },
             storage: { get: sinon.stub().returns(stream) },
@@ -325,6 +360,10 @@ describe('runtime init service unit tests', () => {
                   token: stream.token,
                   action: BaseNode.Stream.TraceStreamAction.LOOP,
                   loop: true,
+                  backgroundImage: stream.backgroundImage,
+                  description: stream.description,
+                  iconImage: stream.iconImage,
+                  title: stream.title,
                 },
               },
             ],
@@ -334,7 +373,16 @@ describe('runtime init service unit tests', () => {
 
         it('works with falsy loop value', () => {
           const client = { setEvent: sinon.stub() };
-          const stream = { action: StreamAction.RESUME, src: 'src-val', token: 'token-val', loop: false };
+          const stream = {
+            action: StreamAction.RESUME,
+            src: 'src-val',
+            token: 'token-val',
+            loop: false,
+            backgroundImage: 'background-image-val',
+            description: 'description-val',
+            iconImage: 'icon-image-val',
+            title: 'title-val',
+          };
           const runtime = {
             stack: { isEmpty: sinon.stub().returns(false) },
             storage: { get: sinon.stub().returns(stream) },
@@ -358,6 +406,10 @@ describe('runtime init service unit tests', () => {
                   token: stream.token,
                   action: BaseNode.Stream.TraceStreamAction.PLAY,
                   loop: false,
+                  backgroundImage: stream.backgroundImage,
+                  description: stream.description,
+                  iconImage: stream.iconImage,
+                  title: stream.title,
                 },
               },
             ],
@@ -367,7 +419,16 @@ describe('runtime init service unit tests', () => {
       describe('PAUSE action', () => {
         it('works', () => {
           const client = { setEvent: sinon.stub() };
-          const stream = { action: StreamAction.PAUSE, src: 'src-val', token: 'token-val', loop: true };
+          const stream = {
+            action: StreamAction.PAUSE,
+            src: 'src-val',
+            token: 'token-val',
+            loop: true,
+            backgroundImage: 'background-image-val',
+            description: 'description-val',
+            iconImage: 'icon-image-val',
+            title: 'title-val',
+          };
           const runtime = {
             stack: { isEmpty: sinon.stub().returns(false) },
             storage: { get: sinon.stub().returns(stream) },
@@ -391,6 +452,10 @@ describe('runtime init service unit tests', () => {
                   token: stream.token,
                   action: BaseNode.Stream.TraceStreamAction.PAUSE,
                   loop: true,
+                  backgroundImage: stream.backgroundImage,
+                  description: stream.description,
+                  iconImage: stream.iconImage,
+                  title: stream.title,
                 },
               },
             ],
