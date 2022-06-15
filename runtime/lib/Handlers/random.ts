@@ -59,10 +59,9 @@ const randomHandler: HandlerFactory<BaseNode.Random.Node> = () => ({
       nextId = node.nextIds[Math.floor(Math.random() * node.nextIds.length)];
     }
 
-    assert(nextId);
     runtime.trace.debug('going down random path', BaseNode.NodeType.RANDOM);
     runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.RANDOM, node, {
-      path: DebugLogging.createPathReference(program.getNode(nextId)!),
+      path: nextId ? DebugLogging.createPathReference(program.getNode(nextId)!) : null,
     });
 
     return nextId;
