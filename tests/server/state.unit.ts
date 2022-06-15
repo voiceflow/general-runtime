@@ -572,7 +572,7 @@ describe('state route unit tests', () => {
       const fixture = await fixtures.createFixture();
       ({ app, server } = await GetApp(fixture));
 
-      const response = await request(app)[test.method](test.calledPath);
+      const response = await (request(app) as any)[test.method](test.calledPath);
 
       fixtures.checkFixture(fixture, test.expected);
       expect(response.body).to.eql({ done: 'done' });
