@@ -48,7 +48,7 @@ const init = (client: Client) => {
     const stream = runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY);
 
     if (stream) {
-      const { action, src, token, loop } = stream;
+      const { action, src, token, loop, description, title, iconImage, backgroundImage } = stream;
 
       switch (action) {
         case StreamAction.START:
@@ -60,13 +60,26 @@ const init = (client: Client) => {
               token,
               action: loop ? BaseNode.Stream.TraceStreamAction.LOOP : BaseNode.Stream.TraceStreamAction.PLAY,
               loop,
+              description,
+              title,
+              iconImage,
+              backgroundImage,
             },
           });
           break;
         case StreamAction.PAUSE:
           runtime.trace.addTrace<BaseNode.Stream.TraceFrame>({
             type: BaseNode.Utils.TraceType.STREAM,
-            payload: { src, token, action: BaseNode.Stream.TraceStreamAction.PAUSE, loop },
+            payload: {
+              src,
+              token,
+              action: BaseNode.Stream.TraceStreamAction.PAUSE,
+              loop,
+              description,
+              title,
+              iconImage,
+              backgroundImage,
+            },
           });
           break;
         default:

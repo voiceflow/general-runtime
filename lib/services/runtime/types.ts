@@ -53,6 +53,10 @@ export enum StreamAudioDirective {
 export interface StreamPlayStorage {
   src: string;
   loop: boolean;
+  title?: string;
+  iconImage?: string;
+  description?: string;
+  backgroundImage?: string;
   token: string;
   action: StreamAction;
   offset: number;
