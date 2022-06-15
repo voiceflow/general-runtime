@@ -25,12 +25,17 @@ const tests = [
         },
         project: {
           resolveVersionAlias: 1,
+          attachProjectID: 1,
         },
       },
       validations: {
         middlewares: {
           project: {
             resolveVersionAlias: {
+              HEADER_VERSION_ID: 1,
+              HEADER_AUTHORIZATION: 1,
+            },
+            attachProjectID: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },
@@ -65,6 +70,7 @@ const tests = [
         },
         project: {
           resolveVersionAlias: 1,
+          attachProjectID: 1,
         },
       },
       validations: {
@@ -78,6 +84,10 @@ const tests = [
         middlewares: {
           project: {
             resolveVersionAlias: {
+              HEADER_VERSION_ID: 1,
+              HEADER_AUTHORIZATION: 1,
+            },
+            attachProjectID: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },
@@ -102,6 +112,7 @@ const tests = [
         },
         project: {
           resolveVersionAlias: 1,
+          attachProjectID: 1,
         },
       },
       validations: {
@@ -116,6 +127,10 @@ const tests = [
         middlewares: {
           project: {
             resolveVersionAlias: {
+              HEADER_VERSION_ID: 1,
+              HEADER_AUTHORIZATION: 1,
+            },
+            attachProjectID: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },
@@ -140,12 +155,17 @@ const tests = [
         },
         project: {
           resolveVersionAlias: 1,
+          attachProjectID: 1,
         },
       },
       validations: {
         middlewares: {
           project: {
             resolveVersionAlias: {
+              HEADER_VERSION_ID: 1,
+              HEADER_AUTHORIZATION: 1,
+            },
+            attachProjectID: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },
@@ -177,12 +197,17 @@ const tests = [
         },
         project: {
           resolveVersionAlias: 1,
+          attachProjectID: 1,
         },
       },
       validations: {
         middlewares: {
           project: {
             resolveVersionAlias: {
+              HEADER_VERSION_ID: 1,
+              HEADER_AUTHORIZATION: 1,
+            },
+            attachProjectID: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },
@@ -215,6 +240,7 @@ const tests = [
         },
         project: {
           resolveVersionAlias: 1,
+          attachProjectID: 1,
         },
       },
       validations: {
@@ -229,6 +255,10 @@ const tests = [
         middlewares: {
           project: {
             resolveVersionAlias: {
+              HEADER_VERSION_ID: 1,
+              HEADER_AUTHORIZATION: 1,
+            },
+            attachProjectID: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },
@@ -254,18 +284,22 @@ const tests = [
         },
         project: {
           unifyVersionID: 1,
-          resolveVersionAlias: 1,
+          resolveVersionAliasLegacy: 1,
+          attachProjectID: 1,
         },
       },
       validations: {
         middlewares: {
           project: {
             unifyVersionID: {
-              HEADER_AUTHORIZATION: 1,
               HEADER_VERSION_ID: 1,
               PARAMS_VERSION_ID: 1,
             },
-            resolveVersionAlias: {
+            resolveVersionAliasLegacy: {
+              HEADER_VERSION_ID: 1,
+              HEADER_AUTHORIZATION: 1,
+            },
+            attachProjectID: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },
@@ -300,7 +334,8 @@ const tests = [
         },
         project: {
           unifyVersionID: 1,
-          resolveVersionAlias: 1,
+          resolveVersionAliasLegacy: 1,
+          attachProjectID: 1,
         },
       },
       validations: {
@@ -314,11 +349,14 @@ const tests = [
         middlewares: {
           project: {
             unifyVersionID: {
-              HEADER_AUTHORIZATION: 1,
               HEADER_VERSION_ID: 1,
               PARAMS_VERSION_ID: 1,
             },
-            resolveVersionAlias: {
+            resolveVersionAliasLegacy: {
+              HEADER_VERSION_ID: 1,
+              HEADER_AUTHORIZATION: 1,
+            },
+            attachProjectID: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },
@@ -343,7 +381,8 @@ const tests = [
         },
         project: {
           unifyVersionID: 1,
-          resolveVersionAlias: 1,
+          resolveVersionAliasLegacy: 1,
+          attachProjectID: 1,
         },
       },
       validations: {
@@ -358,11 +397,14 @@ const tests = [
         middlewares: {
           project: {
             unifyVersionID: {
-              HEADER_AUTHORIZATION: 1,
               HEADER_VERSION_ID: 1,
               PARAMS_VERSION_ID: 1,
             },
-            resolveVersionAlias: {
+            resolveVersionAliasLegacy: {
+              HEADER_VERSION_ID: 1,
+              HEADER_AUTHORIZATION: 1,
+            },
+            attachProjectID: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },
@@ -387,18 +429,22 @@ const tests = [
         },
         project: {
           unifyVersionID: 1,
-          resolveVersionAlias: 1,
+          resolveVersionAliasLegacy: 1,
+          attachProjectID: 1,
         },
       },
       validations: {
         middlewares: {
           project: {
             unifyVersionID: {
-              HEADER_AUTHORIZATION: 1,
               HEADER_VERSION_ID: 1,
               PARAMS_VERSION_ID: 1,
             },
-            resolveVersionAlias: {
+            resolveVersionAliasLegacy: {
+              HEADER_VERSION_ID: 1,
+              HEADER_AUTHORIZATION: 1,
+            },
+            attachProjectID: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },
@@ -430,18 +476,22 @@ const tests = [
         },
         project: {
           unifyVersionID: 1,
-          resolveVersionAlias: 1,
+          resolveVersionAliasLegacy: 1,
+          attachProjectID: 1,
         },
       },
       validations: {
         middlewares: {
           project: {
             unifyVersionID: {
-              HEADER_AUTHORIZATION: 1,
               HEADER_VERSION_ID: 1,
               PARAMS_VERSION_ID: 1,
             },
-            resolveVersionAlias: {
+            resolveVersionAliasLegacy: {
+              HEADER_VERSION_ID: 1,
+              HEADER_AUTHORIZATION: 1,
+            },
+            attachProjectID: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },
@@ -474,7 +524,8 @@ const tests = [
         },
         project: {
           unifyVersionID: 1,
-          resolveVersionAlias: 1,
+          resolveVersionAliasLegacy: 1,
+          attachProjectID: 1,
         },
       },
       validations: {
@@ -489,11 +540,14 @@ const tests = [
         middlewares: {
           project: {
             unifyVersionID: {
-              HEADER_AUTHORIZATION: 1,
               HEADER_VERSION_ID: 1,
               PARAMS_VERSION_ID: 1,
             },
-            resolveVersionAlias: {
+            resolveVersionAliasLegacy: {
+              HEADER_VERSION_ID: 1,
+              HEADER_AUTHORIZATION: 1,
+            },
+            attachProjectID: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },
