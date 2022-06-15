@@ -29,7 +29,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
   async handler(req: {
     params: { userID?: string };
     body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
-    query: { locale?: string;  logs: RuntimeLogs.LogLevel };
+    query: { locale?: string; logs: RuntimeLogs.LogLevel };
     headers: {
       authorization?: string;
       origin?: string;
