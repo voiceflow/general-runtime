@@ -1,5 +1,4 @@
 import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
-import assert from 'assert';
 
 import { S } from '@/runtime/lib/Constants';
 import { HandlerFactory } from '@/runtime/lib/Handler';
