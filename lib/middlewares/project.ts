@@ -67,8 +67,7 @@ class Project extends AbstractMiddleware {
         throw new VError('Cannot infer project version, provide a specific versionID', VError.HTTP_STATUS.BAD_REQUEST);
       }
 
-      req.headers.versionID =
-        req.headers.versionID === VersionTag.PRODUCTION ? project.liveVersion : project.devVersion;
+      req.headers.versionID = versionID === VersionTag.PRODUCTION ? project.liveVersion : project.devVersion;
 
       return next();
     } catch (err) {
@@ -109,11 +108,11 @@ class Project extends AbstractMiddleware {
     _: Response,
     next: NextFunction
   ): Promise<void> {
-    const api = await this.services.dataAPI.get(req.headers.authorization).catch((error) => {
-      throw new VError(`invalid API key: ${error}`, VError.HTTP_STATUS.UNAUTHORIZED);
-    });
-
     try {
+      const api = await this.services.dataAPI.get(req.headers.authorization).catch((error) => {
+        throw new VError(`invalid API key: ${error}`, VError.HTTP_STATUS.UNAUTHORIZED);
+      });
+
       if (!req.headers.versionID) {
         throw new VError('Missing versionID, could not resolve project');
       }
