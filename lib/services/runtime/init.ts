@@ -59,13 +59,14 @@ const init = (client: Client) => {
               src,
               token,
               action: loop ? BaseNode.Stream.TraceStreamAction.LOOP : BaseNode.Stream.TraceStreamAction.PLAY,
+              loop,
             },
           });
           break;
         case StreamAction.PAUSE:
           runtime.trace.addTrace<BaseNode.Stream.TraceFrame>({
             type: BaseNode.Utils.TraceType.STREAM,
-            payload: { src, token, action: BaseNode.Stream.TraceStreamAction.PAUSE },
+            payload: { src, token, action: BaseNode.Stream.TraceStreamAction.PAUSE, loop },
           });
           break;
         default:

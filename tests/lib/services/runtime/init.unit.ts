@@ -253,7 +253,12 @@ describe('runtime init service unit tests', () => {
             [
               {
                 type: BaseNode.Utils.TraceType.STREAM,
-                payload: { src: stream.src, token: stream.token, action: BaseNode.Stream.TraceStreamAction.LOOP },
+                payload: {
+                  src: stream.src,
+                  token: stream.token,
+                  action: BaseNode.Stream.TraceStreamAction.LOOP,
+                  loop: true,
+                },
               },
             ],
             [{ type: BaseNode.Utils.TraceType.END, payload: undefined }],
@@ -281,7 +286,12 @@ describe('runtime init service unit tests', () => {
             [
               {
                 type: BaseNode.Utils.TraceType.STREAM,
-                payload: { src: stream.src, token: stream.token, action: BaseNode.Stream.TraceStreamAction.PLAY },
+                payload: {
+                  src: stream.src,
+                  token: stream.token,
+                  action: BaseNode.Stream.TraceStreamAction.PLAY,
+                  loop: false,
+                },
               },
             ],
             [{ type: BaseNode.Utils.TraceType.END, payload: undefined }],
@@ -310,7 +320,12 @@ describe('runtime init service unit tests', () => {
             [
               {
                 type: BaseNode.Utils.TraceType.STREAM,
-                payload: { src: stream.src, token: stream.token, action: BaseNode.Stream.TraceStreamAction.LOOP },
+                payload: {
+                  src: stream.src,
+                  token: stream.token,
+                  action: BaseNode.Stream.TraceStreamAction.LOOP,
+                  loop: true,
+                },
               },
             ],
             [{ type: BaseNode.Utils.TraceType.END, payload: undefined }],
@@ -338,7 +353,12 @@ describe('runtime init service unit tests', () => {
             [
               {
                 type: BaseNode.Utils.TraceType.STREAM,
-                payload: { src: stream.src, token: stream.token, action: BaseNode.Stream.TraceStreamAction.PLAY },
+                payload: {
+                  src: stream.src,
+                  token: stream.token,
+                  action: BaseNode.Stream.TraceStreamAction.PLAY,
+                  loop: false,
+                },
               },
             ],
           ]);
@@ -366,7 +386,12 @@ describe('runtime init service unit tests', () => {
             [
               {
                 type: BaseNode.Utils.TraceType.STREAM,
-                payload: { src: stream.src, token: stream.token, action: BaseNode.Stream.TraceStreamAction.PAUSE },
+                payload: {
+                  src: stream.src,
+                  token: stream.token,
+                  action: BaseNode.Stream.TraceStreamAction.PAUSE,
+                  loop: true,
+                },
               },
             ],
           ]);
