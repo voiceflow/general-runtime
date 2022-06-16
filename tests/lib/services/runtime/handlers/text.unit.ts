@@ -1,7 +1,10 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
+import { BaseNode, RuntimeLogs } from '@/../libs/packages/base-types/build/common';
 import { TextHandler } from '@/lib/services/runtime/handlers/text';
+import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
+import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
 describe('text handler unit tests', async () => {
   afterEach(() => sinon.restore());
@@ -34,6 +37,8 @@ describe('text handler unit tests', async () => {
       const node = {
         texts: [1, 2, 3],
         nextId: 'nextId',
+        id: 'step-id',
+        type: BaseNode.NodeType.TEXT,
       };
 
       const topStorageSet = sinon.stub();
@@ -43,7 +48,9 @@ describe('text handler unit tests', async () => {
           top: sinon.stub().returns({ storage: { set: topStorageSet } }),
         },
         trace: { addTrace: sinon.stub() },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
       const variables = { getState: sinon.stub().returns('vars') };
 
@@ -51,6 +58,22 @@ describe('text handler unit tests', async () => {
       expect(textHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
       expect(runtime.trace.addTrace.args).to.eql([
         [{ type: 'text', payload: { slate: newSlate, message: 'plainText' } }],
+        [
+          {
+            type: 'log',
+            payload: {
+              kind: 'step.text',
+              level: RuntimeLogs.LogLevel.INFO,
+              message: {
+                stepID: 'step-id',
+                componentName: RuntimeLogs.Kinds.StepLogKind.TEXT,
+                plainContent: 'plainText',
+                richContent: newSlate,
+              },
+              timestamp: getISO8601Timestamp(),
+            },
+          },
+        ],
       ]);
       expect(variables.getState.callCount).to.eql(1);
       expect(utils._sample.args).to.eql([[node.texts]]);

@@ -1,9 +1,11 @@
-import { BaseNode } from '@voiceflow/base-types';
+import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import * as CodeHandler from '@/runtime/lib/Handlers/code';
 import IfV2Handler from '@/runtime/lib/Handlers/ifV2';
+import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
+import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
 describe('ifV2 handler unit tests', () => {
   afterEach(() => {
@@ -57,10 +59,20 @@ describe('ifV2 handler unit tests', () => {
         const codeHandler = { handle: sinon.stub() };
         const CodeHandlerStub = sinon.stub(CodeHandler, 'default').returns(codeHandler as any);
 
-        const node = { payload: { expressions: ['a && b', 'arr.includes(a) && !b'], elseId: 'else-id' }, paths: [] };
-        const runtime = { trace: { debug: sinon.stub() }, turn: { get: sinon.stub().returns(null) } };
+        const node = {
+          payload: { expressions: ['a && b', 'arr.includes(a) && !b'], elseId: 'else-id' },
+          paths: [],
+          id: 'step-id',
+          type: BaseNode.NodeType.IF_V2,
+        };
+        const runtime = {
+          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
+          turn: { get: sinon.stub().returns(null) },
+          debugLogging: null as unknown as DebugLogging,
+        };
+        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
         const variables = { var1: 'val1' };
-        const program = { lines: [] };
+        const program = { lines: [], getNode: (id: string) => ({ id, type: BaseNode.NodeType.SPEAK }) };
 
         expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(
           node.payload.elseId
@@ -86,6 +98,26 @@ describe('ifV2 handler unit tests', () => {
         expect(runtime.trace.debug.args).to.eql([
           ['no conditions matched - taking else path', BaseNode.NodeType.IF_V2],
         ]);
+        expect(runtime.trace.addTrace.args).to.eql([
+          [
+            {
+              type: 'log',
+              payload: {
+                kind: 'step.condition',
+                level: RuntimeLogs.LogLevel.INFO,
+                message: {
+                  stepID: 'step-id',
+                  componentName: RuntimeLogs.Kinds.StepLogKind.CONDITION,
+                  path: {
+                    stepID: 'else-id',
+                    componentName: RuntimeLogs.Kinds.StepLogKind.SPEAK,
+                  },
+                },
+                timestamp: getISO8601Timestamp(),
+              },
+            },
+          ],
+        ]);
       });
 
       it('no elseId', async () => {
@@ -93,12 +125,34 @@ describe('ifV2 handler unit tests', () => {
         const codeHandler = { handle: sinon.stub() };
         sinon.stub(CodeHandler, 'default').returns(codeHandler as any);
 
-        const node = { payload: { expressions: [] }, paths: [] };
-        const runtime = { trace: { debug: sinon.stub() }, turn: { get: sinon.stub().returns([]) } };
+        const node = { payload: { expressions: [] }, paths: [], id: 'step-id', type: BaseNode.NodeType.IF_V2 };
+        const runtime = {
+          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
+          turn: { get: sinon.stub().returns([]) },
+          debugLogging: null as unknown as DebugLogging,
+        };
+        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
         const variables = { var1: 'val1' };
         const program = { lines: [] };
 
         expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(null);
+        expect(runtime.trace.addTrace.args).to.eql([
+          [
+            {
+              type: 'log',
+              payload: {
+                kind: 'step.condition',
+                level: RuntimeLogs.LogLevel.INFO,
+                message: {
+                  stepID: 'step-id',
+                  componentName: RuntimeLogs.Kinds.StepLogKind.CONDITION,
+                  path: null,
+                },
+                timestamp: getISO8601Timestamp(),
+              },
+            },
+          ],
+        ]);
       });
     });
 
@@ -107,6 +161,8 @@ describe('ifV2 handler unit tests', () => {
         const handler = IfV2Handler({ safe: false } as any);
 
         const node = {
+          id: 'step-id',
+          type: BaseNode.NodeType.IF_V2,
           payload: {
             expressions: ['a && b', 'a + b)', 'arr.includes(a) && !b', 'a === 3'], // second condition is malformed. forth condition is also true, but we exit early when there's a match
             elseId: 'else-id',
@@ -118,9 +174,14 @@ describe('ifV2 handler unit tests', () => {
             { nextID: 'forth-next' },
           ],
         };
-        const runtime = { trace: { debug: sinon.stub() }, turn: { get: sinon.stub().returns(null) } };
+        const runtime = {
+          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
+          turn: { get: sinon.stub().returns(null) },
+          debugLogging: null as unknown as DebugLogging,
+        };
+        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
         const variables = { getState: sinon.stub().returns({ a: 3, b: false, arr: [1, 3, 5] }), merge: sinon.stub() };
-        const program = { lines: [] };
+        const program = { lines: [], getNode: (id: string) => ({ id, type: BaseNode.NodeType.SPEAK }) };
 
         expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(
           node.paths[2].nextID
@@ -133,6 +194,26 @@ describe('ifV2 handler unit tests', () => {
             BaseNode.NodeType.IF_V2,
           ],
           ['condition matched - taking path 3', BaseNode.NodeType.IF_V2],
+        ]);
+        expect(runtime.trace.addTrace.args).to.eql([
+          [
+            {
+              type: 'log',
+              payload: {
+                kind: 'step.condition',
+                level: RuntimeLogs.LogLevel.INFO,
+                message: {
+                  stepID: 'step-id',
+                  componentName: RuntimeLogs.Kinds.StepLogKind.CONDITION,
+                  path: {
+                    stepID: 'third-next',
+                    componentName: RuntimeLogs.Kinds.StepLogKind.SPEAK,
+                  },
+                },
+                timestamp: getISO8601Timestamp(),
+              },
+            },
+          ],
         ]);
       });
     });

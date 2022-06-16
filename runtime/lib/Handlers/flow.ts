@@ -1,14 +1,15 @@
-import { BaseNode } from '@voiceflow/base-types';
+import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 
 import { S } from '@/runtime/lib/Constants';
 import { HandlerFactory } from '@/runtime/lib/Handler';
 import Frame from '@/runtime/lib/Runtime/Stack/Frame';
 
+import DebugLogging from '../Runtime/DebugLogging';
 import { mapStores } from '../Runtime/utils/variables';
 
 const FlowHandler: HandlerFactory<BaseNode.Flow.Node> = () => ({
   canHandle: (node) => !!node.diagram_id,
-  handle: (node, runtime, variables) => {
+  handle: (node, runtime, variables, program) => {
     if (!node.diagram_id) {
       return node.nextId || null;
     }
@@ -32,6 +33,10 @@ const FlowHandler: HandlerFactory<BaseNode.Flow.Node> = () => ({
     runtime.stack.push(newFrame);
 
     runtime.trace.debug(`entering flow \`${newFrame.getName() || newFrame.getProgramID()}\``, BaseNode.NodeType.FLOW);
+    runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.FLOW, node, {
+      before: DebugLogging.createFlowReference(topFrame),
+      after: DebugLogging.createFlowReference(newFrame),
+    });
 
     return null;
   },

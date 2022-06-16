@@ -1,8 +1,9 @@
-import { BaseNode } from '@voiceflow/base-types';
+import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 
 import Handler, { HandlerFactory } from '@/runtime/lib/Handler';
 
 import { TurnType } from '../Constants/flags';
+import DebugLogging from '../Runtime/DebugLogging';
 import CodeHandler from './code';
 
 export interface IfV2Options {
@@ -71,12 +72,24 @@ const IfV2Handler: HandlerFactory<BaseNode.IfV2.Node, IfV2Options> = ({ _v1 }) =
 
     if (outputPortIndex !== -1) {
       runtime.trace.debug(`condition matched - taking path ${outputPortIndex + 1}`, BaseNode.NodeType.IF_V2);
-      return node.paths[outputPortIndex].nextID;
+      const pathID = node.paths[outputPortIndex].nextID;
+
+      runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.CONDITION, node, {
+        path: pathID ? DebugLogging.createPathReference(program.getNode(pathID)!) : null,
+      });
+
+      return pathID;
     }
 
     runtime.trace.debug('no conditions matched - taking else path', BaseNode.NodeType.IF_V2);
 
-    return node.payload.elseId || null;
+    const pathID = node.payload.elseId || null;
+
+    runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.CONDITION, node, {
+      path: pathID ? DebugLogging.createPathReference(program.getNode(pathID)!) : null,
+    });
+
+    return pathID;
   },
 });
 
