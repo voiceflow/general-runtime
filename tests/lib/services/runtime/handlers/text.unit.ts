@@ -2,6 +2,7 @@ import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
+import { BaseNode, RuntimeLogs } from '@/../libs/packages/base-types/build/common';
 import { TextHandler } from '@/lib/services/runtime/handlers/text';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
