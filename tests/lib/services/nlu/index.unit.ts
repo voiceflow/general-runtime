@@ -1,4 +1,6 @@
-import { BaseModels, BaseRequest } from '@voiceflow/base-types';
+import { BaseModels, BaseRequest, Project, Version } from '@voiceflow/base-types';
+import { PrototypeModel } from '@voiceflow/base-types/build/common/models';
+import { PrototypeNLP } from '@voiceflow/base-types/build/common/models/project';
 import { IntentRequest, RequestType } from '@voiceflow/base-types/build/common/request';
 import { Locale } from '@voiceflow/voiceflow-types/build/common/constants';
 import chai from 'chai';
@@ -23,33 +25,29 @@ describe('nlu manager unit tests', () => {
     sinon.restore();
   });
 
-  const model = {
+  const model: PrototypeModel = {
     slots: [],
     intents: [],
   };
   const tag = VersionTag.PRODUCTION;
   const locale = Locale.DE_DE;
   const query = 'I would like a large sofa pizza with extra chair';
-  const nlp = {
+  const nlp: PrototypeNLP = {
     type: BaseModels.ProjectNLP.LUIS,
     appID: 'nlp-app-id',
     resourceID: 'nlp-resource-id',
   };
-
-  const version = {
+  const version: Pick<Version.Version, '_id' | 'projectID'> = {
     _id: 'version-id',
     projectID: 'project-id',
   };
-  const project = {
+  const project: Pick<Project.Project, '_id' | 'prototype'> = {
     _id: 'project-id',
     prototype: {
-      nlp: {
-        appID: 'nlp-app-id',
-        resourceID: 'nlp-resource-id',
-      },
+      nlp,
+      data: {},
     },
   };
-
   const liveVersion = 'some-live-version';
 
   const nlcMatchedIntent: IntentRequest = {
