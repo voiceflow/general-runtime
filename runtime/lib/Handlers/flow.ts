@@ -13,7 +13,7 @@ const FlowHandler: HandlerFactory<BaseNode.Flow.Node> = () => ({
     if (!node.diagram_id) {
       // TODO: Check if this runs when you run a flow node where you haven't set the linked flow
       // Update the log type to support logging a "before: {current flow} after: null" or something
-      // Maybe just log null entirely instead of a before after thingy
+      // Maybe just log null entirely instead of a ValueChange
       return node.nextId || null;
     }
 
