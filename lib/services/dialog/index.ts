@@ -6,7 +6,7 @@
 import { BaseModels, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 import { ChatModels } from '@voiceflow/chat-types';
 import { VF_DM_PREFIX } from '@voiceflow/common';
-import VError from '@voiceflow/verror';
+import VError, { HTTP_STATUS } from '@voiceflow/verror';
 import { VoiceModels } from '@voiceflow/voice-types';
 import { VoiceflowConstants, VoiceflowUtils, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
@@ -108,19 +108,17 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       return context;
     }
 
-    const version = await context.data.api.getVersion(context.versionID).catch(() => null);
-    if (!version) {
-      throw new VError('Version not found', 404);
-    }
+    const version = await context.data.api.getVersion(context.versionID).catch(() => {
+      throw new VError('Version not found', HTTP_STATUS.NOT_FOUND);
+    });
 
     if (!version.prototype?.model) {
       throw new VError('Model not found');
     }
 
-    const project = await context.data.api.getProject(version.projectID).catch(() => null);
-    if (!project) {
-      throw new VError('Project not found', 404);
-    }
+    const project = await context.data.api.getProject(version.projectID).catch(() => {
+      throw new VError('Project not found', HTTP_STATUS.NOT_FOUND);
+    });
 
     const incomingRequest = context.request;
     const currentStore = context.state.storage[StorageType.DM];

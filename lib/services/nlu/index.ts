@@ -4,7 +4,7 @@
  */
 
 import { BaseModels, BaseRequest } from '@voiceflow/base-types';
-import VError from '@voiceflow/verror';
+import VError, { HTTP_STATUS } from '@voiceflow/verror';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { isTextRequest } from '@/lib/services/runtime/types';
@@ -61,10 +61,10 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
 
     // 3. finally try open regex slot matching
     if (!model) {
-      throw new VError('Model not found', 404);
+      throw new VError('Model not found', HTTP_STATUS.NOT_FOUND);
     }
     if (!locale) {
-      throw new VError('Locale not found', 404);
+      throw new VError('Locale not found', HTTP_STATUS.NOT_FOUND);
     }
     return handleNLCCommand({ query, model, locale, openSlot: true });
   }
@@ -82,15 +82,13 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       };
     }
 
-    const version = await context.data.api.getVersion(context.versionID).catch(() => null);
-    if (!version) {
-      throw new VError('Version not found', 404);
-    }
+    const version = await context.data.api.getVersion(context.versionID).catch(() => {
+      throw new VError('Version not found', HTTP_STATUS.NOT_FOUND);
+    });
 
-    const project = await context.data.api.getProject(version.projectID).catch(() => null);
-    if (!project) {
-      throw new VError('Project not found', 404);
-    }
+    const project = await context.data.api.getProject(version.projectID).catch(() => {
+      throw new VError('Project not found', HTTP_STATUS.NOT_FOUND);
+    });
 
     const request = await this.predict({
       query: context.request.payload,
