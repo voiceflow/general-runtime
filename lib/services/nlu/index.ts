@@ -31,7 +31,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     query: string;
     model?: BaseModels.PrototypeModel;
     locale?: VoiceflowConstants.Locale;
-    tag: string;
+    tag: VersionTag | string;
     nlp: BaseModels.Project.PrototypeNLP | undefined;
   }): Promise<BaseRequest.IntentRequest> {
     // 1. first try restricted regex (no open slots) - exact string match
