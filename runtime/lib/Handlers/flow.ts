@@ -9,7 +9,7 @@ import { mapStores } from '../Runtime/utils/variables';
 
 const FlowHandler: HandlerFactory<BaseNode.Flow.Node> = () => ({
   canHandle: (node) => !!node.diagram_id,
-  handle: (node, runtime, variables, program) => {
+  handle: (node, runtime, variables) => {
     if (!node.diagram_id) {
       // TODO: Check if this runs when you run a flow node where you haven't set the linked flow
       // Update the log type to support logging a "before: {current flow} after: null" or something
