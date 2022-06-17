@@ -281,7 +281,7 @@ describe('project middleware unit tests', () => {
       expect(next.args[0][0]).to.be.instanceOf(VError);
     });
 
-    it('rejects if API throws an error', async () => {
+    it('rejects if API cannot be retrieved', async () => {
       // arrange
       const services = {
         dataAPI: { get: sinon.stub().rejects('some-error') },
@@ -305,7 +305,7 @@ describe('project middleware unit tests', () => {
       expect(next.args[0][0]).to.be.instanceOf(VError);
     });
 
-    it('rejects if API throws an error', async () => {
+    it('rejects if API cannot read the version', async () => {
       // arrange
       const api = {
         getVersion: sinon.stub().rejects(new Error('Unknown error')),
