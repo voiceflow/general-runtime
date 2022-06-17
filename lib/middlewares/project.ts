@@ -112,15 +112,17 @@ class Project extends AbstractMiddleware {
     next: NextFunction
   ): Promise<void> {
     try {
+      if (!req.headers.versionID) {
+        throw new VError('Missing versionID, could not resolve project');
+      }
+
       const api = await this.services.dataAPI.get(req.headers.authorization).catch((error) => {
         throw new VError(`invalid API key: ${error}`, VError.HTTP_STATUS.UNAUTHORIZED);
       });
 
-      if (!req.headers.versionID) {
-        throw new VError('Missing versionID, could not resolve project');
-      }
       const { projectID } = await api.getVersion(req.headers.versionID);
       req.headers.projectID = projectID;
+
       return next();
     } catch (err) {
       return next(err instanceof VError ? err : new VError('Unknown error', VError.HTTP_STATUS.INTERNAL_SERVER_ERROR));
