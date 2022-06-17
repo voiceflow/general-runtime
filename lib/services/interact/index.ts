@@ -20,9 +20,9 @@ const utils = {
 
 @injectServices({ utils })
 class Interact extends AbstractManager<{ utils: typeof utils }> {
-  async state(data: { headers: { authorization: string; versionID: string } }): Promise<State> {
-    const api = await this.services.dataAPI.get(data.headers.authorization);
-    const version = await api.getVersion(data.headers.versionID);
+  async state(versionID: string, authorization: string): Promise<State> {
+    const api = await this.services.dataAPI.get(authorization);
+    const version = await api.getVersion(versionID);
     return this.services.state.generate(version);
   }
 
