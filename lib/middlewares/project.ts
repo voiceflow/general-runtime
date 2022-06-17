@@ -66,10 +66,9 @@ class Project extends AbstractMiddleware {
         );
       }
 
-      const project = await api.getProjectUsingAuthorization(req.headers.authorization!).catch(() => null);
-      if (!project) {
+      const project = await api.getProjectUsingAuthorization(req.headers.authorization!).catch(() => {
         throw new VError('Cannot infer project version, provide a specific versionID', VError.HTTP_STATUS.BAD_REQUEST);
-      }
+      });
 
       req.headers.versionID = versionID === VersionTag.PRODUCTION ? project.liveVersion : project.devVersion;
 
