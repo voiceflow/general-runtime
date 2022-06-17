@@ -3,7 +3,6 @@ import sinon from 'sinon';
 
 import Interact from '@/lib/services/interact';
 import { TurnBuilder } from '@/runtime';
-import { VersionTag } from '@/types';
 
 const output = (context: any, state: string, params?: any) => ({ ...context, ...params, state, end: false });
 
