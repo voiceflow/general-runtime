@@ -45,6 +45,10 @@ class Project extends AbstractMiddleware {
     next: NextFunction
   ): Promise<void> {
     try {
+      /**
+       * Support the use-case where `versionID` is not provided. Note this behaviour should
+       * probably be deprecated.
+       */
       const versionID = req.headers.versionID || VersionTag.DEVELOPMENT;
 
       if (!isVersionTag(versionID)) {

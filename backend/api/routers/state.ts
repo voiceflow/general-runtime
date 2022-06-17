@@ -11,19 +11,19 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.use(middlewares.rateLimit.verify);
 
   const commonMiddleware = [middlewares.rateLimit.versionConsume, middlewares.project.attachProjectID];
-  const stateMiddleware = [middlewares.project.resolveVersionAlias, ...commonMiddleware];
+  const statefulAPIMiddleware = [middlewares.project.resolveVersionAlias, ...commonMiddleware];
   const legacyMiddleware = [
     middlewares.project.unifyVersionID,
     middlewares.project.resolveVersionAliasLegacy,
     ...commonMiddleware,
   ];
 
-  router.post('/user/:userID/interact', stateMiddleware, controllers.stateManagement.interact);
-  router.get('/user/:userID', stateMiddleware, controllers.stateManagement.get);
-  router.put('/user/:userID', stateMiddleware, controllers.stateManagement.update);
-  router.delete('/user/:userID', stateMiddleware, controllers.stateManagement.delete);
-  router.post('/user/:userID', stateMiddleware, controllers.stateManagement.reset);
-  router.patch('/user/:userID/variables', stateMiddleware, controllers.stateManagement.updateVariables);
+  router.post('/user/:userID/interact', statefulAPIMiddleware, controllers.stateManagement.interact);
+  router.get('/user/:userID', statefulAPIMiddleware, controllers.stateManagement.get);
+  router.put('/user/:userID', statefulAPIMiddleware, controllers.stateManagement.update);
+  router.delete('/user/:userID', statefulAPIMiddleware, controllers.stateManagement.delete);
+  router.post('/user/:userID', statefulAPIMiddleware, controllers.stateManagement.reset);
+  router.patch('/user/:userID/variables', statefulAPIMiddleware, controllers.stateManagement.updateVariables);
 
   // Legacy 1.0.0 routes with versionID in params
   router.post('/:versionID/user/:userID/interact', legacyMiddleware, controllers.stateManagement.interact);
