@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@opentelemetry/api-metrics": "0.26.0",
-    "@types/mathjs": "^6.0.4",
     "@types/workerpool": "^5.0.1",
     "@voiceflow/api-sdk": "3.14.1",
     "@voiceflow/backend-utils": "4.7.1",
@@ -48,7 +47,7 @@
     "isolated-vm": "^4.3.6",
     "json-stringify-safe": "^5.0.1",
     "lodash": "^4.17.21",
-    "mathjs": "^7.0.0",
+    "mathjs": "^10.6.1",
     "moize": "^6.1.0",
     "mongodb": "^3.6.5",
     "regenerator-runtime": "^0.13.3",
