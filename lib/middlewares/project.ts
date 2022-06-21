@@ -72,6 +72,10 @@ class Project extends AbstractMiddleware {
 
       req.headers.versionID = versionID === VersionTag.PRODUCTION ? project.liveVersion : project.devVersion;
 
+      if (versionID === VersionTag.PRODUCTION && !req.headers.versionID) {
+        throw new VError('Voiceflow project was not published to production');
+      }
+
       return next();
     } catch (err) {
       return next(err instanceof VError ? err : new VError('Unknown error', VError.HTTP_STATUS.INTERNAL_SERVER_ERROR));
