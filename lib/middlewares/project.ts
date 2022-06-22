@@ -1,4 +1,5 @@
 import { Validator } from '@voiceflow/backend-utils';
+import { BaseModels } from '@voiceflow/base-types';
 import * as Utils from '@voiceflow/common';
 import VError from '@voiceflow/verror';
 import { NextFunction, Response } from 'express';
@@ -55,6 +56,10 @@ class Project extends AbstractMiddleware {
         return next();
       }
 
+      if (!BaseModels.ApiKey.isDialogManagerAPIKey(req.headers.authorization)) {
+        throw new VError('Invalid Dialog Manager API key', VError.HTTP_STATUS.UNAUTHORIZED);
+      }
+
       const api = await this.services.dataAPI.get(req.headers.authorization).catch(() => {
         throw new VError('Error setting up data API', VError.HTTP_STATUS.UNAUTHORIZED);
       });
@@ -73,7 +78,7 @@ class Project extends AbstractMiddleware {
       req.headers.versionID = versionID === VersionTag.PRODUCTION ? project.liveVersion : project.devVersion;
 
       if (versionID === VersionTag.PRODUCTION && !req.headers.versionID) {
-        throw new VError('Voiceflow project was not published to production');
+        throw new VError('Voiceflow project was not published to production', VError.HTTP_STATUS.BAD_REQUEST);
       }
 
       return next();
