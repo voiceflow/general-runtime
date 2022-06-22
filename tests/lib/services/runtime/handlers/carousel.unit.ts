@@ -201,6 +201,7 @@ describe('Carousel handler', () => {
 
         const runtime = {
           getAction: sinon.stub().returns(Action.REQUEST),
+          getRequest: sinon.stub().returns({}),
           trace: { addTrace: sinon.stub() },
           storage: { delete: sinon.stub() },
         };
