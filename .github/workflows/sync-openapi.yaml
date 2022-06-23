@@ -4,7 +4,6 @@ name: Sync OAS to ReadMe
 on:
   push:
     branches:
-      - main
       - brennan/open-api-docs-test/VF-3842
 jobs:
   sync:
