@@ -136,37 +136,19 @@ const doFetch = async (
     );
   }
 
-  let requestFinished = false;
   const abortController = new AbortController();
+  const abortTimeout = setTimeout(() => abortController.abort(), actualConfig.requestTimeoutMs);
 
-  const request = fetch(requestOptions, { signal: abortController.signal as any }).then((response) => {
-    requestFinished = true;
-    return response;
-  });
-  const response = await Promise.race([
-    request,
-    sleep(actualConfig.requestTimeoutMs).then(() => {
-      if (!requestFinished) {
-        // Request did not finish in time
-        abortController.abort();
-        throw new Error(
-          `Request did not finish within the time limit of ${actualConfig.requestTimeoutMs} milliseconds`
-        );
-      }
+  try {
+    const response = await fetch(requestOptions, {
+      signal: abortController.signal as any,
+      size: actualConfig.maxResponseBodySizeBytes,
+    });
 
-      // Request finished a while ago, now the timer has finished. The return value here doesn't matter since it's
-      // going to get immediately discarded by Promise.race(). We assert this type as Response to avoid non-nullish
-      // assertions everywhere the return value from fetch() is used.
-      return undefined as unknown as Response;
-    }),
-  ]);
-
-  if (response.size > actualConfig.maxResponseBodySizeBytes) {
-    throw new Error(
-      `Response content length of ${response.size} exceeded maximum of ${actualConfig.maxResponseBodySizeBytes}`
-    );
+    return { response, requestOptions };
+  } finally {
+    clearTimeout(abortTimeout);
   }
-  return { response, requestOptions };
 };
 
 const transformResponseBody = (
@@ -229,7 +211,7 @@ export const makeAPICall = async (nodeData: APINodeData, runtime: Runtime, confi
   };
 };
 
-const createRequest = (actionData: BaseNode.Api.NodeData['action_data']): Request => {
+export const createRequest = (actionData: BaseNode.Api.NodeData['action_data']): Request => {
   let body: BodyInit | undefined;
 
   if (actionData.method !== BaseNode.Api.APIMethod.GET) {
