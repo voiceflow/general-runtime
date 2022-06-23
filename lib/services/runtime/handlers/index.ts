@@ -18,6 +18,7 @@ import { Config } from '@/types';
 import _V1Handler from './_v1';
 import CaptureHandler from './capture';
 import CaptureV2Handler from './captureV2';
+import CarouselHandler from './carousel';
 import GoToHandler from './goTo';
 import InteractionHandler from './interaction';
 import SpeakHandler from './speak';
@@ -60,6 +61,12 @@ export default ({
   StartHandler(),
   VisualHandler(),
   TextHandler(),
+  CarouselHandler(),
+
+  /* add new handlers before NextHandler.
+    Whenever there is a nextId in the step, next handler will be taken as the handler,
+    unless the correct handler was found before it in this list.
+  */
   NextHandler(),
   _v1Handler,
 ];

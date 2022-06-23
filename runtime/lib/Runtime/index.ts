@@ -5,6 +5,7 @@ import Lifecycle, { AbstractLifecycle, Event, EventType } from '@/runtime/lib/Li
 import cycleStack from '@/runtime/lib/Runtime/cycleStack';
 
 import { DataAPI } from '../DataAPI';
+import DebugLogging from './DebugLogging';
 import OutgoingApiLimiter from './OutgoingApiLimiter';
 import Stack, { Frame, FrameState } from './Stack';
 import Store, { State as StorageState } from './Store';
@@ -57,6 +58,8 @@ class Runtime<R = any, DA extends DataAPI = DataAPI, S extends AnyRecord = AnyRe
 
   private programManager: ProgramManager;
 
+  public debugLogging: DebugLogging;
+
   constructor(
     public versionID: string,
     state: State,
@@ -100,6 +103,8 @@ class Runtime<R = any, DA extends DataAPI = DataAPI, S extends AnyRecord = AnyRe
     this.programManager = new ProgramManager(this);
 
     this.outgoingApiLimiter = new OutgoingApiLimiter(this);
+
+    this.debugLogging = new DebugLogging(this);
   }
 
   getRequest(): R | null {

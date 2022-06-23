@@ -1,4 +1,4 @@
-import { BaseRequest, BaseTrace } from '@voiceflow/base-types';
+import { BaseRequest, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
 import { PartialContext, State, TurnBuilder } from '@/runtime';
@@ -20,16 +20,16 @@ const utils = {
 
 @injectServices({ utils })
 class Interact extends AbstractManager<{ utils: typeof utils }> {
-  async state(data: { headers: { authorization?: string; origin?: string; versionID: string } }): Promise<State> {
-    const api = await this.services.dataAPI.get(data.headers.authorization);
-    const version = await api.getVersion(data.headers.versionID);
+  async state(req: { headers: { authorization?: string; origin?: string; versionID: string } }): Promise<State> {
+    const api = await this.services.dataAPI.get(req.headers.authorization);
+    const version = await api.getVersion(req.headers.versionID);
     return this.services.state.generate(version);
   }
 
   async handler(req: {
     params: { userID?: string };
     body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
-    query: { locale?: string };
+    query: { locale?: string; logs: RuntimeLogs.LogLevel };
     headers: { authorization?: string; origin?: string; sessionid?: string; versionID: string; platform?: string };
   }): Promise<ResponseContext> {
     const {
@@ -51,7 +51,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       // Internally the name request is still used
       body: { state, config = {}, action = null, request = null },
       params: { userID },
-      query: { locale },
+      query: { locale, logs: maxLogLevel },
       headers: { versionID, authorization, origin, sessionid, platform },
     } = req;
 
@@ -68,6 +68,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       userID,
       request: action ?? request,
       versionID,
+      maxLogLevel,
     };
 
     const turn = new this.services.utils.TurnBuilder<Context>(stateManager);

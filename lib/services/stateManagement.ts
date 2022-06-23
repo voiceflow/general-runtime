@@ -1,4 +1,4 @@
-import { BaseRequest } from '@voiceflow/base-types';
+import { BaseRequest, RuntimeLogs } from '@voiceflow/base-types';
 import _ from 'lodash';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
@@ -10,7 +10,7 @@ class StateManagement extends AbstractManager {
   async interact(data: {
     params: { userID: string };
     body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
-    query: { locale?: string; verbose?: boolean };
+    query: { locale?: string; verbose?: boolean; logs: RuntimeLogs.LogLevel };
     headers: { authorization: string; projectID: string; versionID: string };
   }) {
     let state = await this.services.session.getFromDb<State>(data.headers.projectID, data.params.userID);

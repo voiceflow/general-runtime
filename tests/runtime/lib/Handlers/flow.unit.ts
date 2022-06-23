@@ -1,9 +1,11 @@
-import { BaseNode } from '@voiceflow/base-types';
+import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { S } from '@/runtime/lib/Constants';
 import FlowHandler from '@/runtime/lib/Handlers/flow';
+import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
+import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 import * as Frame from '@/runtime/lib/Runtime/Stack/Frame';
 import * as Utils from '@/runtime/lib/Runtime/utils/variables';
 
@@ -34,17 +36,29 @@ describe('flowHandler unit tests', () => {
       const newFrame = {
         storage: { set: sinon.stub() },
         getName: sinon.stub().returns(undefined),
-        getProgramID: sinon.stub().returns('program-id-from-frame'),
+        getProgramID: sinon.stub().returns('new-frame-program-id'),
         variables: 'frame-variables',
       };
       frameStub.returns(newFrame);
 
-      const node = { nodeID: 'node-id', diagram_id: 'program-id', nextId: 'next-id' };
-      const topFrame = { setNodeID: sinon.stub() };
+      const node = {
+        nodeID: 'node-id',
+        diagram_id: 'program-id',
+        nextId: 'next-id',
+        id: 'step-id',
+        type: BaseNode.NodeType.FLOW,
+      };
+      const topFrame = {
+        setNodeID: sinon.stub(),
+        getName: () => 'top-frame-name',
+        getProgramID: () => 'top-frame-program-id',
+      };
       const runtime = {
         stack: { top: sinon.stub().returns(topFrame), push: sinon.stub() },
-        trace: { debug: sinon.stub() },
+        trace: { debug: sinon.stub(), addTrace: sinon.stub() },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {};
 
       // assertions
@@ -58,6 +72,30 @@ describe('flowHandler unit tests', () => {
       expect(runtime.trace.debug.args).to.eql([
         [`entering flow \`${newFrame.getProgramID()}\``, BaseNode.NodeType.FLOW],
       ]);
+      expect(runtime.trace.addTrace.args).to.eql([
+        [
+          {
+            type: 'log',
+            payload: {
+              kind: 'step.flow',
+              level: RuntimeLogs.LogLevel.INFO,
+              message: {
+                stepID: 'step-id',
+                componentName: RuntimeLogs.Kinds.StepLogKind.FLOW,
+                before: {
+                  name: 'top-frame-name',
+                  programID: 'top-frame-program-id',
+                },
+                after: {
+                  name: null,
+                  programID: 'new-frame-program-id',
+                },
+              },
+              timestamp: getISO8601Timestamp(),
+            },
+          },
+        ],
+      ]);
     });
 
     it('with variable_map', () => {
@@ -66,14 +104,17 @@ describe('flowHandler unit tests', () => {
       const frameStub = sinon.stub(Frame, 'default');
       const newFrame = {
         storage: { set: sinon.stub() },
-        getName: sinon.stub().returns('name-from-frame'),
+        getName: sinon.stub().returns('new-frame-name'),
         variables: 'frame-variables',
+        getProgramID: sinon.stub().returns('new-frame-program-id'),
       };
       frameStub.returns(newFrame);
 
       const node = {
         nodeID: 'node-id',
         diagram_id: 'program-id',
+        id: 'step-id',
+        type: BaseNode.NodeType.FLOW,
         variable_map: {
           inputs: [
             ['a', 'b'],
@@ -85,11 +126,17 @@ describe('flowHandler unit tests', () => {
           ] as [string, string][],
         },
       };
-      const topFrame = { setNodeID: sinon.stub() };
+      const topFrame = {
+        setNodeID: sinon.stub(),
+        getName: () => 'top-frame-name',
+        getProgramID: () => 'top-frame-program-id',
+      };
       const runtime = {
         stack: { top: sinon.stub().returns(topFrame), push: sinon.stub() },
-        trace: { debug: sinon.stub() },
+        trace: { debug: sinon.stub(), addTrace: sinon.stub() },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {};
 
       // assertions
@@ -109,6 +156,30 @@ describe('flowHandler unit tests', () => {
       expect(topFrame.setNodeID.args).to.eql([[null]]);
       expect(runtime.stack.push.args).to.eql([[newFrame]]);
       expect(runtime.trace.debug.args).to.eql([[`entering flow \`${newFrame.getName()}\``, BaseNode.NodeType.FLOW]]);
+      expect(runtime.trace.addTrace.args).to.eql([
+        [
+          {
+            type: 'log',
+            payload: {
+              kind: 'step.flow',
+              level: RuntimeLogs.LogLevel.INFO,
+              message: {
+                stepID: 'step-id',
+                componentName: RuntimeLogs.Kinds.StepLogKind.FLOW,
+                before: {
+                  name: 'top-frame-name',
+                  programID: 'top-frame-program-id',
+                },
+                after: {
+                  name: 'new-frame-name',
+                  programID: 'new-frame-program-id',
+                },
+              },
+              timestamp: getISO8601Timestamp(),
+            },
+          },
+        ],
+      ]);
     });
   });
 });

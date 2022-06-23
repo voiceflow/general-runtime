@@ -46,6 +46,10 @@ describe('stream handler unit tests', async () => {
         nextID: 'next-id',
         pauseID: 'pause-id',
         previousID: 'previous-id',
+        backgroundImage: 'background-image',
+        description: 'description',
+        iconImage: 'icon-image',
+        title: 'title',
       };
       const runtime = { storage: { set: sinon.stub(), get: sinon.stub().returns(null) }, end: sinon.stub() };
       const variablesMap = { var1: 'val1', var2: 'val2' };
@@ -65,6 +69,10 @@ describe('stream handler unit tests', async () => {
             nextID: node.nextID,
             pauseID: node.pauseID,
             previousID: node.previousID,
+            backgroundImage: node.backgroundImage,
+            description: node.description,
+            iconImage: node.iconImage,
+            title: node.title,
           },
         ],
       ]);
@@ -84,6 +92,10 @@ describe('stream handler unit tests', async () => {
         nextID: 'next-id',
         pauseID: 'pause-id',
         previousID: 'previous-id',
+        backgroundImage: 'background-image',
+        description: 'description',
+        iconImage: 'icon-image',
+        title: 'title',
       };
       const runtime = {
         storage: { set: sinon.stub(), get: sinon.stub().returns({ id: 'id2' }), delete: sinon.stub() },
@@ -106,6 +118,10 @@ describe('stream handler unit tests', async () => {
             nextID: node.nextID,
             pauseID: node.pauseID,
             previousID: node.previousID,
+            backgroundImage: node.backgroundImage,
+            description: node.description,
+            iconImage: node.iconImage,
+            title: node.title,
           },
         ],
       ]);
@@ -127,6 +143,10 @@ describe('stream handler unit tests', async () => {
         nextID: 'next-id',
         pauseID: 'pause-id',
         previousID: 'previous-id',
+        backgroundImage: 'background-image',
+        description: 'description',
+        iconImage: 'icon-image',
+        title: 'title',
       };
       const streamPause = { id: nodeID, offset: 100 };
       const runtime = {
@@ -155,6 +175,10 @@ describe('stream handler unit tests', async () => {
             nextID: node.nextID,
             pauseID: node.pauseID,
             previousID: node.previousID,
+            backgroundImage: node.backgroundImage,
+            description: node.description,
+            iconImage: node.iconImage,
+            title: node.title,
           },
         ],
       ]);

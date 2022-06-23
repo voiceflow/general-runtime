@@ -1,4 +1,4 @@
-import { BaseNode } from '@voiceflow/base-types';
+import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
@@ -12,9 +12,9 @@ const SetV2Handler: HandlerFactory<BaseNode.SetV2.Node, SetV2Options | void> = (
     // use isolated-vm
     const codeHandler = CodeHandler({ useStrictVM: true });
 
-    let code = `
-        let evaluated;
-    `;
+    const beforeValues: Map<string, any> = new Map();
+
+    const codeLines = [`let evaluated;`];
     node.sets.forEach((set) => {
       if (!set.variable) return;
       if (!variables.has(set.variable)) {
@@ -22,18 +22,29 @@ const SetV2Handler: HandlerFactory<BaseNode.SetV2.Node, SetV2Options | void> = (
         variables.set(set.variable, 0);
       }
 
-      code += `
-            evaluated = eval(\`${set.expression}\`);
-            ${set.variable} = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;
-        `;
+      beforeValues.set(set.variable, variables.get(set.variable));
+
+      codeLines.push(
+        `evaluated = eval(\`${set.expression}\`);`,
+        `${set.variable} = !!evaluated || !Number.isNaN(evaluated) ? evaluated : undefined;`
+      );
     });
 
     await codeHandler.handle(
-      { code, id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE', type: BaseNode.NodeType.CODE },
+      { code: codeLines.join('\n'), id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE', type: BaseNode.NodeType.CODE },
       runtime,
       variables,
       program
     );
+
+    runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.SET, node, {
+      changedVariables: Object.fromEntries(
+        [...beforeValues].map(([variable, beforeValue]) => [
+          variable,
+          { before: beforeValue, after: variables.get(variable) ?? null },
+        ])
+      ),
+    });
 
     return node.nextId || null;
   },

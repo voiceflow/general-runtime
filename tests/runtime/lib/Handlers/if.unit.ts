@@ -1,10 +1,12 @@
-import { BaseNode } from '@voiceflow/base-types';
+import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import IfHandler from '@/runtime/lib/Handlers/if';
 import * as Utils from '@/runtime/lib/Handlers/utils/shuntingYard';
 import { EventType } from '@/runtime/lib/Lifecycle';
+import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
+import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
 describe('ifHandler unit tests', () => {
   const ifHandler = IfHandler();
@@ -35,12 +37,25 @@ describe('ifHandler unit tests', () => {
       shuntingYardStub.onFirstCall().throws(evaluateError);
       shuntingYardStub.onSecondCall().resolves(5);
 
-      const node = { expressions: ['first', 'second', 'third'], nextIds: ['first-path', 'second-path', 'third'] };
-      const runtime = { trace: { debug: sinon.stub() }, callEvent: sinon.stub() };
+      const node = {
+        expressions: ['first', 'second', 'third'],
+        nextIds: ['first-path', 'second-path', 'third'],
+        id: 'step-id',
+        type: BaseNode.NodeType.IF,
+      };
+      const runtime = {
+        trace: { debug: sinon.stub(), addTrace: sinon.stub() },
+        callEvent: sinon.stub(),
+        debugLogging: null as unknown as DebugLogging,
+      };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variablesState = 'variables-state';
       const variables = { getState: sinon.stub().returns(variablesState) };
+      const program = {
+        getNode: (id: string) => ({ id, type: BaseNode.NodeType.SPEAK }),
+      };
 
-      expect(await ifHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+      expect(await ifHandler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(
         node.nextIds[1]
       );
       expect(shuntingYardStub.args).to.eql([
@@ -57,6 +72,26 @@ describe('ifHandler unit tests', () => {
         ['evaluating path 2: `second` to `5`', BaseNode.NodeType.IF],
         ['condition true - taking path 2', BaseNode.NodeType.IF],
       ]);
+      expect(runtime.trace.addTrace.args).to.eql([
+        [
+          {
+            type: 'log',
+            payload: {
+              kind: 'step.condition',
+              level: RuntimeLogs.LogLevel.INFO,
+              message: {
+                stepID: 'step-id',
+                componentName: RuntimeLogs.Kinds.StepLogKind.CONDITION,
+                path: {
+                  stepID: 'second-path',
+                  componentName: RuntimeLogs.Kinds.StepLogKind.SPEAK,
+                },
+              },
+              timestamp: getISO8601Timestamp(),
+            },
+          },
+        ],
+      ]);
     });
 
     it('evaluates to 0', async () => {
@@ -64,12 +99,24 @@ describe('ifHandler unit tests', () => {
       shuntingYardStub.onFirstCall().resolves(null as any);
       shuntingYardStub.onSecondCall().resolves(0);
 
-      const node = { expressions: ['first', 'second'], nextIds: ['first-path', 'second-path'] };
-      const runtime = { trace: { debug: sinon.stub() } };
+      const node = {
+        expressions: ['first', 'second'],
+        nextIds: ['first-path', 'second-path'],
+        id: 'step-id',
+        type: BaseNode.NodeType.IF,
+      };
+      const runtime = {
+        trace: { debug: sinon.stub(), addTrace: sinon.stub() },
+        debugLogging: null as unknown as DebugLogging,
+      };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variablesState = 'variables-state';
       const variables = { getState: sinon.stub().returns(variablesState) };
+      const program = {
+        getNode: (id: string) => ({ id, type: BaseNode.NodeType.SPEAK }),
+      };
 
-      expect(await ifHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+      expect(await ifHandler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(
         node.nextIds[1]
       );
       expect(shuntingYardStub.args).to.eql([
@@ -82,6 +129,26 @@ describe('ifHandler unit tests', () => {
         ['evaluating path 2: `second` to `0`', BaseNode.NodeType.IF],
         ['condition true - taking path 2', BaseNode.NodeType.IF],
       ]);
+      expect(runtime.trace.addTrace.args).to.eql([
+        [
+          {
+            type: 'log',
+            payload: {
+              kind: 'step.condition',
+              level: RuntimeLogs.LogLevel.INFO,
+              message: {
+                stepID: 'step-id',
+                componentName: RuntimeLogs.Kinds.StepLogKind.CONDITION,
+                path: {
+                  stepID: 'second-path',
+                  componentName: RuntimeLogs.Kinds.StepLogKind.SPEAK,
+                },
+              },
+              timestamp: getISO8601Timestamp(),
+            },
+          },
+        ],
+      ]);
     });
 
     describe('cant evaluate', () => {
@@ -92,30 +159,89 @@ describe('ifHandler unit tests', () => {
       it('with elseId', async () => {
         sinon.stub(Utils, 'evaluateExpression').resolves(null as any);
 
-        const node = { expressions: ['first'], nextIds: ['first-path'], elseId: 'else-id' };
-        const runtime = { trace: { debug: sinon.stub() } };
+        const node = {
+          expressions: ['first'],
+          nextIds: ['first-path'],
+          elseId: 'else-id',
+          id: 'step-id',
+          type: BaseNode.NodeType.IF,
+        };
+        const runtime = {
+          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
+          debugLogging: null as unknown as DebugLogging,
+        };
+        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
         const variables = { getState: sinon.stub().returns({}) };
+        const program = {
+          getNode: (id: string) => ({ id, type: BaseNode.NodeType.SPEAK }),
+        };
 
-        expect(await ifHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.elseId);
+        expect(await ifHandler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(
+          node.elseId
+        );
 
         expect(runtime.trace.debug.args).to.eql([
           ['evaluating path 1: `first` to `undefined`', BaseNode.NodeType.IF],
           ['no conditions matched - taking else path', BaseNode.NodeType.IF],
+        ]);
+        expect(runtime.trace.addTrace.args).to.eql([
+          [
+            {
+              type: 'log',
+              payload: {
+                kind: 'step.condition',
+                level: RuntimeLogs.LogLevel.INFO,
+                message: {
+                  stepID: 'step-id',
+                  componentName: RuntimeLogs.Kinds.StepLogKind.CONDITION,
+                  path: {
+                    stepID: 'else-id',
+                    componentName: RuntimeLogs.Kinds.StepLogKind.SPEAK,
+                  },
+                },
+                timestamp: getISO8601Timestamp(),
+              },
+            },
+          ],
         ]);
       });
 
       it('without elseId', async () => {
         sinon.stub(Utils, 'evaluateExpression').resolves(null as any);
 
-        const node = { expressions: ['first'], nextIds: ['first-path'] };
-        const runtime = { trace: { debug: sinon.stub() } };
+        const node = { expressions: ['first'], nextIds: ['first-path'], id: 'step-id', type: BaseNode.NodeType.IF };
+        const runtime = {
+          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
+          debugLogging: null as unknown as DebugLogging,
+        };
+        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
         const variables = { getState: sinon.stub().returns({}) };
+        const program = {
+          getNode: (id: string) => ({ id, type: BaseNode.NodeType.SPEAK }),
+        };
 
-        expect(await ifHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+        expect(await ifHandler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(null);
 
         expect(runtime.trace.debug.args).to.eql([
           ['evaluating path 1: `first` to `undefined`', BaseNode.NodeType.IF],
           ['no conditions matched - taking else path', BaseNode.NodeType.IF],
+        ]);
+        expect(runtime.trace.addTrace.args).to.eql([
+          [
+            {
+              type: 'log',
+              payload: {
+                kind: 'step.condition',
+                level: RuntimeLogs.LogLevel.INFO,
+                message: {
+                  stepID: 'step-id',
+                  componentName: RuntimeLogs.Kinds.StepLogKind.CONDITION,
+                  path: null,
+                },
+                timestamp: getISO8601Timestamp(),
+              },
+            },
+          ],
         ]);
       });
     });

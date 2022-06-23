@@ -1,5 +1,7 @@
 import { Validator } from '@voiceflow/backend-utils';
+import { RuntimeLogs } from '@voiceflow/base-types';
 
+import { SharedValidations } from '@/lib/validations';
 import { State } from '@/runtime';
 import { Request } from '@/types';
 
@@ -29,13 +31,14 @@ class StateManagementController extends AbstractController {
     HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID,
     HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
     QUERY_VERBOSE: VALIDATIONS.QUERY.VERBOSE,
+    QUERY_LOGS: SharedValidations.Runtime.QUERY.LOGS,
   })
   async interact(
     req: Request<
       { userID: string },
       any,
       { projectID: string; authorization: string; versionID: string },
-      { verbose?: boolean }
+      { verbose?: boolean; logs: RuntimeLogs.LogLevel }
     >
   ) {
     return this.services.stateManagement.interact(req);

@@ -1,8 +1,11 @@
+import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import SpeakHandler from '@/lib/services/runtime/handlers/speak';
 import { FrameType } from '@/lib/services/runtime/types';
+import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
+import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
 describe('speak handler unit tests', async () => {
   const speakHandler = SpeakHandler();
@@ -30,6 +33,8 @@ describe('speak handler unit tests', async () => {
       const node = {
         nextId: 'next-id',
         random_speak: ['one', 'two', 'three'],
+        id: 'step-id',
+        type: BaseNode.NodeType.SPEAK,
       };
 
       const topFrame = {
@@ -39,18 +44,50 @@ describe('speak handler unit tests', async () => {
         trace: { addTrace: sinon.stub() },
         storage: { produce: sinon.stub() },
         stack: { top: sinon.stub().returns(topFrame) },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
+
       const variables = { getState: sinon.stub().returns({}) };
 
       expect(speakHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
       expect(topFrame.storage.set.args[0][0]).to.eql(FrameType.OUTPUT);
       // output is one of the options in random_speak
+      const spokenPhrase = runtime.trace.addTrace.args[0][0].payload.message as string;
       expect(node.random_speak.includes(topFrame.storage.set.args[0][1])).to.eql(true);
+      expect(runtime.trace.addTrace.args).to.eql([
+        [
+          {
+            payload: {
+              message: spokenPhrase,
+              type: 'message',
+            },
+            type: 'speak',
+          },
+        ],
+        [
+          {
+            payload: {
+              kind: 'step.speak',
+              level: 'info',
+              message: {
+                componentName: 'speak',
+                stepID: 'step-id',
+                text: spokenPhrase,
+              },
+              timestamp: getISO8601Timestamp(),
+            },
+            type: 'log',
+          },
+        ],
+      ]);
     });
 
     it('speak', () => {
       const node = {
         speak: 'random {var} or {var1}',
+        id: 'step-id',
+        type: BaseNode.NodeType.SPEAK,
       };
 
       const topFrame = {
@@ -60,7 +97,10 @@ describe('speak handler unit tests', async () => {
         trace: { addTrace: sinon.stub() },
         storage: { produce: sinon.stub() },
         stack: { top: sinon.stub().returns(topFrame) },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
+
       const varState = { var: 1.234, var1: 'here' };
       const variables = { getState: sinon.stub().returns(varState) };
 
@@ -69,6 +109,21 @@ describe('speak handler unit tests', async () => {
       expect(topFrame.storage.set.args).to.eql([[FrameType.OUTPUT, 'random 1.23 or here']]);
       expect(runtime.trace.addTrace.args).to.eql([
         [{ type: 'speak', payload: { message: 'random 1.23 or here', type: 'message' } }],
+        [
+          {
+            type: 'log',
+            payload: {
+              kind: 'step.speak',
+              level: 'info',
+              message: {
+                componentName: 'speak',
+                stepID: 'step-id',
+                text: 'random 1.23 or here',
+              },
+              timestamp: getISO8601Timestamp(),
+            },
+          },
+        ],
       ]);
     });
 

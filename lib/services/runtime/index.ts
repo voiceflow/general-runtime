@@ -5,7 +5,7 @@
 
 import { BaseNode } from '@voiceflow/base-types';
 
-import Client, { Action as RuntimeAction } from '@/runtime';
+import Client, { Action as RuntimeAction, Runtime } from '@/runtime';
 import { Config, Context, ContextHandler } from '@/types';
 
 import { FullServiceMap } from '../index';
@@ -45,7 +45,14 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
   public async handle({ versionID, userID, state, request, ...context }: Context): Promise<Context> {
     if (!isRuntimeRequest(request)) throw new Error(`invalid runtime request type: ${JSON.stringify(request)}`);
 
-    const runtime = this.createClient(context.data.api).createRuntime(versionID, state, request);
+    const runtime = this.getRuntimeForContext({ versionID, userID, state, request, ...context });
+
+    if (context.maxLogLevel) {
+      // Update the max log level if possible
+      // The types say that context.maxLogLevel can be undefined but in practice that should never happen
+
+      runtime.debugLogging.maxLogLevel = context.maxLogLevel;
+    }
 
     if (isIntentRequest(request)) {
       const confidence = getReadableConfidence(request.payload.confidence);
@@ -91,6 +98,10 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
       state: runtime.getFinalState(),
       trace: runtime.trace.get(),
     };
+  }
+
+  private getRuntimeForContext(context: Context): Runtime {
+    return this.createClient(context.data.api).createRuntime(context.versionID, context.state, context.request);
   }
 }
 

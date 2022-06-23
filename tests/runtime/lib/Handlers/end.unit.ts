@@ -1,8 +1,10 @@
-import { BaseNode } from '@voiceflow/base-types';
+import { BaseNode, RuntimeLogs, Trace } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import EndHandler from '@/runtime/lib/Handlers/end';
+import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
+import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
 describe('EndHandler unit tests', () => {
   const endHandler = EndHandler();
@@ -32,8 +34,14 @@ describe('EndHandler unit tests', () => {
         turn: { set: sinon.stub() },
         end: sinon.stub(),
         trace: { debug: sinon.stub(), addTrace: sinon.stub() },
+        debugLogging: null as unknown as DebugLogging,
+        getFinalState: () => ({ someData: true }),
       };
-      expect(endHandler.handle(null as any, runtime as any, null as any, null as any)).to.eql(null);
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
+      runtime.debugLogging.maxLogLevel = RuntimeLogs.LogLevel.VERBOSE;
+
+      const node = { id: 'step-id', type: BaseNode.NodeType.EXIT };
+      expect(endHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql(null);
       expect(runtime.stack.pop.callCount).to.eql(1);
       expect(frame.setNodeID.args).to.eql([[null]]);
       expect(frame.getNodeID.callCount).to.eql(1);
@@ -43,6 +51,20 @@ describe('EndHandler unit tests', () => {
       expect(runtime.end.callCount).to.eql(1);
       expect(runtime.trace.debug.args).to.eql([
         ['exiting session - saving location/resolving stack', BaseNode.NodeType.EXIT],
+      ]);
+      expect(runtime.trace.addTrace.args).to.eql([
+        [{ type: Trace.TraceType.END, payload: null }],
+        [
+          {
+            type: Trace.TraceType.LOG,
+            payload: {
+              kind: 'step.exit',
+              message: { componentName: 'exit', stepID: 'step-id', state: { someData: true } },
+              level: RuntimeLogs.LogLevel.VERBOSE,
+              timestamp: getISO8601Timestamp(),
+            },
+          },
+        ],
       ]);
     });
   });

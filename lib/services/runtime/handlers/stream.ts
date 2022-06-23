@@ -17,6 +17,10 @@ export const StreamHandler: HandlerFactory<BaseNode.Stream.Node, typeof handlerU
     runtime.storage.set<StreamPlayStorage>(StorageType.STREAM_PLAY, {
       src: u.replaceVariables(node.src, variablesMap),
       loop: node.loop,
+      description: node.description,
+      title: node.title,
+      iconImage: node.iconImage,
+      backgroundImage: node.backgroundImage,
       token: node.id,
       action: StreamAction.START,
       offset: 0,

@@ -16,6 +16,7 @@ const buildServices = (context: any) => ({
   runtime: { handle: sinon.stub().resolves(output(context, 'runtime')) },
   analytics: { handle: sinon.stub().resolves(output(context, 'analytics')) },
   dialog: { handle: sinon.stub().resolves(output(context, 'dialog')) },
+  debugLogging: { handle: sinon.stub().resolves(output(context, 'debugLogging')) },
   filter: { handle: sinon.stub().resolves(output(context, 'filter', { trace: 'trace' })) },
   metrics: { generalRequest: sinon.stub() },
   utils: { TurnBuilder },
@@ -35,6 +36,7 @@ describe('interact service unit tests', () => {
         request: data.body.request,
         versionID: data.headers.versionID,
         userID: undefined,
+        maxLogLevel: undefined,
         data: {
           locale: data.query.locale,
           config: {
@@ -69,6 +71,7 @@ describe('interact service unit tests', () => {
       expect(services.analytics.handle.args).to.eql([[output(context, 'runtime')]]);
       expect(services.tts.handle.args).to.eql([[output(context, 'analytics')]]);
       expect(services.speak.handle.args).to.eql([[output(context, 'tts')]]);
+      expect(services.debugLogging.handle.callCount).to.eql(0);
       expect(services.metrics.generalRequest.callCount).to.eql(1);
     });
 
@@ -146,6 +149,7 @@ describe('interact service unit tests', () => {
       userID: undefined,
       request: data.body.request,
       versionID: data.headers.versionID,
+      maxLogLevel: undefined,
       data: {
         locale: data.query.locale,
         config: {},

@@ -1,4 +1,4 @@
-import { BaseNode } from '@voiceflow/base-types';
+import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
@@ -35,6 +35,7 @@ const SpeakHandler: HandlerFactory<VoiceflowNode.Speak.Node> = () => ({
         type: BaseNode.Utils.TraceType.SPEAK,
         payload: { message: output, type: BaseNode.Speak.TraceSpeakType.MESSAGE },
       });
+      runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.SPEAK, node, { text: output });
     }
 
     return node.nextId ?? null;
