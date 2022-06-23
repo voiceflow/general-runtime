@@ -168,7 +168,6 @@ const transformResponseBody = (
       // Create mapping of variable name to variable value from the response JSON
       .map((mapping): [string, Variable | undefined] => [mapping.var, getVariable(mapping.path, responseJSON)])
       // Filter out variables that are undefined
-      .filter(([, variable]) => variable !== undefined)
       .filter((keyValuePair): keyValuePair is [string, Variable] => keyValuePair[1] !== undefined)
   );
 
