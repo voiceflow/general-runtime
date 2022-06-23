@@ -24,7 +24,7 @@ describe('project middleware unit tests', () => {
 
   const projectID = 'some-project-id';
 
-  const authorization = 'VF.something.something';
+  const authorization = 'VF.DM.abcd.1234';
 
   describe('unifyVersionID', () => {
     it('adds versionID to header if it exists on params', async () => {
@@ -114,7 +114,7 @@ describe('project middleware unit tests', () => {
       };
       const middleware = new Project(services as any, {} as any);
 
-      const req = getMockRequest({ headers: { versionID: VersionTag.DEVELOPMENT } });
+      const req = getMockRequest({ headers: { versionID: VersionTag.DEVELOPMENT, authorization } });
       const res = getMockResponse();
       const next = getMockNext();
 
@@ -136,7 +136,7 @@ describe('project middleware unit tests', () => {
       const req = getMockRequest({
         headers: {
           versionID: VersionTag.DEVELOPMENT,
-          authorization: 'auth-key',
+          authorization,
         },
       });
       const res = getMockResponse();
@@ -160,7 +160,7 @@ describe('project middleware unit tests', () => {
       };
       const middleware = new Project(services as any, {} as any);
 
-      const req = getMockRequest({ headers: { versionID: VersionTag.DEVELOPMENT } });
+      const req = getMockRequest({ headers: { versionID: VersionTag.DEVELOPMENT, authorization } });
       const res = getMockResponse();
       const next = getMockNext();
 
@@ -185,8 +185,8 @@ describe('project middleware unit tests', () => {
       };
       const middleware = new Project(services as any, {} as any);
 
-      const reqProd = getMockRequest({ headers: { versionID: VersionTag.PRODUCTION } });
-      const reqDev = getMockRequest({ headers: { versionID: VersionTag.DEVELOPMENT } });
+      const reqProd = getMockRequest({ headers: { versionID: VersionTag.PRODUCTION, authorization } });
+      const reqDev = getMockRequest({ headers: { versionID: VersionTag.DEVELOPMENT, authorization } });
 
       const res = getMockResponse();
       const next = getMockNext();
@@ -213,7 +213,7 @@ describe('project middleware unit tests', () => {
       };
       const middleware = new Project(services as any, {} as any);
 
-      const req = getMockRequest({ headers: { versionID: undefined } });
+      const req = getMockRequest({ headers: { versionID: undefined, authorization } });
       const res = getMockResponse();
       const next = getMockNext();
 
