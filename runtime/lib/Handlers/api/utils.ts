@@ -5,7 +5,7 @@ import DNS from 'dns/promises';
 import FormData from 'form-data';
 import ipRangeCheck from 'ip-range-check';
 import safeJSONStringify from 'json-stringify-safe';
-import fetch, { BodyInit, Request, Response } from 'node-fetch';
+import fetch, { BodyInit, Headers, Request, Response } from 'node-fetch';
 import { setTimeout as sleep } from 'timers/promises';
 import validator from 'validator';
 
@@ -155,7 +155,7 @@ const transformResponseBody = (
   responseJSON: object,
   response: Response,
   actionData: BaseNode.Api.NodeData['action_data']
-): { newVariables: Record<string, Variable>; responseBodyAdditions: object } => {
+): { newVariables: Record<string, Variable>; responseJSON: any } => {
   const responseBodyAdditions = {
     VF_STATUS_CODE: response.status,
     VF_HEADERS: Object.fromEntries(response.headers.entries()),
@@ -171,7 +171,15 @@ const transformResponseBody = (
       .filter(([, variable]) => variable !== undefined)
       .filter((keyValuePair): keyValuePair is [string, Variable] => keyValuePair[1] !== undefined)
   );
-  return { newVariables, responseBodyAdditions };
+
+  return {
+    newVariables,
+    responseJSON:
+      // If response body is a JSON object then add in the `VF_` helpers
+      object.isObject(responseJSON) && !Array.isArray(responseJSON)
+        ? { ...responseJSON, ...responseBodyAdditions }
+        : responseJSON,
+  };
 };
 
 export const makeAPICall = async (nodeData: APINodeData, runtime: Runtime, config: ResponseConfig) => {
@@ -193,25 +201,26 @@ export const makeAPICall = async (nodeData: APINodeData, runtime: Runtime, confi
   const { response, requestOptions } = await doFetch(config, nodeData);
 
   // TODO: Response bodies that aren't JSON will make this error
-  const responseJSON = await response.json();
+  const rawResponseJSON = await response.json();
 
-  const { newVariables, responseBodyAdditions } = transformResponseBody(responseJSON, response, nodeData);
-
-  // If response body is a JSON object then add in the `VF_` helpers
-  const transformedResponseBody =
-    object.isObject(responseJSON) && !Array.isArray(responseJSON)
-      ? { ...response, ...responseBodyAdditions }
-      : response;
+  const { newVariables, responseJSON } = transformResponseBody(rawResponseJSON, response, nodeData);
 
   return {
     variables: newVariables,
     request: requestOptions,
-    response: transformedResponseBody,
+    response,
     responseJSON,
   };
 };
 
 export const createRequest = (actionData: BaseNode.Api.NodeData['action_data']): Request => {
+  let headers = new Headers(
+    actionData.headers
+      // Filter out invalid headers - avoid an Error: " is not a legal HTTP header name"
+      .filter((header) => header.key && header.val)
+      .map((header): [headerName: string, headerValue: string] => [header.key, header.val])
+  );
+
   let body: BodyInit | undefined;
 
   if (actionData.method !== BaseNode.Api.APIMethod.GET) {
@@ -221,30 +230,31 @@ export const createRequest = (actionData: BaseNode.Api.NodeData['action_data']):
         break;
       case BaseNode.Api.APIBodyType.URL_ENCODED:
         body = new URLSearchParams(actionData.body.map(({ key, val }): [key: string, value: string] => [key, val]));
-        break;
-      case BaseNode.Api.APIBodyType.FORM_DATA:
-        {
-          const formData = new FormData();
 
-          actionData.body.forEach(({ key, val }) => formData.append(key, val));
-
-          body = formData;
-        }
+        headers.set('Content-Type', 'application/x-www-form-urlencoded');
         break;
+      case BaseNode.Api.APIBodyType.FORM_DATA: {
+        const formData = new FormData();
+        actionData.body.forEach(({ key, val }) => formData.append(key, val));
+        body = formData;
+
+        headers = new Headers(formData.getHeaders(headers));
+        break;
+      }
       default:
         throw new RangeError(`Unsupported body input type: ${actionData.bodyInputType}`);
     }
   }
 
   const url = new URL(actionData.url);
-  actionData.params.forEach(({ key, val }) => url.searchParams.append(key, val));
+  actionData.params
+    // Filter out invalid params
+    .filter((param) => param.key)
+    .forEach((param) => url.searchParams.append(param.key, param.val));
 
   return new Request(url.href, {
     method: actionData.method,
     body,
-    headers: actionData.headers
-      // Filter out invalid headers - avoid an Error: " is not a legal HTTP header name"
-      .filter((header) => header.key && header.val)
-      .map((header): [headerName: string, headerValue: string] => [header.key, header.val]),
+    headers,
   });
 };
