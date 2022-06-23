@@ -1,4 +1,4 @@
-# Delegates reviewer permission to Renovate on its PRs
+# Delegates reviewer permission to Renovate on its own PRs
 name: Renovatebot Bors Delegate
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   bors-delegate:
-    if: ${{ github.actor != 'renovate[bot]' }}
+    if: ${{ github.actor == 'renovate[bot]' }}
     name: Bors Delegate
     runs-on: ubuntu-latest
     steps:
