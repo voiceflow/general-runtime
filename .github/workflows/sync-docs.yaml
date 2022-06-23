@@ -1,0 +1,19 @@
+# For info on getting the latest rdme version and obtaining your API_DEFINITION_ID,
+# see our docs: https://docs.readme.com/docs/rdme#example-syncing-an-openapi-definition
+name: Sync OAS to ReadMe
+on:
+  push:
+    branches:
+      - main
+      - brennan/open-api-docs-test/VF-3842
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v3
+
+      - name: GitHub Action to sync OpenAPI file
+        uses: readmeio/rdme@7.2.2
+        with:
+          rdme: openapi backend/docs/openapi.yaml --key=rdme_xn8s9h4326bb7ba7a7478287703ea094b7a5a20102f1f30770feee5e300e470aa6770d --id=62b48022010fdd0079dab376
