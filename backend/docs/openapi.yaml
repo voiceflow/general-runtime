@@ -320,10 +320,12 @@ paths:
       summary: interact
       description: |-
         Resolve a conversation turn.
+
         Every time a request is sent you will get a unique response based on where the user is currently on in the Voiceflow project.
 
         Send out a request with a `type` and `payload`, and get back a response with a `trace` array to act on.
-        If you've enabled the verbose response parameter you will receive the [same kind of response as the stateless interact route](https://www.voiceflow.com/api/dialog-manager#operation/statelessInteract).
+
+        If you've enabled the `verbose` parameter you will receive the [same kind of response as the stateless interact route](https://www.voiceflow.com/api/dialog-manager#operation/statelessInteract).
 
         ```
         // -> request body, send user intention or event
