@@ -17,12 +17,16 @@ type PossibleGlobalLogLevel = RuntimeLogs.Logs.GlobalLog['level'];
 type PossibleGlobalLogKind = RemovePrefix<'global.', RuntimeLogs.Logs.GlobalLog['kind']>;
 
 export default class DebugLogging {
-  public static createPathReference(node: BaseModels.BaseNode): RuntimeLogs.PathReference {
+  public static createPathReference(
+    node: BaseModels.BaseNode,
+    kind?: RuntimeLogs.Kinds.StepLogKind
+  ): RuntimeLogs.PathReference {
     return {
       stepID: node.id,
       // The fallback here deviates from the spec but is necessary to avoid simply throwing an error when a path leads
       // to a node that isn't mappable to a standard component name
-      componentName: RuntimeLogs.Kinds.nodeTypeToStepLogKind(node.type as BaseNode.NodeType) ?? (node.type as any),
+      componentName:
+        kind ?? RuntimeLogs.Kinds.nodeTypeToStepLogKind(node.type as BaseNode.NodeType) ?? (node.type as any),
     };
   }
 
@@ -112,7 +116,11 @@ export default class DebugLogging {
     message: SimpleStepMessage<Extract<RuntimeLogs.Logs.StepLog, { kind: `step.${Kind}`; level: Level }>>,
     level?: Level
   ): void {
-    this.recordLog(`step.${kind}`, { ...message, ...DebugLogging.createPathReference(node) }, level);
+    this.recordLog(
+      `step.${kind}`,
+      { ...message, ...DebugLogging.createPathReference(node, kind as RuntimeLogs.Kinds.StepLogKind) },
+      level
+    );
   }
 
   /**
