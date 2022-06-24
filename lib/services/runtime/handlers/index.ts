@@ -3,6 +3,7 @@ import {
   CodeHandler,
   EndHandler,
   FlowHandler,
+  GoToNodeHandler,
   IfHandler,
   IfV2Handler,
   IntegrationsHandler,
@@ -20,7 +21,6 @@ import CaptureHandler from './capture';
 import CaptureV2Handler from './captureV2';
 import CarouselHandler from './carousel';
 import GoToHandler from './goTo';
-import GoToNodeHandler from './gotoNode';
 import InteractionHandler from './interaction';
 import SpeakHandler from './speak';
 import StateHandlers from './state';
