@@ -3,7 +3,7 @@ import { BaseNode, BaseRequest, Nullable } from '@voiceflow/base-types';
 import { GeneralRuntime, isIntentRequest } from '@/lib/services/runtime/types';
 import { Runtime, Store } from '@/runtime';
 
-import { mapEntities } from '../../utils';
+import { mapEntities } from '../utils';
 
 const entitiesToMappings = (entities: BaseRequest.Entity[]) =>
   entities.map(({ name }) => ({ slot: name, variable: name }));
