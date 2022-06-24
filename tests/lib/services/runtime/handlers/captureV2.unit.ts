@@ -3,7 +3,9 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { CaptureV2Handler } from '@/lib/services/runtime/handlers/captureV2';
-import { Action } from '@/runtime';
+import { Action, Store } from '@/runtime';
+import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
+import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
 describe('CaptureV2 handler', () => {
   describe('canHandle', () => {
@@ -154,6 +156,7 @@ describe('CaptureV2 handler', () => {
             id: 'node-id',
             intent: { name: 'intent1', entities: ['entity1', 'entity2'] },
             nextId: 'next-id',
+            type: BaseNode.NodeType.CAPTURE_V2,
           };
           const request = {
             type: 'intent',
@@ -172,15 +175,43 @@ describe('CaptureV2 handler', () => {
             getRequest: sinon.stub().returns(request),
             trace: { addTrace: sinon.stub() },
             storage: { delete: sinon.stub() },
+            debugLogging: null as unknown as DebugLogging,
           };
-          const variables = { merge: sinon.stub() };
+          runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
+          const variables = new Store();
           expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
 
           expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
           expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
           expect(runtime.getRequest.callCount).to.eql(1);
-          expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', payload: { path: 'capture' } }]]);
-          expect(variables.merge.args).to.eql([[{ entity1: 'value1' }]]);
+          expect(runtime.trace.addTrace.args).to.eql([
+            [
+              {
+                type: 'log',
+                payload: {
+                  kind: 'step.capture',
+                  level: 'info',
+                  message: {
+                    changedVariables: {
+                      entity1: {
+                        after: 'value1',
+                        before: null,
+                      },
+                      entity2: {
+                        after: null,
+                        before: null,
+                      },
+                    },
+                    componentName: 'capture',
+                    stepID: 'node-id',
+                  },
+                  timestamp: getISO8601Timestamp(),
+                },
+              },
+            ],
+            [{ type: 'path', payload: { path: 'capture' } }],
+          ]);
+          expect(variables).to.eql(new Store({ entity1: 'value1' }));
         });
 
         it('local scope', () => {
@@ -202,6 +233,7 @@ describe('CaptureV2 handler', () => {
             intent: { name: 'intent1', entities: ['entity1', 'entity2'] },
             intentScope: BaseNode.Utils.IntentScope.NODE,
             nextId: 'next-id',
+            type: BaseNode.NodeType.CAPTURE_V2,
           };
           const request = {
             type: 'intent',
@@ -217,14 +249,42 @@ describe('CaptureV2 handler', () => {
             getRequest: sinon.stub().returns(request),
             trace: { addTrace: sinon.stub() },
             storage: { delete: sinon.stub() },
+            debugLogging: null as unknown as DebugLogging,
           };
-          const variables = { merge: sinon.stub() };
+          runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
+          const variables = new Store();
           expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
 
           expect(utils.commandHandler.canHandle.callCount).to.eql(0);
           expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
           expect(runtime.getRequest.callCount).to.eql(1);
-          expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', payload: { path: 'capture' } }]]);
+          expect(runtime.trace.addTrace.args).to.eql([
+            [
+              {
+                type: 'log',
+                payload: {
+                  kind: 'step.capture',
+                  level: 'info',
+                  message: {
+                    changedVariables: {
+                      entity1: {
+                        after: null,
+                        before: null,
+                      },
+                      entity2: {
+                        after: null,
+                        before: null,
+                      },
+                    },
+                    componentName: 'capture',
+                    stepID: 'node-id',
+                  },
+                  timestamp: getISO8601Timestamp(),
+                },
+              },
+            ],
+            [{ type: 'path', payload: { path: 'capture' } }],
+          ]);
         });
 
         it('capture entire reply', () => {
@@ -241,7 +301,7 @@ describe('CaptureV2 handler', () => {
           };
           const handler = CaptureV2Handler(utils as any);
 
-          const node = { id: 'node-id', variable: 'variable1', nextId: 'next-id' };
+          const node = { id: 'node-id', variable: 'variable1', nextId: 'next-id', type: BaseNode.NodeType.CAPTURE_V2 };
           const request = {
             type: 'intent',
             payload: {
@@ -258,15 +318,39 @@ describe('CaptureV2 handler', () => {
             getRequest: sinon.stub().returns(request),
             trace: { addTrace: sinon.stub() },
             storage: { delete: sinon.stub() },
+            debugLogging: null as unknown as DebugLogging,
           };
-          const variables = { set: sinon.stub() };
+          runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
+          const variables = new Store();
           expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
 
           expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
           expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
           expect(runtime.getRequest.callCount).to.eql(1);
-          expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', payload: { path: 'capture' } }]]);
-          expect(variables.set.args).to.eql([[node.variable, request.payload.query]]);
+          expect(runtime.trace.addTrace.args).to.eql([
+            [
+              {
+                type: 'log',
+                payload: {
+                  kind: 'step.capture',
+                  level: 'info',
+                  message: {
+                    changedVariables: {
+                      variable1: {
+                        after: 'capture this',
+                        before: null,
+                      },
+                    },
+                    componentName: 'capture',
+                    stepID: 'node-id',
+                  },
+                  timestamp: getISO8601Timestamp(),
+                },
+              },
+            ],
+            [{ type: 'path', payload: { path: 'capture' } }],
+          ]);
+          expect(variables).to.eql(new Store({ [node.variable]: request.payload.query }));
         });
 
         it('nomatch handler', () => {

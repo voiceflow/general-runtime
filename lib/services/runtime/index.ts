@@ -6,6 +6,7 @@
 import { BaseNode } from '@voiceflow/base-types';
 
 import Client, { Action as RuntimeAction, Runtime } from '@/runtime';
+import { ContextID } from '@/runtime/lib/Context/types';
 import { Config, Context, ContextHandler } from '@/types';
 
 import { FullServiceMap } from '../index';
@@ -24,6 +25,8 @@ export const utils = {
 @injectServices({ utils })
 class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
   private handlers: ReturnType<typeof Handlers>;
+
+  private readonly contextIDToRuntimeMap: Map<ContextID, Runtime> = new Map();
 
   constructor(services: FullServiceMap, config: Config) {
     super(services, config);
@@ -100,8 +103,31 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     };
   }
 
-  private getRuntimeForContext(context: Context): Runtime {
-    return this.createClient(context.data.api).createRuntime(context.versionID, context.state, context.request);
+  public getRuntimeForContext(context: Context): Runtime {
+    this.garbageCollectRuntimeCache();
+
+    const cachedRuntime = this.contextIDToRuntimeMap.get(context.id);
+
+    if (cachedRuntime) {
+      return cachedRuntime;
+    }
+
+    const runtime = this.createClient(context.data.api).createRuntime(
+      context.versionID,
+      context.state,
+      context.request
+    );
+    this.contextIDToRuntimeMap.set(context.id, runtime);
+
+    return runtime;
+  }
+
+  private garbageCollectRuntimeCache(): void {
+    [...this.contextIDToRuntimeMap.entries()]
+      .filter(([, runtime]) => runtime.hasEnded())
+      .forEach(([id]) => {
+        this.contextIDToRuntimeMap.delete(id);
+      });
   }
 }
 

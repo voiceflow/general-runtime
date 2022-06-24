@@ -1,8 +1,6 @@
 import { BaseNode, RuntimeLogs, Trace } from '@voiceflow/base-types';
 import { Environment } from '@voiceflow/common';
 
-export const DEFAULT_LOG_LEVEL = RuntimeLogs.LogLevel.INFO;
-
 export const createLogTrace = (log: RuntimeLogs.Log): Trace.LogTrace => ({
   type: Trace.TraceType.LOG,
   payload: log,
@@ -47,7 +45,7 @@ export const resolveLogLevel = (value: LogLevelResolvable): RuntimeLogs.LogLevel
     // Opt in but didn't specify a specific log level to use
     case true:
     case 'true':
-      return DEFAULT_LOG_LEVEL;
+      return RuntimeLogs.DEFAULT_LOG_LEVEL;
     // Opt in with a specific log level
     default:
       return value;

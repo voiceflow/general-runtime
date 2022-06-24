@@ -2,6 +2,8 @@ import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 
 import { State } from '@/runtime/lib/Runtime';
 
+export type ContextID = symbol;
+
 export interface Context<R = Record<string, unknown>, T = BaseNode.Utils.BaseTraceFrame, D = Record<string, unknown>> {
   end?: boolean;
   data: D;
@@ -16,6 +18,7 @@ export interface Context<R = Record<string, unknown>, T = BaseNode.Utils.BaseTra
    * If this field is missing do not update the maximum log level for this turn.
    */
   maxLogLevel?: RuntimeLogs.LogLevel;
+  id: ContextID;
 }
 
 export type ContextHandle<C extends Context<any, any, any>> = (request: C) => C | Promise<C>;

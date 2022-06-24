@@ -1,9 +1,13 @@
-import { BaseNode } from '@voiceflow/base-types';
+import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 import { expect } from 'chai';
+import { Request, Response } from 'node-fetch';
 import sinon from 'sinon';
 
+import { Store } from '@/runtime';
 import APIHandler, { USER_AGENT, USER_AGENT_KEY } from '@/runtime/lib/Handlers/api';
 import * as APIUtils from '@/runtime/lib/Handlers/api/utils';
+import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
+import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
 const ACTION_DATA = { foo: 'bar' };
 const AGENT_ACTION_DATA = { foo: 'bar', headers: [{ key: USER_AGENT_KEY, val: USER_AGENT }] };
@@ -42,15 +46,30 @@ describe('API Handler unit tests', () => {
     it('success', async () => {
       const config = 'config';
       const apiHandler = APIHandler(config as any);
-      const resultVariables = { data: { variables: { foo: 'bar' }, response: { status: 200 } } };
+      const resultVariables = {
+        data: {
+          variables: { foo: 'bar' },
+          request: new Request('https://example.com/?a=1'),
+          response: new Response('response body', {
+            status: 200,
+            statusText: 'OK',
+          }),
+        },
+      };
       const makeAPICallStub = sinon.stub(APIUtils, 'makeAPICall').resolves(resultVariables.data as any);
 
       const node = {
         selected_integration: BaseNode.Utils.IntegrationType.CUSTOM_API,
         selected_action: 'Make a GET Request',
         action_data: ACTION_DATA,
+        id: 'step-id',
+        type: BaseNode.NodeType.API,
       };
-      const runtime = { trace: { debug: sinon.stub() } };
+      const runtime = {
+        trace: { debug: sinon.stub(), addTrace: sinon.stub() },
+        debugLogging: null as unknown as DebugLogging,
+      };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 
       expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
@@ -61,7 +80,16 @@ describe('API Handler unit tests', () => {
 
     it('calls local', async () => {
       const apiHandler = APIHandler();
-      const resultVariables = { data: { variables: { foo: 'bar' }, response: { status: 200 } } };
+      const resultVariables = {
+        data: {
+          variables: { foo: 'bar' },
+          request: new Request('https://example.com/?a=1'),
+          response: new Response('response body', {
+            status: 200,
+            statusText: 'OK',
+          }),
+        },
+      };
       const makeAPICallStub = sinon.stub(APIUtils, 'makeAPICall').resolves(resultVariables.data as any);
 
       const node = {
@@ -69,7 +97,14 @@ describe('API Handler unit tests', () => {
         selected_action: 'Make a GET Request',
         action_data: ACTION_DATA,
       };
-      const runtime = { trace: { debug: sinon.stub() } };
+      const runtime = {
+        trace: {
+          debug: sinon.stub(),
+          addTrace: sinon.stub(),
+        },
+        debugLogging: null as unknown as DebugLogging,
+      };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 
       expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
@@ -80,7 +115,16 @@ describe('API Handler unit tests', () => {
 
     it('error status without fail_id', async () => {
       const apiHandler = APIHandler();
-      const resultVariables = { data: { variables: {}, response: { status: 401 } } };
+      const resultVariables = {
+        data: {
+          variables: {},
+          request: new Request('https://example.com/?a=1'),
+          response: new Response('response body', {
+            status: 401,
+            statusText: 'Unauthorized',
+          }),
+        },
+      };
       sinon.stub(APIUtils, 'makeAPICall').resolves(resultVariables.data as any);
 
       const node = {
@@ -88,7 +132,11 @@ describe('API Handler unit tests', () => {
         selected_action: 'Make a GET Request',
         action_data: ACTION_DATA,
       };
-      const runtime = { trace: { debug: sinon.stub() } };
+      const runtime = {
+        trace: { debug: sinon.stub(), addTrace: sinon.stub() },
+        debugLogging: null as unknown as DebugLogging,
+      };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 
       expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
@@ -97,7 +145,16 @@ describe('API Handler unit tests', () => {
 
     it('error status with fail_id', async () => {
       const apiHandler = APIHandler();
-      const resultVariables = { data: { variables: {}, response: { status: 401 } } };
+      const resultVariables = {
+        data: {
+          variables: {},
+          request: new Request('https://example.com/?a=1'),
+          response: new Response('response body', {
+            status: 401,
+            statusText: 'Unauthorized',
+          }),
+        },
+      };
       sinon.stub(APIUtils, 'makeAPICall').resolves(resultVariables.data as any);
 
       const node = {
@@ -106,7 +163,11 @@ describe('API Handler unit tests', () => {
         selected_action: 'Make a GET Request',
         action_data: ACTION_DATA,
       };
-      const runtime = { trace: { debug: sinon.stub() } };
+      const runtime = {
+        trace: { debug: sinon.stub(), addTrace: sinon.stub() },
+        debugLogging: null as unknown as DebugLogging,
+      };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 
       expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.fail_id);
@@ -149,6 +210,157 @@ describe('API Handler unit tests', () => {
         expect(makeAPICallStub.args).to.eql([[AGENT_ACTION_DATA, runtime, {}]]);
         expect(runtime.trace.debug.args).to.eql([
           ['API call failed - Error: \n{"name":"error5"}', BaseNode.NodeType.API],
+        ]);
+      });
+
+      it('creates non-verbose runtime logs', async () => {
+        const config = 'config';
+        const apiHandler = APIHandler(config as any);
+        const resultVariables = {
+          data: {
+            // variables: { foo: 'bar' },
+            request: new Request('https://example.com/?a=1', {
+              headers: {
+                'Request-Header': 'request-header-value',
+              },
+            }),
+            response: new Response('response body', {
+              status: 200,
+              statusText: 'OK',
+              headers: {
+                'Response-Header': 'response-header-value',
+              },
+            }),
+          },
+        };
+
+        sinon.stub(APIUtils, 'makeAPICall').resolves(resultVariables.data as any);
+
+        const node = {
+          selected_integration: BaseNode.Utils.IntegrationType.CUSTOM_API,
+          selected_action: 'Make a GET Request',
+          action_data: ACTION_DATA,
+          id: 'step-id',
+          type: BaseNode.NodeType.API,
+        };
+        const runtime = {
+          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
+          debugLogging: null as unknown as DebugLogging,
+        };
+        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
+
+        await apiHandler.handle(node as any, runtime as any, new Store(), null as any);
+        expect(runtime.trace.addTrace.args).to.eql([
+          [
+            {
+              type: 'log',
+              payload: {
+                kind: 'step.api',
+                level: RuntimeLogs.LogLevel.INFO,
+                message: {
+                  componentName: RuntimeLogs.Kinds.StepLogKind.API,
+                  stepID: 'step-id',
+                  request: {
+                    body: null,
+                    bodyType: null,
+                    headers: null,
+                    method: 'GET',
+                    query: null,
+                    url: 'https://example.com/?a=1',
+                  },
+                  response: {
+                    body: null,
+                    headers: null,
+                    statusCode: 200,
+                    statusText: 'OK',
+                  },
+                },
+                timestamp: getISO8601Timestamp(),
+              },
+            },
+          ],
+        ]);
+      });
+      it('creates verbose runtime logs', async () => {
+        const config = 'config';
+        const apiHandler = APIHandler(config as any);
+        const resultVariables = {
+          data: {
+            // variables: { foo: 'bar' },
+            request: new Request('https://example.com/?a=1', {
+              headers: {
+                'Request-Header': 'request-header-value',
+              },
+            }),
+            response: new Response('whatever', {
+              status: 200,
+              statusText: 'OK',
+              headers: {
+                'Response-Header': 'response-header-value',
+                'Content-Type': 'application/json',
+              },
+            }),
+            responseJSON: {
+              foo: 'bar',
+            },
+          },
+        };
+
+        sinon.stub(APIUtils, 'makeAPICall').resolves(resultVariables.data as any);
+
+        const node = {
+          selected_integration: BaseNode.Utils.IntegrationType.CUSTOM_API,
+          selected_action: 'Make a GET Request',
+          action_data: ACTION_DATA,
+          id: 'step-id',
+          type: BaseNode.NodeType.API,
+        };
+        const runtime = {
+          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
+          debugLogging: null as unknown as DebugLogging,
+        };
+        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
+        runtime.debugLogging.maxLogLevel = RuntimeLogs.LogLevel.VERBOSE;
+
+        await apiHandler.handle(node as any, runtime as any, new Store(), null as any);
+        expect(runtime.trace.addTrace.args).to.eql([
+          [
+            {
+              type: 'log',
+              payload: {
+                kind: 'step.api',
+                level: RuntimeLogs.LogLevel.VERBOSE,
+                message: {
+                  componentName: RuntimeLogs.Kinds.StepLogKind.API,
+                  stepID: 'step-id',
+                  request: {
+                    body: null,
+                    bodyType: null,
+                    headers: {
+                      'request-header': 'request-header-value',
+                    },
+                    method: 'GET',
+                    query: {
+                      a: '1',
+                    },
+                    url: 'https://example.com/?a=1',
+                  },
+                  response: {
+                    body: JSON.stringify({
+                      foo: 'bar',
+                    }),
+                    headers: {
+                      'content-type': 'application/json',
+                      'response-header': 'response-header-value',
+                    },
+                    statusCode: 200,
+                    statusText: 'OK',
+                  },
+                },
+                timestamp: getISO8601Timestamp(),
+              },
+            },
+          ],
         ]);
       });
     });

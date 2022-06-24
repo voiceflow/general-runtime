@@ -1,7 +1,8 @@
-import { BaseNode, BaseTrace } from '@voiceflow/base-types';
+import { BaseNode, BaseTrace, RuntimeLogs, VariableState } from '@voiceflow/base-types';
 import { NodeType } from '@voiceflow/base-types/build/common/node';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 
+import { Variable } from '@/../libs/packages/base-types/build/common/models';
 import { Action, HandlerFactory } from '@/runtime';
 
 import { isIntentRequest, StorageType } from '../types';
@@ -94,18 +95,38 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, type
       };
 
       if (isNodeCapturingEntity(node) && intent.name === node.intent?.name) {
-        variables.merge(
-          mapEntities(
-            node.intent.entities.map((slot) => ({ slot, variable: slot })),
-            request.payload.entities
-          )
+        const variablesBefore: Record<string, RuntimeLogs.VariableValue | null> = Object.fromEntries(
+          node.intent.entities.map((entity) => [entity, variables.get<RuntimeLogs.VariableValue>(entity) ?? null])
         );
+        const variablesAfter = mapEntities(
+          node.intent.entities.map((slot) => ({ slot, variable: slot })),
+          request.payload.entities
+        ) as Record<string, string>; // This assertion is safe because the updated value is always a string
+
+        variables.merge(variablesAfter);
+        runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.CAPTURE, node, {
+          changedVariables: Object.fromEntries(
+            Object.entries(variablesBefore).map(([variable, beforeValue]) => [
+              variable,
+              { before: beforeValue ?? null, after: variablesAfter[variable] ?? null },
+            ])
+          ),
+        });
 
         return handleCapturePath();
       }
 
       if (isNodeCapturingEntireResponse(node)) {
+        const variableBefore = variables.get<RuntimeLogs.VariableValue>(node.variable);
         variables.set(node.variable, query);
+        runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.CAPTURE, node, {
+          changedVariables: {
+            [node.variable]: {
+              before: variableBefore ?? null,
+              after: query,
+            },
+          },
+        });
         return handleCapturePath();
       }
     }

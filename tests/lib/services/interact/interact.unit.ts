@@ -1,3 +1,4 @@
+import assert from 'assert';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -22,6 +23,12 @@ const buildServices = (context: any) => ({
   utils: { TurnBuilder },
 });
 
+type ServiceName = Exclude<keyof ReturnType<typeof buildServices>, 'metrics' | 'utils'>;
+
+interface MockService {
+  handle: sinon.SinonStub;
+}
+
 describe('interact service unit tests', () => {
   describe('handler', () => {
     it('works correctly', async () => {
@@ -37,6 +44,7 @@ describe('interact service unit tests', () => {
         versionID: data.headers.versionID,
         userID: undefined,
         maxLogLevel: undefined,
+        id: Symbol('context'),
         data: {
           locale: data.query.locale,
           config: {
@@ -62,15 +70,42 @@ describe('interact service unit tests', () => {
         trace: 'trace',
       });
 
-      expect(services.state.handle.args).to.eql([[context]]);
-      expect(services.asr.handle.args).to.eql([[output(context, 'state')]]);
-      expect(services.nlu.handle.args).to.eql([[output(context, 'asr')]]);
-      expect(services.slots.handle.args).to.eql([[output(context, 'nlu')]]);
-      expect(services.dialog.handle.args).to.eql([[output(context, 'slots')]]);
-      expect(services.runtime.handle.args).to.eql([[output(context, 'dialog')]]);
-      expect(services.analytics.handle.args).to.eql([[output(context, 'runtime')]]);
-      expect(services.tts.handle.args).to.eql([[output(context, 'analytics')]]);
-      expect(services.speak.handle.args).to.eql([[output(context, 'tts')]]);
+      const servicesToAssertWith: ServiceName[] = [
+        'state',
+        'asr',
+        'nlu',
+        'slots',
+        'dialog',
+        'runtime',
+        'analytics',
+        'tts',
+        'speak',
+      ];
+
+      servicesToAssertWith
+        .map(
+          (
+            serviceName,
+            index
+          ): { serviceName: ServiceName; service: MockService; previousServiceName: ServiceName | undefined } => ({
+            serviceName,
+            service: services[serviceName],
+            previousServiceName: servicesToAssertWith[index - 1],
+          })
+        )
+        .forEach(({ serviceName, service, previousServiceName }) => {
+          // The context ID is a symbol that is unique for each context
+          // We expect it to change here, so just .to.eql()ing it directly would fail if we didn't reset it
+          context.id = service.handle.args[0][0].id;
+
+          if (serviceName === 'state') {
+            expect(service.handle.args).to.eql([[context]]);
+          } else {
+            assert(previousServiceName);
+            expect(service.handle.args).to.eql([[output(context, previousServiceName)]]);
+          }
+        });
+
       expect(services.debugLogging.handle.callCount).to.eql(0);
       expect(services.metrics.generalRequest.callCount).to.eql(1);
     });
@@ -150,6 +185,7 @@ describe('interact service unit tests', () => {
       request: data.body.request,
       versionID: data.headers.versionID,
       maxLogLevel: undefined,
+      id: Symbol('context'),
       data: {
         locale: data.query.locale,
         config: {},
@@ -184,6 +220,9 @@ describe('interact service unit tests', () => {
       [services.analytics],
       [services.speak, services.filter],
     ]);
+    // The context ID is a symbol that is unique for each context
+    // We expect it to change here, so just .to.eql()ing it directly would fail if we didn't reset it
+    context.id = services.utils.autoDelegate.args[0][1].id;
     expect(services.utils.autoDelegate.args).to.eql([[turnBuilder, context]]);
     expect(await turnBuilder.resolve.args[0][0]).to.eql(finalState);
   });
