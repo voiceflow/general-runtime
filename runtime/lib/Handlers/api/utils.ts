@@ -5,6 +5,7 @@ import DNS from 'dns/promises';
 import FormData from 'form-data';
 import ipRangeCheck from 'ip-range-check';
 import safeJSONStringify from 'json-stringify-safe';
+import _merge from 'lodash/merge';
 import fetch, { BodyInit, Headers, Request, Response } from 'node-fetch';
 import { setTimeout as sleep } from 'timers/promises';
 import validator from 'validator';
@@ -127,7 +128,7 @@ const doFetch = async (
   config: ResponseConfig,
   nodeData: BaseNode.Api.NodeData['action_data']
 ): Promise<{ response: Response; requestOptions: Request }> => {
-  const actualConfig = { ...DEFAULT_RESPONSE_CONFIG, ...config };
+  const actualConfig = _merge(DEFAULT_RESPONSE_CONFIG, config);
   const requestOptions = createRequest(nodeData);
 
   if (requestOptions.size > actualConfig.maxRequestBodySizeBytes) {
