@@ -1,0 +1,12 @@
+name: Sync OAS to ReadMe
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: readmeio/rdme@main
+        env:
+          DAY_OF_WEEK: NONMASTER
+        with:
+          rdme: openapi backend/docs/openapi.yaml --key=${{ secrets.README_API_KEY }} --id=${{ secrets.README_API_DEFINITION_ID }}
