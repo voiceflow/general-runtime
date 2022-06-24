@@ -120,7 +120,7 @@ tags:
       All endpoints take in a `{userID}` parameter to identify the caller and associate their state to the call.
 
       ### userID
-      `{userID}` will need to be generated yourself - it should be something unique that easily references the person on the session - such as an username, email, device ID, or phone number.
+      You will need to generate `{userID}` yourself - it should be something unique that easily references the person on the session - such as an username, email, device ID, or phone number.
       (*e.g.* `user54646`, `user@gmail.com`, `1-647-424-4242`, etc.).
       If you're not sure what to call it just for testing purposes, you can just pick a random `{userID}` like *steve*.
 
