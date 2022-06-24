@@ -25,8 +25,9 @@ export const CarouselHandler: HandlerFactory<BaseNode.Carousel.Node, typeof hand
   canHandle: (node) => node.type === NodeType.CAROUSEL,
   handle: (node, runtime, variables) => {
     const defaultPath = node.nextId || null;
+    const isStartingFromCarouselStep = runtime.getAction() === Action.REQUEST && !runtime.getRequest();
 
-    if (runtime.getAction() === Action.RUNNING) {
+    if (runtime.getAction() === Action.RUNNING || isStartingFromCarouselStep) {
       const variablesMap = variables.getState();
       const sanitizedVars = utils.sanitizeVariables(variables.getState());
 

@@ -1,4 +1,5 @@
 import { Validator } from '@voiceflow/backend-utils';
+import { RuntimeLogs } from '@voiceflow/base-types';
 
 import CONFIG from '@/config';
 import { isLogLevelResolvable, resolveLogLevel } from '@/runtime/lib/Runtime/DebugLogging/utils';
@@ -13,8 +14,7 @@ export const QUERY = {
         .withMessage('must be a known log level, boolean, or undefined')
         .customSanitizer(resolveLogLevel)
     : query('logs')
-        .optional()
-        .custom(() => {
-          throw new Error('The runtime logging feature flag is not enabled');
-        }),
+        .custom((value: unknown) => value === undefined)
+        .withMessage('The runtime logging feature flag is not enabled')
+        .customSanitizer(() => RuntimeLogs.LogLevel.OFF),
 };

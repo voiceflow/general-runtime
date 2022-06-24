@@ -1,6 +1,7 @@
 import { BaseModels, BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 
 import Runtime from '..';
+import { Frame } from '../Stack';
 import Trace from '../Trace';
 import { TraceLogBuffer } from './traceLogBuffer';
 import { AddTraceFn, DEFAULT_LOG_LEVEL, getISO8601Timestamp } from './utils';
@@ -22,6 +23,13 @@ export default class DebugLogging {
       // The fallback here deviates from the spec but is necessary to avoid simply throwing an error when a path leads
       // to a node that isn't mappable to a standard component name
       componentName: RuntimeLogs.Kinds.nodeTypeToStepLogKind(node.type as BaseNode.NodeType) ?? (node.type as any),
+    };
+  }
+
+  public static createFlowReference(frame: Frame): RuntimeLogs.FlowReference {
+    return {
+      name: frame.getName() ?? null,
+      programID: frame.getProgramID(),
     };
   }
 
