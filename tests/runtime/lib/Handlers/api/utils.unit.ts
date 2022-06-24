@@ -1,11 +1,17 @@
 import { BaseNode } from '@voiceflow/base-types';
-import assert from 'assert';
 import { expect } from 'chai';
 import FormData from 'form-data';
-import { Headers } from 'node-fetch';
-import Sinon from 'sinon';
+import querystring from 'querystring';
+import sinon from 'sinon';
 
-import { createRequest, getVariable, ReduceKeyValue, stringToNumIfNumeric } from '@/runtime/lib/Handlers/api/utils';
+import {
+  formatRequestConfig,
+  getVariable,
+  ReduceKeyValue,
+  stringToNumIfNumeric,
+} from '@/runtime/lib/Handlers/api/utils';
+
+import { baseData, baseOptions } from './fixture';
 
 describe('Handlers api utils unit tests', () => {
   describe('stringToNumIfNumeric', () => {
@@ -62,110 +68,213 @@ describe('Handlers api utils unit tests', () => {
     });
   });
 
-  describe('createRequest', () => {
-    it('works with GET requests', async () => {
-      const request = createRequest({
-        url: 'https://example.com/?a=1',
-        method: BaseNode.Api.APIMethod.GET,
-        bodyInputType: BaseNode.Api.APIBodyType.RAW_INPUT,
-        content: 'my body',
-        headers: [{ key: 'My-Header', val: 'My-Value' }],
-        params: [
-          { key: 'b', val: '2' },
-          { key: 'c', val: '3' },
-        ],
-      } as any);
-
-      expect(request.method).to.eql('GET');
-      expect(request.url).to.eql('https://example.com/?a=1&b=2&c=3');
-      // No body should be included in GET requests
-      await expect(request.text()).to.eventually.eql('');
-      expect(request.headers).to.eql(new Headers({ 'My-Header': 'My-Value' }));
+  describe('formatRequestConfig', () => {
+    afterEach(() => {
+      sinon.restore();
     });
-    it('works with POST requests with raw body', async () => {
-      const request = createRequest({
-        url: 'https://example.com/?a=1',
-        method: BaseNode.Api.APIMethod.POST,
-        bodyInputType: BaseNode.Api.APIBodyType.RAW_INPUT,
-        content: 'my body',
-        headers: [{ key: 'My-Header', val: 'My-Value' }],
-        params: [
-          { key: 'b', val: '2' },
-          { key: 'c', val: '3' },
-        ],
-      } as any);
+    describe('get method', () => {
+      it('raw input body type', async () => {
+        const data = {
+          ...baseData,
+          method: BaseNode.Api.APIMethod.GET,
+          bodyInputType: BaseNode.Api.APIBodyType.RAW_INPUT,
+        };
 
-      expect(request.method).to.eql('POST');
-      expect(request.url).to.eql('https://example.com/?a=1&b=2&c=3');
-      await expect(request.text()).to.eventually.eql('my body');
-      expect(request.headers).to.eql(new Headers({ 'My-Header': 'My-Value' }));
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any);
+        expect(rest).to.eql({
+          ...baseOptions,
+          method: data.method,
+          headers: { header1: baseOptions.headers.header1 },
+        });
+      });
+
+      it('form data body type', async () => {
+        const data = {
+          ...baseData,
+          method: BaseNode.Api.APIMethod.GET,
+          bodyInputType: BaseNode.Api.APIBodyType.FORM_DATA,
+        };
+
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any);
+        expect(rest).to.eql({
+          ...baseOptions,
+          method: data.method,
+          headers: { header1: baseOptions.headers.header1 },
+        });
+      });
     });
-    it('works with POST requests with URL encoded body', async () => {
-      const request = createRequest({
-        url: 'https://example.com/?a=1',
-        method: BaseNode.Api.APIMethod.POST,
-        bodyInputType: BaseNode.Api.APIBodyType.URL_ENCODED,
+
+    describe('raw input body', () => {
+      it('converts to json', async () => {
+        const parseStub = sinon.stub(JSON, 'parse').returns('parsedJSON');
+        const data = {
+          ...baseData,
+          bodyInputType: BaseNode.Api.APIBodyType.RAW_INPUT,
+        };
+
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any);
+        expect(rest).to.eql({
+          ...baseOptions,
+          data: 'parsedJSON',
+        });
+        expect(parseStub.args).to.eql([[data.content]]);
+      });
+
+      it('catches error', async () => {
+        const parseStub = sinon.stub(JSON, 'parse').throws('abc');
+        const data = {
+          ...baseData,
+          bodyInputType: BaseNode.Api.APIBodyType.RAW_INPUT,
+        };
+
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any);
+        expect(rest).to.eql({
+          ...baseOptions,
+          data,
+        });
+        expect(parseStub.args).to.eql([[data.content]]);
+      });
+    });
+
+    describe('formdata body', () => {
+      it('works', async () => {
+        const formDataAppendSpy = sinon.spy(FormData.prototype, 'append');
+        const formDataGetHeadersSpy = sinon
+          .stub(FormData.prototype, 'getHeaders')
+          .returns({ someHeader: 'getHeadersReturn' as any });
+        const data = {
+          ...baseData,
+          body: [
+            { key: 'a', val: 'b' },
+            { key: 'c', val: 'd' },
+          ],
+          bodyInputType: BaseNode.Api.APIBodyType.FORM_DATA,
+        };
+
+        const { validateStatus, data: formDataObj, ...rest } = await formatRequestConfig(data as any);
+        expect(rest).to.eql({
+          ...baseOptions,
+          headers: {
+            ...baseOptions.headers,
+            someHeader: 'getHeadersReturn',
+          },
+        });
+        expect(formDataObj).to.be.instanceOf(FormData);
+        expect(formDataAppendSpy.args).to.eql([
+          ['a', 'b'],
+          ['c', 'd'],
+        ]);
+      });
+    });
+
+    describe('string body', () => {
+      it('works', async () => {
+        const data = {
+          ...baseData,
+          bodyInputType: 'abdef',
+          body: 'body-value',
+        };
+
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any);
+        expect(rest).to.eql({
+          ...baseOptions,
+          data: 'body-value',
+        });
+      });
+    });
+
+    describe('urlencoded body', () => {
+      it('works for array body', async () => {
+        const formDataGetHeadersSpy = sinon.stub(querystring, 'stringify').returns('querystring stringify');
+        const data = {
+          ...baseData,
+          bodyInputType: BaseNode.Api.APIBodyType.URL_ENCODED,
+          body: [
+            { key: 'body1', val: 'never' },
+            { key: 'body1', val: 'bodyval' },
+          ],
+        };
+
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any);
+        expect(rest).to.eql({
+          ...baseOptions,
+          data: 'querystring stringify',
+          headers: {
+            ...baseOptions.headers,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+        expect(formDataGetHeadersSpy.args).to.eql([[{ body1: 'bodyval' }]]);
+      });
+
+      it('works for non array body', async () => {
+        const formDataGetHeadersSpy = sinon.stub(querystring, 'stringify').returns('querystring stringify');
+        const data = {
+          ...baseData,
+          bodyInputType: BaseNode.Api.APIBodyType.URL_ENCODED,
+          body: 'body-value',
+        };
+
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any);
+        expect(rest).to.eql({
+          ...baseOptions,
+          data: 'querystring stringify',
+          headers: {
+            ...baseOptions.headers,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+        expect(formDataGetHeadersSpy.args).to.eql([['body-value']]);
+      });
+    });
+
+    describe('keyvalue body', () => {
+      it('works', async () => {
+        const data = {
+          ...baseData,
+          bodyInputType: 'keyValue',
+          body: [
+            { key: 'body1', val: 'never' },
+            { key: 'body1', val: 'bodyval' },
+          ],
+        };
+
+        const { validateStatus, ...rest } = await formatRequestConfig(data as any);
+        expect(rest).to.eql({
+          ...baseOptions,
+          data: { body1: 'bodyval' },
+        });
+      });
+    });
+
+    it('does key value if other body and body is array', async () => {
+      const data = {
+        ...baseData,
+        bodyInputType: 'some-body',
         body: [
-          { key: 'd', val: '4' },
-          { key: 'e', val: '5' },
+          { key: 'body1', val: 'never' },
+          { key: 'body1', val: 'bodyval' },
         ],
-        headers: [
-          { key: 'My-Header', val: 'My-Value' },
-          { key: 'Content-Type', val: 'My-Value' },
-        ],
-        params: [
-          { key: 'b', val: '2' },
-          { key: 'c', val: '3' },
-        ],
-      } as any);
-
-      expect(request.method).to.eql('POST');
-      expect(request.url).to.eql('https://example.com/?a=1&b=2&c=3');
-      await expect(request.text()).to.eventually.eql('d=4&e=5');
-      expect(request.headers).to.eql(
-        new Headers({ 'My-Header': 'My-Value', 'Content-Type': 'application/x-www-form-urlencoded' })
-      );
-    });
-    it('works with POST requests with form data body', () => {
-      // Make boundary generation 100% deterministic
-      // @ts-expect-error The form-data types are wrong
-      FormData.prototype._generateBoundary = function () {
-        // @ts-expect-error The form-data types are wrong
-        this._boundary = '--------------------------aaaaaaaaaaaaaaaaaaaaaaaa';
       };
 
-      const request = createRequest({
-        url: 'https://example.com/?a=1',
-        method: BaseNode.Api.APIMethod.POST,
-        bodyInputType: BaseNode.Api.APIBodyType.FORM_DATA,
-        body: [
-          { key: 'd', val: '4' },
-          { key: 'e', val: '5' },
-        ],
-        headers: [
-          { key: 'My-Header', val: 'My-Value' },
-          { key: 'Content-Type', val: 'My-Value' },
-        ],
-        params: [
-          { key: 'b', val: '2' },
-          { key: 'c', val: '3' },
-        ],
-      } as any);
+      const { validateStatus, ...rest } = await formatRequestConfig(data as any);
+      expect(rest).to.eql({
+        ...baseOptions,
+        data: { body1: 'bodyval' },
+      });
+    });
 
-      expect(request.method).to.eql('POST');
-      expect(request.url).to.eql('https://example.com/?a=1&b=2&c=3');
-      const formData = new FormData();
-      formData.append('d', '4');
-      formData.append('e', '5');
+    it('returns basic options if bodytype is not raw,formdata,urlenc,keyValue and body is not array', async () => {
+      const data = {
+        ...baseData,
+        bodyInputType: 'abcdef',
+        body: {},
+      };
 
-      // @ts-expect-error node-fetch types are wrong
-      delete (request.body as FormData)._events;
-      // @ts-expect-error node-fetch types are wrong
-      delete (request.body as FormData)._eventsCount;
-
-      // node-fetch types are wrong
-      expect((request.body as FormData).getBuffer()).to.eql(formData.getBuffer());
-      expect(request.headers).to.eql(new Headers({ 'My-Header': 'My-Value', 'Content-Type': 'multipart/form-data' }));
+      const { validateStatus, ...rest } = await formatRequestConfig(data as any);
+      expect(rest).to.eql({
+        ...baseOptions,
+      });
     });
   });
 });

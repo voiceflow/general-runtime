@@ -1,12 +1,12 @@
 import { BaseNode } from '@voiceflow/base-types';
-import { object } from '@voiceflow/common';
 import VError from '@voiceflow/verror';
-import DNS from 'dns/promises';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { promises as DNS } from 'dns';
 import FormData from 'form-data';
 import ipRangeCheck from 'ip-range-check';
 import safeJSONStringify from 'json-stringify-safe';
-import fetch, { BodyInit, Headers, Request, Response } from 'node-fetch';
-import { setTimeout as sleep } from 'timers/promises';
+import _ from 'lodash';
+import querystring from 'querystring';
 import validator from 'validator';
 
 import Runtime from '@/runtime/lib/Runtime';
@@ -36,10 +36,8 @@ export const stringToNumIfNumeric = (str: string): string | number => {
   return str;
 };
 
-type Variable = string | number;
-
 // eslint-disable-next-line sonarjs/cognitive-complexity
-export const getVariable = (path: string, data: any): Variable | undefined => {
+export const getVariable = (path: string, data: any) => {
   if (!path || typeof path !== 'string') {
     return undefined;
   }
@@ -112,73 +110,76 @@ const validateIP = async (hostname: string) => {
 };
 
 export interface ResponseConfig {
-  requestTimeoutMs?: number;
-  maxResponseBodySizeBytes?: number;
-  maxRequestBodySizeBytes?: number;
+  timeout?: number | null;
+  maxContentLength?: number | null;
+  maxBodyLength?: number | null;
 }
 
-const DEFAULT_RESPONSE_CONFIG: Readonly<Required<ResponseConfig>> = {
-  requestTimeoutMs: 20_000,
-  maxResponseBodySizeBytes: 1_000_000,
-  maxRequestBodySizeBytes: 1_000_000,
-};
+// eslint-disable-next-line sonarjs/cognitive-complexity
+export const formatRequestConfig = (data: APINodeData, config: ResponseConfig) => {
+  const { method, bodyInputType, headers, body, params, url, content } = data;
 
-const doFetch = async (
-  config: ResponseConfig,
-  nodeData: BaseNode.Api.NodeData['action_data']
-): Promise<{ response: Response; requestOptions: Request }> => {
-  const actualConfig = { ...DEFAULT_RESPONSE_CONFIG, ...config };
-  const requestOptions = createRequest(nodeData);
+  const options: AxiosRequestConfig = {
+    method,
+    url,
+    // If the request takes longer than `timeout` in ms, the request will be aborted
+    timeout: config?.timeout ?? 20000,
+    // defines the max size of the http response content in bytes allowed in node.js
+    maxContentLength: config?.maxContentLength ?? 1000000,
+    // defines the max size of the http request content in bytes allowed
+    maxBodyLength: config?.maxBodyLength ?? 1000000,
+    // Don't throw if the status code was bad (ex. a 500)
+    // This closer matches the behavior of fetch(), where only network errors will cause an exception to be thrown
+    validateStatus: null,
+  };
 
-  if (requestOptions.size > actualConfig.maxRequestBodySizeBytes) {
-    throw new Error(
-      `Request body size of ${requestOptions.size} bytes exceeds max request body size of ${actualConfig.maxRequestBodySizeBytes} bytes`
-    );
+  if (params && params.length > 0) {
+    const formattedParams = ReduceKeyValue(params);
+    if (!_.isEmpty(formattedParams)) options.params = formattedParams;
   }
 
-  const abortController = new AbortController();
-  const abortTimeout = setTimeout(() => abortController.abort(), actualConfig.requestTimeoutMs);
+  if (headers && headers.length > 0) {
+    const formattedHeaders = ReduceKeyValue(headers);
+    if (!_.isEmpty(formattedHeaders)) options.headers = formattedHeaders;
+  }
+  if (!options.headers) options.headers = {};
 
-  try {
-    const response = await fetch(requestOptions, {
-      signal: abortController.signal as any,
-      size: actualConfig.maxResponseBodySizeBytes,
+  // do not parse body if GET request
+  if (method === BaseNode.Api.APIMethod.GET) {
+    return options;
+  }
+  if (bodyInputType === BaseNode.Api.APIBodyType.RAW_INPUT) {
+    // attempt to convert into JSON
+    try {
+      options.data = JSON.parse(content);
+    } catch (e) {
+      options.data = data;
+    }
+  } else if (bodyInputType === BaseNode.Api.APIBodyType.FORM_DATA) {
+    const formData = new FormData();
+    body.forEach((b) => {
+      if (b.key) {
+        formData.append(b.key, b.val);
+      }
     });
-
-    return { response, requestOptions };
-  } finally {
-    clearTimeout(abortTimeout);
+    options.headers = { ...options.headers, ...formData.getHeaders() };
+    options.data = formData;
+  } else if (bodyInputType === BaseNode.Api.APIBodyType.URL_ENCODED) {
+    if (Array.isArray(body)) {
+      options.data = querystring.stringify(ReduceKeyValue(body));
+    } else {
+      options.data = querystring.stringify(body);
+    }
+    options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+  } else if (typeof body === 'string') {
+    options.data = body;
+  } else if (bodyInputType === 'keyValue' || Array.isArray(body)) {
+    options.data = ReduceKeyValue(body);
   }
-};
 
-const transformResponseBody = (
-  responseJSON: object,
-  response: Response,
-  actionData: BaseNode.Api.NodeData['action_data']
-): { newVariables: Record<string, Variable>; responseJSON: any } => {
-  const responseBodyAdditions = {
-    VF_STATUS_CODE: response.status,
-    VF_HEADERS: Object.fromEntries(response.headers.entries()),
-  };
+  options.validateStatus = () => true;
 
-  const newVariables: Record<string, Variable> = Object.fromEntries(
-    actionData.mapping
-      // Filter out mappings with variable names that are null
-      .filter((mapping): mapping is BaseNode.Api.APIMapping & { var: string } => typeof mapping.var === 'string')
-      // Create mapping of variable name to variable value from the response JSON
-      .map((mapping): [string, Variable | undefined] => [mapping.var, getVariable(mapping.path, responseJSON)])
-      // Filter out variables that are undefined
-      .filter((keyValuePair): keyValuePair is [string, Variable] => keyValuePair[1] !== undefined)
-  );
-
-  return {
-    newVariables,
-    responseJSON:
-      // If response body is a JSON object then add in the `VF_` helpers
-      object.isObject(responseJSON) && !Array.isArray(responseJSON)
-        ? { ...responseJSON, ...responseBodyAdditions }
-        : responseJSON,
-  };
+  return options;
 };
 
 export const makeAPICall = async (nodeData: APINodeData, runtime: Runtime, config: ResponseConfig) => {
@@ -188,7 +189,9 @@ export const makeAPICall = async (nodeData: APINodeData, runtime: Runtime, confi
   try {
     if (await runtime.outgoingApiLimiter.addHostnameUseAndShouldThrottle(hostname)) {
       // if the use of the hostname is high, delay the api call but let it happen
-      await sleep(THROTTLE_DELAY);
+      await new Promise((resolve) => {
+        setTimeout(resolve, THROTTLE_DELAY);
+      });
     }
   } catch (error) {
     runtime.trace.debug(
@@ -197,63 +200,26 @@ export const makeAPICall = async (nodeData: APINodeData, runtime: Runtime, confi
     );
   }
 
-  const { response, requestOptions } = await doFetch(config, nodeData);
+  const options = formatRequestConfig(nodeData, config);
 
-  // TODO: Response bodies that aren't JSON will make this error
-  const rawResponseJSON = await response.json();
+  const { data, headers, status } = (await axios(options)) as AxiosResponse<{
+    VF_STATUS_CODE?: number;
+    VF_HEADERS?: any;
+  }>;
 
-  const { newVariables, responseJSON } = transformResponseBody(rawResponseJSON, response, nodeData);
-
-  return {
-    variables: newVariables,
-    request: requestOptions,
-    response,
-    responseJSON,
-  };
-};
-
-export const createRequest = (actionData: BaseNode.Api.NodeData['action_data']): Request => {
-  let headers = new Headers(
-    actionData.headers
-      // Filter out invalid headers - avoid an Error: " is not a legal HTTP header name"
-      .filter((header) => header.key && header.val)
-      .map((header): [headerName: string, headerValue: string] => [header.key, header.val])
-  );
-
-  let body: BodyInit | undefined;
-
-  if (actionData.method !== BaseNode.Api.APIMethod.GET) {
-    switch (actionData.bodyInputType) {
-      case BaseNode.Api.APIBodyType.RAW_INPUT:
-        body = actionData.content;
-        break;
-      case BaseNode.Api.APIBodyType.URL_ENCODED:
-        body = new URLSearchParams(actionData.body.map(({ key, val }): [key: string, value: string] => [key, val]));
-
-        headers.set('Content-Type', 'application/x-www-form-urlencoded');
-        break;
-      case BaseNode.Api.APIBodyType.FORM_DATA: {
-        const formData = new FormData();
-        actionData.body.forEach(({ key, val }) => formData.append(key, val));
-        body = formData;
-
-        headers = new Headers(formData.getHeaders(headers));
-        break;
-      }
-      default:
-        throw new RangeError(`Unsupported body input type: ${actionData.bodyInputType}`);
-    }
+  if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
+    data.VF_STATUS_CODE = status;
+    data.VF_HEADERS = headers;
   }
 
-  const url = new URL(actionData.url);
-  actionData.params
-    // Filter out invalid params
-    .filter((param) => param.key)
-    .forEach((param) => url.searchParams.append(param.key, param.val));
+  const newVariables = Object.fromEntries(
+    (nodeData.mapping ?? []).filter((map) => map.var).map((map) => [map.var, getVariable(map.path, data)])
+  );
 
-  return new Request(url.href, {
-    method: actionData.method,
-    body,
-    headers,
+  // remove all undefined variables
+  Object.keys(newVariables).forEach((variable) => {
+    if (newVariables[variable] === undefined) delete newVariables[variable];
   });
+
+  return { variables: newVariables, response: { data, headers, status } };
 };

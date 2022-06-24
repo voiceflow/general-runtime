@@ -35,7 +35,7 @@ const APIHandler = (config: ResponseConfig = {}): Handler<BaseNode.Integration.N
       // if custom api returned error http status nextId to fail port, otherwise success
       if (data.response.status >= 400) {
         runtime.trace.debug(
-          `API call error - \n${safeJSONStringify({ status: data.response.status, data: data.responseJSON })}`,
+          `API call error - \n${safeJSONStringify({ status: data.response.status, data: data.response.data })}`,
           BaseNode.NodeType.API
         );
         nextId = node.fail_id ?? null;
