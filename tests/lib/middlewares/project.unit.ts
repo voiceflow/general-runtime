@@ -193,7 +193,7 @@ describe('project middleware unit tests', () => {
 
       // act
       await middleware.resolveVersionAlias(reqProd, res, next);
-      await middleware.resolveVersionAliasLegacy(reqDev, res, next);
+      await middleware.resolveVersionAlias(reqDev, res, next);
 
       // assert
       expect(reqProd.headers.versionID).to.equal(liveVersion);

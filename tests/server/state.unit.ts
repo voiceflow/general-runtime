@@ -284,7 +284,7 @@ const tests = [
         },
         project: {
           unifyVersionID: 1,
-          resolveVersionAliasLegacy: 1,
+          resolveVersionAlias: 1,
           attachProjectID: 1,
         },
       },
@@ -295,7 +295,7 @@ const tests = [
               HEADER_VERSION_ID: 1,
               PARAMS_VERSION_ID: 1,
             },
-            resolveVersionAliasLegacy: {
+            resolveVersionAlias: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },
@@ -334,7 +334,7 @@ const tests = [
         },
         project: {
           unifyVersionID: 1,
-          resolveVersionAliasLegacy: 1,
+          resolveVersionAlias: 1,
           attachProjectID: 1,
         },
       },
@@ -352,7 +352,7 @@ const tests = [
               HEADER_VERSION_ID: 1,
               PARAMS_VERSION_ID: 1,
             },
-            resolveVersionAliasLegacy: {
+            resolveVersionAlias: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },
@@ -381,7 +381,7 @@ const tests = [
         },
         project: {
           unifyVersionID: 1,
-          resolveVersionAliasLegacy: 1,
+          resolveVersionAlias: 1,
           attachProjectID: 1,
         },
       },
@@ -400,7 +400,7 @@ const tests = [
               HEADER_VERSION_ID: 1,
               PARAMS_VERSION_ID: 1,
             },
-            resolveVersionAliasLegacy: {
+            resolveVersionAlias: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },
@@ -429,7 +429,7 @@ const tests = [
         },
         project: {
           unifyVersionID: 1,
-          resolveVersionAliasLegacy: 1,
+          resolveVersionAlias: 1,
           attachProjectID: 1,
         },
       },
@@ -440,7 +440,7 @@ const tests = [
               HEADER_VERSION_ID: 1,
               PARAMS_VERSION_ID: 1,
             },
-            resolveVersionAliasLegacy: {
+            resolveVersionAlias: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },
@@ -476,7 +476,7 @@ const tests = [
         },
         project: {
           unifyVersionID: 1,
-          resolveVersionAliasLegacy: 1,
+          resolveVersionAlias: 1,
           attachProjectID: 1,
         },
       },
@@ -487,7 +487,7 @@ const tests = [
               HEADER_VERSION_ID: 1,
               PARAMS_VERSION_ID: 1,
             },
-            resolveVersionAliasLegacy: {
+            resolveVersionAlias: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },
@@ -524,7 +524,7 @@ const tests = [
         },
         project: {
           unifyVersionID: 1,
-          resolveVersionAliasLegacy: 1,
+          resolveVersionAlias: 1,
           attachProjectID: 1,
         },
       },
@@ -543,7 +543,7 @@ const tests = [
               HEADER_VERSION_ID: 1,
               PARAMS_VERSION_ID: 1,
             },
-            resolveVersionAliasLegacy: {
+            resolveVersionAlias: {
               HEADER_VERSION_ID: 1,
               HEADER_AUTHORIZATION: 1,
             },

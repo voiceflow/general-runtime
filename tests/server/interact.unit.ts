@@ -87,7 +87,7 @@ const tests = [
       middlewares: {
         project: {
           unifyVersionID: 1,
-          resolveVersionAliasLegacy: 1,
+          resolveVersionAlias: 1,
         },
         rateLimit: {
           verify: 1,
@@ -101,7 +101,7 @@ const tests = [
               HEADER_VERSION_ID: 1,
               PARAMS_VERSION_ID: 1,
             },
-            resolveVersionAliasLegacy: {
+            resolveVersionAlias: {
               HEADER_AUTHORIZATION: 1,
               HEADER_VERSION_ID: 1,
             },
@@ -122,7 +122,7 @@ const tests = [
       middlewares: {
         project: {
           unifyVersionID: 1,
-          resolveVersionAliasLegacy: 1,
+          resolveVersionAlias: 1,
         },
         rateLimit: {
           verify: 1,
@@ -143,7 +143,7 @@ const tests = [
               HEADER_VERSION_ID: 1,
               PARAMS_VERSION_ID: 1,
             },
-            resolveVersionAliasLegacy: {
+            resolveVersionAlias: {
               HEADER_AUTHORIZATION: 1,
               HEADER_VERSION_ID: 1,
             },
