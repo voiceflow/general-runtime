@@ -20,9 +20,9 @@ const utils = {
 
 @injectServices({ utils })
 class Interact extends AbstractManager<{ utils: typeof utils }> {
-  async state(req: { headers: { authorization?: string; origin?: string; versionID: string } }): Promise<State> {
-    const api = await this.services.dataAPI.get(req.headers.authorization);
-    const version = await api.getVersion(req.headers.versionID);
+  async state(versionID: string, authorization: string): Promise<State> {
+    const api = await this.services.dataAPI.get(authorization);
+    const version = await api.getVersion(versionID);
     return this.services.state.generate(version);
   }
 
@@ -30,7 +30,13 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
     params: { userID?: string };
     body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
     query: { locale?: string; logs: RuntimeLogs.LogLevel };
-    headers: { authorization?: string; origin?: string; sessionid?: string; versionID: string; platform?: string };
+    headers: {
+      authorization?: string;
+      origin?: string;
+      sessionid?: string;
+      versionID: string;
+      platform?: string;
+    };
   }): Promise<ResponseContext> {
     const {
       analytics,
@@ -52,7 +58,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       body: { state, config = {}, action = null, request = null },
       params: { userID },
       query: { locale, logs: maxLogLevel },
-      headers: { versionID, authorization, origin, sessionid, platform },
+      headers: { authorization, versionID, origin, sessionid, platform },
     } = req;
 
     metrics.generalRequest();

@@ -1,79 +1,140 @@
 import { Validator } from '@voiceflow/backend-utils';
 import { BaseModels } from '@voiceflow/base-types';
+import * as Utils from '@voiceflow/common';
 import VError from '@voiceflow/verror';
 import { NextFunction, Response } from 'express';
 
-import { validate } from '@/lib/utils';
-import { CreatorDataApi } from '@/runtime';
-import { Request } from '@/types';
+import { isVersionTag, Request, VersionTag } from '@/types';
 
+import { validate } from '../utils';
 import { AbstractMiddleware } from './utils';
 
-const { header } = Validator;
 const VALIDATIONS = {
   HEADERS: {
-    VERSION_ID: header('versionID').optional().isString(),
-    AUTHORIZATION: header('authorization').exists().isString(),
+    VERSION_ID: Validator.header('versionID').isString().optional(),
+    AUTHORIZATION: Validator.header('authorization').isString().exists(),
+    VERSION_ID_OPTIONAL: Validator.header('versionID').isString().optional(),
+    AUTHORIZATION_OPTIONAL: Validator.header('authorization').isString().optional(),
+  },
+  PARAMS: {
+    VERSION_ID: Validator.param('versionID').optional().isString(),
   },
 };
 class Project extends AbstractMiddleware {
   static VALIDATIONS = VALIDATIONS;
 
+  @validate({
+    HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID_OPTIONAL,
+    PARAMS_VERSION_ID: VALIDATIONS.PARAMS.VERSION_ID,
+  })
   async unifyVersionID(
     req: Request<{ versionID?: string }, null, { version?: string }>,
     _res: Response,
     next: NextFunction
   ): Promise<void> {
-    // Version ID provided as param in older versions
-    req.headers.versionID = req.headers.versionID ?? req.params.versionID;
+    req.headers.versionID =
+      req.params.versionID ?? (typeof req.headers.versionID === 'string' ? req.headers.versionID : undefined);
+    if (!req.headers.versionID) {
+      throw new VError('Missing versionID in request', VError.HTTP_STATUS.BAD_REQUEST);
+    }
     next();
   }
 
-  @validate({
-    HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
-    HEADERS_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION,
-  })
-  async attachID(
-    req: Request<Record<string, unknown>, unknown, { versionID?: string }>,
-    _res: Response,
+  async attachVersionID(
+    req: Request<any, any, { versionID?: string }>,
+    _: Response,
     next: NextFunction
   ): Promise<void> {
-    const api = await this.services.dataAPI.get(req.headers.authorization).catch((error) => {
-      throw new VError(`invalid API key: ${error}`, VError.HTTP_STATUS.UNAUTHORIZED);
-    });
-
     try {
-      // Facilitate supporting routes that require a versionID but do not have to supply one.
-      // We can use the provided API key to look up the project and grab the latest version.
-      if (!req.headers.versionID && BaseModels.ApiKey.isDialogManagerAPIKey(req.headers.authorization)) {
-        if (!(api instanceof CreatorDataApi)) {
-          throw new VError('Version lookup only supported via Creator Data API', VError.HTTP_STATUS.UNAUTHORIZED);
-        }
+      /**
+       * Support the use-case where `versionID` is not provided. Note this behaviour should
+       * probably be deprecated.
+       */
+      const versionID = req.headers.versionID || VersionTag.DEVELOPMENT;
 
-        const project = await api.getProjectUsingAuthorization(req.headers.authorization).catch(() => null);
-        if (!project) {
-          throw new VError('Cannot infer project version, provide a specific version in the versionID header', 404);
-        }
-
-        req.headers.prototype = 'api';
-        req.headers.projectID = project._id.toString();
-        req.headers.versionID = project.devVersion!.toString();
-
+      if (!isVersionTag(versionID)) {
         return next();
       }
 
-      if (!req.headers.versionID) {
-        throw new VError('Missing versionID header', 400);
+      if (!BaseModels.ApiKey.isDialogManagerAPIKey(req.headers.authorization)) {
+        throw new VError('Invalid Dialog Manager API key', VError.HTTP_STATUS.UNAUTHORIZED);
       }
 
-      const { projectID } = await api.getVersion(req.headers.versionID);
+      const api = await this.services.dataAPI.get(req.headers.authorization).catch(() => {
+        throw new VError('Error setting up data API', VError.HTTP_STATUS.UNAUTHORIZED);
+      });
 
+      if (!Utils.object.hasProperty(api, 'getProjectUsingAuthorization')) {
+        throw new VError(
+          'Project lookup via token is unsupported with current server configuration.',
+          VError.HTTP_STATUS.INTERNAL_SERVER_ERROR
+        );
+      }
+
+      const project = await api.getProjectUsingAuthorization(req.headers.authorization!).catch(() => {
+        throw new VError('Cannot infer project version, provide a specific versionID', VError.HTTP_STATUS.BAD_REQUEST);
+      });
+
+      req.headers.versionID = versionID === VersionTag.PRODUCTION ? project.liveVersion : project.devVersion;
+
+      if (versionID === VersionTag.PRODUCTION && !req.headers.versionID) {
+        throw new VError('Voiceflow project was not published to production', VError.HTTP_STATUS.BAD_REQUEST);
+      }
+
+      return next();
+    } catch (err) {
+      return next(err instanceof VError ? err : new VError('Unknown error', VError.HTTP_STATUS.INTERNAL_SERVER_ERROR));
+    }
+  }
+
+  @validate({
+    HEADER_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION,
+    HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
+  })
+  async resolveVersionAlias(
+    req: Request<any, any, { versionID?: string }>,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    return this.attachVersionID(req, res, next);
+  }
+
+  @validate({
+    HEADER_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION_OPTIONAL,
+    HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
+  })
+  async resolveVersionAliasLegacy(
+    req: Request<any, any, { versionID?: string }>,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    return this.attachVersionID(req, res, next);
+  }
+
+  @validate({
+    HEADER_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION,
+    HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
+  })
+  async attachProjectID(
+    req: Request<any, any, { versionID?: string }>,
+    _: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      if (!req.headers.versionID) {
+        throw new VError('Missing versionID, could not resolve project');
+      }
+
+      const api = await this.services.dataAPI.get(req.headers.authorization).catch((error) => {
+        throw new VError(`invalid API key: ${error}`, VError.HTTP_STATUS.UNAUTHORIZED);
+      });
+
+      const { projectID } = await api.getVersion(req.headers.versionID);
       req.headers.projectID = projectID;
 
       return next();
     } catch (err) {
-      if (err instanceof VError) throw err;
-      else throw new VError('no permissions for this version', VError.HTTP_STATUS.UNAUTHORIZED);
+      return next(err instanceof VError ? err : new VError('Unknown error', VError.HTTP_STATUS.INTERNAL_SERVER_ERROR));
     }
   }
 }
