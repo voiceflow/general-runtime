@@ -2,7 +2,7 @@ import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { GoToNodeHandler } from '@/lib/services/runtime/handlers/gotoNode';
+import { GoToNodeHandler } from '@/runtime/lib/Handlers/gotoNode';
 
 describe('GotoNode handler', () => {
   describe('canHandle', () => {
