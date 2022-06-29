@@ -12,23 +12,21 @@ import { AbstractMiddleware } from './utils';
 const VALIDATIONS = {
   HEADERS: {
     VERSION_ID: Validator.header('versionID').isString().optional(),
-    AUTHORIZATION: Validator.header('authorization').isString().exists(),
-    VERSION_ID_OPTIONAL: Validator.header('versionID').isString().optional(),
-    AUTHORIZATION_OPTIONAL: Validator.header('authorization').isString().optional(),
+    AUTHORIZATION: Validator.header('authorization').isString().optional(),
   },
   PARAMS: {
-    VERSION_ID: Validator.param('versionID').optional().isString(),
+    VERSION_ID: Validator.param('versionID').isString().optional(),
   },
 };
 class Project extends AbstractMiddleware {
   static VALIDATIONS = VALIDATIONS;
 
   @validate({
-    HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID_OPTIONAL,
+    HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
     PARAMS_VERSION_ID: VALIDATIONS.PARAMS.VERSION_ID,
   })
   async unifyVersionID(
-    req: Request<{ versionID?: string }, null, { version?: string }>,
+    req: Request<{ versionID?: string }, null, { versionID?: string }>,
     _res: Response,
     next: NextFunction
   ): Promise<void> {
@@ -37,27 +35,37 @@ class Project extends AbstractMiddleware {
     if (!req.headers.versionID) {
       throw new VError('Missing versionID in request', VError.HTTP_STATUS.BAD_REQUEST);
     }
+
     next();
   }
 
-  async attachVersionID(
+  @validate({
+    HEADER_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION,
+    HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
+  })
+  /* eslint-disable-next-line sonarjs/cognitive-complexity */
+  async resolveVersionAlias(
     req: Request<any, any, { versionID?: string }>,
-    _: Response,
+    _res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
-      /**
-       * Support the use-case where `versionID` is not provided. Note this behaviour should
-       * probably be deprecated.
-       */
-      const versionID = req.headers.versionID || VersionTag.DEVELOPMENT;
+      if (!BaseModels.ApiKey.isDialogManagerAPIKey(req.headers.authorization)) {
+        if (!req.headers.versionID) {
+          throw new VError('Missing versionID in request', VError.HTTP_STATUS.BAD_REQUEST);
+        }
+
+        if (isVersionTag(req.headers.versionID)) {
+          throw new VError('Cannot infer version ID from a workspace API key', VError.HTTP_STATUS.BAD_REQUEST);
+        }
+      } else if (!req.headers.versionID) {
+        req.headers.versionID = VersionTag.DEVELOPMENT;
+      }
+
+      const { versionID } = req.headers;
 
       if (!isVersionTag(versionID)) {
         return next();
-      }
-
-      if (!BaseModels.ApiKey.isDialogManagerAPIKey(req.headers.authorization)) {
-        throw new VError('Invalid Dialog Manager API key', VError.HTTP_STATUS.UNAUTHORIZED);
       }
 
       const api = await this.services.dataAPI.get(req.headers.authorization).catch(() => {
@@ -75,40 +83,22 @@ class Project extends AbstractMiddleware {
         throw new VError('Cannot infer project version, provide a specific versionID', VError.HTTP_STATUS.BAD_REQUEST);
       });
 
-      req.headers.versionID = versionID === VersionTag.PRODUCTION ? project.liveVersion : project.devVersion;
+      const resolvedVersionID = versionID === VersionTag.PRODUCTION ? project.liveVersion : project.devVersion;
 
-      if (versionID === VersionTag.PRODUCTION && !req.headers.versionID) {
-        throw new VError('Voiceflow project was not published to production', VError.HTTP_STATUS.BAD_REQUEST);
+      if (!resolvedVersionID) {
+        if (versionID === VersionTag.PRODUCTION) {
+          throw new VError('Voiceflow project was not published to production', VError.HTTP_STATUS.BAD_REQUEST);
+        } else {
+          throw new VError('Unable to resolve version alias', VError.HTTP_STATUS.BAD_REQUEST);
+        }
       }
+
+      req.headers.versionID = resolvedVersionID;
 
       return next();
     } catch (err) {
       return next(err instanceof VError ? err : new VError('Unknown error', VError.HTTP_STATUS.INTERNAL_SERVER_ERROR));
     }
-  }
-
-  @validate({
-    HEADER_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION,
-    HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
-  })
-  async resolveVersionAlias(
-    req: Request<any, any, { versionID?: string }>,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    return this.attachVersionID(req, res, next);
-  }
-
-  @validate({
-    HEADER_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION_OPTIONAL,
-    HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
-  })
-  async resolveVersionAliasLegacy(
-    req: Request<any, any, { versionID?: string }>,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    return this.attachVersionID(req, res, next);
   }
 
   @validate({
@@ -125,11 +115,10 @@ class Project extends AbstractMiddleware {
         throw new VError('Missing versionID, could not resolve project');
       }
 
-      const api = await this.services.dataAPI.get(req.headers.authorization).catch((error) => {
-        throw new VError(`invalid API key: ${error}`, VError.HTTP_STATUS.UNAUTHORIZED);
-      });
+      const api = await this.services.dataAPI.get(req.headers.authorization);
 
       const { projectID } = await api.getVersion(req.headers.versionID);
+
       req.headers.projectID = projectID;
 
       return next();

@@ -10,13 +10,9 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.use(bodyParser.json({ limit: BODY_PARSER_SIZE_LIMIT }));
   router.use(middlewares.rateLimit.verify);
 
-  const commonMiddleware = [middlewares.rateLimit.versionConsume];
-  const interactMiddleware = [middlewares.project.resolveVersionAlias, ...commonMiddleware];
-  const legacyMiddleware = [
-    middlewares.project.unifyVersionID,
-    middlewares.project.resolveVersionAliasLegacy,
-    ...commonMiddleware,
-  ];
+  const interactMiddleware = [middlewares.project.resolveVersionAlias, middlewares.rateLimit.versionConsume];
+
+  const legacyMiddleware = [middlewares.project.unifyVersionID, ...interactMiddleware];
 
   router.get('/state', interactMiddleware, controllers.interact.state);
   router.post('/', interactMiddleware, controllers.interact.handler);
