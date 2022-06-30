@@ -6,14 +6,13 @@
 import { BaseModels, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 import { ChatModels } from '@voiceflow/chat-types';
 import { VF_DM_PREFIX } from '@voiceflow/common';
-import VError, { HTTP_STATUS } from '@voiceflow/verror';
 import { VoiceModels } from '@voiceflow/voice-types';
 import { VoiceflowConstants, VoiceflowUtils, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
 import { hasElicit, setElicit } from '@/lib/services/runtime/handlers/utils/entity';
 import log from '@/logger';
-import { Context, ContextHandler, VersionTag } from '@/types';
+import { Context, ContextHandler } from '@/types';
 
 import { handleNLCDialog } from '../nlu/nlc';
 import { getNoneIntentRequest, NONE_INTENT } from '../nlu/utils';
@@ -108,17 +107,15 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       return context;
     }
 
-    const version = await context.data.api.getVersion(context.versionID).catch(() => {
-      throw new VError('Version not found', HTTP_STATUS.NOT_FOUND);
-    });
+    const version = await context.data.api.getVersion(context.versionID);
 
-    if (!version.prototype?.model) {
-      throw new VError('Model not found');
+    if (!version) {
+      throw new Error('Version not found!');
     }
 
-    const project = await context.data.api.getProject(version.projectID).catch(() => {
-      throw new VError('Project not found', HTTP_STATUS.NOT_FOUND);
-    });
+    if (!version.prototype?.model) {
+      throw new Error('Model not found!');
+    }
 
     const incomingRequest = context.request;
     const currentStore = context.state.storage[StorageType.DM];
@@ -131,13 +128,10 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
       try {
         const prefix = dmPrefix(dmStateStore.intentRequest.payload.intent.name);
-        const dmPrefixedResult = this.config.LUIS_SERVICE_ENDPOINT
+        const dmPrefixedResult = this.config.GENERAL_SERVICE_ENDPOINT
           ? await this.services.nlu.predict({
               query: `${prefix} ${query}`,
-              model: version.prototype?.model,
-              locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
-              tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
-              nlp: project.prototype?.nlp,
+              projectID: version.projectID,
             })
           : incomingRequest;
 

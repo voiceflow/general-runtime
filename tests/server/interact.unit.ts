@@ -18,20 +18,20 @@ const tests = [
         },
       },
       middlewares: {
-        project: {
-          resolveVersionAlias: 1,
-        },
         rateLimit: {
           verify: 1,
           versionConsume: 1,
+        },
+        project: {
+          attachID: 1,
         },
       },
       validations: {
         middlewares: {
           project: {
-            resolveVersionAlias: {
-              HEADER_AUTHORIZATION: 1,
-              HEADER_VERSION_ID: 1,
+            attachID: {
+              HEADERS_VERSION_ID: 1,
+              HEADERS_AUTHORIZATION: 1,
             },
           },
         },
@@ -48,20 +48,20 @@ const tests = [
         },
       },
       middlewares: {
-        project: {
-          resolveVersionAlias: 1,
-        },
         rateLimit: {
           verify: 1,
           versionConsume: 1,
+        },
+        project: {
+          attachID: 1,
         },
       },
       validations: {
         middlewares: {
           project: {
-            resolveVersionAlias: {
-              HEADER_AUTHORIZATION: 1,
-              HEADER_VERSION_ID: 1,
+            attachID: {
+              HEADERS_VERSION_ID: 1,
+              HEADERS_AUTHORIZATION: 1,
             },
           },
         },
@@ -75,6 +75,7 @@ const tests = [
       },
     },
   },
+  // legacy routes
   {
     method: 'get',
     calledPath: '/interact/:versionID/state',
@@ -85,29 +86,13 @@ const tests = [
         },
       },
       middlewares: {
-        project: {
-          unifyVersionID: 1,
-          resolveVersionAliasLegacy: 1,
-        },
+        project: { unifyVersionID: 1 },
         rateLimit: {
           verify: 1,
           versionConsume: 1,
         },
       },
-      validations: {
-        middlewares: {
-          project: {
-            unifyVersionID: {
-              HEADER_VERSION_ID: 1,
-              PARAMS_VERSION_ID: 1,
-            },
-            resolveVersionAliasLegacy: {
-              HEADER_AUTHORIZATION: 1,
-              HEADER_VERSION_ID: 1,
-            },
-          },
-        },
-      },
+      validations: {},
     },
   },
   {
@@ -120,10 +105,7 @@ const tests = [
         },
       },
       middlewares: {
-        project: {
-          unifyVersionID: 1,
-          resolveVersionAliasLegacy: 1,
-        },
+        project: { unifyVersionID: 1 },
         rateLimit: {
           verify: 1,
           versionConsume: 1,
@@ -134,18 +116,6 @@ const tests = [
           interact: {
             handler: {
               QUERY_LOGS: 1,
-            },
-          },
-        },
-        middlewares: {
-          project: {
-            unifyVersionID: {
-              HEADER_VERSION_ID: 1,
-              PARAMS_VERSION_ID: 1,
-            },
-            resolveVersionAliasLegacy: {
-              HEADER_AUTHORIZATION: 1,
-              HEADER_VERSION_ID: 1,
             },
           },
         },
@@ -168,8 +138,7 @@ describe('interact route unit tests', async () => {
       const fixture = await fixtures.createFixture();
       ({ app, server } = await GetApp(fixture));
 
-      // TODO - Remove any and fix strange error with SuperTest<Test> not having index signature
-      const response = await (request(app) as any)[test.method](test.calledPath);
+      const response = await request(app)[test.method](test.calledPath);
 
       fixtures.checkFixture(fixture, test.expected);
       expect(response.body).to.eql({ done: 'done' });
