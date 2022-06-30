@@ -26,7 +26,7 @@ export const utils = {
 class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
   private handlers: ReturnType<typeof Handlers>;
 
-  private readonly contextIDToRuntimeMap: Map<ContextID, Runtime> = new Map();
+  private readonly contextIDToRuntimeMap: Map<ContextID, WeakRef<Runtime>> = new Map();
 
   constructor(services: FullServiceMap, config: Config) {
     super(services, config);
@@ -104,12 +104,12 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
   }
 
   public getRuntimeForContext(context: Context): Runtime {
-    this.garbageCollectRuntimeCache();
+    this.sweepRuntimeCache();
 
-    const cachedRuntime = this.contextIDToRuntimeMap.get(context.id);
+    const maybeCachedRuntime = this.contextIDToRuntimeMap.get(context.id)?.deref();
 
-    if (cachedRuntime) {
-      return cachedRuntime;
+    if (maybeCachedRuntime) {
+      return maybeCachedRuntime;
     }
 
     const runtime = this.createClient(context.data.api).createRuntime(
@@ -117,14 +117,15 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
       context.state,
       context.request
     );
-    this.contextIDToRuntimeMap.set(context.id, runtime);
+    this.contextIDToRuntimeMap.set(context.id, new WeakRef(runtime));
 
     return runtime;
   }
 
-  private garbageCollectRuntimeCache(): void {
+  /** Remove runtime objects from the cache that have been reclaimed by the V8 garbage collector. */
+  private sweepRuntimeCache(): void {
     [...this.contextIDToRuntimeMap.entries()]
-      .filter(([, runtime]) => runtime.hasEnded())
+      .filter(([, runtime]) => runtime.deref() === undefined)
       .forEach(([id]) => {
         this.contextIDToRuntimeMap.delete(id);
       });
