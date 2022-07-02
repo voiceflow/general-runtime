@@ -56,7 +56,7 @@ class Project extends AbstractMiddleware {
         }
 
         if (isVersionTag(req.headers.versionID)) {
-          throw new VError('Cannot infer version ID from a workspace API key', VError.HTTP_STATUS.BAD_REQUEST);
+          throw new VError('Cannot resolve version alias from a workspace API key', VError.HTTP_STATUS.BAD_REQUEST);
         }
       } else if (!req.headers.versionID) {
         req.headers.versionID = VersionTag.DEVELOPMENT;
@@ -80,7 +80,10 @@ class Project extends AbstractMiddleware {
       }
 
       const project = await api.getProjectUsingAuthorization(req.headers.authorization!).catch(() => {
-        throw new VError('Cannot infer project version, provide a specific versionID', VError.HTTP_STATUS.BAD_REQUEST);
+        throw new VError(
+          'Cannot resolve project version, provide a specific versionID',
+          VError.HTTP_STATUS.BAD_REQUEST
+        );
       });
 
       const resolvedVersionID = versionID === VersionTag.PRODUCTION ? project.liveVersion : project.devVersion;
