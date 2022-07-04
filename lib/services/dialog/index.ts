@@ -6,7 +6,7 @@
 import { BaseModels, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 import { ChatModels } from '@voiceflow/chat-types';
 import { VF_DM_PREFIX } from '@voiceflow/common';
-import VError, { HTTP_STATUS } from '@voiceflow/verror';
+import VError from '@voiceflow/verror';
 import { VoiceModels } from '@voiceflow/voice-types';
 import { VoiceflowConstants, VoiceflowUtils, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
