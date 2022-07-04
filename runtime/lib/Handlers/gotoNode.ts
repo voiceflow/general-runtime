@@ -1,7 +1,7 @@
 import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 
-import { Frame } from '@/runtime';
 import { HandlerFactory } from '@/runtime/lib/Handler';
+import { Frame } from '@/runtime/lib/Runtime/Stack';
 
 const utilsObj = {
   Frame,
@@ -20,7 +20,8 @@ export const GoToNodeHandler: HandlerFactory<BaseNode.GoToNode.Node, typeof util
 
     const frameIndex = runtime.stack.getFrames().findIndex((frame) => frame.getProgramID() === node.diagramID);
 
-    runtime.stack.popTo(frameIndex + 1);
+    // always keep base frame in the stack
+    runtime.stack.popTo(Math.max(frameIndex + 1, 1));
 
     const newFrame = new utils.Frame({ programID: node.diagramID });
 

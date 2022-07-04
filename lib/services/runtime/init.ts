@@ -1,5 +1,6 @@
 import { BaseNode, BaseTrace, BaseUtils } from '@voiceflow/base-types';
 
+import log from '@/logger';
 import Client, { EventType } from '@/runtime';
 
 import { FrameType, Output, StorageType, StreamAction, StreamPlayStorage, TurnType } from './types';
@@ -91,6 +92,8 @@ const init = (client: Client) => {
       runtime.trace.addTrace<BaseNode.Exit.TraceFrame>({ type: BaseNode.Utils.TraceType.END, payload: undefined });
     }
   });
+
+  client.setEvent(EventType.handlerDidCatch, ({ error }) => log.debug(error));
 };
 
 export default init;
