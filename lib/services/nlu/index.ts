@@ -82,20 +82,16 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       };
     }
 
-    const version = await context.data.api.getVersion(context.versionID).catch(() => {
-      throw new VError('Version not found', HTTP_STATUS.NOT_FOUND);
-    });
+    const version = await context.data.api.getVersion(context.versionID);
 
-    const project = await context.data.api.getProject(version.projectID).catch(() => {
-      throw new VError('Project not found', HTTP_STATUS.NOT_FOUND);
-    });
+    const project = await context.data.api.getProjectNLP(version.projectID);
 
     const request = await this.predict({
       query: context.request.payload,
       model: version.prototype?.model,
       locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
       tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
-      nlp: project.prototype?.nlp,
+      nlp: project.nlp,
     });
 
     return { ...context, request };

@@ -57,14 +57,20 @@ class CreatorDataAPI<
     return (await this.client.project.get(projectID)) as PJ;
   };
 
-  public getProjectUsingAuthorization = async (apiKey: string): Promise<PJ> => {
-    // Extract the model _id from the key: VF.<type>.<id>.<hash>
-    // Legacy workspace keys do not have a type, so we need to pad the split by one.
-    const split = apiKey.split('.');
-    const [, , _id] = split.length === 4 ? split : ['', ...split];
+  /**
+   * Fetch a subset of project data specifically for runtime prediction
+   */
+  public getProjectNLP = async (projectID: string) => {
+    const { data } = await this.client.fetch.get<any>(`/projects/${projectID}/nlp`);
 
-    const project = await this.client.fetch.get(`/api-keys/${_id}/project`);
-    return project.data as PJ;
+    return data;
+  };
+
+  public getProjectUsingAPIKey = async (key: string): Promise<PJ> => {
+    const apiKeyID = BaseModels.ApiKey.extractAPIKeyID(key);
+
+    const { data } = await this.client.fetch.get<PJ>(`/api-keys/${apiKeyID}/project`);
+    return data;
   };
 }
 

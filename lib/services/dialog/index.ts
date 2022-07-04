@@ -108,17 +108,13 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       return context;
     }
 
-    const version = await context.data.api.getVersion(context.versionID).catch(() => {
-      throw new VError('Version not found', HTTP_STATUS.NOT_FOUND);
-    });
+    const version = await context.data.api.getVersion(context.versionID);
 
     if (!version.prototype?.model) {
       throw new VError('Model not found');
     }
 
-    const project = await context.data.api.getProject(version.projectID).catch(() => {
-      throw new VError('Project not found', HTTP_STATUS.NOT_FOUND);
-    });
+    const project = await context.data.api.getProjectNLP(version.projectID);
 
     const incomingRequest = context.request;
     const currentStore = context.state.storage[StorageType.DM];
@@ -137,7 +133,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               model: version.prototype?.model,
               locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
               tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
-              nlp: project.prototype?.nlp,
+              nlp: project.nlp,
             })
           : incomingRequest;
 

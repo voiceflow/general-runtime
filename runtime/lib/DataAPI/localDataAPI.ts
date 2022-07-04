@@ -39,6 +39,16 @@ class LocalDataAPI<
   public getProject = async () => this.project;
 
   public fetchDisplayById = async () => null;
+
+  public getProjectNLP = async () => {
+    return {
+      nlp: this.project.prototype?.nlp,
+      devVersion: this.project.devVersion,
+      liveVersion: this.project.liveVersion,
+    };
+  };
+
+  public getProjectUsingAPIKey = async () => this.project;
 }
 
 export default LocalDataAPI;

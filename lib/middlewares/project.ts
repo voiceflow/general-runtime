@@ -1,6 +1,5 @@
 import { Validator } from '@voiceflow/backend-utils';
 import { BaseModels } from '@voiceflow/base-types';
-import * as Utils from '@voiceflow/common';
 import VError from '@voiceflow/verror';
 import { NextFunction, Response } from 'express';
 
@@ -43,7 +42,6 @@ class Project extends AbstractMiddleware {
     HEADER_AUTHORIZATION: VALIDATIONS.HEADERS.AUTHORIZATION,
     HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
   })
-  /* eslint-disable-next-line sonarjs/cognitive-complexity */
   async resolveVersionAlias(
     req: Request<any, any, { versionID?: string }>,
     _res: Response,
@@ -72,14 +70,7 @@ class Project extends AbstractMiddleware {
         throw new VError('Error setting up data API', VError.HTTP_STATUS.UNAUTHORIZED);
       });
 
-      if (!Utils.object.hasProperty(api, 'getProjectUsingAuthorization')) {
-        throw new VError(
-          'Project lookup via token is unsupported with current server configuration.',
-          VError.HTTP_STATUS.INTERNAL_SERVER_ERROR
-        );
-      }
-
-      const project = await api.getProjectUsingAuthorization(req.headers.authorization!).catch(() => {
+      const project = await api.getProjectUsingAPIKey(req.headers.authorization!).catch(() => {
         throw new VError(
           'Cannot resolve project version, provide a specific versionID',
           VError.HTTP_STATUS.BAD_REQUEST

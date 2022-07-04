@@ -85,6 +85,23 @@ class ServerDataAPI<
 
     return data;
   };
+
+  public getProjectNLP = async (projectID: string) => {
+    const { data } = await this.client.get<PJ>(`/project/${projectID}`);
+
+    return {
+      nlp: data.prototype?.nlp,
+      devVersion: data.devVersion,
+      liveVersion: data.liveVersion,
+    };
+  };
+
+  public getProjectUsingAPIKey = async (key: string): Promise<PJ> => {
+    const apiKeyID = BaseModels.ApiKey.extractAPIKeyID(key);
+
+    const { data } = await this.client.get<PJ>(`/api-key/${apiKeyID}/project`);
+    return data;
+  };
 }
 
 export default ServerDataAPI;
