@@ -5,6 +5,7 @@ import moize from 'moize';
 import { ObjectId } from 'mongodb';
 
 import { DataAPI, Display } from './types';
+import { extractAPIKeyID } from './utils';
 
 class ServerDataAPI<
   P extends BaseModels.Program.Model<any, any>,
@@ -97,7 +98,7 @@ class ServerDataAPI<
   };
 
   public getProjectUsingAPIKey = async (key: string): Promise<PJ> => {
-    const apiKeyID = BaseModels.ApiKey.extractAPIKeyID(key);
+    const apiKeyID = extractAPIKeyID(key);
 
     const { data } = await this.client.get<PJ>(`/api-key/${apiKeyID}/project`);
     return data;

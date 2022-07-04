@@ -2,6 +2,7 @@ import Voiceflow, { Client } from '@voiceflow/api-sdk';
 import { AnyRecord, BaseModels } from '@voiceflow/base-types';
 
 import { DataAPI } from './types';
+import { extractAPIKeyID } from './utils';
 
 class CreatorDataAPI<
   P extends BaseModels.Program.Model<any, any> = BaseModels.Program.Model<any, any>,
@@ -67,7 +68,7 @@ class CreatorDataAPI<
   };
 
   public getProjectUsingAPIKey = async (key: string): Promise<PJ> => {
-    const apiKeyID = BaseModels.ApiKey.extractAPIKeyID(key);
+    const apiKeyID = extractAPIKeyID(key);
 
     const { data } = await this.client.fetch.get<PJ>(`/api-keys/${apiKeyID}/project`);
     return data;
