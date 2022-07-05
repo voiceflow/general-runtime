@@ -153,7 +153,7 @@ describe('project middleware unit tests', () => {
     it('rejects if a project cannot be found', async () => {
       // arrange
       const api = {
-        getProjectUsingAuthorization: sinon.stub().rejects(),
+        getProjectUsingAPIKey: sinon.stub().rejects(),
       };
       const services = {
         dataAPI: { get: sinon.stub().resolves(api) },
@@ -175,7 +175,7 @@ describe('project middleware unit tests', () => {
     it('changes versionID based on tag', async () => {
       // arrange
       const api = {
-        getProjectUsingAuthorization: sinon.stub().resolves({
+        getProjectUsingAPIKey: sinon.stub().resolves({
           liveVersion,
           devVersion,
         }),
@@ -203,7 +203,7 @@ describe('project middleware unit tests', () => {
     it('defaults to devVersion if no versionID specified', async () => {
       // arrange
       const api = {
-        getProjectUsingAuthorization: sinon.stub().resolves({
+        getProjectUsingAPIKey: sinon.stub().resolves({
           liveVersion,
           devVersion,
         }),

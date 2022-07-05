@@ -41,12 +41,10 @@ describe('nlu manager unit tests', () => {
     _id: 'version-id',
     projectID: 'project-id',
   };
-  const project: Pick<Project.Project, '_id' | 'prototype'> = {
-    _id: 'project-id',
-    prototype: {
-      nlp,
-      data: {},
-    },
+  const project = {
+    nlp,
+    liveVersion: '1',
+    devVersion: '2',
   };
   const liveVersion = 'some-live-version';
 
@@ -102,7 +100,7 @@ describe('nlu manager unit tests', () => {
         data: {
           api: {
             getVersion: sinon.stub().resolves(version),
-            getProject: sinon.stub().resolves(project),
+            getProjectNLP: sinon.stub().resolves(project),
           },
         },
       };
@@ -131,7 +129,7 @@ describe('nlu manager unit tests', () => {
         data: {
           api: {
             getVersion: sinon.stub().resolves(version),
-            getProject: sinon.stub().resolves({
+            getProjectNLP: sinon.stub().resolves({
               ...project,
               liveVersion,
             }),
@@ -167,7 +165,7 @@ describe('nlu manager unit tests', () => {
         versionID: 'version-id',
         data: { api: { getVersion: sinon.stub().rejects() } },
       };
-      await expect(nlu.handle(context as any)).to.eventually.be.rejectedWith('Version not found');
+      await expect(nlu.handle(context as any)).to.eventually.be.rejectedWith();
     });
 
     it('rejects non text requests', async () => {
@@ -227,14 +225,14 @@ describe('nlu manager unit tests', () => {
         data: {
           api: {
             getVersion: sinon.stub().resolves(version),
-            getProject: sinon.stub().rejects('Could not find project'),
+            getProjectNLP: sinon.stub().rejects('Could not find project'),
           },
         },
       };
 
       const result = nlu.handle(context as any);
 
-      await expect(result).to.be.eventually.rejectedWith('Project not found');
+      await expect(result).to.be.eventually.rejectedWith();
     });
   });
 
