@@ -200,8 +200,11 @@ export const makeAPICall = async (nodeData: APINodeData, runtime: Runtime, confi
 
   const { response, requestOptions } = await doFetch(config, nodeData);
 
-  // TODO: Response bodies that aren't JSON will make this error
-  const rawResponseJSON = await response.json();
+  const rawResponseJSON = await response
+    .json()
+    // Ignore JSON parsing errors and default to an empty object
+    // This is a kinda hacky way to support non-JSON responses without much effort
+    .catch(() => ({}));
 
   const { newVariables, responseJSON } = transformResponseBody(rawResponseJSON, response, nodeData);
 
