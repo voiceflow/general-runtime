@@ -52,7 +52,10 @@ describe('nlu manager unit tests', () => {
       expect(await nlu.handle(context as any)).to.eql({ ...context, request: newRequest });
       expect(context.data.api.getVersion.args).to.eql([[context.versionID]]);
       expect(services.axios.post.args).to.eql([
-        [`${GENERAL_SERVICE_ENDPOINT}/runtime/${version.projectID}/predict`, { query: oldRequest.payload }],
+        [
+          `${GENERAL_SERVICE_ENDPOINT}/runtime/${version.projectID}/predict?versionID=${version._id}`,
+          { query: oldRequest.payload },
+        ],
       ]);
     });
 
