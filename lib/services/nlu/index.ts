@@ -25,11 +25,13 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     model,
     locale,
     projectID,
+    versionID,
   }: {
     query: string;
     model?: BaseModels.PrototypeModel;
     locale?: VoiceflowConstants.Locale;
     projectID: string;
+    versionID: string;
   }) {
     // 1. first try restricted regex (no open slots) - exact string match
     if (model && locale) {
@@ -41,9 +43,12 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
 
     // 2. next try to resolve with luis NLP on general-service
     const { data } = await this.services.axios
-      .post<BaseRequest.IntentRequest | null>(`${this.config.GENERAL_SERVICE_ENDPOINT}/runtime/${projectID}/predict`, {
-        query,
-      })
+      .post<BaseRequest.IntentRequest | null>(
+        `${this.config.GENERAL_SERVICE_ENDPOINT}/runtime/${projectID}/predict?versionID=${versionID}`,
+        {
+          query,
+        }
+      )
       .catch(() => ({ data: null }));
 
     if (data) {
@@ -84,6 +89,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       model: version.prototype?.model,
       locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
       projectID: version.projectID,
+      versionID: context.versionID,
     });
 
     return { ...context, request };

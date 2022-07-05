@@ -132,6 +132,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
           ? await this.services.nlu.predict({
               query: `${prefix} ${query}`,
               projectID: version.projectID,
+              versionID: context.versionID,
             })
           : incomingRequest;
 
