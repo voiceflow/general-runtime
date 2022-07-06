@@ -3,6 +3,7 @@ import { Config } from '@/types';
 import { ClientMap } from '../clients';
 import Analytics from './analytics';
 import ASR from './asr';
+import DebugLogging from './debugLogging';
 import Dialog from './dialog';
 import Filter from './filter';
 import Interact from './interact';
@@ -30,6 +31,7 @@ export interface ServiceMap {
   interact: Interact;
   analytics: Analytics;
   stateManagement: StateManagement;
+  debugLogging: DebugLogging;
 }
 
 export interface FullServiceMap extends ClientMap, ServiceMap {}
@@ -54,6 +56,7 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.analytics = new Analytics(services, config);
   services.stateManagement = new StateManagement(services, config);
   services.interact = new Interact(services, config);
+  services.debugLogging = new DebugLogging(services, config);
 
   if (config.SESSIONS_SOURCE === Source.LOCAL) {
     services.session = new LocalSession(services, config);

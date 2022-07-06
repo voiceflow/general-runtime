@@ -9,6 +9,7 @@ const output = (context: any, state: string, params?: any) => ({ ...context, ...
 
 const buildServices = (context: any) => ({
   state: { handle: sinon.stub().resolves(output(context, 'state')) },
+  debugLogging: { handle: sinon.stub().resolves(output(context, 'debugLogging')) },
   asr: { handle: sinon.stub().resolves(output(context, 'asr')) },
   nlu: { handle: sinon.stub().resolves(output(context, 'nlu')) },
   slots: { handle: sinon.stub().resolves(output(context, 'slots')) },
@@ -17,7 +18,6 @@ const buildServices = (context: any) => ({
   runtime: { handle: sinon.stub().resolves(output(context, 'runtime')) },
   analytics: { handle: sinon.stub().resolves(output(context, 'analytics')) },
   dialog: { handle: sinon.stub().resolves(output(context, 'dialog')) },
-  debugLogging: { handle: sinon.stub().resolves(output(context, 'debugLogging')) },
   filter: { handle: sinon.stub().resolves(output(context, 'filter', { trace: 'trace' })) },
   metrics: { generalRequest: sinon.stub() },
   utils: { TurnBuilder },
@@ -72,6 +72,7 @@ describe('interact service unit tests', () => {
 
       const servicesToAssertWith: ServiceName[] = [
         'state',
+        'debugLogging',
         'asr',
         'nlu',
         'slots',
@@ -106,7 +107,6 @@ describe('interact service unit tests', () => {
           }
         });
 
-      expect(services.debugLogging.handle.callCount).to.eql(0);
       expect(services.metrics.generalRequest.callCount).to.eql(1);
     });
 
@@ -216,7 +216,7 @@ describe('interact service unit tests', () => {
     expect(await interactController.handler(data as any)).to.eql('resolved-state');
     expect(services.utils.TurnBuilder.args).to.eql([[services.state]]);
     expect(turnBuilder.addHandlers.args).to.eql([
-      [services.asr, services.nlu, services.slots, services.dialog, services.runtime],
+      [services.debugLogging, services.asr, services.nlu, services.slots, services.dialog, services.runtime],
       [services.analytics],
       [services.speak, services.filter],
     ]);

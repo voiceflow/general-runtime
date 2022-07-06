@@ -9,7 +9,6 @@ const { query } = Validator;
 export const QUERY = {
   LOGS: CONFIG.FF_RUNTIME_LOGGING
     ? query('logs')
-        .optional()
         .custom((value: unknown) => isLogLevelResolvable(value))
         .withMessage('must be a known log level, boolean, or undefined')
         .customSanitizer(resolveLogLevel)
