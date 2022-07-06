@@ -1,8 +1,7 @@
-import { BaseNode, BaseTrace, RuntimeLogs, VariableState } from '@voiceflow/base-types';
+import { BaseNode, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
 import { NodeType } from '@voiceflow/base-types/build/common/node';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 
-import { Variable } from '@/../libs/packages/base-types/build/common/models';
 import { Action, HandlerFactory } from '@/runtime';
 
 import { isIntentRequest, StorageType } from '../types';

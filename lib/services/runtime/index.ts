@@ -106,7 +106,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
   public getRuntimeForContext(context: Context): Runtime {
     this.sweepRuntimeCache();
 
-    const maybeCachedRuntime = this.contextIDToRuntimeMap.get(context.id)?.deref();
+    const maybeCachedRuntime = context.id ? this.contextIDToRuntimeMap.get(context.id)?.deref() : undefined;
 
     if (maybeCachedRuntime) {
       return maybeCachedRuntime;
@@ -117,7 +117,9 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
       context.state,
       context.request
     );
-    this.contextIDToRuntimeMap.set(context.id, new WeakRef(runtime));
+    if (context.id) {
+      this.contextIDToRuntimeMap.set(context.id, new WeakRef(runtime));
+    }
 
     return runtime;
   }

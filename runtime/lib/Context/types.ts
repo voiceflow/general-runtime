@@ -18,7 +18,7 @@ export interface Context<R = Record<string, unknown>, T = BaseNode.Utils.BaseTra
    * If this field is missing do not update the maximum log level for this turn.
    */
   maxLogLevel?: RuntimeLogs.LogLevel;
-  id: ContextID;
+  id?: ContextID;
 }
 
 export type ContextHandle<C extends Context<any, any, any>> = (request: C) => C | Promise<C>;

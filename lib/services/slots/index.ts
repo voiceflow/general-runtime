@@ -32,7 +32,7 @@ class SlotsService extends AbstractManager<{ utils: typeof utils }> implements C
         confidence: payload.confidence,
         resolvedIntent: payload.intent.name,
         utterance: payload.query,
-        slots: slots
+        entities: slots
           ? Object.fromEntries(payload.entities.map((entity) => [entity.name, { value: entity.value }]))
           : {},
       });
