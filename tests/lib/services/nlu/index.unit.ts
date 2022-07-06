@@ -53,8 +53,8 @@ describe('nlu manager unit tests', () => {
       expect(context.data.api.getVersion.args).to.eql([[context.versionID]]);
       expect(services.axios.post.args).to.eql([
         [
-          `${GENERAL_SERVICE_ENDPOINT}/runtime/${version.projectID}/predict?versionID=${version._id}`,
-          { query: oldRequest.payload },
+          `${GENERAL_SERVICE_ENDPOINT}/runtime/${version.projectID}/predict`,
+          { query: oldRequest.payload, versionID: version._id },
         ],
       ]);
     });
@@ -126,7 +126,13 @@ describe('nlu manager unit tests', () => {
           post: sinon.stub().resolves({ data: 'data-val' }),
         },
       };
-      const arg = { model: 'model-val', locale: 'locale-val', query: 'query-val', projectID: 'projectID' } as any;
+      const arg = {
+        model: 'model-val',
+        locale: 'locale-val',
+        query: 'query-val',
+        projectID: 'projectID',
+        versionID: 'versionID',
+      } as any;
       const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
       const handleNLCCommandStub = sinon
         .stub(NLC, 'handleNLCCommand')
@@ -134,7 +140,10 @@ describe('nlu manager unit tests', () => {
 
       expect(await nlu.predict(arg)).to.eql('data-val');
       expect(services.axios.post.args).to.eql([
-        [`${GENERAL_SERVICE_ENDPOINT}/runtime/${arg.projectID}/predict`, { query: 'query-val' }],
+        [
+          `${GENERAL_SERVICE_ENDPOINT}/runtime/${arg.projectID}/predict`,
+          { query: 'query-val', versionID: 'versionID' },
+        ],
       ]);
     });
 
@@ -144,14 +153,17 @@ describe('nlu manager unit tests', () => {
           post: sinon.stub().resolves({ data: 'data-val' }),
         },
       };
-      const arg = { model: '', locale: '', query: 'query-val', projectID: 'projectID' } as any;
+      const arg = { model: '', locale: '', query: 'query-val', projectID: 'projectID', versionID: 'versionID' } as any;
       const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
       const handleNLCCommandStub = sinon
         .stub(NLC, 'handleNLCCommand')
         .returns({ payload: { intent: { name: 'abcdefg' } } } as any);
       expect(await nlu.predict(arg)).to.eql('data-val');
       expect(services.axios.post.args).to.eql([
-        [`${GENERAL_SERVICE_ENDPOINT}/runtime/${arg.projectID}/predict`, { query: 'query-val' }],
+        [
+          `${GENERAL_SERVICE_ENDPOINT}/runtime/${arg.projectID}/predict`,
+          { query: 'query-val', versionID: 'versionID' },
+        ],
       ]);
     });
 
@@ -161,7 +173,7 @@ describe('nlu manager unit tests', () => {
           post: sinon.stub().resolves({ data: undefined }),
         },
       };
-      const arg = { model: '', locale: '', query: 'query-val', projectID: 'projectID' } as any;
+      const arg = { model: '', locale: '', query: 'query-val', projectID: 'projectID', versionID: 'versionID' } as any;
       const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
       const handleNLCCommandStub = sinon
         .stub(NLC, 'handleNLCCommand')
@@ -169,7 +181,10 @@ describe('nlu manager unit tests', () => {
 
       await expect(nlu.predict(arg)).to.be.rejectedWith(Error);
       expect(services.axios.post.args).to.eql([
-        [`${GENERAL_SERVICE_ENDPOINT}/runtime/${arg.projectID}/predict`, { query: 'query-val' }],
+        [
+          `${GENERAL_SERVICE_ENDPOINT}/runtime/${arg.projectID}/predict`,
+          { query: 'query-val', versionID: 'versionID' },
+        ],
       ]);
     });
 
@@ -179,7 +194,13 @@ describe('nlu manager unit tests', () => {
           post: sinon.stub().resolves({ data: undefined }),
         },
       };
-      const arg = { model: 'abcd', locale: '', query: 'query-val', projectID: 'projectID' } as any;
+      const arg = {
+        model: 'abcd',
+        locale: '',
+        query: 'query-val',
+        projectID: 'projectID',
+        versionID: 'versionID',
+      } as any;
       const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
       const handleNLCCommandStub = sinon
         .stub(NLC, 'handleNLCCommand')
@@ -187,7 +208,10 @@ describe('nlu manager unit tests', () => {
 
       await expect(nlu.predict(arg)).to.be.rejectedWith(Error);
       expect(services.axios.post.args).to.eql([
-        [`${GENERAL_SERVICE_ENDPOINT}/runtime/${arg.projectID}/predict`, { query: 'query-val' }],
+        [
+          `${GENERAL_SERVICE_ENDPOINT}/runtime/${arg.projectID}/predict`,
+          { query: 'query-val', versionID: 'versionID' },
+        ],
       ]);
     });
 
@@ -197,7 +221,13 @@ describe('nlu manager unit tests', () => {
           post: sinon.stub().resolves({ data: undefined }),
         },
       };
-      const arg = { model: 'abcd', locale: 'abcd', query: 'query-val', projectID: 'projectID' } as any;
+      const arg = {
+        model: 'abcd',
+        locale: 'abcd',
+        query: 'query-val',
+        projectID: 'projectID',
+        versionID: 'versionID',
+      } as any;
       const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
       const handleNLCCommandStub = sinon
         .stub(NLC, 'handleNLCCommand')
@@ -206,7 +236,10 @@ describe('nlu manager unit tests', () => {
       expect(await nlu.predict(arg)).to.eql({ payload: { intent: { name: NONE_INTENT } } });
       expect(handleNLCCommandStub.callCount).to.eql(2);
       expect(services.axios.post.args).to.eql([
-        [`${GENERAL_SERVICE_ENDPOINT}/runtime/${arg.projectID}/predict`, { query: 'query-val' }],
+        [
+          `${GENERAL_SERVICE_ENDPOINT}/runtime/${arg.projectID}/predict`,
+          { query: 'query-val', versionID: 'versionID' },
+        ],
       ]);
     });
   });

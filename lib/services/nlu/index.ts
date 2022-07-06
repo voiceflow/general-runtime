@@ -43,14 +43,10 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
 
     // 2. next try to resolve with luis NLP on general-service
     const { data } = await this.services.axios
-      .post<BaseRequest.IntentRequest | null>(
-        // eslint-disable-next-line prefer-template
-        `${this.config.GENERAL_SERVICE_ENDPOINT}/runtime/${projectID}/predict` +
-          (versionID ? `?versionID=${versionID}` : ''),
-        {
-          query,
-        }
-      )
+      .post<BaseRequest.IntentRequest | null>(`${this.config.GENERAL_SERVICE_ENDPOINT}/runtime/${projectID}/predict`, {
+        query,
+        versionID,
+      })
       .catch(() => ({ data: null }));
 
     if (data) {
