@@ -55,6 +55,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
           query,
           resourceID,
           tag,
+          projectID,
           versionID,
         })
         .catch(() => ({ data: null }));
