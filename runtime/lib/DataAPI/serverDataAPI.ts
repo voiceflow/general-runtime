@@ -5,6 +5,7 @@ import moize from 'moize';
 import { ObjectId } from 'mongodb';
 
 import { DataAPI, Display } from './types';
+import { extractAPIKeyID } from './utils';
 
 class ServerDataAPI<
   P extends BaseModels.Program.Model<any, any>,
@@ -83,6 +84,23 @@ class ServerDataAPI<
   public getProject = async (projectID: string) => {
     const { data } = await this.client.get<PJ>(`/project/${projectID}`);
 
+    return data;
+  };
+
+  public getProjectNLP = async (projectID: string) => {
+    const { data } = await this.client.get<PJ>(`/project/${projectID}`);
+
+    return {
+      nlp: data.prototype?.nlp,
+      devVersion: data.devVersion,
+      liveVersion: data.liveVersion,
+    };
+  };
+
+  public getProjectUsingAPIKey = async (key: string): Promise<PJ> => {
+    const apiKeyID = extractAPIKeyID(key);
+
+    const { data } = await this.client.get<PJ>(`/api-key/${apiKeyID}/project`);
     return data;
   };
 }

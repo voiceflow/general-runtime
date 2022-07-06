@@ -8,6 +8,8 @@ class CacheDataAPI implements DataAPI<VoiceflowProgram.Program, VoiceflowVersion
 
   private versions: Record<string, VoiceflowVersion.Version> = {};
 
+  private projectNLPCache: Map<string, Awaited<ReturnType<typeof this.api.getProjectNLP>>> = new Map();
+
   constructor(private api: DataAPI<VoiceflowProgram.Program, VoiceflowVersion.Version>) {}
 
   async getProgram(programID: string) {
@@ -39,6 +41,19 @@ class CacheDataAPI implements DataAPI<VoiceflowProgram.Program, VoiceflowVersion
 
   async fetchDisplayById(displayId: number) {
     return this.api.fetchDisplayById(displayId);
+  }
+
+  async getProjectNLP(projectID: string) {
+    if (!this.projectNLPCache.has(projectID)) {
+      this.projectNLPCache.set(projectID, await this.api.getProjectNLP(projectID));
+    }
+
+    return this.projectNLPCache.get(projectID)!;
+  }
+
+  async getProjectUsingAPIKey(apiKeyID: string): Promise<VoiceflowProject.Project> {
+    const project = await this.api.getProjectUsingAPIKey(apiKeyID);
+    return project as VoiceflowProject.Project;
   }
 }
 

@@ -419,8 +419,11 @@ export const mockVersion = {
   },
 };
 
+export const mockProjectNLP = {};
+
 export const mockDataAPI = {
   getVersion: sinon.stub().resolves(mockVersion),
+  getProjectNLP: sinon.stub().resolves(mockProjectNLP),
 } as unknown as CacheDataAPI;
 
 export const mockFulfilledIntentRequest: BaseRequest.IntentRequest = {
@@ -469,6 +472,7 @@ export const mockDMContext: Context = {
     variables: {},
   },
   request: mockUnfulfilledIntentRequest,
+  projectID: '507f191e810c19729de860ea',
   versionID: '5ff486b75b99f8b36505ecfd',
   trace: [],
   data: {
@@ -484,6 +488,7 @@ export const mockRegularContext: Context = {
     variables: {},
   },
   request: mockUnfulfilledIntentRequest,
+  projectID: '507f191e810c19729de860ea',
   versionID: '5ff486b75b99f8b36505ecfd',
   trace: [],
   data: {

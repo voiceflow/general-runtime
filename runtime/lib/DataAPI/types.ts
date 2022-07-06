@@ -20,4 +20,12 @@ export interface DataAPI<
   unhashVersionID(versionID: string): Promise<string>;
 
   getProject(projectID: string): Promise<PJ>;
+
+  getProjectNLP(projectID: string): Promise<{
+    nlp?: BaseModels.Project.PrototypeNLP;
+    devVersion?: string;
+    liveVersion?: string;
+  }>;
+
+  getProjectUsingAPIKey(key: string): Promise<PJ>;
 }
