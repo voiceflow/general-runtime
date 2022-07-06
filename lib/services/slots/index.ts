@@ -1,6 +1,6 @@
+import { RuntimeLogs } from '@voiceflow/base-types';
 import assert from 'assert/strict';
 
-import { RuntimeLogs } from '@/../libs/packages/base-types/build/common';
 import { Context, ContextHandler } from '@/types';
 
 import { isIntentRequest } from '../runtime/types';
