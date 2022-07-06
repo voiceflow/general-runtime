@@ -143,6 +143,7 @@ describe('nlu manager unit tests', () => {
         query,
         resourceID: nlp.resourceID,
         tag: VersionTag.PRODUCTION,
+        projectID: version.projectID,
         versionID: liveVersion,
       });
     });
