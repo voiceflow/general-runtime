@@ -2,7 +2,7 @@ import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
-import CodeHandler from './code';
+import CodeHandler, { GENERATED_CODE_NODE_ID } from './code';
 
 export type SetV2Options = Record<string, never>;
 
@@ -31,7 +31,7 @@ const SetV2Handler: HandlerFactory<BaseNode.SetV2.Node, SetV2Options | void> = (
     });
 
     await codeHandler.handle(
-      { code: codeLines.join('\n'), id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE', type: BaseNode.NodeType.CODE },
+      { code: codeLines.join('\n'), id: GENERATED_CODE_NODE_ID, type: BaseNode.NodeType.CODE },
       runtime,
       variables,
       program

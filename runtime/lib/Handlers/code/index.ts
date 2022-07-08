@@ -15,6 +15,8 @@ export interface CodeOptions {
   testingEnv?: boolean;
 }
 
+export const GENERATED_CODE_NODE_ID = 'PROGRAMMATICALLY-GENERATED-CODE-NODE';
+
 const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
   endpoint,
   callbacks,
@@ -69,7 +71,7 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
         BaseNode.NodeType.CODE
       );
 
-      if (node.id !== 'PROGRAMMATICALLY-GENERATED-CODE-NODE') {
+      if (node.id !== GENERATED_CODE_NODE_ID) {
         runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.CUSTOM_CODE, node, {
           error: null,
           changedVariables: Object.fromEntries(
@@ -95,7 +97,7 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
         `unable to resolve code  \n\`${safeJSONStringify(serializedError)}\``,
         BaseNode.NodeType.CODE
       );
-      if (node.id !== 'PROGRAMMATICALLY-GENERATED-CODE-NODE') {
+      if (node.id !== GENERATED_CODE_NODE_ID) {
         runtime.debugLogging.recordStepLog(
           RuntimeLogs.Kinds.StepLogKind.CUSTOM_CODE,
           node,

@@ -4,7 +4,7 @@ import Handler, { HandlerFactory } from '@/runtime/lib/Handler';
 
 import { TurnType } from '../Constants/flags';
 import DebugLogging from '../Runtime/DebugLogging';
-import CodeHandler from './code';
+import CodeHandler, { GENERATED_CODE_NODE_ID } from './code';
 
 export interface IfV2Options {
   _v1: Handler<BaseNode._v1.Node>;
@@ -60,7 +60,7 @@ const IfV2Handler: HandlerFactory<BaseNode.IfV2.Node, IfV2Options> = ({ _v1 }) =
     const codeTemplate = `try { ${code} } catch (err) {}`;
 
     await codeHandler.handle(
-      { code: codeTemplate, id: 'PROGRAMMATICALLY-GENERATED-CODE-NODE', type: BaseNode.NodeType.CODE },
+      { code: codeTemplate, id: GENERATED_CODE_NODE_ID, type: BaseNode.NodeType.CODE },
       runtime,
       variables,
       program
