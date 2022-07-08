@@ -1,9 +1,10 @@
+import { RuntimeLogs } from '@voiceflow/base-types';
 import assert from 'assert';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import Interact from '@/lib/services/interact';
-import { TurnBuilder } from '@/runtime';
+import { Runtime, TurnBuilder } from '@/runtime';
 
 const output = (context: any, state: string, params?: any) => ({ ...context, ...params, state, end: false });
 
@@ -36,15 +37,14 @@ describe('interact service unit tests', () => {
         headers: { authorization: 'auth', origin: 'origin', versionID: 'versionID' },
         body: { state: { foo: 'bar' }, request: 'request', config: { tts: true, selfDelegate: true } },
         params: {},
-        query: { locale: 'locale' },
+        query: { locale: 'locale', logs: RuntimeLogs.LogLevel.INFO },
       };
       const context = {
         state: data.body.state,
         request: data.body.request,
         versionID: data.headers.versionID,
         userID: undefined,
-        maxLogLevel: undefined,
-        id: Symbol('context'),
+        maxLogLevel: RuntimeLogs.DEFAULT_LOG_LEVEL,
         data: {
           locale: data.query.locale,
           config: {
@@ -95,10 +95,6 @@ describe('interact service unit tests', () => {
           })
         )
         .forEach(({ serviceName, service, previousServiceName }) => {
-          // The context ID is a symbol that is unique for each context
-          // We expect it to change here, so just .to.eql()ing it directly would fail if we didn't reset it
-          context.id = service.handle.args[0][0].id;
-
           if (serviceName === 'state') {
             expect(service.handle.args).to.eql([[context]]);
           } else {
@@ -177,15 +173,14 @@ describe('interact service unit tests', () => {
         platform: 'platform',
       },
       params: {},
-      query: { locale: 'locale' },
+      query: { locale: 'locale', logs: RuntimeLogs.LogLevel.INFO },
     };
     const context = {
       state: data.body.state,
       userID: undefined,
       request: data.body.request,
       versionID: data.headers.versionID,
-      maxLogLevel: undefined,
-      id: Symbol('context'),
+      maxLogLevel: RuntimeLogs.LogLevel.INFO,
       data: {
         locale: data.query.locale,
         config: {},
@@ -220,9 +215,6 @@ describe('interact service unit tests', () => {
       [services.analytics],
       [services.speak, services.filter],
     ]);
-    // The context ID is a symbol that is unique for each context
-    // We expect it to change here, so just .to.eql()ing it directly would fail if we didn't reset it
-    context.id = services.utils.autoDelegate.args[0][1].id;
     expect(services.utils.autoDelegate.args).to.eql([[turnBuilder, context]]);
     expect(await turnBuilder.resolve.args[0][0]).to.eql(finalState);
   });

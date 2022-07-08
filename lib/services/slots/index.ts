@@ -1,6 +1,7 @@
 import { RuntimeLogs } from '@voiceflow/base-types';
 import assert from 'assert/strict';
 
+import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { Context, ContextHandler } from '@/types';
 
 import { isIntentRequest } from '../runtime/types';
@@ -27,8 +28,7 @@ class SlotsService extends AbstractManager<{ utils: typeof utils }> implements C
     }
 
     if (payload.confidence) {
-      const runtime = this.services.runtime.getRuntimeForContext(context);
-      runtime.debugLogging.recordGlobalLog(RuntimeLogs.Kinds.GlobalLogKind.NLU_INTENT_RESOLVED, {
+      new DebugLogging(context).recordGlobalLog(RuntimeLogs.Kinds.GlobalLogKind.NLU_INTENT_RESOLVED, {
         confidence: payload.confidence,
         resolvedIntent: payload.intent.name,
         utterance: payload.query,

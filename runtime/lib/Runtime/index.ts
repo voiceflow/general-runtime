@@ -104,7 +104,7 @@ class Runtime<R = any, DA extends DataAPI = DataAPI, S extends AnyRecord = AnyRe
 
     this.outgoingApiLimiter = new OutgoingApiLimiter(this);
 
-    this.debugLogging = new DebugLogging(this);
+    this.debugLogging = new DebugLogging(this.trace);
   }
 
   getRequest(): R | null {

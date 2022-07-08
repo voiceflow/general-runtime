@@ -1,6 +1,8 @@
 import { BaseModels, BaseNode, RuntimeLogs } from '@voiceflow/base-types';
+import assert from 'assert/strict';
 
-import Runtime from '..';
+import { Context } from '@/types';
+
 import { Frame } from '../Stack';
 import Trace from '../Trace';
 import { TraceLogBuffer } from './traceLogBuffer';
@@ -43,9 +45,9 @@ export default class DebugLogging {
   maxLogLevel: RuntimeLogs.LogLevel = RuntimeLogs.DEFAULT_LOG_LEVEL;
 
   /**
-   * @param runtime - The runtime to use for logging.
+   * @param context - The context to use for logging.
    */
-  constructor(runtime: Runtime);
+  constructor(context: Context);
 
   /**
    * @param trace - The trace to use for logging.
@@ -57,20 +59,28 @@ export default class DebugLogging {
    */
   constructor(addTraceFn: AddTraceFn);
 
-  constructor(addTraceResolvable: Runtime | Trace | AddTraceFn) {
+  constructor(addTraceResolvable: Context | Trace | AddTraceFn) {
     let addTrace: AddTraceFn;
-    if (addTraceResolvable instanceof Runtime) {
-      const runtime = addTraceResolvable;
-      addTrace = runtime.trace.addTrace.bind(runtime.trace);
+    if (typeof addTraceResolvable === 'function') {
+      const addTraceFn = addTraceResolvable;
+      addTrace = addTraceFn.bind(addTraceFn);
     } else if (addTraceResolvable instanceof Trace) {
       const trace = addTraceResolvable;
       addTrace = trace.addTrace.bind(trace);
     } else {
-      const addTraceFn = addTraceResolvable;
-      addTrace = addTraceFn.bind(addTraceFn);
+      const context = addTraceResolvable;
+      this.refreshContext(context);
+
+      assert(context.trace, new TypeError('Provided context object did not have a trace array defined'));
+      // @ts-expect-error The trace type that `context` uses is not necessarily compatible with the default of `Context`
+      addTrace = context.trace.push.bind(context.trace);
     }
 
     this.logBuffer = new TraceLogBuffer(addTrace);
+  }
+
+  refreshContext(context: Pick<Context, 'maxLogLevel'>): void {
+    this.maxLogLevel = context.maxLogLevel;
   }
 
   /**

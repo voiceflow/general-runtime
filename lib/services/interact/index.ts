@@ -20,8 +20,6 @@ const utils = {
 
 @injectServices({ utils })
 class Interact extends AbstractManager<{ utils: typeof utils }> {
-  private contextIdCounter = 0;
-
   async state(versionID: string, authorization: string): Promise<State> {
     const api = await this.services.dataAPI.get(authorization);
     const version = await api.getVersion(versionID);
@@ -68,7 +66,6 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
     if (authorization?.startsWith('VF.')) metrics.sdkRequest();
 
     const context: PartialContext<Context> = {
-      id: Symbol(`context #${this.contextIdCounter++}`),
       data: {
         locale,
         config,

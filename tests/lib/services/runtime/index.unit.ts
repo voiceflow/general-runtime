@@ -4,6 +4,7 @@ import sinon from 'sinon';
 
 import RuntimeManager, { utils as defaultUtils } from '@/lib/services/runtime';
 import { TurnType, Variables } from '@/lib/services/runtime/types';
+import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 
 const VERSION_ID = 'version_id';
 
@@ -30,7 +31,9 @@ describe('runtime manager unit tests', () => {
         trace: { get: sinon.stub().returns(trace), addTrace: sinon.stub() },
         getFinalState: sinon.stub().returns(rawState),
         variables: { set: sinon.stub() },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
       const client = {
         setEvent: sinon.stub(),
@@ -81,9 +84,11 @@ describe('runtime manager unit tests', () => {
         getRawState: sinon.stub().returns(rawState),
         getFinalState: sinon.stub().returns(rawState),
         turn: { set: sinon.stub() },
-        trace: { get: sinon.stub().returns(trace) },
+        trace: { get: sinon.stub().returns(trace), addTrace: sinon.stub() },
         variables: { set: sinon.stub() },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
       const client = {
         setEvent: sinon.stub(),
@@ -140,7 +145,9 @@ describe('runtime manager unit tests', () => {
         trace: { get: sinon.stub().returns(trace), addTrace: sinon.stub() },
         getFinalState: sinon.stub().returns(rawState),
         variables: { set: sinon.stub() },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
       const client = {
         setEvent: sinon.stub(),
@@ -193,7 +200,9 @@ describe('runtime manager unit tests', () => {
         trace: { get: sinon.stub().returns(trace), addTrace: sinon.stub(), debug: sinon.stub() },
         variables: { set: sinon.stub() },
         getFinalState: sinon.stub().returns(rawState),
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
       const client = {
         setEvent: sinon.stub(),
@@ -251,7 +260,9 @@ describe('runtime manager unit tests', () => {
         trace: { get: sinon.stub().returns(trace), addTrace: sinon.stub() },
         getFinalState: sinon.stub().returns(rawState),
         variables: { set: sinon.stub() },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
       const client = {
         setEvent: sinon.stub(),

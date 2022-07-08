@@ -6,7 +6,6 @@
 import { BaseNode } from '@voiceflow/base-types';
 
 import Client, { Action as RuntimeAction, Runtime } from '@/runtime';
-import { ContextID } from '@/runtime/lib/Context/types';
 import { Config, Context, ContextHandler } from '@/types';
 
 import { FullServiceMap } from '../index';
@@ -25,8 +24,6 @@ export const utils = {
 @injectServices({ utils })
 class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
   private handlers: ReturnType<typeof Handlers>;
-
-  private readonly contextIDToRuntimeMap: Map<ContextID, WeakRef<Runtime>> = new Map();
 
   constructor(services: FullServiceMap, config: Config) {
     super(services, config);
@@ -96,34 +93,19 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     };
   }
 
-  public getRuntimeForContext(context: Context): Runtime {
-    this.sweepRuntimeCache();
-
-    const maybeCachedRuntime = context.id ? this.contextIDToRuntimeMap.get(context.id)?.deref() : undefined;
-
-    if (maybeCachedRuntime) {
-      return maybeCachedRuntime;
-    }
-
+  private getRuntimeForContext(context: Context): Runtime {
     const runtime = this.createClient(context.data.api).createRuntime(
       context.versionID,
       context.state,
       context.request
     );
-    if (context.id) {
-      this.contextIDToRuntimeMap.set(context.id, new WeakRef(runtime));
-    }
+
+    runtime.debugLogging.refreshContext(context);
+
+    // Import any traces already present in the context
+    context.trace?.forEach((trace) => runtime.trace.addTrace(trace));
 
     return runtime;
-  }
-
-  /** Remove runtime objects from the cache that have been reclaimed by the V8 garbage collector. */
-  private sweepRuntimeCache(): void {
-    [...this.contextIDToRuntimeMap.entries()]
-      .filter(([, runtime]) => runtime.deref() === undefined)
-      .forEach(([id]) => {
-        this.contextIDToRuntimeMap.delete(id);
-      });
   }
 }
 
