@@ -4,13 +4,12 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import Interact from '@/lib/services/interact';
-import { Runtime, TurnBuilder } from '@/runtime';
+import { TurnBuilder } from '@/runtime';
 
 const output = (context: any, state: string, params?: any) => ({ ...context, ...params, state, end: false });
 
 const buildServices = (context: any) => ({
   state: { handle: sinon.stub().resolves(output(context, 'state')) },
-  debugLogging: { handle: sinon.stub().resolves(output(context, 'debugLogging')) },
   asr: { handle: sinon.stub().resolves(output(context, 'asr')) },
   nlu: { handle: sinon.stub().resolves(output(context, 'nlu')) },
   slots: { handle: sinon.stub().resolves(output(context, 'slots')) },
@@ -72,7 +71,6 @@ describe('interact service unit tests', () => {
 
       const servicesToAssertWith: ServiceName[] = [
         'state',
-        'debugLogging',
         'asr',
         'nlu',
         'slots',
@@ -211,7 +209,7 @@ describe('interact service unit tests', () => {
     expect(await interactController.handler(data as any)).to.eql('resolved-state');
     expect(services.utils.TurnBuilder.args).to.eql([[services.state]]);
     expect(turnBuilder.addHandlers.args).to.eql([
-      [services.debugLogging, services.asr, services.nlu, services.slots, services.dialog, services.runtime],
+      [services.asr, services.nlu, services.slots, services.dialog, services.runtime],
       [services.analytics],
       [services.speak, services.filter],
     ]);

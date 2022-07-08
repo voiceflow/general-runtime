@@ -50,7 +50,6 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       slots,
       state: stateManager,
       filter,
-      debugLogging,
     } = this.services;
 
     const {
@@ -80,7 +79,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
 
     const turn = new this.services.utils.TurnBuilder<Context>(stateManager);
 
-    turn.addHandlers(debugLogging, asr, nlu, slots, dialog, runtime);
+    turn.addHandlers(asr, nlu, slots, dialog, runtime);
     turn.addHandlers(analytics);
 
     if (config.tts) {

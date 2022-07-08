@@ -3,7 +3,6 @@ import { Config } from '@/types';
 import { ClientMap } from '../clients';
 import Analytics from './analytics';
 import ASR from './asr';
-import DebugLogging from './debugLogging';
 import Dialog from './dialog';
 import Filter from './filter';
 import Interact from './interact';
@@ -31,7 +30,6 @@ export interface ServiceMap {
   interact: Interact;
   analytics: Analytics;
   stateManagement: StateManagement;
-  debugLogging: DebugLogging;
 }
 
 export interface FullServiceMap extends ClientMap, ServiceMap {}
@@ -45,7 +43,6 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   } as FullServiceMap;
 
   services.runtime = new Runtime(services, config);
-  services.debugLogging = new DebugLogging(services, config);
   services.state = new State(services, config);
   services.asr = new ASR(services, config);
   services.speak = new Speak(services, config);
