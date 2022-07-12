@@ -407,6 +407,13 @@ paths:
           schema:
             type: boolean
             example: false
+        - name: logs
+          in: query
+          description: configure debug logs
+          required: false
+          schema:
+            $ref: '#/components/schemas/DebugLogsConfig'
+            default: 'off'
       requestBody:
         description: info and config required for an interaction
         required: true
@@ -695,6 +702,14 @@ paths:
       security:
         - APIKey:
             - ''
+      parameters:
+        - name: logs
+          in: query
+          description: configure debug logs
+          required: false
+          schema:
+            $ref: '#/components/schemas/DebugLogsConfig'
+            default: 'off'
       description: |
         The stateless API receives a request with `action` + `state`, and responds with a new `state` + `trace`. Here's what it looks like from the Voiceflow creator app prototype tool:
 
@@ -1389,6 +1404,21 @@ components:
               type:
                 type: string
               payload: {}
+    DebugLogsConfig:
+      # Maps to LogLevelResolvable internally
+      title: Debug Logs Config
+      oneOf:
+        - type: string
+          description: A specific log level to use
+          example: 'info'
+          enum:
+            - 'error'
+            - 'warn'
+            - 'info'
+            - 'verbose'
+            - 'off'
+        - type: boolean
+          description: A boolean for whether logs should be "info" or "off"
   responses:
     Trace:
       description: A sequential array of response "traces" to display back to the user. They can take a variety of types - common types are defined here.
