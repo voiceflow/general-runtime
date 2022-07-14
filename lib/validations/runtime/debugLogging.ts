@@ -1,8 +1,6 @@
 import { Validator } from '@voiceflow/backend-utils';
 import { RuntimeLogs } from '@voiceflow/base-types';
 
-import CONFIG from '@/config';
-
 /** A value that can be resolved to a log level. */
 type LogLevelResolvable = RuntimeLogs.LogLevel | boolean | `${boolean}` | undefined;
 
