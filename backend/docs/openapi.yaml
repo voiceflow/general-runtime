@@ -381,6 +381,8 @@ paths:
 
         Common response traces include `speak`, `visual`, `choice`, with custom types available - reference **Responses Samples** on the right panel for examples.
         Each trace gets produced by a particular block on your Voiceflow project.
+
+        The `logs` query parameter can be used to enable [debug logging](https://developer.voiceflow.com/reference/logs-reference), which includes `log` traces in the response.
       operationId: stateInteract
       security:
         - APIKey:
@@ -780,6 +782,8 @@ paths:
         This will return an updated `state`, an updated `action` (not shown in examples), and the trace array containing the traces to display.
 
         if `state` is undefined/empty, it will automatically use the **default state** (starting from the first block).
+
+        The `logs` query parameter can be used to enable [debug logging](https://developer.voiceflow.com/reference/logs-reference), which includes `log` traces in the response.
       requestBody:
         content:
           application/json:
