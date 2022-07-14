@@ -1521,10 +1521,10 @@
     rxjs "^7.2.0"
     zod "^3.11.6"
 
-"@voiceflow/git-branch-check@1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/git-branch-check/-/git-branch-check-1.3.0.tgz#7e4d982f87137c05fab2c11a4c6b32d31f395d44"
-  integrity sha512-KK/Emx3/kTCV/YTAsBbHdZUw2Vl8sG11PiR2NFLWq1wwQldt4BqVnAlNq1PEOv5wNnowQ+JvsytqX2zyfupa9w==
+"@voiceflow/git-branch-check@1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/git-branch-check/-/git-branch-check-1.4.0.tgz#5874af67eaaca0bc5270098f9cca0d65ddeb860a"
+  integrity sha512-NqxeJ4Xl5dA1XnaYxEy7mdTVNbO8C0eUO9RjG/LVJneBch1eL7KfDWjyZ66+fZvUTJPbVu7LwZPnFYKw/ncgbA==
   dependencies:
     current-git-branch "^1.1.0"
 
