@@ -13,8 +13,6 @@ const NODE_ENV = getRequiredProcessEnv('NODE_ENV');
 const CLOUD_ENV = getOptionalProcessEnv('CLOUD_ENV', 'public');
 
 const CONFIG: Config = {
-  FF_RUNTIME_LOGGING: getOptionalProcessEnv('FF_RUNTIME_LOGGING') === 'true',
-
   // Configs
   NODE_ENV,
   PORT: getRequiredProcessEnv('PORT'),

@@ -9,8 +9,6 @@ import CacheDataAPI from '@/lib/services/state/cacheDataAPI';
 import * as Runtime from './runtime';
 
 export interface Config extends RateLimitConfig {
-  FF_RUNTIME_LOGGING: boolean;
-
   NODE_ENV: string;
   PORT: string;
   PORT_METRICS: string | null;
