@@ -1495,10 +1495,10 @@
     eslint-plugin-xss "^0.1.9"
     eslint-plugin-you-dont-need-lodash-underscore "^6.12.0"
 
-"@voiceflow/event-ingestion-service@1.2.2":
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/@voiceflow/event-ingestion-service/-/event-ingestion-service-1.2.2.tgz#339b4f55b9d662c429fdabf4af24528c162e6e92"
-  integrity sha512-JQ6bAKGNg2SS610n/htWziq3IKlSaBHkuUN4Eue9XlaAtoFqiiKuwONgfWi0ynqZFco97/bgx82+9b5tqIQufw==
+"@voiceflow/event-ingestion-service@1.2.3":
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/@voiceflow/event-ingestion-service/-/event-ingestion-service-1.2.3.tgz#b7bd538b597f2101e8a56002b912017ebcf90646"
+  integrity sha512-hMCcdIVchkFoi8vIAkCwEc99uUEosmwUieRAiqLbyqM4xadbXzCJKcHcum8HyCFG02yPw4EUc+F/LgRGW2ruFg==
   dependencies:
     "@nestjs/common" "^8.4.4"
     "@nestjs/config" "^2.0.0"
