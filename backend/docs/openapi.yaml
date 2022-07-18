@@ -1,6 +1,6 @@
 openapi: '3.1.0'
 info:
-  version: 1.0.1
+  version: 1.1.0
   title: Voiceflow Dialog Management API
   description: |
     # Overview
@@ -137,7 +137,7 @@ tags:
       - `state` is the user metadata - what block they are currently on, what flow they are on, their variables
       - `action` is an object representing a user's action or event
       - `trace` is an array of actions to take based on the request that the user made
-  - name: Stateless API
+  - name: Stateless API (deprecated)
     description: |
       The dialog management **stateless** API is very similar to the **state** API - with one difference:
 
@@ -300,42 +300,61 @@ tags:
 paths:
   '/state/user/{userID}/interact':
     parameters:
-      - schema:
-          type: string
-          example: user@gmail.com
-        name: userID
-        in: path
-        required: true
-        description: unique user ID (create this yourself)
-      - schema:
-          type: string
-          example: 5eb039bf90821520c2068cea
-        name: versionID
-        in: header
-        required: false
-        description: Voiceflow project version ID
+      - $ref: "#/components/parameters/userID"
+      - $ref: "#/components/parameters/versionID"
     post:
       tags:
         - State API
-      summary: interact
-      description: |-
-        Resolve a conversation turn.
+      summary: Interact
+      description: >-
+        Sends a request to advance the conversation session with your Voiceflow project.
 
-        Every time a request is sent you will get a unique response based on where the user is currently on in the Voiceflow project.
 
-        Send out a request with a `type` and `payload`, and get back a response with a `trace` array to act on.
+        ### Requests
 
-        If you've enabled the `verbose` parameter you will receive the [same kind of response as the stateless interact route](https://www.voiceflow.com/api/dialog-manager#operation/statelessInteract).
+        There are different types of requests that can be sent. 
+
+        1. **Launch request** - Starts the conversation session
+
+        2. **Text request** - Wraps your user's response to your chatbot and is used to advance the conversation.
+
+        3. **Intent request** - Wraps your user's response as an intent and is used to advance the conversation.
+
+
+        For example, to start the conversation, your HTTP request body should look like:
+
+        ```json
+
+        {
+          "type": "launch"
+        }
 
         ```
-        // -> request body, send user intention or event
+
+
+        To pass in your user's response, your HTTP request body should look like:
+
+        ```json
+
         {
           "action": {
             "type": "text",
-            "payload": "can I order a large pepperoni pizza"
+            "payload": "I want a large pepperoni pizza"
           }
         }
-        // <- response body, an array of "traces"
+
+        ```
+
+
+        See the **Request Samples** on the right panel for more examples of valid request bodies.
+
+
+        ### Response Traces
+
+        After processing your request, the State API will then respond with an array of "traces" which are pieces of the overall response from the project:
+
+        ```json
+
         [{
           "type": "speak",
           "payload": {
@@ -348,6 +367,52 @@ paths:
             "image": "https://voiceflow.com/pizza.png"
           }
         }]
+
+        ```
+
+        In the example above, the Voiceflow project responded by saying "would you like
+        fries with that?" and an image of a pizza. You can then display the chatbot's
+        response and the image in your app. 
+
+
+        There are many types of response traces. The most common ones include:
+
+        1. `speak` - Contains a textual response from the Voiceflow project
+
+        2. `visual` - Contains an image given as a response
+
+        3. `choice` - Lists a fixed set of responses that the project expects the user to give.
+
+
+        Each trace is produced by a particular block on your Voiceflow project. 
+
+
+        ### Conversation sessions
+
+        Multiple conversation sessions to your Voiceflow project can be running simultaneously.
+        Each session is identified by the `userID` that you specify. 
+        
+
+        For example, customer A should communicate with `/state/user/customerA/interact` whereas 
+        customer B should communicate with `/state/user/customerB/interact`. 
+        
+        
+        You can choose what format the `userID` can take on.
+
+
+        ### Runtime Logs
+
+
+        The `logs` query parameter can be used to enable [debug logging](https://developer.voiceflow.com/reference/logs-reference), which includes `log` traces in the response.
+
+
+        ### Legacy responses
+
+        For legacy compatibility, you set the `verbose` query parameter to `true` to get a response 
+        similar to our legacy Stateless API.
+        
+
+        ```json
 
         // <- simplified verbose response body
         {
@@ -374,37 +439,18 @@ paths:
             }
           }]
         }
+
         ```
-        Common request types are `launch`, `text`, `intent` - reference the **Request Samples** on the right panel for examples.
-
-        Use a `launch` request to reset the user and start from the first block in your Voiceflow project.
-
-        Common response traces include `speak`, `visual`, `choice`, with custom types available - reference **Responses Samples** on the right panel for examples.
-        Each trace gets produced by a particular block on your Voiceflow project.
-
-        The `logs` query parameter can be used to enable [debug logging](https://developer.voiceflow.com/reference/logs-reference), which includes `log` traces in the response.
       operationId: stateInteract
       security:
         - APIKey:
             - ''
       parameters:
-        - name: versionID
-          in: header
-          description: Voiceflow project version ID
-          required: false
-          schema:
-            type: string
-            example: 5eb039bf90821520c2068cea
-        - name: userID
-          in: path
-          description: unique user ID (create this yourself)
-          required: true
-          schema:
-            type: string
-            example: user@gmail.com
+        - $ref: "#/components/parameters/versionID"
+        - $ref: "#/components/parameters/userID"
         - name: verbose
           in: query
-          description: enable verbose responses
+          description: Enables verbose responses similar to the legacy Stateless API.
           required: false
           schema:
             type: boolean
@@ -417,7 +463,7 @@ paths:
             $ref: '#/components/schemas/DebugLogsConfig'
             default: 'off'
       requestBody:
-        description: info and config required for an interaction
+        description: Data and configuration for an interaction
         required: true
         content:
           application/json:
@@ -527,22 +573,10 @@ paths:
           description: Not Found
   '/state/user/{userID}':
     parameters:
-      - name: versionID
-        in: header
-        description: Voiceflow project version ID
-        required: false
-        schema:
-          type: string
-          example: 5eb039bf90821520c2068cea
-      - name: userID
-        in: path
-        description: unique user ID (create this yourself)
-        required: true
-        schema:
-          type: string
-          example: user@gmail.com
+      - $ref: "#/components/parameters/versionID"
+      - $ref: "#/components/parameters/userID"
     get:
-      summary: fetch state
+      summary: Fetch state
       tags:
         - State API
       security:
@@ -572,7 +606,7 @@ paths:
       operationId: getState
       description: Fetch the user's current state
     put:
-      summary: update state
+      summary: Update state
       tags:
         - State API
       operationId: postState
@@ -597,7 +631,10 @@ paths:
                       pizza_type: pepperoni
                       sessions: 5
                       payment: credit
-      description: "Update the user's current state, useful for externally updating the user's state, or for resetting everything."
+      description: >-
+        Update the user's current state. 
+        
+        This is useful for externally updating the user's state or resetting the state.
       requestBody:
         content:
           application/json:
@@ -619,9 +656,9 @@ paths:
                   stack: []
                   storage: {}
                   variables: {}
-        description: valid new user state
+        description: Valid new user state
     delete:
-      summary: delete state
+      summary: Delete state
       tags:
         - State API
       operationId: deleteState
@@ -634,22 +671,10 @@ paths:
       description: Delete all state and session data for user.
   '/state/user/{userID}/variables':
     parameters:
-      - name: versionID
-        in: header
-        description: Voiceflow project version ID
-        required: false
-        schema:
-          type: string
-          example: 5eb039bf90821520c2068cea
-      - name: userID
-        in: path
-        description: unique user ID (create this yourself)
-        required: true
-        schema:
-          type: string
-          example: user@gmail.com
+      - $ref: "#/components/parameters/versionID"
+      - $ref: "#/components/parameters/userID"
     patch:
-      summary: update variables
+      summary: Update variables
       tags:
         - State API
       security:
@@ -677,7 +702,7 @@ paths:
                       payment: credit
                       score: 200
       operationId: updateStateVariables
-      description: updates the variables in the user's state, merges the provided properties in the request body
+      description: Updates the variables in the user's state by merging with the provided properties in the request body
       requestBody:
         content:
           application/json:
@@ -686,18 +711,12 @@ paths:
               example:
                 pizza_type: pepperoni
                 sessions: 5
-        description: object full of variables to update
+        description: Contains the variables to update
   '/interact':
     parameters:
-      - name: versionID
-        schema:
-          type: string
-          example: 5eb039bf90821520c2068cea
-        in: header
-        description: Voiceflow project version ID
-        required: false
+      - $ref: "#/components/parameters/versionID"
     post:
-      summary: interact
+      summary: Interact
       tags:
         - Stateless API
       operationId: statelessInteract
@@ -918,18 +937,27 @@ paths:
                       variables: {}
   '/interact/state':
     parameters:
-      - schema:
-          type: string
-          example: 5eb039bf90821520c2068cea
-        name: versionID
-        in: header
-        required: false
-        description: Voiceflow project version ID
+      - $ref: "#/components/parameters/versionID"
     get:
-      summary: default state
-      description: |
-        The default state as if the user was on the first block on the home flow, with all variables uninitialized.
-        This is useful if you want to define variables before starting the conversation.
+      summary: Default state
+      description: >-
+        Returns the initial execution state of the conversation. This is the state of the Voiceflow diagram when
+        the conversation has not started.
+
+        You should pass initial execution state into the `state` field in the request body of a Stateless API interact request. 
+
+        The initial execution state has all variables uninitialized. You may set these variables if you wish to
+        direct the behaviour of your diagram programmatically before starting the conversation
+
+        The intended logic for starting a conversation is as follows:
+
+        1. Call this endpoint to obtain the initial execution state, `defaultState`
+        2. Override the `defaultState.variables` property (optional)
+        3. Set `defaultState` in the `state` field in a Stateless API interact request
+        4. Invoke Stateless API interact to launch the conversation
+
+        If you performed step 2., then these steps will launch the conversation with your custom variable values. If your Voiceflow
+        diagram reads these variables, they can perform complex logic based on the value you pass in. 
       tags:
         - Stateless API
       security:
@@ -969,6 +997,28 @@ components:
       description: |
         All requests made to the Dialog Management API must be validated with an API Key.
         An admin of your Voiceflow workspace can create and manage API Keys under *Workspace Settings / Developers*.
+  parameters:
+    versionID:
+      name: versionID
+      description: >
+        The version of your Voiceflow project to contact. 
+        Use `'development'` to contact the version on canvas or `'production'` to contact the published version.
+      in: header
+      required: false
+      schema:
+        type: string
+      example: development
+    userID:
+      name: userID
+      description: >
+        A unique user ID, whose format is defined by your code. 
+        The State API creates an independent conversation session for each user, 
+        allowing your app to talk with different users simultaneously.
+      in: path
+      required: true
+      schema:
+        type: string
+        example: user@gmail.com
   schemas:
     IntentRequest:
       title: Intent Request
@@ -1298,25 +1348,25 @@ components:
       properties:
         stack:
           type: array
-          description: all the flows the user current has active
+          description: Contains all of the user's active flows
           items:
             type: object
             properties:
               programID:
                 type: string
-                description: flow user has on the stack
+                description: The flow that the user has on the stack
                 example: 6062631246b44d80a8a345b4
               nodeID:
                 type: string
                 nullable: true
-                description: current block this flow is on
+                description: The current block this flow is on
                 example: 60626307fd9a230006a5e289
               variables:
                 type: object
-                description: flow scoped variables
+                description: The flow-scoped variables
               storage:
                 type: object
-                description: internal flow parameters for runtime
+                description: Internal flow parameters used by the runtime
               commands:
                 type: array
                 items:
@@ -1359,27 +1409,27 @@ components:
         - $ref: '#/components/schemas/IntentRequest'
         - type: object
           nullable: true
-      description: an object representing a user's action or event
+      description: The user's action, e.g, launching a new conversation or sending a textual response
     Config:
       title: Config
       type: object
-      description: optional settings
+      description: Optional settings to configure the response
       properties:
         tts:
           type: boolean
           default: false
-          description: send back a text-to-speech mp3 audio snippet for every speak block
+          description: Send back a playable text-to-speech mp3 audio snippet for every speak block
         stripSSML:
           type: boolean
           default: true
-          description: remove all SSML tags in the response message
+          description: Remove all SSML tags in the response message. 
         stopAll:
           type: boolean
           default: true
-          description: stop on all custom traces
+          description: Stop on all custom traces
         stopTypes:
           type: array
-          description: 'which trace types to return prematurely on, define your own path'
+          description: Specifies trace types to prematurely return on. Used to define your own path.
           items:
             type: string
             example: Pay Credit Card
@@ -1387,7 +1437,7 @@ components:
         excludeTypes:
           type: array
           default: [block, debug, flow]
-          description: trace types to not include in the response
+          description: The trace types to exclude in the response
       x-examples:
         example-1:
           tts: false
