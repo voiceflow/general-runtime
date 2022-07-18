@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 
-import { BaseModels, BaseRequest, BaseTrace } from '@voiceflow/base-types';
+import { BaseModels, BaseRequest, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
 import { ChatModels } from '@voiceflow/chat-types';
 import { VF_DM_PREFIX } from '@voiceflow/common';
 import VError from '@voiceflow/verror';
@@ -13,6 +13,7 @@ import _ from 'lodash';
 
 import { hasElicit, setElicit } from '@/lib/services/runtime/handlers/utils/entity';
 import log from '@/logger';
+import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
 import { handleNLCDialog } from '../nlu/nlc';
@@ -220,6 +221,18 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
           entityToFill: unfulfilledEntity.name,
           intent: dmStateStore.intentRequest,
         },
+      });
+      const debugLogging = new DebugLogging((traceFrame) => {
+        trace.push(traceFrame as any);
+      });
+      debugLogging.refreshContext(context);
+      debugLogging.recordGlobalLog(RuntimeLogs.Kinds.GlobalLogKind.NLU_INTENT_RESOLVED, {
+        confidence: dmStateStore.intentRequest.payload.confidence ?? 1,
+        resolvedIntent: dmStateStore.intentRequest.payload.intent.name,
+        utterance: dmStateStore.intentRequest.payload.query,
+        entities: Object.fromEntries(
+          dmStateStore.intentRequest.payload.entities.map((entity) => [entity.name, { value: entity.value }])
+        ),
       });
 
       return {
