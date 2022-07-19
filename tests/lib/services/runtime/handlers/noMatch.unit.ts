@@ -5,6 +5,8 @@ import sinon from 'sinon';
 import { NoMatchHandler } from '@/lib/services/runtime/handlers/noMatch';
 import { StorageType } from '@/lib/services/runtime/types';
 import { EMPTY_AUDIO_STRING, outputTrace } from '@/lib/services/runtime/utils';
+import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
+import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
 const RepromptPathTrace = { type: 'path', payload: { path: 'reprompt' } };
 const NoMatchPathTrace = { type: 'path', payload: { path: 'choice:else' } };
@@ -26,7 +28,9 @@ describe('noMatch handler unit tests', () => {
         trace: {
           addTrace: sinon.stub(),
         },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
         getState: sinon.stub().returns({ counter: 5.2345 }),
       };
@@ -45,6 +49,21 @@ describe('noMatch handler unit tests', () => {
             payload: {
               message: 'the counter is 5.23',
               type: 'message',
+            },
+          },
+        ],
+        [
+          {
+            type: 'log',
+            payload: {
+              kind: 'step.speak',
+              level: 'info',
+              message: {
+                componentName: 'speak',
+                stepID: 'node-id',
+                text: 'the counter is 5.23',
+              },
+              timestamp: getISO8601Timestamp(),
             },
           },
         ],
@@ -127,7 +146,9 @@ describe('noMatch handler unit tests', () => {
         trace: {
           addTrace: sinon.stub(),
         },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
         getState: sinon.stub().returns({}),
       };
@@ -152,6 +173,21 @@ describe('noMatch handler unit tests', () => {
             },
           },
         ],
+        [
+          {
+            type: 'log',
+            payload: {
+              kind: 'step.speak',
+              level: 'info',
+              message: {
+                componentName: 'speak',
+                stepID: 'node-id',
+                text: 'the counter is {counter}',
+              },
+              timestamp: getISO8601Timestamp(),
+            },
+          },
+        ],
       ]);
     });
 
@@ -173,7 +209,9 @@ describe('noMatch handler unit tests', () => {
         trace: {
           addTrace: sinon.stub(),
         },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
         getState: sinon.stub().returns({}),
       };
@@ -205,7 +243,9 @@ describe('noMatch handler unit tests', () => {
         trace: {
           addTrace: sinon.stub(),
         },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
         getState: sinon.stub().returns({}),
       };
@@ -237,7 +277,9 @@ describe('noMatch handler unit tests', () => {
         trace: {
           addTrace: sinon.stub(),
         },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
         getState: sinon.stub().returns({}),
       };
@@ -268,7 +310,9 @@ describe('noMatch handler unit tests', () => {
         trace: {
           addTrace: sinon.stub(),
         },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
         getState: sinon.stub().returns({ counter: 5.2345 }),
       };
@@ -287,6 +331,21 @@ describe('noMatch handler unit tests', () => {
             payload: {
               message: 'the counter is 5.23',
               type: 'message',
+            },
+          },
+        ],
+        [
+          {
+            type: 'log',
+            payload: {
+              kind: 'step.speak',
+              level: 'info',
+              message: {
+                componentName: 'speak',
+                stepID: 'node-id',
+                text: 'the counter is 5.23',
+              },
+              timestamp: getISO8601Timestamp(),
             },
           },
         ],
@@ -309,7 +368,9 @@ describe('noMatch handler unit tests', () => {
         trace: {
           addTrace: sinon.stub(),
         },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
         getState: sinon.stub().returns({}),
       };
@@ -339,7 +400,9 @@ describe('noMatch handler unit tests', () => {
         trace: {
           addTrace: sinon.stub(),
         },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
         getState: sinon.stub().returns({}),
       };
@@ -369,7 +432,9 @@ describe('noMatch handler unit tests', () => {
         trace: {
           addTrace: sinon.stub(),
         },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
         getState: sinon.stub().returns({}),
       };

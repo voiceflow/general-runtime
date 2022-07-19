@@ -5,6 +5,8 @@ import sinon from 'sinon';
 import { NoReplyHandler } from '@/lib/services/runtime/handlers/noReply';
 import { StorageType } from '@/lib/services/runtime/types';
 import { EMPTY_AUDIO_STRING, outputTrace } from '@/lib/services/runtime/utils';
+import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
+import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
 const RepromptPathTrace = { type: 'path', payload: { path: 'reprompt' } };
 const NoReplyPathTrace = { type: 'path', payload: { path: 'choice:noReply' } };
@@ -26,7 +28,9 @@ describe('noReply handler unit tests', () => {
         trace: {
           addTrace: sinon.stub(),
         },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
         getState: sinon.stub().returns({ counter: 5.2345 }),
       };
@@ -45,6 +49,21 @@ describe('noReply handler unit tests', () => {
             payload: {
               message: 'the counter is 5.23',
               type: 'message',
+            },
+          },
+        ],
+        [
+          {
+            type: 'log',
+            payload: {
+              kind: 'step.speak',
+              level: 'info',
+              message: {
+                componentName: 'speak',
+                stepID: 'node-id',
+                text: 'the counter is 5.23',
+              },
+              timestamp: getISO8601Timestamp(),
             },
           },
         ],
@@ -126,7 +145,9 @@ describe('noReply handler unit tests', () => {
         trace: {
           addTrace: sinon.stub(),
         },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
         getState: sinon.stub().returns({}),
       };
@@ -158,7 +179,9 @@ describe('noReply handler unit tests', () => {
         trace: {
           addTrace: sinon.stub(),
         },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
         getState: sinon.stub().returns({}),
       };
@@ -190,7 +213,9 @@ describe('noReply handler unit tests', () => {
         trace: {
           addTrace: sinon.stub(),
         },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
         getState: sinon.stub().returns({}),
       };
@@ -221,7 +246,9 @@ describe('noReply handler unit tests', () => {
         trace: {
           addTrace: sinon.stub(),
         },
+        debugLogging: null as unknown as DebugLogging,
       };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
         getState: sinon.stub().returns({ counter: 5.2345 }),
       };
@@ -240,6 +267,21 @@ describe('noReply handler unit tests', () => {
             payload: {
               message: 'the counter is 5.23',
               type: 'message',
+            },
+          },
+        ],
+        [
+          {
+            type: 'log',
+            payload: {
+              kind: 'step.speak',
+              level: 'info',
+              message: {
+                componentName: 'speak',
+                stepID: 'node-id',
+                text: 'the counter is 5.23',
+              },
+              timestamp: getISO8601Timestamp(),
             },
           },
         ],

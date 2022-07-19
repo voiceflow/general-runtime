@@ -5,6 +5,8 @@ import sinon from 'sinon';
 import init from '@/lib/services/runtime/init';
 import { FrameType, StorageType, StreamAction } from '@/lib/services/runtime/types';
 import { EventType } from '@/runtime';
+import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
+import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
 describe('runtime init service unit tests', () => {
   afterEach(() => {
@@ -125,7 +127,9 @@ describe('runtime init service unit tests', () => {
           stack: { top: sinon.stub().returns(topFrame) },
           storage: { produce: sinon.stub() },
           trace: { addTrace: sinon.stub() },
+          debugLogging: null as unknown as DebugLogging,
         };
+        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
         init(client as any);
 
         expect(client.setEvent.args[1][0]).to.eql(EventType.frameDidFinish);
@@ -142,6 +146,21 @@ describe('runtime init service unit tests', () => {
             {
               type: BaseNode.Utils.TraceType.SPEAK,
               payload: { message: output, type: BaseNode.Speak.TraceSpeakType.MESSAGE },
+            },
+          ],
+          [
+            {
+              type: 'log',
+              payload: {
+                kind: 'step.speak',
+                level: 'info',
+                message: {
+                  componentName: null,
+                  stepID: null,
+                  text: 'output',
+                },
+                timestamp: getISO8601Timestamp(),
+              },
             },
           ],
         ]);

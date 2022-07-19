@@ -51,10 +51,6 @@ describe('repeat handler', () => {
 
   describe('handle', () => {
     it('minimal repeat', () => {
-      const TRACE = '_trace1';
-      const outputTrace = sinon.stub().returns(TRACE);
-      const repeatHandler = RepeatHandler({ outputTrace } as any);
-
       const frame = {
         getNodeID: sinon.stub().returns('node'),
         storage: {
@@ -77,6 +73,10 @@ describe('repeat handler', () => {
         },
       };
 
+      const TRACE = '_trace1';
+      const outputTrace = () => runtime.trace.addTrace(TRACE);
+      const repeatHandler = RepeatHandler({ outputTrace } as any);
+
       repeatHandler.handle(runtime as any);
 
       expect(runtime.storage.get.args[0][0]).to.eql(StorageType.REPEAT);
@@ -84,14 +84,9 @@ describe('repeat handler', () => {
       expect(frame.storage.get.args).to.eql([[FrameType.OUTPUT]]);
       expect(runtime.turn.get.callCount).to.eql(0);
       expect(runtime.trace.addTrace.args).to.eql([[TRACE]]);
-      expect(outputTrace.args).to.eql([[{ output: 'foo' }]]);
     });
 
     it('max repeat', () => {
-      const TRACE = '_trace2';
-      const outputTrace = sinon.stub().returns(TRACE);
-      const repeatHandler = RepeatHandler({ outputTrace } as any);
-
       const frame = {
         getNodeID: sinon.stub().returns('node'),
         storage: { get: sinon.stub() },
@@ -112,6 +107,10 @@ describe('repeat handler', () => {
         },
       };
 
+      const TRACE = '_trace2';
+      const outputTrace = () => runtime.trace.addTrace(TRACE);
+      const repeatHandler = RepeatHandler({ outputTrace } as any);
+
       repeatHandler.handle(runtime as any);
 
       expect(runtime.storage.get.args[0][0]).to.eql(StorageType.REPEAT);
@@ -119,7 +118,6 @@ describe('repeat handler', () => {
       expect(frame.storage.get.callCount).to.eql(0);
       expect(runtime.turn.get.args[0][0]).to.eql(TurnType.PREVIOUS_OUTPUT);
       expect(runtime.trace.addTrace.args).to.eql([[TRACE]]);
-      expect(outputTrace.args).to.eql([[{ output: 'test' }]]);
     });
   });
 });
