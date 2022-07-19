@@ -21,7 +21,7 @@ jobs:
         id: envNameLabel
 
       - name: Check for renew env request
-        uses: Dreamcodeio/pr-has-label-action@master
+        uses: Dreamcodeio/pr-has-label-action@v1.2
         id: renewEnvLabel
         with:
           label: renew-env
@@ -35,7 +35,7 @@ jobs:
           type: remove
 
       - name: Install vfcli
-        if: (github.event.action == 'labeled' && steps.renewEnvLabel.outputs.hasLabel == 'true' && steps.envNameLabel.outputs.label != '')
+        if: (steps.renewEnvLabel.outputs.hasLabel == 'true' && steps.envNameLabel.outputs.label != '')
         env:
           GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}
         run: |
@@ -44,8 +44,8 @@ jobs:
           curl -J -L -H "Accept: application/octet-stream" "$API_URL/releases/assets/$ASSET_ID" --output vfcli.tar.gz
           tar -xf vfcli.tar.gz
 
-      - name: Renew the dev env if PR closed not creating and the label exists
-        if: (github.event.action == 'labeled' && steps.renewEnvLabel.outputs.hasLabel == 'true' && steps.envNameLabel.outputs.label != '')
+      - name: Renew the dev env
+        if: (steps.renewEnvLabel.outputs.hasLabel == 'true' && steps.envNameLabel.outputs.label != '')
         id: renewEnv
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -66,7 +66,7 @@ jobs:
           echo -e "::set-output name=renewalDate::${RENEWAL_DATE}"
 
       - name: Comment PR
-        uses: thollander/actions-comment-pull-request@main
+        uses: thollander/actions-comment-pull-request@v1.4.1
         if: steps.renewEnv.outputs.renewed == 'true'
         with:
           message: 'Dev environment ${{ steps.renewEnv.outputs.envName}} renewed until ${{ steps.renewEnv.outputs.renewalDate}}!'
