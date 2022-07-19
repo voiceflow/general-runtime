@@ -1,0 +1,74 @@
+name: PR-label -> renew dev env
+
+on:
+  pull_request:
+    types: [labeled]
+
+concurrency:
+  group: renew-env-${{ github.ref }}
+
+jobs:
+  preview:
+    name: Renew dev environment
+    runs-on: ubuntu-latest
+    continue-on-error: true # Ignore errors
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    steps:
+      - name: Check PR env labels
+        uses: voiceflow/pr-label-match@master
+        with:
+          regex: env-
+        id: envNameLabel
+
+      - name: Check for new env request
+        uses: Dreamcodeio/pr-has-label-action@master
+        id: renewEnvLabel
+        with:
+          label: renew-env
+
+      - name: Remove renew-env label (if exist)
+        uses: buildsville/add-remove-label@v1
+        if: steps.renewEnvLabel.outputs.hasLabel == 'true' && steps.renewEnvLabel.outputs.label == ''
+        with:
+          token: ${{secrets.GH_SA_TOKEN}}
+          label: renew-env
+          type: remove
+
+      - name: Install vfcli
+        if: (github.event.action == 'labeled' && steps.renewEnvLabel.outputs.hasLabel == 'true' && steps.envNameLabel.outputs.label != '')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}
+        run: |
+          API_URL="https://$GITHUB_TOKEN:@api.github.com/repos/voiceflow/vfcli"
+          ASSET_ID=$(curl $API_URL/releases/latest | jq -r '.assets[3].id')
+          curl -J -L -H "Accept: application/octet-stream" "$API_URL/releases/assets/$ASSET_ID" --output vfcli.tar.gz
+          tar -xf vfcli.tar.gz
+
+      - name: Renew the dev env if PR closed not creating and the label exists
+        if: (github.event.action == 'labeled' && steps.renewEnvLabel.outputs.hasLabel == 'true' && steps.envNameLabel.outputs.label != '')
+        id: renewEnv
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: 'us-east-1'
+        run: |
+          echo "Initializating vfcli..."
+          ./vfcli init --interactive false
+
+          # Renew environment
+          LABEL=${{ steps.envNameLabel.outputs.label }}
+          ENV_NAME=$LABEL
+          ENV_NAME=$(sed 's|env-||g' <<< "$ENV_NAME")
+
+          ./vfcli env renew -n ${ENV_NAME} --interactive false --no-telepresence
+          echo -e "::set-output name=renewed::true"
+          echo -e "::set-output name=envName::${ENV_NAME}"
+
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@main
+        if: steps.renewEnv.outputs.renewed == 'true'
+        with:
+          message: 'Dev environment ${{ steps.renewEnv.outputs.envName}} renewed!'
+          GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}
+
+
