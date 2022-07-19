@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 
-import { BaseModels, BaseRequest, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
+import { BaseModels, BaseNode, BaseRequest, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
 import { ChatModels } from '@voiceflow/chat-types';
 import { VF_DM_PREFIX } from '@voiceflow/common';
 import VError from '@voiceflow/verror';
