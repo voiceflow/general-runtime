@@ -80,16 +80,10 @@ describe('dialog manager unit tests', () => {
         const dmState = {
           intentRequest: mockRegularSingleEntityResult,
         };
-        const result = await dm.handleDMContext(
-          dmState,
-          mockDMPrefixedMultipleEntityResult,
-          mockRegularMultipleEntityResult,
-          mockLM
-        );
+        dm.handleDMContext(dmState, mockDMPrefixedMultipleEntityResult, mockRegularMultipleEntityResult, mockLM);
         const sizeEntityValue = dmState.intentRequest.payload.entities.find((entity) => entity.name === 'size');
         const toppingEntityValue = dmState.intentRequest.payload.entities.find((entity) => entity.name === 'topping');
 
-        expect(result).to.be.false; // No fallback intent
         expect(sizeEntityValue?.value).to.be.equal('large');
         expect(toppingEntityValue?.value).to.be.equal('pepperoni');
       });
@@ -101,15 +95,9 @@ describe('dialog manager unit tests', () => {
           intentRequest: mockRegularNoEntityResult,
         };
 
-        const result = await dm.handleDMContext(
-          dmState,
-          mockDMPrefixedUnrelatedSingleEntityResult,
-          mockRegularUnrelatedResult,
-          mockLM
-        );
+        dm.handleDMContext(dmState, mockDMPrefixedUnrelatedSingleEntityResult, mockRegularUnrelatedResult, mockLM);
         const sizeEntityValue = dmState.intentRequest.payload.entities.find((entity) => entity.name === 'size');
 
-        expect(result).to.be.false; // No fallback intent
         expect(sizeEntityValue?.value).to.be.equal('small');
       });
     });
@@ -119,14 +107,8 @@ describe('dialog manager unit tests', () => {
         const dmState = {
           intentRequest: mockUnfulfilledIntentRequest,
         };
-        const result = await dm.handleDMContext(
-          dmState,
-          mockDMPrefixedNoEntityResult,
-          mockRegularNoEntityResult,
-          mockLM
-        );
+        dm.handleDMContext(dmState, mockDMPrefixedNoEntityResult, mockRegularNoEntityResult, mockLM);
 
-        expect(result).to.be.false; // No fallback intent
         expect(dmState.intentRequest).to.deep.equal(mockRegularNoEntityResult);
       });
     });
@@ -136,14 +118,8 @@ describe('dialog manager unit tests', () => {
         const dmState = {
           intentRequest: mockRegularNoEntityResult,
         };
-        const result = await dm.handleDMContext(
-          dmState,
-          mockDMPrefixedNonSubsetEntityResult,
-          mockRegularUnrelatedResult,
-          mockLM
-        );
+        dm.handleDMContext(dmState, mockDMPrefixedNonSubsetEntityResult, mockRegularUnrelatedResult, mockLM);
 
-        expect(result).to.be.false;
         expect(dmState.intentRequest).to.eql(mockRegularUnrelatedResult);
       });
     });
@@ -154,14 +130,8 @@ describe('dialog manager unit tests', () => {
           intentRequest: mockRegularNoEntityResult,
         };
 
-        const result = await dm.handleDMContext(
-          dmState,
-          mockDMPrefixUnrelatedResult,
-          mockRegularUnrelatedResult,
-          mockLM
-        );
+        dm.handleDMContext(dmState, mockDMPrefixUnrelatedResult, mockRegularUnrelatedResult, mockLM);
 
-        expect(result).to.be.false; // no fallback intent
         expect(dmState.intentRequest.payload.intent.name).to.be.equal('wings_order');
       });
     });
@@ -172,9 +142,9 @@ describe('dialog manager unit tests', () => {
           intentRequest: mockRegularUnrelatedResult,
         };
 
-        const result = await dm.handleDMContext(dmState, mockRegularNoEntityResult, mockRegularUnrelatedResult, mockLM);
+        dm.handleDMContext(dmState, mockRegularNoEntityResult, mockRegularUnrelatedResult, mockLM);
 
-        expect(result).to.be.true; // trigger fallback intent
+        expect(dmState.intentRequest.payload.intent.name).to.equal('None');
       });
     });
   });

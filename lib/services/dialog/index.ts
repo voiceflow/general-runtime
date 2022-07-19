@@ -53,7 +53,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     dmPrefixedResult: BaseRequest.IntentRequest,
     incomingRequest: BaseRequest.IntentRequest,
     languageModel: BaseModels.PrototypeModel
-  ): boolean => {
+  ): void => {
     const dmPrefixedResultName = dmPrefixedResult.payload.intent.name;
     const incomingRequestName = incomingRequest.payload.intent.name;
     const expectedIntentName = dmStateStore.intentRequest!.payload.intent.name;
@@ -94,13 +94,9 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       // Action: Migrate user to the new intent and extract all the available entities
       dmStateStore.intentRequest = incomingRequest;
     } else {
-      // (Unlikely) CASE-A2: The prefixed and regular calls do not match the same intent
-      // Action: return true; Fallback intent
-      return true;
+      // CASE-A2: The prefixed and regular calls do not match the same intent
+      dmStateStore.intentRequest = getNoneIntentRequest(incomingRequest.payload.query);
     }
-
-    // Fallback intent is not needed here
-    return false;
   };
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
@@ -145,14 +141,9 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
           entity.value = typeof entity.value === 'string' ? entity.value.replace(prefix, '').trim() : entity.value;
         });
 
-        const isFallback = this.handleDMContext(
-          dmStateStore,
-          dmPrefixedResult,
-          incomingRequest,
-          version.prototype.model
-        );
+        this.handleDMContext(dmStateStore, dmPrefixedResult, incomingRequest, version.prototype.model);
 
-        if (isFallback) {
+        if (dmStateStore.intentRequest.payload.intent.name === NONE_INTENT) {
           return {
             ...DialogManagement.setDMStore(context, { ...dmStateStore, intentRequest: undefined }),
             request: getNoneIntentRequest(query),
@@ -215,30 +206,35 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
         trace.push(outputTrace({ output, variables }));
       }
-      trace.push({
-        type: BaseTrace.TraceType.ENTITY_FILLING,
-        payload: {
-          entityToFill: unfulfilledEntity.name,
-          intent: dmStateStore.intentRequest,
-        },
-      });
-      const debugLogging = new DebugLogging((traceFrame) => {
-        trace.push(traceFrame as any);
-      });
-      debugLogging.refreshContext(context);
-      debugLogging.recordGlobalLog(RuntimeLogs.Kinds.GlobalLogKind.NLU_INTENT_RESOLVED, {
-        confidence: dmStateStore.intentRequest.payload.confidence ?? 1,
-        resolvedIntent: dmStateStore.intentRequest.payload.intent.name,
-        utterance: dmStateStore.intentRequest.payload.query,
-        entities: Object.fromEntries(
-          dmStateStore.intentRequest.payload.entities.map((entity) => [entity.name, { value: entity.value }])
-        ),
-      });
-
+      if (prompt || hasElicit(incomingRequest)) {
+        trace.push({
+          type: BaseTrace.TraceType.ENTITY_FILLING,
+          payload: {
+            entityToFill: unfulfilledEntity.name,
+            intent: dmStateStore.intentRequest,
+          },
+        });
+        const debugLogging = new DebugLogging((traceFrame) => {
+          trace.push(traceFrame as any);
+        });
+        debugLogging.refreshContext(context);
+        debugLogging.recordGlobalLog(RuntimeLogs.Kinds.GlobalLogKind.NLU_INTENT_RESOLVED, {
+          confidence: dmStateStore.intentRequest.payload.confidence ?? 1,
+          resolvedIntent: dmStateStore.intentRequest.payload.intent.name,
+          utterance: dmStateStore.intentRequest.payload.query,
+          entities: Object.fromEntries(
+            dmStateStore.intentRequest.payload.entities.map((entity) => [entity.name, { value: entity.value }])
+          ),
+        });
+        return {
+          ...context,
+          end: true,
+          trace,
+        };
+      }
       return {
-        ...context,
-        end: true,
-        trace,
+        ...DialogManagement.setDMStore(context, { ...dmStateStore, intentRequest: undefined }),
+        request: getNoneIntentRequest(query),
       };
     }
 
