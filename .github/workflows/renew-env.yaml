@@ -8,7 +8,7 @@ concurrency:
   group: renew-env-${{ github.ref }}
 
 jobs:
-  preview:
+  renew:
     name: Renew dev environment
     runs-on: ubuntu-latest
     continue-on-error: true # Ignore errors
@@ -20,7 +20,7 @@ jobs:
           regex: env-
         id: envNameLabel
 
-      - name: Check for new env request
+      - name: Check for renew env request
         uses: Dreamcodeio/pr-has-label-action@master
         id: renewEnvLabel
         with:
@@ -60,15 +60,16 @@ jobs:
           ENV_NAME=$LABEL
           ENV_NAME=$(sed 's|env-||g' <<< "$ENV_NAME")
 
-          ./vfcli env renew -n ${ENV_NAME} --interactive false --no-telepresence
+          RENEWAL_DATE=$(./vfcli env renew -n ${ENV_NAME} --output json --interactive false --no-telepresence | jq -cr '.renewalDate')
           echo -e "::set-output name=renewed::true"
           echo -e "::set-output name=envName::${ENV_NAME}"
+          echo -e "::set-output name=renewalDate::${RENEWAL_DATE}"
 
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@main
         if: steps.renewEnv.outputs.renewed == 'true'
         with:
-          message: 'Dev environment ${{ steps.renewEnv.outputs.envName}} renewed!'
+          message: 'Dev environment ${{ steps.renewEnv.outputs.envName}} renewed until ${{ steps.renewEnv.outputs.renewalDate}}!'
           GITHUB_TOKEN: ${{ secrets.GH_SA_TOKEN }}
 
 
