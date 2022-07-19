@@ -30,7 +30,11 @@ export const RepeatHandler = (utils: typeof utilsObj) => ({
         ? runtime.turn.get<Output>(TurnType.PREVIOUS_OUTPUT)
         : top.storage.get<Output>(FrameType.OUTPUT);
 
-    runtime.trace.addTrace(utils.outputTrace({ output }));
+    utils.outputTrace({
+      output,
+      addTrace: runtime.trace.addTrace,
+      debugLogging: runtime.debugLogging,
+    });
 
     return top.getNodeID() || null;
   },

@@ -5,6 +5,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import DialogManager, { utils as defaultUtils } from '@/lib/services/dialog';
+import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
 import {
   mockDMPrefixedMultipleEntityResult,
@@ -170,6 +171,19 @@ describe('dialog manager unit tests', () => {
             payload: {
               message: '<voice name="Default voice">what flavor?</voice>',
               type: 'message',
+            },
+          },
+          {
+            type: 'log',
+            payload: {
+              kind: 'step.speak',
+              level: 'info',
+              message: {
+                componentName: null,
+                stepID: null,
+                text: '<voice name="Default voice">what flavor?</voice>',
+              },
+              timestamp: getISO8601Timestamp(),
             },
           },
           mockEntityFillingTrace,

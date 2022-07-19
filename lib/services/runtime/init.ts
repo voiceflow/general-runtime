@@ -20,7 +20,7 @@ const init = (client: Client) => {
     });
   });
 
-  client.setEvent(EventType.frameDidFinish, ({ runtime }) => {
+  client.setEvent(EventType.frameDidFinish, async ({ runtime }) => {
     if (!runtime.stack.top()?.storage.get(FrameType.CALLED_COMMAND)) {
       return;
     }
@@ -33,7 +33,11 @@ const init = (client: Client) => {
       return;
     }
 
-    runtime.trace.addTrace(outputTrace({ output }));
+    outputTrace({
+      addTrace: runtime.trace.addTrace,
+      debugLogging: runtime.debugLogging,
+      output,
+    });
   });
 
   client.setEvent(EventType.handlerWillHandle, ({ runtime, node }) => {

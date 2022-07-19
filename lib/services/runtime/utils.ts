@@ -1,11 +1,13 @@
-import { BaseModels, BaseNode, BaseRequest, BaseText, BaseTrace } from '@voiceflow/base-types';
+import { BaseModels, BaseNode, BaseRequest, BaseText, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables, transformStringVariableToNumber, Utils } from '@voiceflow/common';
 import cuid from 'cuid';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
 import _uniqBy from 'lodash/uniqBy';
 import * as Slate from 'slate';
 
-import { Runtime, Store } from '@/runtime';
+import runtime, { Runtime, Store } from '@/runtime';
+import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
+import { AddTraceFn } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
 import { Output } from './types';
 
@@ -171,27 +173,34 @@ export const removeEmptyPrompts = (
 interface OutputParams<V> {
   output?: V;
   variables?: Record<string, unknown>;
+  node?: BaseModels.BaseNode;
+  debugLogging: DebugLogging;
+  addTrace: AddTraceFn;
 }
 
-export function outputTrace(params: OutputParams<BaseText.SlateTextValue>): BaseTrace.TextTrace;
-export function outputTrace(params: OutputParams<string>): BaseTrace.SpeakTrace;
-export function outputTrace(params: OutputParams<Output>): BaseTrace.TextTrace | BaseTrace.SpeakTrace;
-export function outputTrace({ output, variables = {} }: OutputParams<Output>) {
+export function outputTrace({ node, addTrace, debugLogging, output, variables = {} }: OutputParams<Output>): void {
   const sanitizedVars = sanitizeVariables(variables);
 
   if (Array.isArray(output)) {
     const content = slateInjectVariables(output, sanitizedVars);
-    const message = slateToPlaintext(content);
+    const plainContent = slateToPlaintext(content);
+    const richContent = { id: cuid.slug(), content };
 
-    return {
+    addTrace({
       type: BaseNode.Utils.TraceType.TEXT,
-      payload: { slate: { id: cuid.slug(), content }, message },
-    };
-  }
-  const message = replaceVariables(output || '', sanitizedVars);
+      payload: { slate: richContent, message: plainContent },
+    });
+    debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.TEXT, node, {
+      plainContent,
+      richContent,
+    });
+  } else {
+    const message = replaceVariables(output || '', sanitizedVars);
 
-  return {
-    type: BaseNode.Utils.TraceType.SPEAK,
-    payload: { message, type: BaseNode.Speak.TraceSpeakType.MESSAGE },
-  };
+    addTrace({
+      type: BaseNode.Utils.TraceType.SPEAK,
+      payload: { message, type: BaseNode.Speak.TraceSpeakType.MESSAGE },
+    });
+    debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.SPEAK, node, { text: message });
+  }
 }

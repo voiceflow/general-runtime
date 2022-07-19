@@ -194,6 +194,11 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         | ChatModels.Prompt
         | VoiceModels.IntentPrompt<VoiceflowConstants.Voice>;
 
+      const addTrace = (traceFrame: BaseNode.Utils.BaseTraceFrame): void => {
+        trace.push(traceFrame as any);
+      };
+      const debugLogging = new DebugLogging(addTrace);
+
       if (!hasElicit(incomingRequest) && prompt) {
         const variables = getEntitiesMap(dmStateStore!.intentRequest);
 
@@ -204,7 +209,12 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
             )
           : prompt.content;
 
-        trace.push(outputTrace({ output, variables }));
+        utils.outputTrace({
+          addTrace,
+          debugLogging,
+          output,
+          variables,
+        });
       }
       if (prompt || hasElicit(incomingRequest)) {
         trace.push({

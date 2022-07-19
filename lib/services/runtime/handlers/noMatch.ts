@@ -64,7 +64,13 @@ export const NoMatchHandler = (utils: typeof utilsObj) => ({
 
     runtime.storage.set(StorageType.NO_MATCHES_COUNTER, noMatchCounter + 1);
 
-    runtime.trace.addTrace(utils.outputTrace({ output, variables: variables.getState() }));
+    utils.outputTrace({
+      addTrace: runtime.trace.addTrace,
+      debugLogging: runtime.debugLogging,
+      node,
+      output,
+      variables: variables.getState(),
+    });
 
     utils.addButtonsIfExists(node, runtime, variables);
     utils.addNoReplyTimeoutIfExists(node, runtime);
