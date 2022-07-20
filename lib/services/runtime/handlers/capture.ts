@@ -1,5 +1,4 @@
 import { BaseNode, BaseRequest, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
-import { NodeType } from '@voiceflow/base-types/build/common/node';
 import { ChatNode } from '@voiceflow/chat-types';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 import wordsToNumbers from 'words-to-numbers';
@@ -24,7 +23,7 @@ const utilsObj = {
 export const CaptureHandler: HandlerFactory<VoiceflowNode.Capture.Node | ChatNode.Capture.Node, typeof utilsObj> = (
   utils
 ) => ({
-  canHandle: (node) => !!node.variable || node.type === NodeType.CAPTURE,
+  canHandle: (node) => !!node.variable || node.type === BaseNode.NodeType.CAPTURE,
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (node, runtime, variables) => {
     if (runtime.getAction() === Action.RUNNING) {

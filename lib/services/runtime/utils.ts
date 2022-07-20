@@ -5,7 +5,7 @@ import _cloneDeepWith from 'lodash/cloneDeepWith';
 import _uniqBy from 'lodash/uniqBy';
 import * as Slate from 'slate';
 
-import runtime, { Runtime, Store } from '@/runtime';
+import { Runtime, Store } from '@/runtime';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { AddTraceFn } from '@/runtime/lib/Runtime/DebugLogging/utils';
 

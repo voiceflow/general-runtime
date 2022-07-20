@@ -1,5 +1,4 @@
 import { BaseNode, BaseTrace } from '@voiceflow/base-types';
-import { NodeType } from '@voiceflow/base-types/build/common/node';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 
 import { Action, HandlerFactory } from '@/runtime';
@@ -22,7 +21,7 @@ const handlerUtils = {
 };
 
 export const CarouselHandler: HandlerFactory<BaseNode.Carousel.Node, typeof handlerUtils> = (utils) => ({
-  canHandle: (node) => node.type === NodeType.CAROUSEL,
+  canHandle: (node) => node.type === BaseNode.NodeType.CAROUSEL,
   handle: (node, runtime, variables) => {
     const defaultPath = node.nextId || null;
     const isStartingFromCarouselStep = runtime.getAction() === Action.REQUEST && !runtime.getRequest();

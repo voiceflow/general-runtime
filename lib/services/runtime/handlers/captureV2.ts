@@ -1,5 +1,4 @@
 import { BaseNode, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
-import { NodeType } from '@voiceflow/base-types/build/common/node';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory } from '@/runtime';
@@ -35,7 +34,7 @@ const utilsObj = {
 };
 
 export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, typeof utilsObj> = (utils) => ({
-  canHandle: (node) => node.type === NodeType.CAPTURE_V2,
+  canHandle: (node) => node.type === BaseNode.NodeType.CAPTURE_V2,
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (node, runtime, variables) => {
     const captureIntentName = node.intent?.name;

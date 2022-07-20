@@ -198,6 +198,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         trace.push(traceFrame as any);
       };
       const debugLogging = new DebugLogging(addTrace);
+      debugLogging.refreshContext(context);
 
       if (!hasElicit(incomingRequest) && prompt) {
         const variables = getEntitiesMap(dmStateStore!.intentRequest);
@@ -224,10 +225,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
             intent: dmStateStore.intentRequest,
           },
         });
-        const debugLogging = new DebugLogging((traceFrame) => {
-          trace.push(traceFrame as any);
-        });
-        debugLogging.refreshContext(context);
+
         debugLogging.recordGlobalLog(RuntimeLogs.Kinds.GlobalLogKind.NLU_INTENT_RESOLVED, {
           confidence: dmStateStore.intentRequest.payload.confidence ?? 1,
           resolvedIntent: dmStateStore.intentRequest.payload.intent.name,
