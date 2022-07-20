@@ -16,7 +16,7 @@
     "@types/workerpool": "^5.0.1",
     "@voiceflow/api-sdk": "3.14.10",
     "@voiceflow/backend-utils": "4.8.1",
-    "@voiceflow/base-types": "2.48.0",
+    "@voiceflow/base-types": "2.51.0",
     "@voiceflow/body-parser": "^1.21.1",
     "@voiceflow/chat-types": "2.8.18",
     "@voiceflow/common": "7.27.3",
