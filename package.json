@@ -19,7 +19,7 @@
     "@voiceflow/base-types": "2.51.0",
     "@voiceflow/body-parser": "^1.21.1",
     "@voiceflow/chat-types": "2.10.2",
-    "@voiceflow/common": "7.28.0",
+    "@voiceflow/common": "8.0.1",
     "@voiceflow/event-ingestion-service": "1.2.3",
     "@voiceflow/logger": "^1.6.1",
     "@voiceflow/metrics": "1.4.1",
