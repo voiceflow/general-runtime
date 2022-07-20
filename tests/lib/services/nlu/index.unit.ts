@@ -340,7 +340,7 @@ describe('nlu manager unit tests', () => {
       const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
       const arg: Parameters<typeof nlu.predict>[0] = {
         model: { key: 'value' } as any,
-        locale: Locale.EN_US,
+        locale: VoiceflowConstants.Locale.EN_US,
         query: 'query-val',
         nlp,
         tag: VersionTag.DEVELOPMENT,
