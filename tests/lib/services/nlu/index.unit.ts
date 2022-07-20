@@ -1,8 +1,5 @@
-import { BaseModels, BaseRequest, Project, Version } from '@voiceflow/base-types';
-import { PrototypeModel } from '@voiceflow/base-types/build/common/models';
-import { PrototypeNLP } from '@voiceflow/base-types/build/common/models/project';
-import { IntentRequest, RequestType } from '@voiceflow/base-types/build/common/request';
-import { Locale } from '@voiceflow/voiceflow-types/build/common/constants';
+import { BaseModels, BaseRequest, Version } from '@voiceflow/base-types';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
@@ -25,14 +22,14 @@ describe('nlu manager unit tests', () => {
     sinon.restore();
   });
 
-  const model: PrototypeModel = {
+  const model: BaseModels.PrototypeModel = {
     slots: [],
     intents: [],
   };
   const tag = VersionTag.PRODUCTION;
-  const locale = Locale.DE_DE;
+  const locale = VoiceflowConstants.Locale.DE_DE;
   const query = 'I would like a large sofa pizza with extra chair';
-  const nlp: PrototypeNLP = {
+  const nlp: BaseModels.Project.PrototypeNLP = {
     type: BaseModels.ProjectNLP.LUIS,
     appID: 'nlp-app-id',
     resourceID: 'nlp-resource-id',
@@ -48,8 +45,8 @@ describe('nlu manager unit tests', () => {
   };
   const liveVersion = 'some-live-version';
 
-  const nlcMatchedIntent: IntentRequest = {
-    type: RequestType.INTENT,
+  const nlcMatchedIntent: BaseRequest.IntentRequest = {
+    type: BaseRequest.RequestType.INTENT,
     payload: {
       intent: {
         name: 'abcedfg',
@@ -60,8 +57,8 @@ describe('nlu manager unit tests', () => {
     },
   };
 
-  const noneIntent: IntentRequest = {
-    type: RequestType.INTENT,
+  const noneIntent: BaseRequest.IntentRequest = {
+    type: BaseRequest.RequestType.INTENT,
     payload: {
       intent: {
         name: NONE_INTENT,
@@ -263,7 +260,7 @@ describe('nlu manager unit tests', () => {
 
       const arg: Parameters<typeof nlu.predict>[0] = {
         model: { key: 'value' } as any,
-        locale: Locale.EN_US,
+        locale: VoiceflowConstants.Locale.EN_US,
         query: 'query-val',
         nlp,
         tag: VersionTag.DEVELOPMENT,

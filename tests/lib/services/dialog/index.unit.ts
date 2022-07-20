@@ -173,19 +173,6 @@ describe('dialog manager unit tests', () => {
               type: 'message',
             },
           },
-          {
-            type: 'log',
-            payload: {
-              kind: 'step.speak',
-              level: 'info',
-              message: {
-                componentName: null,
-                stepID: null,
-                text: '<voice name="Default voice">what flavor?</voice>',
-              },
-              timestamp: getISO8601Timestamp(),
-            },
-          },
           mockEntityFillingTrace,
         ];
         expect(result.end).to.be.true;
