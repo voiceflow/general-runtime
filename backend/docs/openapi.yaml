@@ -2,53 +2,82 @@ openapi: '3.1.0'
 info:
   version: 1.1.0
   title: Voiceflow Dialog Management API
-  description: |
+  description: >
     # Overview
 
-    The Dialog Management API is an HTTP API served by Voiceflow's dialog management server.
-    It allows your Voiceflow project to be easily integrated into any interface: chatbot, voice assistant, IVR, web chat, and more - without the hassle of implementing the conversational flow using code.
+    The **Dialog Manager API (DM API)** exposes the Voiceflow runtime and allows clients to start a
+    conversation with a Voiceflow project.
 
-    By sending a request of what a user wants to do, you can use your Voiceflow project to generate the response.
+
+    You can design a conversational interface using our [Voiceflow Creator](https://creator.voiceflow.com), then easily
+    integrate the conversation into a variety of interfaces: chatbot, voice assistant, IVR, web chat,
+    and more.
+
 
     <img src="https://uploads-ssl.webflow.com/5bddf05642686caf6d17eb58/6036dc95761e92262c2f4bd6_IVR%20(3)-p-1080.png" alt="Voiceflow IVR Integration" style="zoom:50%;"/>
 
+    
+    **Note**: The Dialog Manager API can only be used to integrate Voiceflow **general projects**, that is, 
+    projects without a pre-existing third-party upload. 
+    
+
+    Thus, Alexa, Google Actions, and Dialogflow ES projects on Voiceflow are instead accessed through 
+    their associated 3rd party platform, e.g, Alexa projects can be accessed by an Amazon Alexa device. 
+
+
     # Quick Start
 
-    For developers eager to get started without worrying about the details, here are a few quick steps to make your first call with the API:
+    To see the DM API in action, follow these steps:
 
-    1. **Create a project**. You need to first build a conversational project on *[Voiceflow Creator](https://creator.voiceflow.com)*.
-    2. **Create API Key**. An admin of your Voiceflow workspace can create and manage API Keys under *Workspace Settings / Developers*.
-    3. **Make a test call**. Use the examples below to make an API call. Make subsequent calls to the same endpoint,
-      changing the `payload` to reflect what the user might say. See how the response trace changes based on where in the project the user is.<br/>
-      *Make sure to replace the `{apiKey}` with what you've gathered on step 2*.
-    4. **Implement your application**. Get familiar with the API by reading the rest of this documentation, and power the next conversation with your Voiceflow project!
+    1. **Create a project** - Build a conversational flow on the [Voiceflow Creator](https://creator.voiceflow.com).
 
-    The **state** API is the *easier implementation* compared to the **stateless** API. But they both achieve the same function.
+
+    2. **Render your project** - Ensure you're on the Designer tab by checking the left side bar. Then, click the
+    Run button on the top-right corner to compile your project and make it available through the DM API.
+
+
+    3. **Get an API key** - Go to the Integration tab using the left sidebar and copy your project's
+    API key. 
+
+
+    4. **Copy a test call** - Copy one of the "API Call Examples" below and replace the API key variable with the API key
+    you copied in step 2. 
+
+
+    5. **Start the conversation** - Execute the API call to start a conversation and get a response from your Voiceflow app.
+
+
+    6. **Continue the conversation** - Change the user input variable and execute the API call again. The DM API tracks the current state
+    of the conversation and may produce a different response to advance the conversation.
+
 
     <details>
       <summary><b>View API Call Examples</b></summary>
+
       <details>
         <summary>cURL command line</summary>
 
-        API_KEY='VF.xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+        API_KEY='VF.DM.xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
         USER_ID='user_123'
         USER_INPUT='Hello world!'
 
         curl --request POST "https://general-runtime.voiceflow.com/state/user/$USER_ID/interact" \
             --header "Authorization: $API_KEY" \
-            --header 'Content-Type: application/json' \
+            --header "Content-Type: application/json" \
+            --header "versionID: 'development'" \
             --data-raw "{
                 \"request\": { \"type\": \"text\", \"payload\": \"$USER_INPUT\" }
             }"
 
       </details>
+
       <details>
         <summary>Node.js</summary>
 
         const axios = require('axios');
 
-        const apiKey = 'VF.xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+        const apiKey = 'VF.DM.xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
 
         const userID = 'user_123'; // Unique ID used to track conversation state
         const userInput = 'Hello world!'; // User's message to your Voiceflow project
@@ -68,6 +97,7 @@ info:
             url: `/state/user/${userID}/interact`,
             headers: {
               Authorization: apiKey,
+              versionID: 'development',
             },
             data: body,
           });
@@ -79,23 +109,27 @@ info:
         startInteract().catch((error) => console.error(error));
 
       </details>
+
       <details>
         <summary>Python</summary>
 
         import requests
 
-        api_key = "VF.xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        api_key = "VF.DM.xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
         user_id = "user_123"  # Unique ID used to track conversation state
         user_input = "Hello world!"  # User's message to your Voiceflow project
 
-        body = {"action": {"type": "text", "payload": "Hello world!"}}
+        body = {"action": {"type": "text", "payload": user_input}}
 
         # Start a conversation
         response = requests.post(
             f"https://general-runtime.voiceflow.com/state/user/{user_id}/interact",
             json=body,
-            headers={"Authorization": api_key},
+            headers={
+              "Authorization": api_key,
+              "versionID": "development"
+            },
         )
 
         # Log the response
@@ -104,14 +138,19 @@ info:
       </details>
     </details>
 
-    # Endpoint
 
-    The standard URL base for all Dialog Management API calls:
-    *Note: This will be different if you are self-hosting or on a private cloud.*
+    # Endpoint URL
+
+
+    The standard URL base for all Dialog Management API calls is shown below:
 
     ```
+
     https://general-runtime.voiceflow.com
+
     ```
+
+    *Note: This will be different if you are self-hosting or on a private cloud.*
 tags:
   - name: State API
     description: |
@@ -283,6 +322,8 @@ tags:
         // state, config, and other metadata here
       }
       ```
+servers:
+  - url: 'https://general-runtime.voiceflow.com'
 paths:
   '/state/user/{userID}/interact':
     parameters:
@@ -1245,5 +1286,3 @@ components:
                       - event:
                           name: pending
                     defaultPath: 0
-servers:
-  - url: 'https://general-runtime.voiceflow.com'
