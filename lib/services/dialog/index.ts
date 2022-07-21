@@ -108,7 +108,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     const version = await context.data.api.getVersion(context.versionID);
 
     if (!version.prototype?.model) {
-      throw new VError('Model not found');
+      throw new VError('Model not found. Ensure project is properly rendered.');
     }
 
     const project = await context.data.api.getProjectNLP(version.projectID);

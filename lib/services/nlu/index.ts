@@ -67,7 +67,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
 
     // 3. finally try open regex slot matching
     if (!model) {
-      throw new VError('Model not found', HTTP_STATUS.NOT_FOUND);
+      throw new VError('Model not found. Ensure project is properly rendered.', HTTP_STATUS.NOT_FOUND);
     }
     if (!locale) {
       throw new VError('Locale not found', HTTP_STATUS.NOT_FOUND);
