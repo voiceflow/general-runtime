@@ -232,40 +232,75 @@ tags:
 
       Use the `development` alias whenever you are experimenting with your API and the `production`
       version when integrating Voiceflow with your web app.
-
-  - name: Workspace API Keys vs. Dialog Manager API Keys
-    description: >
-      API KeysØ
-  - name: Production
-    description: >
-      API Keys
-  - name: Best Practices
-    description: >
-      API Keys
   - name: Custom Actions
-    description: |
-      Take advantage of the **Custom Action step** to allow you Voiceflow project to perform any kind of integration action.
+    description: >
+      ### Overview
 
-      Examples can include triggering navigation your website or app, processing a credit card payment,
-      opening the windows on a car, handing off to a human on a phone call, or anything else your app can support.
+      The **Custom Action step** allows you to perform any kind of integration to a Voiceflow project. 
+      
 
-      Let's take a look at an example Custom Action step where we want to use a third party integration like *Stripe* for actually charging a credit card:
+      A Custom Action step is similar to an event handler. A Voiceflow application can be commanded to stop on a Custom Action step
+      and wait for your client application to send back an event, a Custom Action request, telling the Voiceflow diagram which logic 
+      it should execute next.
+
+
+      Before sending back this event, your client application can perform a variety of tasks including, but not limited to:
+      
+
+      1. Triggering navigation on your website
+
+      2. Processing a credit card payment
+
+      3. Opening the windows on a car
+
+      4. Handing off the call to a human
+
+
+      ### Execution of a Custom Action
+
+      Here is how a Custom Action works:
+
+      1. The **client** sends an interact request normally, but also specifies the name of Custom Action steps that the Voiceflow diagram should stop on.
+
+      2. The **DM API** executes your diagram normally, but returns early if it encounters one of the Custom Actions specified in Step 1 and 
+         sends back a corresponding Custom Action trace.
+
+      3. The **client** receives the Custom Action trace. Your code can detect this trace and perform any necessary processing.
+
+      4. The **client** finishes its processing and sends a Custom Action request back.
+
+      5. The **DM API** follows the path chosen by the Custom Action request and continues executing the Voiceflow diagram.
+
+
+      ### Example - Stripe Integration
+
+      As a concrete example, let's look at how we can implement an integration for Stripe to charge our user's credit cards. 
+
       ![Credit Card Custom Action](https://user-images.githubusercontent.com/5643574/115419275-333b7d80-a1c8-11eb-9a70-30398f4c9358.png)
 
-      In your request body call, you can specific which Custom Actions to **stop** on in the `config.stopTypes` field:
+      First, on the Voiceflow Creator, add a Custom Action Step to your diagram with the name "Pay Credit Card" and three paths named "success", "denied",
+      and "pending"
+
+
+      Second, in our client code, we send a normal interact request, but specify in `config.stopTypes` that the Voiceflow 
+      diagram should stop whenever it encounters a Custom Action step named "Pay Credit Card" 
+
       ```
+
       {
         "action": { "type": "text", "payload": "hello!" } // any request type here,
         "config": {
           "stopTypes": ["Pay Credit Card"]
         }
       }
-      ```
-      This will inform the dialog manager to stop on any `Pay Credit Card` Custom Action, ensuring that the last trace is always the Custom Action.
-      By default, Custom Action steps will always go out the default port, but still leave a trace.
 
-      Here's what the Custom Action `trace` for the "Pay Credit Card" block above might look like:
       ```
+
+      Third, the client app will receive a list of traces in the response as usual, but the last trace will be a Custom Action trace
+      corresponding to the Custom Action step you just defined. 
+      
+      ```json
+
       [
         ...other_traces,
         {
@@ -279,23 +314,60 @@ tags:
           ]
         }
       ]
-      ```
-      Now whenever we come across a `Pay Credit Card` trace, we can actually trigger a side effect such as the Stripe API and perform the action.
-      Depending on the result of that, we can now select which path we want to go down. In the subsequent request body, you simply have to do this:
 
       ```
+
+      Your client code might extract this last trace, detect that it is a custom "Pay Credit Card" trace, and then perform some logic
+      such as calling the Stripe API to charge your user's credit card. 
+
+      
+      ```js
+
+      const traces = await dmapiInteract({
+        "action": { "type": "text", "payload": "hello!" } // any request type here,
+        "config": {
+          "stopTypes": ["Pay Credit Card"]
+        }
+      });
+
+      const customActionTrace = traces[traces.length - 1];
+
+      const customActionPayload = JSON.parse(customActionTrace.payload);
+      
+
+      if (customActionTrace.type === "Pay Credit Card") {
+        const ok = await stripeAPI.chargeUserCreditCard(customActionPayload.amount);
+
+        await dmapiInteract({
+          action: {
+            type: ok ? "success" : "denied"
+          }
+        });
+      } else if (customActionType.trace === "Some Other Custom Action") {
+        // do something else
+      }
+
+      ```
+
+
+      Finally, the client application should send an appropriate response based on the results of the logic in step 3. For example,
+      if the Stripe API reported that the user's credit card was successfuly charged, we might send back the following:
+
+      ```json
+
       {
         "action": { "type": "success" }
       }
+
       ```
 
-      Where the `type` of the request is the same as the name of the path you've labelled in Voiceflow.
-      If the next request is an invalid path, your project will simply behave as if there were no lines coming out of the Custom Action step.
+      where a value of `"success"` for `type` might indicate that your Voiceflow diagram should execute the logic corresponding 
+      to a successful credit card payment. Your diagram might then print a confirmation message such as "your order was successful!".
 
-      In summary, here's what's happening:
-      1. We send a request saying to stop on our Custom Action
-      2. We get a response which stopped on it
-      3. In the next request we specify which path to go down
+
+      If the `type` field is not one of the path names of your Custom Action (`"success"`, `"denied"`, or `"pending"` in this case),
+      the Custom Action will behave as though it was a "dead-end" block with no lines connecting to other blocks. 
+
   - name: Custom NLP/NLU
     description: |
       Instead of using the default NLP service (Microsoft LUIS) provided by Voiceflow, it's easy to use a preferred custom NLP service.
@@ -345,23 +417,23 @@ tags:
 
       If your current NLP service is not supported you can consider creating a translation layer for the generalized model in the `.vf`, or contact Voiceflow.
 
-      **Entity/Slot filling** - if the intent on Voiceflow has required entities (i.e `{pizza_size}` for `order_pizza_intent`)
+      **Entity/Slot filling** - If the intent on Voiceflow has required entities (i.e `{pizza_size}` for `order_pizza_intent`)
       and it is not filled in the initial request, the entity will be prompted for and you can send a subsequent request with the same intent
       and the `entities` and Voiceflow will be able to automatically merge the initial entities with the new entities.
 
       For example, on the Voiceflow project for the `order_pizza_intent`, both `{pizza_type}` and `{pizza_size}` are required.
-      1. the user says "can I get a pepperoni pizza?",
-      2. this gets resolved through the NLP service and sent to Voiceflow as `order_pizza_intent` with entity `{pizza_type}` equal to `pepperoni`
-      3. the response will ask "what size pizza do you want?".
+      1. The user says "can I get a pepperoni pizza?",
+      2. This gets resolved through the NLP service and sent to Voiceflow as `order_pizza_intent` with entity `{pizza_type}` equal to `pepperoni`
+      3. The response will ask "what size pizza do you want?".
       4. The user says "small"
-      5. the next request is `order_pizza_intent` with entity `{pizza_size}` equal to `small`
+      5. The next request is `order_pizza_intent` with entity `{pizza_size}` equal to `small`
       6. Voiceflow continues the conversation knowing the the user wants a small pepperoni pizza.
 
       *Note: on Step 5 any intent can be sent and resolved, it just needs to be the same intent to continue the entity filling*
   - name: No Reply Response
     description: |
-      When the user gives no response at all - remaining silent or away from keyboard, we can use no reply feature.
-      Under any "User Input" type step, there is an option to "Add No Reply Response", and also designate a timeout period.
+      When the user gives no response at all - remaining silent or away from keyboard - we can use no reply feature.
+      Under any "User Input" type step, there is an option to "Add No Reply Response" and designate a timeout period.
 
       ![Screen Shot 2021-12-02 at 11 29 26 AM](https://user-images.githubusercontent.com/5643574/144462791-b8e0f8bf-626e-453d-9dfb-78b0006ceaed.png)
 
@@ -388,12 +460,98 @@ tags:
         // state, config, and other metadata here
       }
       ```
-  - name: Glossary
-      - `state` is the user metadata - what block they are currently on, what flow they are on, their variables
+  - name: API Key Differences
+    description: >
+      The **recommended** way to access the Dialog Manager API is by using a **Dialog Manager (DM) API Key**. A DM API key has the prefix
+      `VF.DM.` and it provides the most up-to-date features such as version aliasing.
 
-      - `action` is an object representing a user's action or event
 
-      - `trace` is an array of actions to take based on the request that the user made
+      For backwards compatibility reasons, the DM API key accepts Workspace API key (`VF.WS`) and legacy Workspace API keys (`VF.`).
+      However, usage of Workspace keys with the DM API key is considered **deprecated** behaviour.
+
+
+      Workspace API keys are unable to resolve version aliases, i.e, passing a string like `'development'` or `'production'` into
+      the `versionID` parameter of DM API endpoints. You would need to provide an explicit version ID, which is harmful for 
+      maintainability, because each time your Voiceflow app updates a version, you must manually update to the newest version's ID
+      in your Voiceflow integration.
+  - name: Production
+    description: >
+      Voiceflow has a Versioning system that allows you to publish a version of your project to a production slot. Publishing
+      "freezes" a version of your project, so that you have a stable version to serve to your users.
+
+
+      To publish a project through the Voiceflow Creator, see the following [documentation](https://www.voiceflow.com/docs/documentation-project-versioning#toc-2).
+
+
+      You can access this production version through the DM API, by setting your `versionID` header to the string `'production'`. 
+
+      
+      Once this is done, you can freely edit and modify the diagram on canvas, without affecting the version that users see on your
+      live application. If you want to update the production version, click the Publish button on the Voiceflow Creator again as described
+      in the documentation linked above, and it will replace the previous production version with the version displayed on your canvas.
+
+
+      **NOTE**: Unlike in Prototyping, it is unnecessary to hit the Run button to render the version and the "Train Assistant" button 
+      in the Prototype tool to update the project's NLU. The publishing process handles all of this work for you, so that your live
+  - name: Best Practices
+    description: >
+      There are a number of best practices when working with the DM API:
+
+      ### Use version aliases
+      
+      In previous iterations of the DM API, you needed to specify the explicit `versionID` to interact
+      with a particular version of the Voiceflow project. With the introduction of version aliases, this is unnecessary.
+      
+      
+      A version alias will always refer to whichever version occupies its corresponding slot and you can avoid the hassle of 
+      updating an explicit version ID by simplying pushing a new version into the slot.
+      
+
+      For the `production` alias, you can update its slot by pressing the Publish button on the Voiceflow canvas. See the Production
+      section for further details.
+
+
+      For the `development` alias, the version's diagram is updated as you edit on the canvas and the associated NLU is updated
+      when you press "Train Assistant" in the Prototyping tool.
+
+
+      ### Use Dialog Manager API Keys
+
+      Workspace and legacy Workspace API keys do not support version aliases, and so, code using Workspace keys will need to 
+      manually update `versionID` in their DM API calls. This leads to tedious to maintain code.
+      
+
+      ### Avoid the Stateless API
+
+      Previously, the Dialog Manager API had an older version named the Stateless API. This API is now deprecated in favour of the 
+      current "State API". It is **strongly recommended** to move away from the Stateless API for production code.
+
+
+      ### Avoid security violations in `userId`
+
+      The `userId` can be used to identify the conversation session of your Voiceflow application with one of your customers. **Resist
+      the temptation to use identifying information** like real names, emails, telephone numbers, or other identifying 
+      information in the `userId`. 
+
+      
+      While this may seem convenient, it is a potential security hazard. If your app is compromised by a cyber attack, then it may
+      be possible for attackers to scrape personal information off of the `userId`.
+
+
+      Additionally, you should **avoid any `userId` collisions**. Since the `userId` identifies a conversation, if
+      two users have the same `userId`, then their conversation data may become mixed and leak information about one user to another.
+      If one user gave sensitive information over their conversation, this may lead to a privacy leak.
+
+
+      ### Use the `'production'` alias for production apps
+
+      The `'development'` alias points to the version on your canvas and this version's data updates in real-time as you modify
+      it on canvas. Therefore, if you use the `'development'` alias on your live application, users may see your incomplete changes 
+      as you modify the diagram.
+
+      
+      Use the `'production'` alias for live apps instead, as this version will only update when you explicitly press the
+      Publish button on canvas. 
 servers:
   - url: 'https://general-runtime.voiceflow.com'
 paths:
@@ -417,7 +575,7 @@ paths:
 
         To start a conversation, you should send a **launch request**. Then, to pass in your 
         user's response, you should send a **text request**. If you have your own NLU matching,
-        then you want to directly send an **intent request**. 
+        then you may want to directly send an **intent request**. 
 
 
         See the Request **Examples** on the right panel for more examples of valid request bodies.
