@@ -164,7 +164,7 @@ tags:
       that the API received.
 
 
-      Note that this means the DM API is **not a RESTful API** as it does not satisfy the [Statelessness
+      Note that this means the DM API is **not a REST API** as it does not satisfy the [statelessness
       property](https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm). 
       The DM API's responses depend not only on the request, but also stored state
       within the server. Keep this in mind while working with the DM API.
@@ -411,41 +411,16 @@ paths:
 
         ### Requests
 
-        There are different types of requests that can be sent. 
-
-        1. **Launch request** - Starts the conversation session
-
-        2. **Text request** - Wraps your user's response to your chatbot and is used to advance the conversation.
-
-        3. **Intent request** - Wraps your user's response as an intent and is used to advance the conversation.
+        There are different types of requests that can be sent. To see a list of all 
+        request types, check out the documentation for the `action` field below.
 
 
-        For example, to start the conversation, your HTTP request body should look like:
-
-        ```json
-
-        {
-          "type": "launch"
-        }
-
-        ```
+        To start a conversation, you should send a **launch request**. Then, to pass in your 
+        user's response, you should send a **text request**. If you have your own NLU matching,
+        then you want to directly send an **intent request**. 
 
 
-        To pass in your user's response, your HTTP request body should look like:
-
-        ```json
-
-        {
-          "action": {
-            "type": "text",
-            "payload": "I want a large pepperoni pizza"
-          }
-        }
-
-        ```
-
-
-        See the **Request Samples** on the right panel for more examples of valid request bodies.
+        See the Request **Examples** on the right panel for more examples of valid request bodies.
 
 
         ### Response Traces
@@ -474,19 +449,9 @@ paths:
         response and the image in your app. 
 
 
-        There are many types of response traces. The most common ones include:
-
-        1. `speak` - Contains a textual response from the Voiceflow project
-
-        2. `visual` - Contains an image given as a response
-
-        3. `choice` - Lists a fixed set of responses that the project expects the user to give.
-
-
-        Each trace is produced by a particular block on your Voiceflow project. 
-        
-        
-        You can choose what format the `userID` can take on.
+        There are many types of response traces. Each trace is produced by a particular 
+        block on your Voiceflow project. Expand the documentation for the 200 OK response
+        below to see a list of possible response traces.
 
 
         ### Runtime Logs
@@ -532,14 +497,18 @@ paths:
         ```
       operationId: stateInteract
       security:
-        - APIKey:
-            - ''
+        - DialogManagerAPIKey: []
       parameters:
         - $ref: "#/components/parameters/versionID"
         - $ref: "#/components/parameters/userID"
         - name: verbose
           in: query
-          description: Enables verbose responses similar to the legacy Stateless API.
+          description: >
+            Enables verbose responses similar to the legacy Stateless API.
+
+
+            This parameter exists for legacy compatibility reasons. New projects
+            should always have this value set to `false`.
           required: false
           schema:
             type: boolean
@@ -552,7 +521,6 @@ paths:
             $ref: '#/components/schemas/DebugLogsConfig'
             default: 'off'
       requestBody:
-        description: Data and configuration for an interaction
         required: true
         content:
           application/json:
@@ -570,7 +538,7 @@ paths:
                 value:
                   action:
                     type: text
-                    payload: can I order a large pepperoni pizza
+                    payload: Can I order a large pepperoni pizza
               Empty Request:
                 value:
                   action: null
@@ -660,6 +628,20 @@ paths:
                         defaultPath: 0
         '404':
           description: Not Found
+        '401 - Auth Key Required':
+          description: HTTP request is missing a Dialog Manager API key in the `Authorization` header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoiceflowError"
+              examples:
+                Auth Key Required:
+                  value:
+                    code: 401
+                    status: 'Unauthorized'
+                    dateTime: "2022-07-22T15:02:55.882Z"
+                    timestamp: 1658502175882
+                    data: "Auth Key Required"
   '/state/user/{userID}':
     parameters:
       - $ref: "#/components/parameters/versionID"
@@ -669,8 +651,7 @@ paths:
       tags:
         - Dialog Manager API
       security:
-        - APIKey:
-            - ''
+        - DialogManagerAPIKey: []
       responses:
         '200':
           description: OK
@@ -700,8 +681,7 @@ paths:
         - Dialog Manager API
       operationId: postState
       security:
-        - APIKey:
-            - ''
+        - DialogManagerAPIKey: []
       responses:
         '200':
           description: successfully updated
@@ -752,8 +732,7 @@ paths:
         - Dialog Manager API
       operationId: deleteState
       security:
-        - APIKey:
-            - ''
+        - DialogManagerAPIKey: []
       responses:
         '200':
           description: OK
@@ -767,8 +746,7 @@ paths:
       tags:
         - Dialog Manager API
       security:
-        - APIKey:
-            - ''
+        - DialogManagerAPIKey: []
       responses:
         '200':
           description: OK
@@ -806,12 +784,12 @@ externalDocs:
   url: 'https://swagger.io/docs/specification/about/'
 components:
   securitySchemes:
-    APIKey:
+    DialogManagerAPIKey:
       type: apiKey
       in: header
       name: Authorization
       description: >
-        All requests made to the Dialog Management API must be validated with an Dialog Manager API Key.
+        All requests made to the Dialog Management API must be validated with a Dialog Manager API Key.
        
         
         To obtain a Dialog Manager API key, open the project you want to integrate on the Voiceflow Creator,
@@ -821,27 +799,34 @@ components:
       name: versionID
       description: >
         The version of your Voiceflow project to contact. 
+
+
         Use `'development'` to contact the version on canvas or `'production'` to contact the published version.
       in: header
       required: false
       schema:
         type: string
-      example: development
+      example: 
+        - 'development'
+        - 'production'
     userID:
       name: userID
       description: >
-        A unique user ID, whose format is defined by your code. 
-        The Dialog Manager API creates an independent conversation session for each user, 
+        A unique user ID specified by the caller.
+
+
+        The Dialog Manager API creates an independent conversation session for each user ID, 
         allowing your app to talk with different users simultaneously.
       in: path
       required: true
       schema:
         type: string
-        example: user@gmail.com
+        example: pizza-app-user-123
   schemas:
     IntentRequest:
       title: Intent Request
       type: object
+      description: Wraps your user's response as an intent and is used to advance the conversation.
       x-examples:
         Order Pizza:
           type: intent
@@ -915,6 +900,7 @@ components:
               type: number
     TextRequest:
       title: Text Request
+      description: Wraps your user's response to your chatbot and is used to advance the conversation.
       type: object
       required:
         - type
@@ -1212,6 +1198,7 @@ components:
     LaunchRequest:
       title: Launch Request
       type: object
+      description: Starts the conversation session
       properties:
         type:
           type: string
@@ -1222,13 +1209,15 @@ components:
         - type
     Request:
       title: Request
+      type: object
+      nullable: true
       oneOf:
-        - $ref: '#/components/schemas/TextRequest'
         - $ref: '#/components/schemas/LaunchRequest'
+        - $ref: '#/components/schemas/TextRequest'
         - $ref: '#/components/schemas/IntentRequest'
-        - type: object
-          nullable: true
-      description: The user's action, e.g, launching a new conversation or sending a textual response
+      description: >
+        The user's response, e.g, user requests starting a conversation or 
+        advances the conversation by providing some textual response.
     Config:
       title: Config
       type: object
@@ -1252,7 +1241,7 @@ components:
           items:
             type: string
             example: Pay Credit Card
-            default: '[]'
+            default: []
         excludeTypes:
           type: array
           default: [block, debug, flow]
@@ -1292,6 +1281,25 @@ components:
             - 'off'
         - type: boolean
           description: A boolean for whether logs should be "info" or "off"
+    VoiceflowError:
+      type: object 
+      description: A Voiceflow error object
+      properties:
+        code:
+          title: HTTP status code
+          type: number
+        status:
+          title: HTTP status message
+          type: string
+        dateTime:
+          title: Time of when error occurred
+          type: string
+        timestamp:
+          title: Time of when error occurred in UNIX seconds
+          type: number
+        data:
+          title: Additional error details
+          type: string
   responses:
     Trace:
       description: A sequential array of response "traces" to display back to the user. They can take a variety of types - common types are defined here.
