@@ -75,7 +75,7 @@ class Project extends AbstractMiddleware {
 
       const project = await api.getProjectUsingAPIKey(req.headers.authorization!).catch(() => {
         throw new VError(
-          'Cannot resolve project version, provide a specific versionID',
+          'Cannot resolve project version, please verify that your API key is correct.',
           VError.HTTP_STATUS.BAD_REQUEST
         );
       });
