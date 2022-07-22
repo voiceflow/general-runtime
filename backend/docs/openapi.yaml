@@ -417,7 +417,9 @@ tags:
 
       If your current NLP service is not supported you can consider creating a translation layer for the generalized model in the `.vf`, or contact Voiceflow.
 
-      **Entity/Slot filling** - If the intent on Voiceflow has required entities (i.e `{pizza_size}` for `order_pizza_intent`)
+      ### Entity/Slot filling
+      
+      If the intent on Voiceflow has required entities (i.e `{pizza_size}` for `order_pizza_intent`)
       and it is not filled in the initial request, the entity will be prompted for and you can send a subsequent request with the same intent
       and the `entities` and Voiceflow will be able to automatically merge the initial entities with the new entities.
 
