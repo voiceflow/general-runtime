@@ -464,12 +464,12 @@ tags:
       ```
   - name: API Key Differences
     description: >
-      The **recommended** way to access the Dialog Manager API is by using a **Dialog Manager (DM) API Key**. A DM API key has the prefix
+      It is **recommended** to use a **Dialog Manager API Key** to access the Dialog Manager API. A DM API key has the prefix
       `VF.DM.` and it provides the most up-to-date features such as version aliasing.
 
 
-      For backwards compatibility reasons, the DM API key accepts Workspace API key (`VF.WS`) and legacy Workspace API keys (`VF.`).
-      However, usage of Workspace keys with the DM API key is considered **deprecated** behaviour.
+      For backwards compatibility reasons, the DM API key accepts Workspace API keys (`VF.WS`) and legacy Workspace API keys (`VF.`).
+      However, the usage of Workspace keys with the DM API key is considered **deprecated** behaviour.
 
 
       Workspace API keys are unable to resolve version aliases, i.e, passing a string like `'development'` or `'production'` into
