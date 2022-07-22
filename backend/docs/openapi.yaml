@@ -627,13 +627,34 @@ paths:
                               name: pending
                         defaultPath: 0
         '404':
-          description: Not Found
-        '401 - Auth Key Required':
-          description: HTTP request is missing a Dialog Manager API key in the `Authorization` header
+          description: >
+            Model not found. Ensure project is properly rendered.
+
+
+            Attempted to interact with the `'development'` version but the Prototype has not been
+            rendered by hitting the Run button on the Voiceflow canvas. 
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VoiceflowError"
+                $ref: "#/components/schemas/ErrorObject"
+              examples:
+                Ensure project is properly rendered:
+                  value:
+                    code: 404
+                    status: 'Not Found'
+                    dateTime: "2022-07-22T15:02:55.882Z"
+                    timestamp: 1658502175882
+                    data: "Model not found. Ensure project is properly rendered."
+        '401':
+          description: >
+            Auth Key Required
+            
+            
+            HTTP request is missing a Dialog Manager API key in the `Authorization` header
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorObject"
               examples:
                 Auth Key Required:
                   value:
@@ -642,6 +663,52 @@ paths:
                     dateTime: "2022-07-22T15:02:55.882Z"
                     timestamp: 1658502175882
                     data: "Auth Key Required"
+        '400':
+          description: >
+            Bad Request.
+
+
+            Could refer to a number of possible errors:
+
+            1. `'Voiceflow project was not published to production'` - Caller is contacting the production version, but the project did not publish a 
+            production version.
+
+
+            2. `'Cannot resolve project version'` - Caller's provided API key is potentially malformed and could not be used to resolve a
+            version alias.
+
+
+            3. `'Cannot resolve version alias from Workspace API key'` - Caller provided a Workspace or legacy Workspace API key, which cannot 
+            be used alongside version aliases like `'production'` or `'development'`
+
+
+            4. `'Request is missing a versionID'` - Request is missing a versionID.
+
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoiceflowError"
+              examples:
+                Not published to production:
+                  value:
+                    name: 'verror'
+                    message: 'Voiceflow project was not published to production'
+                    requestID: "ud2uASDNx"
+                Cannot resolve project version:
+                  value:
+                    name: 'verror'
+                    message: 'Cannot resolve project version, please verify that your API key is correct.'
+                    requestID: "ud2uASDNx"
+                Cannot resolve alias with WS API key:
+                  value:
+                    name: 'verror'
+                    message: 'Cannot resolve version alias from a workspace API key'
+                    requestID: "ud2uASDNx"
+                Missing versionID:
+                  value:
+                    name: 'verror'
+                    message: 'Missing versionID in request.'
+                    requestID: "ud2uASDNx"
   '/state/user/{userID}':
     parameters:
       - $ref: "#/components/parameters/versionID"
@@ -1281,9 +1348,9 @@ components:
             - 'off'
         - type: boolean
           description: A boolean for whether logs should be "info" or "off"
-    VoiceflowError:
+    ErrorObject:
       type: object 
-      description: A Voiceflow error object
+      description: An error wrapper
       properties:
         code:
           title: HTTP status code
@@ -1299,6 +1366,18 @@ components:
           type: number
         data:
           title: Additional error details
+          type: string
+    VoiceflowError:
+      type: object 
+      description: A Voiceflow error
+      properties:
+        name:
+          title: Typically the string `"verror"`
+          type: string
+        message:
+          title: Additional error details
+          type: string
+        requestID:
           type: string
   responses:
     Trace:
