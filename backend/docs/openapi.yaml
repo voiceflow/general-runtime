@@ -152,7 +152,7 @@ info:
 
     *Note: This will be different if you are self-hosting or on a private cloud.*
 tags:
-  - name: Dialog Manager API
+  - name: API Reference
     description: >
       The Dialog Manager API (DM API) allows any application to talk with a Voiceflow diagram using HTTP calls
       to the **interact endpoint**.
@@ -561,7 +561,7 @@ paths:
       - $ref: "#/components/parameters/versionID"
     post:
       tags:
-        - Dialog Manager API
+        - API Reference
       summary: Interact
       description: >-
         Sends a request to advance the conversation session with your Voiceflow project.
@@ -875,7 +875,7 @@ paths:
     get:
       summary: Fetch state
       tags:
-        - Dialog Manager API
+        - API Reference
       security:
         - DialogManagerAPIKey: []
       responses:
@@ -904,7 +904,7 @@ paths:
     put:
       summary: Update state
       tags:
-        - Dialog Manager API
+        - API Reference
       operationId: postState
       security:
         - DialogManagerAPIKey: []
@@ -928,6 +928,7 @@ paths:
                       payment: credit
       description: >-
         Update the user's current state. 
+        
         
         This is useful for externally updating the user's state or resetting the state.
       requestBody:
@@ -955,7 +956,7 @@ paths:
     delete:
       summary: Delete state
       tags:
-        - Dialog Manager API
+        - API Reference
       operationId: deleteState
       security:
         - DialogManagerAPIKey: []
@@ -970,7 +971,7 @@ paths:
     patch:
       summary: Update variables
       tags:
-        - Dialog Manager API
+        - API Reference
       security:
         - DialogManagerAPIKey: []
       responses:
