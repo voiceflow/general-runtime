@@ -285,7 +285,7 @@ tags:
       Second, in our client code, we send a normal interact request, but specify in `config.stopTypes` that the Voiceflow 
       diagram should stop whenever it encounters a Custom Action step named "Pay Credit Card" 
 
-      ```
+      ```json
 
       {
         "action": { "type": "text", "payload": "hello!" } // any request type here,
