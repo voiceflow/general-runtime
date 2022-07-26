@@ -232,6 +232,24 @@ tags:
 
       Use the `development` alias whenever you are experimenting with your API and the `production`
       version when integrating Voiceflow with your web app.
+
+
+      ### Updating your version
+
+      To update the `'development'` version exposed by the DM API, you must:
+
+      1. Make your changes on the canvas and NLU manager
+
+      2. Hit the blue Run button in the Voiceflow canvas to compile the diagram
+
+      3. Hit the "Train Assistant" button in the Prototype tool to train the NLU model
+
+
+      To update the `'production'` version exposed by the DM API, you must:
+
+      1. Make your changes on the canvas and NLU manager
+
+      2. Hit the Publish button at the top-right corner of the Voiceflow canvas
   - name: Custom Actions
     description: >
       ### Overview
@@ -493,8 +511,9 @@ tags:
       in the documentation linked above. This will replace the previous production version with the version displayed on your canvas.
 
 
-      **NOTE**: Unlike in Prototyping, it is unnecessary to hit the Run button to render the version and the "Train Assistant" button 
-      in the Prototype tool to update the project's NLU. The publishing process handles all of this work for you, so that your live
+      **NOTE**: For the `'development'` alias, you must hit the Run button to compile the version and click the "Train Assistant" button
+      in the Prototype tool to update the project's NLU. For `'production'`, doing all of this is unneccessary. The Publish button is a one-click
+      flow that includes the compilation and training steps so that your live app will have the most recent diagram structure and NLU model.
   - name: Best Practices
     description: >
       There are a number of best practices when working with the DM API:
