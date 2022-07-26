@@ -278,16 +278,21 @@ tags:
 
       Here is how a Custom Action works:
 
-      1. The **client** sends an interact request normally, but also specifies the name of Custom Action steps that the Voiceflow diagram should stop on.
+      1. Your **user** interacts with your client app, e.g, saying "talk to a human"
 
-      2. The **DM API** executes your diagram normally, but returns early if it encounters one of the Custom Actions specified in Step 1 and 
-         sends back a corresponding Custom Action trace.
+      2. Your **client** sends an interact request normally, but also specifies the name of Custom Action steps that the Voiceflow diagram should stop on.
 
-      3. The **client** receives the Custom Action trace. Your code can detect this trace and perform any necessary processing.
+      3. Our **DM API** executes your diagram normally, but returns early if it encounters one of the Custom Actions specified in Step 1 and sends back a corresponding Custom Action trace, e.g, a `"dial"` type trace defined by your Voiceflow project.
 
-      4. The **client** finishes its processing and sends a Custom Action request back.
+      4. Your **client** receives the Custom Action trace. Your code can detect this trace and perform any necessary processing.
 
-      5. The **DM API** follows the path chosen by the Custom Action request and continues executing the Voiceflow diagram.
+      5. Your **client** sends a Custom Action request back, e.g, a `"call success"` type request.
+
+      6. Our **DM API** follows the path in your diagram chosen by the Custom Action request. It will produce responses as normal, such as a message `"have a great day!"`
+
+      7. Your **client** can display the response `"have a great day"` on your application to the user. 
+
+      ![Custom Action Flow](https://media.voiceflow.com/image/dialog-manager-api-docs/custom-actions-flow.png)
 
 
       ### Example - Stripe Integration
