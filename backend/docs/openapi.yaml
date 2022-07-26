@@ -213,8 +213,7 @@ tags:
 
 
       2. **Non-sensitive** - It is not recommended to use sensitive or private information in the `userID` such
-      as emails, real names, or phone numbers. Malicious actors may attempt to scrape this information from the URL 
-      and leak the private information of your users. 
+      as emails, real names, or phone numbers. 
 
 
       ## versionID
