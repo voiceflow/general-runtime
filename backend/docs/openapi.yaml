@@ -1032,8 +1032,8 @@ paths:
                 sessions: 5
         description: Contains the variables to update
 externalDocs:
-  description: Find out more about Swagger
-  url: 'https://swagger.io/docs/specification/about/'
+  description: Find out more about OpenAPI
+  url: 'https://spec.openapis.org/oas/latest.html'
 components:
   securitySchemes:
     DialogManagerAPIKey:
