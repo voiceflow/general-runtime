@@ -34,7 +34,7 @@ const init = (client: Client) => {
     }
 
     outputTrace({
-      addTrace: runtime.trace.addTrace,
+      addTrace: runtime.trace.addTrace.bind(runtime.trace),
       debugLogging: runtime.debugLogging,
       output,
     });

@@ -32,7 +32,7 @@ export const RepeatHandler = (utils: typeof utilsObj) => ({
 
     utils.outputTrace({
       output,
-      addTrace: runtime.trace.addTrace,
+      addTrace: runtime.trace.addTrace.bind(runtime.trace),
       debugLogging: runtime.debugLogging,
     });
 
