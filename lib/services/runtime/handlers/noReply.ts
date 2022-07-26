@@ -63,7 +63,7 @@ export const NoReplyHandler = (utils: typeof utilsObj) => ({
     runtime.storage.set(StorageType.NO_REPLIES_COUNTER, noReplyCounter + 1);
 
     utils.outputTrace({
-      addTrace: runtime.trace.addTrace,
+      addTrace: runtime.trace.addTrace.bind(runtime.trace),
       debugLogging: runtime.debugLogging,
       node,
       output,

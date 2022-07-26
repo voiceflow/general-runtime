@@ -65,7 +65,7 @@ export const NoMatchHandler = (utils: typeof utilsObj) => ({
     runtime.storage.set(StorageType.NO_MATCHES_COUNTER, noMatchCounter + 1);
 
     utils.outputTrace({
-      addTrace: runtime.trace.addTrace,
+      addTrace: runtime.trace.addTrace.bind(runtime.trace),
       debugLogging: runtime.debugLogging,
       node,
       output,
