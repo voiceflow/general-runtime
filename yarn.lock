@@ -1408,7 +1408,15 @@
     rate-limiter-flexible "^2.2.2"
     sinon "^10.0.0"
 
-"@voiceflow/base-types@2.52.3", "@voiceflow/base-types@^2.52.3":
+"@voiceflow/base-types@2.53.0", "@voiceflow/base-types@^2.53.0":
+  version "2.53.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-2.53.0.tgz#6b032d5a998a999dd2ee53f7be6d8a55d882ccfd"
+  integrity sha512-ezSGGwzkuvLi6yXvNTZT9c0W5raK1lEXekvbsDuKEZLPbjdFkP01Z+iw4PH/FbcDnaQcR/z5M2sifZc4JrnbCw==
+  dependencies:
+    "@voiceflow/common" "^8.1.2"
+    slate "0.73.0"
+
+"@voiceflow/base-types@^2.52.3":
   version "2.52.3"
   resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-2.52.3.tgz#5e7c70d6ff3505416766be56713b2ef9107a0c46"
   integrity sha512-H2BcX3U8BPaAdM24HxQlDd8s5hCkuSsdGLr5TTf8m1eDztMAo34O0g8geDsbgjuRra3l4J1ZzItA2B/PA34IVg==
@@ -1433,12 +1441,12 @@
     secure-json-parse "^2.4.0"
     type-is "~1.6.18"
 
-"@voiceflow/chat-types@2.10.7", "@voiceflow/chat-types@^2.10.7":
-  version "2.10.7"
-  resolved "https://registry.yarnpkg.com/@voiceflow/chat-types/-/chat-types-2.10.7.tgz#42c679dd57c76318f856199eceaea8a4c6442f48"
-  integrity sha512-CEjgHEgNEpmH0FiEw+o/Zg/H5aQHL8lPStMHA2+ChYkbY3ulrAT7xLVM3ZFOv3S4m0AfNbkcAZytc87p2MJTAw==
+"@voiceflow/chat-types@2.10.8", "@voiceflow/chat-types@^2.10.8":
+  version "2.10.8"
+  resolved "https://registry.yarnpkg.com/@voiceflow/chat-types/-/chat-types-2.10.8.tgz#fba87d15d133e4382c9a0e2ef56f87e4f25c9c57"
+  integrity sha512-NWPi8IFqmlY4z3COQnMys1jzbFD1tOBC4lTi2OlOWfR/GQtMIBGdA+7suydGp/vwtIOaqr9UdQqRfqXcoWBXFA==
   dependencies:
-    "@voiceflow/base-types" "^2.52.3"
+    "@voiceflow/base-types" "^2.53.0"
     "@voiceflow/common" "^8.1.2"
 
 "@voiceflow/commitlint-config@2.0.0":
@@ -1643,22 +1651,22 @@
   dependencies:
     http-status "^1.3.2"
 
-"@voiceflow/voice-types@2.6.8", "@voiceflow/voice-types@^2.6.8":
-  version "2.6.8"
-  resolved "https://registry.yarnpkg.com/@voiceflow/voice-types/-/voice-types-2.6.8.tgz#993d8b51f4e0dc0ade9cbb7d61442cbb220d0113"
-  integrity sha512-C/y4WNwVApErXaNL8dmXwdFaGXNUkY2szZ8OgNnBwMakOu+/24HeZdyYlzEckDmiWbIa/Oy8aYcoMariUZUxnQ==
+"@voiceflow/voice-types@2.6.9", "@voiceflow/voice-types@^2.6.9":
+  version "2.6.9"
+  resolved "https://registry.yarnpkg.com/@voiceflow/voice-types/-/voice-types-2.6.9.tgz#f77fa013af48c88a5ef7c73476778c3fcab3115d"
+  integrity sha512-YM4myPMIQs2aHoz+1e/W7uEnWGNt/xYChbKLLIYjP4s9dKsIgmk0amsBCUGfhDRhNCCJMc9UTTbNH5z7YhjgdA==
   dependencies:
-    "@voiceflow/base-types" "^2.52.3"
+    "@voiceflow/base-types" "^2.53.0"
     "@voiceflow/common" "^8.1.2"
 
-"@voiceflow/voiceflow-types@3.18.7":
-  version "3.18.7"
-  resolved "https://registry.yarnpkg.com/@voiceflow/voiceflow-types/-/voiceflow-types-3.18.7.tgz#45275ac7aff43f1e89068a799b67c81d3a50ea1d"
-  integrity sha512-Tw6xLhRNWf5hNiDgUvJEqCPBXt0bBgDGnbjGC8uwmQWil5a7Gt/kE0N8v1E7fIPF0lj13P9dDsVf/HedBjHznQ==
+"@voiceflow/voiceflow-types@3.18.8":
+  version "3.18.8"
+  resolved "https://registry.yarnpkg.com/@voiceflow/voiceflow-types/-/voiceflow-types-3.18.8.tgz#a6ff150ffa3e4dd495ffc0d6ca0a15b36329776e"
+  integrity sha512-6CZnmh0QSDtYkrpl2zovaC2b9/+Am8CQihtm5Kpwgu3CiQOM/48DNgvJV8ge6+CRyoutip2yfTbJA2B7gcDlAw==
   dependencies:
-    "@voiceflow/base-types" "^2.52.3"
-    "@voiceflow/chat-types" "^2.10.7"
-    "@voiceflow/voice-types" "^2.6.8"
+    "@voiceflow/base-types" "^2.53.0"
+    "@voiceflow/chat-types" "^2.10.8"
+    "@voiceflow/voice-types" "^2.6.9"
 
 "@vue/compiler-core@3.1.5":
   version "3.1.5"
