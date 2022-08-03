@@ -41,7 +41,7 @@ describe('Carousel handler', () => {
             id: 'card-1',
             title: 'Card Nike',
             description: slateTransformed,
-            imageUrl: '',
+            imageUrl: 'image/{image1}.jpeg',
             buttons: [
               {
                 name: 'Button Nike buy',
@@ -68,7 +68,7 @@ describe('Carousel handler', () => {
         trace: { addTrace: sinon.stub() },
         storage: { delete: sinon.stub() },
       };
-      const variables = { getState: sinon.stub().returns({ var1: 'val 1' }) };
+      const variables = { getState: sinon.stub().returns({ var1: 'val 1', image1: 'sample-image' }) };
       expect(handler.handle(node, runtime as any, variables as any, null as any)).to.eql(node.id);
       expect(utils.addNoReplyTimeoutIfExists.args).to.eql([[node, runtime]]);
       expect(runtime.storage.delete.callCount).to.eql(2);
@@ -87,7 +87,7 @@ describe('Carousel handler', () => {
                     slate: slateTransformed,
                     text: 'card description',
                   },
-                  imageUrl: '',
+                  imageUrl: 'image/sample-image.jpeg',
                   buttons: [
                     {
                       name: 'Button Nike buy',

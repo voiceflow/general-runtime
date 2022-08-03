@@ -37,6 +37,7 @@ export const CarouselHandler: HandlerFactory<BaseNode.Carousel.Node, typeof hand
         return {
           ...card,
           title: replaceVariables(card.title, variablesMap),
+          imageUrl: replaceVariables(card.imageUrl, variablesMap),
           description: {
             slate,
             text,
