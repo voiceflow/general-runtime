@@ -23,7 +23,7 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
   useStrictVM = false,
   testingEnv = false,
 } = {}) => ({
-  canHandle: (node) => !!node.code,
+  canHandle: (node) => typeof node.code === 'string',
   handle: async (node, runtime, variables) => {
     try {
       const variablesState = variables.getState();
