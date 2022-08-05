@@ -22,6 +22,7 @@ const handlerUtils = {
 
 export const CarouselHandler: HandlerFactory<BaseNode.Carousel.Node, typeof handlerUtils> = (utils) => ({
   canHandle: (node) => node.type === BaseNode.NodeType.CAROUSEL,
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (node, runtime, variables) => {
     const defaultPath = node.nextId || null;
     const isStartingFromCarouselStep = runtime.getAction() === Action.REQUEST && !runtime.getRequest();
@@ -29,12 +30,13 @@ export const CarouselHandler: HandlerFactory<BaseNode.Carousel.Node, typeof hand
     if (runtime.getAction() === Action.RUNNING || isStartingFromCarouselStep) {
       const variablesMap = variables.getState();
       const sanitizedVars = utils.sanitizeVariables(variables.getState());
+      const cards: BaseNode.Carousel.TraceCarouselCard[] = [];
 
-      const cards = node.cards.map((card) => {
+      node.cards.forEach((card) => {
         const slate = utils.slateInjectVariables(card.description, sanitizedVars);
         const text = utils.slateToPlaintext(slate);
 
-        return {
+        const item = {
           ...card,
           title: replaceVariables(card.title, variablesMap),
           imageUrl: replaceVariables(card.imageUrl, variablesMap),
@@ -47,15 +49,21 @@ export const CarouselHandler: HandlerFactory<BaseNode.Carousel.Node, typeof hand
             name: replaceVariables(button.name, variablesMap),
           })),
         };
+
+        if (item.title || item.imageUrl || item.description.text || item.buttons.length) {
+          cards.push(item);
+        }
       });
 
-      runtime.trace.addTrace<BaseNode.Carousel.TraceFrame>({
-        type: BaseTrace.TraceType.CAROUSEL,
-        payload: {
-          layout: node.layout,
-          cards,
-        },
-      });
+      if (cards?.length) {
+        runtime.trace.addTrace<BaseNode.Carousel.TraceFrame>({
+          type: BaseTrace.TraceType.CAROUSEL,
+          payload: {
+            layout: node.layout,
+            cards,
+          },
+        });
+      }
 
       if (node.isBlocking) {
         utils.addNoReplyTimeoutIfExists(node, runtime);
