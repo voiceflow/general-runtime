@@ -5,6 +5,7 @@ import { Action, Handler, HandlerFactory, IfV2Handler } from '@/runtime';
 import _V1Handler from '../_v1';
 import CaptureHandler from '../capture';
 import CaptureV2Handler from '../captureV2';
+import CardV2Handler from '../cardV2';
 import CarouselHandler from '../carousel';
 import CommandHandler from '../command';
 import GoToHandler from '../goTo';
@@ -16,6 +17,7 @@ export const eventHandlers = [
   CaptureHandler(),
   CaptureV2Handler(),
   InteractionHandler(),
+  CardV2Handler(),
   CarouselHandler(),
   _v1Handler,
   IfV2Handler({ _v1: _v1Handler }),
