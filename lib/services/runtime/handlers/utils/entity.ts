@@ -1,7 +1,7 @@
 import { BaseNode, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 
 import { DMStore } from '@/lib/services/dialog';
-import NoMatchHandler, { NoMatchNode } from '@/lib/services/runtime/handlers/noMatch';
+import NoMatchHandler, { NoMatchNode } from '@/lib/services/runtime/handlers/noMatch/noMatch';
 import { Runtime, Store } from '@/runtime';
 
 import { StorageType } from '../../types';

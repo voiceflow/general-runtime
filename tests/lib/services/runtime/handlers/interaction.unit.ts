@@ -3,7 +3,7 @@ import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { InteractionHandler } from '@/lib/services/runtime/handlers/interaction';
+import { InteractionHandler } from '@/lib/services/runtime/handlers/interaction/interaction';
 import { StorageType } from '@/lib/services/runtime/types';
 import { Action } from '@/runtime';
 

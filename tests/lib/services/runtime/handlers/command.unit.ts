@@ -2,7 +2,7 @@ import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { CommandHandler, getCommand as GetCommand } from '@/lib/services/runtime/handlers/command';
+import { CommandHandler, getCommand as GetCommand } from '@/lib/services/runtime/handlers/command/command';
 import * as EventHandler from '@/lib/services/runtime/handlers/event';
 import { FrameType } from '@/lib/services/runtime/types';
 

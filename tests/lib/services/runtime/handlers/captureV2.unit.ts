@@ -2,7 +2,7 @@ import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { CaptureV2Handler } from '@/lib/services/runtime/handlers/captureV2';
+import { CaptureV2Handler } from '@/lib/services/runtime/handlers/captureV2/captureV2';
 import { Action, Store } from '@/runtime';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';

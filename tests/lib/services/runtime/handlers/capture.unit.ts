@@ -3,7 +3,7 @@ import { BaseNode, BaseRequest, RuntimeLogs } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { CaptureHandler } from '@/lib/services/runtime/handlers/capture';
+import { CaptureHandler } from '@/lib/services/runtime/handlers/capture/capture';
 import runtime, { Action, Store } from '@/runtime';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';

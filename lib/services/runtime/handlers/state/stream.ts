@@ -12,7 +12,7 @@ import {
   StreamPauseStorage,
   StreamPlayStorage,
 } from '../../types';
-import CommandHandler from '../command';
+import CommandHandler from '../command/command';
 
 const utilsObj = {
   commandHandler: CommandHandler(),

@@ -4,8 +4,8 @@ import _ from 'lodash';
 
 import { Runtime, Store } from '@/runtime';
 
-import { NoReplyCounterStorage, StorageType } from '../types';
-import { addButtonsIfExists, outputTrace, removeEmptyPrompts } from '../utils';
+import { NoReplyCounterStorage, StorageType } from '../../types';
+import { addButtonsIfExists, outputTrace, removeEmptyPrompts } from '../../utils';
 
 type NoReplyNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoReplyNode;
 

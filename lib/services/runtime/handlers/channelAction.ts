@@ -4,7 +4,7 @@ import { AnyRecord, object, replaceVariables } from '@voiceflow/common';
 import { HandlerFactory } from '@/runtime';
 
 import { _V1Handler } from './_v1';
-import CommandHandler from './command';
+import CommandHandler from './command/command';
 import { findEventMatcher } from './event';
 
 const getNodeType = (node: BaseNode.ChannelAction.Node) => {

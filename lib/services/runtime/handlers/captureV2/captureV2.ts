@@ -3,12 +3,12 @@ import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory } from '@/runtime';
 
-import { isIntentRequest, StorageType } from '../types';
-import { addButtonsIfExists, mapEntities } from '../utils';
-import CommandHandler from './command';
-import NoReplyHandler, { addNoReplyTimeoutIfExists } from './noReply';
-import RepeatHandler from './repeat';
-import { EntityFillingNoMatchHandler, entityFillingRequest, setElicit } from './utils/entity';
+import { isIntentRequest, StorageType } from '../../types';
+import { addButtonsIfExists, mapEntities } from '../../utils';
+import CommandHandler from '../command/command';
+import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply/noReply';
+import RepeatHandler from '../repeat';
+import { EntityFillingNoMatchHandler, entityFillingRequest, setElicit } from '../utils/entity';
 
 const ENTIRE_RESPONSE_CONFIDENCE_THRESHOLD = 0.6;
 

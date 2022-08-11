@@ -5,7 +5,7 @@ import { AnyRecord, replaceVariables } from '@voiceflow/common';
 import { Action, HandlerFactory } from '@/runtime';
 
 import { TurnType } from '../types';
-import CommandHandler from './command';
+import CommandHandler from './command/command';
 import { findEventMatcher } from './event';
 
 const utilsObj = {

@@ -1,16 +1,15 @@
 import { BaseNode, BaseTrace } from '@voiceflow/base-types';
-import { ChatNode } from '@voiceflow/chat-types';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory } from '@/runtime';
 
-import { StorageType } from '../types';
-import { addButtonsIfExists } from '../utils';
-import CommandHandler from './command';
-import { findEventMatcher } from './event';
-import NoMatchHandler from './noMatch';
-import NoReplyHandler, { addNoReplyTimeoutIfExists } from './noReply';
-import RepeatHandler from './repeat';
+import { StorageType } from '../../types';
+import { addButtonsIfExists } from '../../utils';
+import CommandHandler from '../command/command';
+import { findEventMatcher } from '../event';
+import NoMatchHandler from '../noMatch/noMatch';
+import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply/noReply';
+import RepeatHandler from '../repeat';
 
 const utilsObj = {
   repeatHandler: RepeatHandler(),
@@ -22,10 +21,7 @@ const utilsObj = {
   addNoReplyTimeoutIfExists,
 };
 
-export const InteractionHandler: HandlerFactory<
-  VoiceflowNode.Interaction.Node | ChatNode.Interaction.Node,
-  typeof utilsObj
-> = (utils) => ({
+export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => !!node.interactions,
   handle: (node, runtime, variables) => {
     if (runtime.getAction() === Action.RUNNING) {

@@ -3,12 +3,12 @@ import { BaseModels } from '@voiceflow/base-types';
 import { Action, Handler, HandlerFactory, IfV2Handler } from '@/runtime';
 
 import _V1Handler from '../_v1';
-import CaptureHandler from '../capture';
-import CaptureV2Handler from '../captureV2';
+import CaptureHandler from '../capture/capture';
+import CaptureV2Handler from '../captureV2/captureV2';
 import CarouselHandler from '../carousel';
-import CommandHandler from '../command';
+import CommandHandler from '../command/command';
 import GoToHandler from '../goTo';
-import InteractionHandler from '../interaction';
+import InteractionHandler from '../interaction/interaction';
 
 const _v1Handler = _V1Handler();
 export const eventHandlers = [

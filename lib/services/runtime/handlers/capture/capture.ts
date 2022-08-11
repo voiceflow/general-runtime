@@ -1,15 +1,14 @@
 import { BaseNode, BaseRequest, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
-import { ChatNode } from '@voiceflow/chat-types';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 import wordsToNumbers from 'words-to-numbers';
 
 import { Action, HandlerFactory } from '@/runtime';
 
-import { isIntentRequest, StorageType } from '../types';
-import { addButtonsIfExists, mapEntities } from '../utils';
-import CommandHandler from './command';
-import NoReplyHandler, { addNoReplyTimeoutIfExists } from './noReply';
-import RepeatHandler from './repeat';
+import { isIntentRequest, StorageType } from '../../types';
+import { addButtonsIfExists, mapEntities } from '../../utils';
+import CommandHandler from '../command/command';
+import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply/noReply';
+import RepeatHandler from '../repeat';
 
 const utilsObj = {
   repeatHandler: RepeatHandler(),
@@ -20,9 +19,7 @@ const utilsObj = {
   addNoReplyTimeoutIfExists,
 };
 
-export const CaptureHandler: HandlerFactory<VoiceflowNode.Capture.Node | ChatNode.Capture.Node, typeof utilsObj> = (
-  utils
-) => ({
+export const CaptureHandler: HandlerFactory<VoiceflowNode.Capture.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => !!node.variable || node.type === BaseNode.NodeType.CAPTURE,
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (node, runtime, variables) => {
