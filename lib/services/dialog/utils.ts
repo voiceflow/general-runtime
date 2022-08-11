@@ -3,7 +3,7 @@ import { BaseModels, BaseNode, BaseRequest } from '@voiceflow/base-types';
 import { SLOT_REGEXP, VF_DM_PREFIX } from '@voiceflow/common';
 import * as crypto from 'crypto';
 
-import CommandHandler from '@/lib/services/runtime/handlers/command';
+import CommandHandler from '@/lib/services/runtime/handlers/command/command';
 import { findEventMatcher } from '@/lib/services/runtime/handlers/event';
 import { Action, Store } from '@/runtime';
 import Client from '@/runtime/lib/Client';

@@ -2,7 +2,7 @@ import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { CaptureV2Handler } from '@/lib/services/runtime/handlers/captureV2';
+import { CaptureV2Handler } from '@/lib/services/runtime/handlers/captureV2/captureV2';
 import { Action, Store } from '@/runtime';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
@@ -43,6 +43,7 @@ describe('CaptureV2 handler', () => {
             type: 'goto',
             payload: {
               request: {
+                requiredEntities: undefined,
                 type: 'intent',
                 payload: { intent: { name: node.intent.name }, entities: [], query: '' },
                 ELICIT: true,
@@ -389,7 +390,11 @@ describe('CaptureV2 handler', () => {
           expect(noMatchHandler.args).to.eql([
             [
               [node.intent.name],
-              { type: 'intent', payload: { intent: { name: node.intent.name }, entities: [], query: '' } },
+              {
+                requiredEntities: undefined,
+                type: 'intent',
+                payload: { intent: { name: node.intent.name }, entities: [], query: '' },
+              },
             ],
           ]);
         });
@@ -465,7 +470,11 @@ describe('CaptureV2 handler', () => {
           expect(noMatchHandler.args).to.eql([
             [
               [node.intent.name],
-              { type: 'intent', payload: { intent: { name: node.intent.name }, entities: [], query: '' } },
+              {
+                requiredEntities: undefined,
+                type: 'intent',
+                payload: { intent: { name: node.intent.name }, entities: [], query: '' },
+              },
             ],
           ]);
         });

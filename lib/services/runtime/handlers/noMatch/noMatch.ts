@@ -4,16 +4,16 @@ import _ from 'lodash';
 
 import { Runtime, Store } from '@/runtime';
 
-import { NoMatchCounterStorage, Output, StorageType } from '../types';
+import { NoMatchCounterStorage, Output, StorageType } from '../../types';
 import {
   addButtonsIfExists,
   getGlobalNoMatchPrompt,
   isPromptContentEmpty,
   outputTrace,
   removeEmptyPrompts,
-} from '../utils';
-import { addNoReplyTimeoutIfExists } from './noReply';
-import { generateNoMatch } from './utils/generativeNoMatch';
+} from '../../utils';
+import { addNoReplyTimeoutIfExists } from '../noReply/noReply';
+import { generateNoMatch } from '../utils/generativeNoMatch';
 
 export type NoMatchNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoMatchNode;
 
@@ -23,7 +23,7 @@ const utilsObj = {
   addNoReplyTimeoutIfExists,
 };
 
-const convertDeprecatedNoMatch = ({ noMatch, elseId, noMatches, randomize, ...node }: NoMatchNode) =>
+export const convertDeprecatedNoMatch = ({ noMatch, elseId, noMatches, randomize, ...node }: NoMatchNode) =>
   ({
     noMatch: {
       prompts: noMatch?.prompts ?? noMatches,
@@ -33,7 +33,7 @@ const convertDeprecatedNoMatch = ({ noMatch, elseId, noMatches, randomize, ...no
     ...node,
   } as NoMatchNode);
 
-const removeEmptyNoMatches = (node: NoMatchNode) => {
+export const removeEmptyNoMatches = (node: NoMatchNode) => {
   const prompts: Array<BaseText.SlateTextValue | string> = node.noMatch?.prompts ?? [];
 
   return removeEmptyPrompts(prompts);

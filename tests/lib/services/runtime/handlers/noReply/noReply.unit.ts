@@ -1,8 +1,7 @@
-import { BaseNode } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { NoReplyHandler } from '@/lib/services/runtime/handlers/noReply';
+import { NoReplyHandler } from '@/lib/services/runtime/handlers/noReply/noReply';
 import { StorageType } from '@/lib/services/runtime/types';
 import { EMPTY_AUDIO_STRING, outputTrace } from '@/lib/services/runtime/utils';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';

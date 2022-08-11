@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import * as utils from '@/lib/services/dialog/utils';
-import * as CommandHandler from '@/lib/services/runtime/handlers/command';
+import * as CommandHandler from '@/lib/services/runtime/handlers/command/command';
 import * as eventUtils from '@/lib/services/runtime/handlers/event';
 import * as RuntimeModule from '@/runtime';
 import * as Client from '@/runtime/lib/Client';

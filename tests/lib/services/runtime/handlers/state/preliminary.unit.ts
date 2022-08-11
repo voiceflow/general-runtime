@@ -68,8 +68,9 @@ describe('preliminary handler unit tests', () => {
   describe('handle', () => {
     it('command can handle', () => {
       const nodeID = 'node-id';
+      const commandHandler = { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns(nodeID) };
       const utils = {
-        commandHandler: { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns(nodeID) },
+        commandHandler: () => commandHandler,
       };
       const handler = PreliminaryHandlerFactory(utils as any);
 
@@ -77,13 +78,14 @@ describe('preliminary handler unit tests', () => {
       const variables = { var1: 'val1', var2: 'val2' };
       expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(nodeID);
 
-      expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
-      expect(utils.commandHandler.handle.args).to.eql([[runtime, variables]]);
+      expect(commandHandler.canHandle.args).to.eql([[runtime]]);
+      expect(commandHandler.handle.args).to.eql([[runtime, variables]]);
     });
 
     it('command cant handle', () => {
+      const commandHandler = { canHandle: sinon.stub().returns(false) };
       const utils = {
-        commandHandler: { canHandle: sinon.stub().returns(false) },
+        commandHandler: () => commandHandler,
       };
       const handler = PreliminaryHandlerFactory(utils as any);
 
@@ -92,7 +94,7 @@ describe('preliminary handler unit tests', () => {
       const variables = { var1: 'val1', var2: 'val2' };
       expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
 
-      expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
+      expect(commandHandler.canHandle.args).to.eql([[runtime]]);
     });
   });
 });

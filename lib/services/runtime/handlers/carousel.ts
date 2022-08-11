@@ -5,9 +5,9 @@ import { Action, HandlerFactory } from '@/runtime';
 
 import { StorageType } from '../types';
 import { slateInjectVariables, slateToPlaintext } from '../utils';
-import CommandHandler from './command';
-import NoMatchHandler from './noMatch';
-import NoReplyHandler, { addNoReplyTimeoutIfExists } from './noReply';
+import CommandHandler from './command/command';
+import NoMatchHandler from './noMatch/noMatch';
+import NoReplyHandler, { addNoReplyTimeoutIfExists } from './noReply/noReply';
 
 const handlerUtils = {
   commandHandler: CommandHandler(),

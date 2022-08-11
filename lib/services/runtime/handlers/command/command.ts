@@ -4,7 +4,7 @@ import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { FrameType, GeneralRuntime } from '@/lib/services/runtime/types';
 import { Frame, Store } from '@/runtime';
 
-import { EventMatcher, findEventMatcher } from './event';
+import { EventMatcher, findEventMatcher } from '../event';
 
 interface CommandMatch {
   index: number;

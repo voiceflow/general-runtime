@@ -36,7 +36,11 @@ describe('stream handler unit tests', async () => {
   describe('handle', () => {
     it('no pause', () => {
       const urlSrc = 'url';
-      const replaceVariablesStub = sinon.stub().returns('url');
+      const replaceVariablesStub = (value: any) => {
+        if (value === node.src) return urlSrc;
+        return value;
+      };
+
       const handler = StreamHandler({ replaceVariables: replaceVariablesStub });
 
       const node = {
@@ -82,7 +86,10 @@ describe('stream handler unit tests', async () => {
 
     it('pause with diff id', () => {
       const urlSrc = 'url';
-      const replaceVariablesStub = sinon.stub().returns('url');
+      const replaceVariablesStub = (value: any) => {
+        if (value === node.src) return urlSrc;
+        return value;
+      };
       const handler = StreamHandler({ replaceVariables: replaceVariablesStub });
 
       const node = {
@@ -132,7 +139,10 @@ describe('stream handler unit tests', async () => {
 
     it('pause with curr id', () => {
       const urlSrc = 'url';
-      const replaceVariablesStub = sinon.stub().returns('url');
+      const replaceVariablesStub = (value: any) => {
+        if (value === node.src) return urlSrc;
+        return value;
+      };
       const handler = StreamHandler({ replaceVariables: replaceVariablesStub });
 
       const nodeID = 'id';
