@@ -1,6 +1,5 @@
 import { BaseNode, BaseRequest, BaseText, BaseTrace } from '@voiceflow/base-types';
-import { ChatNode } from '@voiceflow/chat-types';
-import { VoiceNode } from '@voiceflow/voice-types';
+import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
 import { Runtime, Store } from '@/runtime';
@@ -9,7 +8,7 @@ import { NoMatchCounterStorage, StorageType } from '../types';
 import { addButtonsIfExists, outputTrace, removeEmptyPrompts } from '../utils';
 import { addNoReplyTimeoutIfExists } from './noReply';
 
-export type NoMatchNode = BaseRequest.NodeButton & (VoiceNode.Utils.NoMatchNode | ChatNode.Utils.NoMatchNode);
+export type NoMatchNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoMatchNode;
 
 const utilsObj = {
   outputTrace,

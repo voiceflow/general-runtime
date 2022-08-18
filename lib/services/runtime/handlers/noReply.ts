@@ -1,6 +1,5 @@
 import { BaseNode, BaseRequest, BaseText, BaseTrace } from '@voiceflow/base-types';
-import { ChatNode } from '@voiceflow/chat-types';
-import { VoiceNode } from '@voiceflow/voice-types';
+import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
 import { Runtime, Store } from '@/runtime';
@@ -8,7 +7,7 @@ import { Runtime, Store } from '@/runtime';
 import { NoReplyCounterStorage, StorageType } from '../types';
 import { addButtonsIfExists, outputTrace, removeEmptyPrompts } from '../utils';
 
-type NoReplyNode = BaseRequest.NodeButton & (VoiceNode.Utils.NoReplyNode | ChatNode.Utils.NoReplyNode);
+type NoReplyNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoReplyNode;
 
 const removeEmptyNoReplies = (node: NoReplyNode) => {
   const noReplies: Array<BaseText.SlateTextValue | string> =
