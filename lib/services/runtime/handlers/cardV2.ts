@@ -29,16 +29,27 @@ export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof han
 
     if (runtime.getAction() === Action.RUNNING || isStartingFromCardV2Step) {
       const variablesMap = variables.getState();
-      const sanitizedVars = utils.sanitizeVariables(variables.getState());
+      let description: string | { slate: BaseText.SlateTextValue; text: string };
 
-      const slate = utils.slateInjectVariables(node.description as BaseText.SlateTextValue, sanitizedVars);
-      const text = utils.slateToPlaintext(slate);
+      if (typeof node.description === 'string') {
+        const parsedDescription = replaceVariables(node.description, variablesMap);
+        description = {
+          slate: [{ text: parsedDescription }],
+          text: parsedDescription,
+        };
+      } else {
+        const sanitizedVars = utils.sanitizeVariables(variables.getState());
+
+        const slate = utils.slateInjectVariables(node.description as BaseText.SlateTextValue, sanitizedVars);
+
+        description = {
+          slate,
+          text: utils.slateToPlaintext(slate),
+        };
+      }
 
       const title = replaceVariables(node.title, variablesMap);
-      const description = {
-        slate,
-        text,
-      };
+
       const buttons = node.buttons.map((button) => ({
         ...button,
         name: replaceVariables(button.name, variablesMap),
