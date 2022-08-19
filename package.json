@@ -14,7 +14,6 @@
   "dependencies": {
     "@opentelemetry/api-metrics": "0.26.0",
     "@types/workerpool": "^5.0.1",
-    "@voiceflow/alexa-types": "2.10.22",
     "@voiceflow/api-sdk": "3.20.1",
     "@voiceflow/backend-utils": "4.8.2",
     "@voiceflow/base-types": "2.59.0",
@@ -22,7 +21,6 @@
     "@voiceflow/chat-types": "2.11.1",
     "@voiceflow/common": "8.1.2",
     "@voiceflow/event-ingestion-service": "1.2.3",
-    "@voiceflow/google-types": "2.15.18",
     "@voiceflow/logger": "^1.6.1",
     "@voiceflow/metrics": "1.4.1",
     "@voiceflow/natural-language-commander": "^0.5.1",
