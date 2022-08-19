@@ -114,7 +114,12 @@ class Project extends AbstractMiddleware {
 
       const api = await this.services.dataAPI.get(req.headers.authorization);
 
-      const { projectID } = await api.getVersion(req.headers.versionID);
+      const { projectID } = await api.getVersion(req.headers.versionID).catch(() => {
+        throw new VError(
+          `Could not resolve project with version ID ${req.headers.versionID}`,
+          VError.HTTP_STATUS.BAD_REQUEST
+        );
+      });
 
       req.headers.projectID = projectID;
 
