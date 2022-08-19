@@ -6,7 +6,7 @@ import { Turn } from '@/runtime/lib/constants/flags.google';
 
 import { addButtonsIfExists } from '../../utils';
 import { addRepromptIfExists, isGooglePlatform } from '../../utils.google';
-import CommandHandler from '../command/command.google';
+import CommandHandler from '../command/command';
 import NoInputHandler from '../noReply/noReply.google';
 
 const utilsObj = {

@@ -5,7 +5,7 @@ import { Action, HandlerFactory } from '@/runtime';
 import { Turn } from '@/runtime/lib/constants/flags.google';
 
 import { addRepromptIfExists, isGooglePlatform, mapSlots } from '../../utils.google';
-import CommandHandler from '../command/command.google';
+import CommandHandler from '../command/command';
 import NoMatchHandler from '../noMatch/noMatch.google';
 import NoInputHandler from '../noReply/noReply.google';
 
