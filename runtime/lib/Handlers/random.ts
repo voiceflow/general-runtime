@@ -7,13 +7,13 @@ import DebugLogging from '../Runtime/DebugLogging';
 
 type RandomStorage = Partial<Record<string, (string | null)[]>>;
 
-const randomHandler: HandlerFactory<BaseNode.Random.Node> = () => ({
+const randomHandler: HandlerFactory<BaseNode.RandomV2.Node> = () => ({
   canHandle: (node) => !!node.random,
   handle: async (node, runtime, _variables, program) => {
     let nextId: string | null;
 
     if (!node.nextIds.length) {
-      runtime.trace.debug('no random paths connected - exiting', BaseNode.NodeType.RANDOM);
+      runtime.trace.debug('no random paths connected - exiting', BaseNode.NodeType.RANDOM_V2);
       runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.RANDOM, node, {
         path: null,
       });
@@ -58,7 +58,7 @@ const randomHandler: HandlerFactory<BaseNode.Random.Node> = () => ({
       nextId = node.nextIds[Math.floor(Math.random() * node.nextIds.length)];
     }
 
-    runtime.trace.debug('going down random path', BaseNode.NodeType.RANDOM);
+    runtime.trace.debug('going down random path', BaseNode.NodeType.RANDOM_V2);
     runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.RANDOM, node, {
       path: nextId ? DebugLogging.createPathReference(program.getNode(nextId)!) : null,
     });

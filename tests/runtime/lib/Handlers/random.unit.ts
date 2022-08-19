@@ -28,9 +28,9 @@ describe('randomHandler unit tests', () => {
         debugLogging: null as unknown as DebugLogging,
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
-      const node = { nextIds: [], id: 'step-id', type: BaseNode.NodeType.RANDOM };
+      const node = { nextIds: [], id: 'step-id', type: BaseNode.NodeType.RANDOM_V2 };
       expect(await randomHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql(null);
-      expect(runtime.trace.debug.args).to.eql([['no random paths connected - exiting', BaseNode.NodeType.RANDOM]]);
+      expect(runtime.trace.debug.args).to.eql([['no random paths connected - exiting', BaseNode.NodeType.RANDOM_V2]]);
       expect(runtime.trace.addTrace.args).to.eql([
         [
           {
@@ -61,9 +61,9 @@ describe('randomHandler unit tests', () => {
       };
 
       const id = 'next-id';
-      const node = { nextIds: [id], id: 'step-id', type: BaseNode.NodeType.RANDOM };
+      const node = { nextIds: [id], id: 'step-id', type: BaseNode.NodeType.RANDOM_V2 };
       expect(await randomHandler.handle(node as any, runtime as any, null as any, program as any)).to.eql(id);
-      expect(runtime.trace.debug.args).to.eql([['going down random path', BaseNode.NodeType.RANDOM]]);
+      expect(runtime.trace.debug.args).to.eql([['going down random path', BaseNode.NodeType.RANDOM_V2]]);
       expect(runtime.trace.addTrace.args).to.eql([
         [
           {
@@ -98,11 +98,11 @@ describe('randomHandler unit tests', () => {
         };
 
         const nextIds = ['one', 'two', 'three'];
-        const node = { nextIds, id: 'step-id', type: BaseNode.NodeType.RANDOM };
+        const node = { nextIds, id: 'step-id', type: BaseNode.NodeType.RANDOM_V2 };
         const result = await randomHandler.handle(node as any, runtime as any, null as any, program as any);
         // result is one of the ids in nextIds
         expect(nextIds.includes(result as string)).to.eql(true);
-        expect(runtime.trace.debug.args).to.eql([['going down random path', BaseNode.NodeType.RANDOM]]);
+        expect(runtime.trace.debug.args).to.eql([['going down random path', BaseNode.NodeType.RANDOM_V2]]);
         expect(runtime.trace.addTrace.args).to.eql([
           [
             {
@@ -138,11 +138,11 @@ describe('randomHandler unit tests', () => {
           };
 
           const nextIds = ['one', 'two', 'three'];
-          const node = { id: 'step-id', nextIds, random: 2, type: BaseNode.NodeType.RANDOM };
+          const node = { id: 'step-id', nextIds, random: 2, type: BaseNode.NodeType.RANDOM_V2 };
           const result = await randomHandler.handle(node as any, runtime as any, null as any, program as any);
           // result is one of the ids in nextIds
           expect(nextIds.includes(result as string)).to.eql(true);
-          expect(runtime.trace.debug.args).to.eql([['going down random path', BaseNode.NodeType.RANDOM]]);
+          expect(runtime.trace.debug.args).to.eql([['going down random path', BaseNode.NodeType.RANDOM_V2]]);
           expect(runtime.storage.get(S.RANDOMS)[node.id]).to.eql([result]);
           expect(runtime.trace.addTrace.args).to.eql([
             [
@@ -168,7 +168,7 @@ describe('randomHandler unit tests', () => {
 
         it('only one option left', async () => {
           const nextIds = ['one', 'two', 'three'];
-          const node = { id: 'step-id', nextIds, random: 2, type: BaseNode.NodeType.RANDOM };
+          const node = { id: 'step-id', nextIds, random: 2, type: BaseNode.NodeType.RANDOM_V2 };
 
           const runtime = {
             trace: { debug: sinon.stub(), addTrace: sinon.stub() },
@@ -183,7 +183,7 @@ describe('randomHandler unit tests', () => {
           const result = await randomHandler.handle(node as any, runtime as any, null as any, program as any);
           // only one option possible left
           expect(result).to.eql('two');
-          expect(runtime.trace.debug.args).to.eql([['going down random path', BaseNode.NodeType.RANDOM]]);
+          expect(runtime.trace.debug.args).to.eql([['going down random path', BaseNode.NodeType.RANDOM_V2]]);
           expect(runtime.storage.get(S.RANDOMS)[node.id]).to.eql(['one', 'three', 'two']);
           expect(runtime.trace.addTrace.args).to.eql([
             [
@@ -209,7 +209,7 @@ describe('randomHandler unit tests', () => {
 
         it('no option left', async () => {
           const nextIds = ['one', 'two', 'three'];
-          const node = { id: 'step-id', nextIds, random: 2, type: BaseNode.NodeType.RANDOM };
+          const node = { id: 'step-id', nextIds, random: 2, type: BaseNode.NodeType.RANDOM_V2 };
 
           const runtime = {
             trace: { debug: sinon.stub(), addTrace: sinon.stub() },
@@ -224,7 +224,7 @@ describe('randomHandler unit tests', () => {
           const result = await randomHandler.handle(node as any, runtime as any, null as any, program as any);
           // result is one of the ids in nextIds
           expect(nextIds.includes(result as string)).to.eql(true);
-          expect(runtime.trace.debug.args).to.eql([['going down random path', BaseNode.NodeType.RANDOM]]);
+          expect(runtime.trace.debug.args).to.eql([['going down random path', BaseNode.NodeType.RANDOM_V2]]);
           expect(runtime.storage.get(S.RANDOMS)[node.id]).to.eql([result]);
           expect(runtime.trace.addTrace.args).to.eql([
             [
