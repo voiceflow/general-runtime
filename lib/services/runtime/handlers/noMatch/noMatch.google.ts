@@ -5,7 +5,7 @@ import { Runtime, Store } from '@/runtime';
 import { Storage } from '@/runtime/lib/constants/flags.google';
 
 import { NoMatchCounterStorage } from '../../types';
-import { removeEmptyPrompts } from '../../utils';
+import { outputTrace, removeEmptyPrompts } from '../../utils';
 import { processOutput } from '../../utils.google';
 import { convertDeprecatedNoMatch } from './noMatch';
 
@@ -27,8 +27,12 @@ export const NoMatchHandler = () => ({
     const speak = node.noMatch?.randomize ? _.sample(noMatchPrompts) : noMatchPrompts?.[noMatchCounter];
     const output = processOutput(speak, variables);
 
-    runtime.storage.produce((draft) => {
-      draft[Storage.OUTPUT] += output;
+    outputTrace({
+      addTrace: runtime.trace.addTrace.bind(runtime.trace),
+      debugLogging: runtime.debugLogging,
+      node,
+      output,
+      variables: variables.getState(),
     });
 
     return node.id;

@@ -8,9 +8,13 @@ import { StorageType } from '../../types';
 
 export const VF_ELICIT = 'ELICIT';
 
-export const entityFillingRequest = (name: string): BaseRequest.IntentRequest => ({
+export const entityFillingRequest = (
+  name: string,
+  requiredEntities?: string[]
+): BaseRequest.IntentRequest & { requiredEntities?: string[] } => ({
   type: BaseRequest.RequestType.INTENT,
   payload: { intent: { name }, query: '', entities: [] },
+  requiredEntities,
 });
 
 /** @description when VF_ELICIT is true, it will skip the entity prompt during entity filling */

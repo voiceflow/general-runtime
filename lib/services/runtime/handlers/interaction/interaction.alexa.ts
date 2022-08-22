@@ -1,14 +1,15 @@
-import { BaseNode } from '@voiceflow/base-types';
+import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { formatIntentName } from '@voiceflow/common';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory } from '@/runtime';
-import { Storage, Turn } from '@/runtime/lib/constants/flags.alexa';
+import { Storage } from '@/runtime/lib/constants/flags.alexa';
 
 import { addRepromptIfExists, mapSlots } from '../../utils.alexa';
 import CommandHandler from '../command/command.alexa';
 import NoMatchHandler from '../noMatch/noMatch.alexa';
 import RepeatHandler from '../repeat';
+import { entityFillingRequest } from '../utils/entity';
 
 const utilsObj = {
   mapSlots,
@@ -51,12 +52,13 @@ export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, 
 
       /** @deprecated this section should be eventually removed in favor of the goto handler */
       if ((choice as any).goTo?.intentName) {
-        // TODO add delegate trace?
-        // runtime.turn.set<Intent>(T.DELEGATE, createDelegateIntent((choice as any).goTo.intentName));
+        runtime.trace.addTrace<BaseTrace.GoToTrace>({
+          type: BaseNode.Utils.TraceType.GOTO,
+          payload: { request: entityFillingRequest((choice as any).goTo.intentName) },
+        });
         return node.id;
       }
 
-      runtime.turn.delete(Turn.REQUEST);
       return choice.nextId ?? null;
     }
 
@@ -67,9 +69,6 @@ export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, 
     if (utils.repeatHandler.canHandle(runtime)) {
       return utils.repeatHandler.handle(runtime);
     }
-
-    // request for this turn has been processed, delete request
-    runtime.turn.delete(Turn.REQUEST);
 
     // handle noMatch
     return utils.noMatchHandler.handle(node, runtime, variables);

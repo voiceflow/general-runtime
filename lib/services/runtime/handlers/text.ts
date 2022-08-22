@@ -5,8 +5,8 @@ import _sample from 'lodash/sample';
 import log from '@/logger';
 import { HandlerFactory } from '@/runtime';
 
-import { FrameType, Output } from '../../types';
-import { slateInjectVariables, slateToPlaintext } from '../../utils';
+import { FrameType, Output } from '../types';
+import { slateInjectVariables, slateToPlaintext } from '../utils';
 
 const handlerUtils = {
   _sample,

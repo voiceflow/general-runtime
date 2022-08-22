@@ -1,4 +1,4 @@
-import { BaseModels } from '@voiceflow/base-types';
+import { BaseModels, BaseNode } from '@voiceflow/base-types';
 import { formatIntentName, replaceVariables, transformStringVariableToNumber } from '@voiceflow/common';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 import { Slot } from 'ask-sdk-model';
@@ -63,6 +63,9 @@ export const addRepromptIfExists = <B extends VoiceflowNode.Utils.NoReplyNode>({
   const noReplyNode = convertDeprecatedReprompt(node);
   const prompt = _.sample(noReplyNode.noReply.prompts);
   if (prompt && typeof prompt === 'string') {
-    runtime.turn.set(Turn.REPROMPT, replaceVariables(prompt, variables.getState()));
+    runtime.trace.addTrace<BaseNode.Utils.BaseTraceFrame<unknown>>({
+      type: Turn.REPROMPT,
+      payload: replaceVariables(prompt, variables.getState()),
+    });
   }
 };

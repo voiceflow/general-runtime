@@ -33,10 +33,6 @@ export const NoMatchHandler = () => ({
 
     addRepromptIfExists({ node: _node, runtime, variables });
 
-    runtime.storage.produce((draft) => {
-      draft[Storage.OUTPUT] += output;
-    });
-
     runtime.trace.addTrace<BaseNode.Speak.TraceFrame>({
       type: BaseNode.Utils.TraceType.SPEAK,
       payload: { message: output, type: BaseNode.Speak.TraceSpeakType.MESSAGE },

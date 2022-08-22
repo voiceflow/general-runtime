@@ -1,6 +1,6 @@
+import { BaseTrace } from '@voiceflow/base-types';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import { Intent } from 'ask-sdk-model';
-import _ from 'lodash';
 import wordsToNumbers from 'words-to-numbers';
 
 import { Action, HandlerFactory } from '@/runtime';
@@ -9,8 +9,7 @@ import { Turn } from '@/runtime/lib/constants/flags.alexa';
 import { addRepromptIfExists, mapSlots } from '../../utils.alexa';
 import CommandHandler from '../command/command.alexa';
 import RepeatHandler from '../repeat';
-// import { TurnElicitSlot } from './responseBuilders';
-// import { createElicitSlot } from './utils/directives';
+import { entityFillingRequest, setElicit } from '../utils/entity';
 
 const getSlotValue = (intent: Intent) => {
   const intentSlots = intent.slots || {};
@@ -40,10 +39,12 @@ export const CaptureAlexaHandler: HandlerFactory<VoiceflowNode.Capture.Node, typ
     if (runtime.getAction() === Action.RUNNING) {
       utils.addRepromptIfExists({ node, runtime, variables });
 
-      // TODO add elicit trace?
-      // if (node.intent && node.slots?.[0]) {
-      //   runtime.turn.set<TurnElicitSlot>(Turn.ELICIT_SLOT, createElicitSlot(node.intent, node.slots));
-      // }
+      if (node.intent && node.slots?.[0]) {
+        runtime.trace.addTrace<BaseTrace.GoToTrace>({
+          type: BaseTrace.TraceType.GOTO,
+          payload: { request: setElicit(entityFillingRequest(node.intent, node.slots), true) },
+        });
+      }
       // quit cycleStack without ending session by stopping on itself
       return node.id;
     }
@@ -68,9 +69,6 @@ export const CaptureAlexaHandler: HandlerFactory<VoiceflowNode.Capture.Node, typ
     }
 
     ({ nextId = null } = node);
-
-    // request for this turn has been processed, delete request
-    runtime.turn.delete(Turn.REQUEST);
 
     return nextId;
   },

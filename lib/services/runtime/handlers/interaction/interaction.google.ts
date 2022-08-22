@@ -1,14 +1,15 @@
-import { BaseModels, BaseNode } from '@voiceflow/base-types';
+import { BaseModels, BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory } from '@/runtime';
-import { Storage, Turn } from '@/runtime/lib/constants/flags.google';
+import { Storage } from '@/runtime/lib/constants/flags.google';
 
 import { addButtonsIfExists } from '../../utils';
 import { addRepromptIfExists, isGooglePlatform, mapSlots } from '../../utils.google';
 import CommandHandler from '../command/command';
 import NoMatchHandler from '../noMatch/noMatch.google';
 import NoInputHandler from '../noReply/noReply.google';
+import { entityFillingRequest } from '../utils/entity';
 
 const utilsObj = {
   addRepromptIfExists,
@@ -53,8 +54,11 @@ export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, 
 
       if (choice.event.intent && choice.event.intent === intent.name) {
         /** @deprecated this section should be removed in favor of the goto handler */
-        if ((choice as any).goTo) {
-          runtime.turn.set(Turn.GOTO, (choice as any).goTo.intentName);
+        if ((choice as any).goTo?.intentName) {
+          runtime.trace.addTrace<BaseTrace.GoToTrace>({
+            type: BaseNode.Utils.TraceType.GOTO,
+            payload: { request: entityFillingRequest((choice as any).goTo.intentName) },
+          });
           nextId = node.id;
         } else {
           variableMap = choice.event.mappings ?? null;
@@ -69,8 +73,6 @@ export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, 
     }
 
     if (nextId !== undefined) {
-      runtime.turn.delete(Turn.REQUEST);
-
       return nextId;
     }
 
@@ -83,9 +85,6 @@ export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, 
     if (utils.noInputHandler.canHandle(runtime)) {
       return utils.noInputHandler.handle(node, runtime, variables);
     }
-
-    // request for this turn has been processed, delete request
-    runtime.turn.delete(Turn.REQUEST);
 
     return utils.noMatchHandler.handle(node, runtime, variables);
   },

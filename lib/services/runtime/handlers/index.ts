@@ -62,7 +62,7 @@ export default ({
   SetV2Handler(),
   StartHandler(),
   VisualHandler(),
-  ...TextHandler(),
+  TextHandler(),
   CarouselHandler(),
   GoToNodeHandler(),
   ChannelActionHandler(),

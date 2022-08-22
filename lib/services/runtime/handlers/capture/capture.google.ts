@@ -2,7 +2,6 @@ import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import wordsToNumbers from 'words-to-numbers';
 
 import { Action, HandlerFactory } from '@/runtime';
-import { Turn } from '@/runtime/lib/constants/flags.google';
 
 import { addButtonsIfExists } from '../../utils';
 import { addRepromptIfExists, isGooglePlatform } from '../../utils.google';
@@ -10,7 +9,6 @@ import CommandHandler from '../command/command';
 import NoInputHandler from '../noReply/noReply.google';
 
 const utilsObj = {
-  v: '',
   commandHandler: CommandHandler(),
   noInputHandler: NoInputHandler(),
   wordsToNumbers,
@@ -38,8 +36,8 @@ export const CaptureGoogleHandler: HandlerFactory<VoiceflowNode.Capture.Node, ty
       return utils.commandHandler.handle(runtime, variables);
     }
 
-    // check for no input in v2
-    if (utils.v === 'v2' && utils.noInputHandler.canHandle(runtime)) {
+    // check for no input
+    if (utils.noInputHandler.canHandle(runtime)) {
       return utils.noInputHandler.handle(node, runtime, variables);
     }
 
@@ -57,11 +55,8 @@ export const CaptureGoogleHandler: HandlerFactory<VoiceflowNode.Capture.Node, ty
 
     ({ nextId = null } = node);
 
-    // request for this turn has been processed, delete request
-    runtime.turn.delete(Turn.REQUEST);
-
     return nextId;
   },
 });
 
-export default (v = 'v1') => CaptureGoogleHandler({ ...utilsObj, v });
+export default () => CaptureGoogleHandler(utilsObj);

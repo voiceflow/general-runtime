@@ -32,7 +32,6 @@ export const getCommand = (runtime: Runtime) => {
     if (!found) {
       intentName = IntentName.STOP;
       _.set(request, 'payload.intent.name', intentName);
-      runtime.turn.set(Turn.REQUEST, request);
     }
   }
 
