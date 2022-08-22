@@ -1,33 +1,23 @@
 import { BaseNode } from '@voiceflow/base-types';
-import { AnyRecord, object, replaceVariables } from '@voiceflow/common';
 
 import { HandlerFactory } from '@/runtime';
 
-import { _V1Handler } from './_v1';
-import CommandHandler from './command';
-import { findEventMatcher } from './event';
+import _V1Handler from './_v1';
 
-const getNodeType = (node: BaseNode.ChannelAction.Node) => {
-  return node.data.name;
-};
+const _v1Handler = _V1Handler();
 
-const getNodePayload = (node: BaseNode.ChannelAction.Node, variablesMap: Readonly<AnyRecord>) => {
-  return object.deepMap(node.data.payload, (value) => replaceVariables(value as string, variablesMap) as unknown);
-};
-
-const utilsObj = {
-  commandHandler: CommandHandler(),
-  findEventMatcher,
-};
-
-type channelActionUtils = typeof utilsObj & {
-  getNodeType?: (node: BaseNode.ChannelAction.Node, variablesMap?: Readonly<AnyRecord>) => string;
-  getNodePayload?: (node: BaseNode.ChannelAction.Node, variablesMap: Readonly<AnyRecord>) => unknown;
-};
-
-export const ChannelActionHandler: HandlerFactory<BaseNode.ChannelAction.Node, channelActionUtils> = (utils) => ({
+export const ChannelActionHandler: HandlerFactory<BaseNode.ChannelAction.Node> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.CHANNEL_ACTION,
-  handle: (_V1Handler as any as HandlerFactory<BaseNode.ChannelAction.Node, channelActionUtils>)(utils).handle,
+  handle: (node, ...args) => {
+    const _v1Node: BaseNode._v1.Node = {
+      ...node,
+      _v: 1,
+      type: node.data.name,
+      payload: node.data.payload,
+    };
+
+    return _v1Handler.handle(_v1Node, ...args);
+  },
 });
 
-export default () => ChannelActionHandler({ ...utilsObj, getNodeType, getNodePayload });
+export default ChannelActionHandler;

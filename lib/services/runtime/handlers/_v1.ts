@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import { BaseNode } from '@voiceflow/base-types';
-import { AnyRecord, replaceVariables } from '@voiceflow/common';
+import { object, replaceVariables } from '@voiceflow/common';
 
 import { Action, HandlerFactory } from '@/runtime';
 
@@ -13,20 +13,7 @@ const utilsObj = {
   findEventMatcher,
 };
 
-const getNodeType = (node: BaseNode._v1.Node, variablesMap: Readonly<AnyRecord>) => {
-  return replaceVariables(node.type, variablesMap);
-};
-
-const getNodePayload = (node: BaseNode._v1.Node, variablesMap: Readonly<AnyRecord>) => {
-  return typeof node.payload === 'string' ? replaceVariables(node.payload, variablesMap) : node.payload;
-};
-
-type _v1Utils = typeof utilsObj & {
-  getNodeType?: (node: BaseNode._v1.Node, variablesMap?: Readonly<AnyRecord>) => string;
-  getNodePayload?: (node: BaseNode._v1.Node, variablesMap: Readonly<AnyRecord>) => unknown;
-};
-
-export const _V1Handler: HandlerFactory<BaseNode._v1.Node, _v1Utils> = (utils) => ({
+export const _V1Handler: HandlerFactory<BaseNode._v1.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => node._v === 1,
   handle: (node, runtime, variables) => {
     const defaultPath = node.paths[node.defaultPath!]?.nextID || null;
@@ -53,10 +40,10 @@ export const _V1Handler: HandlerFactory<BaseNode._v1.Node, _v1Utils> = (utils) =
     }
 
     const variablesMap = variables.getState();
-    const type = utils.getNodeType ? utils.getNodeType(node, variablesMap) : getNodeType(node, variablesMap);
-    const payload = utils.getNodePayload
-      ? utils.getNodePayload(node, variablesMap)
-      : getNodePayload(node, variablesMap);
+    const type = replaceVariables(node.type, variablesMap);
+    const payload = object.deepMap(node.payload, (value) =>
+      typeof value === 'string' ? replaceVariables(value, variablesMap) : value
+    );
 
     runtime.trace.addTrace<BaseNode.Utils.BaseTraceFrame<unknown>>({
       type,
