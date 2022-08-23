@@ -12,8 +12,8 @@ export const ChannelActionHandler: HandlerFactory<BaseNode.ChannelAction.Node> =
     const _v1Node: BaseNode._v1.Node = {
       ...node,
       _v: 1,
-      type: node.data.name,
-      payload: node.data.payload,
+      type: BaseNode.NodeType.CHANNEL_ACTION,
+      payload: node.data,
     };
 
     return _v1Handler.handle(_v1Node, ...args);
