@@ -24,8 +24,9 @@ const handlerUtils = {
 export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof handlerUtils> = (utils) => ({
   canHandle: (node) => node.type === BaseNode.NodeType.CARD_V2,
   handle: (node, runtime, variables) => {
-    const defaultPath = node.nextId || null;
     const isStartingFromCardV2Step = runtime.getAction() === Action.REQUEST && !runtime.getRequest();
+    const defaultPath = node.nextId || null;
+    const { isBlocking } = node;
 
     if (runtime.getAction() === Action.RUNNING || isStartingFromCardV2Step) {
       const variablesMap = variables.getState();
@@ -34,17 +35,18 @@ export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof han
       if (typeof node.description === 'string') {
         const parsedDescription = replaceVariables(node.description, variablesMap);
         description = {
-          slate: [{ text: parsedDescription }],
           text: parsedDescription,
+          slate: [{ text: parsedDescription }],
         };
       } else {
-        const sanitizedVars = utils.sanitizeVariables(variables.getState());
-
-        const slate = utils.slateInjectVariables(node.description as BaseText.SlateTextValue, sanitizedVars);
+        const slateValue = utils.slateInjectVariables(
+          node.description as BaseText.SlateTextValue,
+          utils.sanitizeVariables(variables.getState())
+        );
 
         description = {
-          slate,
-          text: utils.slateToPlaintext(slate),
+          slate: slateValue,
+          text: utils.slateToPlaintext(slateValue),
         };
       }
 
@@ -65,29 +67,24 @@ export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof han
         },
       });
 
-      if (node.isBlocking) {
+      if (isBlocking) {
         utils.addNoReplyTimeoutIfExists(node, runtime);
 
-        // clean up no-matches and no-replies counters on new interaction
-        runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);
         runtime.storage.delete(StorageType.NO_REPLIES_COUNTER);
+        runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);
 
-        // quit cycleStack without ending session by stopping on itself
         return node.id;
       }
 
       return defaultPath;
     }
 
-    if (runtime.getAction() === Action.REQUEST && utils.commandHandler.canHandle(runtime)) {
+    if (runtime.getAction() === Action.REQUEST && utils.commandHandler.canHandle(runtime))
       return utils.commandHandler.handle(runtime, variables);
-    }
 
-    if (!node.isBlocking) return null;
+    if (!isBlocking) return null;
 
-    if (utils.noReplyHandler.canHandle(runtime)) {
-      return utils.noReplyHandler.handle(node, runtime, variables);
-    }
+    if (utils.noReplyHandler.canHandle(runtime)) return utils.noReplyHandler.handle(node, runtime, variables);
 
     return utils.noMatchHandler.handle(node, runtime, variables);
   },
