@@ -115,14 +115,11 @@ describe('Carousel handler', () => {
     describe('action is not response', () => {
       it('command can handle', () => {
         const output = 'next-id';
+        const commandHandler = { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns(output) };
+        const noReplyHandler = { canHandle: sinon.stub().returns(false) };
         const utils = {
-          commandHandler: {
-            canHandle: sinon.stub().returns(true),
-            handle: sinon.stub().returns(output),
-          },
-          noReplyHandler: {
-            canHandle: sinon.stub().returns(false),
-          },
+          commandHandler: () => commandHandler,
+          noReplyHandler: () => noReplyHandler,
         };
         const handler = CarouselHandler(utils as any);
 
@@ -141,20 +138,17 @@ describe('Carousel handler', () => {
         const variables = { var1: 'val1' };
         expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(output);
 
-        expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
-        expect(utils.commandHandler.handle.args).to.eql([[runtime, variables]]);
+        expect(commandHandler.canHandle.args).to.eql([[runtime]]);
+        expect(commandHandler.handle.args).to.eql([[runtime, variables]]);
       });
 
       it('noReply can handle', () => {
         const output = 'next-id';
+        const commandHandler = { canHandle: sinon.stub().returns(false) };
+        const noReplyHandler = { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns(output) };
         const utils = {
-          commandHandler: {
-            canHandle: sinon.stub().returns(false),
-          },
-          noReplyHandler: {
-            canHandle: sinon.stub().returns(true),
-            handle: sinon.stub().returns(output),
-          },
+          commandHandler: () => commandHandler,
+          noReplyHandler: () => noReplyHandler,
         };
         const handler = CarouselHandler(utils as any);
 
@@ -173,22 +167,19 @@ describe('Carousel handler', () => {
         const variables = { var1: 'val1' };
         expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(output);
 
-        expect(utils.noReplyHandler.handle.args).to.eql([[node, runtime, variables]]);
+        expect(noReplyHandler.handle.args).to.eql([[node, runtime, variables]]);
       });
     });
 
     describe('command can not handle', () => {
       it('nomatch handler', () => {
+        const commandHandler = { canHandle: sinon.stub().returns(false) };
+        const noReplyHandler = { canHandle: sinon.stub().returns(false) };
+        const noMatchHandler = { handle: sinon.stub().returns('no-match-path') };
         const utils = {
-          commandHandler: {
-            canHandle: sinon.stub().returns(false),
-          },
-          noReplyHandler: {
-            canHandle: sinon.stub().returns(false),
-          },
-          noMatchHandler: {
-            handle: sinon.stub().returns('no-match-path'),
-          },
+          commandHandler: () => commandHandler,
+          noReplyHandler: () => noReplyHandler,
+          noMatchHandler: () => noMatchHandler,
         };
         const handler = CarouselHandler(utils as any);
 
@@ -208,8 +199,8 @@ describe('Carousel handler', () => {
         const variables = { var1: 'val1' };
         expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('no-match-path');
 
-        expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
-        expect(utils.noMatchHandler.handle.args).to.eql([[node, runtime, variables]]);
+        expect(commandHandler.canHandle.args).to.eql([[runtime]]);
+        expect(noMatchHandler.handle.args).to.eql([[node, runtime, variables]]);
       });
     });
   });
@@ -310,14 +301,11 @@ describe('Carousel handler', () => {
     describe('action is not response', () => {
       it('command can handle', () => {
         const output = 'next-id';
+        const commandHandler = { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns(output) };
+        const noReplyHandler = { canHandle: sinon.stub().returns(false) };
         const utils = {
-          commandHandler: {
-            canHandle: sinon.stub().returns(true),
-            handle: sinon.stub().returns(output),
-          },
-          noReplyHandler: {
-            canHandle: sinon.stub().returns(false),
-          },
+          commandHandler: () => commandHandler,
+          noReplyHandler: () => noReplyHandler,
         };
         const handler = CarouselHandler(utils as any);
 
@@ -336,8 +324,8 @@ describe('Carousel handler', () => {
         const variables = { var1: 'val1' };
         expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(output);
 
-        expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
-        expect(utils.commandHandler.handle.args).to.eql([[runtime, variables]]);
+        expect(commandHandler.canHandle.args).to.eql([[runtime]]);
+        expect(commandHandler.handle.args).to.eql([[runtime, variables]]);
       });
     });
   });

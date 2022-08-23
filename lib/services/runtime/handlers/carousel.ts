@@ -1,18 +1,30 @@
 import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { deepVariableSubstitution, replaceVariables, sanitizeVariables } from '@voiceflow/common';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory } from '@/runtime';
 
 import { StorageType } from '../types';
 import { slateInjectVariables, slateToPlaintext } from '../utils';
+import { isGooglePlatform } from '../utils.google';
 import CommandHandler from './command/command';
+import { CommandAlexaHandler } from './command/command.alexa';
 import NoMatchHandler from './noMatch/noMatch';
+import { NoMatchAlexaHandler } from './noMatch/noMatch.alexa';
+import { NoMatchGoogleHandler } from './noMatch/noMatch.google';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from './noReply/noReply';
+import { NoReplyGoogleHandler } from './noReply/noReply.google';
 
 const handlerUtils = {
-  commandHandler: CommandHandler(),
-  noMatchHandler: NoMatchHandler(),
-  noReplyHandler: NoReplyHandler(),
+  commandHandler: (node: BaseNode.Carousel.Node) =>
+    node.platform === VoiceflowConstants.PlatformType.ALEXA ? CommandAlexaHandler() : CommandHandler(),
+  noMatchHandler: (node: BaseNode.Carousel.Node) => {
+    if (node.platform === VoiceflowConstants.PlatformType.ALEXA) return NoMatchAlexaHandler();
+    if (isGooglePlatform(node.platform as VoiceflowConstants.PlatformType)) return NoMatchGoogleHandler();
+    return NoMatchHandler();
+  },
+  noReplyHandler: (node: BaseNode.Carousel.Node) =>
+    isGooglePlatform(node.platform as VoiceflowConstants.PlatformType) ? NoReplyGoogleHandler() : NoReplyHandler(),
 
   slateToPlaintext,
   sanitizeVariables,
@@ -76,17 +88,17 @@ export const CarouselHandler: HandlerFactory<BaseNode.Carousel.Node, typeof hand
       return defaultPath;
     }
 
-    if (runtime.getAction() === Action.REQUEST && utils.commandHandler.canHandle(runtime)) {
-      return utils.commandHandler.handle(runtime, variables);
+    if (runtime.getAction() === Action.REQUEST && utils.commandHandler(node).canHandle(runtime)) {
+      return utils.commandHandler(node).handle(runtime, variables);
     }
 
     if (!node.isBlocking) return null;
 
-    if (utils.noReplyHandler.canHandle(runtime)) {
-      return utils.noReplyHandler.handle(node, runtime, variables);
+    if (utils.noReplyHandler(node).canHandle(runtime)) {
+      return utils.noReplyHandler(node).handle(node, runtime, variables);
     }
 
-    return utils.noMatchHandler.handle(node, runtime, variables);
+    return utils.noMatchHandler(node).handle(node, runtime, variables);
   },
 });
 
