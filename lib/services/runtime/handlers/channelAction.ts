@@ -1,4 +1,4 @@
-import { BaseNode } from '@voiceflow/base-types';
+import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 
 import { HandlerFactory } from '@/runtime';
 
@@ -12,7 +12,7 @@ export const ChannelActionHandler: HandlerFactory<BaseNode.ChannelAction.Node> =
     const _v1Node: BaseNode._v1.Node = {
       ...node,
       _v: 1,
-      type: BaseNode.NodeType.CHANNEL_ACTION,
+      type: BaseTrace.TraceType.CHANNEL_ACTION,
       payload: node.data,
     };
 
