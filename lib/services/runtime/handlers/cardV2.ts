@@ -1,4 +1,4 @@
-import { BaseNode, BaseText, BaseTrace } from '@voiceflow/base-types';
+import { AnyRecord, BaseNode, BaseText, BaseTrace } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 
@@ -21,9 +21,40 @@ const handlerUtils = {
   addNoReplyTimeoutIfExists,
 };
 
+const getDescription = (
+  variablesMap: Readonly<AnyRecord>,
+  node: VoiceflowNode.CardV2.Node,
+  slateToPlaintext: (content?: readonly BaseText.Descendant[]) => string,
+  slateInjectVariables: (
+    slateValue: BaseText.SlateTextValue,
+    variables: Record<string, unknown>
+  ) => BaseText.SlateTextValue,
+  sanitizeVariables: (variables: Record<string, unknown>) => Record<string, unknown>
+) => {
+  let description: string | { slate: BaseText.SlateTextValue; text: string };
+
+  if (typeof node.description === 'string') {
+    const parsedDescription = replaceVariables(node.description, variablesMap);
+    description = {
+      text: parsedDescription,
+      slate: [{ text: parsedDescription }],
+    };
+  } else {
+    const slateValue = slateInjectVariables(
+      node.description as BaseText.SlateTextValue,
+      sanitizeVariables(variablesMap)
+    );
+    description = {
+      slate: slateValue,
+      text: slateToPlaintext(slateValue),
+    };
+  }
+  return description;
+};
+
 export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof handlerUtils> = (utils) => ({
   canHandle: (node) => node.type === BaseNode.NodeType.CARD_V2,
-  // eslint-disable-next-line sonarjs/cognitive-complexity
+
   handle: (node, runtime, variables) => {
     const isStartingFromCardV2Step = runtime.getAction() === Action.REQUEST && !runtime.getRequest();
     const defaultPath = node.nextId || null;
@@ -31,25 +62,13 @@ export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof han
 
     if (runtime.getAction() === Action.RUNNING || isStartingFromCardV2Step) {
       const variablesMap = variables.getState();
-      let description: string | { slate: BaseText.SlateTextValue; text: string };
-
-      if (typeof node.description === 'string') {
-        const parsedDescription = replaceVariables(node.description, variablesMap);
-        description = {
-          text: parsedDescription,
-          slate: [{ text: parsedDescription }],
-        };
-      } else {
-        const slateValue = utils.slateInjectVariables(
-          node.description as BaseText.SlateTextValue,
-          utils.sanitizeVariables(variables.getState())
-        );
-
-        description = {
-          slate: slateValue,
-          text: utils.slateToPlaintext(slateValue),
-        };
-      }
+      const description = getDescription(
+        variablesMap,
+        node,
+        utils.slateToPlaintext,
+        utils.slateInjectVariables,
+        utils.sanitizeVariables
+      );
 
       const title = replaceVariables(node.title, variablesMap);
 
