@@ -23,6 +23,7 @@ const handlerUtils = {
 
 export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof handlerUtils> = (utils) => ({
   canHandle: (node) => node.type === BaseNode.NodeType.CARD_V2,
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (node, runtime, variables) => {
     const isStartingFromCardV2Step = runtime.getAction() === Action.REQUEST && !runtime.getRequest();
     const defaultPath = node.nextId || null;
@@ -57,15 +58,17 @@ export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof han
         name: replaceVariables(button.name, variablesMap),
       }));
 
-      runtime.trace.addTrace<BaseNode.CardV2.TraceFrame>({
-        type: BaseTrace.TraceType.CARD_V2,
-        payload: {
-          imageUrl: node.imageUrl,
-          description,
-          buttons,
-          title,
-        },
-      });
+      if (title || buttons.length || description.text || node.imageUrl) {
+        runtime.trace.addTrace<BaseNode.CardV2.TraceFrame>({
+          type: BaseTrace.TraceType.CARD_V2,
+          payload: {
+            imageUrl: node.imageUrl,
+            description,
+            buttons,
+            title,
+          },
+        });
+      }
 
       if (isBlocking) {
         utils.addNoReplyTimeoutIfExists(node, runtime);
