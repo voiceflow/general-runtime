@@ -13,9 +13,9 @@ const VisualHandler: HandlerFactory<BaseNode.Visual.Node, typeof handlerUtils> =
   handle: (node, runtime, variables) => {
     runtime.trace.debug('__visual__ - entered', BaseNode.NodeType.VISUAL);
 
-    if ('imageURL' in node.data) {
+    if (node.data && 'imageURL' in node.data) {
       node.data.imageURL = utils.replaceVariables(node.data.imageURL, variables.getState());
-    } else if ('image' in node.data) {
+    } else if (node.data && 'image' in node.data) {
       node.data.image = utils.replaceVariables(node.data.image, variables.getState());
     }
 
