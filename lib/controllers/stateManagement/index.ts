@@ -1,6 +1,7 @@
 import { Validator } from '@voiceflow/backend-utils';
-import { RuntimeLogs } from '@voiceflow/base-types';
+import { BaseRequest, RuntimeLogs } from '@voiceflow/base-types';
 
+import { RuntimeRequest } from '@/lib/services/runtime/types';
 import { SharedValidations } from '@/lib/validations';
 import { State } from '@/runtime';
 import { Request } from '@/types';
@@ -48,18 +49,24 @@ class StateManagementController extends AbstractController {
     HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID,
     HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
   })
-  async publicInteract(req: Request<{ userID: string }, any, { projectID: string; versionID: string }>) {
+  async publicInteract(
+    req: Request<
+      { userID: string },
+      { action?: RuntimeRequest; config?: BaseRequest.RequestConfig },
+      { projectID: string; versionID: string }
+    >
+  ) {
+    // only pass in select properties to avoid any potential security issues
     const {
       headers: { projectID, versionID },
       params: { userID },
-      body: { action },
+      body: { action, config: { tts, stopAll, stripSSML, stopTypes, selfDelegate, excludeTypes } = {} },
     } = req;
 
-    // only pass in select properties to avoid any potential security issues
     return this.services.stateManagement.interact({
       headers: { projectID, versionID },
       params: { userID },
-      body: { action },
+      body: { action, config: { tts, stopAll, stripSSML, stopTypes, selfDelegate, excludeTypes } },
       query: {},
     });
   }
