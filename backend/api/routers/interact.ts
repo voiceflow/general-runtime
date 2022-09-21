@@ -4,6 +4,7 @@ import express from 'express';
 import { BODY_PARSER_SIZE_LIMIT } from '@/backend/constants';
 import { ControllerMap, MiddlewareMap } from '@/lib';
 
+// stateless API routes
 export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   const router = express.Router();
 

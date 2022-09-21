@@ -38,10 +38,30 @@ class StateManagementController extends AbstractController {
       { userID: string },
       any,
       { projectID: string; authorization: string; versionID: string },
-      { verbose?: boolean; logs: RuntimeLogs.LogLevel }
+      { verbose?: boolean; logs?: RuntimeLogs.LogLevel }
     >
   ) {
     return this.services.stateManagement.interact(req);
+  }
+
+  @validate({
+    HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID,
+    HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
+  })
+  async publicInteract(req: Request<{ userID: string }, any, { projectID: string; versionID: string }>) {
+    const {
+      headers: { projectID, versionID },
+      params: { userID },
+      body: { action },
+    } = req;
+
+    // only pass in select properties to avoid any potential security issues
+    return this.services.stateManagement.interact({
+      headers: { projectID, versionID },
+      params: { userID },
+      body: { action },
+      query: {},
+    });
   }
 
   @validate({ HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID })

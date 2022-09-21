@@ -15,6 +15,7 @@ const VALIDATIONS = {
   },
   PARAMS: {
     VERSION_ID: Validator.param('versionID').isString().optional(),
+    PROJECT_ID: Validator.param('projectID').isString(),
   },
 };
 class Project extends AbstractMiddleware {
@@ -127,6 +128,47 @@ class Project extends AbstractMiddleware {
     } catch (err) {
       return next(err instanceof VError ? err : new VError('Unknown error', VError.HTTP_STATUS.INTERNAL_SERVER_ERROR));
     }
+  }
+
+  @validate({
+    PROJECT_ID: VALIDATIONS.PARAMS.PROJECT_ID,
+    HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
+  })
+  async resolvePublicProjectID(
+    req: Request<{ projectID: string }, any, { versionID?: string }>,
+    _: Response,
+    next: NextFunction
+  ): Promise<void> {
+    if (!req.params.projectID) {
+      throw new VError('Missing projectID, could not resolve project');
+    }
+
+    // this should call remote data api
+    const api = await this.services.dataAPI.get();
+
+    if (!api) {
+      throw new VError('no database connection', VError.HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    }
+
+    const project = await api?.getProject(req.params.projectID).catch(() => {
+      throw new VError('no access to project', VError.HTTP_STATUS.UNAUTHORIZED);
+    });
+
+    if (project.apiPrivacy !== BaseModels.Project.Privacy.PUBLIC) {
+      throw new VError('no access to project', VError.HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    req.headers.projectID = req.params.projectID;
+
+    if (req.headers.versionID === VersionTag.PRODUCTION) {
+      req.headers.versionID = project.liveVersion;
+    } else if (req.headers.versionID === VersionTag.DEVELOPMENT) {
+      req.headers.versionID = project.devVersion;
+    } else if (!req.headers.versionID) {
+      req.headers.versionID = project.devVersion;
+    }
+
+    return next();
   }
 }
 

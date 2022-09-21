@@ -20,7 +20,7 @@ const utils = {
 
 @injectServices({ utils })
 class Interact extends AbstractManager<{ utils: typeof utils }> {
-  async state(versionID: string, authorization: string): Promise<State> {
+  async state(versionID: string, authorization?: string): Promise<State> {
     const api = await this.services.dataAPI.get(authorization);
     const version = await api.getVersion(versionID);
     return this.services.state.generate(version);
@@ -29,7 +29,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
   async handler(req: {
     params: { userID?: string };
     body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
-    query: { locale?: string; logs: RuntimeLogs.LogLevel };
+    query: { locale?: string; logs?: RuntimeLogs.LogLevel };
     headers: {
       authorization?: string;
       origin?: string;
@@ -74,7 +74,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       userID,
       request: action ?? request,
       versionID,
-      maxLogLevel,
+      maxLogLevel: maxLogLevel ?? RuntimeLogs.LogLevel.OFF,
     };
 
     const turn = new this.services.utils.TurnBuilder<Context>(stateManager);
