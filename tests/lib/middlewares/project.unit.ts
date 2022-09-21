@@ -332,4 +332,146 @@ describe('project middleware unit tests', () => {
       expect(next.args[0][0]).to.be.instanceOf(VError);
     });
   });
+
+  describe('resolvePublicProjectID', () => {
+    it('works', async () => {
+      // arrange
+      const projectID = 'some-project-id';
+      const liveVersion = 'live-version';
+      const devVersion = 'dev-version';
+      const apiPrivacy = 'public';
+
+      const api = {
+        getProject: sinon.stub().resolves({ liveVersion, devVersion, apiPrivacy }),
+      };
+      const services = {
+        dataAPI: { get: sinon.stub().resolves(api) },
+      };
+      const middleware = new Project(services as any, {} as any);
+
+      const req = getMockRequest({
+        params: {
+          projectID,
+        },
+        headers: {},
+      });
+      const res = getMockResponse();
+      const next = getMockNext();
+
+      // act
+      await middleware.resolvePublicProjectID(req, res, next);
+
+      // assert
+      expect(services.dataAPI.get.args[0].length).to.equal(0);
+      expect(api.getProject.args[0][0]).to.eql(projectID);
+      expect(next.args[0].length).to.equal(0);
+      expect(req.headers.projectID).to.equal(projectID);
+      expect(req.headers.versionID).to.equal(devVersion);
+    });
+
+    it('resolves production version', async () => {
+      // arrange
+      const projectID = 'some-project-id';
+      const liveVersion = 'live-version';
+      const devVersion = 'dev-version';
+      const apiPrivacy = 'public';
+
+      const api = {
+        getProject: sinon.stub().resolves({ liveVersion, devVersion, apiPrivacy }),
+      };
+      const services = {
+        dataAPI: { get: sinon.stub().resolves(api) },
+      };
+      const middleware = new Project(services as any, {} as any);
+
+      const req = getMockRequest({
+        params: {
+          projectID,
+        },
+        headers: {
+          versionID: 'production',
+        },
+      });
+      const res = getMockResponse();
+      const next = getMockNext();
+
+      // act
+      await middleware.resolvePublicProjectID(req, res, next);
+
+      // assert
+      expect(services.dataAPI.get.args[0].length).to.equal(0);
+      expect(api.getProject.args[0][0]).to.eql(projectID);
+      expect(next.args[0].length).to.equal(0);
+      expect(req.headers.projectID).to.equal(projectID);
+      expect(req.headers.versionID).to.equal(liveVersion);
+    });
+
+    it('custom version ID', async () => {
+      // arrange
+      const projectID = 'some-project-id';
+      const customVersionID = 'some-version-id';
+      const apiPrivacy = 'public';
+
+      const api = {
+        getProject: sinon.stub().resolves({ apiPrivacy }),
+      };
+      const services = {
+        dataAPI: { get: sinon.stub().resolves(api) },
+      };
+      const middleware = new Project(services as any, {} as any);
+
+      const req = getMockRequest({
+        params: {
+          projectID,
+        },
+        headers: {
+          versionID: customVersionID,
+        },
+      });
+      const res = getMockResponse();
+      const next = getMockNext();
+
+      // act
+      await middleware.resolvePublicProjectID(req, res, next);
+
+      // assert
+      expect(services.dataAPI.get.args[0].length).to.equal(0);
+      expect(api.getProject.args[0][0]).to.eql(projectID);
+      expect(next.args[0].length).to.equal(0);
+      expect(req.headers.projectID).to.equal(projectID);
+      expect(req.headers.versionID).to.equal(customVersionID);
+    });
+
+    it('reject if not public', async () => {
+      // arrange
+      const projectID = 'some-project-id';
+      const customVersionID = 'some-version-id';
+      const apiPrivacy = null;
+
+      const api = {
+        getProject: sinon.stub().resolves({ apiPrivacy }),
+      };
+      const services = {
+        dataAPI: { get: sinon.stub().resolves(api) },
+      };
+      const middleware = new Project(services as any, {} as any);
+
+      const req = getMockRequest({
+        params: {
+          projectID,
+        },
+        headers: {
+          versionID: customVersionID,
+        },
+      });
+      const res = getMockResponse();
+      const next = getMockNext();
+
+      // act
+      await expect(middleware.resolvePublicProjectID(req, res, next)).to.be.rejectedWith(VError);
+
+      // assert
+      expect(next.callCount).to.equal(0);
+    });
+  });
 });
