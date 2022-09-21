@@ -8,12 +8,13 @@ import { Request } from '@/types';
 
 import { customAJV, validate } from '../../utils';
 import { AbstractController } from '../utils';
-import { UpdateSchema } from './requests';
+import { PublicInteractSchema, UpdateSchema } from './requests';
 
 const { body, header, query } = Validator;
 const VALIDATIONS = {
   BODY: {
     UPDATE_SESSION: body().custom(customAJV(UpdateSchema)),
+    PUBLIC_INTERACT: body().custom(customAJV(PublicInteractSchema)),
     OBJECT: body().exists(),
   },
   HEADERS: {
@@ -48,6 +49,7 @@ class StateManagementController extends AbstractController {
   @validate({
     HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID,
     HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
+    BODY_PUBLIC_INTERACT: VALIDATIONS.BODY.PUBLIC_INTERACT,
   })
   async publicInteract(
     req: Request<
@@ -56,18 +58,11 @@ class StateManagementController extends AbstractController {
       { projectID: string; versionID: string }
     >
   ) {
-    // only pass in select properties to avoid any potential security issues
-    const {
-      headers: { projectID, versionID },
-      params: { userID },
-      body: { action, config: { tts, stopAll, stripSSML, stopTypes, selfDelegate, excludeTypes } = {} },
-    } = req;
-
     return this.services.stateManagement.interact({
-      headers: { projectID, versionID },
-      params: { userID },
-      body: { action, config: { tts, stopAll, stripSSML, stopTypes, selfDelegate, excludeTypes } },
-      query: {},
+      ...req,
+      // only pass in select properties to avoid any potential security issues
+      query: {}, // no logs allowed
+      headers: { projectID: req.headers.projectID, versionID: req.headers.versionID },
     });
   }
 

@@ -1,4 +1,4 @@
-import { ArrayField, ObjectField, StringField } from '@/lib/controllers/schemaTypes';
+import { ArrayField, BooleanField, ObjectField, StringField } from '@/lib/controllers/schemaTypes';
 
 const StackFrame = {
   type: 'object',
@@ -21,5 +21,27 @@ export const UpdateSchema = {
     stack: ArrayField('stack', StackFrame),
     storage: ObjectField('storage'),
     variables: ObjectField('variables'),
+  },
+};
+
+export const ConfigSchema = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    tts: BooleanField('tts'),
+    stopAll: BooleanField('stopAll'),
+    stripSSML: BooleanField('stripSSML'),
+    stopTypes: ArrayField('stopTypes', StringField('stopType')),
+    selfDelegate: BooleanField('selfDelegate'),
+    excludeTypes: ArrayField('excludeTypes', StringField('excludeType')),
+  },
+};
+
+export const PublicInteractSchema = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    action: ObjectField('action'),
+    config: ConfigSchema,
   },
 };

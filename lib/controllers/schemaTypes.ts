@@ -1,3 +1,8 @@
+export const BooleanField = (field: string) => ({
+  type: 'boolean',
+  description: `${field} must be an boolean and is required`,
+});
+
 export const StringField = (field: string) => ({
   type: 'string',
   description: `${field} must be a string and is required`,
