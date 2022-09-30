@@ -64,7 +64,7 @@ describe('Handlers api utils unit tests', () => {
 
   describe('createRequest', () => {
     it('works with GET requests', async () => {
-      const request = createRequest({
+      const request = await createRequest({
         url: 'https://example.com/?a=1',
         method: BaseNode.Api.APIMethod.GET,
         bodyInputType: BaseNode.Api.APIBodyType.RAW_INPUT,
@@ -83,7 +83,7 @@ describe('Handlers api utils unit tests', () => {
       expect(request.headers).to.eql(new Headers({ 'My-Header': 'My-Value' }));
     });
     it('works with POST requests with raw body', async () => {
-      const request = createRequest({
+      const request = await createRequest({
         url: 'https://example.com/?a=1',
         method: BaseNode.Api.APIMethod.POST,
         bodyInputType: BaseNode.Api.APIBodyType.RAW_INPUT,
@@ -101,7 +101,7 @@ describe('Handlers api utils unit tests', () => {
       expect(request.headers).to.eql(new Headers({ 'My-Header': 'My-Value' }));
     });
     it('works with POST requests with URL encoded body', async () => {
-      const request = createRequest({
+      const request = await createRequest({
         url: 'https://example.com/?a=1',
         method: BaseNode.Api.APIMethod.POST,
         bodyInputType: BaseNode.Api.APIBodyType.URL_ENCODED,
@@ -126,7 +126,7 @@ describe('Handlers api utils unit tests', () => {
         new Headers({ 'My-Header': 'My-Value', 'Content-Type': 'application/x-www-form-urlencoded' })
       );
     });
-    it('works with POST requests with form data body', () => {
+    it('works with POST requests with form data body', async () => {
       // Make boundary generation 100% deterministic
       // @ts-expect-error The form-data types are wrong
       FormData.prototype._generateBoundary = function () {
@@ -134,7 +134,7 @@ describe('Handlers api utils unit tests', () => {
         this._boundary = '--------------------------aaaaaaaaaaaaaaaaaaaaaaaa';
       };
 
-      const request = createRequest({
+      const request = await createRequest({
         url: 'https://example.com/?a=1',
         method: BaseNode.Api.APIMethod.POST,
         bodyInputType: BaseNode.Api.APIBodyType.FORM_DATA,

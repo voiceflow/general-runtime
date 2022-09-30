@@ -11,23 +11,28 @@ import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
 const ACTION_DATA = { foo: 'bar' };
 const AGENT_ACTION_DATA = { foo: 'bar', headers: [{ key: USER_AGENT_KEY, val: USER_AGENT }] };
+const config = {
+  requestTimeoutMs: 20_000,
+  maxResponseBodySizeBytes: 1_000_000,
+  maxRequestBodySizeBytes: 1_000_000,
+};
 
 describe('API Handler unit tests', () => {
   describe('canHandle', () => {
     it('false', () => {
-      const apiHandler = APIHandler();
+      const apiHandler = APIHandler(config);
       expect(apiHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
     });
 
     it('false with type integrations', () => {
-      const apiHandler = APIHandler();
+      const apiHandler = APIHandler(config);
       expect(apiHandler.canHandle({ type: 'integrations' } as any, null as any, null as any, null as any)).to.eql(
         false
       );
     });
 
     it('true', () => {
-      const apiHandler = APIHandler();
+      const apiHandler = APIHandler(config);
       expect(
         apiHandler.canHandle(
           { type: 'integrations', selected_integration: BaseNode.Utils.IntegrationType.CUSTOM_API } as any,
@@ -79,7 +84,7 @@ describe('API Handler unit tests', () => {
     });
 
     it('calls local', async () => {
-      const apiHandler = APIHandler();
+      const apiHandler = APIHandler(config);
       const resultVariables = {
         data: {
           variables: { foo: 'bar' },
@@ -109,12 +114,12 @@ describe('API Handler unit tests', () => {
 
       expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
       expect(runtime.trace.debug.args).to.eql([['API call successfully triggered', BaseNode.NodeType.API]]);
-      expect(makeAPICallStub.args).to.eql([[AGENT_ACTION_DATA, runtime, {}]]);
+      expect(makeAPICallStub.args).to.eql([[AGENT_ACTION_DATA, runtime, config]]);
       expect(variables.merge.args).to.eql([[resultVariables.data.variables]]);
     });
 
     it('error status without fail_id', async () => {
-      const apiHandler = APIHandler();
+      const apiHandler = APIHandler(config);
       const resultVariables = {
         data: {
           variables: {},
@@ -144,7 +149,7 @@ describe('API Handler unit tests', () => {
     });
 
     it('error status with fail_id', async () => {
-      const apiHandler = APIHandler();
+      const apiHandler = APIHandler(config);
       const resultVariables = {
         data: {
           variables: {},
@@ -176,7 +181,7 @@ describe('API Handler unit tests', () => {
 
     describe('fails', () => {
       it('without fail_id', async () => {
-        const apiHandler = APIHandler();
+        const apiHandler = APIHandler(config);
         const axiosErr = { response: { data: 'http call error' } };
         const makeAPICallStub = sinon.stub(APIUtils, 'makeAPICall').throws(axiosErr);
 
@@ -188,11 +193,11 @@ describe('API Handler unit tests', () => {
         expect(runtime.trace.debug.args).to.eql([
           [`API call failed - Error: \n${JSON.stringify(axiosErr)}`, BaseNode.NodeType.API],
         ]);
-        expect(makeAPICallStub.args).to.eql([[AGENT_ACTION_DATA, runtime, {}]]);
+        expect(makeAPICallStub.args).to.eql([[AGENT_ACTION_DATA, runtime, config]]);
       });
 
       it('with fail_id', async () => {
-        const apiHandler = APIHandler();
+        const apiHandler = APIHandler(config);
         const makeAPICallStub = sinon.stub(APIUtils, 'makeAPICall').throws('error5');
 
         const node = {
@@ -207,7 +212,7 @@ describe('API Handler unit tests', () => {
         expect(await apiHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
           node.fail_id
         );
-        expect(makeAPICallStub.args).to.eql([[AGENT_ACTION_DATA, runtime, {}]]);
+        expect(makeAPICallStub.args).to.eql([[AGENT_ACTION_DATA, runtime, config]]);
         expect(runtime.trace.debug.args).to.eql([
           ['API call failed - Error: \n{"name":"error5"}', BaseNode.NodeType.API],
         ]);
