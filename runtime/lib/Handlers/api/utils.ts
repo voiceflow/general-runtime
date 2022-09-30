@@ -3,14 +3,16 @@ import { object } from '@voiceflow/common';
 import VError from '@voiceflow/verror';
 import DNS from 'dns/promises';
 import FormData from 'form-data';
+import { Agent } from 'https';
 import ipRangeCheck from 'ip-range-check';
 import safeJSONStringify from 'json-stringify-safe';
-import _merge from 'lodash/merge';
 import fetch, { BodyInit, Headers, Request, Response } from 'node-fetch';
 import { setTimeout as sleep } from 'timers/promises';
 import validator from 'validator';
 
 import Runtime from '@/runtime/lib/Runtime';
+
+import { createS3Client, readFileFromS3 } from '../../AWSClient';
 
 export type APINodeData = BaseNode.Api.NodeData['action_data'];
 const PROHIBITED_IP_RANGES = [
@@ -113,37 +115,34 @@ const validateIP = async (hostname: string) => {
 };
 
 export interface ResponseConfig {
-  requestTimeoutMs?: number;
-  maxResponseBodySizeBytes?: number;
-  maxRequestBodySizeBytes?: number;
+  requestTimeoutMs: number;
+  maxResponseBodySizeBytes: number;
+  maxRequestBodySizeBytes: number;
+  awsAccessKey?: string;
+  awsSecretAccessKey?: string;
+  awsRegion?: string;
+  s3TLSBucket?: string;
 }
-
-const DEFAULT_RESPONSE_CONFIG: Readonly<Required<ResponseConfig>> = {
-  requestTimeoutMs: 20_000,
-  maxResponseBodySizeBytes: 1_000_000,
-  maxRequestBodySizeBytes: 1_000_000,
-};
 
 const doFetch = async (
   config: ResponseConfig,
   nodeData: BaseNode.Api.NodeData['action_data']
 ): Promise<{ response: Response; requestOptions: Request }> => {
-  const actualConfig = _merge(DEFAULT_RESPONSE_CONFIG, config);
-  const requestOptions = createRequest(nodeData);
+  const requestOptions = await createRequest(nodeData, config);
 
-  if (requestOptions.size > actualConfig.maxRequestBodySizeBytes) {
+  if (requestOptions.size > config.maxRequestBodySizeBytes) {
     throw new Error(
-      `Request body size of ${requestOptions.size} bytes exceeds max request body size of ${actualConfig.maxRequestBodySizeBytes} bytes`
+      `Request body size of ${requestOptions.size} bytes exceeds max request body size of ${config.maxRequestBodySizeBytes} bytes`
     );
   }
 
   const abortController = new AbortController();
-  const abortTimeout = setTimeout(() => abortController.abort(), actualConfig.requestTimeoutMs);
+  const abortTimeout = setTimeout(() => abortController.abort(), config.requestTimeoutMs);
 
   try {
     const response = await fetch(requestOptions, {
       signal: abortController.signal as any,
-      size: actualConfig.maxResponseBodySizeBytes,
+      size: config.maxResponseBodySizeBytes,
     });
 
     return { response, requestOptions };
@@ -189,6 +188,25 @@ export interface APICallResult {
   responseJSON: any;
 }
 
+export const callAPI = async (nodeData: APINodeData, config: ResponseConfig): Promise<APICallResult> => {
+  const { response, requestOptions } = await doFetch(config, nodeData);
+
+  const rawResponseJSON = await response
+    .json()
+    // Ignore JSON parsing errors and default to an empty object
+    // This is a kinda hacky way to support non-JSON responses without much effort
+    .catch(() => ({}));
+
+  const { newVariables, responseJSON } = transformResponseBody(rawResponseJSON, response, nodeData);
+
+  return {
+    variables: newVariables,
+    request: requestOptions,
+    response,
+    responseJSON,
+  };
+};
+
 export const makeAPICall = async (
   nodeData: APINodeData,
   runtime: Runtime,
@@ -209,25 +227,41 @@ export const makeAPICall = async (
     );
   }
 
-  const { response, requestOptions } = await doFetch(config, nodeData);
-
-  const rawResponseJSON = await response
-    .json()
-    // Ignore JSON parsing errors and default to an empty object
-    // This is a kinda hacky way to support non-JSON responses without much effort
-    .catch(() => ({}));
-
-  const { newVariables, responseJSON } = transformResponseBody(rawResponseJSON, response, nodeData);
-
-  return {
-    variables: newVariables,
-    request: requestOptions,
-    response,
-    responseJSON,
-  };
+  return callAPI(nodeData, config);
 };
 
-export const createRequest = (actionData: BaseNode.Api.NodeData['action_data']): Request => {
+const createAgent = async (
+  config: ResponseConfig,
+  tls: BaseNode.Api.NodeData['action_data']['tls']
+): Promise<Agent | undefined> => {
+  if (
+    !tls?.cert ||
+    !tls?.key ||
+    !config.s3TLSBucket ||
+    !config.awsAccessKey ||
+    !config.awsSecretAccessKey ||
+    !config.awsRegion
+  )
+    return;
+
+  const s3Client = createS3Client(config);
+
+  if (!s3Client) return;
+  const [cert, key] = await Promise.all([
+    readFileFromS3(s3Client, config.s3TLSBucket, tls?.cert),
+    readFileFromS3(s3Client, config.s3TLSBucket, tls?.key),
+  ]);
+
+  if (!cert || !key) return;
+
+  // eslint-disable-next-line consistent-return
+  return new Agent({ cert, key });
+};
+
+export const createRequest = async (
+  actionData: BaseNode.Api.NodeData['action_data'],
+  config: ResponseConfig
+): Promise<Request> => {
   let headers = new Headers(
     actionData.headers
       // Filter out invalid headers - avoid an Error: " is not a legal HTTP header name"
@@ -270,5 +304,6 @@ export const createRequest = (actionData: BaseNode.Api.NodeData['action_data']):
     method: actionData.method,
     body,
     headers,
+    agent: await createAgent(config, actionData.tls),
   });
 };

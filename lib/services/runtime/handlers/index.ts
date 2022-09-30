@@ -1,3 +1,4 @@
+import { createResponseConfig } from '@/lib/utils';
 import {
   APIHandler,
   CodeHandler,
@@ -32,13 +33,7 @@ import VisualHandler from './visual';
 
 const _v1Handler = _V1Handler();
 
-export default ({
-  API_REQUEST_TIMEOUT_MS,
-  API_MAX_CONTENT_LENGTH_BYTES,
-  API_MAX_BODY_LENGTH_BYTES,
-  INTEGRATIONS_HANDLER_ENDPOINT,
-  CODE_HANDLER_ENDPOINT,
-}: Config) => [
+export default (config: Config) => [
   ...StateHandlers(),
   SpeakHandler(),
   GoToHandler(),
@@ -47,17 +42,13 @@ export default ({
   CaptureHandler(),
   ResetHandler(),
   StreamHandler(),
-  CodeHandler({ endpoint: CODE_HANDLER_ENDPOINT }),
+  CodeHandler({ endpoint: config.CODE_HANDLER_ENDPOINT }),
   EndHandler(),
   FlowHandler(),
   IfHandler(),
   IfV2Handler({ _v1: _v1Handler }),
-  APIHandler({
-    requestTimeoutMs: API_REQUEST_TIMEOUT_MS ?? undefined,
-    maxResponseBodySizeBytes: API_MAX_CONTENT_LENGTH_BYTES ?? undefined,
-    maxRequestBodySizeBytes: API_MAX_BODY_LENGTH_BYTES ?? undefined,
-  }),
-  IntegrationsHandler({ integrationsEndpoint: INTEGRATIONS_HANDLER_ENDPOINT }),
+  APIHandler(createResponseConfig(config)),
+  IntegrationsHandler({ integrationsEndpoint: config.INTEGRATIONS_HANDLER_ENDPOINT }),
   RandomHandler(),
   SetHandler(),
   SetV2Handler(),

@@ -25,6 +25,7 @@ const CONFIG: Config = {
 
   AWS_ENDPOINT: getOptionalProcessEnv('AWS_ENDPOINT'),
   DYNAMO_ENDPOINT: getOptionalProcessEnv('DYNAMO_ENDPOINT'),
+  S3_TLS_BUCKET: getRequiredProcessEnv('S3_TLS_BUCKET'),
 
   // code block
   CODE_HANDLER_ENDPOINT: getOptionalProcessEnv('CODE_HANDLER_ENDPOINT'),

@@ -24,6 +24,8 @@ export interface Config extends RateLimitConfig {
 
   DYNAMO_ENDPOINT: string | null;
 
+  S3_TLS_BUCKET: string | null;
+
   CODE_HANDLER_ENDPOINT: string | null;
   INTEGRATIONS_HANDLER_ENDPOINT: string;
   API_REQUEST_TIMEOUT_MS: number | null;
