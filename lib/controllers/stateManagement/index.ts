@@ -58,12 +58,14 @@ class StateManagementController extends AbstractController {
       { projectID: string; versionID: string }
     >
   ) {
-    return this.services.stateManagement.interact({
+    const trace = await this.services.stateManagement.interact({
       ...req,
       // only pass in select properties to avoid any potential security issues
       query: {}, // no logs allowed
       headers: { projectID: req.headers.projectID, versionID: req.headers.versionID },
     });
+
+    return { trace };
   }
 
   @validate({ HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID })
