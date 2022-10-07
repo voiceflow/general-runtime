@@ -1,5 +1,4 @@
 import {
-  APIHandler,
   CodeHandler,
   EndHandler,
   FlowHandler,
@@ -17,6 +16,7 @@ import {
 import { Config } from '@/types';
 
 import _V1Handler from './_v1';
+import APIHandler from './api';
 import CaptureHandler from './capture';
 import CaptureV2Handler from './captureV2';
 import CardV2Handler from './cardV2';
@@ -46,15 +46,7 @@ export default (config: Config) => [
   FlowHandler(),
   IfHandler(),
   IfV2Handler({ _v1: _v1Handler }),
-  APIHandler({
-    requestTimeoutMs: config.API_REQUEST_TIMEOUT_MS ?? 20_000,
-    maxResponseBodySizeBytes: config.API_MAX_CONTENT_LENGTH_BYTES ?? 1_000_000,
-    maxRequestBodySizeBytes: config.API_MAX_BODY_LENGTH_BYTES ?? 1_000_000,
-    awsAccessKey: config.AWS_ACCESS_KEY_ID ?? undefined,
-    awsSecretAccessKey: config.AWS_SECRET_ACCESS_KEY ?? undefined,
-    awsRegion: config.AWS_REGION ?? undefined,
-    s3TLSBucket: config.S3_TLS_BUCKET ?? undefined,
-  }),
+  APIHandler(config),
   IntegrationsHandler({ integrationsEndpoint: config.INTEGRATIONS_HANDLER_ENDPOINT }),
   RandomHandler(),
   SetHandler(),
