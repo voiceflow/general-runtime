@@ -1,4 +1,3 @@
-import { createResponseConfig } from '@/lib/utils';
 import {
   APIHandler,
   CodeHandler,
@@ -47,7 +46,15 @@ export default (config: Config) => [
   FlowHandler(),
   IfHandler(),
   IfV2Handler({ _v1: _v1Handler }),
-  APIHandler(createResponseConfig(config)),
+  APIHandler({
+    requestTimeoutMs: config.API_REQUEST_TIMEOUT_MS ?? 20_000,
+    maxResponseBodySizeBytes: config.API_MAX_CONTENT_LENGTH_BYTES ?? 1_000_000,
+    maxRequestBodySizeBytes: config.API_MAX_BODY_LENGTH_BYTES ?? 1_000_000,
+    awsAccessKey: config.AWS_ACCESS_KEY_ID ?? undefined,
+    awsSecretAccessKey: config.AWS_SECRET_ACCESS_KEY ?? undefined,
+    awsRegion: config.AWS_REGION ?? undefined,
+    s3TLSBucket: config.S3_TLS_BUCKET ?? undefined,
+  }),
   IntegrationsHandler({ integrationsEndpoint: config.INTEGRATIONS_HANDLER_ENDPOINT }),
   RandomHandler(),
   SetHandler(),
