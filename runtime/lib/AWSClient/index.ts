@@ -9,9 +9,8 @@ interface S3ClientOptions {
 }
 
 export function createS3Client({ awsAccessKey, awsSecretAccessKey, awsRegion }: S3ClientOptions): S3 | undefined {
-  if (!awsAccessKey || !awsSecretAccessKey || !awsRegion) return;
+  if (!awsAccessKey || !awsSecretAccessKey || !awsRegion) return undefined;
 
-  // eslint-disable-next-line consistent-return
   return new S3({
     credentials: {
       accessKeyId: awsAccessKey,
