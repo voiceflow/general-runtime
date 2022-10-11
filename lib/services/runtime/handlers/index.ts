@@ -1,6 +1,4 @@
-import { createResponseConfig } from '@/lib/utils';
 import {
-  APIHandler,
   CodeHandler,
   EndHandler,
   FlowHandler,
@@ -18,6 +16,7 @@ import {
 import { Config } from '@/types';
 
 import _V1Handler from './_v1';
+import APIHandler from './api';
 import CaptureHandler from './capture';
 import CaptureV2Handler from './captureV2';
 import CardV2Handler from './cardV2';
@@ -47,7 +46,7 @@ export default (config: Config) => [
   FlowHandler(),
   IfHandler(),
   IfV2Handler({ _v1: _v1Handler }),
-  APIHandler(createResponseConfig(config)),
+  APIHandler(config),
   IntegrationsHandler({ integrationsEndpoint: config.INTEGRATIONS_HANDLER_ENDPOINT }),
   RandomHandler(),
   SetHandler(),

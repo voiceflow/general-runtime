@@ -6,7 +6,8 @@ import _ from 'lodash';
 import Handler from '@/runtime/lib/Handler';
 
 import DebugLogging, { SimpleStepMessage } from '../../Runtime/DebugLogging';
-import { APICallResult, APINodeData, makeAPICall, ResponseConfig } from './utils';
+import { APIHandlerConfig } from './types';
+import { APICallResult, APINodeData, makeAPICall } from './utils';
 
 const createLogEntry = async (
   apiCallResult: APICallResult,
@@ -72,7 +73,7 @@ const createLogEntry = async (
 
 export const USER_AGENT_KEY = 'User-Agent';
 export const USER_AGENT = 'Voiceflow/1.0.0 (+https://voiceflow.com)';
-const APIHandler = (config: ResponseConfig): Handler<BaseNode.Integration.Node> => ({
+const APIHandler = (config: Partial<APIHandlerConfig>): Handler<BaseNode.Integration.Node> => ({
   canHandle: (node) =>
     node.type === BaseNode.NodeType.INTEGRATIONS &&
     node.selected_integration === BaseNode.Utils.IntegrationType.CUSTOM_API,

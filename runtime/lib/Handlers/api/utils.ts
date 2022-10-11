@@ -6,6 +6,7 @@ import FormData from 'form-data';
 import { Agent } from 'https';
 import ipRangeCheck from 'ip-range-check';
 import safeJSONStringify from 'json-stringify-safe';
+import _ from 'lodash';
 import fetch, { BodyInit, Headers, Request, Response } from 'node-fetch';
 import { setTimeout as sleep } from 'timers/promises';
 import validator from 'validator';
@@ -13,6 +14,7 @@ import validator from 'validator';
 import Runtime from '@/runtime/lib/Runtime';
 
 import { createS3Client, readFileFromS3 } from '../../AWSClient';
+import { APIHandlerConfig, DEFAULT_API_HANDLER_CONFIG } from './types';
 
 export type APINodeData = BaseNode.Api.NodeData['action_data'];
 const PROHIBITED_IP_RANGES = [
@@ -114,18 +116,8 @@ const validateIP = async (hostname: string) => {
   }
 };
 
-export interface ResponseConfig {
-  requestTimeoutMs: number;
-  maxResponseBodySizeBytes: number;
-  maxRequestBodySizeBytes: number;
-  awsAccessKey?: string;
-  awsSecretAccessKey?: string;
-  awsRegion?: string;
-  s3TLSBucket?: string;
-}
-
 const doFetch = async (
-  config: ResponseConfig,
+  config: APIHandlerConfig,
   nodeData: BaseNode.Api.NodeData['action_data']
 ): Promise<{ response: Response; requestOptions: Request }> => {
   const requestOptions = await createRequest(nodeData, config);
@@ -188,8 +180,8 @@ export interface APICallResult {
   responseJSON: any;
 }
 
-export const callAPI = async (nodeData: APINodeData, config: ResponseConfig): Promise<APICallResult> => {
-  const { response, requestOptions } = await doFetch(config, nodeData);
+export const callAPI = async (nodeData: APINodeData, config: Partial<APIHandlerConfig>): Promise<APICallResult> => {
+  const { response, requestOptions } = await doFetch(_.merge(DEFAULT_API_HANDLER_CONFIG, config), nodeData);
 
   const rawResponseJSON = await response
     .json()
@@ -210,7 +202,7 @@ export const callAPI = async (nodeData: APINodeData, config: ResponseConfig): Pr
 export const makeAPICall = async (
   nodeData: APINodeData,
   runtime: Runtime,
-  config: ResponseConfig
+  config: Partial<APIHandlerConfig>
 ): Promise<APICallResult> => {
   const hostname = validateHostname(nodeData.url);
   await validateIP(hostname);
@@ -231,7 +223,7 @@ export const makeAPICall = async (
 };
 
 const createAgent = async (
-  config: ResponseConfig,
+  config: APIHandlerConfig,
   tls: BaseNode.Api.NodeData['action_data']['tls']
 ): Promise<Agent | undefined> => {
   if (
@@ -260,7 +252,7 @@ const createAgent = async (
 
 export const createRequest = async (
   actionData: BaseNode.Api.NodeData['action_data'],
-  config: ResponseConfig
+  config: APIHandlerConfig
 ): Promise<Request> => {
   let headers = new Headers(
     actionData.headers

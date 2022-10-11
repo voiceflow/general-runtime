@@ -3,8 +3,7 @@ import Ajv from 'ajv';
 import { RequestHandler } from 'express';
 
 import log from '@/logger';
-import { ResponseConfig } from '@/runtime/lib/Handlers/api/utils';
-import { AnyClass, Config } from '@/types';
+import { AnyClass } from '@/types';
 
 import { ControllerMap } from './controllers';
 import { AbstractController } from './controllers/utils';
@@ -74,16 +73,4 @@ export const isConstructor = <T extends AnyClass>(clazz: T | unknown): clazz is 
   } catch {
     return false;
   }
-};
-
-export const createResponseConfig = (config: Config): ResponseConfig => {
-  return {
-    requestTimeoutMs: config.API_REQUEST_TIMEOUT_MS ?? 20_000,
-    maxResponseBodySizeBytes: config.API_MAX_CONTENT_LENGTH_BYTES ?? 1_000_000,
-    maxRequestBodySizeBytes: config.API_MAX_BODY_LENGTH_BYTES ?? 1_000_000,
-    awsAccessKey: config.AWS_ACCESS_KEY_ID ?? undefined,
-    awsSecretAccessKey: config.AWS_SECRET_ACCESS_KEY ?? undefined,
-    awsRegion: config.AWS_REGION ?? undefined,
-    s3TLSBucket: config.S3_TLS_BUCKET ?? undefined,
-  };
 };
