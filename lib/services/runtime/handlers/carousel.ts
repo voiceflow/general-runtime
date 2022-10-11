@@ -44,9 +44,7 @@ export const CarouselHandler: HandlerFactory<BaseNode.Carousel.Node, typeof hand
             slate,
             text,
           },
-          buttons: card.buttons.map((button) => ({
-            ...deepVariableSubstitution(button, variablesMap),
-          })),
+          buttons: card.buttons.map((button) => deepVariableSubstitution(button, variablesMap)),
         };
 
         if (item.title || item.imageUrl || item.description.text || item.buttons.length) {
