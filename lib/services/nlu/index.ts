@@ -12,7 +12,7 @@ import { Context, ContextHandler, VersionTag } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
 import { handleNLCCommand } from './nlc';
-import { getNoneIntentRequest, NONE_INTENT } from './utils';
+import { getNoneIntentRequest, mapChannelData, NONE_INTENT } from './utils';
 
 export const utils = {};
 
@@ -29,6 +29,8 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     versionID,
     tag,
     nlp,
+    hasChannelIntents,
+    platform,
   }: {
     query: string;
     model?: BaseModels.PrototypeModel;
@@ -37,12 +39,14 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     versionID: string;
     tag: VersionTag | string;
     nlp: BaseModels.Project.PrototypeNLP | undefined;
+    hasChannelIntents: boolean;
+    platform: VoiceflowConstants.PlatformType;
   }): Promise<BaseRequest.IntentRequest> {
     // 1. first try restricted regex (no open slots) - exact string match
     if (model && locale) {
-      const intent = handleNLCCommand({ query, model, locale, openSlot: false });
-      if (intent.payload.intent.name !== NONE_INTENT) {
-        return intent;
+      const data = handleNLCCommand({ query, model, locale, openSlot: false });
+      if (data.payload.intent.name !== NONE_INTENT) {
+        return mapChannelData(data, platform, hasChannelIntents);
       }
     }
 
@@ -61,7 +65,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
         .catch(() => ({ data: null }));
 
       if (data) {
-        return data;
+        return mapChannelData(data, platform, hasChannelIntents);
       }
     }
 
@@ -72,7 +76,8 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     if (!locale) {
       throw new VError('Locale not found', HTTP_STATUS.NOT_FOUND);
     }
-    return handleNLCCommand({ query, model, locale, openSlot: true });
+    const data = handleNLCCommand({ query, model, locale, openSlot: true });
+    return mapChannelData(data, platform, hasChannelIntents);
   }
 
   handle = async (context: Context) => {
@@ -100,6 +105,8 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       versionID: context.versionID,
       tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
       nlp: project.nlp,
+      hasChannelIntents: version?.prototype?.hasChannelIntents,
+      platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
     });
 
     return { ...context, request };
