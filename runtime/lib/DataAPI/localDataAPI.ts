@@ -45,6 +45,7 @@ class LocalDataAPI<
       nlp: this.project.prototype?.nlp,
       devVersion: this.project.devVersion,
       liveVersion: this.project.liveVersion,
+      platformData: this.project.platformData,
     };
   };
 

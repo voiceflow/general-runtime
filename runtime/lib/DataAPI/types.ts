@@ -1,4 +1,4 @@
-import { AnyRecord, BaseModels } from '@voiceflow/base-types';
+import { AnyRecord, BaseModels, Project } from '@voiceflow/base-types';
 
 export interface Display {
   document?: string;
@@ -25,6 +25,7 @@ export interface DataAPI<
     nlp?: BaseModels.Project.PrototypeNLP;
     devVersion?: string;
     liveVersion?: string;
+    platformData?: Project.PlatformData;
   }>;
 
   getProjectUsingAPIKey(key: string): Promise<PJ>;

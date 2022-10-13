@@ -94,6 +94,7 @@ class ServerDataAPI<
       nlp: data.prototype?.nlp,
       devVersion: data.devVersion,
       liveVersion: data.liveVersion,
+      platformData: data.platformData,
     };
   };
 

@@ -133,7 +133,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
               tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
               nlp: project.nlp,
-              hasChannelIntents: version?.prototype?.hasChannelIntents,
+              hasChannelIntents: project?.platformData?.hasChannelIntents,
               platform: version.prototype.platform as VoiceflowConstants.PlatformType,
             })
           : incomingRequest;

@@ -105,7 +105,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       versionID: context.versionID,
       tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
       nlp: project.nlp,
-      hasChannelIntents: version?.prototype?.hasChannelIntents,
+      hasChannelIntents: project?.platformData?.hasChannelIntents,
       platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
     });
 
