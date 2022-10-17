@@ -68,6 +68,17 @@ class StateManagementController extends AbstractController {
     return { trace };
   }
 
+  @validate({
+    HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
+  })
+  async getPublicPublishing(req: Request<{ userID: string }, never, { versionID: string }>) {
+    const api = await this.services.dataAPI.get();
+
+    const version = await api.getVersion(req.headers.versionID);
+
+    return version.platformData.publishing || {};
+  }
+
   @validate({ HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID })
   async get(req: Request<{ userID: string }, any, { projectID: string }>) {
     return this.services.session.getFromDb(req.headers.projectID, req.params.userID);
