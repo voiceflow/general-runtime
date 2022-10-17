@@ -9,12 +9,16 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
 
   router.use(bodyParser.json({ limit: BODY_PARSER_SIZE_LIMIT }));
 
-  router.use([middlewares.project.resolvePublicProjectID, middlewares.rateLimit.versionConsume]);
+  const interactMiddleware = [middlewares.project.resolvePublicProjectID, middlewares.rateLimit.versionConsume];
 
   // full route: /public/:projectID/state/user/:userID/interact
-  router.post('/:projectID/state/user/:userID/interact', controllers.stateManagement.publicInteract);
+  router.post(
+    '/:projectID/state/user/:userID/interact',
+    interactMiddleware,
+    controllers.stateManagement.publicInteract
+  );
 
-  router.get('/:projectID/publishing', controllers.stateManagement.getPublicPublishing);
+  router.get('/:projectID/publishing', interactMiddleware, controllers.stateManagement.getPublicPublishing);
 
   return router;
 };
