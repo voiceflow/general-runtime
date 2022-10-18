@@ -6,7 +6,6 @@ import sinon from 'sinon';
 
 import NLUManager, { utils as defaultUtils } from '@/lib/services/nlu';
 import * as NLC from '@/lib/services/nlu/nlc';
-import { NONE_INTENT } from '@/lib/services/nlu/utils';
 import { VersionTag } from '@/types';
 
 chai.use(chaiAsPromised);
@@ -61,7 +60,7 @@ describe('nlu manager unit tests', () => {
     type: BaseRequest.RequestType.INTENT,
     payload: {
       intent: {
-        name: NONE_INTENT,
+        name: VoiceflowConstants.IntentName.NONE,
       },
       query,
       entities: [],

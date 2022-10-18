@@ -12,7 +12,7 @@ import { Context, ContextHandler, VersionTag } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
 import { handleNLCCommand } from './nlc';
-import { getNoneIntentRequest, mapChannelData, NONE_INTENT } from './utils';
+import { getNoneIntentRequest, mapChannelData } from './utils';
 
 export const utils = {};
 
@@ -45,7 +45,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     // 1. first try restricted regex (no open slots) - exact string match
     if (model && locale) {
       const data = handleNLCCommand({ query, model, locale, openSlot: false });
-      if (data.payload.intent.name !== NONE_INTENT) {
+      if (data.payload.intent.name !== VoiceflowConstants.IntentName.NONE) {
         return mapChannelData(data, platform, hasChannelIntents);
       }
     }

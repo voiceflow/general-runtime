@@ -1,4 +1,6 @@
+import { AlexaConstants } from '@voiceflow/alexa-types';
 import { BaseVersion } from '@voiceflow/base-types';
+import { GoogleConstants } from '@voiceflow/google-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { Runtime } from '@/runtime';
@@ -16,7 +18,9 @@ export const RepeatHandler = (utils: typeof utilsObj) => ({
     const request = runtime.getRequest();
     return (
       isIntentRequest(request) &&
-      request.payload.intent.name === VoiceflowConstants.IntentName.REPEAT &&
+      (request.payload.intent.name === VoiceflowConstants.IntentName.REPEAT ||
+        request.payload.intent.name === AlexaConstants.AmazonIntent.REPEAT ||
+        request.payload.intent.name === GoogleConstants.GoogleIntent.REPEAT) &&
       !!repeat &&
       [BaseVersion.RepeatType.ALL, BaseVersion.RepeatType.DIALOG].includes(repeat)
     );
