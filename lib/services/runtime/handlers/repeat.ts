@@ -12,15 +12,19 @@ const utilsObj = {
   outputTrace,
 };
 
+const repeatIntents = new Set<string>([
+  VoiceflowConstants.IntentName.REPEAT,
+  AlexaConstants.AmazonIntent.REPEAT,
+  GoogleConstants.GoogleIntent.REPEAT,
+]);
+
 export const RepeatHandler = (utils: typeof utilsObj) => ({
   canHandle: (runtime: Runtime): boolean => {
     const repeat = runtime.storage.get<BaseVersion.RepeatType>(StorageType.REPEAT);
     const request = runtime.getRequest();
     return (
       isIntentRequest(request) &&
-      (request.payload.intent.name === VoiceflowConstants.IntentName.REPEAT ||
-        request.payload.intent.name === AlexaConstants.AmazonIntent.REPEAT ||
-        request.payload.intent.name === GoogleConstants.GoogleIntent.REPEAT) &&
+      repeatIntents.has(request.payload.intent.name) &&
       !!repeat &&
       [BaseVersion.RepeatType.ALL, BaseVersion.RepeatType.DIALOG].includes(repeat)
     );

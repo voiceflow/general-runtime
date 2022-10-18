@@ -2261,15 +2261,15 @@
     "@typescript-eslint/types" "5.30.6"
     eslint-visitor-keys "^3.3.0"
 
-"@voiceflow/alexa-types@2.12.2":
-  version "2.12.2"
-  resolved "https://registry.yarnpkg.com/@voiceflow/alexa-types/-/alexa-types-2.12.2.tgz#9c8c0f7d842b30c70ffdacd73d777c7553ddcf79"
-  integrity sha512-rlchz6Qc1JhE0BsLMvPNSZYphOhvmHqnozzqgTlfpEFZ09u5E0tr7UH53u/3vYlEPLCWzmnAa2v/ka7Wcociyg==
+"@voiceflow/alexa-types@2.12.4":
+  version "2.12.4"
+  resolved "https://registry.yarnpkg.com/@voiceflow/alexa-types/-/alexa-types-2.12.4.tgz#addfacb67173c6cccb1afb54980174d075d7f87f"
+  integrity sha512-R1cH/jBcn7SRm0xAnHFhfwM6B3qcr0PEBEJdeNiJOVCrCXh2dyChhycLlrRQIw9llQstnz1l7pdQCKbHc08KQg==
   dependencies:
     "@voiceflow/base-types" "^2.71.0"
     "@voiceflow/common" "^8.1.5"
     "@voiceflow/voice-types" "^2.8.13"
-    "@voiceflow/voiceflow-types" "^3.20.13"
+    "@voiceflow/voiceflow-types" "^3.20.15"
     ask-smapi-model "1.14.0"
 
 "@voiceflow/api-sdk@3.20.14":
@@ -2574,6 +2574,14 @@
     "@voiceflow/base-types" "^2.70.0"
     "@voiceflow/common" "^8.1.5"
 
+"@voiceflow/voice-types@^2.8.13":
+  version "2.8.13"
+  resolved "https://registry.yarnpkg.com/@voiceflow/voice-types/-/voice-types-2.8.13.tgz#3a9d4d775c6dc540a6599293c1a2eb78bbd91197"
+  integrity sha512-7TTZYE0aw/H+AJ8pdABB2EHq48ABhCPEjLT+Sb+fyAVROSbUrr0b4KdVIIhL6x2AgwdaFDDdXkue9uBChSSUxA==
+  dependencies:
+    "@voiceflow/base-types" "^2.71.0"
+    "@voiceflow/common" "^8.1.5"
+
 "@voiceflow/voiceflow-types@3.20.12":
   version "3.20.12"
   resolved "https://registry.yarnpkg.com/@voiceflow/voiceflow-types/-/voiceflow-types-3.20.12.tgz#cf19a13641a6ae5c68a92bf228368847f46bf6f5"
@@ -2587,6 +2595,15 @@
   version "3.20.13"
   resolved "https://registry.yarnpkg.com/@voiceflow/voiceflow-types/-/voiceflow-types-3.20.13.tgz#14daf9f0090b160e92c5ff69902d3cae61292ac6"
   integrity sha512-ZpMR4y4uq9JUiZKgaMvDKeq0yZvpBsWn3Em0r6HSKRp6DRqMTa8xu2MmtoCA3+o89/IdnOK60L94rDVvfojOMA==
+  dependencies:
+    "@voiceflow/base-types" "^2.71.0"
+    "@voiceflow/chat-types" "^2.13.2"
+    "@voiceflow/voice-types" "^2.8.13"
+
+"@voiceflow/voiceflow-types@^3.20.15":
+  version "3.20.15"
+  resolved "https://registry.yarnpkg.com/@voiceflow/voiceflow-types/-/voiceflow-types-3.20.15.tgz#17999c62cf68e4a005a7ec9231ff8e9f18acd8da"
+  integrity sha512-cVkP+jLnt6c+p4r+zdvrT/YJocq4Elm8hUHBYe/XnTN6gzL15g2aGNMj3zB3xnkbEncLXHatLaolcZrRo6fKkg==
   dependencies:
     "@voiceflow/base-types" "^2.71.0"
     "@voiceflow/chat-types" "^2.13.2"
@@ -11368,11 +11385,7 @@ utils-merge@1.0.1:
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=
 
-<<<<<<< HEAD
-uuid@8.3.2, uuid@^8.3.2:
-=======
-uuid@8.3.2, uuid@^8.0.0:
->>>>>>> 3933f45 (feat: remap vf intents to channel intents when predicting intents (PL-125))
+uuid@8.3.2, uuid@^8.0.0, uuid@^8.3.2:
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==

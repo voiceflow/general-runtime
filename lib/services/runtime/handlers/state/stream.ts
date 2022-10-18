@@ -20,6 +20,17 @@ const utilsObj = {
   replaceVariables,
 };
 
+const pauseIntents = new Set<string>([VoiceflowConstants.IntentName.PAUSE, AlexaConstants.AmazonIntent.PAUSE]);
+const resumeIntents = new Set<string>([VoiceflowConstants.IntentName.RESUME, AlexaConstants.AmazonIntent.RESUME]);
+const startOverIntents = new Set<string>([
+  VoiceflowConstants.IntentName.START_OVER,
+  AlexaConstants.AmazonIntent.START_OVER,
+]);
+const repeatIntents = new Set<string>([VoiceflowConstants.IntentName.REPEAT, AlexaConstants.AmazonIntent.REPEAT]);
+const nextIntents = new Set<string>([VoiceflowConstants.IntentName.NEXT, AlexaConstants.AmazonIntent.NEXT]);
+const previousIntents = new Set<string>([VoiceflowConstants.IntentName.PREVIOUS, AlexaConstants.AmazonIntent.PREVIOUS]);
+const cancelIntents = new Set<string>([VoiceflowConstants.IntentName.CANCEL, AlexaConstants.AmazonIntent.CANCEL]);
+
 export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) => ({
   canHandle: (_, runtime) =>
     !!runtime.storage.get(StorageType.STREAM_PLAY) &&
@@ -33,7 +44,7 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
 
     let nextId: BaseNode.Utils.NodeID = null;
 
-    if (intentName === VoiceflowConstants.IntentName.PAUSE || intentName === AlexaConstants.AmazonIntent.PAUSE) {
+    if (intentName && pauseIntents.has(intentName)) {
       if (streamPlay.pauseID) {
         // If it is linked to something else, save current pause state
         runtime.storage.set<StreamPauseStorage>(StorageType.STREAM_PAUSE, {
@@ -54,32 +65,20 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
 
         runtime.end();
       }
-    } else if (
-      intentName === VoiceflowConstants.IntentName.RESUME ||
-      intentName === AlexaConstants.AmazonIntent.RESUME
-    ) {
+    } else if (intentName && resumeIntents.has(intentName)) {
       runtime.storage.produce<StorageData>((draft) => {
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.RESUME;
       });
 
       runtime.end();
-    } else if (
-      intentName === VoiceflowConstants.IntentName.START_OVER ||
-      intentName === VoiceflowConstants.IntentName.REPEAT ||
-      intentName === AlexaConstants.AmazonIntent.START_OVER ||
-      intentName === AlexaConstants.AmazonIntent.REPEAT
-    ) {
+    } else if (intentName && (startOverIntents.has(intentName) || repeatIntents.has(intentName))) {
       runtime.storage.produce<StorageData>((draft) => {
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.START;
         draft[StorageType.STREAM_PLAY]!.offset = 0;
       });
 
       runtime.end();
-    } else if (
-      intentName === VoiceflowConstants.IntentName.NEXT ||
-      intentName === AlexaConstants.AmazonIntent.NEXT ||
-      streamPlay.action === StreamAction.NEXT
-    ) {
+    } else if ((intentName && nextIntents.has(intentName)) || streamPlay.action === StreamAction.NEXT) {
       if (streamPlay.nextID) {
         nextId = streamPlay.nextID;
       }
@@ -87,10 +86,7 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
       runtime.storage.produce<StorageData>((draft) => {
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.END;
       });
-    } else if (
-      intentName === VoiceflowConstants.IntentName.PREVIOUS ||
-      intentName === AlexaConstants.AmazonIntent.PREVIOUS
-    ) {
+    } else if (intentName && previousIntents.has(intentName)) {
       if (streamPlay.previousID) {
         nextId = streamPlay.previousID;
       }
@@ -98,10 +94,7 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
       runtime.storage.produce<StorageData>((draft) => {
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.END;
       });
-    } else if (
-      intentName === VoiceflowConstants.IntentName.CANCEL ||
-      intentName === AlexaConstants.AmazonIntent.CANCEL
-    ) {
+    } else if (intentName && cancelIntents.has(intentName)) {
       runtime.storage.produce<StorageData>((draft) => {
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.PAUSE;
       });
