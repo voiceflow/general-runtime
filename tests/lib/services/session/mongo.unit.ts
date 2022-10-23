@@ -39,7 +39,11 @@ describe('mongo sessionManager unit tests', async () => {
 
       const id = `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${projectID}.${userID}`;
       expect(updateOne.args).to.eql([
-        [{ id }, { $set: { id, projectID: new ObjectId(projectID), attributes: stateObj } }, { upsert: true }],
+        [
+          { id, projectID: new ObjectId(projectID) },
+          { $set: { id, projectID: new ObjectId(projectID), attributes: stateObj } },
+          { upsert: true },
+        ],
       ]);
     });
   });
@@ -52,7 +56,7 @@ describe('mongo sessionManager unit tests', async () => {
         {} as any
       );
 
-      expect(await state.getFromDb('project-id', 'user-id')).to.eql({});
+      expect(await state.getFromDb('60660078d1be7ef51a0be899', 'user-id')).to.eql({});
     });
 
     it('works', async () => {
@@ -66,7 +70,14 @@ describe('mongo sessionManager unit tests', async () => {
       const projectID = '60660078d1be7ef51a0be899';
       const userID = 'user-id';
       expect(await state.getFromDb(projectID, userID)).to.eql(attributes);
-      expect(findOne.args).to.eql([[{ id: `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${projectID}.${userID}` }]]);
+      expect(findOne.args).to.eql([
+        [
+          {
+            projectID: new ObjectId(projectID),
+            id: `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${projectID}.${userID}`,
+          },
+        ],
+      ]);
     });
   });
 
@@ -83,7 +94,12 @@ describe('mongo sessionManager unit tests', async () => {
 
       await expect(state.deleteFromDb(projectID, userID)).to.eventually.rejectedWith('delete runtime session error');
       expect(deleteOne.args).to.eql([
-        [{ id: `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${projectID}.${userID}` }],
+        [
+          {
+            projectID: new ObjectId(projectID),
+            id: `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${projectID}.${userID}`,
+          },
+        ],
       ]);
     });
 
@@ -99,7 +115,12 @@ describe('mongo sessionManager unit tests', async () => {
 
       await expect(state.deleteFromDb(projectID, userID)).to.eventually.rejectedWith('delete runtime session error');
       expect(deleteOne.args).to.eql([
-        [{ id: `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${projectID}.${userID}` }],
+        [
+          {
+            projectID: new ObjectId(projectID),
+            id: `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${projectID}.${userID}`,
+          },
+        ],
       ]);
     });
 
@@ -115,7 +136,12 @@ describe('mongo sessionManager unit tests', async () => {
 
       await state.deleteFromDb(projectID, userID);
       expect(deleteOne.args).to.eql([
-        [{ id: `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${projectID}.${userID}` }],
+        [
+          {
+            projectID: new ObjectId(projectID),
+            id: `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${projectID}.${userID}`,
+          },
+        ],
       ]);
     });
   });

@@ -19,40 +19,44 @@ class SessionManager extends AbstractManager {
     return `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${projectID}.${userID}`;
   }
 
-  async saveToDb(projectID: string, userID: string, state: State) {
+  async saveToDb(_projectID: string, userID: string, state: State) {
+    const projectID = new ObjectId(_projectID);
     const { mongo } = this.services;
 
-    const id = this.getSessionID(projectID, userID);
+    const id = this.getSessionID(_projectID, userID);
 
     const {
       result: { ok },
     } = await mongo!.db
       .collection(this.collectionName)
-      .updateOne({ id }, { $set: { id, projectID: new ObjectId(projectID), attributes: state } }, { upsert: true });
+      .updateOne({ projectID, id }, { $set: { id, projectID, attributes: state } }, { upsert: true });
 
     if (!ok) {
       throw Error('store runtime session error');
     }
   }
 
-  async getFromDb<T extends Record<string, any> = Record<string, any>>(projectID: string, userID: string) {
+  async getFromDb<T extends Record<string, any> = Record<string, any>>(_projectID: string, userID: string) {
+    const projectID = new ObjectId(_projectID);
     const { mongo } = this.services;
 
-    const id = this.getSessionID(projectID, userID);
+    const id = this.getSessionID(_projectID, userID);
 
-    const session = await mongo!.db.collection(this.collectionName).findOne<{ attributes?: T }>({ id });
+    const session = await mongo!.db.collection(this.collectionName).findOne<{ attributes?: T }>({ projectID, id });
 
     return (session?.attributes || {}) as T;
   }
 
-  async deleteFromDb(projectID: string, userID: string) {
+  async deleteFromDb(_projectID: string, userID: string) {
+    const projectID = new ObjectId(_projectID);
     const { mongo } = this.services;
-    const id = this.getSessionID(projectID, userID);
+
+    const id = this.getSessionID(_projectID, userID);
 
     const {
       deletedCount,
       result: { ok },
-    } = await mongo!.db.collection(this.collectionName).deleteOne({ id });
+    } = await mongo!.db.collection(this.collectionName).deleteOne({ projectID, id });
 
     if (!ok || deletedCount !== 1) {
       throw Error('delete runtime session error');
