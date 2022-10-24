@@ -3,9 +3,11 @@ import { Config, Controller } from '@/types';
 
 import { FullServiceMap } from '../services';
 import Interact from './interact';
+import Public from './public';
 import StateManagement from './stateManagement';
 
 export interface ControllerMap {
+  public: Public;
   interact: Interact;
   stateManagement: StateManagement;
 }
@@ -19,6 +21,7 @@ export interface ControllerClass<T = Controller> {
  */
 const buildControllers = (services: FullServiceMap, config: Config) => {
   const controllers: ControllerMap = {
+    public: new Public(services, config),
     interact: new Interact(services, config),
     stateManagement: new StateManagement(services, config),
   };

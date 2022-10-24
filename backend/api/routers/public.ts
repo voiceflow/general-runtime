@@ -12,13 +12,11 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   const interactMiddleware = [middlewares.project.resolvePublicProjectID, middlewares.rateLimit.versionConsume];
 
   // full route: /public/:projectID/state/user/:userID/interact
-  router.post(
-    '/:projectID/state/user/:userID/interact',
-    interactMiddleware,
-    controllers.stateManagement.publicInteract
-  );
+  router.post('/:projectID/state/user/:userID/interact', interactMiddleware, controllers.public.interact);
 
-  router.get('/:projectID/publishing', interactMiddleware, controllers.stateManagement.getPublicPublishing);
+  router.post('/:projectID/transcripts', interactMiddleware, controllers.public.createTranscript);
+
+  router.get('/:projectID/publishing', interactMiddleware, controllers.public.getPublishing);
 
   return router;
 };

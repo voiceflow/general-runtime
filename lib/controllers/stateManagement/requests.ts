@@ -36,12 +36,3 @@ export const ConfigSchema = {
     excludeTypes: ArrayField('excludeTypes', StringField('excludeType')),
   },
 };
-
-export const PublicInteractSchema = {
-  type: 'object',
-  additionalProperties: false,
-  properties: {
-    action: ObjectField('action'),
-    config: ConfigSchema,
-  },
-};
