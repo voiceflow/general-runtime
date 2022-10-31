@@ -102,12 +102,7 @@ export const createNLC = ({
   return nlc;
 };
 
-export const nlcToIntent = (
-  intent: IIntentFullfilment | null,
-  // eslint-disable-next-line default-param-last
-  query = '',
-  confidence?: number
-): BaseRequest.IntentRequest =>
+export const nlcToIntent = (intent: IIntentFullfilment | null, query = '', confidence = 1): BaseRequest.IntentRequest =>
   (intent && {
     type: BaseRequest.RequestType.INTENT,
     payload: {
@@ -136,7 +131,9 @@ export const handleNLCCommand = ({
 }): BaseRequest.IntentRequest => {
   const nlc = createNLC({ model, locale, openSlot });
 
-  return nlcToIntent(nlc.handleCommand(query), query, openSlot ? undefined : 1);
+  // ensure open slot is lower than the capture step threshold
+  const confidence = openSlot ? 0.5 : 1;
+  return nlcToIntent(nlc.handleCommand(query), query, confidence);
 };
 
 export const handleNLCDialog = ({
