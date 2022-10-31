@@ -71,19 +71,22 @@ class PublicController extends AbstractController {
     const { mongo } = this.services;
     if (!mongo) throw new Error('mongo not initialized');
 
-    const {
-      ops: [document],
-    } = await mongo.db.collection('transcripts').insertOne({
+    const data = {
       projectID: new ObjectId(projectID),
       sessionID,
       createdAt: new Date(),
+      updatedAt: new Date(),
+      reportTags: [],
       ...(device && { device }),
       ...(browser && { browser }),
       ...(os && { os }),
-      reportTags: [],
-    });
+    };
 
-    return document;
+    const { value } = await mongo.db
+      .collection('transcripts')
+      .findOneAndUpdate({ projectID: data.projectID, sessionID: data.sessionID }, { $set: data }, { upsert: true });
+
+    return value;
   }
 }
 
