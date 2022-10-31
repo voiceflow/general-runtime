@@ -84,7 +84,11 @@ class PublicController extends AbstractController {
 
     const { value } = await mongo.db
       .collection('transcripts')
-      .findOneAndUpdate({ projectID: data.projectID, sessionID: data.sessionID }, { $set: data }, { upsert: true });
+      .findOneAndUpdate(
+        { projectID: data.projectID, sessionID: data.sessionID },
+        { $set: data },
+        { upsert: true, returnOriginal: false }
+      );
 
     return value;
   }
