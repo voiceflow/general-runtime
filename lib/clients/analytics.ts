@@ -52,6 +52,7 @@ export class AnalyticsSystem extends AbstractClient {
   }): GeneralInteractionBody {
     const sessionID =
       metadata.data.reqHeaders?.sessionid ??
+      metadata.userID ??
       (metadata.state?.variables ? `${versionID}.${metadata.state.variables.user_id}` : versionID);
 
     return {

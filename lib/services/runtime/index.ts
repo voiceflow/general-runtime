@@ -87,6 +87,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     return {
       ...context,
       request,
+      userID,
       versionID,
       state: runtime.getFinalState(),
       trace: runtime.trace.get(),
