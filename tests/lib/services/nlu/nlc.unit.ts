@@ -59,7 +59,7 @@ describe('nlu nlc service unit tests', () => {
       expect(handleNLCCommand({ query, model, locale } as any)).to.eql(output);
       expect(createNLCStub.args).to.eql([[{ model, locale, openSlot: true }]]);
       expect(nlcObj.handleCommand.args).to.eql([[query]]);
-      expect(nlcToIntentStub.args).to.eql([[commandRes, query, undefined]]);
+      expect(nlcToIntentStub.args).to.eql([[commandRes, query, 0.5]]);
     });
 
     it('openSlot false', () => {
