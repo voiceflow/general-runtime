@@ -7,6 +7,7 @@ import { TurnType, Variables } from '@/lib/services/runtime/types';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 
 const VERSION_ID = 'version_id';
+const USER_ID = 'user_id';
 
 describe('runtime manager unit tests', () => {
   let clock: sinon.SinonFakeTimers;
@@ -62,10 +63,16 @@ describe('runtime manager unit tests', () => {
         type: BaseRequest.RequestType.INTENT,
         payload: {},
       };
-      const context = { state, request, versionID: VERSION_ID, data: { api: { getProgram: 'api' } } } as any;
+      const context = {
+        state,
+        request,
+        versionID: VERSION_ID,
+        data: { api: { getProgram: 'api' } },
+      } as any;
       expect(await runtimeManager.handle(context)).to.eql({
         state: rawState,
         trace,
+        userID: undefined,
         request,
         versionID: VERSION_ID,
         data: { api: { getProgram: 'api' } },
@@ -119,6 +126,7 @@ describe('runtime manager unit tests', () => {
       };
       const context = {
         state,
+        userID: USER_ID,
         request,
         versionID: VERSION_ID,
         data: { api: { getProgram: 'api' }, config: { stopTypes: ['t1', 't2'] } },
@@ -126,6 +134,7 @@ describe('runtime manager unit tests', () => {
       expect(await runtimeManager.handle(context)).to.eql({
         state: rawState,
         trace,
+        userID: USER_ID,
         request,
         versionID: VERSION_ID,
         data: { api: { getProgram: 'api' }, config: { stopTypes: ['t1', 't2'] } },
@@ -176,11 +185,18 @@ describe('runtime manager unit tests', () => {
         payload: {},
       };
       const state = { foo: 'bar' };
-      const context = { state, request, versionID: VERSION_ID, data: { api: { getProgram: 'api' } } } as any;
+      const context = {
+        state,
+        userID: USER_ID,
+        request,
+        versionID: VERSION_ID,
+        data: { api: { getProgram: 'api' } },
+      } as any;
 
       expect(await runtimeManager.handle(context)).to.eql({
         state: rawState,
         trace,
+        userID: USER_ID,
         request,
         versionID: VERSION_ID,
         data: { api: { getProgram: 'api' } },
@@ -236,7 +252,12 @@ describe('runtime manager unit tests', () => {
         },
       };
       const state = { foo: 'bar' };
-      const context = { state, request, versionID: VERSION_ID, data: { api: { getProgram: 'api' } } } as any;
+      const context = {
+        state,
+        request,
+        versionID: VERSION_ID,
+        data: { api: { getProgram: 'api' } },
+      } as any;
 
       await runtimeManager.handle(context);
 
@@ -301,6 +322,7 @@ describe('runtime manager unit tests', () => {
       expect(await runtimeManager.handle(context)).to.eql({
         state: rawState,
         trace,
+        userID: 'someUserId',
         request,
         versionID: VERSION_ID,
         data: { api: { getProgram: 'api' } },
