@@ -62,10 +62,14 @@ class PublicController extends AbstractController {
     BODY_TRANSCRIPT: VALIDATIONS.BODY.TRANSCRIPT,
   })
   async createTranscript(
-    req: Request<never, { sessionID: string; device?: string; os?: string; browser?: string }, { projectID: string }>
+    req: Request<
+      never,
+      { sessionID: string; device?: string; os?: string; browser?: string; user?: { name?: string; image?: string } },
+      { projectID: string }
+    >
   ) {
     const {
-      body: { sessionID, device, os, browser },
+      body: { sessionID, device, os, browser, user },
       headers: { projectID },
     } = req;
     const { mongo } = this.services;
@@ -76,10 +80,16 @@ class PublicController extends AbstractController {
       sessionID,
       createdAt: new Date(),
       updatedAt: new Date(),
-      reportTags: [],
+      ...(os && { os }),
       ...(device && { device }),
       ...(browser && { browser }),
-      ...(os && { os }),
+      ...(user && {
+        user: {
+          ...(user.name && { name: user.name }),
+          ...(user.image && { image: user.image }),
+        },
+      }),
+      reportTags: [],
     };
 
     const { value } = await mongo.db
