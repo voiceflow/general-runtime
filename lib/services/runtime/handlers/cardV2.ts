@@ -1,5 +1,5 @@
 import { AnyRecord, BaseNode, BaseText, BaseTrace } from '@voiceflow/base-types';
-import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
+import { deepVariableSubstitution, replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory } from '@/runtime';
@@ -18,6 +18,7 @@ const handlerUtils = {
   slateToPlaintext,
   sanitizeVariables,
   slateInjectVariables,
+  deepVariableSubstitution,
   addNoReplyTimeoutIfExists,
 };
 
@@ -72,10 +73,7 @@ export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof han
 
       const title = replaceVariables(node.title, variablesMap);
 
-      const buttons = node.buttons.map((button) => ({
-        ...button,
-        name: replaceVariables(button.name, variablesMap),
-      }));
+      const buttons = node.buttons.map((button) => utils.deepVariableSubstitution(button, variablesMap));
 
       if (title || buttons.length || description.text || node.imageUrl) {
         runtime.trace.addTrace<BaseNode.CardV2.TraceFrame>({
