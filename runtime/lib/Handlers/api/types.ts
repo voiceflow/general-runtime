@@ -2,8 +2,8 @@ export interface APIHandlerConfig {
   requestTimeoutMs: number;
   maxResponseBodySizeBytes: number;
   maxRequestBodySizeBytes: number;
-  awsAccessKey?: string;
-  awsSecretAccessKey?: string;
+  s3AccessKey?: string;
+  s3SecretAccessKey?: string;
   awsRegion?: string;
   s3TLSBucket?: string;
 }

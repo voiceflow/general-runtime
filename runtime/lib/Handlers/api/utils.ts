@@ -230,8 +230,8 @@ const createAgent = async (
     !tls?.cert ||
     !tls?.key ||
     !config.s3TLSBucket ||
-    !config.awsAccessKey ||
-    !config.awsSecretAccessKey ||
+    !config.s3AccessKey ||
+    !config.s3SecretAccessKey ||
     !config.awsRegion
   )
     return;

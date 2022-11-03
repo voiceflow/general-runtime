@@ -3,18 +3,18 @@ import { Readable } from 'node:stream';
 import consumers from 'node:stream/consumers';
 
 interface S3ClientOptions {
-  awsAccessKey?: string;
-  awsSecretAccessKey?: string;
+  s3AccessKey?: string;
+  s3SecretAccessKey?: string;
   awsRegion?: string;
 }
 
-export function createS3Client({ awsAccessKey, awsSecretAccessKey, awsRegion }: S3ClientOptions): S3 | undefined {
-  if (!awsAccessKey || !awsSecretAccessKey || !awsRegion) return undefined;
+export function createS3Client({ s3AccessKey, s3SecretAccessKey, awsRegion }: S3ClientOptions): S3 | undefined {
+  if (!s3AccessKey || !s3SecretAccessKey || !awsRegion) return undefined;
 
   return new S3({
     credentials: {
-      accessKeyId: awsAccessKey,
-      secretAccessKey: awsSecretAccessKey,
+      accessKeyId: s3AccessKey,
+      secretAccessKey: s3SecretAccessKey,
     },
     region: awsRegion,
   });
