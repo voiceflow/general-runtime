@@ -27,6 +27,7 @@ export interface Config extends RateLimitConfig {
   S3_ACCESS_KEY_ID: string | null;
   S3_SECRET_ACCESS_KEY: string | null;
   S3_TLS_BUCKET: string | null;
+  S3_ENDPOINT: string | null;
 
   CODE_HANDLER_ENDPOINT: string | null;
   INTEGRATIONS_HANDLER_ENDPOINT: string;

@@ -6,6 +6,7 @@ export interface APIHandlerConfig {
   s3SecretAccessKey?: string;
   awsRegion?: string;
   s3TLSBucket?: string;
+  s3Endpoint?: string;
 }
 
 export const DEFAULT_API_HANDLER_CONFIG: APIHandlerConfig = {

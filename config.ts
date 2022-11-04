@@ -29,6 +29,7 @@ const CONFIG: Config = {
   S3_ACCESS_KEY_ID: getRequiredProcessEnv('S3_ACCESS_KEY_ID'),
   S3_SECRET_ACCESS_KEY: getRequiredProcessEnv('S3_SECRET_ACCESS_KEY'),
   S3_TLS_BUCKET: getRequiredProcessEnv('S3_TLS_BUCKET'),
+  S3_ENDPOINT: getOptionalProcessEnv('S3_ENDPOINT'),
 
   // code block
   CODE_HANDLER_ENDPOINT: getOptionalProcessEnv('CODE_HANDLER_ENDPOINT'),
