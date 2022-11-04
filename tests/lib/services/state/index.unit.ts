@@ -99,6 +99,7 @@ describe('state manager unit tests', () => {
         versionID: VERSION_ID,
         projectID: version.projectID,
         state,
+        version,
         trace: [],
         data: {
           ...context.data,
@@ -149,6 +150,7 @@ describe('state manager unit tests', () => {
       expect(newContext).to.eql({
         request: null,
         versionID: VERSION_ID,
+        version,
         projectID: version.projectID,
         state,
         trace: [],
@@ -187,6 +189,7 @@ describe('state manager unit tests', () => {
         projectID: version.projectID,
         state,
         trace: [],
+        version,
         data: {
           ...context.data,
           locale: version.prototype.data.locales[0],

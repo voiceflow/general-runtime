@@ -1,5 +1,6 @@
 import { BaseModels, BaseNode, BaseRequest, BaseText, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables, transformStringVariableToNumber, Utils } from '@voiceflow/common';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import cuid from 'cuid';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
 import _uniqBy from 'lodash/uniqBy';
@@ -9,7 +10,7 @@ import { Runtime, Store } from '@/runtime';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { AddTraceFn } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
-import { Output } from './types';
+import { isPrompt, Output } from './types';
 
 export const EMPTY_AUDIO_STRING = '<audio src=""/>';
 
@@ -156,11 +157,31 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
 
 export const getReadableConfidence = (confidence?: number): string => ((confidence ?? 1) * 100).toFixed(2);
 
+export const getGlobalNoMatchPrompt = (runtime: Runtime) => {
+  const { version } = runtime;
+  const prompt = version?.platformData.settings?.globalNoMatch?.prompt;
+  return prompt && isPrompt(prompt) ? prompt : null;
+};
+
+export const getGlobalNoReplyPrompt = (runtime: Runtime) => {
+  const { version } = runtime;
+  const prompt = version?.platformData.settings?.globalNoReply?.prompt;
+  return prompt && isPrompt(prompt) ? prompt : null;
+};
+
 export const slateToPlaintext = (content: Readonly<BaseText.SlateTextValue> = []): string =>
   content
     .map((n) => Slate.Node.string(n))
     .join('\n')
     .trim();
+
+export const isPromptContentEmpty = (content: BaseText.SlateTextValue | string | null | undefined) => {
+  if (!content) return true;
+
+  if (typeof content === 'string') return !content.trim().length;
+
+  return !slateToPlaintext(content);
+};
 
 export const removeEmptyPrompts = (
   prompts: Array<BaseText.SlateTextValue | string>
@@ -204,3 +225,17 @@ export function outputTrace({ node, addTrace, debugLogging, output, variables = 
     debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.SPEAK, node, { text: message });
   }
 }
+
+export const getDefaultNoReplyTimeoutSeconds = (platform: string | undefined) => {
+  const defaultTimeout = 10;
+
+  if (!platform) return defaultTimeout;
+
+  const delayByPlatform: Record<string, number> = {
+    [VoiceflowConstants.PlatformType.ALEXA]: 8,
+    [VoiceflowConstants.PlatformType.GOOGLE]: 8,
+    [VoiceflowConstants.PlatformType.DIALOGFLOW_ES]: 5,
+  };
+
+  return delayByPlatform[platform] ?? defaultTimeout;
+};

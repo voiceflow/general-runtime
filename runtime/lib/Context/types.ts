@@ -1,14 +1,20 @@
-import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
+import { BaseNode, BaseVersion, RuntimeLogs } from '@voiceflow/base-types';
 
 import { State } from '@/runtime/lib/Runtime';
 
-export interface Context<R = Record<string, unknown>, T = BaseNode.Utils.BaseTraceFrame, D = Record<string, unknown>> {
+export interface Context<
+  Request = Record<string, unknown>,
+  Trace = BaseNode.Utils.BaseTraceFrame,
+  Data = Record<string, unknown>,
+  Version extends BaseVersion.Version = BaseVersion.Version
+> {
   end?: boolean;
-  data: D;
+  data: Data;
   state: Omit<State, 'trace'>;
-  trace?: T[];
+  trace?: Trace[];
   userID?: string;
-  request: R;
+  request: Request;
+  version?: Version;
   versionID: string;
   projectID: string;
   /** The most verbose logs to receive in runtime logging. */

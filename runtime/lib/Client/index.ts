@@ -1,13 +1,18 @@
-import { AnyRecord } from '@voiceflow/base-types';
+import * as BaseTypes from '@voiceflow/base-types';
 
-import { DataAPI } from '@/runtime/lib/DataAPI';
+import { DataAPI as AnyDataAPI } from '@/runtime/lib/DataAPI';
 import { AbstractLifecycle } from '@/runtime/lib/Lifecycle';
 import Runtime, { Options as RuntimeOptions, State as RuntimeState } from '@/runtime/lib/Runtime';
 
-class Controller<R = any, D extends DataAPI = DataAPI, S extends AnyRecord = AnyRecord> extends AbstractLifecycle {
-  private options: Pick<RuntimeOptions<D, S>, 'api' | 'handlers' | 'services'>;
+class Controller<
+  Request = any,
+  DataAPI extends AnyDataAPI = AnyDataAPI,
+  Services extends BaseTypes.AnyRecord = BaseTypes.AnyRecord,
+  Version extends BaseTypes.BaseVersion.Version = BaseTypes.BaseVersion.Version
+> extends AbstractLifecycle {
+  private options: Pick<RuntimeOptions<DataAPI, Services>, 'api' | 'handlers' | 'services'>;
 
-  constructor({ api, handlers = [], services = {} as S }: RuntimeOptions<D, S>) {
+  constructor({ api, handlers = [], services = {} as Services }: RuntimeOptions<DataAPI, Services>) {
     super();
 
     this.options = {
@@ -20,10 +25,18 @@ class Controller<R = any, D extends DataAPI = DataAPI, S extends AnyRecord = Any
   public createRuntime(
     versionID: string,
     state: RuntimeState,
-    request?: R,
-    options?: RuntimeOptions<D, S>
-  ): Runtime<R, D, S> {
-    return new Runtime<R, D, S>(versionID, state, request, { ...this.options, ...options }, this.events);
+    request?: Request,
+    options?: RuntimeOptions<DataAPI, Services>,
+    version?: Version
+  ): Runtime<Request, DataAPI, Services> {
+    return new Runtime<Request, DataAPI, Services, Version>(
+      versionID,
+      state,
+      request,
+      { ...this.options, ...options },
+      this.events,
+      version
+    );
   }
 }
 

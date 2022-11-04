@@ -98,7 +98,9 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     const runtime = this.createClient(context.data.api).createRuntime(
       context.versionID,
       context.state,
-      context.request
+      context.request,
+      undefined,
+      context.version
     );
 
     runtime.debugLogging.refreshContext(context);

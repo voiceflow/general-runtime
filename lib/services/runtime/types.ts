@@ -6,6 +6,10 @@ export type RuntimeRequest = BaseRequest.BaseRequest | null;
 
 export type GeneralRuntime = Runtime<RuntimeRequest>;
 
+export interface Prompt {
+  content: BaseText.SlateTextValue | string;
+}
+
 export const isTextRequest = (request?: RuntimeRequest | null): request is BaseRequest.TextRequest =>
   !!request && BaseRequest.isTextRequest(request) && typeof request.payload === 'string';
 
@@ -20,6 +24,11 @@ export const isActionRequest = (request?: RuntimeRequest | null): request is Bas
 
 export const isRuntimeRequest = (request: any): request is RuntimeRequest => {
   return request === null || !!(typeof request.type === 'string' && !!request.type);
+};
+
+export const isPrompt = (prompt: unknown): prompt is Prompt => {
+  if (!prompt || typeof prompt !== 'object') return false;
+  return 'content' in prompt;
 };
 
 export enum StorageType {

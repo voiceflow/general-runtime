@@ -95,6 +95,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
       versionID: context.versionID,
       projectID: version.projectID,
       data: { ...context.data, locale, api },
+      version,
     };
   }
 }

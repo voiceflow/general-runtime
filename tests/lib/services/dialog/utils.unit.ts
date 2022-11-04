@@ -105,9 +105,11 @@ describe('dialog manager utilities unit tests', () => {
 
       const { isIntentInScope } = utils;
 
-      const context = { data: { api: 'api' }, versionID: 'versionID', state: 'state', request: 'request' };
+      const context = { data: { api: 'api' }, versionID: 'versionID', state: 'state', request: 'request', version: {} };
       expect(await isIntentInScope(context as any)).to.eql(false);
-      expect(client.createRuntime.args).to.eql([[context.versionID, context.state, context.request]]);
+      expect(client.createRuntime.args).to.eql([
+        [context.versionID, context.state, context.request, undefined, context.version],
+      ]);
       expect(runtime.stack.top.callCount).to.eql(1);
       expect(currentFrame.getProgramID.args).to.eql([[]]);
       expect(runtime.getProgram.args).to.eql([[programID]]);

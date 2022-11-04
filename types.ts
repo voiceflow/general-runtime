@@ -84,8 +84,8 @@ export type Response = Express.Response;
 
 export type Next = () => void;
 
-export interface Route<P = Record<string, any>, T = void> {
-  (req: Request<P>): Promise<T>;
+export interface Route<Params = Record<string, any>, T = void> {
+  (req: Request<Params>): Promise<T>;
 
   validations?: Validator.ValidationChain[];
   callback?: boolean;

@@ -1,10 +1,10 @@
-import { AnyRecord } from '@voiceflow/base-types';
+import * as BaseTypes from '@voiceflow/base-types';
 
 import Handler from '@/runtime/lib/Handler';
 import Lifecycle, { AbstractLifecycle, Event, EventType } from '@/runtime/lib/Lifecycle';
 import cycleStack from '@/runtime/lib/Runtime/cycleStack';
 
-import { DataAPI } from '../DataAPI';
+import { DataAPI as AnyDataAPI } from '../DataAPI';
 import DebugLogging from './DebugLogging';
 import OutgoingApiLimiter from './OutgoingApiLimiter';
 import Stack, { Frame, FrameState } from './Stack';
@@ -12,10 +12,13 @@ import Store, { State as StorageState } from './Store';
 import Trace from './Trace';
 import ProgramManager from './utils/programManager';
 
-export interface Options<DA extends DataAPI = DataAPI, S extends AnyRecord = AnyRecord> {
-  api: DA;
+export interface Options<
+  DataAPI extends AnyDataAPI = AnyDataAPI,
+  Services extends BaseTypes.AnyRecord = BaseTypes.AnyRecord
+> {
+  api: DataAPI;
   handlers?: Handler<any>[];
-  services?: S;
+  services?: Services;
 }
 
 export interface State {
@@ -32,7 +35,12 @@ export enum Action {
   END,
 }
 
-class Runtime<R = any, DA extends DataAPI = DataAPI, S extends AnyRecord = AnyRecord> extends AbstractLifecycle {
+class Runtime<
+  Request = any,
+  DataAPI extends AnyDataAPI = AnyDataAPI,
+  Services extends BaseTypes.AnyRecord = BaseTypes.AnyRecord,
+  Version extends BaseTypes.BaseVersion.Version = BaseTypes.BaseVersion.Version
+> extends AbstractLifecycle {
   public turn: Store;
 
   public stack: Stack;
@@ -46,9 +54,9 @@ class Runtime<R = any, DA extends DataAPI = DataAPI, S extends AnyRecord = AnyRe
   public trace: Trace;
 
   // services
-  public services: S;
+  public services: Services;
 
-  public api: DA;
+  public api: DataAPI;
 
   public outgoingApiLimiter: OutgoingApiLimiter;
 
@@ -60,12 +68,14 @@ class Runtime<R = any, DA extends DataAPI = DataAPI, S extends AnyRecord = AnyRe
 
   public debugLogging: DebugLogging;
 
+  // eslint-disable-next-line max-params
   constructor(
     public versionID: string,
     state: State,
-    private request: R | null = null,
-    { services = {} as S, handlers = [], api }: Options<DA, S>,
-    events: Lifecycle
+    private request: Request | null = null,
+    { services = {} as Services, handlers = [], api }: Options<DataAPI, Services>,
+    events: Lifecycle,
+    public version?: Version
   ) {
     super(events);
 
@@ -107,7 +117,7 @@ class Runtime<R = any, DA extends DataAPI = DataAPI, S extends AnyRecord = AnyRe
     this.debugLogging = new DebugLogging(this.trace);
   }
 
-  getRequest(): R | null {
+  getRequest(): Request | null {
     return this.request;
   }
 

@@ -11,6 +11,8 @@ import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 const RepromptPathTrace = { type: 'path', payload: { path: 'reprompt' } };
 const NoMatchPathTrace = { type: 'path', payload: { path: 'choice:else' } };
 
+const GlobalNoMatch = { prompt: { content: 'Sorry, could not understand what you said' } };
+
 describe('noMatch handler unit tests', () => {
   describe('handle', () => {
     it('with noMatch', () => {
@@ -291,6 +293,46 @@ describe('noMatch handler unit tests', () => {
       });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(NON_NULL_STRING);
+    });
+
+    it('with global noMatch', () => {
+      const node = {
+        id: 'node-id',
+        noMatch: {
+          prompts: [],
+        },
+      };
+      const runtime = {
+        storage: {
+          produce: sinon.stub(),
+          get: sinon.stub().onFirstCall().returns(0).onSecondCall().returns(1),
+          set: sinon.stub(),
+          delete: sinon.stub(),
+        },
+        trace: {
+          addTrace: sinon.stub(),
+        },
+        version: {
+          platformData: {
+            settings: {
+              globalNoMatch: GlobalNoMatch,
+            },
+          },
+        },
+        debugLogging: null as unknown as DebugLogging,
+      };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
+      const variables = {
+        getState: sinon.stub().returns({}),
+      };
+
+      const noMatchHandler = NoMatchHandler({
+        outputTrace,
+        addButtonsIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
+      });
+      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+      expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(GlobalNoMatch.prompt.content);
     });
   });
 
