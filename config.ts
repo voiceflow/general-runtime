@@ -26,9 +26,9 @@ const CONFIG: Config = {
   AWS_ENDPOINT: getOptionalProcessEnv('AWS_ENDPOINT'),
   DYNAMO_ENDPOINT: getOptionalProcessEnv('DYNAMO_ENDPOINT'),
 
-  S3_ACCESS_KEY_ID: getRequiredProcessEnv('S3_ACCESS_KEY_ID'),
-  S3_SECRET_ACCESS_KEY: getRequiredProcessEnv('S3_SECRET_ACCESS_KEY'),
-  S3_TLS_BUCKET: getRequiredProcessEnv('S3_TLS_BUCKET'),
+  S3_ACCESS_KEY_ID: getOptionalProcessEnv('S3_ACCESS_KEY_ID'),
+  S3_SECRET_ACCESS_KEY: getOptionalProcessEnv('S3_SECRET_ACCESS_KEY'),
+  S3_TLS_BUCKET: getOptionalProcessEnv('S3_TLS_BUCKET'),
   S3_ENDPOINT: getOptionalProcessEnv('S3_ENDPOINT'),
 
   // code block
