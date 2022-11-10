@@ -89,6 +89,7 @@ class PublicController extends AbstractController {
           ...(user.image && { image: user.image }),
         },
       }),
+      unread: true,
       reportTags: [],
     };
 
