@@ -14,19 +14,12 @@ describe('nlu manager utils unit tests', () => {
   });
 
   describe('mapChannelData', () => {
-    [
-      VoiceflowConstants.PlatformType.GOOGLE,
-      VoiceflowConstants.PlatformType.DIALOGFLOW_ES,
-      VoiceflowConstants.PlatformType.DIALOGFLOW_ES_CHAT,
-      VoiceflowConstants.PlatformType.DIALOGFLOW_ES_VOICE,
-    ].forEach((platform) => {
-      it(`maps vf intents for ${platform} platform`, async () => {
-        const inputData = { payload: { intent: { name: VoiceflowConstants.IntentName.YES } } };
-        const outputData = mapChannelData(inputData, platform);
+    it(`maps vf intents for google platform`, async () => {
+      const inputData = { payload: { intent: { name: VoiceflowConstants.IntentName.YES } } };
+      const outputData = mapChannelData(inputData, VoiceflowConstants.PlatformType.GOOGLE);
 
-        const expectData = { payload: { intent: { name: GoogleConstants.GoogleIntent.YES } } };
-        expect(outputData).to.eql(expectData);
-      });
+      const expectData = { payload: { intent: { name: GoogleConstants.GoogleIntent.YES } } };
+      expect(outputData).to.eql(expectData);
     });
 
     // ALEXA

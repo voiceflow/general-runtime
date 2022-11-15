@@ -28,9 +28,6 @@ export const mapChannelData = (data: any, platform: VoiceflowConstants.PlatformT
   // this means old programs will hold VF intents, new ones wil hold channel intents
   const mapToUse = match(platform)
     .with(VoiceflowConstants.PlatformType.GOOGLE, () => googleIntentMap)
-    .with(VoiceflowConstants.PlatformType.DIALOGFLOW_ES, () => googleIntentMap)
-    .with(VoiceflowConstants.PlatformType.DIALOGFLOW_ES_CHAT, () => googleIntentMap)
-    .with(VoiceflowConstants.PlatformType.DIALOGFLOW_ES_VOICE, () => googleIntentMap)
     .with(VoiceflowConstants.PlatformType.ALEXA, () => {
       if (hasChannelIntents) return alexaIntentMap;
       return {};
