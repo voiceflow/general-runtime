@@ -74,8 +74,6 @@ export const NoMatchHandler = (utils: typeof utilsObj) => ({
       return node.noMatch?.nodeID ?? null;
     }
 
-    runtime.storage.set(StorageType.NO_MATCHES_COUNTER, noMatchCounter + 1);
-
     runtime.trace.addTrace<BaseTrace.PathTrace>({
       type: BaseNode.Utils.TraceType.PATH,
       payload: { path: 'reprompt' },
@@ -88,6 +86,13 @@ export const NoMatchHandler = (utils: typeof utilsObj) => ({
       output,
       variables: variables.getState(),
     });
+
+    if (node.noMatch?.nodeID) {
+      runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);
+      return node.noMatch.nodeID;
+    }
+
+    runtime.storage.set(StorageType.NO_MATCHES_COUNTER, noMatchCounter + 1);
 
     utils.addButtonsIfExists(node, runtime, variables);
     utils.addNoReplyTimeoutIfExists(node, runtime);

@@ -136,7 +136,7 @@ describe('noMatch handler unit tests', () => {
           { intent: 'address_intent' },
           { event: { type: BaseNode.Utils.EventType.INTENT, intent: 'phone_number_intent' } },
         ],
-        noMatch: { nodeID: 'next-id', prompts: ['the counter is {counter}'], randomize: false },
+        noMatch: { nodeID: undefined, prompts: ['the counter is {counter}'], randomize: false },
       };
       const runtime = {
         storage: {
@@ -164,6 +164,68 @@ describe('noMatch handler unit tests', () => {
       });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql('node-id');
       expect(addButtonsIfExists.args).to.eql([[node, runtime, variables]]);
+      expect(runtime.trace.addTrace.args).to.eql([
+        [RepromptPathTrace],
+        [
+          {
+            type: 'speak',
+            payload: {
+              message: 'the counter is {counter}',
+              type: 'message',
+            },
+          },
+        ],
+        [
+          {
+            type: 'log',
+            payload: {
+              kind: 'step.speak',
+              level: 'info',
+              message: {
+                componentName: 'speak',
+                stepID: 'node-id',
+                text: 'the counter is {counter}',
+              },
+              timestamp: getISO8601Timestamp(),
+            },
+          },
+        ],
+      ]);
+    });
+
+    it('with noMatch and path', () => {
+      const node = {
+        id: 'node-id',
+        buttons: [],
+        noMatch: { nodeID: 'next-id', prompts: ['the counter is {counter}'], randomize: false },
+      };
+      const runtime = {
+        storage: {
+          produce: sinon.stub(),
+          get: sinon.stub().onFirstCall().returns(0).onSecondCall().returns(1),
+          set: sinon.stub(),
+          delete: sinon.stub(),
+        },
+        trace: {
+          addTrace: sinon.stub(),
+        },
+        debugLogging: null as unknown as DebugLogging,
+      };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
+
+      const variables = {
+        getState: sinon.stub().returns({}),
+      };
+
+      const addButtonsIfExists = sinon.stub();
+
+      const noMatchHandler = NoMatchHandler({
+        outputTrace,
+        addButtonsIfExists,
+        addNoReplyTimeoutIfExists: sinon.stub(),
+      });
+      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql('next-id');
+
       expect(runtime.trace.addTrace.args).to.eql([
         [RepromptPathTrace],
         [
