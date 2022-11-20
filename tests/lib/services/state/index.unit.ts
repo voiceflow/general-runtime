@@ -1,9 +1,12 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import StateManager, { utils as defaultUtils } from '@/lib/services/state';
+import StateManager, { utils } from '@/lib/services/state';
 
 const VERSION_ID = 'version_id';
+const defaultTimestamp = 1234567890;
+const userID = 'user_id';
+
 const version = {
   _id: VERSION_ID,
   prototype: {
@@ -29,9 +32,11 @@ const state = {
       variables: {},
     },
   ],
-  variables: { slot1: 0, variable1: 1, variable2: 2 },
+  variables: { slot1: 0, variable1: 1, variable2: 2, sessions: 1, timestamp: defaultTimestamp, user_id: userID },
   storage: {},
 };
+
+const defaultUtils = { ...utils, getTime: sinon.stub().returns(defaultTimestamp) };
 
 describe('state manager unit tests', () => {
   afterEach(() => {
@@ -51,7 +56,7 @@ describe('state manager unit tests', () => {
 
       expect(await stateManager.generate(version as any)).to.eql({
         ...state,
-        variables: { variable1: 1, variable2: 2 },
+        variables: { sessions: 1, variable1: 1, variable2: 2 },
       });
       expect(services.dataAPI.get.callCount).to.eql(0);
       expect(getVersionStub.callCount).to.eql(0);
@@ -69,7 +74,7 @@ describe('state manager unit tests', () => {
       const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
 
       expect(await stateManager.initializeVariables(version as any, {} as any)).to.eql({
-        variables: { variable1: 0, slot1: 0 },
+        variables: { variable1: 0, slot1: 0, timestamp: defaultTimestamp },
       });
       expect(services.dataAPI.getVersion.callCount).to.eql(0);
     });
@@ -90,6 +95,7 @@ describe('state manager unit tests', () => {
         versionID: VERSION_ID,
         projectID: version.projectID,
         data: { foo: 'bar' },
+        userID,
       } as any;
 
       const newContext = await stateManager.handle(context);
@@ -99,6 +105,7 @@ describe('state manager unit tests', () => {
         versionID: VERSION_ID,
         projectID: version.projectID,
         state,
+        userID,
         version,
         trace: [],
         data: {
@@ -143,6 +150,7 @@ describe('state manager unit tests', () => {
         versionID: VERSION_ID,
         projectID: version.projectID,
         data: { foo: 'bar' },
+        userID,
       } as any;
 
       const newContext = await stateManager.handle(context);
@@ -151,6 +159,7 @@ describe('state manager unit tests', () => {
         request: null,
         versionID: VERSION_ID,
         version,
+        userID,
         projectID: version.projectID,
         state,
         trace: [],
@@ -179,6 +188,7 @@ describe('state manager unit tests', () => {
         versionID: VERSION_ID,
         projectID: version.projectID,
         data: { foo: 'bar' },
+        userID,
       } as any;
 
       const newContext = await stateManager.handle(context);
@@ -190,6 +200,7 @@ describe('state manager unit tests', () => {
         state,
         trace: [],
         version,
+        userID,
         data: {
           ...context.data,
           locale: version.prototype.data.locales[0],

@@ -7,7 +7,9 @@ import { Context, InitContextHandler } from '@/types';
 import { AbstractManager, injectServices } from '../utils';
 import CacheDataAPI from './cacheDataAPI';
 
-export const utils = {};
+export const utils = {
+  getTime: () => Math.floor(Date.now() / 1000),
+};
 
 const initializeStore = (variables: string[], defaultValue = 0) =>
   variables.reduce<Record<string, any>>((acc, variable) => {
@@ -38,7 +40,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
 
     // new session default variables
     variables.sessions = (_.isNumber(variables.sessions) ? variables.sessions : 0) + 1;
-    variables.user_id = userID;
+    if (userID) variables.user_id = userID;
 
     return {
       stack,
@@ -61,7 +63,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     };
 
     // new turn default variables
-    variables.timestamp = Math.floor(Date.now() / 1000); // unix time in seconds
+    variables.timestamp = this.services.utils.getTime(); // unix time in seconds
 
     return {
       ...state,
