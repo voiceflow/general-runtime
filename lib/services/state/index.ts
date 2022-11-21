@@ -56,18 +56,14 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
   initializeVariables(version: BaseModels.Version.Model<any>, state: State) {
     const entities = version.prototype?.model.slots.map(({ name }) => name) || [];
 
-    const variables = {
-      ...initializeStore(entities),
-      ...initializeStore(version.variables),
-      ...state.variables,
-    };
-
-    // new turn default variables
-    variables.timestamp = this.services.utils.getTime(); // unix time in seconds
-
     return {
       ...state,
-      variables,
+      variables: {
+        ...initializeStore(entities),
+        ...initializeStore(version.variables),
+        ...state.variables,
+        timestamp: this.services.utils.getTime(), // unix time in seconds
+      },
     };
   }
 
