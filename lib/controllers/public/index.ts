@@ -75,10 +75,23 @@ class PublicController extends AbstractController {
     const { mongo } = this.services;
     if (!mongo) throw new Error('mongo not initialized');
 
-    const data = {
+    const data: {
+      projectID: ObjectId;
+      sessionID: string;
+      createdAt?: Date;
+      updatedAt: Date;
+      os?: string | undefined;
+      device?: string | undefined;
+      browser?: string | undefined;
+      user?: {
+        name?: string | undefined;
+        image?: string | undefined;
+      };
+      reportTags?: any[];
+      unread?: boolean;
+    } = {
       projectID: new ObjectId(projectID),
       sessionID,
-      createdAt: new Date(),
       updatedAt: new Date(),
       ...(os && { os }),
       ...(device && { device }),
@@ -89,11 +102,18 @@ class PublicController extends AbstractController {
           ...(user.image && { image: user.image }),
         },
       }),
-      unread: true,
-      reportTags: [],
     };
 
-    const { value } = await mongo.db
+    const oldTranscript = await mongo.db
+      .collection('transcripts')
+      .findOne({ projectID: data.projectID, sessionID: data.sessionID });
+    if (!oldTranscript) {
+      data.createdAt = data.updatedAt;
+      data.unread = true;
+      data.reportTags = [];
+    }
+
+    const { value: newTranscript } = await mongo.db
       .collection('transcripts')
       .findOneAndUpdate(
         { projectID: data.projectID, sessionID: data.sessionID },
@@ -101,7 +121,7 @@ class PublicController extends AbstractController {
         { upsert: true, returnOriginal: false }
       );
 
-    return value;
+    return newTranscript;
   }
 }
 
