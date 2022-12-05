@@ -1,11 +1,11 @@
 import { BaseModels, BaseRequest } from '@voiceflow/base-types';
 import { getUtterancesWithSlotNames } from '@voiceflow/common';
 import NLC, { IIntentFullfilment, IIntentSlot } from '@voiceflow/natural-language-commander';
-import { getRequired } from '@voiceflow/natural-language-commander/dist/lib/standardSlots';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import log from '@/logger';
 
+import { dmPrefix } from '../dialog/utils';
 import { getNoneIntentRequest } from './utils';
 
 export const registerSlots = (nlc: NLC, { slots }: BaseModels.PrototypeModel, openSlot: boolean) => {
@@ -30,11 +30,13 @@ export const registerSlots = (nlc: NLC, { slots }: BaseModels.PrototypeModel, op
   });
 };
 
-export const registerIntents = (nlc: NLC, { slots, intents }: BaseModels.PrototypeModel) => {
+export const registerIntents = (
+  nlc: NLC,
+  { slots, intents }: BaseModels.PrototypeModel,
+  dmRequest?: BaseRequest.IntentRequestPayload
+) => {
   intents.forEach((intent) => {
-    const samples = getUtterancesWithSlotNames({ slots, utterances: intent.inputs })
-      .map((value) => value.trim())
-      .filter(Boolean);
+    const samples = getUtterancesWithSlotNames({ slots, utterances: intent.inputs });
 
     let intentSlots: IIntentSlot[] = [];
 
@@ -44,6 +46,25 @@ export const registerIntents = (nlc: NLC, { slots, intents }: BaseModels.Prototy
 
         if (!slot) {
           return acc;
+        }
+
+        // inject intent slot utterances as utterances
+        if (intent.name === dmRequest?.intent.name) {
+          const prefix = dmPrefix(intent.name);
+          const dmUtterances = getUtterancesWithSlotNames({
+            slots,
+            utterances:
+              intentSlot.dialog?.utterances.map((utterance) => ({
+                text: `${prefix} ${utterance.text}`,
+              })) ?? [],
+          });
+
+          // if slot is filled already add it to end of samples
+          if (dmRequest.entities?.find((entity) => entity.name === slot.name)) {
+            samples.push(...dmUtterances);
+          } else {
+            samples.unshift(...dmUtterances);
+          }
         }
 
         return [
@@ -61,7 +82,7 @@ export const registerIntents = (nlc: NLC, { slots, intents }: BaseModels.Prototy
       nlc.registerIntent({
         slots: intentSlots,
         intent: intent.name,
-        utterances: samples,
+        utterances: samples.map((value) => value.trim()).filter(Boolean),
       });
     } catch (error) {
       log.debug(`[app] [runtime] [nlc] unable to register custom intent ${log.vars({ error, intent: intent.name })}`);
@@ -88,15 +109,17 @@ export const createNLC = ({
   model,
   locale,
   openSlot,
+  dmRequest,
 }: {
   model: BaseModels.PrototypeModel;
   locale: VoiceflowConstants.Locale;
   openSlot: boolean;
+  dmRequest?: BaseRequest.IntentRequestPayload;
 }) => {
   const nlc = new NLC();
 
   registerSlots(nlc, model, openSlot);
-  registerIntents(nlc, model);
+  registerIntents(nlc, model, dmRequest);
   registerBuiltInIntents(nlc, locale);
 
   return nlc;
@@ -123,41 +146,17 @@ export const handleNLCCommand = ({
   model,
   locale,
   openSlot = true,
-}: {
-  query: string;
-  model: BaseModels.PrototypeModel;
-  locale: VoiceflowConstants.Locale;
-  openSlot: boolean;
-}): BaseRequest.IntentRequest => {
-  const nlc = createNLC({ model, locale, openSlot });
-
-  // ensure open slot is lower than the capture step threshold
-  const confidence = openSlot ? 0.5 : 1;
-  return nlcToIntent(nlc.handleCommand(query), query, confidence);
-};
-
-export const handleNLCDialog = ({
-  query,
-  model,
-  locale,
   dmRequest,
 }: {
   query: string;
   model: BaseModels.PrototypeModel;
   locale: VoiceflowConstants.Locale;
-  dmRequest: BaseRequest.IntentRequest;
+  openSlot: boolean;
+  dmRequest?: BaseRequest.IntentRequestPayload;
 }): BaseRequest.IntentRequest => {
-  const nlc = createNLC({ model, locale, openSlot: true });
+  const nlc = createNLC({ model, locale, openSlot, dmRequest });
 
-  const intentName = dmRequest.payload.intent.name;
-  const filledEntities = dmRequest.payload.entities;
-
-  // turn the dmRequest into IIntentFullfilment
-  const fulfillment: IIntentFullfilment = {
-    intent: intentName,
-    slots: filledEntities, // luckily payload.entities and ISlotFullfilment are compatible
-    required: getRequired(nlc.getIntent(intentName)?.slots || [], filledEntities),
-  };
-
-  return nlcToIntent(nlc.handleDialog(fulfillment, query), query);
+  // ensure open slot is lower than the capture step threshold
+  const confidence = openSlot ? 0.5 : 1;
+  return nlcToIntent(nlc.handleCommand(query), query, confidence);
 };

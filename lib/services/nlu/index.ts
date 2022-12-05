@@ -31,6 +31,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     nlp,
     hasChannelIntents,
     platform,
+    dmRequest,
   }: {
     query: string;
     model?: BaseModels.PrototypeModel;
@@ -41,10 +42,11 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     nlp: BaseModels.Project.PrototypeNLP | undefined;
     hasChannelIntents: boolean;
     platform: VoiceflowConstants.PlatformType;
+    dmRequest?: BaseRequest.IntentRequestPayload;
   }): Promise<BaseRequest.IntentRequest> {
     // 1. first try restricted regex (no open slots) - exact string match
     if (model && locale) {
-      const data = handleNLCCommand({ query, model, locale, openSlot: false });
+      const data = handleNLCCommand({ query, model, locale, openSlot: false, dmRequest });
       if (data.payload.intent.name !== VoiceflowConstants.IntentName.NONE) {
         return mapChannelData(data, platform, hasChannelIntents);
       }
@@ -76,7 +78,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     if (!locale) {
       throw new VError('Locale not found', HTTP_STATUS.NOT_FOUND);
     }
-    const data = handleNLCCommand({ query, model, locale, openSlot: true });
+    const data = handleNLCCommand({ query, model, locale, openSlot: true, dmRequest });
     return mapChannelData(data, platform, hasChannelIntents);
   }
 

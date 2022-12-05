@@ -16,7 +16,6 @@ import log from '@/logger';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
-import { handleNLCDialog } from '../nlu/nlc';
 import { getNoneIntentRequest } from '../nlu/utils';
 import { isIntentRequest, StorageType } from '../runtime/types';
 import { outputTrace } from '../runtime/utils';
@@ -135,6 +134,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               nlp: project.nlp,
               hasChannelIntents: project?.platformData?.hasChannelIntents,
               platform: version.prototype.platform as VoiceflowConstants.PlatformType,
+              dmRequest: dmStateStore.intentRequest.payload,
             })
           : incomingRequest;
 
@@ -152,21 +152,8 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
           };
         }
       } catch (err) {
-        const resultNLC = handleNLCDialog({
-          query,
-          model: version.prototype.model,
-          locale: version.prototype.data!.locales[0] as VoiceflowConstants.Locale,
-          dmRequest: dmStateStore.intentRequest,
-        });
-
-        if (resultNLC.payload.intent.name === VoiceflowConstants.IntentName.NONE) {
-          return {
-            ...DialogManagement.setDMStore(context, { ...dmStateStore, intentRequest: undefined }),
-            request: getNoneIntentRequest(query),
-          };
-        }
-
-        dmStateStore.intentRequest = resultNLC;
+        // if something happens just say the intent is the initially resolved intent
+        dmStateStore.intentRequest = incomingRequest;
       }
     } else {
       log.debug('[app] [runtime] [dm] in regular context');

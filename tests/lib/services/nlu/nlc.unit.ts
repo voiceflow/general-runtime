@@ -9,7 +9,6 @@ import * as nlc from '@/lib/services/nlu/nlc';
 import {
   createNLC,
   handleNLCCommand,
-  handleNLCDialog,
   nlcToIntent,
   registerBuiltInIntents,
   registerSlots,
@@ -78,75 +77,6 @@ describe('nlu nlc service unit tests', () => {
       expect(createNLCStub.args).to.eql([[{ model, locale, openSlot: false }]]);
       expect(nlcObj.handleCommand.args).to.eql([[query]]);
       expect(nlcToIntentStub.args).to.eql([[commandRes, query, 1]]);
-    });
-  });
-
-  describe('handleNLCDialog', () => {
-    it('works', () => {
-      const dialogRes = { foo: 'bar' };
-      const intent = { slots: ['s1', 's2'] };
-      const nlcObj = { handleDialog: sinon.stub().returns(dialogRes), getIntent: sinon.stub().returns(intent) };
-      const createNLCStub = sinon.stub(nlc, 'createNLC').returns(nlcObj as any);
-
-      const required = true;
-      const getRequiredStub = sinon.stub(standardSlots, 'getRequired').returns(required as any);
-
-      const output = 'output';
-      const nlcToIntentStub = sinon.stub(nlc, 'nlcToIntent').returns(output as any);
-
-      const query = 'query';
-      const model = 'model';
-      const locale = 'locale';
-      const dmRequest = { payload: { intent: { name: 'intent_name' }, entities: ['e1', 'e2'] } };
-
-      expect(handleNLCDialog({ query, model, locale, dmRequest } as any)).to.eql(output);
-      expect(createNLCStub.args).to.eql([[{ model, locale, openSlot: true }]]);
-      expect(nlcObj.getIntent.args).to.eql([[dmRequest.payload.intent.name]]);
-      expect(getRequiredStub.args).to.eql([[intent.slots, dmRequest.payload.entities]]);
-      expect(nlcObj.handleDialog.args).to.eql([
-        [
-          {
-            intent: dmRequest.payload.intent.name,
-            required,
-            slots: dmRequest.payload.entities,
-          },
-          query,
-        ],
-      ]);
-      expect(nlcToIntentStub.args).to.eql([[dialogRes, query]]);
-    });
-
-    it('no intent', () => {
-      const dialogRes = { foo: 'bar' };
-      const nlcObj = { handleDialog: sinon.stub().returns(dialogRes), getIntent: sinon.stub().returns(null) };
-      const createNLCStub = sinon.stub(nlc, 'createNLC').returns(nlcObj as any);
-
-      const required = true;
-      const getRequiredStub = sinon.stub(standardSlots, 'getRequired').returns(required as any);
-
-      const output = 'output';
-      const nlcToIntentStub = sinon.stub(nlc, 'nlcToIntent').returns(output as any);
-
-      const query = 'query';
-      const model = 'model';
-      const locale = 'locale';
-      const dmRequest = { payload: { intent: { name: 'intent_name' }, entities: ['e1', 'e2'] } };
-
-      expect(handleNLCDialog({ query, model, locale, dmRequest } as any)).to.eql(output);
-      expect(createNLCStub.args).to.eql([[{ model, locale, openSlot: true }]]);
-      expect(nlcObj.getIntent.args).to.eql([[dmRequest.payload.intent.name]]);
-      expect(getRequiredStub.args).to.eql([[[], dmRequest.payload.entities]]);
-      expect(nlcObj.handleDialog.args).to.eql([
-        [
-          {
-            intent: dmRequest.payload.intent.name,
-            required,
-            slots: dmRequest.payload.entities,
-          },
-          query,
-        ],
-      ]);
-      expect(nlcToIntentStub.args).to.eql([[dialogRes, query]]);
     });
   });
 
