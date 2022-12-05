@@ -11,6 +11,7 @@ import {
   handleNLCCommand,
   nlcToIntent,
   registerBuiltInIntents,
+  registerIntents,
   registerSlots,
 } from '@/lib/services/nlu/nlc';
 import * as utils from '@/lib/services/nlu/utils';
@@ -33,11 +34,12 @@ describe('nlu nlc service unit tests', () => {
       const model = 'model';
       const locale = 'locale';
       const openSlot = 'openSlot';
+      const dmRequest = 'dmRequest';
 
       expect(createNLC({ model, locale, openSlot } as any)).to.eql(nlcObj);
       expect(NLCStub.callCount).to.eql(1);
       expect(registerSlotsStub.args).to.eql([[nlcObj, model, openSlot]]);
-      expect(registerIntentsStub.args).to.eql([[nlcObj, model]]);
+      expect(registerIntentsStub.args).to.eql([[nlcObj, model, dmRequest]]);
       expect(registerBuiltInIntentsStub.args).to.eql([[nlcObj, locale]]);
     });
   });
@@ -54,9 +56,10 @@ describe('nlu nlc service unit tests', () => {
       const query = 'query';
       const model = 'model';
       const locale = 'locale';
+      const dmRequest = 'dmRequest';
 
-      expect(handleNLCCommand({ query, model, locale } as any)).to.eql(output);
-      expect(createNLCStub.args).to.eql([[{ model, locale, openSlot: true }]]);
+      expect(handleNLCCommand({ query, model, locale, dmRequest } as any)).to.eql(output);
+      expect(createNLCStub.args).to.eql([[{ model, locale, openSlot: true, dmRequest }]]);
       expect(nlcObj.handleCommand.args).to.eql([[query]]);
       expect(nlcToIntentStub.args).to.eql([[commandRes, query, 0.5]]);
     });
@@ -72,9 +75,10 @@ describe('nlu nlc service unit tests', () => {
       const query = 'query';
       const model = 'model';
       const locale = 'locale';
+      const dmRequest = 'dmRequest';
 
-      expect(handleNLCCommand({ query, model, locale, openSlot: false } as any)).to.eql(output);
-      expect(createNLCStub.args).to.eql([[{ model, locale, openSlot: false }]]);
+      expect(handleNLCCommand({ query, model, locale, openSlot: false, dmRequest } as any)).to.eql(output);
+      expect(createNLCStub.args).to.eql([[{ model, locale, openSlot: false, dmRequest }]]);
       expect(nlcObj.handleCommand.args).to.eql([[query]]);
       expect(nlcToIntentStub.args).to.eql([[commandRes, query, 1]]);
     });
@@ -243,6 +247,118 @@ describe('nlu nlc service unit tests', () => {
         [{ type: slots[5].name, matcher: matcherRegex }],
         [{ type: slots[6].name, matcher: matcherRegex }],
         [{ type: slots[7].name, matcher: matcherRegex }],
+      ]);
+    });
+  });
+
+  describe.only('registerIntents', () => {
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('works', () => {
+      const nlcObj = {
+        registerIntent: sinon.stub(),
+      };
+
+      const slots = [
+        {
+          key: 'slot1',
+          name: 'slot1name',
+        },
+      ];
+      const intents = [
+        { name: 'intent1', inputs: [{ text: 'input1' }], slots: [] },
+        {
+          name: 'intent2',
+          inputs: [{ text: 'input2 {{[slot1name].slot1}}' }],
+          slots: [{ id: 'slot1', required: true }],
+        },
+      ];
+
+      registerIntents(nlcObj as any, { intents, slots } as any);
+
+      expect(nlcObj.registerIntent.args).to.eql([
+        [{ intent: intents[0].name, utterances: ['input1'], slots: intents[0].slots }],
+        [
+          {
+            intent: intents[1].name,
+            utterances: ['input2 {slot1name}'],
+            slots: [{ name: 'slot1name', required: true, type: 'slot1name' }],
+          },
+        ],
+      ]);
+    });
+
+    it('works with dmRequest', () => {
+      const nlcObj = {
+        registerIntent: sinon.stub(),
+      };
+
+      const slots = [
+        {
+          key: 'slot1',
+          name: 'slot1name',
+        },
+        {
+          key: 'slot2',
+          name: 'slot2name',
+        },
+      ];
+      const intents = [
+        {
+          name: 'intent1',
+          inputs: [{ text: 'input1' }],
+          slots: [
+            {
+              id: 'slot1',
+              required: true,
+              dialog: {
+                utterances: [
+                  { text: 'intent1 {{[slot1name].slot1}} utterance1' },
+                  { text: 'intent1 {{[slot1name].slot1}} utterance2' },
+                ],
+              },
+            },
+            {
+              id: 'slot2',
+              required: true,
+              dialog: {
+                utterances: [
+                  { text: 'intent1 {{[slot2name].slot2}} utterance1' },
+                  { text: 'intent1 {{[slot2name].slot2}} utterance2' },
+                ],
+              },
+            },
+          ],
+        },
+      ];
+
+      const dmRequest = {
+        intent: { name: 'intent1' },
+        query: '',
+        entities: [{ name: 'slot1name', value: 'slot1value' }],
+      };
+
+      registerIntents(nlcObj as any, { intents, slots } as any, dmRequest);
+
+      expect(nlcObj.registerIntent.args).to.eql([
+        [
+          {
+            intent: intents[0].name,
+            utterances: [
+              '38c7c7a016 intent1 {slot2name} utterance1',
+              '38c7c7a016 intent1 {slot2name} utterance2',
+              'input1', // this should be in the middle since slot1name is already filled in dmRequest
+              '38c7c7a016 intent1 {slot1name} utterance1',
+              '38c7c7a016 intent1 {slot1name} utterance2',
+            ],
+            slots: [
+              { name: 'slot1name', required: true, type: 'slot1name' },
+              { name: 'slot2name', required: true, type: 'slot2name' },
+            ],
+          },
+        ],
       ]);
     });
   });
