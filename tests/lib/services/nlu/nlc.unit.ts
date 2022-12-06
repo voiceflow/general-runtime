@@ -251,7 +251,7 @@ describe('nlu nlc service unit tests', () => {
     });
   });
 
-  describe.only('registerIntents', () => {
+  describe('registerIntents', () => {
     afterEach(() => {
       sinon.restore();
     });
