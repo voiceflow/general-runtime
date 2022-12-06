@@ -36,7 +36,7 @@ describe('nlu nlc service unit tests', () => {
       const openSlot = 'openSlot';
       const dmRequest = 'dmRequest';
 
-      expect(createNLC({ model, locale, openSlot } as any)).to.eql(nlcObj);
+      expect(createNLC({ model, locale, openSlot, dmRequest } as any)).to.eql(nlcObj);
       expect(NLCStub.callCount).to.eql(1);
       expect(registerSlotsStub.args).to.eql([[nlcObj, model, openSlot]]);
       expect(registerIntentsStub.args).to.eql([[nlcObj, model, dmRequest]]);
