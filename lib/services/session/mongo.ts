@@ -54,11 +54,10 @@ class SessionManager extends AbstractManager {
     const id = this.getSessionID(_projectID, userID);
 
     const {
-      deletedCount,
       result: { ok },
     } = await mongo!.db.collection(this.collectionName).deleteOne({ projectID, id });
 
-    if (!ok || deletedCount !== 1) {
+    if (!ok) {
       throw Error('delete runtime session error');
     }
   }
