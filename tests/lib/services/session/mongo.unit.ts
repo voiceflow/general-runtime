@@ -104,7 +104,7 @@ describe('mongo sessionManager unit tests', async () => {
     });
 
     it('not deleted', async () => {
-      const deleteOne = sinon.stub().resolves({ result: { ok: true }, deletedCount: 0 });
+      const deleteOne = sinon.stub().resolves({ result: { ok: false }, deletedCount: 0 });
       const state = new SessionManager(
         { mongo: { db: { collection: sinon.stub().returns({ deleteOne }) } } } as any,
         {} as any
@@ -114,6 +114,27 @@ describe('mongo sessionManager unit tests', async () => {
       const userID = 'user-id';
 
       await expect(state.deleteFromDb(projectID, userID)).to.eventually.rejectedWith('delete runtime session error');
+      expect(deleteOne.args).to.eql([
+        [
+          {
+            projectID: new ObjectId(projectID),
+            id: `${SessionManager.GENERAL_SESSIONS_MONGO_PREFIX}.${projectID}.${userID}`,
+          },
+        ],
+      ]);
+    });
+
+    it('is idempotent', async () => {
+      const deleteOne = sinon.stub().resolves({ result: { ok: true }, deletedCount: 0 });
+      const state = new SessionManager(
+        { mongo: { db: { collection: sinon.stub().returns({ deleteOne }) } } } as any,
+        {} as any
+      );
+
+      const projectID = '60660078d1be7ef51a0be899';
+      const userID = 'user-id';
+
+      await state.deleteFromDb(projectID, userID);
       expect(deleteOne.args).to.eql([
         [
           {
