@@ -49,7 +49,7 @@ export const registerIntents = (
         }
 
         // inject intent slot utterances as utterances
-        if (intent.name === dmRequest?.intent.name) {
+        if (intent.name === dmRequest?.intent.name && intentSlot.required) {
           const prefix = dmPrefix(intent.name);
           const dmUtterances = getUtterancesWithSlotNames({
             slots,
@@ -58,6 +58,8 @@ export const registerIntents = (
                 text: `${prefix} ${utterance.text}`,
               })) ?? [],
           });
+          // also inject entity-only utterance
+          dmUtterances.push(`${prefix} {${slot.name}}`);
 
           // if slot is filled already add it to end of samples
           if (dmRequest.entities?.find((entity) => entity.name === slot.name)) {
