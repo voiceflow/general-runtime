@@ -49,6 +49,12 @@ const getOutput = (node: NoMatchNode, runtime: Runtime, noMatchCounter: number) 
       : nonEmptyNoMatches[noMatchCounter];
   }
 
+  // if we have exhausted reprompts AND there is a following action,
+  // we should not continue prompting
+  if (node.noMatch?.nodeID) {
+    return null;
+  }
+
   if (!isPromptContentEmpty(globalNoMatchPrompt?.content)) {
     return globalNoMatchPrompt?.content;
   }
@@ -86,11 +92,6 @@ export const NoMatchHandler = (utils: typeof utilsObj) => ({
       output,
       variables: variables.getState(),
     });
-
-    if (node.noMatch?.nodeID) {
-      runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);
-      return node.noMatch.nodeID;
-    }
 
     runtime.storage.set(StorageType.NO_MATCHES_COUNTER, noMatchCounter + 1);
 
