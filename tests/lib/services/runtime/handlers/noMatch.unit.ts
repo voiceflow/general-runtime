@@ -224,7 +224,7 @@ describe('noMatch handler unit tests', () => {
         addButtonsIfExists,
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
-      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql('next-id');
+      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql('node-id');
 
       expect(runtime.trace.addTrace.args).to.eql([
         [RepromptPathTrace],
