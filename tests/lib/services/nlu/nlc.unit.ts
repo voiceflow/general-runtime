@@ -1,6 +1,5 @@
 import { BaseRequest } from '@voiceflow/base-types';
 import * as NLC from '@voiceflow/natural-language-commander';
-import * as standardSlots from '@voiceflow/natural-language-commander/dist/lib/standardSlots';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -349,9 +348,11 @@ describe('nlu nlc service unit tests', () => {
             utterances: [
               '38c7c7a016 intent1 {slot2name} utterance1',
               '38c7c7a016 intent1 {slot2name} utterance2',
+              '38c7c7a016 {slot2name}',
               'input1', // this should be in the middle since slot1name is already filled in dmRequest
               '38c7c7a016 intent1 {slot1name} utterance1',
               '38c7c7a016 intent1 {slot1name} utterance2',
+              '38c7c7a016 {slot1name}',
             ],
             slots: [
               { name: 'slot1name', required: true, type: 'slot1name' },
