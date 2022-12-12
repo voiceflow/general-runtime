@@ -3016,6 +3016,11 @@ ask-sdk-model-runtime@^1.1.0:
   resolved "https://registry.yarnpkg.com/ask-sdk-model-runtime/-/ask-sdk-model-runtime-1.4.0.tgz#7ec395985c433dd9118a238932ac3a8ac8c0c0bd"
   integrity sha512-JSu9zGklm8jtaQMk344BTJqVSX/tenFNB7b+jgnoHDp4aRwmzCAlDnBiiNAVMXlbrBeIi+ms79yK1s2oq0PjFg==
 
+ask-sdk-model@1.31.0:
+  version "1.31.0"
+  resolved "https://registry.yarnpkg.com/ask-sdk-model/-/ask-sdk-model-1.31.0.tgz#54f4c86e8bd74d97d1edae4f9e526acef42db376"
+  integrity sha512-PupmNdxazlQWdxewhjCYMhzzNLfCpUYMnqwNldpCHYOctiQaW7paMRhc0wm7wTaSE8X6X7Ff2IZT46SVhokODA==
+
 ask-smapi-model@1.14.0:
   version "1.14.0"
   resolved "https://registry.yarnpkg.com/ask-smapi-model/-/ask-smapi-model-1.14.0.tgz#1076b92eef9fa08a8d29b7c24b0e0063ba809b02"
