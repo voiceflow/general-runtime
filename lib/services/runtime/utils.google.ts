@@ -10,7 +10,7 @@ import {
   slateToPlaintext,
 } from '@/lib/services/runtime/utils';
 import { Runtime, Store } from '@/runtime';
-import { Storage } from '@/runtime/lib/constants/flags.google';
+import { GoogleStorage as Storage } from '@/runtime/lib/Constants';
 
 import { isAnyPrompt } from './types.google';
 

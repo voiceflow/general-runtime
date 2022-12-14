@@ -2,7 +2,7 @@ import { BaseModels, BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory } from '@/runtime';
-import { Storage } from '@/runtime/lib/constants/flags.google';
+import { GoogleStorage as Storage } from '@/runtime/lib/Constants';
 
 import { addButtonsIfExists } from '../../utils';
 import { addRepromptIfExists, isGooglePlatform, mapSlots } from '../../utils.google';

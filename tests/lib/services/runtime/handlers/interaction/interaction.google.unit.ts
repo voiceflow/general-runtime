@@ -5,7 +5,7 @@ import sinon from 'sinon';
 
 import { InteractionGoogleHandler } from '@/lib/services/runtime/handlers/interaction/interaction.google';
 import { Action } from '@/runtime';
-import { Storage } from '@/runtime/lib/constants/flags.google';
+import { GoogleStorage as Storage } from '@/runtime/lib/Constants';
 
 describe('interaction handler unit tests', async () => {
   afterEach(() => sinon.restore());
