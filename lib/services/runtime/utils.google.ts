@@ -3,9 +3,16 @@ import { replaceVariables, sanitizeVariables, transformStringVariableToNumber } 
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
-import { EMPTY_AUDIO_STRING, slateInjectVariables, slateToPlaintext } from '@/lib/services/runtime/utils';
+import {
+  EMPTY_AUDIO_STRING,
+  isPromptContentEmpty,
+  slateInjectVariables,
+  slateToPlaintext,
+} from '@/lib/services/runtime/utils';
 import { Runtime, Store } from '@/runtime';
 import { Storage } from '@/runtime/lib/constants/flags.google';
+
+import { isAnyPrompt } from './types.google';
 
 interface GoogleDateTimeSlot {
   seconds: number;
@@ -74,8 +81,8 @@ export const addVariables =
 export const removeEmptyPrompts = (prompts?: VoiceflowNode.Utils.VoiceflowPrompt[] | null): string[] =>
   prompts?.filter((prompt): prompt is string => typeof prompt === 'string' && prompt !== EMPTY_AUDIO_STRING) ?? [];
 
-export const addRepromptIfExists = <B extends VoiceflowNode.Utils.NoReplyNode>(
-  node: B,
+export const addRepromptIfExists = <Node extends VoiceflowNode.Utils.NoReplyNode>(
+  node: Node,
   runtime: Runtime,
   variables: Store
 ): void => {
@@ -83,6 +90,12 @@ export const addRepromptIfExists = <B extends VoiceflowNode.Utils.NoReplyNode>(
 
   if (prompt && typeof prompt === 'string') {
     runtime.storage.set(Storage.REPROMPT, replaceVariables(prompt, variables.getState()));
+    return;
+  }
+
+  const globalNoReply = getGlobalNoReplyPrompt(runtime)?.content;
+  if (globalNoReply && !isPromptContentEmpty(globalNoReply)) {
+    runtime.storage.set(Storage.REPROMPT, processOutput(globalNoReply, variables));
   }
 };
 
@@ -98,4 +111,19 @@ export const processOutput = (output: string | Text.SlateTextValue | undefined, 
   // handle slate text
   const content = slateInjectVariables(output, sanitizedVars);
   return slateToPlaintext(content);
+};
+
+export const getGlobalNoMatchPrompt = (runtime: Runtime) => {
+  const { version } = runtime;
+
+  return isAnyPrompt(version?.platformData.settings?.globalNoMatch?.prompt)
+    ? version?.platformData.settings?.globalNoMatch?.prompt
+    : null;
+};
+
+export const getGlobalNoReplyPrompt = (runtime: Runtime) => {
+  const { version } = runtime;
+  return isAnyPrompt(version?.platformData?.settings.globalNoReply?.prompt)
+    ? version?.platformData?.settings.globalNoReply?.prompt
+    : null;
 };

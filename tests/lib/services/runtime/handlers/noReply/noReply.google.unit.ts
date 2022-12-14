@@ -1,9 +1,10 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-// import { S } from '@/lib/constants';
 import { NoReplyGoogleHandler } from '@/lib/services/runtime/handlers/noReply/noReply.google';
 import { StorageType } from '@/lib/services/runtime/types';
+
+const GlobalNoReply = { prompt: { voice: 'Google', content: 'no answer' } };
 
 describe('noInput handler unit tests', () => {
   describe('canHandle', () => {
@@ -139,6 +140,60 @@ describe('noInput handler unit tests', () => {
             type: 'speak',
             payload: {
               message: 'the counter is 5.23',
+              type: 'message',
+            },
+          },
+        ],
+      ]);
+    });
+
+    it('with global noReply', () => {
+      const node = {
+        id: 'node-id',
+        noReply: {
+          prompts: [],
+        },
+      };
+      const runtime = {
+        storage: {
+          set: sinon.stub(),
+          produce: sinon.stub(),
+          get: sinon.stub().returns(null),
+        },
+        trace: {
+          addTrace: sinon.stub(),
+        },
+        debugLogging: { recordStepLog: sinon.stub() },
+        version: {
+          platformData: {
+            settings: {
+              globalNoReply: GlobalNoReply,
+            },
+          },
+        },
+      };
+      const variables = {
+        getState: sinon.stub().returns({}),
+      };
+
+      const noInputHandler = NoReplyGoogleHandler();
+      expect(noInputHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+
+      expect(runtime.storage.set.args).to.eql([[StorageType.NO_REPLIES_COUNTER, 1]]);
+      expect(runtime.trace.addTrace.args).to.eql([
+        [
+          {
+            type: 'path',
+            payload: {
+              path: 'reprompt',
+            },
+          },
+        ],
+        [
+          {
+            type: 'speak',
+            payload: {
+              message: 'no answer',
               type: 'message',
             },
           },

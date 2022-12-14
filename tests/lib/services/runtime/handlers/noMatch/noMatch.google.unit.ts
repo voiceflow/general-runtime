@@ -4,6 +4,8 @@ import sinon from 'sinon';
 import { NoMatchGoogleHandler } from '@/lib/services/runtime/handlers/noMatch/noMatch.google';
 import { StorageType } from '@/lib/services/runtime/types';
 
+const GlobalNoMatch = { prompt: { voice: 'Google', content: 'Sorry, could not understand what you said' } };
+
 describe('noMatch handler unit tests', () => {
   describe('handle', () => {
     it('next id', () => {
@@ -102,6 +104,47 @@ describe('noMatch handler unit tests', () => {
       ]);
     });
 
+    it('with new noMatch format and noMatch with path action', () => {
+      const node = {
+        id: 'node-id',
+        noMatch: {
+          nodeID: 'next-id',
+          prompts: ['the counter is {counter}'],
+        },
+      };
+      const runtime = {
+        storage: {
+          set: sinon.stub(),
+          produce: sinon.stub(),
+          delete: sinon.stub(),
+          get: sinon.stub().returns(null),
+        },
+        trace: {
+          addTrace: sinon.stub(),
+        },
+        debugLogging: { recordStepLog: sinon.stub() },
+      };
+      const variables = {
+        getState: sinon.stub().returns({ counter: 5.2345 }),
+      };
+
+      const noMatchHandler = NoMatchGoogleHandler();
+      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql('next-id');
+
+      expect(runtime.storage.delete.callCount).to.eql(1);
+      expect(runtime.trace.addTrace.args).to.eql([
+        [
+          {
+            type: 'speak',
+            payload: {
+              message: 'the counter is 5.23',
+              type: 'message',
+            },
+          },
+        ],
+      ]);
+    });
+
     it('without noMatch', () => {
       const node = {
         id: 'node-id',
@@ -123,6 +166,52 @@ describe('noMatch handler unit tests', () => {
 
       const noMatchHandler = NoMatchGoogleHandler();
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(null);
+    });
+
+    it('with global noMatch', () => {
+      const node = {
+        id: 'node-id',
+        noMatch: {
+          prompts: [],
+        },
+      };
+      const runtime = {
+        storage: {
+          set: sinon.stub(),
+          produce: sinon.stub(),
+          get: sinon.stub().returns(null),
+        },
+        trace: {
+          addTrace: sinon.stub(),
+        },
+        debugLogging: { recordStepLog: sinon.stub() },
+        version: {
+          platformData: {
+            settings: {
+              globalNoMatch: GlobalNoMatch,
+            },
+          },
+        },
+      };
+      const variables = {
+        getState: sinon.stub().returns({}),
+      };
+
+      const noMatchHandler = NoMatchGoogleHandler();
+      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+
+      expect(runtime.storage.set.args).to.eql([[StorageType.NO_MATCHES_COUNTER, 1]]);
+      expect(runtime.trace.addTrace.args).to.eql([
+        [
+          {
+            type: 'speak',
+            payload: {
+              message: 'Sorry, could not understand what you said',
+              type: 'message',
+            },
+          },
+        ],
+      ]);
     });
 
     it('with choices', () => {
