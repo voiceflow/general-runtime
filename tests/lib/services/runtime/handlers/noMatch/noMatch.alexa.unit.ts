@@ -5,6 +5,8 @@ import { NoMatchAlexaHandler } from '@/lib/services/runtime/handlers/noMatch/noM
 import { StorageType } from '@/lib/services/runtime/types';
 import { EMPTY_AUDIO_STRING } from '@/lib/services/runtime/utils';
 
+const GlobalNoMatch = { prompt: { voice: 'Alexa', content: 'Sorry, could not understand what you said' } };
+
 describe('noMatch handler unit tests', () => {
   describe('handle', () => {
     it('next id', () => {
@@ -21,9 +23,12 @@ describe('noMatch handler unit tests', () => {
           get: sinon.stub().returns(2),
         },
       };
+      const variables = {
+        getState: sinon.stub().returns({}),
+      };
 
       const noMatchHandler = NoMatchAlexaHandler();
-      expect(noMatchHandler.handle(node as any, runtime as any, {} as any)).to.eql(node.noMatch.nodeID);
+      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.noMatch.nodeID);
     });
 
     it('with old noMatch format', () => {
@@ -93,6 +98,94 @@ describe('noMatch handler unit tests', () => {
             type: 'speak',
             payload: {
               message: 'the counter is 5.23',
+              type: 'message',
+            },
+          },
+        ],
+      ]);
+
+      expect(runtime.storage.set.args).to.eql([[StorageType.NO_MATCHES_COUNTER, 1]]);
+    });
+
+    it('with new noMatch format and noMatch with path action', () => {
+      const node = {
+        id: 'node-id',
+        noMatch: {
+          nodeID: 'next-id',
+          prompts: ['the counter is {counter}'],
+        },
+      };
+      const runtime = {
+        storage: {
+          set: sinon.stub(),
+          produce: sinon.stub(),
+          get: sinon.stub().returns(null),
+          delete: sinon.stub(),
+        },
+        trace: {
+          addTrace: sinon.stub(),
+        },
+        debugLogging: { recordStepLog: sinon.stub() },
+      };
+      const variables = {
+        getState: sinon.stub().returns({ counter: 5.2345 }),
+      };
+
+      const noMatchHandler = NoMatchAlexaHandler();
+      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql('next-id');
+      expect(runtime.trace.addTrace.args).to.eql([
+        [
+          {
+            type: 'speak',
+            payload: {
+              message: 'the counter is 5.23',
+              type: 'message',
+            },
+          },
+        ],
+      ]);
+
+      expect(runtime.storage.delete.callCount).to.eql(1);
+    });
+
+    it('with global noMatch', () => {
+      const node = {
+        id: 'node-id',
+        noMatch: {
+          prompts: [],
+        },
+      };
+      const runtime = {
+        storage: {
+          set: sinon.stub(),
+          produce: sinon.stub(),
+          delete: sinon.stub(),
+          get: sinon.stub().returns(null),
+        },
+        trace: {
+          addTrace: sinon.stub(),
+        },
+        debugLogging: { recordStepLog: sinon.stub() },
+        version: {
+          platformData: {
+            settings: {
+              globalNoMatch: GlobalNoMatch,
+            },
+          },
+        },
+      };
+      const variables = {
+        getState: sinon.stub().returns({ counter: 5.2345 }),
+      };
+
+      const noMatchHandler = NoMatchAlexaHandler();
+      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+      expect(runtime.trace.addTrace.args).to.eql([
+        [
+          {
+            type: 'speak',
+            payload: {
+              message: 'Sorry, could not understand what you said',
               type: 'message',
             },
           },

@@ -1,3 +1,4 @@
+import { AlexaConstants } from '@voiceflow/alexa-types';
 import { BaseModels, BaseNode } from '@voiceflow/base-types';
 import { formatIntentName, replaceVariables, transformStringVariableToNumber } from '@voiceflow/common';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
@@ -50,7 +51,6 @@ const convertDeprecatedReprompt = <B extends VoiceflowNode.Utils.NoReplyNode>(no
   },
 });
 
-// export const addRepromptIfExists = <B extends VoiceNode.Utils.NoReplyNode>({
 export const addRepromptIfExists = <B extends VoiceflowNode.Utils.NoReplyNode>({
   node,
   runtime,
@@ -61,11 +61,37 @@ export const addRepromptIfExists = <B extends VoiceflowNode.Utils.NoReplyNode>({
   variables: Store;
 }): void => {
   const noReplyNode = convertDeprecatedReprompt(node);
-  const prompt = _.sample(noReplyNode.noReply.prompts);
-  if (prompt && typeof prompt === 'string') {
+
+  const reprompt = noReplyNode.noReply.prompts?.length
+    ? _.sample(noReplyNode.noReply.prompts)
+    : getGlobalNoReplyPrompt(runtime)?.content;
+
+  if (reprompt && typeof reprompt === 'string') {
     runtime.trace.addTrace<BaseNode.Utils.BaseTraceFrame<unknown>>({
       type: Turn.REPROMPT,
-      payload: replaceVariables(prompt, variables.getState()),
+      payload: replaceVariables(reprompt, variables.getState()),
     });
   }
+};
+
+interface Prompt {
+  voice: AlexaConstants.Voice;
+  content: string;
+}
+const isPrompt = (prompt: unknown): prompt is Prompt => {
+  if (!prompt || typeof prompt !== 'object') return false;
+  return 'voice' in prompt && 'content' in prompt;
+};
+
+export const getGlobalNoMatchPrompt = (runtime: Runtime) => {
+  const { version } = runtime;
+  const prompt = version?.platformData.settings?.globalNoMatch?.prompt;
+  return prompt && isPrompt(prompt) ? prompt : null;
+};
+
+const getGlobalNoReplyPrompt = (runtime: Runtime) => {
+  const { version } = runtime;
+  return isPrompt(version?.platformData?.settings.globalNoReply?.prompt)
+    ? version?.platformData?.settings.globalNoReply?.prompt
+    : null;
 };
