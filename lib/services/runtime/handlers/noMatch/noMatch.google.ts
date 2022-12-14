@@ -2,8 +2,8 @@ import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
 import { Runtime, Store } from '@/runtime';
+import { Storage } from '@/runtime/lib/constants/flags.google';
 
-import { Storage } from '../../../../../runtime/lib/constants/flags.google';
 import { NoMatchCounterStorage } from '../../types';
 import { isPromptContentEmpty, outputTrace, removeEmptyPrompts } from '../../utils';
 import { getGlobalNoMatchPrompt, processOutput } from '../../utils.google';

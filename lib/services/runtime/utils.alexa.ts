@@ -6,8 +6,7 @@ import { Slot } from 'ask-sdk-model';
 import _ from 'lodash';
 
 import { Runtime, Store } from '@/runtime';
-
-import { Turn } from '../../../runtime/lib/constants/flags.alexa';
+import { Storage } from '@/runtime/lib/constants/flags.alexa';
 
 const ALEXA_AUTHORITY = 'AlexaEntities';
 
@@ -69,7 +68,7 @@ export const addRepromptIfExists = <B extends VoiceflowNode.Utils.NoReplyNode>({
 
   if (reprompt && typeof reprompt === 'string') {
     runtime.trace.addTrace<BaseNode.Utils.BaseTraceFrame<unknown>>({
-      type: Turn.REPROMPT,
+      type: Storage.REPROMPT,
       payload: replaceVariables(reprompt, variables.getState()),
     });
   }

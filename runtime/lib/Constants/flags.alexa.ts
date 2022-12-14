@@ -1,5 +1,5 @@
-export enum Turn {
+export enum Storage {
   REPROMPT = 'reprompt',
 }
 
-export default { Turn };
+export default { Storage };
