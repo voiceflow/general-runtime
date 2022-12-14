@@ -6,7 +6,8 @@ import { Slot } from 'ask-sdk-model';
 import _ from 'lodash';
 
 import { Runtime, Store } from '@/runtime';
-import { Turn } from '@/runtime/lib/constants/flags.alexa';
+
+import { Turn } from '../../../runtime/lib/constants/flags.alexa';
 
 const ALEXA_AUTHORITY = 'AlexaEntities';
 
