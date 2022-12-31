@@ -1,12 +1,17 @@
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import axios from 'axios';
 
 import Config from '@/config';
 import Transcript from '@/lib/services/transcript';
 import { Runtime } from '@/runtime';
 
-export const generateNoMatch = async (runtime: Runtime): Promise<string | null> => {
+import { Output } from '../../types';
+
+export const generateNoMatch = async (runtime: Runtime, projectType?: string): Promise<Output | null> => {
   if (!Config.ML_GATEWAY_ENDPOINT) return null;
+
   const ML_GATEWAY_ENDPOINT = Config.ML_GATEWAY_ENDPOINT.split('/api')[0];
+  const autoCompleteEndpoint = `${ML_GATEWAY_ENDPOINT}/api/v1/generation/autocomplete`;
 
   const newInput = Transcript.getInput(runtime.getRequest());
   const storageTranscript = runtime.storage.get<[string | null, string | null][]>(Transcript.StorageKey) || [];
@@ -20,13 +25,14 @@ export const generateNoMatch = async (runtime: Runtime): Promise<string | null> 
 
   if (!parsedTranscript) return null;
 
-  const autoCompleteEndpoint = `${ML_GATEWAY_ENDPOINT}/api/v1/generation/autocomplete`;
-
   const response = await axios
     .post(autoCompleteEndpoint, {
       transcript: parsedTranscript,
+      locale: runtime.version?.prototype?.data.locales[0], // use nlu locale
     })
     .catch(() => null);
 
-  return response?.data ? `_*AI*_:${response.data}` : null;
+  if (!response?.data) return null;
+
+  return projectType === VoiceflowConstants.ProjectType.CHAT ? [{ text: response.data }] : response.data;
 };

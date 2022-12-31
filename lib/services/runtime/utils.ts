@@ -197,19 +197,13 @@ interface OutputParams<V> {
   node?: BaseModels.BaseNode;
   debugLogging: DebugLogging;
   addTrace: AddTraceFn;
+  ai?: boolean;
 }
 
-export function outputTrace({ node, addTrace, debugLogging, output, variables = {} }: OutputParams<Output>): void {
+export function outputTrace({ node, addTrace, debugLogging, output, variables = {}, ai }: OutputParams<Output>): void {
   const sanitizedVars = sanitizeVariables(variables);
 
   if (Array.isArray(output)) {
-    const outputAny = output as any;
-    let ai: boolean | undefined;
-    if (outputAny[0]?.text?.startsWith?.('_*AI*_:')) {
-      outputAny[0].text = outputAny[0]?.text.replace('_*AI*_:', '');
-      ai = true;
-    }
-
     const content = slateInjectVariables(output, sanitizedVars);
     const plainContent = slateToPlaintext(content);
     const richContent = { id: cuid.slug(), content };

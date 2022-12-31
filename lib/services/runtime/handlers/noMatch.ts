@@ -4,7 +4,7 @@ import _ from 'lodash';
 
 import { Runtime, Store } from '@/runtime';
 
-import { NoMatchCounterStorage, StorageType } from '../types';
+import { NoMatchCounterStorage, Output, StorageType } from '../types';
 import {
   addButtonsIfExists,
   getGlobalNoMatchPrompt,
@@ -39,15 +39,21 @@ const removeEmptyNoMatches = (node: NoMatchNode) => {
   return removeEmptyPrompts(prompts);
 };
 
-const getOutput = async (node: NoMatchNode, runtime: Runtime, noMatchCounter: number) => {
+const getOutput = async (
+  node: NoMatchNode,
+  runtime: Runtime,
+  noMatchCounter: number
+): Promise<{ output: Output; ai?: boolean } | void | null> => {
   const nonEmptyNoMatches = removeEmptyNoMatches(node);
   const globalNoMatchPrompt = getGlobalNoMatchPrompt(runtime);
   const exhaustedReprompts = noMatchCounter >= nonEmptyNoMatches.length;
 
   if (!exhaustedReprompts) {
-    return node.noMatch?.randomize
+    const output = node.noMatch?.randomize
       ? _.sample<string | BaseText.SlateTextValue>(nonEmptyNoMatches)
       : nonEmptyNoMatches[noMatchCounter];
+
+    if (output) return { output };
   }
 
   // if we have exhausted reprompts AND there is a following action,
@@ -56,11 +62,20 @@ const getOutput = async (node: NoMatchNode, runtime: Runtime, noMatchCounter: nu
     return null;
   }
 
-  const autoComplete = await generateNoMatch(runtime);
-  if (autoComplete) return [{ text: autoComplete }];
+  if (runtime.version?.projectID) {
+    // this is fairly inefficient to fetch the project object via API every time, find better solution
+    const project = await runtime.api.getProject(runtime.version.projectID).catch(() => null);
+    if (project?.aiAssistSettings?.freestyle) {
+      const output = await generateNoMatch(runtime, project?.type);
+
+      if (output) return { output, ai: true };
+    }
+  }
 
   if (!isPromptContentEmpty(globalNoMatchPrompt?.content)) {
-    return globalNoMatchPrompt?.content;
+    const output = globalNoMatchPrompt?.content;
+
+    if (output) return { output };
   }
 
   return null;
@@ -93,8 +108,9 @@ export const NoMatchHandler = (utils: typeof utilsObj) => ({
       addTrace: runtime.trace.addTrace.bind(runtime.trace),
       debugLogging: runtime.debugLogging,
       node,
-      output,
+      output: output.output,
       variables: variables.getState(),
+      ai: output.ai,
     });
 
     runtime.storage.set(StorageType.NO_MATCHES_COUNTER, noMatchCounter + 1);
