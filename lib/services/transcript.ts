@@ -16,7 +16,11 @@ class Transcript extends AbstractManager implements ContextHandler {
     return (isIntentRequest(request) && request.payload.query) || (isTextRequest(request) && request.payload) || null;
   }
 
-  handle = (context: Context) => {
+  handle = async (context: Context) => {
+    // only store transcript if freestyle is enabled
+    const project = await context.data.api.getProject(context.versionID).catch(() => null);
+    if (!project?.aiAssistSettings?.freestyle) return context;
+
     /**
     // skip storing no matches into transcript
     if (context.trace?.find((trace: any) => trace.type === Trace.TraceType.PATH && trace.payload.path === 'reprompt')) {
