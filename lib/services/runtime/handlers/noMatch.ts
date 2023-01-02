@@ -66,7 +66,7 @@ const getOutput = async (
     // this is fairly inefficient to fetch the project object via API every time, find better solution
     const project = await runtime.api.getProject(runtime.version.projectID).catch(() => null);
     if (project?.aiAssistSettings?.freestyle) {
-      const output = await generateNoMatch(runtime, project?.type);
+      const output = await generateNoMatch(runtime, project);
 
       if (output) return { output, ai: true };
     }

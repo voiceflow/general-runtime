@@ -1,3 +1,4 @@
+import { BaseModels } from '@voiceflow/base-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import axios from 'axios';
 
@@ -7,7 +8,10 @@ import { Runtime } from '@/runtime';
 
 import { Output } from '../../types';
 
-export const generateNoMatch = async (runtime: Runtime, projectType?: string): Promise<Output | null> => {
+export const generateNoMatch = async (
+  runtime: Runtime,
+  project: BaseModels.Project.Model<any, any>
+): Promise<Output | null> => {
   if (!Config.ML_GATEWAY_ENDPOINT) return null;
 
   const ML_GATEWAY_ENDPOINT = Config.ML_GATEWAY_ENDPOINT.split('/api')[0];
@@ -34,5 +38,10 @@ export const generateNoMatch = async (runtime: Runtime, projectType?: string): P
 
   if (!response?.data) return null;
 
-  return projectType === VoiceflowConstants.ProjectType.CHAT ? [{ text: response.data }] : response.data;
+  // TODO: exclusively use project.type after large scale migration
+  const isChat =
+    project.type === VoiceflowConstants.ProjectType.CHAT ||
+    project.platform === VoiceflowConstants.PlatformType.CHATBOT;
+
+  return isChat ? [{ text: response.data }] : response.data;
 };
