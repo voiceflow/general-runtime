@@ -1,19 +1,18 @@
-import { BaseModels, BaseNode, BaseTrace } from '@voiceflow/base-types';
+import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory } from '@/runtime';
 
 import { addRepromptIfExists, isGooglePlatform, mapSlots } from '../../utils.google';
 import CommandHandler from '../command/command';
-import NoMatchHandler from '../noMatch/noMatch.google';
 import NoInputHandler from '../noReply/noReply.google';
-import { entityFillingRequest, setElicit } from '../utils/entity';
+import { EntityFillingNoMatchHandler, entityFillingRequest, setElicit } from '../utils/entity';
 
 const utilsObj = {
   commandHandler: CommandHandler(),
-  noMatchHandler: NoMatchHandler(),
   noInputHandler: NoInputHandler(),
   addRepromptIfExists,
+  entityFillingNoMatchHandler: EntityFillingNoMatchHandler(),
 };
 
 export const CaptureV2GoogleHandler: HandlerFactory<VoiceflowNode.CaptureV2.Node, typeof utilsObj> = (utils) => ({
@@ -45,11 +44,17 @@ export const CaptureV2GoogleHandler: HandlerFactory<VoiceflowNode.CaptureV2.Node
     if (utils.noInputHandler.canHandle(runtime)) {
       return utils.noInputHandler.handle(node, runtime, variables);
     }
-    const { slots, input, intent } = request.payload;
+    const { slots, input, intent, entities } = request.payload;
 
-    if (intent.name === node.intent?.name && node.intent?.entities && slots) {
-      const entities: BaseModels.SlotMapping[] = node.intent.entities.map((slot) => ({ slot, variable: slot }));
-      variables.merge(mapSlots(entities, slots));
+    // when using prototype tool intent.slots is empty, so instead we rely on entities
+    if (intent.name === node.intent?.name && node.intent?.entities && (entities || slots)) {
+      variables.merge(
+        mapSlots({
+          mappings: node.intent.entities.map((slot) => ({ slot, variable: slot })),
+          slots,
+          entities,
+        })
+      );
 
       return node.nextId ?? null;
     }
@@ -60,15 +65,11 @@ export const CaptureV2GoogleHandler: HandlerFactory<VoiceflowNode.CaptureV2.Node
     }
 
     // handle noMatch
-    const noMatchPath = utils.noMatchHandler.handle(node, runtime, variables);
-    if (noMatchPath === node.id && node.intent?.name) {
-      runtime.trace.addTrace<BaseTrace.GoToTrace>({
-        type: BaseTrace.TraceType.GOTO,
-        payload: { request: entityFillingRequest(node.intent.name, node.intent.entities) },
-      });
-    }
+    const noMatchHandler = utils.entityFillingNoMatchHandler.handle(node, runtime, variables);
 
-    return noMatchPath;
+    return node.intent?.name
+      ? noMatchHandler([node.intent?.name], entityFillingRequest(node.intent?.name, node.intent.entities))
+      : noMatchHandler();
   },
 });
 

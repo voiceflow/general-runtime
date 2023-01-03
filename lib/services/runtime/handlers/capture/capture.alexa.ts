@@ -5,7 +5,7 @@ import wordsToNumbers from 'words-to-numbers';
 
 import { Action, HandlerFactory } from '@/runtime';
 
-import { addRepromptIfExists, mapSlots } from '../../utils.alexa';
+import { addRepromptIfExists } from '../../utils.alexa';
 import CommandHandler from '../command/command.alexa';
 import RepeatHandler from '../repeat';
 import { entityFillingRequest, setElicit } from '../utils/entity';
@@ -23,7 +23,6 @@ const getSlotValue = (intent: Intent) => {
 };
 
 const utilsObj = {
-  mapSlots,
   getSlotValue,
   addRepromptIfExists,
   commandHandler: CommandHandler(),

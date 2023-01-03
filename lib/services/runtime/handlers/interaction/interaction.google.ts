@@ -69,7 +69,7 @@ export const InteractionGoogleHandler: HandlerFactory<VoiceflowNode.Interaction.
 
     if (variableMap && slots) {
       // map request mappings to variables
-      variables.merge(utils.mapSlots(variableMap, slots));
+      variables.merge(utils.mapSlots({ mappings: variableMap, slots }));
     }
 
     if (nextId !== undefined) {

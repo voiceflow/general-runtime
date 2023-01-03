@@ -470,7 +470,9 @@ describe('interaction handler unit tests', async () => {
           expect(interactionHandler.handle(block as any, runtime as any, variables as any, null as any)).to.eql(
             block.interactions[0].nextId
           );
-          expect(utils.mapSlots.args).to.eql([[block.interactions[0].event.mappings, request.payload.slots]]);
+          expect(utils.mapSlots.args).to.eql([
+            [{ mappings: block.interactions[0].event.mappings, slots: request.payload.slots }],
+          ]);
           expect(variables.merge.args).to.eql([[mappedSlots]]);
         });
 

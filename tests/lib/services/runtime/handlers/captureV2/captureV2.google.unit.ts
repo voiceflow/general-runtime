@@ -117,11 +117,12 @@ describe('captureV2 handler unit tests', async () => {
 
       describe('command cant handle', () => {
         it('no match', () => {
+          const noMatchHandler = sinon.stub().returns('no-match-path');
           const utils = {
             commandHandler: {
               canHandle: sinon.stub().returns(false),
             },
-            noMatchHandler: { handle: sinon.stub().returns('no-match-path') },
+            entityFillingNoMatchHandler: { handle: sinon.stub().returns(noMatchHandler) },
             noInputHandler: { canHandle: () => false },
           };
 
@@ -139,16 +140,17 @@ describe('captureV2 handler unit tests', async () => {
           expect(captureHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
             'no-match-path'
           );
-          expect(utils.noMatchHandler.handle.args).to.eql([[node, runtime, variables]]);
+          expect(utils.entityFillingNoMatchHandler.handle.args).to.eql([[node, runtime, variables]]);
         });
 
         it('no match with delegation', () => {
           const nodeID = 'node-id';
+          const noMatchHandler = sinon.stub().returns(nodeID);
           const utils = {
             commandHandler: {
               canHandle: sinon.stub().returns(false),
             },
-            noMatchHandler: { handle: sinon.stub().returns(nodeID) },
+            entityFillingNoMatchHandler: { handle: sinon.stub().returns(noMatchHandler) },
             noInputHandler: { canHandle: () => false },
           };
 
@@ -165,25 +167,7 @@ describe('captureV2 handler unit tests', async () => {
           const variables = { foo: 'bar' };
 
           expect(captureHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(nodeID);
-          expect(utils.noMatchHandler.handle.args).to.eql([[node, runtime, variables]]);
-          expect(runtime.trace.addTrace.args).to.eql([
-            [
-              {
-                payload: {
-                  request: {
-                    payload: {
-                      entities: [],
-                      intent: { name: node.intent.name },
-                      query: '',
-                    },
-                    requiredEntities: [slotName],
-                    type: BaseRequest.RequestType.INTENT,
-                  },
-                },
-                type: BaseTrace.TraceType.GOTO,
-              },
-            ],
-          ]);
+          expect(utils.entityFillingNoMatchHandler.handle.args).to.eql([[node, runtime, variables]]);
         });
 
         describe('match intent', () => {

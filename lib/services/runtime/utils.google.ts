@@ -1,4 +1,4 @@
-import { BaseModels, Text } from '@voiceflow/base-types';
+import { BaseModels, BaseRequest, Text } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables, transformStringVariableToNumber } from '@voiceflow/common';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
@@ -45,14 +45,29 @@ export const transformDateTimeVariableToString = (date: GoogleDateTimeSlot) => {
   return `${date.day}/${date.month}/${date.year} ${date.hours}:${date.minutes ?? '00'}`;
 };
 
-export const mapSlots = (
-  mappings: BaseModels.SlotMapping[],
-  slots: { [key: string]: string },
-  overwrite = false
-): Record<string, any> => {
+export const mapSlots = ({
+  mappings,
+  entities,
+  slots,
+  overwrite = false,
+}: {
+  slots: { [key: string]: string };
+  entities?: BaseRequest.IntentRequest['payload']['entities'];
+  mappings: BaseModels.SlotMapping[];
+  overwrite?: boolean;
+  // eslint-disable-next-line sonarjs/cognitive-complexity
+}): Record<string, any> => {
   const variables: Record<string, any> = {};
 
-  if (mappings && slots) {
+  const entityMap = (entities ?? []).reduce<Record<string, string>>(
+    (acc, { name, value }) => ({
+      ...acc,
+      ...(name && value && { [name]: value }),
+    }),
+    {}
+  );
+
+  if (mappings && (slots || entities)) {
     mappings.forEach((map: BaseModels.SlotMapping) => {
       if (!map.slot) return;
 
@@ -60,7 +75,7 @@ export const mapSlots = (
       const fromSlot = map.slot;
 
       // extract slot value from request
-      const fromSlotValue = slots[fromSlot] || null;
+      const fromSlotValue = slots?.[fromSlot] || entityMap[fromSlot] || null;
 
       if (toVariable && (fromSlotValue || overwrite)) {
         variables[toVariable] = _.isObject(fromSlotValue)
