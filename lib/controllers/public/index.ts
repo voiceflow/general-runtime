@@ -1,6 +1,5 @@
 import { Validator } from '@voiceflow/backend-utils';
 import { BaseRequest } from '@voiceflow/base-types';
-import { ObjectId } from 'mongodb';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
 import { Request } from '@/types';
@@ -55,69 +54,6 @@ class PublicController extends AbstractController {
     const version = await api.getVersion(req.headers.versionID);
 
     return version.platformData.publishing || {};
-  }
-
-  @validate({
-    HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID,
-    BODY_TRANSCRIPT: VALIDATIONS.BODY.TRANSCRIPT,
-  })
-  async createTranscript(
-    req: Request<
-      never,
-      { sessionID: string; device?: string; os?: string; browser?: string; user?: { name?: string; image?: string } },
-      { projectID: string }
-    >
-  ) {
-    const {
-      body: { sessionID, device, os, browser, user },
-      headers: { projectID },
-    } = req;
-    const { mongo } = this.services;
-    if (!mongo) throw new Error('mongo not initialized');
-
-    const filter = {
-      projectID: new ObjectId(projectID),
-      sessionID,
-    };
-
-    const insertData = {
-      ...filter,
-      createdAt: new Date(),
-      unread: true,
-      reportTags: [],
-    };
-
-    const updateData: {
-      updatedAt: Date;
-      os?: string | undefined;
-      device?: string | undefined;
-      browser?: string | undefined;
-      user?: {
-        name?: string | undefined;
-        image?: string | undefined;
-      };
-    } = {
-      updatedAt: insertData.createdAt,
-      ...(os && { os }),
-      ...(device && { device }),
-      ...(browser && { browser }),
-      ...(user && {
-        user: {
-          ...(user.name && { name: user.name }),
-          ...(user.image && { image: user.image }),
-        },
-      }),
-    };
-
-    const { value: newTranscript } = await mongo.db
-      .collection('transcripts')
-      .findOneAndUpdate(
-        filter,
-        { $set: updateData, $setOnInsert: insertData },
-        { upsert: true, returnOriginal: false }
-      );
-
-    return newTranscript;
   }
 }
 

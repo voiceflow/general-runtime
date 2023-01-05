@@ -5,11 +5,13 @@ import { FullServiceMap } from '../services';
 import Interact from './interact';
 import Public from './public';
 import StateManagement from './stateManagement';
+import Transcript from './transcript/transcript';
 
 export interface ControllerMap {
   public: Public;
   interact: Interact;
   stateManagement: StateManagement;
+  transcript: Transcript;
 }
 
 export interface ControllerClass<T = Controller> {
@@ -24,6 +26,7 @@ const buildControllers = (services: FullServiceMap, config: Config) => {
     public: new Public(services, config),
     interact: new Interact(services, config),
     stateManagement: new StateManagement(services, config),
+    transcript: new Transcript(services, config),
   };
 
   // everything before this will be route-wrapped
