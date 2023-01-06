@@ -1,3 +1,7 @@
+/**
+ * Google carousel needs to be used in favor of general carousel because
+ * it uses different no reply handler
+ */
 import { BaseNode } from '@voiceflow/base-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
@@ -13,11 +17,12 @@ const utils = {
 };
 
 export const CarouselGoogleHandler: HandlerFactory<BaseNode.Carousel.Node, typeof handlerUtils> = (utils) => {
-  const cardV2AlexaHandler = CarouselHandler(utils);
+  const CarouselGoogleHandler = CarouselHandler(utils);
   return {
-    ...cardV2AlexaHandler,
+    ...CarouselGoogleHandler,
     canHandle: (node, ...args) =>
-      cardV2AlexaHandler.canHandle(node, ...args) && isGooglePlatform(node.platform as VoiceflowConstants.PlatformType),
+      CarouselGoogleHandler.canHandle(node, ...args) &&
+      isGooglePlatform(node.platform as VoiceflowConstants.PlatformType),
   };
 };
 

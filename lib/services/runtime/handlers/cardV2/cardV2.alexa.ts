@@ -1,3 +1,8 @@
+/**
+ * Alexa cardV2 needs to be used in favor of general cardV2 because
+ * it uses different command handler
+ * it uses different no match handler
+ */
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { HandlerFactory } from '@/runtime';

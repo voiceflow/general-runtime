@@ -1,3 +1,7 @@
+/**
+ * Alexa goTo needs to be used in favor of general goTo because
+ * it uses different command handler
+ */
 import { BaseNode } from '@voiceflow/base-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 

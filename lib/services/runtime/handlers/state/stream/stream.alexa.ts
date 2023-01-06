@@ -1,3 +1,7 @@
+/**
+ * Alexa stream needs to be used in favor of general stream because
+ * it uses different command handler
+ */
 import { replaceVariables } from '@voiceflow/common';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
@@ -11,11 +15,11 @@ const utilsObj = {
   replaceVariables,
 };
 export const StreamStateAlexaHandler: HandlerFactory<any, typeof utilsObj> = (utilsObj) => {
-  const streamStateAlexaHandler = StreamStateHandler(utilsObj);
+  const StreamStateAlexaHandler = StreamStateHandler(utilsObj);
   return {
-    ...streamStateAlexaHandler,
+    ...StreamStateAlexaHandler,
     canHandle: (node, ...args) =>
-      streamStateAlexaHandler.canHandle(node, ...args) && node.platform === VoiceflowConstants.PlatformType.ALEXA,
+      StreamStateAlexaHandler.canHandle(node, ...args) && node.platform === VoiceflowConstants.PlatformType.ALEXA,
   };
 };
 

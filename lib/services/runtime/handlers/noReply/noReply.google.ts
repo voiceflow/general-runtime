@@ -1,5 +1,5 @@
 /**
- * Google command needs to be used in favor of general command because
+ * Google noReply needs to be used in favor of general noReply because
  * it matches against a specific intent given by google for no input
  */
 import { Runtime } from '@/runtime';

@@ -7,6 +7,9 @@ import { getGenericGlobalNoMatchPrompt } from './utils';
 
 const ALEXA_AUTHORITY = 'AlexaEntities';
 
+// TODO: when refactoring adapter the specific code should be moved there
+// so that we can rely on the general-runtime utils mapEntities fn
+// we might need to keep this for google-assistant until it is sunset
 export const mapSlots = ({
   slots,
   entities,
@@ -57,9 +60,9 @@ interface Prompt {
   content: string;
 }
 
-const isPrompt = (prompt: unknown): prompt is Prompt => {
+const isVoicePrompt = (prompt: unknown): prompt is Prompt => {
   if (!prompt || typeof prompt !== 'object') return false;
   return 'voice' in prompt && 'content' in prompt;
 };
 
-export const getGlobalNoMatchPrompt = getGenericGlobalNoMatchPrompt({ isPrompt });
+export const getGlobalNoMatchPrompt = getGenericGlobalNoMatchPrompt({ isPrompt: isVoicePrompt });

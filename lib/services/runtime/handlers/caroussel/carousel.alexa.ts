@@ -1,3 +1,8 @@
+/**
+ * Alexa carousel needs to be used in favor of general carousel because
+ * it uses different command handler
+ * it uses different no match handler
+ */
 import { BaseNode } from '@voiceflow/base-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
@@ -14,11 +19,11 @@ const utils = {
 };
 
 export const CarouselAlexaHandler: HandlerFactory<BaseNode.Carousel.Node, typeof handlerUtils> = (utils) => {
-  const cardV2AlexaHandler = CarouselHandler(utils);
+  const CarouselAlexaHandler = CarouselHandler(utils);
   return {
-    ...cardV2AlexaHandler,
+    ...CarouselAlexaHandler,
     canHandle: (node, ...args) =>
-      cardV2AlexaHandler.canHandle(node, ...args) && node.platform === VoiceflowConstants.PlatformType.ALEXA,
+      CarouselAlexaHandler.canHandle(node, ...args) && node.platform === VoiceflowConstants.PlatformType.ALEXA,
   };
 };
 

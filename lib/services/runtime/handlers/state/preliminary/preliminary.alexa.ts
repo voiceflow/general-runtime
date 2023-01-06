@@ -1,3 +1,7 @@
+/**
+ * Alexa preliminary needs to be used in favor of general preliminary because
+ * it uses different command handler
+ */
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { HandlerFactory } from '@/runtime';
@@ -10,11 +14,11 @@ const utilsObj = {
   eventHandlers,
 };
 export const PreliminaryAlexaHandler: HandlerFactory<VoiceflowNode.Interaction.Node, typeof utilsObj> = (utilsObj) => {
-  const preliminaryAlexaHandler = PreliminaryHandler(utilsObj);
+  const PreliminaryAlexaHandler = PreliminaryHandler(utilsObj);
   return {
-    ...preliminaryAlexaHandler,
+    ...PreliminaryAlexaHandler,
     canHandle: (node, ...args) =>
-      preliminaryAlexaHandler.canHandle(node, ...args) && node.platform === VoiceflowConstants.PlatformType.ALEXA,
+      PreliminaryAlexaHandler.canHandle(node, ...args) && node.platform === VoiceflowConstants.PlatformType.ALEXA,
   };
 };
 
