@@ -5,7 +5,12 @@ import { AbstractManager } from '../utils';
 import { TranscriptClientInfo, TranscriptUpdatePayload } from './types';
 
 class TranscriptManager extends AbstractManager {
-  async createTranscript(projectID: string, sessionID: string, clientInfo: DeepPartial<TranscriptClientInfo>) {
+  async createTranscript(
+    projectID: string,
+    sessionID: string,
+    clientInfo: DeepPartial<TranscriptClientInfo>,
+    unread?: boolean
+  ) {
     const { mongo } = this.services;
     if (!mongo) throw new Error('mongo not initialized');
 
@@ -28,6 +33,7 @@ class TranscriptManager extends AbstractManager {
       ...(os && { os }),
       ...(device && { device }),
       ...(browser && { browser }),
+      ...(unread && { unread }),
       ...(user && {
         user: {
           ...(user.name && { name: user.name }),

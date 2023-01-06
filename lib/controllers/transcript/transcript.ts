@@ -24,11 +24,19 @@ class TranscriptController extends AbstractController {
   async createTranscript(
     req: Request<
       never,
-      { sessionID: string; device?: string; os?: string; browser?: string; user?: { name?: string; image?: string } },
+      {
+        sessionID: string;
+        device?: string;
+        os?: string;
+        browser?: string;
+        user?: { name?: string; image?: string };
+        unread?: boolean;
+      },
       { projectID: string }
     >
   ) {
-    return this.services.transcript.createTranscript(req.headers.projectID, req.body.sessionID, req.body);
+    const { unread } = req.body;
+    return this.services.transcript.createTranscript(req.headers.projectID, req.body.sessionID, req.body, unread);
   }
 }
 
