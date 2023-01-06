@@ -22,7 +22,6 @@ class TranscriptManager extends AbstractManager {
     const insertData = {
       ...filter,
       createdAt: new Date(),
-      unread: true,
       reportTags: [],
     };
 
