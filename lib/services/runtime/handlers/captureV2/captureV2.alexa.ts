@@ -1,19 +1,26 @@
+/**
+ * Alexa captureV2 needs to be used in favor of general captureV2 because
+ * it adds reprompts if exists
+ * it doesnt add no reply timeout
+ * it handles captureV2 very differently
+ */
 import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
 import { Action, HandlerFactory } from '@/runtime';
 
-import { addRepromptIfExists, mapSlots } from '../../utils.alexa';
+import { addRepromptIfExists } from '../../utils';
+import { mapSlots } from '../../utils.alexa';
 import CommandHandler from '../command/command.alexa';
 import RepeatHandler from '../repeat';
-import { EntityFillingNoMatchHandler, entityFillingRequest, setElicit } from '../utils/entity';
+import { EntityFillingNoMatchAlexaHandler, entityFillingRequest, setElicit } from '../utils/entity';
 
 const utilsObj = {
   addRepromptIfExists,
   commandHandler: CommandHandler(),
   repeatHandler: RepeatHandler(),
-  entityFillingNoMatchHandler: EntityFillingNoMatchHandler(),
+  entityFillingNoMatchHandler: EntityFillingNoMatchAlexaHandler(),
 };
 
 export const CaptureV2AlexaHandler: HandlerFactory<VoiceflowNode.CaptureV2.Node, typeof utilsObj> = (utils) => ({
@@ -22,7 +29,7 @@ export const CaptureV2AlexaHandler: HandlerFactory<VoiceflowNode.CaptureV2.Node,
   handle: (node, runtime, variables) => {
     const request = runtime.getRequest();
     if (runtime.getAction() === Action.RUNNING) {
-      utils.addRepromptIfExists({ node, runtime, variables });
+      utils.addRepromptIfExists(node, runtime, variables);
 
       if (node.intent?.entities) {
         runtime.trace.addTrace<BaseTrace.GoToTrace>({

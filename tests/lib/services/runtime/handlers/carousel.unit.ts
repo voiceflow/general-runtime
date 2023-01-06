@@ -2,7 +2,7 @@ import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { CarouselHandler } from '@/lib/services/runtime/handlers/carousel';
+import { CarouselHandler } from '@/lib/services/runtime/handlers/caroussel/carousel';
 import { StorageType } from '@/lib/services/runtime/types';
 import { Action } from '@/runtime';
 
@@ -118,8 +118,8 @@ describe('Carousel handler', () => {
         const commandHandler = { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns(output) };
         const noReplyHandler = { canHandle: sinon.stub().returns(false) };
         const utils = {
-          commandHandler: () => commandHandler,
-          noReplyHandler: () => noReplyHandler,
+          commandHandler,
+          noReplyHandler,
         };
         const handler = CarouselHandler(utils as any);
 
@@ -147,8 +147,8 @@ describe('Carousel handler', () => {
         const commandHandler = { canHandle: sinon.stub().returns(false) };
         const noReplyHandler = { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns(output) };
         const utils = {
-          commandHandler: () => commandHandler,
-          noReplyHandler: () => noReplyHandler,
+          commandHandler,
+          noReplyHandler,
         };
         const handler = CarouselHandler(utils as any);
 
@@ -177,9 +177,9 @@ describe('Carousel handler', () => {
         const noReplyHandler = { canHandle: sinon.stub().returns(false) };
         const noMatchHandler = { handle: sinon.stub().returns('no-match-path') };
         const utils = {
-          commandHandler: () => commandHandler,
-          noReplyHandler: () => noReplyHandler,
-          noMatchHandler: () => noMatchHandler,
+          commandHandler,
+          noReplyHandler,
+          noMatchHandler,
         };
         const handler = CarouselHandler(utils as any);
 
@@ -304,8 +304,8 @@ describe('Carousel handler', () => {
         const commandHandler = { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns(output) };
         const noReplyHandler = { canHandle: sinon.stub().returns(false) };
         const utils = {
-          commandHandler: () => commandHandler,
-          noReplyHandler: () => noReplyHandler,
+          commandHandler,
+          noReplyHandler,
         };
         const handler = CarouselHandler(utils as any);
 

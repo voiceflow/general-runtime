@@ -12,7 +12,7 @@ import {
   outputTrace,
   removeEmptyPrompts,
 } from '../../utils';
-import { addNoReplyTimeoutIfExists } from '../noReply/noReply';
+import { addNoReplyTimeoutIfExists } from '../noReply';
 import { generateNoMatch } from '../utils/generativeNoMatch';
 
 export type NoMatchNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoMatchNode;
@@ -39,7 +39,7 @@ export const removeEmptyNoMatches = (node: NoMatchNode) => {
   return removeEmptyPrompts(prompts);
 };
 
-const getOutput = async (
+export const getOutput = async (
   node: NoMatchNode,
   runtime: Runtime,
   noMatchCounter: number

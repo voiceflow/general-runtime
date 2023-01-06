@@ -80,7 +80,7 @@ describe('capture handler unit tests', async () => {
             commandHandler: {
               canHandle: sinon.stub().returns(false),
             },
-            noInputHandler: { canHandle: sinon.stub().returns(false) },
+            noReplyHandler: { canHandle: sinon.stub().returns(false) },
           };
 
           const captureHandler = CaptureGoogleHandler(utils as any);
@@ -105,7 +105,7 @@ describe('capture handler unit tests', async () => {
             commandHandler: {
               canHandle: sinon.stub().returns(false),
             },
-            noInputHandler: { canHandle: sinon.stub().returns(false) },
+            noReplyHandler: { canHandle: sinon.stub().returns(false) },
             wordsToNumbers: sinon.stub().returns(word),
           };
 
@@ -133,7 +133,7 @@ describe('capture handler unit tests', async () => {
             commandHandler: {
               canHandle: sinon.stub().returns(false),
             },
-            noInputHandler: { canHandle: sinon.stub().returns(false) },
+            noReplyHandler: { canHandle: sinon.stub().returns(false) },
             wordsToNumbers: sinon.stub().returns(word),
           };
 

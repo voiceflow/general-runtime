@@ -49,7 +49,7 @@ describe('captureV2 handler unit tests', async () => {
       const variables = { foo: 'bar' };
 
       expect(captureHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
-      expect(utils.addRepromptIfExists.args).to.eql([[{ node, runtime, variables }]]);
+      expect(utils.addRepromptIfExists.args).to.eql([[node, runtime, variables]]);
       expect(runtime.trace.addTrace.args).to.eql([
         [
           {
@@ -89,7 +89,7 @@ describe('captureV2 handler unit tests', async () => {
       const variables = { foo: 'bar' };
 
       expect(captureHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
-      expect(utils.addRepromptIfExists.args).to.eql([[{ node, runtime, variables }]]);
+      expect(utils.addRepromptIfExists.args).to.eql([[node, runtime, variables]]);
     });
 
     describe('request type is intent', () => {

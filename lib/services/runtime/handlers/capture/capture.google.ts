@@ -1,16 +1,22 @@
+/**
+ * Google capture needs to be used in favor of general capture because
+ * it adds reprompts if exists
+ * it doesnt add no reply timeout
+ * it handles capture very differently
+ */
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import wordsToNumbers from 'words-to-numbers';
 
 import { Action, HandlerFactory } from '@/runtime';
 
-import { addButtonsIfExists } from '../../utils';
-import { addRepromptIfExists, isGooglePlatform } from '../../utils.google';
-import CommandHandler from '../command/command';
-import NoInputHandler from '../noReply/noReply.google';
+import { addButtonsIfExists, addRepromptIfExists } from '../../utils';
+import { isGooglePlatform } from '../../utils.google';
+import CommandHandler from '../command';
+import NoReplyHandler from '../noReply/noReply.google';
 
 const utilsObj = {
   commandHandler: CommandHandler(),
-  noInputHandler: NoInputHandler(),
+  noReplyHandler: NoReplyHandler(),
   wordsToNumbers,
   addButtonsIfExists,
   addRepromptIfExists,
@@ -37,8 +43,8 @@ export const CaptureGoogleHandler: HandlerFactory<VoiceflowNode.Capture.Node, ty
     }
 
     // check for no input
-    if (utils.noInputHandler.canHandle(runtime)) {
-      return utils.noInputHandler.handle(node, runtime, variables);
+    if (utils.noReplyHandler.canHandle(runtime)) {
+      return utils.noReplyHandler.handle(node, runtime, variables);
     }
 
     const { input } = request.payload;

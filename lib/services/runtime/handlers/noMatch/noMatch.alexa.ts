@@ -1,40 +1,21 @@
-import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
+/**
+ * Alexa no match needs to be used in favor of general command because
+ * in case of a no match with nothing to output we want to reprompt with the no reply instead
+ */
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
-import _ from 'lodash';
 
 import { Runtime, Store } from '@/runtime';
 
 import { NoMatchCounterStorage, StorageType } from '../../types';
-import { outputTrace, removeEmptyPrompts } from '../../utils';
-import { addRepromptIfExists, getGlobalNoMatchPrompt } from '../../utils.alexa';
-import { convertDeprecatedNoMatch } from './noMatch';
-
-const getOutput = (
-  runtime: Runtime,
-  node: VoiceflowNode.Utils.NoMatchNode,
-  noMatchCounter: number,
-  variables: Store
-) => {
-  const noMatchPrompts = removeEmptyPrompts(node.noMatch?.prompts ?? []);
-
-  const exhaustedReprompts = noMatchCounter >= noMatchPrompts.length;
-  const sanitizedVars = sanitizeVariables(variables.getState());
-  const globalNoMatchPrompt = getGlobalNoMatchPrompt(runtime);
-
-  if (exhaustedReprompts) {
-    return replaceVariables(globalNoMatchPrompt?.content, sanitizedVars);
-  }
-
-  const speak = (node.noMatch?.randomize ? _.sample(noMatchPrompts) : noMatchPrompts?.[noMatchCounter]) || '';
-  return replaceVariables(speak as string, sanitizedVars);
-};
+import { addRepromptIfExists, outputTrace } from '../../utils';
+import { convertDeprecatedNoMatch, getOutput } from '.';
 
 export const NoMatchAlexaHandler = () => ({
-  handle: (_node: VoiceflowNode.Utils.NoMatchNode, runtime: Runtime, variables: Store) => {
+  handle: async (_node: VoiceflowNode.Utils.NoMatchNode, runtime: Runtime, variables: Store) => {
     const node = convertDeprecatedNoMatch(_node);
     const noMatchCounter = runtime.storage.get<NoMatchCounterStorage>(StorageType.NO_MATCHES_COUNTER) ?? 0;
 
-    const output = getOutput(runtime, node, noMatchCounter, variables);
+    const output = await getOutput(node, runtime, noMatchCounter);
 
     if (!output) {
       // clean up no matches counter
@@ -46,7 +27,7 @@ export const NoMatchAlexaHandler = () => ({
       addTrace: runtime.trace.addTrace.bind(runtime.trace),
       debugLogging: runtime.debugLogging,
       node,
-      output,
+      output: output.output,
       variables: variables.getState(),
     });
 
@@ -56,7 +37,7 @@ export const NoMatchAlexaHandler = () => ({
     }
 
     runtime.storage.set(StorageType.NO_MATCHES_COUNTER, noMatchCounter + 1);
-    addRepromptIfExists({ node: _node, runtime, variables });
+    addRepromptIfExists(_node, runtime, variables);
 
     return node.id;
   },

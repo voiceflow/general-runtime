@@ -70,7 +70,7 @@ describe('preliminary handler unit tests', () => {
       const nodeID = 'node-id';
       const commandHandler = { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns(nodeID) };
       const utils = {
-        commandHandler: () => commandHandler,
+        commandHandler,
       };
       const handler = PreliminaryHandlerFactory(utils as any);
 
@@ -85,7 +85,7 @@ describe('preliminary handler unit tests', () => {
     it('command cant handle', () => {
       const commandHandler = { canHandle: sinon.stub().returns(false) };
       const utils = {
-        commandHandler: () => commandHandler,
+        commandHandler,
       };
       const handler = PreliminaryHandlerFactory(utils as any);
 

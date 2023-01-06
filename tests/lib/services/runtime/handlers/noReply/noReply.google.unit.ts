@@ -96,6 +96,14 @@ describe('noInput handler unit tests', () => {
             },
           },
         ],
+        [
+          {
+            type: 'no-reply',
+            payload: {
+              timeout: 10,
+            },
+          },
+        ],
       ]);
     });
 
@@ -141,6 +149,14 @@ describe('noInput handler unit tests', () => {
             payload: {
               message: 'the counter is 5.23',
               type: 'message',
+            },
+          },
+        ],
+        [
+          {
+            type: 'no-reply',
+            payload: {
+              timeout: 10,
             },
           },
         ],
@@ -195,6 +211,14 @@ describe('noInput handler unit tests', () => {
             payload: {
               message: 'no answer',
               type: 'message',
+            },
+          },
+        ],
+        [
+          {
+            type: 'no-reply',
+            payload: {
+              timeout: 10,
             },
           },
         ],

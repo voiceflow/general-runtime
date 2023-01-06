@@ -1,14 +1,21 @@
+/**
+ * Google interaction needs to be used in favor of general interaction because
+ * it doesnt use the repeat handler
+ * it adds reprompts if exists
+ * it doesnt add no reply timeout
+ * it handles interactions slightly different
+ */
 import { BaseModels, BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory } from '@/runtime';
-import { GoogleStorage as Storage } from '@/runtime/lib/Constants';
 
-import { addButtonsIfExists } from '../../utils';
-import { addRepromptIfExists, isGooglePlatform, mapSlots } from '../../utils.google';
-import CommandHandler from '../command/command';
-import NoMatchHandler from '../noMatch/noMatch.google';
-import NoInputHandler from '../noReply/noReply.google';
+import { StorageType, TurnType } from '../../types';
+import { addButtonsIfExists, addRepromptIfExists } from '../../utils';
+import { isGooglePlatform, mapSlots } from '../../utils.google';
+import CommandHandler from '../command';
+import NoMatchHandler from '../noMatch';
+import NoReplyHandler from '../noReply/noReply.google';
 import { entityFillingRequest } from '../utils/entity';
 
 const utilsObj = {
@@ -17,7 +24,7 @@ const utilsObj = {
   mapSlots,
   commandHandler: CommandHandler(),
   noMatchHandler: NoMatchHandler(),
-  noInputHandler: NoInputHandler(),
+  noReplyHandler: NoReplyHandler(),
 };
 
 export const InteractionGoogleHandler: HandlerFactory<VoiceflowNode.Interaction.Node, typeof utilsObj> = (
@@ -30,14 +37,14 @@ export const InteractionGoogleHandler: HandlerFactory<VoiceflowNode.Interaction.
 
     if (runtime.getAction() === Action.RUNNING) {
       // clean up reprompt on new interaction
-      runtime.storage.delete(Storage.REPROMPT);
+      runtime.storage.delete(TurnType.REPROMPT);
 
       utils.addButtonsIfExists(node, runtime, variables);
       utils.addRepromptIfExists(node, runtime, variables);
 
       // clean up no matches and no replies counters on new interaction
-      runtime.storage.delete(Storage.NO_MATCHES_COUNTER);
-      runtime.storage.delete(Storage.NO_INPUTS_COUNTER);
+      runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);
+      runtime.storage.delete(StorageType.NO_REPLIES_COUNTER);
 
       // quit cycleStack without ending session by stopping on itself
       return node.id;
@@ -47,7 +54,6 @@ export const InteractionGoogleHandler: HandlerFactory<VoiceflowNode.Interaction.
     let variableMap: BaseModels.SlotMapping[] | null = null;
 
     const { slots, intent } = request.payload;
-
     // check if there is a choice in the node that fulfills intent
     node.interactions.forEach((choice) => {
       if (!BaseNode.Utils.isIntentEvent(choice.event)) return;
@@ -82,8 +88,8 @@ export const InteractionGoogleHandler: HandlerFactory<VoiceflowNode.Interaction.
     }
 
     // check for no input
-    if (utils.noInputHandler.canHandle(runtime)) {
-      return utils.noInputHandler.handle(node, runtime, variables);
+    if (utils.noReplyHandler.canHandle(runtime)) {
+      return utils.noReplyHandler.handle(node, runtime, variables);
     }
 
     return utils.noMatchHandler.handle(node, runtime, variables);

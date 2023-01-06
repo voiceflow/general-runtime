@@ -1,3 +1,9 @@
+/**
+ * Alexa interaction needs to be used in favor of general interaction because
+ * it adds reprompts if exists
+ * it doesnt add no reply timeout
+ * it handles interactions slightly different
+ */
 import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { formatIntentName } from '@voiceflow/common';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
@@ -5,7 +11,8 @@ import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import { Action, HandlerFactory } from '@/runtime';
 
 import { StorageType } from '../../types';
-import { addRepromptIfExists, mapSlots } from '../../utils.alexa';
+import { addRepromptIfExists } from '../../utils';
+import { mapSlots } from '../../utils.alexa';
 import CommandHandler from '../command/command.alexa';
 import NoMatchHandler from '../noMatch/noMatch.alexa';
 import RepeatHandler from '../repeat';
@@ -26,7 +33,7 @@ export const InteractionAlexaHandler: HandlerFactory<VoiceflowNode.Interaction.N
     const request = runtime.getRequest();
 
     if (runtime.getAction() === Action.RUNNING) {
-      utils.addRepromptIfExists({ node, runtime, variables });
+      utils.addRepromptIfExists(node, runtime, variables);
 
       // clean up no matches counter on new interaction
       runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);
@@ -37,7 +44,6 @@ export const InteractionAlexaHandler: HandlerFactory<VoiceflowNode.Interaction.N
 
     // request for this turn has been processed, delete request
     const { intent } = request.payload;
-
     const index = node.interactions.findIndex(
       (choice) =>
         BaseNode.Utils.isIntentEvent(choice.event) &&

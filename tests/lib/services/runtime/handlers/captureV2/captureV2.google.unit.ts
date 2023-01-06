@@ -123,7 +123,7 @@ describe('captureV2 handler unit tests', async () => {
               canHandle: sinon.stub().returns(false),
             },
             entityFillingNoMatchHandler: { handle: sinon.stub().returns(noMatchHandler) },
-            noInputHandler: { canHandle: () => false },
+            noReplyHandler: { canHandle: () => false },
           };
 
           const captureHandler = CaptureV2GoogleHandler(utils as any);
@@ -151,7 +151,7 @@ describe('captureV2 handler unit tests', async () => {
               canHandle: sinon.stub().returns(false),
             },
             entityFillingNoMatchHandler: { handle: sinon.stub().returns(noMatchHandler) },
-            noInputHandler: { canHandle: () => false },
+            noReplyHandler: { canHandle: () => false },
           };
 
           const captureHandler = CaptureV2GoogleHandler(utils as any);
@@ -176,7 +176,7 @@ describe('captureV2 handler unit tests', async () => {
               commandHandler: {
                 canHandle: sinon.stub().returns(false),
               },
-              noInputHandler: { canHandle: sinon.stub().returns(false) },
+              noReplyHandler: { canHandle: sinon.stub().returns(false) },
             };
 
             const captureHandler = CaptureV2GoogleHandler(utils as any);
@@ -205,7 +205,7 @@ describe('captureV2 handler unit tests', async () => {
             commandHandler: {
               canHandle: sinon.stub().returns(false),
             },
-            noInputHandler: { canHandle: sinon.stub().returns(false) },
+            noReplyHandler: { canHandle: sinon.stub().returns(false) },
           };
 
           const captureHandler = CaptureV2GoogleHandler(utils as any);

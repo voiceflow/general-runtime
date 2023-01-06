@@ -20,7 +20,7 @@ import APIHandler from './api';
 import CaptureHandler from './capture';
 import CaptureV2Handler from './captureV2';
 import CardV2Handler from './cardV2';
-import CarouselHandler from './carousel';
+import CarouselHandler from './caroussel';
 import ChannelActionHandler from './channelAction';
 import GoToHandler from './goTo';
 import InteractionHandler from './interaction';
@@ -35,7 +35,7 @@ const _v1Handler = _V1Handler();
 export default (config: Config) => [
   ...StateHandlers(),
   SpeakHandler(),
-  GoToHandler(),
+  ...GoToHandler(),
   ...InteractionHandler(),
   ...CaptureV2Handler(),
   ...CaptureHandler(),
@@ -54,8 +54,8 @@ export default (config: Config) => [
   StartHandler(),
   VisualHandler(),
   TextHandler(),
-  CardV2Handler(),
-  CarouselHandler(),
+  ...CardV2Handler(),
+  ...CarouselHandler(),
   GoToNodeHandler(),
   ChannelActionHandler(),
 

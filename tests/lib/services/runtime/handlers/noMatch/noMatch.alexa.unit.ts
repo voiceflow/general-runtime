@@ -9,7 +9,7 @@ const GlobalNoMatch = { prompt: { voice: 'Alexa', content: 'Sorry, could not und
 
 describe('noMatch handler unit tests', () => {
   describe('handle', () => {
-    it('next id', () => {
+    it('next id', async () => {
       const node = {
         id: 'node-id',
         noMatch: {
@@ -28,10 +28,10 @@ describe('noMatch handler unit tests', () => {
       };
 
       const noMatchHandler = NoMatchAlexaHandler();
-      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.noMatch.nodeID);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.noMatch.nodeID);
     });
 
-    it('with old noMatch format', () => {
+    it('with old noMatch format', async () => {
       const node = {
         id: 'node-id',
         noMatches: ['the counter is {counter}'],
@@ -52,7 +52,7 @@ describe('noMatch handler unit tests', () => {
       };
 
       const noMatchHandler = NoMatchAlexaHandler();
-      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args).to.eql([
         [
           {
@@ -68,7 +68,7 @@ describe('noMatch handler unit tests', () => {
       expect(runtime.storage.set.args).to.eql([[StorageType.NO_MATCHES_COUNTER, 1]]);
     });
 
-    it('with new noMatch format', () => {
+    it('with new noMatch format', async () => {
       const node = {
         id: 'node-id',
         noMatch: {
@@ -91,7 +91,7 @@ describe('noMatch handler unit tests', () => {
       };
 
       const noMatchHandler = NoMatchAlexaHandler();
-      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args).to.eql([
         [
           {
@@ -107,7 +107,7 @@ describe('noMatch handler unit tests', () => {
       expect(runtime.storage.set.args).to.eql([[StorageType.NO_MATCHES_COUNTER, 1]]);
     });
 
-    it('with new noMatch format and noMatch with path action', () => {
+    it('with new noMatch format and noMatch with path action', async () => {
       const node = {
         id: 'node-id',
         noMatch: {
@@ -132,7 +132,7 @@ describe('noMatch handler unit tests', () => {
       };
 
       const noMatchHandler = NoMatchAlexaHandler();
-      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql('next-id');
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql('next-id');
       expect(runtime.trace.addTrace.args).to.eql([
         [
           {
@@ -148,7 +148,7 @@ describe('noMatch handler unit tests', () => {
       expect(runtime.storage.delete.callCount).to.eql(1);
     });
 
-    it('with global noMatch', () => {
+    it('with global noMatch', async () => {
       const node = {
         id: 'node-id',
         noMatch: {
@@ -179,7 +179,7 @@ describe('noMatch handler unit tests', () => {
       };
 
       const noMatchHandler = NoMatchAlexaHandler();
-      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args).to.eql([
         [
           {
@@ -195,7 +195,7 @@ describe('noMatch handler unit tests', () => {
       expect(runtime.storage.set.args).to.eql([[StorageType.NO_MATCHES_COUNTER, 1]]);
     });
 
-    it('without noMatch', () => {
+    it('without noMatch', async () => {
       const node = {
         id: 'node-id',
       };
@@ -215,11 +215,11 @@ describe('noMatch handler unit tests', () => {
       };
 
       const noMatchHandler = NoMatchAlexaHandler();
-      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(null);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(null);
       expect(runtime.trace.addTrace.callCount).to.eql(0);
     });
 
-    it('with choices', () => {
+    it('with choices', async () => {
       const node = {
         id: 'node-id',
         interactions: [{ intent: 'address_intent' }, { intent: 'phone_number_intent' }],
@@ -240,11 +240,11 @@ describe('noMatch handler unit tests', () => {
       };
 
       const noMatchHandler = NoMatchAlexaHandler();
-      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(null);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(null);
       expect(runtime.trace.addTrace.callCount).to.eql(0);
     });
 
-    it('with noMatch randomized', () => {
+    it('with noMatch randomized', async () => {
       const node = {
         id: 'node-id',
         noMatch: {
@@ -268,11 +268,11 @@ describe('noMatch handler unit tests', () => {
       };
 
       const noMatchHandler = NoMatchAlexaHandler();
-      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
       expect(node.noMatch.prompts.includes(runtime.trace.addTrace.args[0][0].payload.message)).to.eql(true);
     });
 
-    it('with noMatch null speak string', () => {
+    it('with noMatch null speak string', async () => {
       const NON_NULL_STRING = 'Josh was here';
       const node = {
         id: 'node-id',
@@ -294,11 +294,11 @@ describe('noMatch handler unit tests', () => {
       };
 
       const noMatchHandler = NoMatchAlexaHandler();
-      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args[0][0].payload.message).to.eql(NON_NULL_STRING);
     });
 
-    it('with noMatch empty audio', () => {
+    it('with noMatch empty audio', async () => {
       const NON_NULL_STRING = 'Josh was here';
       const node = {
         id: 'node-id',
@@ -320,7 +320,7 @@ describe('noMatch handler unit tests', () => {
       };
 
       const noMatchHandler = NoMatchAlexaHandler();
-      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args[0][0].payload.message).to.eql(NON_NULL_STRING);
     });
   });

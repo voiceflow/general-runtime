@@ -1,18 +1,7 @@
-import { BaseModels, BaseRequest, Text } from '@voiceflow/base-types';
-import { replaceVariables, sanitizeVariables, transformStringVariableToNumber } from '@voiceflow/common';
-import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
+import { BaseModels, BaseRequest } from '@voiceflow/base-types';
+import { transformStringVariableToNumber } from '@voiceflow/common';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
-
-import {
-  EMPTY_AUDIO_STRING,
-  isPromptContentEmpty,
-  slateInjectVariables,
-  slateToPlaintext,
-} from '@/lib/services/runtime/utils';
-import { Runtime, Store } from '@/runtime';
-import { GoogleStorage as Storage } from '@/runtime/lib/Constants';
-
-import { isAnyPrompt } from './types.google';
 
 interface GoogleDateTimeSlot {
   seconds: number;
@@ -24,6 +13,7 @@ interface GoogleDateTimeSlot {
   month: number;
 }
 
+// TODO: when refactoring adapter we might be able to remove the dialogflow from here
 export const isGooglePlatform = (platform: VoiceflowConstants.PlatformType) =>
   [
     VoiceflowConstants.PlatformType.GOOGLE,
@@ -32,6 +22,8 @@ export const isGooglePlatform = (platform: VoiceflowConstants.PlatformType) =>
     VoiceflowConstants.PlatformType.DIALOGFLOW_ES_VOICE,
   ].includes(platform);
 
+// TODO: when refactoring adapter this code should be moved there
+// we might need to keep this for google-assistant until it is sunset
 export const transformDateTimeVariableToString = (date: GoogleDateTimeSlot) => {
   if (!date.year && !date.hours) return ''; // not GoogleDateTime type
 
@@ -45,6 +37,9 @@ export const transformDateTimeVariableToString = (date: GoogleDateTimeSlot) => {
   return `${date.day}/${date.month}/${date.year} ${date.hours}:${date.minutes ?? '00'}`;
 };
 
+// TODO: when refactoring adapter the specific code should be moved there
+// so that we can rely on the general-runtime utils mapEntities fn
+// we might need to keep this for google-assistant until it is sunset
 export const mapSlots = ({
   mappings,
   entities,
@@ -86,59 +81,4 @@ export const mapSlots = ({
   }
 
   return variables;
-};
-
-export const addVariables =
-  (regex: typeof replaceVariables) =>
-  (value: string | undefined | null, variables: Store, defaultValue = '') =>
-    value ? regex(value, variables.getState()) : defaultValue;
-
-export const removeEmptyPrompts = (prompts?: VoiceflowNode.Utils.VoiceflowPrompt[] | null): string[] =>
-  prompts?.filter((prompt): prompt is string => typeof prompt === 'string' && prompt !== EMPTY_AUDIO_STRING) ?? [];
-
-export const addRepromptIfExists = <Node extends VoiceflowNode.Utils.NoReplyNode>(
-  node: Node,
-  runtime: Runtime,
-  variables: Store
-): void => {
-  const prompt = _.sample(node.noReply?.prompts || node.reprompt ? [node.reprompt] : []);
-
-  if (prompt && typeof prompt === 'string') {
-    runtime.storage.set(Storage.REPROMPT, replaceVariables(prompt, variables.getState()));
-    return;
-  }
-
-  const globalNoReply = getGlobalNoReplyPrompt(runtime)?.content;
-  if (globalNoReply && !isPromptContentEmpty(globalNoReply)) {
-    runtime.storage.set(Storage.REPROMPT, processOutput(globalNoReply, variables));
-  }
-};
-
-export const processOutput = (output: string | Text.SlateTextValue | undefined, variables: Store): string => {
-  if (!output) return '';
-
-  const sanitizedVars = sanitizeVariables(variables.getState());
-  // handle voice string
-  if (typeof output === 'string') {
-    return replaceVariables(output, sanitizedVars);
-  }
-
-  // handle slate text
-  const content = slateInjectVariables(output, sanitizedVars);
-  return slateToPlaintext(content);
-};
-
-export const getGlobalNoMatchPrompt = (runtime: Runtime) => {
-  const { version } = runtime;
-
-  return isAnyPrompt(version?.platformData.settings?.globalNoMatch?.prompt)
-    ? version?.platformData.settings?.globalNoMatch?.prompt
-    : null;
-};
-
-export const getGlobalNoReplyPrompt = (runtime: Runtime) => {
-  const { version } = runtime;
-  return isAnyPrompt(version?.platformData?.settings.globalNoReply?.prompt)
-    ? version?.platformData?.settings.globalNoReply?.prompt
-    : null;
 };

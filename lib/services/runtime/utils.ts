@@ -1,7 +1,8 @@
-import { BaseModels, BaseNode, BaseRequest, BaseText, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
+import { BaseModels, BaseNode, BaseRequest, BaseText, BaseTrace, RuntimeLogs, Text } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables, transformStringVariableToNumber, Utils } from '@voiceflow/common';
-import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
+import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import cuid from 'cuid';
+import _ from 'lodash';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
 import _uniqBy from 'lodash/uniqBy';
 import * as Slate from 'slate';
@@ -10,7 +11,7 @@ import { Runtime, Store } from '@/runtime';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { AddTraceFn } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
-import { isPrompt, Output } from './types';
+import { isPrompt, Output, Prompt, TurnType } from './types';
 
 export const EMPTY_AUDIO_STRING = '<audio src=""/>';
 
@@ -157,11 +158,14 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
 
 export const getReadableConfidence = (confidence?: number): string => ((confidence ?? 1) * 100).toFixed(2);
 
-export const getGlobalNoMatchPrompt = (runtime: Runtime) => {
-  const { version } = runtime;
-  const prompt = version?.platformData.settings?.globalNoMatch?.prompt;
-  return prompt && isPrompt(prompt) ? prompt : null;
-};
+export const getGenericGlobalNoMatchPrompt =
+  ({ isPrompt }: { isPrompt: (prompt: unknown) => prompt is Prompt }) =>
+  (runtime: Runtime) => {
+    const { version } = runtime;
+    const prompt = version?.platformData.settings?.globalNoMatch?.prompt;
+    return prompt && isPrompt(prompt) ? prompt : null;
+  };
+export const getGlobalNoMatchPrompt = getGenericGlobalNoMatchPrompt({ isPrompt });
 
 export const getGlobalNoReplyPrompt = (runtime: Runtime) => {
   const { version } = runtime;
@@ -186,10 +190,10 @@ export const isPromptContentEmpty = (content: BaseText.SlateTextValue | string |
 export const removeEmptyPrompts = (
   prompts: Array<BaseText.SlateTextValue | string>
 ): Array<BaseText.SlateTextValue | string> =>
-  prompts.filter(
+  prompts?.filter(
     (prompt) =>
       prompt != null && (typeof prompt === 'string' ? prompt !== EMPTY_AUDIO_STRING : !!slateToPlaintext(prompt))
-  );
+  ) ?? [];
 
 interface OutputParams<V> {
   output?: V;
@@ -239,4 +243,42 @@ export const getDefaultNoReplyTimeoutSeconds = (platform: string | undefined) =>
   };
 
   return delayByPlatform[platform] ?? defaultTimeout;
+};
+
+export const addRepromptIfExists = <Node extends VoiceflowNode.Utils.NoReplyNode>(
+  node: Node,
+  runtime: Runtime,
+  variables: Store
+): void => {
+  const prompt = _.sample(node.noReply?.prompts || node.reprompt ? [node.reprompt] : []);
+
+  if (prompt && typeof prompt === 'string') {
+    runtime.trace.addTrace<BaseNode.Utils.BaseTraceFrame<unknown>>({
+      type: TurnType.REPROMPT,
+      payload: replaceVariables(prompt, variables.getState()),
+    });
+    return;
+  }
+
+  const globalNoReply = getGlobalNoReplyPrompt(runtime)?.content;
+  if (globalNoReply && !isPromptContentEmpty(globalNoReply)) {
+    runtime.trace.addTrace<BaseNode.Utils.BaseTraceFrame<unknown>>({
+      type: TurnType.REPROMPT,
+      payload: processOutput(globalNoReply, variables),
+    });
+  }
+};
+
+export const processOutput = (output: string | Text.SlateTextValue | undefined, variables: Store): string => {
+  if (!output) return '';
+
+  const sanitizedVars = sanitizeVariables(variables.getState());
+  // handle voice string
+  if (typeof output === 'string') {
+    return replaceVariables(output, sanitizedVars);
+  }
+
+  // handle slate text
+  const content = slateInjectVariables(output, sanitizedVars);
+  return slateToPlaintext(content);
 };

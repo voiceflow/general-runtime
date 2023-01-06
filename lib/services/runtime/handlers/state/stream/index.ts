@@ -12,8 +12,8 @@ import {
   StreamAction,
   StreamPauseStorage,
   StreamPlayStorage,
-} from '../../types';
-import CommandHandler from '../command/command';
+} from '../../../types';
+import CommandHandler from '../../command';
 
 const utilsObj = {
   commandHandler: CommandHandler(),

@@ -6,8 +6,8 @@ import { Action, HandlerFactory } from '@/runtime';
 
 import { isIntentRequest, StorageType } from '../../types';
 import { addButtonsIfExists, mapEntities } from '../../utils';
-import CommandHandler from '../command/command';
-import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply/noReply';
+import CommandHandler from '../command';
+import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
 import RepeatHandler from '../repeat';
 
 const utilsObj = {

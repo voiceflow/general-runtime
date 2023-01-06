@@ -1,12 +1,9 @@
 import { AlexaConstants } from '@voiceflow/alexa-types';
-import { BaseModels, BaseNode, BaseRequest } from '@voiceflow/base-types';
-import { formatIntentName, replaceVariables, transformStringVariableToNumber } from '@voiceflow/common';
-import { VoiceflowNode } from '@voiceflow/voiceflow-types';
-import { Slot } from 'ask-sdk-model';
-import _ from 'lodash';
+import { BaseModels, BaseRequest } from '@voiceflow/base-types';
+import { formatIntentName, transformStringVariableToNumber } from '@voiceflow/common';
 
-import { Runtime, Store } from '@/runtime';
-import { AlexaStorage as Storage } from '@/runtime/lib/Constants';
+import { SlotValue } from './types.alexa';
+import { getGenericGlobalNoMatchPrompt } from './utils';
 
 const ALEXA_AUTHORITY = 'AlexaEntities';
 
@@ -16,7 +13,9 @@ export const mapSlots = ({
   mappings,
   overwrite = false,
 }: {
-  slots: { [key: string]: Slot };
+  slots: {
+    [key: string]: SlotValue;
+  };
   entities?: BaseRequest.IntentRequest['payload']['entities'];
   mappings: BaseModels.SlotMapping[];
   overwrite?: boolean;
@@ -53,55 +52,14 @@ export const mapSlots = ({
   return variables;
 };
 
-const convertDeprecatedReprompt = <B extends VoiceflowNode.Utils.NoReplyNode>(node: B) => ({
-  ...node,
-  noReply: {
-    ...node.noReply,
-    prompts: node.noReply?.prompts || (node.reprompt ? [node.reprompt] : []),
-  },
-});
-
-export const addRepromptIfExists = <B extends VoiceflowNode.Utils.NoReplyNode>({
-  node,
-  runtime,
-  variables,
-}: {
-  node: B;
-  runtime: Runtime;
-  variables: Store;
-}): void => {
-  const noReplyNode = convertDeprecatedReprompt(node);
-
-  const reprompt = noReplyNode.noReply.prompts?.length
-    ? _.sample(noReplyNode.noReply.prompts)
-    : getGlobalNoReplyPrompt(runtime)?.content;
-
-  if (reprompt && typeof reprompt === 'string') {
-    runtime.trace.addTrace<BaseNode.Utils.BaseTraceFrame<unknown>>({
-      type: Storage.REPROMPT,
-      payload: replaceVariables(reprompt, variables.getState()),
-    });
-  }
-};
-
 interface Prompt {
   voice: AlexaConstants.Voice;
   content: string;
 }
+
 const isPrompt = (prompt: unknown): prompt is Prompt => {
   if (!prompt || typeof prompt !== 'object') return false;
   return 'voice' in prompt && 'content' in prompt;
 };
 
-export const getGlobalNoMatchPrompt = (runtime: Runtime) => {
-  const { version } = runtime;
-  const prompt = version?.platformData.settings?.globalNoMatch?.prompt;
-  return prompt && isPrompt(prompt) ? prompt : null;
-};
-
-const getGlobalNoReplyPrompt = (runtime: Runtime) => {
-  const { version } = runtime;
-  return isPrompt(version?.platformData?.settings.globalNoReply?.prompt)
-    ? version?.platformData?.settings.globalNoReply?.prompt
-    : null;
-};
+export const getGlobalNoMatchPrompt = getGenericGlobalNoMatchPrompt({ isPrompt });

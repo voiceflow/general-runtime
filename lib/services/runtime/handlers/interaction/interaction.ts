@@ -5,10 +5,10 @@ import { Action, HandlerFactory } from '@/runtime';
 
 import { StorageType } from '../../types';
 import { addButtonsIfExists } from '../../utils';
-import CommandHandler from '../command/command';
+import CommandHandler from '../command';
 import { findEventMatcher } from '../event';
-import NoMatchHandler from '../noMatch/noMatch';
-import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply/noReply';
+import NoMatchHandler from '../noMatch';
+import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
 import RepeatHandler from '../repeat';
 
 const utilsObj = {

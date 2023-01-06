@@ -1,3 +1,9 @@
+/**
+ * Alexa command needs to be used in favor of general command because
+ * it tries to fallback a cancel intent to a stop intent if there isnt
+ * any cancel intent handler
+ */
+
 /* eslint-disable no-restricted-syntax */
 import { BaseNode } from '@voiceflow/base-types';
 import _ from 'lodash';
@@ -6,7 +12,7 @@ import { Action, Frame as FrameUtils, Runtime } from '@/runtime';
 
 import { IntentName } from '../../types.alexa';
 import { findEventMatcher } from '../event';
-import { CommandHandler } from './command';
+import { CommandHandler } from '.';
 
 const matcher = (intentName: string) => (command: BaseNode.Utils.AnyCommand<BaseNode.Utils.IntentEvent> | null) =>
   command?.event?.intent === intentName;
@@ -55,9 +61,6 @@ const utilsObj = {
   getCommand,
 };
 
-/**
- * The Command Handler is meant to be used inside other handlers, and should never handle nodes directly
- */
 export const CommandAlexaHandler = (utils: typeof utilsObj = utilsObj) => CommandHandler(utils);
 
-export default () => CommandHandler({ Frame: FrameUtils, getCommand });
+export default () => CommandHandler(utilsObj);

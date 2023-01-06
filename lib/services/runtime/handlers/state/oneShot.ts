@@ -3,7 +3,7 @@ import { BaseNode } from '@voiceflow/base-types';
 import { Action, HandlerFactory } from '@/runtime';
 
 import { isIntentRequest } from '../../types';
-import CommandHandler from '../command/command';
+import CommandHandler from '../command';
 
 const utilsObj = {
   commandHandler: CommandHandler(),

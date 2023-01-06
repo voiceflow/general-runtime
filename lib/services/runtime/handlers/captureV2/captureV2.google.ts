@@ -1,16 +1,23 @@
+/**
+ * Google captureV2 needs to be used in favor of general captureV2 because
+ * it adds reprompts if exists
+ * it doesnt add no reply timeout
+ * it handles captureV2 very differently
+ */
 import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory } from '@/runtime';
 
-import { addRepromptIfExists, isGooglePlatform, mapSlots } from '../../utils.google';
-import CommandHandler from '../command/command';
-import NoInputHandler from '../noReply/noReply.google';
+import { addRepromptIfExists } from '../../utils';
+import { isGooglePlatform, mapSlots } from '../../utils.google';
+import CommandHandler from '../command';
+import NoReplyHandler from '../noReply/noReply.google';
 import { EntityFillingNoMatchHandler, entityFillingRequest, setElicit } from '../utils/entity';
 
 const utilsObj = {
   commandHandler: CommandHandler(),
-  noInputHandler: NoInputHandler(),
+  noReplyHandler: NoReplyHandler(),
   addRepromptIfExists,
   entityFillingNoMatchHandler: EntityFillingNoMatchHandler(),
 };
@@ -41,8 +48,8 @@ export const CaptureV2GoogleHandler: HandlerFactory<VoiceflowNode.CaptureV2.Node
     }
 
     // check for no input in v2
-    if (utils.noInputHandler.canHandle(runtime)) {
-      return utils.noInputHandler.handle(node, runtime, variables);
+    if (utils.noReplyHandler.canHandle(runtime)) {
+      return utils.noReplyHandler.handle(node, runtime, variables);
     }
     const { slots, input, intent, entities } = request.payload;
 

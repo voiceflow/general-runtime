@@ -1,10 +1,11 @@
 import { BaseNode, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 
 import { DMStore } from '@/lib/services/dialog';
-import NoMatchHandler, { NoMatchNode } from '@/lib/services/runtime/handlers/noMatch/noMatch';
+import NoMatchHandler, { NoMatchNode } from '@/lib/services/runtime/handlers/noMatch';
 import { Runtime, Store } from '@/runtime';
 
 import { StorageType } from '../../types';
+import { NoMatchAlexaHandler } from '../noMatch/noMatch.alexa';
 
 export const VF_ELICIT = 'ELICIT';
 
@@ -32,7 +33,9 @@ export const hasElicit = (
 
 const noMatchHandler = NoMatchHandler();
 
-export const EntityFillingNoMatchHandler = () => ({
+export const EntityFillingNoMatchHandler = (
+  utilsObj: { noMatchHandler: typeof noMatchHandler } = { noMatchHandler }
+) => ({
   handle:
     (node: NoMatchNode, runtime: Runtime, variables: Store) =>
     async (intents?: string[], defaultRequest?: BaseRequest.IntentRequest) => {
@@ -54,7 +57,7 @@ export const EntityFillingNoMatchHandler = () => ({
         return node.id;
       }
 
-      const noMatchPath = await noMatchHandler.handle(node, runtime, variables);
+      const noMatchPath = await utilsObj.noMatchHandler.handle(node, runtime, variables);
       if (noMatchPath === node.id && nextRequest) {
         runtime.trace.addTrace<BaseTrace.GoToTrace>({
           type: BaseNode.Utils.TraceType.GOTO,
@@ -64,3 +67,6 @@ export const EntityFillingNoMatchHandler = () => ({
       return noMatchPath;
     },
 });
+
+export const EntityFillingNoMatchAlexaHandler = () =>
+  EntityFillingNoMatchHandler({ noMatchHandler: NoMatchAlexaHandler() });

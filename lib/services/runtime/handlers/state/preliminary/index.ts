@@ -1,32 +1,30 @@
-import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
+import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, Handler, HandlerFactory, IfV2Handler } from '@/runtime';
 
-import _V1Handler from '../_v1';
-import CaptureHandler from '../capture';
-import CaptureV2Handler from '../captureV2';
-import CardV2Handler from '../cardV2';
-import CarouselHandler from '../carousel';
-import CommandHandler from '../command/command';
-import CommandAlexaHandler from '../command/command.alexa';
-import GoToHandler from '../goTo';
-import InteractionHandler from '../interaction';
+import _V1Handler from '../../_v1';
+import CaptureHandler from '../../capture';
+import CaptureV2Handler from '../../captureV2';
+import CardV2Handler from '../../cardV2';
+import CarouselHandler from '../../caroussel';
+import CommandHandler from '../../command';
+import GoToHandler from '../../goTo';
+import InteractionHandler from '../../interaction';
 
 const _v1Handler = _V1Handler();
 export const eventHandlers = [
-  GoToHandler(),
+  ...GoToHandler(),
   ...CaptureHandler(),
   ...CaptureV2Handler(),
   ...InteractionHandler(),
-  CardV2Handler(),
-  CarouselHandler(),
+  ...CardV2Handler(),
+  ...CarouselHandler(),
   _v1Handler,
   IfV2Handler({ _v1: _v1Handler }),
 ] as Handler[];
 
 const utilsObj = {
-  commandHandler: (node: VoiceflowNode.Interaction.Node) =>
-    node.platform === VoiceflowConstants.PlatformType.ALEXA ? CommandAlexaHandler() : CommandHandler(),
+  commandHandler: CommandHandler(),
   eventHandlers,
 };
 
@@ -45,8 +43,8 @@ export const PreliminaryHandler: HandlerFactory<VoiceflowNode.Interaction.Node, 
   },
   handle: (node, runtime, variables) => {
     // check if there is a command in the stack that fulfills request
-    if (utils.commandHandler(node).canHandle(runtime)) {
-      return utils.commandHandler(node).handle(runtime, variables);
+    if (utils.commandHandler.canHandle(runtime)) {
+      return utils.commandHandler.handle(runtime, variables);
     }
 
     // return current id

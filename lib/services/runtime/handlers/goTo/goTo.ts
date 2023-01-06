@@ -3,13 +3,13 @@ import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { HandlerFactory } from '@/runtime/lib/Handler';
 import { Action } from '@/runtime/lib/Runtime';
 
-import CommandHandler from './command/command';
+import CommandHandler from '../command';
 
 const utilsObj = {
   commandHandler: CommandHandler(),
 };
 
-const GoToHandler: HandlerFactory<BaseNode.GoTo.Node, typeof utilsObj> = (utils) => ({
+export const GoToHandler: HandlerFactory<BaseNode.GoTo.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => node.type === BaseNode.NodeType.GOTO,
   handle: (node, runtime, variables): string | null => {
     if (runtime.getAction() === Action.RUNNING) {

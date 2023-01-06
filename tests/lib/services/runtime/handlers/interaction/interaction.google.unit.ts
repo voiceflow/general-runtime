@@ -4,8 +4,8 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { InteractionGoogleHandler } from '@/lib/services/runtime/handlers/interaction/interaction.google';
+import { StorageType, TurnType } from '@/lib/services/runtime/types';
 import { Action } from '@/runtime';
-import { GoogleStorage as Storage } from '@/runtime/lib/Constants';
 
 describe('interaction handler unit tests', async () => {
   afterEach(() => sinon.restore());
@@ -51,9 +51,9 @@ describe('interaction handler unit tests', async () => {
       expect(utils.addRepromptIfExists.args).to.eql([[block, runtime, variables]]);
       expect(utils.addButtonsIfExists.args).to.eql([[block, runtime, variables]]);
       expect(runtime.storage.delete.args).to.eql([
-        [Storage.REPROMPT],
-        [Storage.NO_MATCHES_COUNTER],
-        [Storage.NO_INPUTS_COUNTER],
+        [TurnType.REPROMPT],
+        [StorageType.NO_MATCHES_COUNTER],
+        [StorageType.NO_REPLIES_COUNTER],
       ]);
     });
 
@@ -189,7 +189,7 @@ describe('interaction handler unit tests', async () => {
             noMatchHandler: {
               handle: sinon.stub().returns(null),
             },
-            noInputHandler: {
+            noReplyHandler: {
               canHandle: sinon.stub().returns(false),
             },
           };
@@ -223,7 +223,7 @@ describe('interaction handler unit tests', async () => {
             noMatchHandler: {
               handle: sinon.stub().returns('else-id'),
             },
-            noInputHandler: {
+            noReplyHandler: {
               canHandle: sinon.stub().returns(false),
             },
           };
@@ -263,7 +263,7 @@ describe('interaction handler unit tests', async () => {
               canHandle: sinon.stub().returns(true),
               handle: sinon.stub().returns(nextId),
             },
-            noInputHandler: {
+            noReplyHandler: {
               canHandle: sinon.stub().returns(false),
             },
           };
@@ -301,7 +301,7 @@ describe('interaction handler unit tests', async () => {
             noMatchHandler: {
               canHandle: sinon.stub().returns(false),
             },
-            noInputHandler: {
+            noReplyHandler: {
               canHandle: sinon.stub().returns(false),
             },
           };
@@ -339,7 +339,7 @@ describe('interaction handler unit tests', async () => {
             noMatchHandler: {
               canHandle: sinon.stub().returns(false),
             },
-            noInputHandler: {
+            noReplyHandler: {
               canHandle: sinon.stub().returns(false),
             },
           };
@@ -377,7 +377,7 @@ describe('interaction handler unit tests', async () => {
             noMatchHandler: {
               canHandle: sinon.stub().returns(false),
             },
-            noInputHandler: {
+            noReplyHandler: {
               canHandle: sinon.stub().returns(false),
             },
           };
@@ -438,7 +438,7 @@ describe('interaction handler unit tests', async () => {
               canHandle: sinon.stub().returns(false),
             },
             mapSlots: sinon.stub().returns(mappedSlots),
-            noInputHandler: {
+            noReplyHandler: {
               canHandle: sinon.stub().returns(false),
             },
           };
@@ -485,7 +485,7 @@ describe('interaction handler unit tests', async () => {
             noMatchHandler: {
               handle: sinon.stub().returns('else-id'),
             },
-            noInputHandler: {
+            noReplyHandler: {
               canHandle: sinon.stub().returns(false),
             },
           };
@@ -523,7 +523,7 @@ describe('interaction handler unit tests', async () => {
             noMatchHandler: {
               handle: sinon.stub().returns(false),
             },
-            noInputHandler: {
+            noReplyHandler: {
               canHandle: sinon.stub().returns(true),
               handle: sinon.stub().returns(nextId),
             },

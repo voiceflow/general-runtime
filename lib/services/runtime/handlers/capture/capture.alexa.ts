@@ -1,15 +1,26 @@
+/**
+ * Alexa capture needs to be used in favor of general capture because
+ * it adds reprompts if exists
+ * it doesnt add no reply timeout
+ * it handles capture very differently
+ */
 import { BaseTrace } from '@voiceflow/base-types';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
-import { Intent } from 'ask-sdk-model';
 import wordsToNumbers from 'words-to-numbers';
 
 import { Action, HandlerFactory } from '@/runtime';
 
-import { addRepromptIfExists } from '../../utils.alexa';
+import { SlotValue } from '../../types.alexa';
+import { addRepromptIfExists } from '../../utils';
 import CommandHandler from '../command/command.alexa';
 import RepeatHandler from '../repeat';
 import { entityFillingRequest, setElicit } from '../utils/entity';
 
+interface Intent {
+  slots: {
+    [key: string]: SlotValue;
+  };
+}
 const getSlotValue = (intent: Intent) => {
   const intentSlots = intent.slots || {};
   const value = Object.keys(intentSlots).length === 1 && Object.values(intentSlots)[0]?.value;
@@ -35,7 +46,7 @@ export const CaptureAlexaHandler: HandlerFactory<VoiceflowNode.Capture.Node, typ
     const request = runtime.getRequest();
 
     if (runtime.getAction() === Action.RUNNING) {
-      utils.addRepromptIfExists({ node, runtime, variables });
+      utils.addRepromptIfExists(node, runtime, variables);
 
       if (node.intent && node.slots?.[0]) {
         runtime.trace.addTrace<BaseTrace.GoToTrace>({
