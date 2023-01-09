@@ -9,7 +9,7 @@ import { AbstractManager } from './utils';
 const MAX_TURNS = 3;
 
 // writes a primative string transcript into the context state storage
-class Transcript extends AbstractManager implements ContextHandler {
+class AIAssistContext extends AbstractManager implements ContextHandler {
   static StorageKey = 'transcript';
 
   static getInput(request: RuntimeRequest) {
@@ -32,7 +32,7 @@ class Transcript extends AbstractManager implements ContextHandler {
 
     const { request, trace } = context;
 
-    const input = Transcript.getInput(request);
+    const input = AIAssistContext.getInput(request);
 
     const output =
       trace?.reduce((acc, t) => {
@@ -47,7 +47,7 @@ class Transcript extends AbstractManager implements ContextHandler {
 
     if (!input && !output) return context;
 
-    const transcript = context.state.storage[Transcript.StorageKey] || [];
+    const transcript = context.state.storage[AIAssistContext.StorageKey] || [];
 
     transcript.push([input, output]);
 
@@ -59,11 +59,11 @@ class Transcript extends AbstractManager implements ContextHandler {
         ...context.state,
         storage: {
           ...context.state.storage,
-          [Transcript.StorageKey]: transcript,
+          [AIAssistContext.StorageKey]: transcript,
         },
       },
     };
   };
 }
 
-export default Transcript;
+export default AIAssistContext;
