@@ -50,7 +50,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       slots,
       state: stateManager,
       filter,
-      transcript,
+      aiAssistContext,
     } = this.services;
 
     const {
@@ -87,7 +87,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       turn.addHandlers(tts);
     }
 
-    turn.addHandlers(speak, filter, transcript);
+    turn.addHandlers(speak, filter, aiAssistContext);
 
     if (config.selfDelegate) {
       return turn.resolve(turn.handle(context));
