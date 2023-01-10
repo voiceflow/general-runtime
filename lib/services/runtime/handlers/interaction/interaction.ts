@@ -24,7 +24,9 @@ const utilsObj = {
 export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => !!node.interactions,
   handle: (node, runtime, variables) => {
-    if (runtime.getAction() === Action.RUNNING) {
+    const isStartingFromButtonsStep = runtime.getAction() === Action.REQUEST && !runtime.getRequest();
+
+    if (runtime.getAction() === Action.RUNNING || isStartingFromButtonsStep) {
       utils.addButtonsIfExists(node, runtime, variables);
       utils.addNoReplyTimeoutIfExists(node, runtime);
 
