@@ -19,7 +19,7 @@ const buildServices = (context: any) => ({
   analytics: { handle: sinon.stub().resolves(output(context, 'analytics')) },
   dialog: { handle: sinon.stub().resolves(output(context, 'dialog')) },
   filter: { handle: sinon.stub().resolves(output(context, 'filter')) },
-  transcript: { handle: sinon.stub().resolves(output(context, 'transcript', { trace: 'trace' })) },
+  aiAssistContext: { handle: sinon.stub().resolves(output(context, 'aiAssistTranscript', { trace: 'trace' })) },
   metrics: { generalRequest: sinon.stub() },
   utils: { TurnBuilder },
 });
@@ -65,7 +65,7 @@ describe('interact service unit tests', () => {
       const interactManager = new Interact(services as any, null as any);
 
       expect(await interactManager.handler(data as any)).to.eql({
-        state: 'transcript',
+        state: 'aiAssistTranscript',
         request: context.request,
         trace: 'trace',
       });
@@ -126,7 +126,7 @@ describe('interact service unit tests', () => {
       const interactController = new Interact(services as any, null as any);
 
       expect(await interactController.handler(data as any)).to.eql({
-        state: 'transcript',
+        state: 'aiAssistTranscript',
         request: context.request,
         trace: 'trace',
       });
@@ -155,7 +155,7 @@ describe('interact service unit tests', () => {
 
     const interactController = new Interact(services as any, null as any);
     expect(await interactController.handler(data as any)).to.eql({
-      state: 'transcript',
+      state: 'aiAssistTranscript',
       request: context.request,
       trace: 'trace',
     });
@@ -213,7 +213,7 @@ describe('interact service unit tests', () => {
     expect(turnBuilder.addHandlers.args).to.eql([
       [services.asr, services.nlu, services.slots, services.dialog, services.runtime],
       [services.analytics],
-      [services.speak, services.filter, services.transcript],
+      [services.speak, services.filter, services.aiAssistContext],
     ]);
     expect(services.utils.autoDelegate.args).to.eql([[turnBuilder, context]]);
     expect(await turnBuilder.resolve.args[0][0]).to.eql(finalState);

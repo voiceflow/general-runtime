@@ -10,7 +10,7 @@ const MAX_TURNS = 3;
 
 // writes a primative string transcript into the context state storage
 class AIAssistContext extends AbstractManager implements ContextHandler {
-  static StorageKey = 'transcript';
+  static StorageKey = 'aiAssistTranscript';
 
   static getInput(request: RuntimeRequest) {
     return (isIntentRequest(request) && request.payload.query) || (isTextRequest(request) && request.payload) || null;
