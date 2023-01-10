@@ -32,6 +32,7 @@ describe('capture handler unit tests', async () => {
     it('delegation', () => {
       const utils = {
         addRepromptIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
       };
 
       const captureAlexaHandler = CaptureAlexaHandler(utils as any);
@@ -73,6 +74,7 @@ describe('capture handler unit tests', async () => {
     it('request type not intent', () => {
       const utils = {
         addRepromptIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
       };
 
       const captureAlexaHandler = CaptureAlexaHandler(utils as any);
@@ -126,6 +128,7 @@ describe('capture handler unit tests', async () => {
             repeatHandler: { canHandle: sinon.stub().returns(false) },
             getSlotValue: sinon.stub().returns(null),
             addRepromptIfExists: sinon.stub(),
+            addNoReplyTimeoutIfExists: sinon.stub(),
           };
 
           const captureAlexaHandler = CaptureAlexaHandler(utils as any);

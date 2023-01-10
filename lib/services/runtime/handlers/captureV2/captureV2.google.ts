@@ -1,7 +1,6 @@
 /**
  * Google captureV2 needs to be used in favor of general captureV2 because
  * it adds reprompts if exists
- * it doesnt add no reply timeout
  * it handles captureV2 very differently
  */
 import { BaseNode, BaseTrace } from '@voiceflow/base-types';
@@ -12,6 +11,7 @@ import { Action, HandlerFactory } from '@/runtime';
 import { addRepromptIfExists } from '../../utils';
 import { isGooglePlatform, mapSlots } from '../../utils.google';
 import CommandHandler from '../command';
+import { addNoReplyTimeoutIfExists } from '../noReply';
 import NoReplyHandler from '../noReply/noReply.google';
 import { EntityFillingNoMatchHandler, entityFillingRequest, setElicit } from '../utils/entity';
 
@@ -19,17 +19,19 @@ const utilsObj = {
   commandHandler: CommandHandler(),
   noReplyHandler: NoReplyHandler(),
   addRepromptIfExists,
+  addNoReplyTimeoutIfExists,
   entityFillingNoMatchHandler: EntityFillingNoMatchHandler(),
 };
 
 export const CaptureV2GoogleHandler: HandlerFactory<VoiceflowNode.CaptureV2.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) =>
-    node.type === BaseNode.NodeType.CAPTURE_V2 && isGooglePlatform(node.platform as VoiceflowConstants.PlatformType),
+    isGooglePlatform(node.platform as VoiceflowConstants.PlatformType) && node.type === BaseNode.NodeType.CAPTURE_V2,
   handle: (node, runtime, variables) => {
     const request = runtime.getRequest();
 
     if (runtime.getAction() === Action.RUNNING) {
       utils.addRepromptIfExists(node, runtime, variables);
+      utils.addNoReplyTimeoutIfExists(node, runtime);
 
       if (node.intent) {
         runtime.trace.addTrace<BaseTrace.GoToTrace>({

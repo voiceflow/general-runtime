@@ -17,12 +17,11 @@ const utils = {
 };
 
 export const CarouselGoogleHandler: HandlerFactory<BaseNode.Carousel.Node, typeof handlerUtils> = (utils) => {
-  const CarouselGoogleHandler = CarouselHandler(utils);
+  const { handle, canHandle } = CarouselHandler(utils);
   return {
-    ...CarouselGoogleHandler,
+    handle,
     canHandle: (node, ...args) =>
-      CarouselGoogleHandler.canHandle(node, ...args) &&
-      isGooglePlatform(node.platform as VoiceflowConstants.PlatformType),
+      isGooglePlatform(node.platform as VoiceflowConstants.PlatformType) && canHandle(node, ...args),
   };
 };
 

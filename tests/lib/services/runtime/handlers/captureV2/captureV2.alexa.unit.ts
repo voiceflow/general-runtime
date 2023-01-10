@@ -34,6 +34,7 @@ describe('captureV2 handler unit tests', async () => {
     it('delegation', () => {
       const utils = {
         addRepromptIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
       };
 
       const captureHandler = CaptureV2AlexaHandler(utils as any);
@@ -76,6 +77,7 @@ describe('captureV2 handler unit tests', async () => {
         commandHandler: { canHandle: () => false },
         repeatHandler: { canHandle: () => false },
         addRepromptIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
       };
 
       const captureHandler = CaptureV2AlexaHandler(utils as any);

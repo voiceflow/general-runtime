@@ -34,6 +34,7 @@ describe('interaction handler unit tests', async () => {
       const utils = {
         addRepromptIfExists: sinon.stub(),
         addButtonsIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
       };
 
       const captureHandler = InteractionGoogleHandler(utils as any);

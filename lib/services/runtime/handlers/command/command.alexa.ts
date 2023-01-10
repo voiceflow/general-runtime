@@ -22,8 +22,8 @@ export const getCommand = (runtime: Runtime) => {
 
   if (runtime.getAction() === Action.RUNNING) return null;
 
-  const { intent } = request.payload;
-  let intentName = intent.name;
+  const { intent } = request.payload ?? {};
+  let intentName = intent?.name;
 
   // If Cancel Intent is not handled turn it into Stop Intent
   // This first loop is AMAZON specific, if cancel intent is not explicitly used anywhere at all, map it to stop intent

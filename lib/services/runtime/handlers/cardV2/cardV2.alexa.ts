@@ -18,11 +18,10 @@ const utils = {
 };
 
 export const CardV2AlexaHandler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof handlerUtils> = (utils) => {
-  const cardV2AlexaHandler = CardV2Handler(utils);
+  const { handle, canHandle } = CardV2Handler(utils);
   return {
-    ...cardV2AlexaHandler,
-    canHandle: (node, ...args) =>
-      cardV2AlexaHandler.canHandle(node, ...args) && node.platform === VoiceflowConstants.PlatformType.ALEXA,
+    handle,
+    canHandle: (node, ...args) => node.platform === VoiceflowConstants.PlatformType.ALEXA && canHandle(node, ...args),
   };
 };
 

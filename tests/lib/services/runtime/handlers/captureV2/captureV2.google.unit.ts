@@ -34,6 +34,7 @@ describe('captureV2 handler unit tests', async () => {
     it('no request with delegation', () => {
       const utils = {
         addRepromptIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
       };
 
       const captureHandler = CaptureV2GoogleHandler(utils as any);
@@ -73,6 +74,7 @@ describe('captureV2 handler unit tests', async () => {
     it('request type not intent', () => {
       const utils = {
         addRepromptIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
       };
 
       const captureHandler = CaptureV2GoogleHandler(utils as any);

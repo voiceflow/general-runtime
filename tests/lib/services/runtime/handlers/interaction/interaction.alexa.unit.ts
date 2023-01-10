@@ -34,6 +34,7 @@ describe('interaction handler unit tests', async () => {
     it('request type not intent', () => {
       const utils = {
         addRepromptIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
       };
 
       const captureHandler = InteractionAlexaHandler(utils as any);
@@ -89,6 +90,9 @@ describe('interaction handler unit tests', async () => {
             repeatHandler: {
               canHandle: sinon.stub().returns(false),
             },
+            noReplyHandler: {
+              canHandle: sinon.stub().returns(false),
+            },
             noMatchHandler: {
               handle: sinon.stub().returns(null),
             },
@@ -136,6 +140,9 @@ describe('interaction handler unit tests', async () => {
             repeatHandler: {
               canHandle: sinon.stub().returns(false),
             },
+            noReplyHandler: {
+              canHandle: sinon.stub().returns(false),
+            },
             noMatchHandler: {
               handle: sinon.stub().returns(node.elseId),
             },
@@ -175,6 +182,9 @@ describe('interaction handler unit tests', async () => {
             repeatHandler: {
               canHandle: sinon.stub().returns(false),
             },
+            noReplyHandler: {
+              canHandle: sinon.stub().returns(false),
+            },
             noMatchHandler: {
               handle: sinon.stub().returns(node.elseId),
             },
@@ -203,6 +213,9 @@ describe('interaction handler unit tests', async () => {
               canHandle: sinon.stub().returns(false),
             },
             repeatHandler: {
+              canHandle: sinon.stub().returns(false),
+            },
+            noReplyHandler: {
               canHandle: sinon.stub().returns(false),
             },
             noMatchHandler: {
@@ -244,6 +257,9 @@ describe('interaction handler unit tests', async () => {
             commandHandler: {
               canHandle: sinon.stub().returns(false),
             },
+            noReplyHandler: {
+              canHandle: sinon.stub().returns(false),
+            },
             repeatHandler: {
               canHandle: sinon.stub().returns(false),
             },
@@ -282,6 +298,9 @@ describe('interaction handler unit tests', async () => {
               canHandle: sinon.stub().returns(false),
             },
             repeatHandler: {
+              canHandle: sinon.stub().returns(false),
+            },
+            noReplyHandler: {
               canHandle: sinon.stub().returns(false),
             },
             noMatchHandler: {
@@ -381,6 +400,9 @@ describe('interaction handler unit tests', async () => {
             commandHandler: {
               canHandle: sinon.stub().returns(false),
             },
+            noReplyHandler: {
+              canHandle: sinon.stub().returns(false),
+            },
             repeatHandler: {
               canHandle: sinon.stub().returns(false),
             },
@@ -410,6 +432,9 @@ describe('interaction handler unit tests', async () => {
               canHandle: sinon.stub().returns(false),
             },
             repeatHandler: {
+              canHandle: sinon.stub().returns(false),
+            },
+            noReplyHandler: {
               canHandle: sinon.stub().returns(false),
             },
             noMatchHandler: {

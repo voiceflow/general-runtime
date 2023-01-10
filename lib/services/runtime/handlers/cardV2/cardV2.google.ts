@@ -16,12 +16,11 @@ const utils = {
 };
 
 export const CardV2GoogleHandler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof handlerUtils> = (utils) => {
-  const cardV2GoogleHandler = CardV2Handler(utils);
+  const { handle, canHandle } = CardV2Handler(utils);
   return {
-    ...cardV2GoogleHandler,
+    handle,
     canHandle: (node, ...args) =>
-      cardV2GoogleHandler.canHandle(node, ...args) &&
-      isGooglePlatform(node.platform as VoiceflowConstants.PlatformType),
+      isGooglePlatform(node.platform as VoiceflowConstants.PlatformType) && canHandle(node, ...args),
   };
 };
 

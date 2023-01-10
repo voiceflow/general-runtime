@@ -33,6 +33,7 @@ describe('capture handler unit tests', async () => {
       const utils = {
         addRepromptIfExists: sinon.stub(),
         addButtonsIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
       };
 
       const captureHandler = CaptureGoogleHandler(utils as any);

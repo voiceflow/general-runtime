@@ -14,11 +14,10 @@ const utilsObj = {
   eventHandlers,
 };
 export const PreliminaryAlexaHandler: HandlerFactory<VoiceflowNode.Interaction.Node, typeof utilsObj> = (utilsObj) => {
-  const PreliminaryAlexaHandler = PreliminaryHandler(utilsObj);
+  const { handle, canHandle } = PreliminaryHandler(utilsObj);
   return {
-    ...PreliminaryAlexaHandler,
-    canHandle: (node, ...args) =>
-      PreliminaryAlexaHandler.canHandle(node, ...args) && node.platform === VoiceflowConstants.PlatformType.ALEXA,
+    handle,
+    canHandle: (node, ...args) => node.platform === VoiceflowConstants.PlatformType.ALEXA && canHandle(node, ...args),
   };
 };
 

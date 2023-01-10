@@ -1,7 +1,6 @@
 /**
  * Google capture needs to be used in favor of general capture because
  * it adds reprompts if exists
- * it doesnt add no reply timeout
  * it handles capture very differently
  */
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
@@ -12,6 +11,7 @@ import { Action, HandlerFactory } from '@/runtime';
 import { addButtonsIfExists, addRepromptIfExists } from '../../utils';
 import { isGooglePlatform } from '../../utils.google';
 import CommandHandler from '../command';
+import { addNoReplyTimeoutIfExists } from '../noReply';
 import NoReplyHandler from '../noReply/noReply.google';
 
 const utilsObj = {
@@ -20,16 +20,18 @@ const utilsObj = {
   wordsToNumbers,
   addButtonsIfExists,
   addRepromptIfExists,
+  addNoReplyTimeoutIfExists,
 };
 
 export const CaptureGoogleHandler: HandlerFactory<VoiceflowNode.Capture.Node, typeof utilsObj> = (utils) => ({
-  canHandle: (node) => !!node.variable && isGooglePlatform(node.platform as VoiceflowConstants.PlatformType),
+  canHandle: (node) => isGooglePlatform(node.platform as VoiceflowConstants.PlatformType) && !!node.variable,
   handle: (node, runtime, variables) => {
     const request = runtime.getRequest();
 
     if (runtime.getAction() === Action.RUNNING) {
       utils.addButtonsIfExists(node, runtime, variables);
       utils.addRepromptIfExists(node, runtime, variables);
+      utils.addNoReplyTimeoutIfExists(node, runtime);
 
       // quit cycleStack without ending session by stopping on itself
       return node.id;

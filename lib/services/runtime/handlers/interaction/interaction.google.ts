@@ -2,7 +2,6 @@
  * Google interaction needs to be used in favor of general interaction because
  * it doesnt use the repeat handler
  * it adds reprompts if exists
- * it doesnt add no reply timeout
  * it handles interactions slightly different
  */
 import { BaseModels, BaseNode, BaseTrace } from '@voiceflow/base-types';
@@ -15,6 +14,7 @@ import { addButtonsIfExists, addRepromptIfExists } from '../../utils';
 import { isGooglePlatform, mapSlots } from '../../utils.google';
 import CommandHandler from '../command';
 import NoMatchHandler from '../noMatch';
+import { addNoReplyTimeoutIfExists } from '../noReply';
 import NoReplyHandler from '../noReply/noReply.google';
 import { entityFillingRequest } from '../utils/entity';
 
@@ -22,6 +22,7 @@ const utilsObj = {
   addRepromptIfExists,
   addButtonsIfExists,
   mapSlots,
+  addNoReplyTimeoutIfExists,
   commandHandler: CommandHandler(),
   noMatchHandler: NoMatchHandler(),
   noReplyHandler: NoReplyHandler(),
@@ -30,17 +31,18 @@ const utilsObj = {
 export const InteractionGoogleHandler: HandlerFactory<VoiceflowNode.Interaction.Node, typeof utilsObj> = (
   utils: typeof utilsObj
 ) => ({
-  canHandle: (node) => !!node.interactions && isGooglePlatform(node.platform as VoiceflowConstants.PlatformType),
+  canHandle: (node) => isGooglePlatform(node.platform as VoiceflowConstants.PlatformType) && !!node.interactions,
+  // canHandle: (node) => false,
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (node, runtime, variables) => {
     const request = runtime.getRequest();
-
     if (runtime.getAction() === Action.RUNNING) {
       // clean up reprompt on new interaction
       runtime.storage.delete(TurnType.REPROMPT);
 
       utils.addButtonsIfExists(node, runtime, variables);
       utils.addRepromptIfExists(node, runtime, variables);
+      utils.addNoReplyTimeoutIfExists(node, runtime);
 
       // clean up no matches and no replies counters on new interaction
       runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);
@@ -53,12 +55,12 @@ export const InteractionGoogleHandler: HandlerFactory<VoiceflowNode.Interaction.
     let nextId: string | null | undefined;
     let variableMap: BaseModels.SlotMapping[] | null = null;
 
-    const { slots, intent } = request.payload;
+    const { slots, intent } = request.payload ?? {};
     // check if there is a choice in the node that fulfills intent
     node.interactions.forEach((choice) => {
       if (!BaseNode.Utils.isIntentEvent(choice.event)) return;
 
-      if (choice.event.intent && choice.event.intent === intent.name) {
+      if (choice.event.intent && choice.event.intent === intent?.name) {
         /** @deprecated this section should be removed in favor of the goto handler */
         if ((choice as any).goTo?.intentName) {
           runtime.trace.addTrace<BaseTrace.GoToTrace>({

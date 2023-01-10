@@ -15,11 +15,10 @@ const utilsObj = {
   replaceVariables,
 };
 export const StreamStateAlexaHandler: HandlerFactory<any, typeof utilsObj> = (utilsObj) => {
-  const StreamStateAlexaHandler = StreamStateHandler(utilsObj);
+  const { handle, canHandle } = StreamStateHandler(utilsObj);
   return {
-    ...StreamStateAlexaHandler,
-    canHandle: (node, ...args) =>
-      StreamStateAlexaHandler.canHandle(node, ...args) && node.platform === VoiceflowConstants.PlatformType.ALEXA,
+    handle,
+    canHandle: (node, ...args) => node.platform === VoiceflowConstants.PlatformType.ALEXA && canHandle(node, ...args),
   };
 };
 

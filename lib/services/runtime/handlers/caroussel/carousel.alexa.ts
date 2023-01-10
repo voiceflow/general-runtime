@@ -19,11 +19,10 @@ const utils = {
 };
 
 export const CarouselAlexaHandler: HandlerFactory<BaseNode.Carousel.Node, typeof handlerUtils> = (utils) => {
-  const CarouselAlexaHandler = CarouselHandler(utils);
+  const { handle, canHandle } = CarouselHandler(utils);
   return {
-    ...CarouselAlexaHandler,
-    canHandle: (node, ...args) =>
-      CarouselAlexaHandler.canHandle(node, ...args) && node.platform === VoiceflowConstants.PlatformType.ALEXA,
+    handle,
+    canHandle: (node, ...args) => node.platform === VoiceflowConstants.PlatformType.ALEXA && canHandle(node, ...args),
   };
 };
 
