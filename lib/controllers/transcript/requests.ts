@@ -1,6 +1,6 @@
 import { BooleanField, ObjectField, StringField } from '@/lib/controllers/schemaTypes';
 
-export const TranscriptSchema = {
+export const UpsertTranscriptSchema = {
   type: 'object',
   additionalProperties: false,
   required: ['sessionID'],

@@ -14,7 +14,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   // full route: /public/:projectID/state/user/:userID/interact
   router.post('/:projectID/state/user/:userID/interact', interactMiddleware, controllers.public.interact);
 
-  router.post('/:projectID/transcripts', interactMiddleware, controllers.transcript.createTranscript);
+  router.post('/:projectID/transcripts', interactMiddleware, controllers.transcript.upsertTranscript);
 
   router.get('/:projectID/publishing', interactMiddleware, controllers.public.getPublishing);
 

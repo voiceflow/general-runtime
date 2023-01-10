@@ -4,12 +4,12 @@ import { Request } from '@/types';
 
 import { customAJV, validate } from '../../utils';
 import { AbstractController } from '../utils';
-import { TranscriptSchema } from './requests';
+import { UpsertTranscriptSchema } from './requests';
 
 const { body, header } = Validator;
 const VALIDATIONS = {
   BODY: {
-    TRANSCRIPT: body().custom(customAJV(TranscriptSchema)),
+    UPSERT_TRANSCRIPT: body().custom(customAJV(UpsertTranscriptSchema)),
   },
   HEADERS: {
     PROJECT_ID: header('projectID').exists().isString(),
@@ -19,9 +19,9 @@ const VALIDATIONS = {
 class TranscriptController extends AbstractController {
   @validate({
     HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID,
-    BODY_TRANSCRIPT: VALIDATIONS.BODY.TRANSCRIPT,
+    BODY_TRANSCRIPT: VALIDATIONS.BODY.UPSERT_TRANSCRIPT,
   })
-  async createTranscript(
+  async upsertTranscript(
     req: Request<
       never,
       {
@@ -36,7 +36,7 @@ class TranscriptController extends AbstractController {
     >
   ) {
     const { unread } = req.body;
-    return this.services.transcript.createTranscript(req.headers.projectID, req.body.sessionID, req.body, unread);
+    return this.services.transcript.upsertTranscript(req.headers.projectID, req.body.sessionID, req.body, unread);
   }
 }
 

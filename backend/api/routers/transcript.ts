@@ -15,7 +15,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
     middlewares.rateLimit.versionConsume,
   ];
 
-  router.post('/:projectID', middleware, controllers.transcript.createTranscript);
+  router.post('/:projectID', middleware, controllers.transcript.upsertTranscript);
 
   return router;
 };

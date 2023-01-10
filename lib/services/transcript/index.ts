@@ -5,7 +5,7 @@ import { AbstractManager } from '../utils';
 import { TranscriptClientInfo, TranscriptUpdatePayload } from './types';
 
 class TranscriptManager extends AbstractManager {
-  async createTranscript(
+  async upsertTranscript(
     projectID: string,
     sessionID: string,
     clientInfo: DeepPartial<TranscriptClientInfo>,
