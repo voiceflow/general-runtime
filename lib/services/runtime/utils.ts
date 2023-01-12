@@ -285,3 +285,11 @@ export const processOutput = (output: string | Text.SlateTextValue | undefined, 
   const content = slateInjectVariables(output, sanitizedVars);
   return slateToPlaintext(content);
 };
+
+export const isSlate = (platform: string | undefined) => {
+  if (!platform) return false;
+
+  return [VoiceflowConstants.PlatformType.WEBCHAT, VoiceflowConstants.PlatformType.CHATBOT].includes(
+    platform as VoiceflowConstants.PlatformType
+  );
+};
