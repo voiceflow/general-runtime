@@ -1,5 +1,5 @@
 import { BaseNode, BaseRequest, BaseText, BaseTrace } from '@voiceflow/base-types';
-import { VoiceflowNode } from '@voiceflow/voiceflow-types';
+import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
 import { Runtime, Store } from '@/runtime';
@@ -10,9 +10,11 @@ import {
   getDefaultNoReplyTimeoutSeconds,
   getGlobalNoReplyPrompt,
   isPromptContentEmpty,
+  isPromptContentInitialyzed,
   outputTrace,
   removeEmptyPrompts,
 } from '../../utils';
+import { generateOutput } from '../utils/output';
 
 type NoReplyNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoReplyNode;
 
@@ -26,10 +28,18 @@ const removeEmptyNoReplies = (node: NoReplyNode) => {
 const getDelay = (node: NoReplyNode, runtime: Runtime) => {
   if (node.noReply?.timeout) return node.noReply?.timeout;
 
+  const globalNoReplyPrompt = getGlobalNoReplyPrompt(runtime);
+
+  /** if there's no no-reply configured to the step,
+   * but global no-reply has never been edited by the user, we should use global no-reply delay
+   * */
+  if (!isPromptContentInitialyzed(globalNoReplyPrompt?.content)) {
+    return getDefaultNoReplyTimeoutSeconds(runtime.version?.prototype?.platform);
+  }
+
   /** if there's no no-reply configured to the step,
    * but we have a global no-reply, we should use global no-reply delay
    * */
-  const globalNoReplyPrompt = getGlobalNoReplyPrompt(runtime);
   if (!isPromptContentEmpty(globalNoReplyPrompt?.content)) {
     return (
       runtime?.version?.platformData.settings.globalNoReply?.delay ??
@@ -74,6 +84,16 @@ const getOutput = (runtime: Runtime, node: NoReplyNode, noReplyCounter: number) 
     return {
       delay,
       output,
+    };
+  }
+
+  /*
+    If the user never edited the global no-reply prompt, we should use the default one
+  */
+  if (!isPromptContentInitialyzed(globalNoReplyPrompt?.content)) {
+    return {
+      delay,
+      output: generateOutput(VoiceflowConstants.defaultMessages.globalNoReply, runtime.project),
     };
   }
 

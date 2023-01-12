@@ -87,7 +87,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     const dataApi = await this.services.dataAPI.get(context.data?.reqHeaders?.authorization);
     const api = new CacheDataAPI(dataApi);
     const version = await api.getVersion(context.versionID!);
-    const project = await api.getProject(version.projectID).catch(() => undefined);
+    const project = await api.getProject(version.projectID);
 
     const locale = context.data?.locale || version.prototype?.data?.locales?.[0];
 

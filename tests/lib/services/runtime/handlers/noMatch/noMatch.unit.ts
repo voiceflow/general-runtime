@@ -1,4 +1,5 @@
 import { BaseNode } from '@voiceflow/base-types';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -86,6 +87,13 @@ describe('noMatch handler unit tests', async () => {
         },
         trace: {
           addTrace: sinon.stub(),
+        },
+        version: {
+          platformData: {
+            settings: {
+              globalNoMatch: { prompt: { content: [{ text: '' }] } },
+            },
+          },
         },
       };
       const variables = {
@@ -395,6 +403,48 @@ describe('noMatch handler unit tests', async () => {
       });
       expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(GlobalNoMatch.prompt.content);
+    });
+
+    it('with global noMatch and default message', async () => {
+      const node = {
+        id: 'node-id',
+        noMatch: {
+          prompts: [],
+        },
+      };
+      const runtime = {
+        storage: {
+          produce: sinon.stub(),
+          get: sinon.stub().onFirstCall().returns(0).onSecondCall().returns(1),
+          set: sinon.stub(),
+          delete: sinon.stub(),
+        },
+        trace: {
+          addTrace: sinon.stub(),
+        },
+        version: {
+          platformData: {
+            settings: {
+              globalNoMatch: { prompt: undefined },
+            },
+          },
+        },
+        debugLogging: null as unknown as DebugLogging,
+      };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
+      const variables = {
+        getState: sinon.stub().returns({}),
+      };
+
+      const noMatchHandler = NoMatchHandler({
+        outputTrace,
+        addButtonsIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
+      });
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+      expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(
+        VoiceflowConstants.defaultMessages.globalNoMatch
+      );
     });
   });
 

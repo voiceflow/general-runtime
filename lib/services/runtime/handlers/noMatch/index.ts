@@ -1,5 +1,5 @@
 import { BaseNode, BaseRequest, BaseText, BaseTrace } from '@voiceflow/base-types';
-import { VoiceflowNode } from '@voiceflow/voiceflow-types';
+import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
 import { Runtime, Store } from '@/runtime';
@@ -9,11 +9,13 @@ import {
   addButtonsIfExists,
   getGlobalNoMatchPrompt,
   isPromptContentEmpty,
+  isPromptContentInitialyzed,
   outputTrace,
   removeEmptyPrompts,
 } from '../../utils';
 import { addNoReplyTimeoutIfExists } from '../noReply';
 import { generateNoMatch } from '../utils/generativeNoMatch';
+import { generateOutput } from '../utils/output';
 
 export type NoMatchNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoMatchNode;
 
@@ -62,14 +64,17 @@ export const getOutput = async (
     return null;
   }
 
-  if (runtime.version?.projectID) {
-    // this is fairly inefficient to fetch the project object via API every time, find better solution
-    const project = await runtime.api.getProject(runtime.version.projectID).catch(() => null);
-    if (project?.aiAssistSettings?.freestyle) {
-      const output = await generateNoMatch(runtime);
+  if (runtime.project?.aiAssistSettings?.freestyle) {
+    const output = await generateNoMatch(runtime);
 
-      if (output) return { output, ai: true };
-    }
+    if (output) return { output, ai: true };
+  }
+
+  // if user never set global no-match prompt, we should use default
+  if (!isPromptContentInitialyzed(globalNoMatchPrompt?.content)) {
+    return {
+      output: generateOutput(VoiceflowConstants.defaultMessages.globalNoMatch, runtime.project),
+    };
   }
 
   if (!isPromptContentEmpty(globalNoMatchPrompt?.content)) {

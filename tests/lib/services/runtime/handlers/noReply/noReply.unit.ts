@@ -1,3 +1,4 @@
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -85,7 +86,17 @@ describe('noReply handler unit tests', () => {
         trace: {
           addTrace: sinon.stub(),
         },
+        version: {
+          platformData: {
+            settings: {
+              globalNoReply: { prompt: { content: '' } },
+            },
+          },
+        },
+        debugLogging: null as unknown as DebugLogging,
       };
+
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
         getState: sinon.stub().returns({}),
       };
@@ -113,7 +124,18 @@ describe('noReply handler unit tests', () => {
         trace: {
           addTrace: sinon.stub(),
         },
+        version: {
+          platformData: {
+            settings: {
+              globalNoReply: { prompt: { content: '' } },
+            },
+          },
+        },
+        debugLogging: null as unknown as DebugLogging,
       };
+
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
+
       const variables = {
         getState: sinon.stub().returns({}),
       };
@@ -267,6 +289,49 @@ describe('noReply handler unit tests', () => {
       });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
       expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(GlobalNoReply.prompt.content);
+    });
+
+    it('with global noReply and default message', () => {
+      const node = {
+        id: 'node-id',
+        noReply: {
+          prompts: [],
+        },
+      };
+      const runtime = {
+        storage: {
+          produce: sinon.stub(),
+          get: sinon.stub().onFirstCall().returns(0).onSecondCall().returns(1),
+          set: sinon.stub(),
+          delete: sinon.stub(),
+        },
+        trace: {
+          addTrace: sinon.stub(),
+        },
+        version: {
+          platformData: {
+            settings: {
+              globalNoReply: { prompt: { content: undefined } },
+            },
+          },
+        },
+        debugLogging: null as unknown as DebugLogging,
+      };
+      runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
+      const variables = {
+        getState: sinon.stub().returns({}),
+      };
+
+      const noMatchHandler = NoReplyHandler({
+        outputTrace,
+        addButtonsIfExists: sinon.stub(),
+        addNoReplyTimeoutIfExists: sinon.stub(),
+      });
+
+      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+      expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(
+        VoiceflowConstants.defaultMessages.globalNoReply
+      );
     });
   });
 

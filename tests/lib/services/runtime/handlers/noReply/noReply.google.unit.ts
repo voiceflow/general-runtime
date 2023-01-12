@@ -1,3 +1,4 @@
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -5,6 +6,7 @@ import { NoReplyGoogleHandler } from '@/lib/services/runtime/handlers/noReply/no
 import { StorageType } from '@/lib/services/runtime/types';
 
 const GlobalNoReply = { prompt: { voice: 'Google', content: 'no answer' } };
+const GlobalEmptyNoReply = { prompt: { voice: 'Google', content: '' } };
 
 describe('noInput handler unit tests', () => {
   describe('canHandle', () => {
@@ -43,16 +45,26 @@ describe('noInput handler unit tests', () => {
       const runtime = {
         storage: {
           delete: sinon.stub(),
+          set: sinon.stub(),
           get: sinon.stub().returns(2),
         },
         trace: {
           addTrace: sinon.stub(),
         },
+        version: {
+          platformData: {
+            settings: {
+              globalNoReply: GlobalEmptyNoReply,
+            },
+          },
+        },
         debugLogging: { recordStepLog: sinon.stub() },
       };
-
+      const variables = {
+        getState: sinon.stub().returns({}),
+      };
       const noInputHandler = NoReplyGoogleHandler();
-      expect(noInputHandler.handle(node as any, runtime as any, {} as any)).to.eql(node.noReply.nodeID);
+      expect(noInputHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.noReply.nodeID);
     });
 
     it('with old reprompt format', () => {
@@ -225,6 +237,68 @@ describe('noInput handler unit tests', () => {
       ]);
     });
 
+    it('with global noReply not edited', () => {
+      const node = {
+        id: 'node-id',
+        noReply: {
+          prompts: [],
+        },
+      };
+      const runtime = {
+        storage: {
+          set: sinon.stub(),
+          produce: sinon.stub(),
+          get: sinon.stub().returns(null),
+        },
+        trace: {
+          addTrace: sinon.stub(),
+        },
+        debugLogging: { recordStepLog: sinon.stub() },
+        version: {
+          platformData: {
+            settings: {
+              globalNoReply: null,
+            },
+          },
+        },
+      };
+      const variables = {
+        getState: sinon.stub().returns({}),
+      };
+
+      const noInputHandler = NoReplyGoogleHandler();
+      expect(noInputHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+
+      expect(runtime.storage.set.args).to.eql([[StorageType.NO_REPLIES_COUNTER, 1]]);
+      expect(runtime.trace.addTrace.args).to.eql([
+        [
+          {
+            type: 'path',
+            payload: {
+              path: 'reprompt',
+            },
+          },
+        ],
+        [
+          {
+            type: 'speak',
+            payload: {
+              message: VoiceflowConstants.defaultMessages.globalNoReply,
+              type: 'message',
+            },
+          },
+        ],
+        [
+          {
+            type: 'no-reply',
+            payload: {
+              timeout: 10,
+            },
+          },
+        ],
+      ]);
+    });
+
     it('without noReply', () => {
       const node = {
         id: 'node-id',
@@ -239,6 +313,13 @@ describe('noInput handler unit tests', () => {
           addTrace: sinon.stub(),
         },
         debugLogging: { recordStepLog: sinon.stub() },
+        version: {
+          platformData: {
+            settings: {
+              globalNoReply: GlobalEmptyNoReply,
+            },
+          },
+        },
       };
       const variables = {
         getState: sinon.stub().returns({}),
@@ -263,6 +344,13 @@ describe('noInput handler unit tests', () => {
           addTrace: sinon.stub(),
         },
         debugLogging: { recordStepLog: sinon.stub() },
+        version: {
+          platformData: {
+            settings: {
+              globalNoReply: GlobalEmptyNoReply,
+            },
+          },
+        },
       };
       const variables = {
         getState: sinon.stub().returns({}),

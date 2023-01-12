@@ -6,6 +6,7 @@ import { StorageType } from '@/lib/services/runtime/types';
 import { EMPTY_AUDIO_STRING } from '@/lib/services/runtime/utils';
 
 const GlobalNoMatch = { prompt: { voice: 'Alexa', content: 'Sorry, could not understand what you said' } };
+const GlobalEmptyNoMatch = { prompt: { voice: 'Alexa', content: '' } };
 
 describe('noMatch handler unit tests', () => {
   describe('handle', () => {
@@ -208,8 +209,16 @@ describe('noMatch handler unit tests', () => {
         trace: {
           addTrace: sinon.stub(),
         },
+        version: {
+          platformData: {
+            settings: {
+              globalNoMatch: GlobalEmptyNoMatch,
+            },
+          },
+        },
         debugLogging: { recordStepLog: sinon.stub() },
       };
+
       const variables = {
         getState: sinon.stub().returns({}),
       };
@@ -232,6 +241,13 @@ describe('noMatch handler unit tests', () => {
         },
         trace: {
           addTrace: sinon.stub(),
+        },
+        version: {
+          platformData: {
+            settings: {
+              globalNoMatch: GlobalEmptyNoMatch,
+            },
+          },
         },
         debugLogging: { recordStepLog: sinon.stub() },
       };
