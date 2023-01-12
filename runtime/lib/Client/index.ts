@@ -4,11 +4,27 @@ import { DataAPI as AnyDataAPI } from '@/runtime/lib/DataAPI';
 import { AbstractLifecycle } from '@/runtime/lib/Lifecycle';
 import Runtime, { Options as RuntimeOptions, State as RuntimeState } from '@/runtime/lib/Runtime';
 
+export interface CreateRuntimeOptions<
+  Request,
+  DataAPI extends AnyDataAPI,
+  Services extends BaseTypes.AnyRecord,
+  Version extends BaseTypes.BaseVersion.Version,
+  Project extends BaseTypes.BaseProject.Project
+> {
+  versionID: string;
+  state: RuntimeState;
+  request?: Request;
+  options?: RuntimeOptions<DataAPI, Services>;
+  version?: Version;
+  project?: Project;
+}
+
 class Controller<
   Request = any,
   DataAPI extends AnyDataAPI = AnyDataAPI,
   Services extends BaseTypes.AnyRecord = BaseTypes.AnyRecord,
-  Version extends BaseTypes.BaseVersion.Version = BaseTypes.BaseVersion.Version
+  Version extends BaseTypes.BaseVersion.Version = BaseTypes.BaseVersion.Version,
+  Project extends BaseTypes.BaseProject.Project = BaseTypes.BaseProject.Project
 > extends AbstractLifecycle {
   private options: Pick<RuntimeOptions<DataAPI, Services>, 'api' | 'handlers' | 'services'>;
 
@@ -22,21 +38,23 @@ class Controller<
     };
   }
 
-  public createRuntime(
-    versionID: string,
-    state: RuntimeState,
-    request?: Request,
-    options?: RuntimeOptions<DataAPI, Services>,
-    version?: Version
-  ): Runtime<Request, DataAPI, Services> {
-    return new Runtime<Request, DataAPI, Services, Version>(
+  public createRuntime({
+    versionID,
+    state,
+    request,
+    options,
+    version,
+    project,
+  }: CreateRuntimeOptions<Request, DataAPI, Services, Version, Project>): Runtime<Request, DataAPI, Services> {
+    return new Runtime<Request, DataAPI, Services, Version, Project>({
+      request,
       versionID,
       state,
-      request,
-      { ...this.options, ...options },
-      this.events,
-      version
-    );
+      options: { ...this.options, ...options },
+      events: this.events,
+      version,
+      project,
+    });
   }
 }
 

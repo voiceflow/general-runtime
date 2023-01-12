@@ -7,6 +7,7 @@ import { TurnType, Variables } from '@/lib/services/runtime/types';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 
 const VERSION_ID = 'version_id';
+const PROJECT_ID = 'project_id';
 const USER_ID = 'user_id';
 
 describe('runtime manager unit tests', () => {
@@ -68,6 +69,7 @@ describe('runtime manager unit tests', () => {
         request,
         versionID: VERSION_ID,
         version: { id: VERSION_ID },
+        project: { id: PROJECT_ID },
         data: { api: { getProgram: 'api' } },
       } as any;
       expect(await runtimeManager.handle(context)).to.eql({
@@ -77,10 +79,21 @@ describe('runtime manager unit tests', () => {
         request,
         versionID: VERSION_ID,
         version: { id: VERSION_ID },
+        project: { id: PROJECT_ID },
         data: { api: { getProgram: 'api' } },
       });
       expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
-      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request, undefined, { id: VERSION_ID }]]);
+      expect(client.createRuntime.args).to.eql([
+        [
+          {
+            versionID: VERSION_ID,
+            state,
+            request,
+            version: { id: VERSION_ID },
+            project: { id: PROJECT_ID },
+          },
+        ],
+      ]);
       expect(runtime.update.callCount).to.eql(1);
     });
 
@@ -132,8 +145,10 @@ describe('runtime manager unit tests', () => {
         request,
         versionID: VERSION_ID,
         version: { id: VERSION_ID },
+        project: { id: PROJECT_ID },
         data: { api: { getProgram: 'api' }, config: { stopTypes: ['t1', 't2'] } },
       } as any;
+
       expect(await runtimeManager.handle(context)).to.eql({
         state: rawState,
         trace,
@@ -141,10 +156,22 @@ describe('runtime manager unit tests', () => {
         request,
         versionID: VERSION_ID,
         version: { id: VERSION_ID },
+        project: { id: PROJECT_ID },
         data: { api: { getProgram: 'api' }, config: { stopTypes: ['t1', 't2'] } },
       });
       expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
-      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request, undefined, { id: VERSION_ID }]]);
+
+      expect(client.createRuntime.args).to.eql([
+        [
+          {
+            versionID: VERSION_ID,
+            state,
+            request,
+            version: { id: VERSION_ID },
+            project: { id: PROJECT_ID },
+          },
+        ],
+      ]);
       expect(runtime.update.callCount).to.eql(1);
       expect(runtime.turn.set.args).to.eql([[TurnType.STOP_TYPES, context.data.config.stopTypes]]);
     });
@@ -195,6 +222,7 @@ describe('runtime manager unit tests', () => {
         request,
         versionID: VERSION_ID,
         version: { id: VERSION_ID },
+        project: { id: PROJECT_ID },
         data: { api: { getProgram: 'api' } },
       } as any;
 
@@ -205,10 +233,21 @@ describe('runtime manager unit tests', () => {
         request,
         versionID: VERSION_ID,
         version: { id: VERSION_ID },
+        project: { id: PROJECT_ID },
         data: { api: { getProgram: 'api' } },
       });
       expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
-      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request, undefined, { id: VERSION_ID }]]);
+      expect(client.createRuntime.args).to.eql([
+        [
+          {
+            versionID: VERSION_ID,
+            state,
+            request,
+            version: { id: VERSION_ID },
+            project: { id: PROJECT_ID },
+          },
+        ],
+      ]);
       expect(utils.Handlers.callCount).to.eql(1);
     });
 
@@ -324,8 +363,10 @@ describe('runtime manager unit tests', () => {
         request,
         versionID: VERSION_ID,
         version: { id: VERSION_ID },
+        project: { id: PROJECT_ID },
         data: { api: { getProgram: 'api' } },
       } as any;
+
       expect(await runtimeManager.handle(context)).to.eql({
         state: rawState,
         trace,
@@ -333,10 +374,21 @@ describe('runtime manager unit tests', () => {
         request,
         versionID: VERSION_ID,
         version: { id: VERSION_ID },
+        project: { id: PROJECT_ID },
         data: { api: { getProgram: 'api' } },
       });
       expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
-      expect(client.createRuntime.args).to.eql([[VERSION_ID, state, request, undefined, { id: VERSION_ID }]]);
+      expect(client.createRuntime.args).to.eql([
+        [
+          {
+            versionID: VERSION_ID,
+            state,
+            request,
+            version: { id: VERSION_ID },
+            project: { id: PROJECT_ID },
+          },
+        ],
+      ]);
       expect(runtime.update.callCount).to.eql(1);
       expect(runtime.variables.set.args).to.eql([
         [Variables.TIMESTAMP, 0],

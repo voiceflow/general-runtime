@@ -83,12 +83,18 @@ export const isIntentInNode = (
   node: BaseModels.BaseNode & { intent?: { name?: string } }
 ): node is BaseModels.BaseNode & { intent: { name: string } } => typeof node.intent?.name === 'string';
 
-export const isIntentInScope = async ({ data: { api }, versionID, state, request, version }: Context) => {
+export const isIntentInScope = async ({ data: { api }, versionID, state, request, version, project }: Context) => {
   const client = new Client({
     api,
   });
 
-  const runtime = client.createRuntime(versionID, state, request, undefined, version);
+  const runtime = client.createRuntime({
+    versionID,
+    state,
+    request,
+    version,
+    project,
+  });
 
   // check if there is a command in the stack that fulfills request
   if (CommandHandler().canHandle(runtime)) {

@@ -13,7 +13,13 @@ describe('Runtime unit', () => {
   });
 
   it('constructor', () => {
-    const runtime = new Runtime(null as any, { stack: [] } as any, undefined, {} as any, null as any);
+    const runtime = new Runtime({
+      versionID: null,
+      state: { stack: [] },
+      request: undefined,
+      options: {},
+      version: null,
+    } as any);
     runtime.callEvent = sinon.stub().returns('foo');
     // assert that events are being initiated correctly
     expect(_.get(runtime.stack, 'handlers.willChange')()).to.eql('foo');
@@ -21,32 +27,62 @@ describe('Runtime unit', () => {
 
   it('getRequest', () => {
     const input = { type: 'req', payload: {} };
-    const runtime = new Runtime(null as any, { stack: [] } as any, input, {} as any, null as any);
+    const runtime = new Runtime({
+      versionID: null,
+      state: { stack: [] },
+      request: input,
+      options: {},
+      version: null,
+    } as any);
     expect(runtime.getRequest()).to.eql(input);
   });
 
   it('setAction', () => {
-    const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
+    const runtime = new Runtime({
+      versionID: null,
+      state: { stack: [] },
+      request: undefined,
+      options: {},
+      version: null,
+    } as any);
     const action = Action.RUNNING;
     runtime.setAction(action as any);
     expect(_.get(runtime, 'action')).to.eql(action);
   });
 
   it('getAction', () => {
-    const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
+    const runtime = new Runtime({
+      versionID: null,
+      state: { stack: [] },
+      request: undefined,
+      options: {},
+      version: null,
+    } as any);
     const action = Action.RUNNING;
     runtime.setAction(action as any);
     expect(runtime.getAction()).to.eql(action);
   });
 
   it('end', () => {
-    const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
+    const runtime = new Runtime({
+      versionID: null,
+      state: { stack: [] },
+      request: undefined,
+      options: {},
+      version: null,
+    } as any);
     runtime.end();
     expect(runtime.getAction()).to.eql(Action.END);
   });
 
   it('hasEnded', () => {
-    const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
+    const runtime = new Runtime({
+      versionID: null,
+      state: { stack: [] },
+      request: undefined,
+      options: {},
+      version: null,
+    } as any);
     expect(runtime.hasEnded()).to.eql(false);
     runtime.end();
     expect(runtime.hasEnded()).to.eql(true);
@@ -58,13 +94,13 @@ describe('Runtime unit', () => {
     const ProgramManagerStub = sinon.stub(ProgramManager, 'default');
     ProgramManagerStub.returns({ get: getProgram });
 
-    const runtime = new Runtime(
-      null as any,
-      { stack: [] } as any,
-      undefined as any,
-      { api: { getProgram } },
-      null as any
-    );
+    const runtime = new Runtime({
+      versionID: null,
+      state: { stack: [] },
+      request: undefined,
+      options: { api: { getProgram } },
+      version: null,
+    } as any);
 
     const programId = 'program-id';
     expect(runtime.getProgram(programId)).to.eql(program);
@@ -75,25 +111,51 @@ describe('Runtime unit', () => {
 
   it('getHandlers', () => {
     const handlers = [{}, {}];
-    const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, { handlers } as any, null as any);
+
+    const runtime = new Runtime({
+      versionID: null,
+      state: { stack: [] },
+      request: undefined,
+      options: { handlers },
+      version: null,
+    } as any);
+
     expect(runtime.getHandlers()).to.eql(handlers);
   });
 
   it('getRawState', () => {
-    const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
+    const runtime = new Runtime({
+      versionID: null,
+      state: { stack: [] },
+      request: undefined,
+      options: {},
+      version: null,
+    } as any);
     expect(runtime.getRawState()).to.eql({ turn: {}, stack: [], storage: {}, variables: {} });
   });
 
   describe('getFinalState', () => {
     it('throws', () => {
-      const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
+      const runtime = new Runtime({
+        versionID: null,
+        state: { stack: [] },
+        request: undefined,
+        options: {},
+        version: null,
+      } as any);
       expect(() => {
         runtime.getFinalState();
       }).to.throw('runtime not updated');
     });
 
     it('returns', () => {
-      const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
+      const runtime = new Runtime({
+        versionID: null,
+        state: { stack: [] },
+        request: undefined,
+        options: {},
+        version: null,
+      } as any);
       runtime.setAction(Action.END);
       expect(runtime.getFinalState()).to.eql({ stack: [], storage: {}, variables: {} });
     });
@@ -101,7 +163,13 @@ describe('Runtime unit', () => {
 
   describe('update', () => {
     it('catch error', async () => {
-      const runtime = new Runtime(undefined as any, { stack: [] } as any, undefined as any, {} as any, null as any);
+      const runtime = new Runtime({
+        versionID: undefined,
+        state: { stack: [] },
+        request: undefined,
+        options: {},
+        version: null,
+      } as any);
       runtime.setAction(Action.REQUEST);
       const callEventStub = sinon.stub().resolves();
       runtime.callEvent = callEventStub;
@@ -115,7 +183,13 @@ describe('Runtime unit', () => {
 
     it('empty request', async () => {
       const cycleStackStub = sinon.stub(cycleStack, 'default');
-      const runtime = new Runtime(undefined as any, { stack: [] } as any, undefined as any, {} as any, null as any);
+      const runtime = new Runtime({
+        versionID: undefined,
+        state: { stack: [] },
+        request: undefined,
+        options: {},
+        version: null,
+      } as any);
       const callEventStub = sinon.stub();
       runtime.callEvent = callEventStub;
       const setActionStub = sinon.stub();
@@ -131,7 +205,13 @@ describe('Runtime unit', () => {
 
     it('request action', async () => {
       const cycleStackStub = sinon.stub(cycleStack, 'default');
-      const runtime = new Runtime(undefined as any, { stack: [] } as any, true as any, {} as any, null as any);
+      const runtime = new Runtime({
+        versionID: undefined,
+        state: { stack: [] },
+        request: true,
+        options: {},
+        version: null,
+      } as any);
       const callEventStub = sinon.stub();
       runtime.callEvent = callEventStub;
       const setActionStub = sinon.stub();
@@ -149,13 +229,14 @@ describe('Runtime unit', () => {
       const versionID = 'version id';
       const cycleStackStub = sinon.stub(cycleStack, 'default');
       const program = { commands: [] };
-      const runtime = new Runtime(
+      const runtime = new Runtime({
         versionID,
-        { stack: [] } as any,
-        true as any,
-        { api: { getProgram: sinon.stub().resolves(program) } } as any,
-        null as any
-      );
+        state: { stack: [] },
+        request: true,
+        options: { api: { getProgram: sinon.stub().resolves(program) } },
+        version: null,
+      } as any);
+
       const callEventStub = sinon.stub();
       runtime.callEvent = callEventStub;
       const setActionStub = sinon.stub();
@@ -173,7 +254,13 @@ describe('Runtime unit', () => {
 
   it('callEvent', async () => {
     const callEventStub = sinon.stub(AbstractLifecycle.prototype, 'callEvent');
-    const runtime = new Runtime(null as any, { stack: [] } as any, undefined as any, {} as any, null as any);
+    const runtime = new Runtime({
+      versionID: null,
+      state: { stack: [] },
+      request: undefined,
+      options: {},
+      version: null,
+    } as any);
     const type = 'type';
     const event = 'event';
     await runtime.callEvent(type as any, event);

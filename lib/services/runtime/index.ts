@@ -95,13 +95,13 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
   }
 
   private getRuntimeForContext(context: Context): Runtime {
-    const runtime = this.createClient(context.data.api).createRuntime(
-      context.versionID,
-      context.state,
-      context.request,
-      undefined,
-      context.version
-    );
+    const runtime = this.createClient(context.data.api).createRuntime({
+      versionID: context.versionID,
+      state: context.state,
+      request: context.request,
+      version: context.version,
+      project: context.project,
+    });
 
     runtime.debugLogging.refreshContext(context);
 

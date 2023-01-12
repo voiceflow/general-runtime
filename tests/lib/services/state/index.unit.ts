@@ -4,6 +4,7 @@ import sinon from 'sinon';
 import StateManager, { utils } from '@/lib/services/state';
 
 const VERSION_ID = 'version_id';
+const PROJECT_ID = 'project_id';
 const defaultTimestamp = 1234567890;
 const userID = 'user_id';
 
@@ -24,6 +25,9 @@ const version = {
   variables: ['variable1'],
   rootDiagramID: 'a',
 };
+
+const project = { id: PROJECT_ID };
+
 const state = {
   stack: [
     {
@@ -83,9 +87,10 @@ describe('state manager unit tests', () => {
   describe('handle', () => {
     it('works', async () => {
       const getVersionStub = sinon.stub().resolves(version);
+      const getProjectStub = sinon.stub().resolves(project);
       const services = {
         dataAPI: {
-          get: sinon.stub().returns({ getVersion: getVersionStub }),
+          get: sinon.stub().returns({ getVersion: getVersionStub, getProject: getProjectStub }),
         },
       };
 
@@ -107,6 +112,7 @@ describe('state manager unit tests', () => {
         state,
         userID,
         version,
+        project,
         trace: [],
         data: {
           ...context.data,
@@ -137,9 +143,10 @@ describe('state manager unit tests', () => {
 
     it('works if stack does not exist', async () => {
       const getVersionStub = sinon.stub().resolves(version);
+      const getProjectStub = sinon.stub().resolves(project);
       const services = {
         dataAPI: {
-          get: sinon.stub().returns({ getVersion: getVersionStub }),
+          get: sinon.stub().returns({ getVersion: getVersionStub, getProject: getProjectStub }),
         },
       };
 
@@ -156,11 +163,12 @@ describe('state manager unit tests', () => {
       const newContext = await stateManager.handle(context);
 
       expect(newContext).to.eql({
-        request: null,
         versionID: VERSION_ID,
-        version,
-        userID,
         projectID: version.projectID,
+        userID,
+        request: null,
+        version,
+        project,
         state,
         trace: [],
         data: {
@@ -175,9 +183,10 @@ describe('state manager unit tests', () => {
 
     it('works if stack is empty', async () => {
       const getVersionStub = sinon.stub().resolves(version);
+      const getProjectStub = sinon.stub().resolves(project);
       const services = {
         dataAPI: {
-          get: sinon.stub().returns({ getVersion: getVersionStub }),
+          get: sinon.stub().returns({ getVersion: getVersionStub, getProject: getProjectStub }),
         },
       };
 
@@ -200,6 +209,7 @@ describe('state manager unit tests', () => {
         state,
         trace: [],
         version,
+        project,
         userID,
         data: {
           ...context.data,

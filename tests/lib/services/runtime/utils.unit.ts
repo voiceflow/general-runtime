@@ -5,6 +5,8 @@ import sinon from 'sinon';
 import {
   addButtonsIfExists,
   getReadableConfidence,
+  isPromptContentEmpty,
+  isPromptContentInitialyzed,
   mapEntities,
   slateInjectVariables,
   slateToPlaintext,
@@ -131,6 +133,29 @@ describe('runtime utils service unit tests', () => {
       ];
 
       expect(slateToPlaintext(content as any)).to.eql(['one ', 'two', ' ', ' three four five'].join('\n'));
+    });
+  });
+
+  describe('isPromptContentInitialyzed', () => {
+    it('works', () => {
+      expect(isPromptContentInitialyzed(undefined)).to.eql(false);
+      expect(isPromptContentInitialyzed(null)).to.eql(false);
+
+      expect(isPromptContentInitialyzed('')).to.eql(true);
+      expect(isPromptContentInitialyzed([])).to.eql(true);
+      expect(isPromptContentInitialyzed([{ text: '' }])).to.eql(true);
+      expect(isPromptContentInitialyzed([{ text: 'text' }])).to.eql(true);
+    });
+  });
+
+  describe('isPromptContentEmpty', () => {
+    it('works', () => {
+      expect(isPromptContentEmpty('')).to.eql(true);
+      expect(isPromptContentEmpty([])).to.eql(true);
+      expect(isPromptContentEmpty([{ text: '' }])).to.eql(true);
+
+      expect(isPromptContentEmpty('hey')).to.eql(false);
+      expect(isPromptContentEmpty([{ text: 'text' }])).to.eql(false);
     });
   });
 

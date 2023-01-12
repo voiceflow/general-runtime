@@ -51,12 +51,28 @@ describe('client unit tests', () => {
       const request = 'request';
       const options = { op1: 'val1' };
 
-      expect(client.createRuntime(versionID, state as any, request as any, options as any, version as any)).to.eql(
-        newRuntime
-      );
+      expect(
+        client.createRuntime({
+          versionID,
+          state,
+          request,
+          options,
+          version,
+        } as any)
+      ).to.eql(newRuntime);
       expect(runtimeStub.calledWithNew()).to.eql(true);
       expect(runtimeStub.args).to.eql([
-        [versionID, state, request, { ..._.get(client, 'options'), ...options }, _.get(client, 'events'), version],
+        [
+          {
+            versionID,
+            state,
+            request,
+            options: { ..._.get(client, 'options'), ...options },
+            events: _.get(client, 'events'),
+            version,
+            project: undefined,
+          },
+        ],
       ]);
     });
   });

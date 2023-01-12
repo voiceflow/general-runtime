@@ -28,6 +28,22 @@ export interface State {
   variables: StorageState;
 }
 
+export interface RuntimeOptions<
+  Request = any,
+  DataAPI extends AnyDataAPI = AnyDataAPI,
+  Services extends BaseTypes.AnyRecord = BaseTypes.AnyRecord,
+  Version extends BaseTypes.BaseVersion.Version = BaseTypes.BaseVersion.Version,
+  Project extends BaseTypes.BaseProject.Project = BaseTypes.BaseProject.Project
+> {
+  versionID: string;
+  state: State;
+  request?: Request | undefined;
+  options: Options<DataAPI, Services>;
+  events: Lifecycle;
+  version?: Version;
+  project?: Project;
+}
+
 export enum Action {
   IDLE,
   REQUEST, // incoming user request that needs to be handled
@@ -39,7 +55,8 @@ class Runtime<
   Request = any,
   DataAPI extends AnyDataAPI = AnyDataAPI,
   Services extends BaseTypes.AnyRecord = BaseTypes.AnyRecord,
-  Version extends BaseTypes.BaseVersion.Version = BaseTypes.BaseVersion.Version
+  Version extends BaseTypes.BaseVersion.Version = BaseTypes.BaseVersion.Version,
+  Project extends BaseTypes.BaseProject.Project = BaseTypes.BaseProject.Project
 > extends AbstractLifecycle {
   public turn: Store;
 
@@ -68,16 +85,31 @@ class Runtime<
 
   public debugLogging: DebugLogging;
 
-  // eslint-disable-next-line max-params
-  constructor(
-    public versionID: string,
-    state: State,
-    private request: Request | null = null,
-    { services = {} as Services, handlers = [], api }: Options<DataAPI, Services>,
-    events: Lifecycle,
-    public version?: Version
-  ) {
+  public versionID: string;
+
+  private request: Request | null;
+
+  public version?: Version;
+
+  public project?: Project;
+
+  constructor({
+    events,
+    versionID,
+    version,
+    project,
+    request,
+    state,
+    options,
+  }: RuntimeOptions<Request, DataAPI, Services, Version, Project>) {
     super(events);
+
+    this.versionID = versionID;
+    this.request = request ?? null;
+    this.version = version;
+    this.project = project;
+
+    const { services = {} as Services, handlers = [], api } = options;
 
     const createEvent =
       <K extends EventType>(type: K) =>
