@@ -254,7 +254,7 @@ export const createRequest = async (
   actionData: BaseNode.Api.NodeData['action_data'],
   config: APIHandlerConfig
 ): Promise<Request> => {
-  let headers = new Headers(
+  const headers = new Headers(
     actionData.headers
       // Filter out invalid headers - avoid an Error: " is not a legal HTTP header name"
       .filter((header) => header.key && header.val)
@@ -278,7 +278,7 @@ export const createRequest = async (
         actionData.body.forEach(({ key, val }) => formData.append(key, val));
         body = formData;
 
-        headers = new Headers(formData.getHeaders(headers));
+        Object.entries(formData.getHeaders(headers)).map(([key, val]) => headers.set(key, val));
         break;
       }
       default:

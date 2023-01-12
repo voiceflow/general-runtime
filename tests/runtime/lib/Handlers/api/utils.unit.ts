@@ -1,13 +1,22 @@
 import { BaseNode } from '@voiceflow/base-types';
-import assert from 'assert';
 import { expect } from 'chai';
 import FormData from 'form-data';
-import { Headers } from 'node-fetch';
-import Sinon from 'sinon';
+import sinon, { SinonSandbox } from 'sinon';
 
 import { createRequest, getVariable, ReduceKeyValue, stringToNumIfNumeric } from '@/runtime/lib/Handlers/api/utils';
 
 describe('Handlers api utils unit tests', () => {
+  let sandbox: SinonSandbox;
+  beforeEach(() => {
+    sandbox = sinon.createSandbox();
+
+    sandbox.stub(FormData.prototype, 'getBoundary').returns('--------------------------aaaaaaaaaaaaaaaaaaaaaaaa');
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
   describe('stringToNumIfNumeric', () => {
     it('returns single digit number', () => {
       expect(stringToNumIfNumeric('1')).to.eql(1);
@@ -64,93 +73,97 @@ describe('Handlers api utils unit tests', () => {
 
   describe('createRequest', () => {
     it('works with GET requests', async () => {
-      const request = await createRequest({
-        url: 'https://example.com/?a=1',
-        method: BaseNode.Api.APIMethod.GET,
-        bodyInputType: BaseNode.Api.APIBodyType.RAW_INPUT,
-        content: 'my body',
-        headers: [{ key: 'My-Header', val: 'My-Value' }],
-        params: [
-          { key: 'b', val: '2' },
-          { key: 'c', val: '3' },
-        ],
-      } as any);
+      const request = await createRequest(
+        {
+          url: 'https://example.com/?a=1',
+          method: BaseNode.Api.APIMethod.GET,
+          bodyInputType: BaseNode.Api.APIBodyType.RAW_INPUT,
+          content: 'my body',
+          headers: [{ key: 'My-Header', val: 'My-Value' }],
+          params: [
+            { key: 'b', val: '2' },
+            { key: 'c', val: '3' },
+          ],
+        } as any,
+        {} as any
+      );
 
       expect(request.method).to.eql('GET');
       expect(request.url).to.eql('https://example.com/?a=1&b=2&c=3');
       // No body should be included in GET requests
       await expect(request.text()).to.eventually.eql('');
-      expect(request.headers).to.eql(new Headers({ 'My-Header': 'My-Value' }));
+      expect(request.headers.get('My-Header')).to.equal('My-Value');
     });
     it('works with POST requests with raw body', async () => {
-      const request = await createRequest({
-        url: 'https://example.com/?a=1',
-        method: BaseNode.Api.APIMethod.POST,
-        bodyInputType: BaseNode.Api.APIBodyType.RAW_INPUT,
-        content: 'my body',
-        headers: [{ key: 'My-Header', val: 'My-Value' }],
-        params: [
-          { key: 'b', val: '2' },
-          { key: 'c', val: '3' },
-        ],
-      } as any);
+      const request = await createRequest(
+        {
+          url: 'https://example.com/?a=1',
+          method: BaseNode.Api.APIMethod.POST,
+          bodyInputType: BaseNode.Api.APIBodyType.RAW_INPUT,
+          content: 'my body',
+          headers: [{ key: 'My-Header', val: 'My-Value' }],
+          params: [
+            { key: 'b', val: '2' },
+            { key: 'c', val: '3' },
+          ],
+        } as any,
+        {} as any
+      );
 
       expect(request.method).to.eql('POST');
       expect(request.url).to.eql('https://example.com/?a=1&b=2&c=3');
       await expect(request.text()).to.eventually.eql('my body');
-      expect(request.headers).to.eql(new Headers({ 'My-Header': 'My-Value' }));
+      expect(request.headers.get('My-Header')).to.equal('My-Value');
     });
     it('works with POST requests with URL encoded body', async () => {
-      const request = await createRequest({
-        url: 'https://example.com/?a=1',
-        method: BaseNode.Api.APIMethod.POST,
-        bodyInputType: BaseNode.Api.APIBodyType.URL_ENCODED,
-        body: [
-          { key: 'd', val: '4' },
-          { key: 'e', val: '5' },
-        ],
-        headers: [
-          { key: 'My-Header', val: 'My-Value' },
-          { key: 'Content-Type', val: 'My-Value' },
-        ],
-        params: [
-          { key: 'b', val: '2' },
-          { key: 'c', val: '3' },
-        ],
-      } as any);
+      const request = await createRequest(
+        {
+          url: 'https://example.com/?a=1',
+          method: BaseNode.Api.APIMethod.POST,
+          bodyInputType: BaseNode.Api.APIBodyType.URL_ENCODED,
+          body: [
+            { key: 'd', val: '4' },
+            { key: 'e', val: '5' },
+          ],
+          headers: [
+            { key: 'My-Header', val: 'My-Value' },
+            { key: 'Content-Type', val: 'My-Value' },
+          ],
+          params: [
+            { key: 'b', val: '2' },
+            { key: 'c', val: '3' },
+          ],
+        } as any,
+        {} as any
+      );
 
       expect(request.method).to.eql('POST');
       expect(request.url).to.eql('https://example.com/?a=1&b=2&c=3');
       await expect(request.text()).to.eventually.eql('d=4&e=5');
-      expect(request.headers).to.eql(
-        new Headers({ 'My-Header': 'My-Value', 'Content-Type': 'application/x-www-form-urlencoded' })
-      );
+      expect(request.headers.get('My-Header')).to.equal('My-Value');
+      expect(request.headers.get('Content-Type')).to.equal('application/x-www-form-urlencoded');
     });
     it('works with POST requests with form data body', async () => {
-      // Make boundary generation 100% deterministic
-      // @ts-expect-error The form-data types are wrong
-      FormData.prototype._generateBoundary = function () {
-        // @ts-expect-error The form-data types are wrong
-        this._boundary = '--------------------------aaaaaaaaaaaaaaaaaaaaaaaa';
-      };
-
-      const request = await createRequest({
-        url: 'https://example.com/?a=1',
-        method: BaseNode.Api.APIMethod.POST,
-        bodyInputType: BaseNode.Api.APIBodyType.FORM_DATA,
-        body: [
-          { key: 'd', val: '4' },
-          { key: 'e', val: '5' },
-        ],
-        headers: [
-          { key: 'My-Header', val: 'My-Value' },
-          { key: 'Content-Type', val: 'My-Value' },
-        ],
-        params: [
-          { key: 'b', val: '2' },
-          { key: 'c', val: '3' },
-        ],
-      } as any);
+      const request = await createRequest(
+        {
+          url: 'https://example.com/?a=1',
+          method: BaseNode.Api.APIMethod.POST,
+          bodyInputType: BaseNode.Api.APIBodyType.FORM_DATA,
+          body: [
+            { key: 'd', val: '4' },
+            { key: 'e', val: '5' },
+          ],
+          headers: [
+            { key: 'My-Header', val: 'My-Value' },
+            { key: 'Content-Type', val: 'My-Value' },
+          ],
+          params: [
+            { key: 'b', val: '2' },
+            { key: 'c', val: '3' },
+          ],
+        } as any,
+        {} as any
+      );
 
       expect(request.method).to.eql('POST');
       expect(request.url).to.eql('https://example.com/?a=1&b=2&c=3');
@@ -165,7 +178,51 @@ describe('Handlers api utils unit tests', () => {
 
       // node-fetch types are wrong
       expect((request.body as FormData).getBuffer()).to.eql(formData.getBuffer());
-      expect(request.headers).to.eql(new Headers({ 'My-Header': 'My-Value', 'Content-Type': 'multipart/form-data' }));
+      expect(request.headers.get('My-Header')).to.equal('My-Value');
+      expect(request.headers.get('Content-Type')).to.equal(
+        'multipart/form-data; boundary=--------------------------aaaaaaaaaaaaaaaaaaaaaaaa'
+      );
+    });
+
+    it('works with DELETE requests', async () => {
+      const request = await createRequest(
+        {
+          url: 'https://example.com/?a=1',
+          method: BaseNode.Api.APIMethod.DELETE,
+          bodyInputType: BaseNode.Api.APIBodyType.FORM_DATA,
+          body: [
+            { key: 'd', val: '4' },
+            { key: 'e', val: '5' },
+          ],
+          headers: [
+            { key: 'My-Header', val: 'My-Value' },
+            { key: 'Content-Type', val: 'My-Value' },
+          ],
+          params: [
+            { key: 'b', val: '2' },
+            { key: 'c', val: '3' },
+          ],
+        } as any,
+        {} as any
+      );
+
+      expect(request.method).to.eql('DELETE');
+      expect(request.url).to.eql('https://example.com/?a=1&b=2&c=3');
+      const formData = new FormData();
+      formData.append('d', '4');
+      formData.append('e', '5');
+
+      // @ts-expect-error node-fetch types are wrong
+      delete (request.body as FormData)._events;
+      // @ts-expect-error node-fetch types are wrong
+      delete (request.body as FormData)._eventsCount;
+
+      // node-fetch types are wrong
+      expect((request.body as FormData).getBuffer()).to.eql(formData.getBuffer());
+      expect(request.headers.get('My-Header')).to.equal('My-Value');
+      expect(request.headers.get('Content-Type')).to.equal(
+        'multipart/form-data; boundary=--------------------------aaaaaaaaaaaaaaaaaaaaaaaa'
+      );
     });
   });
 });
