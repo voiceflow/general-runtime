@@ -13,7 +13,7 @@ const NODE_ENV = getRequiredProcessEnv('NODE_ENV');
 const CLOUD_ENV = getOptionalProcessEnv('CLOUD_ENV', 'public');
 
 const CONFIG: Config = {
-  // Configs
+  // configs
   NODE_ENV,
   PORT: getRequiredProcessEnv('PORT'),
   PORT_METRICS: getOptionalProcessEnv('PORT_METRICS'),
