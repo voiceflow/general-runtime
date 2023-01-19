@@ -70,40 +70,11 @@ describe('interaction handler unit tests', async () => {
             id: 'block-id',
             interactions: [
               { event: { intent: '' } },
-              { event: { type: BaseNode.Utils.EventType.INTENT, intent: buttonName }, nextId: 'next-id' },
+              { event: { name: buttonName }, nextId: 'next-id' },
               { event: { intent: '' } },
             ],
           };
-          const request = { type: BaseRequest.RequestType.INTENT, payload: { intent: { name: buttonName } } };
-          const runtime = {
-            trace: { addTrace: sinon.stub() },
-            storage: { delete: sinon.stub() },
-            getRequest: sinon.stub().returns(request),
-            getAction: sinon.stub().returns(Action.REQUEST),
-          };
-          const variablesState = { foo: 'bar' };
-          const variables = { getState: sinon.stub().returns(variablesState) };
-
-          expect(interactionHandler.handle(block as any, runtime as any, variables as any, null as any)).to.eql(
-            block.interactions[1].nextId
-          );
-        });
-
-        it('INTENT_PATH', async () => {
-          const buttonName = 'button_name';
-          const utils = {};
-
-          const interactionHandler = InteractionGoogleHandler(utils as any);
-
-          const block = {
-            id: 'block-id',
-            interactions: [
-              { event: { intent: '' } },
-              { event: { type: BaseRequest.RequestType.INTENT, intent: buttonName }, nextId: 'next-id' },
-              { event: { intent: '' } },
-            ],
-          };
-          const request = { type: BaseRequest.RequestType.INTENT, payload: { intent: { name: buttonName } } };
+          const request = { type: BaseRequest.RequestType.INTENT, payload: { label: buttonName } };
           const runtime = {
             trace: { addTrace: sinon.stub() },
             storage: { delete: sinon.stub() },
@@ -429,7 +400,7 @@ describe('interaction handler unit tests', async () => {
 
         it('choice with mappings', () => {
           const intentName = 'random-intent';
-          const mappedSlots = { slot1: 'slot-1' };
+          const mappedEntities = { slot1: 'slot-1' };
 
           const utils = {
             commandHandler: {
@@ -438,7 +409,7 @@ describe('interaction handler unit tests', async () => {
             noMatchHandler: {
               canHandle: sinon.stub().returns(false),
             },
-            mapSlots: sinon.stub().returns(mappedSlots),
+            mapEntities: sinon.stub().returns(mappedEntities),
             noReplyHandler: {
               canHandle: sinon.stub().returns(false),
             },
@@ -458,7 +429,7 @@ describe('interaction handler unit tests', async () => {
           };
           const request = {
             type: BaseRequest.RequestType.INTENT,
-            payload: { intent: { name: intentName }, slots: { foo2: 'bar2' } },
+            payload: { intent: { name: intentName }, entities: [{ name: 'foo2', value: 'bar2' }] },
           };
           const runtime = {
             trace: { addTrace: sinon.stub() },
@@ -471,10 +442,8 @@ describe('interaction handler unit tests', async () => {
           expect(interactionHandler.handle(block as any, runtime as any, variables as any, null as any)).to.eql(
             block.interactions[0].nextId
           );
-          expect(utils.mapSlots.args).to.eql([
-            [{ mappings: block.interactions[0].event.mappings, slots: request.payload.slots }],
-          ]);
-          expect(variables.merge.args).to.eql([[mappedSlots]]);
+          expect(utils.mapEntities.args).to.eql([[block.interactions[0].event.mappings, request.payload.entities]]);
+          expect(variables.merge.args).to.eql([[mappedEntities]]);
         });
 
         // eslint-disable-next-line sonarjs/no-identical-functions

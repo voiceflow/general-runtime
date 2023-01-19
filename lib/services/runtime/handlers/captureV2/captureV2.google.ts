@@ -8,7 +8,7 @@ import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory } from '@/runtime';
 
-import { addRepromptIfExists } from '../../utils';
+import { addRepromptIfExists, mapEntities } from '../../utils';
 import { isGooglePlatform, mapSlots } from '../../utils.google';
 import CommandHandler from '../command';
 import { addNoReplyTimeoutIfExists } from '../noReply';
@@ -53,16 +53,14 @@ export const CaptureV2GoogleHandler: HandlerFactory<VoiceflowNode.CaptureV2.Node
     if (utils.noReplyHandler.canHandle(runtime)) {
       return utils.noReplyHandler.handle(node, runtime, variables);
     }
-    const { slots, input, intent, entities } = request.payload;
 
-    // when using prototype tool intent.slots is empty, so instead we rely on entities
-    if (intent.name === node.intent?.name && node.intent?.entities && (entities || slots)) {
+    const { input, intent, entities } = request.payload;
+    if (intent.name === node.intent?.name && node.intent?.entities) {
       variables.merge(
-        mapSlots({
-          mappings: node.intent.entities.map((slot) => ({ slot, variable: slot })),
-          slots,
-          entities,
-        })
+        mapEntities(
+          node.intent.entities.map((slot) => ({ slot, variable: slot })),
+          entities
+        )
       );
 
       return node.nextId ?? null;

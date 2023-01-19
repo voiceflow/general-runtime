@@ -220,10 +220,10 @@ describe('captureV2 handler unit tests', async () => {
             type: BaseRequest.RequestType.INTENT,
             payload: {
               intent: { name: 'intent-name' },
-              slots: {
-                [slotID]: 'slot-value',
-                [slotID3]: 'slot-value3',
-              },
+              entities: [
+                { name: slotID, value: 'slot-value' },
+                { name: slotID3, value: 'slot-value3' },
+              ],
             },
           };
           const runtime = {

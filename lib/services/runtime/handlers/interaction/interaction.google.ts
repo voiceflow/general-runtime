@@ -10,8 +10,8 @@ import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import { Action, HandlerFactory } from '@/runtime';
 
 import { StorageType, TurnType } from '../../types';
-import { addButtonsIfExists, addRepromptIfExists } from '../../utils';
-import { isGooglePlatform, mapSlots } from '../../utils.google';
+import { addButtonsIfExists, addRepromptIfExists, mapEntities } from '../../utils';
+import { isGooglePlatform } from '../../utils.google';
 import CommandHandler from '../command';
 import NoMatchHandler from '../noMatch';
 import { addNoReplyTimeoutIfExists } from '../noReply';
@@ -21,7 +21,7 @@ import { entityFillingRequest } from '../utils/entity';
 const utilsObj = {
   addRepromptIfExists,
   addButtonsIfExists,
-  mapSlots,
+  mapEntities,
   addNoReplyTimeoutIfExists,
   commandHandler: CommandHandler(),
   noMatchHandler: NoMatchHandler(),
@@ -55,18 +55,27 @@ export const InteractionGoogleHandler: HandlerFactory<VoiceflowNode.Interaction.
     let nextId: string | null | undefined;
     let variableMap: BaseModels.SlotMapping[] | null = null;
 
-    const { slots, intent } = request.payload ?? {};
+    const { intent, entities, label, query } = request.payload ?? {};
     // check if there is a choice in the node that fulfills intent
     node.interactions.forEach((choice) => {
-      if (!BaseNode.Utils.isIntentEvent(choice.event)) return;
+      const choiceName = BaseNode.Utils.isIntentEvent(choice.event)
+        ? choice.event.intent
+        : (choice.event as BaseNode.Utils.GeneralEvent).name;
 
-      if (choice.event.intent && choice.event.intent === intent?.name) {
-        /** @deprecated this section should be removed in favor of the goto handler */
-        if ((choice as any).goTo?.intentName) {
+      // prototype tool uses label, dfes uses query
+      const input = BaseNode.Utils.isIntentEvent(choice.event) ? intent.name : label ?? query;
+
+      if (choiceName === input) {
+        // general event (has path): we just follow the path
+        if (!BaseNode.Utils.isIntentEvent(choice.event)) {
+          nextId = choice.nextId;
+        } else if ((choice as any).goTo?.intentName) {
+          /** @deprecated this section should be removed in favor of the goto handler */
           runtime.trace.addTrace<BaseTrace.GoToTrace>({
             type: BaseNode.Utils.TraceType.GOTO,
             payload: { request: entityFillingRequest((choice as any).goTo.intentName) },
           });
+          // stop on itself to await for new intent request coming in
           nextId = node.id;
         } else {
           variableMap = choice.event.mappings ?? null;
@@ -75,9 +84,9 @@ export const InteractionGoogleHandler: HandlerFactory<VoiceflowNode.Interaction.
       }
     });
 
-    if (variableMap && slots) {
+    if (variableMap && entities) {
       // map request mappings to variables
-      variables.merge(utils.mapSlots({ mappings: variableMap, slots }));
+      variables.merge(utils.mapEntities(variableMap, entities));
     }
 
     if (nextId !== undefined) {

@@ -49,13 +49,15 @@ export const CaptureGoogleHandler: HandlerFactory<VoiceflowNode.Capture.Node, ty
       return utils.noReplyHandler.handle(node, runtime, variables);
     }
 
-    const { input } = request.payload;
+    const { input, query } = request.payload;
 
-    if (input) {
-      const num = utils.wordsToNumbers(input);
+    // TODO: refactor on adapter code
+    // prototype tool sends input on query, dialogflow sends on input
+    if (input ?? query) {
+      const num = utils.wordsToNumbers(input ?? query);
 
       if (typeof num !== 'number' || Number.isNaN(num)) {
-        variables.set(node.variable, input);
+        variables.set(node.variable, input ?? query);
       } else {
         variables.set(node.variable, num);
       }
