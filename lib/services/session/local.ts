@@ -1,8 +1,9 @@
 import { State } from '@/runtime';
 
 import { AbstractManager } from '../utils';
+import type { Session } from '.';
 
-class SessionManager extends AbstractManager {
+class SessionManager extends AbstractManager implements Session {
   public table: Record<string, any> = {};
 
   private getSessionID(projectID: string, userID: string) {
@@ -19,6 +20,19 @@ class SessionManager extends AbstractManager {
 
   async deleteFromDb(projectID: string, userID: string) {
     delete this.table[this.getSessionID(projectID, userID)];
+  }
+
+  async updateVariables(projectID: string, userID: string, variables: Record<string, any>) {
+    const state = await this.getFromDb<State>(projectID, userID);
+
+    const newState = {
+      ...state,
+      variables: { ...state.variables, ...variables },
+    };
+
+    await this.saveToDb(projectID, userID, newState);
+
+    return newState;
   }
 }
 

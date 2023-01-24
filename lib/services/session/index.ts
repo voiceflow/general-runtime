@@ -9,4 +9,6 @@ export interface Session {
   getFromDb<T extends Record<string, any> = Record<string, any>>(projectID: string, userID: string): Promise<T>;
 
   deleteFromDb(projectID: string, userID: string): Promise<void>;
+
+  updateVariables(projectID: string, userID: string, variables?: Record<string, unknown>): Promise<State>;
 }

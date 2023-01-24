@@ -4,9 +4,10 @@ import { State } from '@/runtime';
 import { Config } from '@/types';
 
 import { AbstractManager } from '../utils';
+import type { Session } from '.';
 import { Source } from './constants';
 
-class SessionManager extends AbstractManager {
+class SessionManager extends AbstractManager implements Session {
   static GENERAL_SESSIONS_MONGO_PREFIX = 'general-platform.session';
 
   private collectionName = 'runtime-sessions';
@@ -60,6 +61,31 @@ class SessionManager extends AbstractManager {
     if (!ok) {
       throw Error('delete runtime session error');
     }
+  }
+
+  async updateVariables(_projectID: string, userID: string, variables: Record<string, any>): Promise<State> {
+    const projectID = new ObjectId(_projectID);
+    const { mongo } = this.services;
+
+    const id = this.getSessionID(_projectID, userID);
+
+    const variableSet = Object.fromEntries(
+      Object.entries(variables).map(([key, value]) => [
+        // replace special characters
+        `attributes.variables.${key.replace(/[$()*+.?[\\\]^{|}]/g, '\\$&')}`,
+        value,
+      ])
+    );
+
+    const result = await mongo!.db
+      .collection(this.collectionName)
+      .findOneAndUpdate(
+        { projectID, id },
+        { $set: { id, projectID, ...variableSet } },
+        { upsert: true, returnDocument: 'after' }
+      );
+
+    return result.value;
   }
 }
 

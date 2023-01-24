@@ -78,7 +78,7 @@ describe('stateManagement controller unit tests', () => {
   describe('updateVariables', () => {
     it('works', async () => {
       const output = { foo: 'bar', variables: { a: 1, b: 2 } };
-      const services = { session: { getFromDb: sinon.stub().resolves(output), saveToDb: sinon.stub().resolves() } };
+      const services = { session: { updateVariables: sinon.stub().resolves(output) } };
       const controller = new StateManagement(services as any, {} as any);
 
       const body = { b: 3, c: 4 };
@@ -88,10 +88,8 @@ describe('stateManagement controller unit tests', () => {
         body,
       };
 
-      const expectedState = { ...output, variables: { ...output.variables, ...body } };
-      expect(await controller.updateVariables(req as any)).to.eql(expectedState);
-      expect(services.session.getFromDb.args).to.eql([[req.headers.projectID, req.params.userID]]);
-      expect(services.session.saveToDb.args).to.eql([[req.headers.projectID, req.params.userID, expectedState]]);
+      expect(await controller.updateVariables(req as any)).to.eql(output);
+      expect(services.session.updateVariables.args).to.eql([[req.headers.projectID, req.params.userID, body]]);
     });
   });
 });

@@ -70,16 +70,7 @@ class StateManagementController extends AbstractController {
 
   @validate({ BODY_UPDATE_VARIABLES: VALIDATIONS.BODY.OBJECT, HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID })
   async updateVariables(req: Request<{ userID: string }, Record<string, any>, { projectID: string }>) {
-    const state = await this.services.session.getFromDb<State>(req.headers.projectID, req.params.userID);
-
-    const newState = {
-      ...state,
-      variables: { ...state.variables, ...req.body },
-    };
-
-    await this.services.session.saveToDb(req.headers.projectID, req.params.userID, newState);
-
-    return newState;
+    return this.services.session.updateVariables(req.headers.projectID, req.params.userID, req.body);
   }
 }
 
