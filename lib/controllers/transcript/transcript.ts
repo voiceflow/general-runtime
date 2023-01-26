@@ -35,8 +35,7 @@ class TranscriptController extends AbstractController {
       { projectID: string }
     >
   ) {
-    const { unread } = req.body;
-    return this.services.transcript.upsertTranscript(req.headers.projectID, req.body.sessionID, req.body, unread);
+    return this.services.transcript.upsertTranscript(req.headers.projectID, req.body.sessionID, req.body);
   }
 }
 

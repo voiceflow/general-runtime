@@ -6,7 +6,6 @@ export const UpsertTranscriptSchema = {
   required: ['sessionID'],
   properties: {
     sessionID: StringField('sessionID'),
-    apiKey: StringField('apiKey'),
     os: StringField('os'),
     device: StringField('device'),
     browser: StringField('browser'),

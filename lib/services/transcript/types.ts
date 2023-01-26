@@ -6,6 +6,7 @@ export interface TranscriptClientInfo {
     name: string;
     image: string;
   };
+  unread: boolean;
 }
 
 export interface TranscriptUpdatePayload {
@@ -17,4 +18,5 @@ export interface TranscriptUpdatePayload {
     name?: string | undefined;
     image?: string | undefined;
   };
+  unread?: boolean | undefined;
 }

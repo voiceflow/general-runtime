@@ -6,13 +6,12 @@ import { Request } from '@/types';
 
 import { customAJV, validate } from '../../utils';
 import { AbstractController } from '../utils';
-import { PublicInteractSchema, TranscriptSchema } from './requests';
+import { PublicInteractSchema } from './requests';
 
 const { body, header } = Validator;
 const VALIDATIONS = {
   BODY: {
     PUBLIC_INTERACT: body().custom(customAJV(PublicInteractSchema)),
-    TRANSCRIPT: body().custom(customAJV(TranscriptSchema)),
   },
   HEADERS: {
     PROJECT_ID: header('projectID').exists().isString(),

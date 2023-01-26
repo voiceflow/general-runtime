@@ -5,12 +5,7 @@ import { AbstractManager } from '../utils';
 import { TranscriptClientInfo, TranscriptUpdatePayload } from './types';
 
 class TranscriptManager extends AbstractManager {
-  async upsertTranscript(
-    projectID: string,
-    sessionID: string,
-    clientInfo: DeepPartial<TranscriptClientInfo>,
-    unread?: boolean
-  ) {
+  async upsertTranscript(projectID: string, sessionID: string, clientInfo: DeepPartial<TranscriptClientInfo>) {
     const { mongo } = this.services;
     if (!mongo) throw new Error('mongo not initialized');
 
@@ -25,7 +20,7 @@ class TranscriptManager extends AbstractManager {
       reportTags: [],
     };
 
-    const { os, device, browser, user } = clientInfo;
+    const { os, device, browser, user, unread } = clientInfo;
 
     const updateData: TranscriptUpdatePayload = {
       updatedAt: insertData.createdAt,
