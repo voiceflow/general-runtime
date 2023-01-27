@@ -11,7 +11,7 @@ import NoMatchHandler from '../noMatch';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
 import RepeatHandler from '../repeat';
 
-const utilsObj = {
+export const utilsObj = {
   repeatHandler: RepeatHandler(),
   commandHandler: CommandHandler(),
   noMatchHandler: NoMatchHandler(),

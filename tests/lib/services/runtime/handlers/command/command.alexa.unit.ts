@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
+import { AlexaConstants } from '@voiceflow/alexa-types';
 import { BaseNode, BaseRequest } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { CommandAlexaHandler, getCommand } from '@/lib/services/runtime/handlers/command/command.alexa';
-import { IntentName } from '@/lib/services/runtime/types.alexa';
 import { Action } from '@/runtime';
 
 describe('command handler unit tests', async () => {
@@ -25,9 +25,10 @@ describe('command handler unit tests', async () => {
           const some = sinon.stub().returns(true);
           const runtime = {
             stack: { getFrames: sinon.stub().returns({ some }) },
-            getRequest: sinon
-              .stub()
-              .returns({ type: BaseRequest.RequestType.INTENT, payload: { intent: { name: IntentName.CANCEL } } }),
+            getRequest: sinon.stub().returns({
+              type: BaseRequest.RequestType.INTENT,
+              payload: { intent: { name: AlexaConstants.AmazonIntent.CANCEL } },
+            }),
             getAction: sinon.stub().returns(Action.REQUEST),
           };
 
@@ -45,7 +46,10 @@ describe('command handler unit tests', async () => {
         });
 
         it('not found', () => {
-          const request = { type: BaseRequest.RequestType.INTENT, payload: { intent: { name: IntentName.CANCEL } } };
+          const request = {
+            type: BaseRequest.RequestType.INTENT,
+            payload: { intent: { name: AlexaConstants.AmazonIntent.CANCEL } },
+          };
           const runtime = {
             stack: { getFrames: sinon.stub().returns({ some: sinon.stub().returns(false) }) },
             getRequest: sinon.stub().returns(request),
@@ -53,7 +57,7 @@ describe('command handler unit tests', async () => {
           };
 
           expect(getCommand(runtime as any)).to.eql(null);
-          expect(request.payload.intent.name).to.eql(IntentName.STOP);
+          expect(request.payload.intent.name).to.eql(AlexaConstants.AmazonIntent.STOP);
         });
       });
 

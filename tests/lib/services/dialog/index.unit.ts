@@ -170,6 +170,7 @@ describe('dialog manager unit tests', () => {
             payload: {
               message: '<voice name="Default voice">what flavor?</voice>',
               type: 'message',
+              isPrompt: true,
             },
           },
           mockEntityFillingTrace,

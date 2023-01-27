@@ -2,7 +2,7 @@ import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { CarouselHandler } from '@/lib/services/runtime/handlers/caroussel/carousel';
+import { CarouselHandler } from '@/lib/services/runtime/handlers/carousel';
 import { StorageType } from '@/lib/services/runtime/types';
 import { Action } from '@/runtime';
 

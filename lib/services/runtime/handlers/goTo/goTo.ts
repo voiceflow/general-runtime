@@ -5,7 +5,7 @@ import { Action } from '@/runtime/lib/Runtime';
 
 import CommandHandler from '../command';
 
-const utilsObj = {
+export const utilsObj = {
   commandHandler: CommandHandler(),
 };
 

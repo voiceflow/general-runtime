@@ -24,7 +24,9 @@ describe('tts manager unit tests', () => {
         random: 'random',
         trace: [{ type: BaseNode.Utils.TraceType.SPEAK, payload: { message: 'trace-message' } }],
       };
-      const postStub = sinon.stub().returns(Promise.resolve({ data: ['payload-value1', 'payload-value2'] }));
+      const postStub = sinon
+        .stub()
+        .returns(Promise.resolve({ data: [{ message: 'payload-value1' }, { message: 'payload-value2' }] }));
       const tts = new TTSManager(
         { axios: { post: postStub }, utils: { ...defaultUtils } } as any,
         { GENERAL_SERVICE_ENDPOINT: 'vf' } as any
@@ -32,8 +34,8 @@ describe('tts manager unit tests', () => {
       expect(await tts.handle(context as any)).to.eql({
         ...context,
         trace: [
-          { type: BaseNode.Utils.TraceType.SPEAK, payload: 'payload-value1' },
-          { type: BaseNode.Utils.TraceType.SPEAK, payload: 'payload-value2' },
+          { type: BaseNode.Utils.TraceType.SPEAK, payload: { message: 'payload-value1' } },
+          { type: BaseNode.Utils.TraceType.SPEAK, payload: { message: 'payload-value2' } },
         ],
       });
     });

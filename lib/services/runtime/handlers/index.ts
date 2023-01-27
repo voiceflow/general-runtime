@@ -22,7 +22,7 @@ import APIHandler from './api';
 import CaptureHandler from './capture';
 import CaptureV2Handler from './captureV2';
 import CardV2Handler from './cardV2';
-import CarouselHandler from './caroussel';
+import CarouselHandler from './carousel';
 import ChannelActionHandler from './channelAction';
 import GoToHandler from './goTo';
 import InteractionHandler from './interaction';
@@ -40,7 +40,7 @@ export default (config: Config) => [
   ...GoToHandler(),
   ...InteractionHandler(),
   ...CaptureV2Handler(),
-  ...CaptureHandler(),
+  CaptureHandler(),
   ResetHandler(),
   StreamHandler(),
   CodeHandler({ endpoint: config.CODE_HANDLER_ENDPOINT }),
@@ -59,7 +59,7 @@ export default (config: Config) => [
   TextHandler(),
   AIResponseHandler(),
   ...CardV2Handler(),
-  ...CarouselHandler(),
+  CarouselHandler(),
   GoToNodeHandler(),
   ChannelActionHandler(),
 

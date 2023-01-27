@@ -6,10 +6,9 @@ import {
   BaseTrace,
   BaseVersion,
   RuntimeLogs,
-  Text,
 } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables, transformStringVariableToNumber, Utils } from '@voiceflow/common';
-import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import cuid from 'cuid';
 import _ from 'lodash';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
@@ -21,7 +20,7 @@ import { Runtime, Store } from '@/runtime';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { AddTraceFn } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
-import { isPrompt, Output, Prompt, TurnType } from './types';
+import { isPrompt, Output } from './types';
 
 export const EMPTY_AUDIO_STRING = '<audio src=""/>';
 
@@ -57,6 +56,36 @@ export const mapEntities = (
   }
 
   return variables;
+};
+
+const replaceRandom = (path: string, data: Record<string, unknown>): string => {
+  const randomIdx = path.indexOf('[{random}]');
+
+  if (randomIdx === -1) return path;
+
+  // eslint-disable-next-line you-dont-need-lodash-underscore/get
+  const dataBeforeRandomPath = _.get(data, path.slice(0, randomIdx));
+
+  if (Array.isArray(dataBeforeRandomPath)) {
+    // replace {random} with proper idx and loop again
+    const newPath = path.replace('[{random}]', `[${Math.floor(Math.random() * dataBeforeRandomPath.length)}]`);
+    return replaceRandom(newPath, data);
+  }
+  // if path is invalid (array access on a non array) dont break, just return original path
+  return path;
+};
+
+// alexa event allows for mappping variables that take in a path that can have arrays with {random} index
+// we need to process that path and use it to return the correct property in data
+export const mapVariables = (path: string, data: Record<string, unknown>) => {
+  if (!path || typeof path !== 'string') {
+    return undefined;
+  }
+
+  const parsedPath = replaceRandom(path, data);
+
+  // eslint-disable-next-line you-dont-need-lodash-underscore/get
+  return _.get(data, parsedPath);
 };
 
 export const slateInjectVariables = (
@@ -172,14 +201,10 @@ export const getGlobalNoMatch = (runtime: Runtime) => {
   return runtime.version?.platformData.settings?.globalNoMatch;
 };
 
-export const getGenericGlobalNoMatchPrompt =
-  ({ isPrompt }: { isPrompt: (prompt: unknown) => prompt is Prompt }) =>
-  (runtime: Runtime) => {
-    const noMatch = getGlobalNoMatch(runtime);
-    return noMatch?.prompt && isPrompt(noMatch.prompt) ? noMatch.prompt : null;
-  };
-
-export const getGlobalNoMatchPrompt = getGenericGlobalNoMatchPrompt({ isPrompt });
+export const getGlobalNoMatchPrompt = (runtime: Runtime) => {
+  const noMatch = getGlobalNoMatch(runtime);
+  return noMatch?.prompt && isPrompt(noMatch.prompt) ? noMatch.prompt : null;
+};
 
 export const getGlobalNoReplyPrompt = (runtime: Runtime) => {
   const { version } = runtime;
@@ -223,6 +248,7 @@ interface OutputParams<V> {
   variables?: Store;
   ai?: boolean;
   version?: BaseVersion.Version;
+  isPrompt?: boolean;
 }
 
 export function textOutputTrace({
@@ -231,6 +257,7 @@ export function textOutputTrace({
   output,
   version,
   variables,
+  isPrompt,
 }: OutputParams<BaseText.SlateTextValue> & { delay?: number }) {
   const sanitizedVars = sanitizeVariables(variables?.getState() ?? {});
   const content = slateInjectVariables(output, sanitizedVars);
@@ -249,6 +276,7 @@ export function textOutputTrace({
       message: plainContent,
       delay: messageDelayMilliseconds,
       ...(ai && { ai }),
+      ...(isPrompt && { isPrompt }),
     },
   };
 
@@ -257,13 +285,13 @@ export function textOutputTrace({
   return trace;
 }
 
-export function speakOutputTrace({ variables, output }: OutputParams<string>) {
+export function speakOutputTrace({ variables, output, isPrompt }: OutputParams<string>) {
   const sanitizedVars = sanitizeVariables(variables?.getState() ?? {});
   const message = replaceVariables(output || '', sanitizedVars);
 
   const trace: BaseTrace.Speak = {
     type: BaseNode.Utils.TraceType.SPEAK,
-    payload: { message, type: BaseNode.Speak.TraceSpeakType.MESSAGE },
+    payload: { message, type: BaseNode.Speak.TraceSpeakType.MESSAGE, ...(isPrompt && { isPrompt }) },
   };
 
   variables?.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, message);
@@ -315,44 +343,6 @@ export const getDefaultNoReplyTimeoutSeconds = (platform: string | undefined) =>
   };
 
   return delayByPlatform[platform] ?? defaultTimeout;
-};
-
-export const addRepromptIfExists = <Node extends VoiceflowNode.Utils.NoReplyNode>(
-  node: Node,
-  runtime: Runtime,
-  variables: Store
-): void => {
-  const prompt = _.sample(node.noReply?.prompts || node.reprompt ? [node.reprompt] : []);
-
-  if (prompt && typeof prompt === 'string') {
-    runtime.trace.addTrace<BaseNode.Utils.BaseTraceFrame<unknown>>({
-      type: TurnType.REPROMPT,
-      payload: replaceVariables(prompt, variables.getState()),
-    });
-    return;
-  }
-
-  const globalNoReply = getGlobalNoReplyPrompt(runtime)?.content;
-  if (globalNoReply && !isPromptContentEmpty(globalNoReply)) {
-    runtime.trace.addTrace<BaseNode.Utils.BaseTraceFrame<unknown>>({
-      type: TurnType.REPROMPT,
-      payload: processOutput(globalNoReply, variables),
-    });
-  }
-};
-
-export const processOutput = (output: string | Text.SlateTextValue | undefined, variables: Store): string => {
-  if (!output) return '';
-
-  const sanitizedVars = sanitizeVariables(variables.getState());
-  // handle voice string
-  if (typeof output === 'string') {
-    return replaceVariables(output, sanitizedVars);
-  }
-
-  // handle slate text
-  const content = slateInjectVariables(output, sanitizedVars);
-  return slateToPlaintext(content);
 };
 
 export const isConfidenceScoreAbove = (threshold: number, confidence: number) =>

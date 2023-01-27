@@ -43,7 +43,7 @@ describe('CaptureV2 handler', () => {
             type: 'goto',
             payload: {
               request: {
-                requiredEntities: undefined,
+                requiredEntities: [],
                 type: 'intent',
                 payload: { intent: { name: node.intent.name }, entities: [], query: '' },
                 ELICIT: true,

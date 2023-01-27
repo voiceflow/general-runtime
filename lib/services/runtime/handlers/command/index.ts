@@ -31,7 +31,7 @@ export const getCommand = (runtime: GeneralRuntime): CommandMatch | null => {
   return null;
 };
 
-const utilsObj = {
+export const utilsObj = {
   Frame,
   getCommand,
 };

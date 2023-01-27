@@ -1,79 +1,67 @@
 /**
  * Alexa captureV2 needs to be used in favor of general captureV2 because
- * it adds reprompts if exists
- * it handles captureV2 very differently
+ * it uses different command handler
+ * it uses different EntityFillingNoMatch handler (response should never be elicit)
  */
-import { BaseNode, BaseTrace } from '@voiceflow/base-types';
-import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
+import { VoiceModels } from '@voiceflow/voice-types';
+import { VoiceflowConstants, VoiceflowNode, VoiceflowVersion } from '@voiceflow/voiceflow-types';
+import _ from 'lodash';
 
-import { Action, HandlerFactory } from '@/runtime';
+import { fillStringEntities, getUnfulfilledEntity } from '@/lib/services/dialog/utils';
+import { HandlerFactory, Runtime, Store } from '@/runtime';
 
-import { addRepromptIfExists } from '../../utils';
-import { mapSlots } from '../../utils.alexa';
-import CommandHandler from '../command/command.alexa';
-import { addNoReplyTimeoutIfExists } from '../noReply';
-import RepeatHandler from '../repeat';
-import { EntityFillingNoMatchAlexaHandler, entityFillingRequest, setElicit } from '../utils/entity';
+import { addOutputTrace, getOutputTrace } from '../../utils';
+import { CommandAlexaHandler } from '../command/command.alexa';
+import { EntityFillingNoMatchAlexaHandler } from '../utils/entity';
+import { inputToString } from '../utils/output';
+import { CaptureV2Handler, utilsObj } from './captureV2';
 
-const utilsObj = {
-  addRepromptIfExists,
-  addNoReplyTimeoutIfExists,
-  commandHandler: CommandHandler(),
-  repeatHandler: RepeatHandler(),
-  entityFillingNoMatchHandler: EntityFillingNoMatchAlexaHandler(),
+const addPromptIfExists = (node: VoiceflowNode.CaptureV2.Node, runtime: Runtime, variables: Store) => {
+  if (!runtime.version?.prototype?.model) return;
+  const request = runtime.getRequest();
+  const intentRequest = {
+    ...request,
+    payload: {
+      entities: [], // make sure we set entities to empty array if request is null
+      ...request?.payload,
+      intent: { ...request?.payload?.intent, name: node.intent?.name },
+    },
+  };
+  const unfulfilledEntity = getUnfulfilledEntity(intentRequest, runtime.version.prototype.model);
+  if (!unfulfilledEntity) return;
+
+  const prompt = _.sample(unfulfilledEntity.dialog.prompt) as VoiceModels.IntentPrompt<VoiceflowConstants.Voice>;
+  if (!prompt) return;
+
+  const output = fillStringEntities(
+    intentRequest,
+    inputToString(prompt, (runtime.version as VoiceflowVersion.VoiceVersion).platformData.settings.defaultVoice)
+  );
+  addOutputTrace(
+    runtime,
+    getOutputTrace({
+      output,
+      version: runtime.version,
+      variables,
+      isPrompt: true,
+    }),
+    { node }
+  );
 };
 
-export const CaptureV2AlexaHandler: HandlerFactory<VoiceflowNode.CaptureV2.Node, typeof utilsObj> = (utils) => ({
-  canHandle: (node) =>
-    node.platform === VoiceflowConstants.PlatformType.ALEXA && node.type === BaseNode.NodeType.CAPTURE_V2,
-  handle: (node, runtime, variables) => {
-    const request = runtime.getRequest();
-    if (runtime.getAction() === Action.RUNNING) {
-      utils.addRepromptIfExists(node, runtime, variables);
-      utils.addNoReplyTimeoutIfExists(node, runtime);
+const utils = {
+  ...utilsObj,
+  commandHandler: CommandAlexaHandler(),
+  entityFillingNoMatchHandler: EntityFillingNoMatchAlexaHandler(),
+  addPromptIfExists,
+};
 
-      if (node.intent?.entities) {
-        runtime.trace.addTrace<BaseTrace.GoToTrace>({
-          type: BaseTrace.TraceType.GOTO,
-          payload: { request: setElicit(entityFillingRequest(node.intent.name, node.intent.entities), true) },
-        });
-      }
-      // quit cycleStack without ending session by stopping on itself
-      return node.id;
-    }
-    // check if there is a command in the stack that fulfills intent
-    if (node.intentScope !== BaseNode.Utils.IntentScope.NODE && utils.commandHandler.canHandle(runtime)) {
-      return utils.commandHandler.handle(runtime, variables);
-    }
-    if (utils.repeatHandler.canHandle(runtime)) {
-      return utils.repeatHandler.handle(runtime, variables);
-    }
+export const CaptureV2AlexaHandler: HandlerFactory<VoiceflowNode.CaptureV2.Node, typeof utils> = (handlerUtils) => {
+  const { handle, canHandle } = CaptureV2Handler(handlerUtils);
+  return {
+    handle,
+    canHandle: (node, ...args) => node.platform === VoiceflowConstants.PlatformType.ALEXA && canHandle(node, ...args),
+  };
+};
 
-    const { intent, entities } = request.payload;
-    if (intent.name === node.intent?.name) {
-      const firstEntity = node.intent?.entities && intent.slots?.[node.intent.entities[0]];
-      if (node.variable && firstEntity) {
-        variables.set(node.variable, firstEntity.value);
-      } else {
-        // when using prototype tool intent.slots is empty, so instead we rely on entities
-        variables.merge(
-          mapSlots({
-            slots: intent.slots,
-            entities,
-            mappings: (node.intent?.entities ?? []).map((slot) => ({ slot, variable: slot })),
-          })
-        );
-      }
-
-      return node.nextId ?? null;
-    }
-    // handle noMatch
-    const noMatchHandler = utils.entityFillingNoMatchHandler.handle(node, runtime, variables);
-
-    return node.intent?.name
-      ? noMatchHandler([node.intent?.name], entityFillingRequest(node.intent?.name, node.intent.entities))
-      : noMatchHandler();
-  },
-});
-
-export default () => CaptureV2AlexaHandler(utilsObj);
+export default () => CaptureV2AlexaHandler(utils);

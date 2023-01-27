@@ -1,10 +1,10 @@
 import { BaseNode, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
-import { VoiceflowNode } from '@voiceflow/voiceflow-types';
+import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 
-import { Action, HandlerFactory } from '@/runtime';
+import { Action, HandlerFactory, Runtime, Store } from '@/runtime';
 
 import { isIntentRequest, StorageType } from '../../types';
-import { addButtonsIfExists, isConfidenceScoreAbove, mapEntities } from '../../utils';
+import { addButtonsIfExists, addOutputTrace, getOutputTrace, isConfidenceScoreAbove, mapEntities } from '../../utils';
 import CommandHandler from '../command';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
 import RepeatHandler from '../repeat';
@@ -15,13 +15,15 @@ const ENTIRE_RESPONSE_CONFIDENCE_THRESHOLD = 0.6;
 type CaptureWithIntent = VoiceflowNode.CaptureV2.Node & { intent: Required<BaseNode.CaptureV2.NodeIntent> };
 type CaptureWithVariable = VoiceflowNode.CaptureV2.Node & { variable: string };
 
-const isNodeCapturingEntity = (node: VoiceflowNode.CaptureV2.Node): node is CaptureWithIntent =>
+export const isNodeCapturingEntity = (node: VoiceflowNode.CaptureV2.Node): node is CaptureWithIntent =>
   typeof node.intent?.name === 'string' && typeof node.intent?.entities != null && !node.variable;
 
-const isNodeCapturingEntireResponse = (node: VoiceflowNode.CaptureV2.Node): node is CaptureWithVariable =>
+export const isNodeCapturingEntireResponse = (node: VoiceflowNode.CaptureV2.Node): node is CaptureWithVariable =>
   typeof node.variable === 'string';
 
-const utilsObj = {
+export const utilsObj = {
+  addOutputTrace,
+  getOutputTrace,
   repeatHandler: RepeatHandler(),
   noReplyHandler: NoReplyHandler(),
   commandHandler: CommandHandler(),
@@ -29,20 +31,29 @@ const utilsObj = {
   addNoReplyTimeoutIfExists,
   entityFillingNoMatchHandler: EntityFillingNoMatchHandler(),
 };
+type utilsObjType = typeof utilsObj & {
+  addPromptIfExists?: (node: VoiceflowNode.CaptureV2.Node, runtime: Runtime, variables: Store) => void;
+};
 
-export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, typeof utilsObj> = (utils) => ({
+export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, utilsObjType> = (utils) => ({
   canHandle: (node) => node.type === BaseNode.NodeType.CAPTURE_V2,
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (node, runtime, variables) => {
+    const request = runtime.getRequest();
     const captureIntentName = node.intent?.name;
 
     if (runtime.getAction() === Action.RUNNING) {
       utils.addNoReplyTimeoutIfExists(node, runtime);
 
+      // when it is an alexa project, we should return the prompt for the unfulfilled entity
+      if (node.platform === VoiceflowConstants.PlatformType.ALEXA && utils.addPromptIfExists) {
+        utils.addPromptIfExists(node, runtime, variables);
+      }
+
       if (captureIntentName) {
         runtime.trace.addTrace<BaseTrace.GoToTrace>({
           type: BaseTrace.TraceType.GOTO,
-          payload: { request: setElicit(entityFillingRequest(captureIntentName), true) },
+          payload: { request: setElicit(entityFillingRequest(captureIntentName, node.intent?.entities ?? []), true) },
         });
       }
 
@@ -57,8 +68,6 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, type
     if (utils.noReplyHandler.canHandle(runtime)) {
       return utils.noReplyHandler.handle(node, runtime, variables);
     }
-
-    const request = runtime.getRequest();
 
     // If capturing the entire user response, we need a high confidence to leave to another capture step
     const lowConfidence =
@@ -130,7 +139,7 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, type
     const noMatchHandler = utils.entityFillingNoMatchHandler.handle(node, runtime, variables);
 
     return captureIntentName
-      ? noMatchHandler([captureIntentName], entityFillingRequest(captureIntentName))
+      ? noMatchHandler([captureIntentName], entityFillingRequest(captureIntentName, node.intent?.entities))
       : noMatchHandler();
   },
 });

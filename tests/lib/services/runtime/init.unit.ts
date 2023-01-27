@@ -251,59 +251,13 @@ describe('runtime init service unit tests', () => {
 
     describe('defined stream', () => {
       describe('START action', () => {
-        it('works with truthy loop', () => {
+        it('works', () => {
           const client = { setEvent: sinon.stub() };
           const stream = {
             action: StreamAction.START,
             src: 'src-val',
             token: 'token-val',
             loop: true,
-            backgroundImage: 'background-image-val',
-            description: 'description-val',
-            iconImage: 'icon-image-val',
-            title: 'title-val',
-          };
-          const runtime = {
-            stack: { isEmpty: sinon.stub().returns(true) },
-            storage: { get: sinon.stub().returns(stream) },
-            trace: { addTrace: sinon.stub() },
-            turn: { get: sinon.stub().returns(false) },
-          };
-          init(client as any);
-
-          expect(client.setEvent.args[3][0]).to.eql(EventType.updateDidExecute);
-
-          const fn = client.setEvent.args[3][1];
-          fn({ runtime });
-
-          expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-          expect(runtime.trace.addTrace.args).to.eql([
-            [
-              {
-                type: BaseNode.Utils.TraceType.STREAM,
-                payload: {
-                  src: stream.src,
-                  token: stream.token,
-                  action: BaseNode.Stream.TraceStreamAction.LOOP,
-                  loop: true,
-                  backgroundImage: stream.backgroundImage,
-                  description: stream.description,
-                  iconImage: stream.iconImage,
-                  title: stream.title,
-                },
-              },
-            ],
-            [{ type: BaseNode.Utils.TraceType.END, payload: undefined }],
-          ]);
-        });
-
-        it('works with falsy loop value', () => {
-          const client = { setEvent: sinon.stub() };
-          const stream = {
-            action: StreamAction.START,
-            src: 'src-val',
-            token: 'token-val',
-            loop: false,
             backgroundImage: 'background-image-val',
             description: 'description-val',
             iconImage: 'icon-image-val',
@@ -331,7 +285,7 @@ describe('runtime init service unit tests', () => {
                   src: stream.src,
                   token: stream.token,
                   action: BaseNode.Stream.TraceStreamAction.PLAY,
-                  loop: false,
+                  loop: true,
                   backgroundImage: stream.backgroundImage,
                   description: stream.description,
                   iconImage: stream.iconImage,
@@ -344,7 +298,7 @@ describe('runtime init service unit tests', () => {
         });
       });
       describe('RESUME action', () => {
-        it('works with truthy loop', () => {
+        it('works', () => {
           const client = { setEvent: sinon.stub() };
           const stream = {
             action: StreamAction.RESUME,
@@ -377,7 +331,7 @@ describe('runtime init service unit tests', () => {
                 payload: {
                   src: stream.src,
                   token: stream.token,
-                  action: BaseNode.Stream.TraceStreamAction.LOOP,
+                  action: BaseNode.Stream.TraceStreamAction.PLAY,
                   loop: true,
                   backgroundImage: stream.backgroundImage,
                   description: stream.description,
@@ -389,14 +343,15 @@ describe('runtime init service unit tests', () => {
             [{ type: BaseNode.Utils.TraceType.END, payload: undefined }],
           ]);
         });
-
-        it('works with falsy loop value', () => {
+      });
+      describe('LOOP action', () => {
+        it('works', () => {
           const client = { setEvent: sinon.stub() };
           const stream = {
-            action: StreamAction.RESUME,
+            action: StreamAction.LOOP,
             src: 'src-val',
             token: 'token-val',
-            loop: false,
+            loop: true,
             backgroundImage: 'background-image-val',
             description: 'description-val',
             iconImage: 'icon-image-val',
@@ -423,8 +378,54 @@ describe('runtime init service unit tests', () => {
                 payload: {
                   src: stream.src,
                   token: stream.token,
-                  action: BaseNode.Stream.TraceStreamAction.PLAY,
-                  loop: false,
+                  action: BaseNode.Stream.TraceStreamAction.LOOP,
+                  loop: true,
+                  backgroundImage: stream.backgroundImage,
+                  description: stream.description,
+                  iconImage: stream.iconImage,
+                  title: stream.title,
+                },
+              },
+            ],
+          ]);
+        });
+      });
+      describe('END action', () => {
+        it('works', () => {
+          const client = { setEvent: sinon.stub() };
+          const stream = {
+            action: StreamAction.END,
+            src: 'src-val',
+            token: 'token-val',
+            loop: true,
+            backgroundImage: 'background-image-val',
+            description: 'description-val',
+            iconImage: 'icon-image-val',
+            title: 'title-val',
+          };
+          const runtime = {
+            stack: { isEmpty: sinon.stub().returns(false) },
+            storage: { get: sinon.stub().returns(stream) },
+            trace: { addTrace: sinon.stub() },
+            turn: { get: sinon.stub().returns(false) },
+          };
+          init(client as any);
+
+          expect(client.setEvent.args[3][0]).to.eql(EventType.updateDidExecute);
+
+          const fn = client.setEvent.args[3][1];
+          fn({ runtime });
+
+          expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
+          expect(runtime.trace.addTrace.args).to.eql([
+            [
+              {
+                type: BaseNode.Utils.TraceType.STREAM,
+                payload: {
+                  src: stream.src,
+                  token: stream.token,
+                  action: BaseNode.Stream.TraceStreamAction.END,
+                  loop: true,
                   backgroundImage: stream.backgroundImage,
                   description: stream.description,
                   iconImage: stream.iconImage,

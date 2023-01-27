@@ -1,4 +1,5 @@
 import { BaseNode, BaseTrace, BaseUtils } from '@voiceflow/base-types';
+import { match } from 'ts-pattern';
 
 import log from '@/logger';
 import Client, { EventType } from '@/runtime';
@@ -59,40 +60,27 @@ const init = (client: Client) => {
     if (stream) {
       const { action, src, token, loop, description, title, iconImage, backgroundImage } = stream;
 
-      switch (action) {
-        case StreamAction.START:
-        case StreamAction.RESUME:
-          runtime.trace.addTrace<BaseNode.Stream.TraceFrame>({
-            type: BaseNode.Utils.TraceType.STREAM,
-            payload: {
-              src,
-              token,
-              action: loop ? BaseNode.Stream.TraceStreamAction.LOOP : BaseNode.Stream.TraceStreamAction.PLAY,
-              loop,
-              description,
-              title,
-              iconImage,
-              backgroundImage,
-            },
-          });
-          break;
-        case StreamAction.PAUSE:
-          runtime.trace.addTrace<BaseNode.Stream.TraceFrame>({
-            type: BaseNode.Utils.TraceType.STREAM,
-            payload: {
-              src,
-              token,
-              action: BaseNode.Stream.TraceStreamAction.PAUSE,
-              loop,
-              description,
-              title,
-              iconImage,
-              backgroundImage,
-            },
-          });
-          break;
-        default:
-          break;
+      const streamAction = match(action)
+        .with(StreamAction.START, StreamAction.RESUME, () => BaseNode.Stream.TraceStreamAction.PLAY)
+        .with(StreamAction.LOOP, () => BaseNode.Stream.TraceStreamAction.LOOP)
+        .with(StreamAction.END, () => BaseNode.Stream.TraceStreamAction.END)
+        .with(StreamAction.PAUSE, () => BaseNode.Stream.TraceStreamAction.PAUSE)
+        .otherwise(() => null);
+
+      if (streamAction) {
+        runtime.trace.addTrace<BaseNode.Stream.TraceFrame>({
+          type: BaseNode.Utils.TraceType.STREAM,
+          payload: {
+            src,
+            token,
+            action: streamAction,
+            loop,
+            description,
+            title,
+            iconImage,
+            backgroundImage,
+          },
+        });
       }
     }
 

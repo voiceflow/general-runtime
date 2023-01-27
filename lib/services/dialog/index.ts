@@ -123,8 +123,20 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     const dmStateStore: DMStore = { ...currentStore, priorIntent: currentStore?.intentRequest };
     const { query } = incomingRequest.payload;
 
+    // when capturing multiple intents on alexa, the currentStore.payload.entities only has the latest entity
+    // not the previous ones, we need to add them here since the dfes request has all
+    incomingRequest.payload.entities.forEach((requestEntity) => {
+      const dmRequestHasEntity = dmStateStore.intentRequest?.payload.entities.find(
+        (storeEntity) => requestEntity.name === storeEntity.name
+      );
+      if (!dmRequestHasEntity) {
+        dmStateStore.intentRequest?.payload.entities.push(requestEntity);
+      }
+    });
+
     // if there is an existing entity filling request
-    if (dmStateStore?.intentRequest) {
+    // AND there are slots to be filled, call predict
+    if (dmStateStore?.intentRequest && getUnfulfilledEntity(dmStateStore.intentRequest, version.prototype.model)) {
       log.debug('[app] [runtime] [dm] in entity filling context');
 
       try {
@@ -162,7 +174,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         // if something happens just say the intent is the initially resolved intent
         dmStateStore.intentRequest = incomingRequest;
       }
-    } else {
+    } else if (!dmStateStore?.intentRequest) {
       log.debug('[app] [runtime] [dm] in regular context');
 
       if (!(await this.services.utils.isIntentInScope(context))) {
@@ -209,10 +221,13 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         const variableStore = new Store(context.state.variables);
         utils.addOutputTrace(
           { trace: { addTrace }, debugLogging },
+          // isPrompt is useful for adapters where we give the control of the capture to the NLU (like alexa)
+          // this way the adapter can ignore this prompt trace because the NLU will take care of it
           utils.getOutputTrace({
             output,
             version,
             variables,
+            isPrompt: true,
           }),
           { variables: variableStore }
         );

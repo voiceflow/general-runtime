@@ -6,7 +6,7 @@ import _V1Handler from '../../_v1';
 import CaptureHandler from '../../capture';
 import CaptureV2Handler from '../../captureV2';
 import CardV2Handler from '../../cardV2';
-import CarouselHandler from '../../caroussel';
+import CarouselHandler from '../../carousel';
 import CommandHandler from '../../command';
 import GoToHandler from '../../goTo';
 import InteractionHandler from '../../interaction';
@@ -14,16 +14,16 @@ import InteractionHandler from '../../interaction';
 const _v1Handler = _V1Handler();
 export const eventHandlers = [
   ...GoToHandler(),
-  ...CaptureHandler(),
+  CaptureHandler(),
   ...CaptureV2Handler(),
   ...InteractionHandler(),
   ...CardV2Handler(),
-  ...CarouselHandler(),
+  CarouselHandler(),
   _v1Handler,
   IfV2Handler({ _v1: _v1Handler }),
 ] as Handler[];
 
-const utilsObj = {
+export const utilsObj = {
   commandHandler: CommandHandler(),
   eventHandlers,
 };

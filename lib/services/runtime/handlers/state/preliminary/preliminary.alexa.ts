@@ -7,18 +7,19 @@ import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import { HandlerFactory } from '@/runtime';
 
 import CommandAlexaHandler from '../../command/command.alexa';
-import { eventHandlers, PreliminaryHandler } from '.';
+import { PreliminaryHandler, utilsObj } from '.';
 
-const utilsObj = {
+const utils = {
+  ...utilsObj,
   commandHandler: CommandAlexaHandler(),
-  eventHandlers,
 };
-export const PreliminaryAlexaHandler: HandlerFactory<VoiceflowNode.Interaction.Node, typeof utilsObj> = (utilsObj) => {
-  const { handle, canHandle } = PreliminaryHandler(utilsObj);
+
+export const PreliminaryAlexaHandler: HandlerFactory<VoiceflowNode.Interaction.Node, typeof utils> = (handlerUtils) => {
+  const { handle, canHandle } = PreliminaryHandler(handlerUtils);
   return {
     handle,
     canHandle: (node, ...args) => node.platform === VoiceflowConstants.PlatformType.ALEXA && canHandle(node, ...args),
   };
 };
 
-export default () => PreliminaryAlexaHandler(utilsObj);
+export default () => PreliminaryAlexaHandler(utils);

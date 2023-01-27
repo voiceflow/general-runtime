@@ -5,14 +5,14 @@
  */
 
 /* eslint-disable no-restricted-syntax */
+import { AlexaConstants } from '@voiceflow/alexa-types';
 import { BaseNode } from '@voiceflow/base-types';
 import _ from 'lodash';
 
-import { Action, Frame as FrameUtils, Runtime } from '@/runtime';
+import { Action, Runtime } from '@/runtime';
 
-import { IntentName } from '../../types.alexa';
 import { findEventMatcher } from '../event';
-import { CommandHandler } from '.';
+import { CommandHandler, utilsObj } from '.';
 
 const matcher = (intentName: string) => (command: BaseNode.Utils.AnyCommand<BaseNode.Utils.IntentEvent> | null) =>
   command?.event?.intent === intentName;
@@ -27,7 +27,7 @@ export const getCommand = (runtime: Runtime) => {
 
   // If Cancel Intent is not handled turn it into Stop Intent
   // This first loop is AMAZON specific, if cancel intent is not explicitly used anywhere at all, map it to stop intent
-  if (intentName === IntentName.CANCEL) {
+  if (intentName === AlexaConstants.AmazonIntent.CANCEL) {
     const found = runtime.stack
       .getFrames()
       .some((frame) =>
@@ -35,7 +35,7 @@ export const getCommand = (runtime: Runtime) => {
       );
 
     if (!found) {
-      intentName = IntentName.STOP;
+      intentName = AlexaConstants.AmazonIntent.STOP;
       _.set(request, 'payload.intent.name', intentName);
     }
   }
@@ -56,11 +56,11 @@ export const getCommand = (runtime: Runtime) => {
   return null;
 };
 
-const utilsObj = {
-  Frame: FrameUtils,
+const utils = {
+  ...utilsObj,
   getCommand,
 };
 
-export const CommandAlexaHandler = (utils: typeof utilsObj = utilsObj) => CommandHandler(utils);
+export const CommandAlexaHandler = (handlerUtils: typeof utils = utils) => CommandHandler(handlerUtils);
 
-export default () => CommandHandler(utilsObj);
+export default () => CommandAlexaHandler(utils);

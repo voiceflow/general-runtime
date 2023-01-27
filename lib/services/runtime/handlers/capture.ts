@@ -4,11 +4,11 @@ import wordsToNumbers from 'words-to-numbers';
 
 import { Action, HandlerFactory } from '@/runtime';
 
-import { isIntentRequest, StorageType } from '../../types';
-import { addButtonsIfExists, mapEntities } from '../../utils';
-import CommandHandler from '../command';
-import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
-import RepeatHandler from '../repeat';
+import { isIntentRequest, StorageType } from '../types';
+import { addButtonsIfExists, mapEntities } from '../utils';
+import CommandHandler from './command';
+import NoReplyHandler, { addNoReplyTimeoutIfExists } from './noReply';
+import RepeatHandler from './repeat';
 
 const utilsObj = {
   repeatHandler: RepeatHandler(),

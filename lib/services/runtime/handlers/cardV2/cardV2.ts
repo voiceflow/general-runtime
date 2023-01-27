@@ -10,7 +10,7 @@ import CommandHandler from '../command';
 import NoMatchHandler from '../noMatch';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
 
-export const handlerUtils = {
+export const utilsObj = {
   commandHandler: CommandHandler(),
   noMatchHandler: NoMatchHandler(),
   noReplyHandler: NoReplyHandler(),
@@ -52,7 +52,7 @@ const getDescription = (
   return description;
 };
 
-export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof handlerUtils> = (utils) => ({
+export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => node.type === BaseNode.NodeType.CARD_V2,
 
   handle: (node, runtime, variables) => {
@@ -109,4 +109,4 @@ export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof han
   },
 });
 
-export default () => CardV2Handler(handlerUtils);
+export default () => CardV2Handler(utilsObj);

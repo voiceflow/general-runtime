@@ -13,11 +13,24 @@ export interface Prompt {
 export const isTextRequest = (request?: RuntimeRequest | null): request is BaseRequest.TextRequest =>
   !!request && BaseRequest.isTextRequest(request) && typeof request.payload === 'string';
 
+/**
+ * Intent request is being reused for both Alexa events and intent events. To distinguish them we check
+ * if `request.payload.data` exists, if so this is an Alexa event request
+ * otherwise it is a normal intent request
+ */
 export const isIntentRequest = (request?: RuntimeRequest | null): request is BaseRequest.IntentRequest =>
   !!request &&
   BaseRequest.isIntentRequest(request) &&
   !!request.payload?.intent?.name &&
-  Array.isArray(request.payload.entities);
+  Array.isArray(request.payload.entities) &&
+  !request.payload?.data;
+
+export const isAlexaEventIntentRequest = (request?: RuntimeRequest | null): request is BaseRequest.IntentRequest =>
+  !!request &&
+  BaseRequest.isIntentRequest(request) &&
+  !!request.payload?.intent?.name &&
+  Array.isArray(request.payload.entities) &&
+  !!request.payload?.data;
 
 export const isActionRequest = (request?: RuntimeRequest | null): request is BaseRequest.ActionRequest =>
   !!request && BaseRequest.isActionRequest(request);
@@ -51,6 +64,7 @@ export enum StreamAction {
   START = 'START',
   PAUSE = 'PAUSE',
   RESUME = 'RESUME',
+  LOOP = 'LOOP',
   NOEFFECT = 'NOEFFECT',
 }
 

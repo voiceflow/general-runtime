@@ -15,7 +15,7 @@ import {
 } from '../../../types';
 import CommandHandler from '../../command';
 
-const utilsObj = {
+export const utilsObj = {
   commandHandler: CommandHandler(),
   replaceVariables,
 };
@@ -100,6 +100,20 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
       });
 
       runtime.end();
+    } else if (intentName === AlexaConstants.AmazonIntent.PLAYBACK_NEARLY_FINISHED) {
+      // if nearly finishing and loop, stop runtime processing, return loop action
+      if (streamPlay.loop) {
+        runtime.storage.produce<StorageData>((draft) => {
+          draft[StorageType.STREAM_PLAY]!.action = StreamAction.LOOP;
+        });
+        runtime.end();
+      } else {
+        // otherwise end stream and continue to to next node if exists
+        if (streamPlay.nextID) nextId = streamPlay.nextID;
+        runtime.storage.produce<StorageData>((draft) => {
+          draft[StorageType.STREAM_PLAY]!.action = StreamAction.END;
+        });
+      }
     } else if (utils.commandHandler.canHandle(runtime)) {
       runtime.storage.produce<StorageData>((draft) => {
         draft[StorageType.STREAM_PLAY]!.action = StreamAction.END;

@@ -1,3 +1,4 @@
 import GoToGeneralHandler from './goTo';
+import GoToAlexaHandler from './goTo.alexa';
 
-export default () => [GoToGeneralHandler()];
+export default () => [GoToAlexaHandler(), GoToGeneralHandler()];

@@ -3,13 +3,13 @@ import { deepVariableSubstitution, replaceVariables, sanitizeVariables } from '@
 
 import { Action, HandlerFactory } from '@/runtime';
 
-import { StorageType } from '../../types';
-import { slateInjectVariables, slateToPlaintext } from '../../utils';
-import CommandHandler from '../command';
-import NoMatchHandler from '../noMatch';
-import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
+import { StorageType } from '../types';
+import { slateInjectVariables, slateToPlaintext } from '../utils';
+import CommandHandler from './command';
+import NoMatchHandler from './noMatch';
+import NoReplyHandler, { addNoReplyTimeoutIfExists } from './noReply';
 
-export const handlerUtils = {
+const utilsObj = {
   commandHandler: CommandHandler(),
   noMatchHandler: NoMatchHandler(),
   noReplyHandler: NoReplyHandler(),
@@ -19,7 +19,7 @@ export const handlerUtils = {
   addNoReplyTimeoutIfExists,
 };
 
-export const CarouselHandler: HandlerFactory<BaseNode.Carousel.Node, typeof handlerUtils> = (utils) => ({
+export const CarouselHandler: HandlerFactory<BaseNode.Carousel.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => node.type === BaseNode.NodeType.CAROUSEL,
   handle: (node, runtime, variables) => {
     const defaultPath = node.nextId || null;
@@ -87,4 +87,4 @@ export const CarouselHandler: HandlerFactory<BaseNode.Carousel.Node, typeof hand
   },
 });
 
-export default () => CarouselHandler(handlerUtils);
+export default () => CarouselHandler(utilsObj);

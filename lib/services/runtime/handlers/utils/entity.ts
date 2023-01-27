@@ -5,7 +5,6 @@ import NoMatchHandler, { NoMatchNode } from '@/lib/services/runtime/handlers/noM
 import { Runtime, Store } from '@/runtime';
 
 import { StorageType } from '../../types';
-import { NoMatchAlexaHandler } from '../noMatch/noMatch.alexa';
 
 export const VF_ELICIT = 'ELICIT';
 
@@ -33,9 +32,7 @@ export const hasElicit = (
 
 const noMatchHandler = NoMatchHandler();
 
-export const EntityFillingNoMatchHandler = (
-  utilsObj: { noMatchHandler: typeof noMatchHandler } = { noMatchHandler }
-) => ({
+export const EntityFillingNoMatchHandler = (elicitOverride?: boolean) => ({
   handle:
     (node: NoMatchNode, runtime: Runtime, variables: Store) =>
     async (intents?: string[], defaultRequest?: BaseRequest.IntentRequest) => {
@@ -52,21 +49,21 @@ export const EntityFillingNoMatchHandler = (
         runtime.storage.set(StorageType.NO_MATCHES_COUNTER, 0);
         runtime.trace.addTrace<BaseTrace.GoToTrace>({
           type: BaseNode.Utils.TraceType.GOTO,
-          payload: { request: setElicit(nextRequest, false) },
+          payload: { request: setElicit(nextRequest, elicitOverride ?? false) },
         });
         return node.id;
       }
 
-      const noMatchPath = await utilsObj.noMatchHandler.handle(node, runtime, variables);
+      const noMatchPath = await noMatchHandler.handle(node, runtime, variables);
       if (noMatchPath === node.id && nextRequest) {
         runtime.trace.addTrace<BaseTrace.GoToTrace>({
           type: BaseNode.Utils.TraceType.GOTO,
-          payload: { request: setElicit(nextRequest, true) },
+          payload: { request: setElicit(nextRequest, elicitOverride ?? true) },
         });
       }
       return noMatchPath;
     },
 });
 
-export const EntityFillingNoMatchAlexaHandler = () =>
-  EntityFillingNoMatchHandler({ noMatchHandler: NoMatchAlexaHandler() });
+// for alexa the entity (re)prompts are never elicit, the prompt is always generated on the alexa side
+export const EntityFillingNoMatchAlexaHandler = () => EntityFillingNoMatchHandler(false);

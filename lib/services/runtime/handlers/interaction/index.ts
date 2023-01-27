@@ -1,3 +1,4 @@
 import InteractionGeneralHandler from './interaction';
+import InteractionAlexaHandler from './interaction.alexa';
 
-export default () => [InteractionGeneralHandler()];
+export default () => [InteractionAlexaHandler(), InteractionGeneralHandler()];

@@ -1,9 +1,9 @@
 import { BaseNode, BaseRequest, Nullable } from '@voiceflow/base-types';
 
-import { GeneralRuntime, isIntentRequest } from '@/lib/services/runtime/types';
+import { GeneralRuntime, isAlexaEventIntentRequest, isIntentRequest } from '@/lib/services/runtime/types';
 import { Runtime, Store } from '@/runtime';
 
-import { mapEntities } from '../utils';
+import { mapEntities, mapVariables } from '../utils';
 
 const entitiesToMappings = (entities: BaseRequest.Entity[]) =>
   entities.map(({ name }) => ({ slot: name, variable: name }));
@@ -30,14 +30,34 @@ export interface Matcher<
   sideEffect: (context: SideEffectContext<Request, Event>) => (variables: Store) => void;
 }
 
+const isIntentEvent = (request: BaseRequest.IntentRequest, context: any) => {
+  if (!isIntentRequest(request)) return false;
+  if (request.diagramID && context.diagramID && request.diagramID !== context.diagramID) return false;
+  if (!context.event || !BaseNode.Utils.isIntentEvent(context.event)) return false;
+  if (context.event.intent !== request.payload.intent.name) return false;
+  return true;
+};
+
+/**
+ * Intent request is being reused for both Alexa events and intent events. To distinguish them we check
+ * if `request.payload.data` exists, if so this is an Alexa event
+ */
+const isAlexaEvent = (request: BaseRequest.IntentRequest, context: any) => {
+  if (!isAlexaEventIntentRequest(request)) return false;
+  if (request.diagramID && context.diagramID && request.diagramID !== context.diagramID) return false;
+  if (!context.event || context.event.type !== BaseNode.Utils.EventType.ALEXA) return false;
+  if (context.event.intent !== request.payload.intent.name) return false;
+  return true;
+};
+
 export const intentEventMatcher: Matcher<BaseRequest.IntentRequest, BaseNode.Utils.IntentEvent> = {
   match: (context): context is SideEffectContext<BaseRequest.IntentRequest, BaseNode.Utils.IntentEvent> => {
     const request = context.runtime.getRequest();
 
     if (!isIntentRequest(request)) return false;
-    if (request.diagramID && context.diagramID && request.diagramID !== context.diagramID) return false;
-    if (!context.event || !BaseNode.Utils.isIntentEvent(context.event)) return false;
-    if (context.event.intent !== request.payload.intent.name) return false;
+    if (isAlexaEventIntentRequest(request)) return false;
+    if (!isIntentEvent(request, context)) return false;
+    if (isAlexaEvent(request, context)) return false;
 
     return true;
   },
@@ -50,6 +70,32 @@ export const intentEventMatcher: Matcher<BaseRequest.IntentRequest, BaseNode.Uti
   },
 };
 
+export const alexaEventMatcher: Matcher<BaseRequest.IntentRequest, BaseNode.Utils.AlexaEvent> = {
+  match: (context): context is SideEffectContext<BaseRequest.IntentRequest, BaseNode.Utils.AlexaEvent> => {
+    const request = context.runtime.getRequest();
+
+    if (isIntentRequest(request)) return false;
+    if (!isAlexaEventIntentRequest(request)) return false;
+    if (isIntentEvent(request, context)) return false;
+    if (!isAlexaEvent(request, context)) return false;
+
+    return true;
+  },
+  sideEffect: (context) => (variables) => {
+    const request = context.runtime.getRequest() as BaseRequest.IntentRequest;
+
+    const variableChanges = context.event.mappings?.reduce(
+      (acc, mapping) => ({
+        ...acc,
+        ...(mapping.var && { [mapping.var]: mapVariables(mapping.path, request.payload.data!) }),
+      }),
+      {}
+    );
+
+    variables.merge(variableChanges);
+  },
+};
+
 export interface GeneralEvent extends BaseNode.Utils.BaseEvent {
   name: string;
 }
@@ -58,7 +104,7 @@ export const generalEventMatcher: Matcher<BaseRequest.BaseRequest, BaseNode.Util
   match: (context): context is SideEffectContext<BaseRequest.BaseRequest, BaseNode.Utils.BaseEvent> => {
     const request = context.runtime.getRequest();
 
-    if (!request || isIntentRequest(request)) return false;
+    if (!request || isIntentRequest(request) || isAlexaEventIntentRequest(request)) return false;
     if (!context.event?.type) return false;
     if (context.event.type !== request.type) return false;
 
@@ -70,7 +116,7 @@ export const generalEventMatcher: Matcher<BaseRequest.BaseRequest, BaseNode.Util
   },
 };
 
-const EVENT_MATCHERS: Matcher<any, any>[] = [intentEventMatcher, generalEventMatcher];
+const EVENT_MATCHERS: Matcher<any, any>[] = [intentEventMatcher, alexaEventMatcher, generalEventMatcher];
 
 export interface EventMatcher {
   sideEffect: (variables: Store) => void;

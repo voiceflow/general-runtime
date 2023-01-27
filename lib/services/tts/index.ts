@@ -15,23 +15,29 @@ export const utils = {};
 
 @injectServices({ utils })
 class TTS extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  fetchTTS = async (message: string, locale?: string): Promise<BaseTrace.SpeakTrace[]> => {
+  fetchTTS = async (node: BaseNode.Speak.TraceFrame, locale?: string): Promise<BaseTrace.SpeakTrace[]> => {
     try {
       const { data } = await this.services.axios.post<BaseTrace.SpeakTrace['payload'][]>(
         `${this.config.GENERAL_SERVICE_ENDPOINT}/tts/convert`,
         {
-          ssml: message,
+          ssml: node.payload.message,
         },
         {
           params: { ...(locale && { locale }) },
         }
       );
 
-      return data.map((payload) => ({ type: BaseNode.Utils.TraceType.SPEAK, payload }));
+      return data.map((payload) => ({
+        type: BaseNode.Utils.TraceType.SPEAK,
+        payload: { ...node.payload, ...payload },
+      }));
     } catch (error) {
       log.error(`[app] [runtime] [${TTS.name}] failed to fetch TTS ${log.vars({ error })}`);
       return [
-        { type: BaseNode.Utils.TraceType.SPEAK, payload: { message, type: BaseNode.Speak.TraceSpeakType.AUDIO } },
+        {
+          type: BaseNode.Utils.TraceType.SPEAK,
+          payload: { message: node.payload.message, type: BaseNode.Speak.TraceSpeakType.AUDIO },
+        },
       ];
     }
   };
@@ -45,7 +51,7 @@ class TTS extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     const trace = await Promise.all(
       context.trace.map(async (frame) => {
         if (frame.type === BaseNode.Utils.TraceType.SPEAK) {
-          return this.fetchTTS(frame.payload.message, context.data.locale);
+          return this.fetchTTS(frame, context.data.locale);
         }
         return frame;
       })
