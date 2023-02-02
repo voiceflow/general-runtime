@@ -19,7 +19,7 @@ const buildServices = (context: any) => ({
   analytics: { handle: sinon.stub().resolves(output(context, 'analytics')) },
   dialog: { handle: sinon.stub().resolves(output(context, 'dialog')) },
   filter: { handle: sinon.stub().resolves(output(context, 'filter')) },
-  aiAssistContext: { handle: sinon.stub().resolves(output(context, 'aiAssistTranscript', { trace: 'trace' })) },
+  aiAssist: { handle: sinon.stub().resolves(output(context, 'aiAssistTranscript', { trace: 'trace' })) },
   metrics: { generalRequest: sinon.stub() },
   utils: { TurnBuilder },
 });
@@ -213,7 +213,7 @@ describe('interact service unit tests', () => {
     expect(turnBuilder.addHandlers.args).to.eql([
       [services.asr, services.nlu, services.slots, services.dialog, services.runtime],
       [services.analytics],
-      [services.speak, services.filter, services.aiAssistContext],
+      [services.speak, services.filter, services.aiAssist],
     ]);
     expect(services.utils.autoDelegate.args).to.eql([[turnBuilder, context]]);
     expect(await turnBuilder.resolve.args[0][0]).to.eql(finalState);
