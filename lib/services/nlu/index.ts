@@ -16,16 +16,37 @@ import { getNoneIntentRequest, mapChannelData } from './utils';
 
 export const utils = {};
 
+interface PredictedSlot {
+  name: string;
+  value: string;
+}
+interface NLUGatewayPredictResponse {
+  utterance: string;
+  predictedIntent: string;
+  predictedSlots: PredictedSlot[];
+  confidence: number;
+}
+
 @injectServices({ utils })
-/**
- * random
- */
 class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
+  private adaptNLUPrediction(prediction: NLUGatewayPredictResponse): BaseRequest.IntentRequest {
+    return {
+      type: BaseRequest.RequestType.INTENT,
+      payload: {
+        query: prediction.utterance,
+        intent: {
+          name: prediction.predictedIntent,
+        },
+        entities: prediction.predictedSlots,
+        confidence: prediction.confidence,
+      },
+    };
+  }
+
   async predict({
     query,
     model,
     locale,
-    projectID,
     versionID,
     tag,
     nlp,
@@ -54,20 +75,16 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
 
     // 2. next try to resolve with luis NLP
     if (nlp && nlp.appID && nlp.resourceID) {
-      const { appID, resourceID } = nlp;
-
       const { data } = await this.services.axios
-        .post(`${this.config.LUIS_SERVICE_ENDPOINT}/predict/${appID}`, {
-          query,
-          resourceID,
+        .post<NLUGatewayPredictResponse>(`${this.config.NLU_GATEWAY_ENDPOINT}/v1/predict/${versionID}`, {
+          utterance: query,
           tag,
-          projectID,
-          versionID,
         })
         .catch(() => ({ data: null }));
 
       if (data) {
-        return mapChannelData(data, platform, hasChannelIntents);
+        const intentRequest = this.adaptNLUPrediction(data);
+        return mapChannelData(intentRequest, platform, hasChannelIntents);
       }
     }
 
