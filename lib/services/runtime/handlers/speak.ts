@@ -7,13 +7,8 @@ import { HandlerFactory } from '@/runtime';
 
 import { FrameType, Output } from '../types';
 
-// TODO: probably we can remove it, since prompt is not used in the node handler,
-// and does not exist in general service handler
-const isPromptSpeak = (node: VoiceflowNode.Speak.Node & { prompt?: unknown }) =>
-  typeof node.prompt === 'string' && node.prompt !== 'true';
-
 const SpeakHandler: HandlerFactory<VoiceflowNode.Speak.Node> = () => ({
-  canHandle: (node) => ('random_speak' in node ? !!node.random_speak : !!node.speak) || isPromptSpeak(node),
+  canHandle: (node) => ('random_speak' in node ? !!node.random_speak : !!node.speak),
   handle: (node, runtime, variables) => {
     let speak = '';
 
