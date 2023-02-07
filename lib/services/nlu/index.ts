@@ -43,7 +43,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     };
   }
 
-  private getNluEndpointUrl() {
+  private getNluGatewayEndpoint() {
     const protocol = this.config.IS_MESHED === 'true' ? 'http' : 'https';
     return `${protocol}://${this.config.NLU_GATEWAY_SERVICE_HOST}:${this.config.NLU_GATEWAY_SERVICE_PORT_APP}`;
   }
@@ -81,7 +81,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     // 2. next try to resolve with luis NLP
     if (nlp && nlp.appID && nlp.resourceID) {
       const { data } = await this.services.axios
-        .post<NLUGatewayPredictResponse>(`${this.getNluEndpointUrl()}/v1/predict/${versionID}`, {
+        .post<NLUGatewayPredictResponse>(`${this.getNluGatewayEndpoint()}/v1/predict/${versionID}`, {
           utterance: query,
           tag,
         })
