@@ -42,7 +42,6 @@ export interface Config extends RateLimitConfig {
   BUILD_URL: string | null;
 
   GENERAL_SERVICE_ENDPOINT: string | null;
-  LUIS_SERVICE_ENDPOINT: string | null;
   ML_GATEWAY_ENDPOINT: string | null;
   NLU_GATEWAY_ENDPOINT: string | null;
 
