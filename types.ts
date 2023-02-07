@@ -43,7 +43,8 @@ export interface Config extends RateLimitConfig {
 
   GENERAL_SERVICE_ENDPOINT: string | null;
   ML_GATEWAY_ENDPOINT: string | null;
-  NLU_GATEWAY_ENDPOINT: string | null;
+  NLU_GATEWAY_SERVICE_HOST: string | null;
+  NLU_GATEWAY_SERVICE_PORT_APP: string | null;
 
   CREATOR_API_ENDPOINT: string | null;
   CREATOR_API_AUTHORIZATION: string | null;

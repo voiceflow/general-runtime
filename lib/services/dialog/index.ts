@@ -98,6 +98,10 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     }
   };
 
+  private isNluGatwayEndpointConfigured() {
+    return this.config.NLU_GATEWAY_SERVICE_HOST && this.config.NLU_GATEWAY_SERVICE_PORT_APP;
+  }
+
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handle = async (context: Context) => {
     if (!isIntentRequest(context.request)) {
@@ -123,7 +127,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
       try {
         const prefix = dmPrefix(dmStateStore.intentRequest.payload.intent.name);
-        const dmPrefixedResult = this.config.NLU_GATEWAY_ENDPOINT
+        const dmPrefixedResult = this.isNluGatwayEndpointConfigured()
           ? await this.services.nlu.predict({
               query: `${prefix} ${query}`,
               projectID: version.projectID,
