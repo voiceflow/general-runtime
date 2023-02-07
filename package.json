@@ -38,6 +38,7 @@
     "core-js": "^3.4.8",
     "cors": "^2.8.5",
     "cuid": "^2.1.8",
+    "dd-trace": "^3.13.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-validator": "^6.3.0",
