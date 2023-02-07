@@ -11,6 +11,8 @@ import * as Runtime from './runtime';
 export interface Config extends RateLimitConfig {
   NODE_ENV: string;
   PORT: string;
+  IS_MESHED: string;
+
   PORT_METRICS: string | null;
   ERROR_RESPONSE_MS: number;
 

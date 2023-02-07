@@ -16,6 +16,7 @@ const CONFIG: Config = {
   // configs
   NODE_ENV,
   PORT: getRequiredProcessEnv('PORT'),
+  IS_MESHED: getRequiredProcessEnv('IS_MESHED'),
   PORT_METRICS: getOptionalProcessEnv('PORT_METRICS'),
   ERROR_RESPONSE_MS: Number(getOptionalProcessEnv('ERROR_RESPONSE_MS', (20 * 1000).toString())),
 
