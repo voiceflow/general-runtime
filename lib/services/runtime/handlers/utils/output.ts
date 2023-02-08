@@ -1,7 +1,11 @@
 import { BaseModels } from '@voiceflow/base-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
-import { inputToString } from '@/lib/services/dialog/utils';
+export const inputToString = ({ text, voice }: BaseModels.IntentInput, defaultVoice?: string | null) => {
+  const currentVoice = voice || defaultVoice;
+
+  return currentVoice?.trim() ? `<voice name="${currentVoice}">${text}</voice>` : text;
+};
 
 export const generateOutput = (output: string, project?: BaseModels.Project.Model<any, any>, voice?: string) => {
   // TODO: exclusively use project.type after large scale migration

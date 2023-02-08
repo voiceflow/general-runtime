@@ -11,12 +11,6 @@ import { Context } from '@/types';
 
 import { eventHandlers } from '../runtime/handlers/state/preliminary';
 
-export const inputToString = ({ text, voice }: BaseModels.IntentInput, defaultVoice?: string | null) => {
-  const currentVoice = voice || defaultVoice;
-
-  return currentVoice?.trim() ? `<voice name="${currentVoice}">${text}</voice>` : text;
-};
-
 export const getSlotNameByID = (id: string, model: BaseModels.PrototypeModel) => {
   return model.slots.find((lmEntity) => lmEntity.key === id)?.name;
 };

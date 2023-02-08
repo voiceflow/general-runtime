@@ -12,6 +12,7 @@ import { VoiceflowConstants, VoiceflowUtils, VoiceflowVersion } from '@voiceflow
 import _ from 'lodash';
 
 import { hasElicit, setElicit } from '@/lib/services/runtime/handlers/utils/entity';
+import { inputToString } from '@/lib/services/runtime/handlers/utils/output';
 import log from '@/logger';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { Context, ContextHandler, VersionTag } from '@/types';
@@ -27,7 +28,6 @@ import {
   getEntitiesMap,
   getIntentEntityList,
   getUnfulfilledEntity,
-  inputToString,
   isIntentInScope,
 } from './utils';
 
