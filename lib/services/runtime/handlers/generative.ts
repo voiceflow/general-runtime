@@ -23,9 +23,10 @@ const GenerativeHandler: HandlerFactory<VoiceNode.Generative.Node> = () => ({
 
     const sanitizedVars = sanitizeVariables(variables.getState());
     const prompt = replaceVariables(node.prompt, sanitizedVars);
+    const { length } = node;
 
     const response = await axios
-      .post<{ result: string }>(generativeEndpoint, { prompt })
+      .post<{ result: string }>(generativeEndpoint, { prompt, length })
       .then(({ data: { result } }) => result.trim())
       .catch(() => null);
 

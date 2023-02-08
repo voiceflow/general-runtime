@@ -11,7 +11,7 @@ import { Context } from '@/types';
 
 import { eventHandlers } from '../runtime/handlers/state/preliminary';
 
-export const inputToString = ({ text, voice }: BaseModels.IntentInput, defaultVoice: string | null) => {
+export const inputToString = ({ text, voice }: BaseModels.IntentInput, defaultVoice?: string | null) => {
   const currentVoice = voice || defaultVoice;
 
   return currentVoice?.trim() ? `<voice name="${currentVoice}">${text}</voice>` : text;
