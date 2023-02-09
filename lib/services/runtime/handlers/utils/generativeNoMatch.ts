@@ -2,13 +2,17 @@ import axios from 'axios';
 
 import Config from '@/config';
 import AIAssist from '@/lib/services/aiAssist';
+import log from '@/logger';
 import { Runtime } from '@/runtime';
 
 import { Output } from '../../types';
 import { generateOutput } from './output';
 
 export const generateNoMatch = async (runtime: Runtime): Promise<Output | null> => {
-  if (!Config.ML_GATEWAY_ENDPOINT) return null;
+  if (!Config.ML_GATEWAY_ENDPOINT) {
+    log.error('ML_GATEWAY_ENDPOINT is not set, skipping generative NoMatch');
+    return null;
+  }
 
   const ML_GATEWAY_ENDPOINT = Config.ML_GATEWAY_ENDPOINT.split('/api')[0];
   const autoCompleteEndpoint = `${ML_GATEWAY_ENDPOINT}/api/v1/generation/autocomplete`;
