@@ -58,6 +58,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     hasChannelIntents,
     platform,
     dmRequest,
+    ffOptions,
   }: {
     query: string;
     model?: BaseModels.PrototypeModel;
@@ -69,6 +70,9 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     hasChannelIntents: boolean;
     platform: VoiceflowConstants.PlatformType;
     dmRequest?: BaseRequest.IntentRequestPayload;
+    ffOptions: {
+      workspaceID: number;
+    };
   }): Promise<BaseRequest.IntentRequest> {
     // 1. first try restricted regex (no open slots) - exact string match
     if (model && locale) {
@@ -84,6 +88,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
         .post<NLUGatewayPredictResponse>(`${this.getNluGatewayEndpoint()}/v1/predict/${versionID}`, {
           utterance: query,
           tag,
+          ...ffOptions,
         })
         .catch(() => ({ data: null }));
 
@@ -119,7 +124,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
 
     const version = await context.data.api.getVersion(context.versionID);
 
-    const project = await context.data.api.getProjectNLP(version.projectID);
+    const project = await context.data.api.getProject(version.projectID);
 
     const request = await this.predict({
       query: context.request.payload,
@@ -128,9 +133,12 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       projectID: version.projectID,
       versionID: context.versionID,
       tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
-      nlp: project.nlp,
+      nlp: project.prototype?.nlp,
       hasChannelIntents: project?.platformData?.hasChannelIntents,
       platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
+      ffOptions: {
+        workspaceID: parseInt(project.teamID, 10),
+      },
     });
 
     return { ...context, request };
