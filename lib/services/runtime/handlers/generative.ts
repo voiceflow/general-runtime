@@ -23,7 +23,7 @@ const GenerativeHandler: HandlerFactory<VoiceNode.Generative.Node> = () => ({
 
     const sanitizedVars = sanitizeVariables(variables.getState());
     const prompt = replaceVariables(node.prompt, sanitizedVars);
-    const { length } = node;
+    const { length, voice } = node;
 
     const response = await axios
       .post<{ result: string }>(generativeEndpoint, { prompt, length })
@@ -32,7 +32,12 @@ const GenerativeHandler: HandlerFactory<VoiceNode.Generative.Node> = () => ({
 
     if (!response) return nextID;
 
-    const output = generateOutput(response, runtime.project);
+    const output = generateOutput(
+      response,
+      runtime.project,
+      // use default voice if voice doesn't exist
+      voice ?? (runtime.version?.platformData?.settings as any)?.defaultVoice
+    );
 
     runtime.stack.top().storage.set<Output>(FrameType.OUTPUT, output);
 
