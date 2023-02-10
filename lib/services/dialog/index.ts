@@ -114,7 +114,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       throw new VError('Model not found. Ensure project is properly rendered.');
     }
 
-    const project = await context.data.api.getProjectNLP(version.projectID);
+    const project = await context.data.api.getProject(version.projectID);
 
     const incomingRequest = context.request;
     const currentStore = context.state.storage[StorageType.DM];
@@ -135,10 +135,13 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               model: version.prototype?.model,
               locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
               tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
-              nlp: project.nlp,
+              nlp: project.prototype!.nlp,
               hasChannelIntents: project?.platformData?.hasChannelIntents,
               platform: version.prototype.platform as VoiceflowConstants.PlatformType,
               dmRequest: dmStateStore.intentRequest.payload,
+              ffOptions: {
+                workspaceID: parseInt(project.teamID, 10),
+              },
             })
           : incomingRequest;
 
