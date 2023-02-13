@@ -22,6 +22,8 @@ const GenerativeHandler: HandlerFactory<VoiceNode.Generative.Node> = () => ({
       return nextID;
     }
 
+    if (!runtime.project?.aiAssistSettings?.generateStep) return nextID;
+
     if (!node.prompt) return nextID;
 
     const ML_GATEWAY_ENDPOINT = Config.ML_GATEWAY_ENDPOINT.split('/api')[0];
