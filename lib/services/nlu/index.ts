@@ -137,7 +137,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       hasChannelIntents: project?.platformData?.hasChannelIntents,
       platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
       ffOptions: {
-        workspaceID: parseInt(project.teamID, 10),
+        workspaceID: Number(project.teamID),
       },
     });
 
