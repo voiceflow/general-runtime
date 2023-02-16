@@ -5,7 +5,6 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import DialogManager, { utils as defaultUtils } from '@/lib/services/dialog';
-import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
 import {
   mockDMPrefixedMultipleEntityResult,
@@ -41,7 +40,7 @@ describe('dialog manager unit tests', () => {
   describe('general handler', () => {
     it('fails if version is not found', async () => {
       const services = {
-        dataAPI: { getVersion: sinon.stub().resolves(), getProjectNLP: sinon.stub().resolves() },
+        dataAPI: { getVersion: sinon.stub().resolves(), getProject: sinon.stub().resolves() },
       };
       const dm = new DialogManager({ utils: { ...defaultUtils }, ...services } as any, {} as any);
       const result = dm.handle({
@@ -55,7 +54,7 @@ describe('dialog manager unit tests', () => {
       const services = {
         dataAPI: {
           getVersion: sinon.stub().resolves({ prototype: { model: true } }),
-          getProjectNLP: sinon.stub().resolves({}),
+          getProject: sinon.stub().resolves({}),
         },
       };
       const dm = new DialogManager(

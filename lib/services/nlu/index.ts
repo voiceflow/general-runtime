@@ -20,7 +20,7 @@ interface PredictedSlot {
   name: string;
   value: string;
 }
-interface NLUGatewayPredictResponse {
+export interface NLUGatewayPredictResponse {
   utterance: string;
   predictedIntent: string;
   predictedSlots: PredictedSlot[];
