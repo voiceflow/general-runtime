@@ -44,7 +44,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
   }
 
   private getNluGatewayEndpoint() {
-    const protocol = this.config.IS_MESHED === 'true' ? 'http' : 'https';
+    const protocol = this.config.CLOUD_ENV === 'e2e' ? 'https' : 'http';
     return `${protocol}://${this.config.NLU_GATEWAY_SERVICE_HOST}:${this.config.NLU_GATEWAY_SERVICE_PORT_APP}`;
   }
 
