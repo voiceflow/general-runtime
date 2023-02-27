@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import SpeakHandler from '@/lib/services/runtime/handlers/speak';
-import { FrameType } from '@/lib/services/runtime/types';
+import { FrameType, Variables } from '@/lib/services/runtime/types';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
@@ -46,7 +46,7 @@ describe('speak handler unit tests', async () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
-      const variables = { getState: sinon.stub().returns({}) };
+      const variables = { getState: sinon.stub().returns({}), set: sinon.stub() };
 
       expect(speakHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
       expect(topFrame.storage.set.args[0][0]).to.eql(FrameType.OUTPUT);
@@ -79,6 +79,7 @@ describe('speak handler unit tests', async () => {
           },
         ],
       ]);
+      expect(variables.set.args).to.eql([[Variables.LAST_RESPONSE, spokenPhrase]]);
     });
 
     it('speak', () => {
@@ -100,7 +101,7 @@ describe('speak handler unit tests', async () => {
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
       const varState = { var: 1.234, var1: 'here' };
-      const variables = { getState: sinon.stub().returns(varState) };
+      const variables = { getState: sinon.stub().returns(varState), set: sinon.stub() };
 
       expect(speakHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
       // output has vars replaced and numbers turned to 2digits floats
@@ -123,6 +124,7 @@ describe('speak handler unit tests', async () => {
           },
         ],
       ]);
+      expect(variables.set.args).to.eql([[Variables.LAST_RESPONSE, 'random 1.23 or here']]);
     });
 
     it('speak is not string', () => {
