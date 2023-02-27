@@ -33,10 +33,6 @@ class CreatorDataAPI<
     this.prototype = prototype;
   }
 
-  public init = async () => {
-    // no-op
-  };
-
   public fetchDisplayById = async (): Promise<null> => {
     return null;
   };

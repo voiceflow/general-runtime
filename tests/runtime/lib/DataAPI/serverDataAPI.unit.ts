@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import _ from 'lodash';
 import sinon from 'sinon';
 
-import ServerDataAPI from '@/runtime/lib/DataAPI/serverDataAPI';
+import ServerDataAPI from '@/runtime/lib/DataAPI/mongoDataAPI';
 
 const getServerDataApi = async (axiosInstance: Record<string, (...args: any[]) => any>) => {
   const axios = {

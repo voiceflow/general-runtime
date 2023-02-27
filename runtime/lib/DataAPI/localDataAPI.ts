@@ -26,10 +26,6 @@ class LocalDataAPI<
     this.programs = content.programs;
   }
 
-  public init = async () => {
-    // no-op
-  };
-
   public getVersion = async () => this.version;
 
   public unhashVersionID = async (versionID: string) => versionID;
