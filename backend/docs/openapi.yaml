@@ -16,10 +16,10 @@ info:
 
     <img src="https://uploads-ssl.webflow.com/5bddf05642686caf6d17eb58/6036dc95761e92262c2f4bd6_IVR%20(3)-p-1080.png" alt="Voiceflow IVR Integration" style="zoom:50%;"/>
 
-    
+
     **Note**: The Dialog Manager API can only be used to integrate Voiceflow **general projects**, that is, 
     projects without a pre-existing third-party upload. 
-    
+
 
     Thus, Alexa, Google Actions, and Dialogflow ES projects on Voiceflow are instead accessed through 
     their associated 3rd party platform, e.g, Alexa projects can be accessed by an Amazon Alexa device. 
@@ -172,7 +172,7 @@ tags:
 
       ### Tracking conversation state
 
-    
+
       All endpoints take in a `userID` parameter, which is used to identify the caller and assign them a unique
       conversation state object.
 
@@ -182,7 +182,7 @@ tags:
 
       Multiple conversation sessions to the same Voiceflow project can be running simultaneously.
       Each session is identified by the `userID` that you specify. 
-      
+
 
       For example, customer A should communicate with `/state/user/customerA/interact` whereas 
       customer B should communicate with `/state/user/customerB/interact`. 
@@ -196,7 +196,7 @@ tags:
       Meanwhile, `/state/user/customerB/interact`'s session remains unchanged, e.g, it might be 
       waiting for customer B to give their order. 
 
-      
+
 
       #### Format of `userID`
 
@@ -221,7 +221,7 @@ tags:
       DM API endpoints also accept a `versionID` header whose value is a **version alias** that points to a
       particular version of your Voiceflow project.
 
-      
+
       The currently supported aliases are:
 
       - `development` - The version displayed on the Voiceflow Creator's canvas
@@ -254,7 +254,7 @@ tags:
       ### Overview
 
       The **Custom Action step** allows you to perform any kind of integration to a Voiceflow project. 
-      
+
 
       A Custom Action step is similar to an event handler. A Voiceflow application can be commanded to stop on a Custom Action step
       and wait for your client application to send back an event, a Custom Action request, telling the Voiceflow diagram which logic 
@@ -262,7 +262,7 @@ tags:
 
 
       Before sending back this event, your client application can perform a variety of tasks including, but not limited to:
-      
+
 
       1. Triggering navigation on your website
 
@@ -320,7 +320,7 @@ tags:
 
       Third, the client app will receive a list of traces in the response as usual, but the last trace will be a Custom Action trace
       corresponding to the Custom Action step you just defined. 
-      
+
       ```json
 
       [
@@ -342,7 +342,7 @@ tags:
       Your client code might extract this last trace, detect that it is a custom "Pay Credit Card" trace, and then perform some logic
       such as calling the Stripe API to charge your user's credit card. 
 
-      
+
       ```js
 
       const traces = await dmapiInteract({
@@ -355,7 +355,7 @@ tags:
       const customActionTrace = traces[traces.length - 1];
 
       const customActionPayload = JSON.parse(customActionTrace.payload);
-      
+
 
       if (customActionTrace.type === "Pay Credit Card") {
         const ok = await stripeAPI.chargeUserCreditCard(customActionPayload.amount);
@@ -388,7 +388,7 @@ tags:
 
 
       If the `type` field is not one of the path names of your Custom Action (`"success"`, `"denied"`, or `"pending"` in this case),
-      the Custom Action will behave as though it was a "dead-end" block with no lines connecting to other blocks. 
+      the Custom Action will behave as though it was a "dead-end" block with no lines connecting to other blocks.
 
   - name: Custom NLP/NLU
     description: |
@@ -440,7 +440,7 @@ tags:
       If your current NLP service is not supported you can consider creating a translation layer for the generalized model in the `.vf`, or contact Voiceflow.
 
       ### Entity/Slot filling
-      
+
       If the intent on Voiceflow has required entities (i.e `{pizza_size}` for `order_pizza_intent`)
       and it is not filled in the initial request, the entity will be prompted for and you can send a subsequent request with the same intent
       and the `entities` and Voiceflow will be able to automatically merge the initial entities with the new entities.
@@ -486,18 +486,9 @@ tags:
       ```
   - name: API Key Differences
     description: >
-      It is **recommended** to use a **Dialog Manager API Key** to access the Dialog Manager API. A DM API key has the prefix
+      It is **required** to use a **Dialog Manager API Key** to access the Dialog Manager API. A DM API key has the prefix
       `VF.DM.` and it provides the most up-to-date features such as version aliasing.
 
-
-      For backwards compatibility reasons, the DM API key accepts Workspace API keys (`VF.WS`) and legacy Workspace API keys (`VF.`).
-      However, the usage of Workspace keys with the DM API key is considered **deprecated** behaviour.
-
-
-      Workspace API keys are unable to resolve version aliases, i.e, passing a string like `'development'` or `'production'` into
-      the `versionID` parameter of DM API endpoints. You would need to provide an explicit version ID, which is harmful for 
-      maintainability, because each time your Voiceflow app updates a version, you must manually update to the newest version's ID
-      in your Voiceflow integration.
   - name: Production
     description: >
       Voiceflow allows to publish a version of your project to a production slot. Publishing "freezes" a version of your project, 
@@ -509,7 +500,7 @@ tags:
 
       You can access this production version through the DM API, by setting your `versionID` header to the string `'production'`. 
 
-      
+
       Once this is done, you can freely edit the diagram on canvas, without affecting the version that users see on your
       live application. If you want to update the production version, click the Publish button on the Voiceflow Creator again as described
       in the documentation linked above. This will replace the previous production version with the version displayed on your canvas.
@@ -523,14 +514,14 @@ tags:
       There are a number of best practices when working with the DM API:
 
       ### Use version aliases
-      
+
       In previous iterations of the DM API, you needed to specify the explicit `versionID` to interact
       with a particular version of the Voiceflow project. With the introduction of version aliases, this is unnecessary.
-      
-      
+
+
       A version alias will always refer to whichever version occupies its corresponding slot and you can avoid the hassle of 
       updating an explicit version ID by simplying pushing a new version into the slot.
-      
+
 
       For the `production` alias, you can update its slot by pressing the Publish button on the Voiceflow canvas. See the Production
       section for further details.
@@ -539,12 +530,6 @@ tags:
       For the `development` alias, the version's diagram is updated as you edit on the canvas and the associated NLU is updated
       when you press "Train Assistant" in the Prototyping tool.
 
-
-      ### Use Dialog Manager API Keys
-
-      Workspace and legacy Workspace API keys do not support version aliases, and so, code using Workspace keys will need to 
-      manually update `versionID` in their DM API calls. This leads to tedious to maintain code.
-      
 
       ### Avoid the Stateless API
 
@@ -558,7 +543,7 @@ tags:
       the temptation to use identifying information** like real names, emails, telephone numbers, or other identifying 
       information in the `userId`. 
 
-      
+
       While this may seem convenient, it is a potential security hazard. If your app is compromised by a cyber attack, then it may
       be possible for attackers to scrape personal information off of the `userId`.
 
@@ -574,16 +559,16 @@ tags:
       it on canvas. Therefore, if you use the `'development'` alias on your live application, users may see your incomplete changes 
       as you modify the diagram.
 
-      
+
       Use the `'production'` alias for live apps instead, as this version will only update when you explicitly press the
-      Publish button on canvas. 
+      Publish button on canvas.
 servers:
   - url: 'https://general-runtime.voiceflow.com'
 paths:
   '/state/user/{userID}/interact':
     parameters:
-      - $ref: "#/components/parameters/userID"
-      - $ref: "#/components/parameters/versionID"
+      - $ref: '#/components/parameters/userID'
+      - $ref: '#/components/parameters/versionID'
     post:
       tags:
         - API Reference
@@ -647,7 +632,7 @@ paths:
 
         For legacy compatibility, you set the `verbose` query parameter to `true` to get a response 
         similar to our legacy Stateless API.
-        
+
 
         ```json
 
@@ -682,8 +667,8 @@ paths:
       security:
         - DialogManagerAPIKey: []
       parameters:
-        - $ref: "#/components/parameters/versionID"
-        - $ref: "#/components/parameters/userID"
+        - $ref: '#/components/parameters/versionID'
+        - $ref: '#/components/parameters/userID'
         - name: verbose
           in: query
           description: >
@@ -816,37 +801,37 @@ paths:
 
 
             Attempted to interact with the `'development'` version but the Prototype has not been
-            rendered by hitting the Run button on the Voiceflow canvas. 
+            rendered by hitting the Run button on the Voiceflow canvas.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorObject"
+                $ref: '#/components/schemas/ErrorObject'
               examples:
                 Ensure project is properly rendered:
                   value:
                     code: 404
                     status: 'Not Found'
-                    dateTime: "2022-07-22T15:02:55.882Z"
+                    dateTime: '2022-07-22T15:02:55.882Z'
                     timestamp: 1658502175882
-                    data: "Model not found. Ensure project is properly rendered."
+                    data: 'Model not found. Ensure project is properly rendered.'
         '401':
           description: >
             Auth Key Required
-            
-            
+
+
             HTTP request is missing a Dialog Manager API key in the `Authorization` header
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorObject"
+                $ref: '#/components/schemas/ErrorObject'
               examples:
                 Auth Key Required:
                   value:
                     code: 401
                     status: 'Unauthorized'
-                    dateTime: "2022-07-22T15:02:55.882Z"
+                    dateTime: '2022-07-22T15:02:55.882Z'
                     timestamp: 1658502175882
-                    data: "Auth Key Required"
+                    data: 'Auth Key Required'
         '400':
           description: >
             Bad Request.
@@ -862,41 +847,41 @@ paths:
             version alias.
 
 
-            3. `'Cannot resolve version alias from Workspace API key'` - Caller provided a Workspace or legacy Workspace API key, which cannot 
+            3. `'Cannot resolve version alias from Workspace API key'` - Caller provided a legacy Workspace API key, which cannot 
             be used alongside version aliases like `'production'` or `'development'`
 
 
             4. `'Request is missing a versionID'` - Request is missing a versionID.
 
-          content: 
+          content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VoiceflowError"
+                $ref: '#/components/schemas/VoiceflowError'
               examples:
                 Not published to production:
                   value:
                     name: 'verror'
                     message: 'Voiceflow project was not published to production'
-                    requestID: "ud2uASDNx"
+                    requestID: 'ud2uASDNx'
                 Cannot resolve project version:
                   value:
                     name: 'verror'
                     message: 'Cannot resolve project version, please verify that your API key is correct.'
-                    requestID: "ud2uASDNx"
+                    requestID: 'ud2uASDNx'
                 Cannot resolve alias with WS API key:
                   value:
                     name: 'verror'
                     message: 'Cannot resolve version alias from a workspace API key'
-                    requestID: "ud2uASDNx"
+                    requestID: 'ud2uASDNx'
                 Missing versionID:
                   value:
                     name: 'verror'
                     message: 'Missing versionID in request.'
-                    requestID: "ud2uASDNx"
+                    requestID: 'ud2uASDNx'
   '/state/user/{userID}':
     parameters:
-      - $ref: "#/components/parameters/versionID"
-      - $ref: "#/components/parameters/userID"
+      - $ref: '#/components/parameters/versionID'
+      - $ref: '#/components/parameters/userID'
     get:
       summary: Fetch state
       tags:
@@ -953,8 +938,8 @@ paths:
                       payment: credit
       description: >-
         Update the user's current state. 
-        
-        
+
+
         This is useful for externally updating the user's state or resetting the state.
       requestBody:
         content:
@@ -991,8 +976,8 @@ paths:
       description: Delete all state and session data for user.
   '/state/user/{userID}/variables':
     parameters:
-      - $ref: "#/components/parameters/versionID"
-      - $ref: "#/components/parameters/userID"
+      - $ref: '#/components/parameters/versionID'
+      - $ref: '#/components/parameters/userID'
     patch:
       summary: Update variables
       tags:
@@ -1042,8 +1027,8 @@ components:
       name: Authorization
       description: >
         All requests made to the Dialog Management API must be validated with a Dialog Manager API Key.
-       
-        
+
+
         To obtain a Dialog Manager API key, open the project you want to integrate on the Voiceflow Creator,
         go to the Integration tab, and click the "Copy API key" button.
   parameters:
@@ -1058,7 +1043,7 @@ components:
       required: false
       schema:
         type: string
-      example: 
+      example:
         - 'development'
         - 'production'
     userID:
@@ -1202,7 +1187,7 @@ components:
             message: one large pepperoni pizza is that correct?
     SpeakTrace:
       title: Speak Trace
-      description: > 
+      description: >
         Generated by the Speak Step. Wraps a response that the chatbot gives to your user. 
 
         Available only on Voice Assistant projects.
@@ -1405,9 +1390,9 @@ components:
               items:
                 type: object
                 properties:
-                  id: 
+                  id:
                     type: string
-                  title: 
+                  title:
                     type: string
                     description: The card's title
                   description:
@@ -1555,16 +1540,16 @@ components:
     CardRequest:
       title: Card Request
       type: object
-      properties: 
+      properties:
         type:
           type: string
-          example: "card-1,-button-1-504k39k9"
+          example: 'card-1,-button-1-504k39k9'
         payload:
           type: object
           properties:
             label:
               type: string
-              example: "Card 2, Button 2"
+              example: 'Card 2, Button 2'
     Request:
       title: Request
       type: object
@@ -1588,7 +1573,7 @@ components:
         stripSSML:
           type: boolean
           default: true
-          description: Remove all SSML tags in the response message. 
+          description: Remove all SSML tags in the response message.
         stopAll:
           type: boolean
           default: true
@@ -1637,7 +1622,7 @@ components:
         - type: boolean
           description: A boolean for whether logs should be "info" or "off"
     ErrorObject:
-      type: object 
+      type: object
       description: An error wrapper
       properties:
         code:
@@ -1656,7 +1641,7 @@ components:
           title: Additional error details
           type: string
     VoiceflowError:
-      type: object 
+      type: object
       description: A Voiceflow error
       properties:
         name:
