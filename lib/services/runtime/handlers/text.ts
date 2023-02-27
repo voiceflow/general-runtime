@@ -5,7 +5,7 @@ import _sample from 'lodash/sample';
 import log from '@/logger';
 import { HandlerFactory } from '@/runtime';
 
-import { FrameType, Output } from '../types';
+import { FrameType, Output, Variables } from '../types';
 import { slateInjectVariables, slateToPlaintext } from '../utils';
 
 const handlerUtils = {
@@ -35,6 +35,7 @@ export const TextHandler: HandlerFactory<BaseNode.Text.Node, typeof handlerUtils
           plainContent: message,
           richContent,
         });
+        variables.set(Variables.LAST_RESPONSE, message);
       } catch (error) {
         log.error(`[app] [runtime] [${TextHandler.name}] failed to add Slate trace ${log.vars({ error })}`);
       }
