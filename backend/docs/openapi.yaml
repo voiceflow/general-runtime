@@ -844,10 +844,6 @@ paths:
             version alias.
 
 
-            3. `'Cannot resolve version alias from Workspace API key'` - Caller provided a legacy Workspace API key, which cannot 
-            be used alongside version aliases like `'production'` or `'development'`
-
-
             4. `'Request is missing a versionID'` - Request is missing a versionID.
 
           content:
@@ -864,11 +860,6 @@ paths:
                   value:
                     name: 'verror'
                     message: 'Cannot resolve project version, please verify that your API key is correct.'
-                    requestID: 'ud2uASDNx'
-                Cannot resolve alias with WS API key:
-                  value:
-                    name: 'verror'
-                    message: 'Cannot resolve version alias from a workspace API key'
                     requestID: 'ud2uASDNx'
                 Missing versionID:
                   value:
