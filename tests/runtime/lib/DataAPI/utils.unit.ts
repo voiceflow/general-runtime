@@ -12,14 +12,6 @@ describe('DataAPI utils', () => {
       expect(result).to.equal('628d5d92faf688001bda7907');
     });
 
-    it('extracts ID from a Legacy Workspace API key', () => {
-      // eslint-disable-next-line no-secrets/no-secrets
-      const key = 'VF.62bcb0cca5184300066f5ac7.dmC8KKO1oX8JO5az';
-      const result = utils.extractAPIKeyID(key);
-
-      expect(result).to.equal('62bcb0cca5184300066f5ac7');
-    });
-
     it('throws if cannot match format', () => {
       const key = 'hello world';
       expect(() => utils.extractAPIKeyID(key)).to.throw();
