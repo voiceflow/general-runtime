@@ -707,9 +707,6 @@ paths:
                   action:
                     type: text
                     payload: Can I order a large pepperoni pizza
-              Empty Request:
-                value:
-                  action: null
               Intent Request:
                 value:
                   action:
