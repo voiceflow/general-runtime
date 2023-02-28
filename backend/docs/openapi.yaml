@@ -844,6 +844,10 @@ paths:
             version alias.
 
 
+            3. `'Cannot resolve version alias'` - Caller's provided API key is potentially malformed and could not be used to resolve a
+            version alias.
+
+
             4. `'Request is missing a versionID'` - Request is missing a versionID.
 
           content:
@@ -860,6 +864,11 @@ paths:
                   value:
                     name: 'verror'
                     message: 'Cannot resolve project version, please verify that your API key is correct.'
+                    requestID: 'ud2uASDNx'
+                Cannot resolve version alias:
+                  value:
+                    name: 'verror'
+                    message: 'Cannot resolve version alias, please verify that your API key is correct.'
                     requestID: 'ud2uASDNx'
                 Missing versionID:
                   value:
