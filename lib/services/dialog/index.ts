@@ -98,10 +98,6 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     }
   };
 
-  private isNluGatwayEndpointConfigured() {
-    return this.config.NLU_GATEWAY_SERVICE_HOST && this.config.NLU_GATEWAY_SERVICE_PORT_APP;
-  }
-
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handle = async (context: Context) => {
     if (!isIntentRequest(context.request)) {
@@ -114,7 +110,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       throw new VError('Model not found. Ensure project is properly rendered.');
     }
 
-    const project = await context.data.api.getProject(version.projectID);
+    const project = await context.data.api.getProjectNLP(version.projectID);
 
     const incomingRequest = context.request;
     const currentStore = context.state.storage[StorageType.DM];
@@ -127,7 +123,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
       try {
         const prefix = dmPrefix(dmStateStore.intentRequest.payload.intent.name);
-        const dmPrefixedResult = this.isNluGatwayEndpointConfigured()
+        const dmPrefixedResult = this.config.LUIS_SERVICE_ENDPOINT
           ? await this.services.nlu.predict({
               query: `${prefix} ${query}`,
               projectID: version.projectID,
@@ -135,11 +131,10 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               model: version.prototype?.model,
               locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
               tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
-              nlp: project.prototype!.nlp,
+              nlp: project.nlp,
               hasChannelIntents: project?.platformData?.hasChannelIntents,
               platform: version.prototype.platform as VoiceflowConstants.PlatformType,
               dmRequest: dmStateStore.intentRequest.payload,
-              workspaceID: parseInt(project.teamID, 10),
             })
           : incomingRequest;
 
