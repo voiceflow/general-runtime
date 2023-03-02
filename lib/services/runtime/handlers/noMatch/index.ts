@@ -114,7 +114,7 @@ export const NoMatchHandler = (utils: typeof utilsObj) => ({
       debugLogging: runtime.debugLogging,
       node,
       output: output.output,
-      variables: variables.getState(),
+      variables,
       ai: output.ai,
     });
 

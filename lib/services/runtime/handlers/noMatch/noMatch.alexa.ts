@@ -28,7 +28,7 @@ export const NoMatchAlexaHandler = () => ({
       debugLogging: runtime.debugLogging,
       node,
       output: output.output,
-      variables: variables.getState(),
+      variables,
     });
 
     if (node.noMatch?.nodeID) {

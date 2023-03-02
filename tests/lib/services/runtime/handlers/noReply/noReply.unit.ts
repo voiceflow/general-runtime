@@ -1,4 +1,3 @@
-import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -33,6 +32,7 @@ describe('noReply handler unit tests', () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({ counter: 5.2345 }),
       };
 
@@ -91,6 +91,7 @@ describe('noReply handler unit tests', () => {
 
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
 
@@ -123,6 +124,7 @@ describe('noReply handler unit tests', () => {
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
 
@@ -157,6 +159,7 @@ describe('noReply handler unit tests', () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
 
@@ -191,6 +194,7 @@ describe('noReply handler unit tests', () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
 
@@ -225,6 +229,7 @@ describe('noReply handler unit tests', () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
 
@@ -265,6 +270,7 @@ describe('noReply handler unit tests', () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
 
@@ -298,6 +304,7 @@ describe('noReply handler unit tests', () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({ counter: 5.2345 }),
       };
 

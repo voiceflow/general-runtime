@@ -42,6 +42,7 @@ export const RepeatHandler = (utils: typeof utilsObj) => ({
       output,
       addTrace: runtime.trace.addTrace.bind(runtime.trace),
       debugLogging: runtime.debugLogging,
+      variables: runtime.variables,
     });
 
     return top.getNodeID() || null;

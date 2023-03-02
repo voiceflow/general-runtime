@@ -53,6 +53,7 @@ describe('noInput handler unit tests', () => {
         debugLogging: { recordStepLog: sinon.stub() },
       };
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
       const noInputHandler = NoReplyGoogleHandler();
@@ -76,6 +77,7 @@ describe('noInput handler unit tests', () => {
         debugLogging: { recordStepLog: sinon.stub() },
       };
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({ counter: 5.2345 }),
       };
 
@@ -130,6 +132,7 @@ describe('noInput handler unit tests', () => {
         debugLogging: { recordStepLog: sinon.stub() },
       };
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({ counter: 5.2345 }),
       };
 
@@ -193,6 +196,7 @@ describe('noInput handler unit tests', () => {
         },
       };
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
 
@@ -245,6 +249,7 @@ describe('noInput handler unit tests', () => {
         debugLogging: { recordStepLog: sinon.stub() },
       };
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
 
@@ -269,6 +274,7 @@ describe('noInput handler unit tests', () => {
         debugLogging: { recordStepLog: sinon.stub() },
       };
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
 
@@ -296,6 +302,7 @@ describe('noInput handler unit tests', () => {
         debugLogging: { recordStepLog: sinon.stub() },
       };
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
 

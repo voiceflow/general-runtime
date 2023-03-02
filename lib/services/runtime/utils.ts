@@ -200,15 +200,15 @@ export const removeEmptyPrompts = (
 
 interface OutputParams<V> {
   output?: V;
-  variables?: Record<string, unknown>;
+  variables?: Store;
   node?: BaseModels.BaseNode;
   debugLogging: DebugLogging;
   addTrace: AddTraceFn;
   ai?: boolean;
 }
 
-export function outputTrace({ node, addTrace, debugLogging, output, variables = {}, ai }: OutputParams<Output>): void {
-  const sanitizedVars = sanitizeVariables(variables);
+export function outputTrace({ node, addTrace, debugLogging, output, variables, ai }: OutputParams<Output>): void {
+  const sanitizedVars = sanitizeVariables(variables?.getState() ?? {});
 
   if (Array.isArray(output)) {
     const content = slateInjectVariables(output, sanitizedVars);
@@ -223,6 +223,7 @@ export function outputTrace({ node, addTrace, debugLogging, output, variables = 
       plainContent,
       richContent,
     });
+    variables?.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, plainContent);
   } else {
     const message = replaceVariables(output || '', sanitizedVars);
 
@@ -231,6 +232,7 @@ export function outputTrace({ node, addTrace, debugLogging, output, variables = 
       payload: { message, type: BaseNode.Speak.TraceSpeakType.MESSAGE },
     });
     debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.SPEAK, node, { text: message });
+    variables?.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, message);
   }
 }
 

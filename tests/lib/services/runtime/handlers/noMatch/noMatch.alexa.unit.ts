@@ -25,6 +25,7 @@ describe('noMatch handler unit tests', () => {
         },
       };
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
 
@@ -49,6 +50,7 @@ describe('noMatch handler unit tests', () => {
         debugLogging: { recordStepLog: sinon.stub() },
       };
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({ counter: 5.2345 }),
       };
 
@@ -88,6 +90,7 @@ describe('noMatch handler unit tests', () => {
         debugLogging: { recordStepLog: sinon.stub() },
       };
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({ counter: 5.2345 }),
       };
 
@@ -129,6 +132,7 @@ describe('noMatch handler unit tests', () => {
         debugLogging: { recordStepLog: sinon.stub() },
       };
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({ counter: 5.2345 }),
       };
 
@@ -176,6 +180,7 @@ describe('noMatch handler unit tests', () => {
         },
       };
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({ counter: 5.2345 }),
       };
 
@@ -220,6 +225,7 @@ describe('noMatch handler unit tests', () => {
       };
 
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
 
@@ -252,6 +258,7 @@ describe('noMatch handler unit tests', () => {
         debugLogging: { recordStepLog: sinon.stub() },
       };
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
 
@@ -280,6 +287,7 @@ describe('noMatch handler unit tests', () => {
         debugLogging: { recordStepLog: sinon.stub() },
       };
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
 
@@ -306,6 +314,7 @@ describe('noMatch handler unit tests', () => {
         debugLogging: { recordStepLog: sinon.stub() },
       };
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
 
@@ -332,6 +341,7 @@ describe('noMatch handler unit tests', () => {
         debugLogging: { recordStepLog: sinon.stub() },
       };
       const variables = {
+        set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
 

@@ -121,7 +121,7 @@ export const NoReplyHandler = (utils: typeof utilsObj) => ({
       debugLogging: runtime.debugLogging,
       node,
       output,
-      variables: variables.getState(),
+      variables,
     });
 
     utils.addButtonsIfExists(node, runtime, variables);

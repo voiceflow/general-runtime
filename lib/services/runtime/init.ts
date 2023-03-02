@@ -37,6 +37,7 @@ const init = (client: Client) => {
       addTrace: runtime.trace.addTrace.bind(runtime.trace),
       debugLogging: runtime.debugLogging,
       output,
+      variables: runtime.variables,
     });
   });
 

@@ -14,6 +14,7 @@ import _ from 'lodash';
 import { hasElicit, setElicit } from '@/lib/services/runtime/handlers/utils/entity';
 import { inputToString } from '@/lib/services/runtime/handlers/utils/output';
 import log from '@/logger';
+import { Store } from '@/runtime';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
@@ -190,7 +191,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       debugLogging.refreshContext(context);
 
       if (!hasElicit(incomingRequest) && prompt) {
-        const variables = getEntitiesMap(dmStateStore!.intentRequest);
+        const variables = new Store(getEntitiesMap(dmStateStore!.intentRequest));
 
         const output = VoiceflowUtils.prompt.isIntentVoicePrompt(prompt)
           ? fillStringEntities(
