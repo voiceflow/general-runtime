@@ -4,6 +4,7 @@
  */
 
 import { BaseNode } from '@voiceflow/base-types';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import Client, { Action as RuntimeAction, Runtime } from '@/runtime';
 import { Config, Context, ContextHandler } from '@/types';
@@ -13,7 +14,7 @@ import CacheDataAPI from '../state/cacheDataAPI';
 import { AbstractManager, injectServices } from '../utils';
 import Handlers from './handlers';
 import init from './init';
-import { isActionRequest, isIntentRequest, isRuntimeRequest, TurnType, Variables } from './types';
+import { isActionRequest, isIntentRequest, isRuntimeRequest, TurnType } from './types';
 import { getReadableConfidence } from './utils';
 
 export const utils = {
@@ -55,10 +56,10 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
         BaseNode.NodeType.INTENT
       );
 
-      runtime.variables.set(Variables.INTENT_CONFIDENCE, Number(confidence));
+      runtime.variables.set(VoiceflowConstants.BuiltInVariable.INTENT_CONFIDENCE, Number(confidence));
 
       if (request.payload.query) {
-        runtime.variables.set(Variables.LAST_UTTERANCE, request.payload.query);
+        runtime.variables.set(VoiceflowConstants.BuiltInVariable.LAST_UTTERANCE, request.payload.query);
       }
     }
 
@@ -70,11 +71,11 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
       runtime.turn.set(TurnType.STOP_ALL, true);
     }
 
-    runtime.variables.set(Variables.TIMESTAMP, Math.floor(Date.now() / 1000));
+    runtime.variables.set(VoiceflowConstants.BuiltInVariable.TIMESTAMP, Math.floor(Date.now() / 1000));
 
     // if state API call, set the variable user_id to be userID in the param
     if (userID) {
-      runtime.variables.set(Variables.USER_ID, userID);
+      runtime.variables.set(VoiceflowConstants.BuiltInVariable.USER_ID, userID);
     }
 
     // skip runtime for the action request, since it do not have any effects

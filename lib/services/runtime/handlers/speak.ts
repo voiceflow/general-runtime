@@ -1,11 +1,11 @@
 import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
-import { VoiceflowNode } from '@voiceflow/voiceflow-types';
+import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
 import { HandlerFactory } from '@/runtime';
 
-import { FrameType, Output, Variables } from '../types';
+import { FrameType, Output } from '../types';
 
 const SpeakHandler: HandlerFactory<VoiceflowNode.Speak.Node> = () => ({
   canHandle: (node) => ('random_speak' in node ? !!node.random_speak : !!node.speak),
@@ -31,7 +31,7 @@ const SpeakHandler: HandlerFactory<VoiceflowNode.Speak.Node> = () => ({
         payload: { message: output, type: BaseNode.Speak.TraceSpeakType.MESSAGE },
       });
       runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.SPEAK, node, { text: output });
-      variables.set(Variables.LAST_RESPONSE, output);
+      variables.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, output);
     }
 
     return node.nextId ?? null;

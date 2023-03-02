@@ -1,9 +1,9 @@
 import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { TextHandler } from '@/lib/services/runtime/handlers/text';
-import { Variables } from '@/lib/services/runtime/types';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
@@ -82,7 +82,7 @@ describe('text handler unit tests', async () => {
       expect(utils.slateToPlaintext.args).to.eql([[newSlate.content]]);
       expect(utils.slateInjectVariables.args).to.eql([[[{ children: { text: 'sampledSlate' } }], 'sanitizedVars']]);
       expect(topStorageSet.args).to.eql([['output', newSlate.content]]);
-      expect(variables.set.args).to.eql([[Variables.LAST_RESPONSE, 'plainText']]);
+      expect(variables.set.args).to.eql([[VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, 'plainText']]);
     });
   });
 });

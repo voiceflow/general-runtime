@@ -1,9 +1,10 @@
 import { BaseNode } from '@voiceflow/base-types';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import SpeakHandler from '@/lib/services/runtime/handlers/speak';
-import { FrameType, Variables } from '@/lib/services/runtime/types';
+import { FrameType } from '@/lib/services/runtime/types';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
@@ -79,7 +80,7 @@ describe('speak handler unit tests', async () => {
           },
         ],
       ]);
-      expect(variables.set.args).to.eql([[Variables.LAST_RESPONSE, spokenPhrase]]);
+      expect(variables.set.args).to.eql([[VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, spokenPhrase]]);
     });
 
     it('speak', () => {
@@ -124,7 +125,7 @@ describe('speak handler unit tests', async () => {
           },
         ],
       ]);
-      expect(variables.set.args).to.eql([[Variables.LAST_RESPONSE, 'random 1.23 or here']]);
+      expect(variables.set.args).to.eql([[VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, 'random 1.23 or here']]);
     });
 
     it('speak is not string', () => {

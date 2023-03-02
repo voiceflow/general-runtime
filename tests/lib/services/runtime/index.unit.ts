@@ -1,9 +1,10 @@
 import { BaseNode, BaseRequest } from '@voiceflow/base-types';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import RuntimeManager, { utils as defaultUtils } from '@/lib/services/runtime';
-import { TurnType, Variables } from '@/lib/services/runtime/types';
+import { TurnType } from '@/lib/services/runtime/types';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 
 const VERSION_ID = 'version_id';
@@ -391,8 +392,8 @@ describe('runtime manager unit tests', () => {
       ]);
       expect(runtime.update.callCount).to.eql(1);
       expect(runtime.variables.set.args).to.eql([
-        [Variables.TIMESTAMP, 0],
-        [Variables.USER_ID, 'someUserId'],
+        [VoiceflowConstants.BuiltInVariable.TIMESTAMP, 0],
+        [VoiceflowConstants.BuiltInVariable.USER_ID, 'someUserId'],
       ]);
     });
   });

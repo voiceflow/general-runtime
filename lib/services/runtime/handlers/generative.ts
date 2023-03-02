@@ -1,6 +1,7 @@
 import { BaseNode } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { VoiceNode } from '@voiceflow/voice-types';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import axios from 'axios';
 
 import Config from '@/config';
@@ -46,6 +47,7 @@ const GenerativeHandler: HandlerFactory<VoiceNode.Generative.Node> = () => ({
     );
 
     runtime.stack.top().storage.set<Output>(FrameType.OUTPUT, output);
+    variables.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, output);
 
     outputTrace({
       addTrace: runtime.trace.addTrace.bind(runtime.trace),
