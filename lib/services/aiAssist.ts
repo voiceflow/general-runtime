@@ -19,9 +19,9 @@ class AIAssist extends AbstractManager implements ContextHandler {
   handle = async (context: Context) => {
     if (!context.version?.projectID) return context;
 
-    // only store aiAssistTranscript if freestyle is enabled
+    // only store aiAssistTranscript if generateNoMatch is enabled
     const project = await context.data.api.getProject(context.version.projectID).catch(() => null);
-    if (!project?.aiAssistSettings?.freestyle) return context;
+    if (!project?.aiAssistSettings?.generateNoMatch) return context;
 
     /**
     // skip storing no matches into aiAssistTranscript
