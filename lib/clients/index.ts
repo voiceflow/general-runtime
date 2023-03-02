@@ -24,14 +24,15 @@ export interface ClientMap extends StaticType {
  */
 const buildClients = (config: Config): ClientMap => {
   const redis = RedisClient(config);
+  const mongo = MongoSession.enabled(config) ? new MongoDB(config) : null;
 
   return {
     ...Static,
-    dataAPI: new DataAPI(config),
+    dataAPI: new DataAPI({ config, mongo }),
     metrics: Metrics(config),
     redis,
+    mongo,
     rateLimitClient: RateLimitClient('general-runtime', redis, config),
-    mongo: MongoSession.enabled(config) ? new MongoDB(config) : null,
     analyticsClient: Analytics(config),
   };
 };

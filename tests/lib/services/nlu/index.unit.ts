@@ -233,7 +233,6 @@ describe('nlu manager unit tests', () => {
         data: {
           api: {
             getVersion: sinon.stub().resolves(version),
-            getProjectNLP: sinon.stub().rejects('Could not find project'),
           },
         },
       };

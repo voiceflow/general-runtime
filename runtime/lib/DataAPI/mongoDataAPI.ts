@@ -2,8 +2,15 @@ import { BaseModels } from '@voiceflow/base-types';
 import { AnyRecord } from 'dns';
 import { Db, ObjectId } from 'mongodb';
 
-import { DataAPI, Display } from './types';
+import { DataAPI } from './types';
 import { extractAPIKeyID } from './utils';
+
+// shallow objectId to string
+export const shallowObjectIdToString = <T extends Record<string, any>>(obj: T) => {
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [key, value instanceof ObjectId ? value.toHexString() : value])
+  ) as T;
+};
 
 class MongoDataAPI<
   P extends BaseModels.Program.Model<any, any>,
@@ -17,15 +24,11 @@ class MongoDataAPI<
 
   protected versionsCollection = 'versions';
 
+  protected projectsCollection = 'projects';
+
   constructor({ client }: { client: Db }) {
     this.client = client;
   }
-
-  public fetchDisplayById = async (displayId: number): Promise<null | Display> => {
-    const { data }: { data: undefined | null | Display } = await this.client.get(`/metadata/displays/${displayId}`);
-
-    return data ?? null;
-  };
 
   public getProgram = async (programID: string): Promise<P> => {
     const program = await this.client
@@ -34,11 +37,7 @@ class MongoDataAPI<
 
     if (!program) throw new Error(`Program not found: ${programID}`);
 
-    return {
-      ...program,
-      _id: program._id.toHexString(),
-      versionID: program.versionID?.toHexString(),
-    };
+    return shallowObjectIdToString(program);
   };
 
   public getVersion = async (versionID: string): Promise<V> => {
@@ -48,28 +47,19 @@ class MongoDataAPI<
 
     if (!version) throw new Error(`Version not found: ${versionID}`);
 
-    return {
-      ...version,
-      _id: version._id.toHexString(),
-      projectID: version.projectID?.toHexString(),
-    };
+    return shallowObjectIdToString(version);
   };
 
   public getProject = async (projectID: string) => {
-    const { data } = await this.client.get<PJ>(`/project/${projectID}`);
+    const project = await this.client
+      .collection(this.versionsCollection)
+      .findOne<(PJ & { _id: ObjectId; devVersion: ObjectId; liveVersion: ObjectId }) | null>({
+        _id: new ObjectId(projectID),
+      });
 
-    return data;
-  };
+    if (!project) throw new Error(`Project not found: ${projectID}`);
 
-  public getProjectNLP = async (projectID: string) => {
-    const { data } = await this.client.get<PJ>(`/project/${projectID}`);
-
-    return {
-      nlp: data.prototype?.nlp,
-      devVersion: data.devVersion,
-      liveVersion: data.liveVersion,
-      platformData: data.platformData,
-    };
+    return shallowObjectIdToString(project);
   };
 
   public getProjectUsingAPIKey = async (key: string): Promise<PJ> => {

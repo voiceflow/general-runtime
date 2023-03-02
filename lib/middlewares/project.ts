@@ -74,7 +74,8 @@ class Project extends AbstractMiddleware {
         throw new VError('Error setting up data API', VError.HTTP_STATUS.UNAUTHORIZED);
       });
 
-      const project = await api.getProjectUsingAPIKey(req.headers.authorization!).catch(() => {
+      // TODO: replace with auth service in the future
+      const project = await api.getProject(req.headers.authorization!).catch(() => {
         throw new VError(
           'Cannot resolve project version, please verify that your API key is correct.',
           VError.HTTP_STATUS.BAD_REQUEST

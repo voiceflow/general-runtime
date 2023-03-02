@@ -1,8 +1,9 @@
-import { VoiceflowConstants, VoiceflowProgram, VoiceflowVersion } from '@voiceflow/voiceflow-types';
+import { VoiceflowProgram, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 
 import { CreatorDataApi, LocalDataApi } from '@/runtime';
 import { Config } from '@/types';
 
+import MongoDB from './mongodb';
 import RemoteDataAPI from './remoteDataAPI';
 import Static from './static';
 
@@ -18,7 +19,10 @@ class DataAPI {
 
   creatorDataApi?: (authorization: string) => CreatorDataApi<VoiceflowProgram.Program, VoiceflowVersion.Version>;
 
-  constructor(config: Config, API = { LocalDataApi, RemoteDataAPI, CreatorDataApi }) {
+  constructor(
+    { config, mongo }: { config: Config; mongo: MongoDB },
+    API = { LocalDataApi, RemoteDataAPI, CreatorDataApi }
+  ) {
     const {
       PROJECT_SOURCE,
       ADMIN_SERVER_DATA_API_TOKEN,
@@ -42,15 +46,8 @@ class DataAPI {
     }
 
     // fetch from server-data-api
-    if (ADMIN_SERVER_DATA_API_TOKEN && VF_DATA_ENDPOINT) {
-      this.remoteDataApi = new API.RemoteDataAPI(
-        {
-          platform: VoiceflowConstants.PlatformType.GENERAL,
-          adminToken: ADMIN_SERVER_DATA_API_TOKEN,
-          dataEndpoint: VF_DATA_ENDPOINT,
-        },
-        { axios: Static.axios }
-      );
+    if (ADMIN_SERVER_DATA_API_TOKEN && VF_DATA_ENDPOINT && mongo) {
+      this.remoteDataApi = new API.RemoteDataAPI({ client: mongo });
     }
 
     // configuration not set
@@ -59,16 +56,9 @@ class DataAPI {
     }
   }
 
-  public async init() {
-    await this.localDataApi?.init();
-    await this.remoteDataApi?.init();
-  }
-
   public async get(authorization = this.creatorAPIAuthorization) {
     if (this.creatorDataApi && authorization) {
-      const dataApi = this.creatorDataApi(authorization);
-      await dataApi.init();
-      return dataApi;
+      return this.creatorDataApi(authorization);
     }
 
     if (this.localDataApi) {

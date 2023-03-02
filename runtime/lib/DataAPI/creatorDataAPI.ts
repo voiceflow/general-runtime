@@ -33,10 +33,6 @@ class CreatorDataAPI<
     this.prototype = prototype;
   }
 
-  public fetchDisplayById = async (): Promise<null> => {
-    return null;
-  };
-
   public getProgram = async (programID: string) => {
     if (this.prototype) {
       return (await this.client.prototypeProgram.get(programID)) as P;
@@ -48,26 +44,15 @@ class CreatorDataAPI<
     return (await this.client.version.get(versionID)) as V;
   };
 
-  public unhashVersionID = async (versionID: string) => versionID;
+  public getProject = async (ref: string) => {
+    // reference could be either projectID or apiKey
+    const apiKeyID = extractAPIKeyID(ref);
+    if (apiKeyID) {
+      return (await this.client.fetch.get<PJ>(`/api-keys/${apiKeyID}/project`)).data;
+    }
 
-  public getProject = async (projectID: string) => {
+    const projectID = ref;
     return (await this.client.project.get(projectID)) as PJ;
-  };
-
-  /**
-   * Fetch a subset of project data specifically for runtime prediction
-   */
-  public getProjectNLP = async (projectID: string) => {
-    const { data } = await this.client.fetch.get<any>(`/projects/${projectID}/nlp`);
-
-    return data;
-  };
-
-  public getProjectUsingAPIKey = async (key: string): Promise<PJ> => {
-    const apiKeyID = extractAPIKeyID(key);
-
-    const { data } = await this.client.fetch.get<PJ>(`/api-keys/${apiKeyID}/project`);
-    return data;
   };
 }
 
