@@ -110,8 +110,6 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, type
             ])
           ),
         });
-
-        return handleCapturePath();
       }
 
       if (isNodeCapturingEntireResponse(node)) {
@@ -125,8 +123,9 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, type
             },
           },
         });
-        return handleCapturePath();
       }
+
+      return handleCapturePath();
     }
 
     const noMatchHandler = utils.entityFillingNoMatchHandler.handle(node, runtime, variables);
