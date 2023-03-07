@@ -16,22 +16,49 @@ import { getNoneIntentRequest, mapChannelData } from './utils';
 
 export const utils = {};
 
+interface PredictedSlot {
+  name: string;
+  value: string;
+}
+export interface NLUGatewayPredictResponse {
+  utterance: string;
+  predictedIntent: string;
+  predictedSlots: PredictedSlot[];
+  confidence: number;
+}
+
 @injectServices({ utils })
-/**
- * random
- */
 class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
+  private adaptNLUPrediction(prediction: NLUGatewayPredictResponse): BaseRequest.IntentRequest {
+    return {
+      type: BaseRequest.RequestType.INTENT,
+      payload: {
+        query: prediction.utterance,
+        intent: {
+          name: prediction.predictedIntent,
+        },
+        entities: prediction.predictedSlots,
+        confidence: prediction.confidence,
+      },
+    };
+  }
+
+  private getNluGatewayEndpoint() {
+    const protocol = this.config.CLOUD_ENV === 'e2e' ? 'https' : 'http';
+    return `${protocol}://${this.config.NLU_GATEWAY_SERVICE_HOST}:${this.config.NLU_GATEWAY_SERVICE_PORT_APP}`;
+  }
+
   async predict({
     query,
     model,
     locale,
-    projectID,
     versionID,
     tag,
     nlp,
     hasChannelIntents,
     platform,
     dmRequest,
+    workspaceID,
   }: {
     query: string;
     model?: BaseModels.PrototypeModel;
@@ -43,6 +70,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     hasChannelIntents: boolean;
     platform: VoiceflowConstants.PlatformType;
     dmRequest?: BaseRequest.IntentRequestPayload;
+    workspaceID: number;
   }): Promise<BaseRequest.IntentRequest> {
     // 1. first try restricted regex (no open slots) - exact string match
     if (model && locale) {
@@ -54,20 +82,17 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
 
     // 2. next try to resolve with luis NLP
     if (nlp && nlp.appID && nlp.resourceID) {
-      const { appID, resourceID } = nlp;
-
       const { data } = await this.services.axios
-        .post(`${this.config.LUIS_SERVICE_ENDPOINT}/predict/${appID}`, {
-          query,
-          resourceID,
+        .post<NLUGatewayPredictResponse>(`${this.getNluGatewayEndpoint()}/v1/predict/${versionID}`, {
+          utterance: query,
           tag,
-          projectID,
-          versionID,
+          workspaceID,
         })
         .catch(() => ({ data: null }));
 
       if (data) {
-        return mapChannelData(data, platform, hasChannelIntents);
+        const intentRequest = this.adaptNLUPrediction(data);
+        return mapChannelData(intentRequest, platform, hasChannelIntents);
       }
     }
 
@@ -97,7 +122,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
 
     const version = await context.data.api.getVersion(context.versionID);
 
-    const project = await context.data.api.getProjectNLP(version.projectID);
+    const project = await context.data.api.getProject(version.projectID);
 
     const request = await this.predict({
       query: context.request.payload,
@@ -106,9 +131,10 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       projectID: version.projectID,
       versionID: context.versionID,
       tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
-      nlp: project.nlp,
+      nlp: project.prototype?.nlp,
       hasChannelIntents: project?.platformData?.hasChannelIntents,
       platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
+      workspaceID: Number(project.teamID),
     });
 
     return { ...context, request };

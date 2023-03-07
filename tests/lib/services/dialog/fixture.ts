@@ -422,7 +422,7 @@ export const mockProjectNLP = {};
 
 export const mockDataAPI = {
   getVersion: sinon.stub().resolves(mockVersion),
-  getProjectNLP: sinon.stub().resolves(mockProjectNLP),
+  getProject: sinon.stub().resolves(mockProjectNLP),
 } as unknown as CacheDataAPI;
 
 export const mockFulfilledIntentRequest: BaseRequest.IntentRequest = {
