@@ -2,7 +2,7 @@ import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import RemoteDataAPI from '@/lib/clients/remoteDataAPI';
+import RemoteDataAPI from '@/lib/clients/prototypeDataAPI';
 
 describe('remoteDataAPI client unit tests', () => {
   afterEach(() => {

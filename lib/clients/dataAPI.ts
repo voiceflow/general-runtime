@@ -4,7 +4,7 @@ import { CreatorDataApi, LocalDataApi } from '@/runtime';
 import { Config } from '@/types';
 
 import MongoDB from './mongodb';
-import RemoteDataAPI from './remoteDataAPI';
+import PrototypeDataAPI from './PrototypeDataAPI';
 import Static from './static';
 
 /**
@@ -13,15 +13,15 @@ import Static from './static';
 class DataAPI {
   localDataApi?: LocalDataApi<VoiceflowProgram.Program, VoiceflowVersion.Version>;
 
-  remoteDataApi?: RemoteDataAPI;
+  prototypeDataApi?: PrototypeDataAPI;
 
   creatorAPIAuthorization?: string;
 
   creatorDataApi?: (authorization: string) => CreatorDataApi<VoiceflowProgram.Program, VoiceflowVersion.Version>;
 
   constructor(
-    { config, mongo }: { config: Config; mongo: MongoDB },
-    API = { LocalDataApi, RemoteDataAPI, CreatorDataApi }
+    { config, mongo }: { config: Config; mongo: MongoDB | null },
+    API = { LocalDataApi, PrototypeDataAPI, CreatorDataApi }
   ) {
     const {
       PROJECT_SOURCE,
@@ -47,7 +47,7 @@ class DataAPI {
 
     // fetch from server-data-api
     if (ADMIN_SERVER_DATA_API_TOKEN && VF_DATA_ENDPOINT && mongo) {
-      this.remoteDataApi = new API.RemoteDataAPI({ client: mongo });
+      this.prototypeDataApi = new API.PrototypeDataAPI({ client: mongo.db });
     }
 
     // configuration not set
@@ -65,8 +65,8 @@ class DataAPI {
       return this.localDataApi;
     }
 
-    if (this.remoteDataApi) {
-      return this.remoteDataApi;
+    if (this.prototypeDataApi) {
+      return this.prototypeDataApi;
     }
 
     throw new Error('no data API env configuration set');

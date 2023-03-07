@@ -2,8 +2,8 @@ import { VoiceflowProgram, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 
 import { MongoDataAPI } from '@/runtime';
 
-class RemoteDataAPI extends MongoDataAPI<VoiceflowProgram.Program, VoiceflowVersion.Version> {
+class PrototypeDataAPI extends MongoDataAPI<VoiceflowProgram.Program, VoiceflowVersion.Version> {
   protected programsCollection = 'prototype-programs';
 }
 
-export default RemoteDataAPI;
+export default PrototypeDataAPI;

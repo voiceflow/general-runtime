@@ -38,7 +38,6 @@ const buildClients = (config: Config): ClientMap => {
 };
 
 export const initClients = async (clients: ClientMap) => {
-  await clients.dataAPI.init();
   await clients.mongo?.start();
 };
 
