@@ -52,7 +52,6 @@
     "json-stringify-safe": "^5.0.1",
     "lodash": "^4.17.21",
     "mathjs": "^10.6.1",
-    "moize": "^6.1.0",
     "mongodb": "^3.6.5",
     "node-fetch": "^2.6.7",
     "regenerator-runtime": "^0.13.3",
