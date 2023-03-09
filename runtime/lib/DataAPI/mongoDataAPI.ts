@@ -11,6 +11,9 @@ export const shallowObjectIdToString = <T extends Record<string, any>>(obj: T): 
   ) as T;
 };
 
+export const isValidObjectID = (id: unknown) =>
+  (typeof id === 'string' || id instanceof ObjectId) && ObjectId.isValid(id);
+
 interface Client {
   db: Db;
 }
@@ -34,7 +37,7 @@ class MongoDataAPI<
   }
 
   public getProgram = async (programID: string): Promise<P> => {
-    if (!ObjectId.isValid(programID)) return this.getLegacyProgram(programID);
+    if (!isValidObjectID(programID)) return this.getLegacyProgram(programID);
 
     const program = await this.client.db
       .collection(this.programsCollection)
@@ -46,7 +49,7 @@ class MongoDataAPI<
   };
 
   public getVersion = async (versionID: string): Promise<V> => {
-    if (!ObjectId.isValid(versionID)) return this.getLegacyVersion(versionID);
+    if (!isValidObjectID(versionID)) return this.getLegacyVersion(versionID);
 
     const version = await this.client.db
       .collection(this.versionsCollection)
