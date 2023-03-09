@@ -4,7 +4,7 @@ import { CreatorDataApi, LocalDataApi } from '@/runtime';
 import { Config } from '@/types';
 
 import MongoDB from './mongodb';
-import PrototypeDataAPI from './PrototypeDataAPI';
+import PrototypeDataAPI from './prototypeDataAPI';
 import Static from './static';
 
 /**
