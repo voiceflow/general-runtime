@@ -175,7 +175,7 @@ describe('project middleware unit tests', () => {
     it('changes versionID based on tag', async () => {
       // arrange
       const api = {
-        getProjectUsingAPIKey: sinon.stub().resolves({
+        getProject: sinon.stub().resolves({
           liveVersion,
           devVersion,
         }),
@@ -203,7 +203,7 @@ describe('project middleware unit tests', () => {
     it('defaults to devVersion if no versionID specified', async () => {
       // arrange
       const api = {
-        getProjectUsingAPIKey: sinon.stub().resolves({
+        getProject: sinon.stub().resolves({
           liveVersion,
           devVersion,
         }),

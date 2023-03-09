@@ -1,161 +1,69 @@
-import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { expect } from 'chai';
 import _ from 'lodash';
+import { ObjectId } from 'mongodb';
 import sinon from 'sinon';
 
-import ServerDataAPI from '@/runtime/lib/DataAPI/mongoDataAPI';
+import MongoDataAPI from '@/runtime/lib/DataAPI/mongoDataAPI';
 
-const getServerDataApi = async (axiosInstance: Record<string, (...args: any[]) => any>) => {
-  const axios = {
-    create: sinon.stub().returns(axiosInstance),
-    post: sinon.stub().returns({ data: { token: 'secret-token' } }),
-  };
-  const testConfig = {
-    platform: VoiceflowConstants.PlatformType.ALEXA,
-    dataEndpoint: 'data-endpoint',
-    adminToken: 'admin-token',
-  };
+const MOCK_RETURN_VALUE = { object: 'mock-return-value' };
+const MOCK_ID = '000000000000000000000000';
+const MOCK_QUERY = { _id: new ObjectId(MOCK_ID) };
 
-  const client = new ServerDataAPI(testConfig, { axios } as any);
-  await client.init();
+const mockClient = () => {
+  const collection = { findOne: sinon.stub().resolves(MOCK_RETURN_VALUE) };
+  const client = { collection: sinon.stub().returns(collection) } as any;
+  const api = new MongoDataAPI({ client });
 
-  return client;
+  return { client, collection, api };
 };
 
-describe('serverDataAPI client unit tests', () => {
-  describe('new', () => {
-    it('works correctly', async () => {
-      const platform = VoiceflowConstants.PlatformType.ALEXA;
-      const dataSecret = 'secret-token';
-      const adminToken = 'admin-token';
-      const dataEndpoint = 'random';
-
-      const axios = { post: sinon.stub().returns({ data: { token: dataSecret } }), create: sinon.stub() };
-      const testConfig = {
-        platform,
-        adminToken,
-        dataEndpoint,
-      };
-
-      const serverDataAPI = new ServerDataAPI(testConfig, { axios } as any);
-      await serverDataAPI.init();
-
-      expect(axios.post.args).to.eql([
-        [
-          `${dataEndpoint}/generate-platform-token`,
-          {
-            platform: VoiceflowConstants.PlatformType.ALEXA,
-            ttl_min: 525600,
-          },
-          { headers: { admintoken: adminToken } },
-        ],
-      ]);
-      expect(axios.create.args).to.eql([
-        [
-          {
-            baseURL: testConfig.dataEndpoint,
-            headers: { authorization: `Bearer ${dataSecret}` },
-          },
-        ],
-      ]);
-    });
-  });
-
-  describe('fetchDisplayById', () => {
-    it('no data', async () => {
-      const axios = { get: sinon.stub().returns({}) };
-      const client = await getServerDataApi(axios);
-
-      const displayId = 1;
-      expect(await client.fetchDisplayById(displayId)).to.eql(null);
-      expect(axios.get.args).to.eql([[`/metadata/displays/${displayId}`]]);
-    });
-
-    it('with data', async () => {
-      const data = { foo: 'bar' };
-      const axios = { get: sinon.stub().returns({ data }) };
-      const client = await getServerDataApi(axios);
-
-      const displayId = 1;
-      expect(await client.fetchDisplayById(displayId)).to.eql(data);
-    });
-  });
-
+describe('mongoDataAPI client unit tests', () => {
   it('getProgram', async () => {
-    const data = { foo: 'bar' };
-    const axios = { get: sinon.stub().returns({ data }) };
-    const client = await getServerDataApi(axios);
+    const { api, client, collection } = mockClient();
 
-    const programId = '1';
-    expect(await client.getProgram(programId)).to.eql(data);
-    expect(axios.get.args).to.eql([[`/diagrams/${programId}`]]);
+    expect(await api.getProgram(MOCK_ID)).to.eql(MOCK_RETURN_VALUE);
+    expect(client.collection.args).to.eql([['programs']]);
+    expect(collection.findOne.args).to.eql([[MOCK_QUERY]]);
   });
 
   it('getVersion', async () => {
-    const data = { foo: 'bar' };
-    const axios = { get: sinon.stub().returns({ data }) };
-    const client = await getServerDataApi(axios);
+    const { api, client, collection } = mockClient();
 
-    const versionId = '1';
-    expect(await client.getVersion(versionId)).to.eql(data);
-    expect(axios.get.args).to.eql([[`/version/${versionId}`]]);
-  });
-
-  describe('unhashVersionID', () => {
-    describe('24 length', () => {
-      it('valid object id', async () => {
-        const versionID = '5ede8aec9edf9c1b7c1c4166';
-        const client = await getServerDataApi(null as any);
-
-        expect(await client.unhashVersionID(versionID)).to.eql(versionID);
-      });
-
-      it('not valid object id', async () => {
-        const versionID = 'XXXXXXXXXXXXXXXXXXXXXXXX'; // 24 length
-        const client = await getServerDataApi(null as any);
-        const unhashedVersionID = 'unhashed';
-        const _convertSkillIDStub = sinon.stub().resolves(unhashedVersionID);
-        _.set(client, '_convertSkillID', _convertSkillIDStub);
-
-        expect(await client.unhashVersionID(versionID)).to.eql(unhashedVersionID);
-        expect(_convertSkillIDStub.args).to.eql([[versionID]]);
-      });
-    });
-
-    it('unhashes correctly', async () => {
-      const versionID = 'abc';
-      const client = await getServerDataApi(null as any);
-      const unhashedVersionID = 'unhashed';
-      const _convertSkillIDStub = sinon.stub().resolves(unhashedVersionID);
-      _.set(client, '_convertSkillID', _convertSkillIDStub);
-
-      expect(await client.unhashVersionID(versionID)).to.eql(unhashedVersionID);
-      expect(_convertSkillIDStub.args).to.eql([[versionID]]);
-    });
-  });
-
-  describe('_convertSkillID', () => {
-    it('works', async () => {
-      const unhashedVersionID = 'unhashed';
-      const axios = { get: sinon.stub().returns({ data: unhashedVersionID }) };
-      const versionID = 'abc';
-
-      const client = await getServerDataApi(axios);
-
-      expect(await _.get(client, '_convertSkillID')(versionID)).to.eql(unhashedVersionID);
-      expect(await _.get(client, '_convertSkillID')(versionID)).to.eql(unhashedVersionID);
-      expect(axios.get.callCount).to.eql(1); // axios called only once as call is memoized
-      expect(axios.get.args).to.eql([[`/version/convert/${versionID}`]]);
-    });
+    expect(await api.getVersion(MOCK_ID)).to.eql(MOCK_RETURN_VALUE);
+    expect(client.collection.args).to.eql([['versions']]);
+    expect(collection.findOne.args).to.eql([[MOCK_QUERY]]);
   });
 
   it('getProject', async () => {
-    const data = { foo: 'bar' };
-    const axios = { get: sinon.stub().returns({ data }) };
-    const client = await getServerDataApi(axios);
+    const { api, client, collection } = mockClient();
 
-    const projectId = '1';
-    expect(await client.getProject(projectId)).to.eql(data);
-    expect(axios.get.args).to.eql([[`/project/${projectId}`]]);
+    expect(await api.getProject(MOCK_ID)).to.eql(MOCK_RETURN_VALUE);
+    expect(client.collection.args).to.eql([['projects']]);
+    expect(collection.findOne.args).to.eql([[MOCK_QUERY]]);
+  });
+
+  it('overrides collection names', async () => {
+    const { api, client, collection } = mockClient();
+
+    (api as any).programsCollection = 'custom-programs';
+    (api as any).versionsCollection = 'custom-versions';
+    (api as any).projectsCollection = 'custom-projects';
+
+    expect(await api.getProgram(MOCK_ID)).to.eql(MOCK_RETURN_VALUE);
+    expect(await api.getVersion(MOCK_ID)).to.eql(MOCK_RETURN_VALUE);
+    expect(await api.getProject(MOCK_ID)).to.eql(MOCK_RETURN_VALUE);
+
+    expect(client.collection.args).to.eql([['custom-programs'], ['custom-versions'], ['custom-projects']]);
+    expect(collection.findOne.args).to.eql([[MOCK_QUERY], [MOCK_QUERY], [MOCK_QUERY]]);
+  });
+
+  it('throws error on null find', async () => {
+    const { api, collection } = mockClient();
+
+    collection.findOne.resolves(null);
+
+    await expect(api.getProgram(MOCK_ID)).to.be.rejectedWith(Error);
+    await expect(api.getVersion(MOCK_ID)).to.be.rejectedWith(Error);
+    await expect(api.getProject(MOCK_ID)).to.be.rejectedWith(Error);
   });
 });

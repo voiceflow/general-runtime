@@ -65,41 +65,4 @@ describe('cacheDataAPI unit tests', () => {
       expect(getProjectStub.args).to.eql([['project-id']]);
     });
   });
-
-  describe('init', () => {
-    it('works', async () => {
-      const initStub = sinon.stub().returns('init-value');
-      const dataAPIStub = { init: initStub };
-
-      const cacheDataApi = new CacheDataAPI(dataAPIStub as any);
-
-      await cacheDataApi.init();
-
-      expect(initStub.args).to.eql([[]]);
-    });
-  });
-
-  describe('unhashVersionID', () => {
-    it('works', async () => {
-      const unhashVersionIDStub = sinon.stub().returns('unhashVersionID-value');
-      const dataAPIStub = { unhashVersionID: unhashVersionIDStub };
-
-      const cacheDataApi = new CacheDataAPI(dataAPIStub as any);
-
-      expect(await cacheDataApi.unhashVersionID('999')).to.eql('unhashVersionID-value');
-      expect(dataAPIStub.unhashVersionID.args).to.eql([['999']]);
-    });
-  });
-
-  describe('fetchDisplayById', () => {
-    it('works', async () => {
-      const fetchDisplayByIdStub = sinon.stub().returns('fetchDisplayById-value');
-      const dataAPIStub = { fetchDisplayById: fetchDisplayByIdStub };
-
-      const cacheDataApi = new CacheDataAPI(dataAPIStub as any);
-
-      expect(await cacheDataApi.fetchDisplayById(999)).to.eql('fetchDisplayById-value');
-      expect(fetchDisplayByIdStub.args).to.eql([[999]]);
-    });
-  });
 });

@@ -28,9 +28,9 @@ describe('DataAPI utils', () => {
       expect(result).to.equal('62bcb0cca5184300066f5ac7');
     });
 
-    it('throws if cannot match format', () => {
+    it('returns null if cannot match format', () => {
       const key = 'hello world';
-      expect(() => utils.extractAPIKeyID(key)).to.throw();
+      expect(utils.extractAPIKeyID(key)).to.eq(null);
     });
   });
 });

@@ -1,3 +1,4 @@
+/* eslint-disable no-new */
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -22,8 +23,7 @@ describe('creatorDataAPI client unit tests', () => {
         prototype: true,
       };
 
-      const creatorDataAPI = new CreatorDataAPI(config, VF as any);
-      await creatorDataAPI.init();
+      new CreatorDataAPI(config, VF as any);
 
       expect(VF.args).to.eql([[{ apiEndpoint: config.endpoint, clientKey: config.clientKey }]]);
       expect(VFClient.args).to.eql([[{ authorization: config.authorization }]]);
@@ -37,30 +37,10 @@ describe('creatorDataAPI client unit tests', () => {
 
       const config = { endpoint: '_endpoint', authorization: '_authorization', prototype: true };
 
-      const creatorDataAPI = new CreatorDataAPI(config, VF as any);
-      await creatorDataAPI.init();
+      new CreatorDataAPI(config, VF as any);
 
       expect(VF.args).to.eql([[{ apiEndpoint: config.endpoint, clientKey: '' }]]);
       expect(VFClient.args).to.eql([[{ authorization: config.authorization }]]);
-    });
-  });
-
-  describe('fetchDisplayById', () => {
-    it('no data', async () => {
-      const VFClient = sinon.stub();
-      const VF = sinon.stub().returns({
-        generateClient: VFClient,
-      });
-
-      const config = {
-        endpoint: '_endpoint',
-        authorization: '_authorization',
-        clientKey: '_clientKey',
-        prototype: true,
-      };
-      const creatorDataAPI = new CreatorDataAPI(config, VF as any);
-
-      expect(await creatorDataAPI.fetchDisplayById()).to.eql(null);
     });
   });
 
@@ -125,18 +105,6 @@ describe('creatorDataAPI client unit tests', () => {
 
     expect(await creatorDataAPI.getVersion(versionID)).to.eql(version);
     expect(Client.version.get.args).to.eql([[versionID]]);
-  });
-
-  it('unhashVersionID', async () => {
-    const Client = { version: { get: sinon.stub().resolves() } };
-    const VFClient = sinon.stub().returns(Client);
-    const VF = sinon.stub().returns({
-      generateClient: VFClient,
-    });
-    const versionID = 'versionID';
-    const creatorDataAPI = new CreatorDataAPI({} as any, VF as any);
-
-    expect(await creatorDataAPI.unhashVersionID(versionID)).to.eql(versionID);
   });
 
   it('getProject', async () => {

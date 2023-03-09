@@ -8,21 +8,12 @@ describe('clients/index', () => {
     sinon.restore();
   });
 
-  it('initClients with dataAPI and mongo defined', async () => {
-    const clients = { dataAPI: { init: sinon.stub().resolves() }, mongo: { start: sinon.stub().resolves() } };
+  it('initClients with mongo defined', async () => {
+    const clients = { mongo: { start: sinon.stub().resolves() } };
 
     await initClients(clients as any);
 
-    expect(clients.dataAPI.init.callCount).to.eql(1);
     expect(clients.mongo.start.callCount).to.eql(1);
-  });
-
-  it('initClients with dataAPI defined', async () => {
-    const clients = { dataAPI: { init: sinon.stub().resolves() } };
-
-    await initClients(clients as any);
-
-    expect(clients.dataAPI.init.callCount).to.eql(1);
   });
 
   it('stopClients with mongo defined', async () => {
