@@ -47,10 +47,6 @@ const CONFIG: Config = {
   NLU_GATEWAY_SERVICE_HOST: getOptionalProcessEnv('NLU_GATEWAY_SERVICE_HOST'),
   NLU_GATEWAY_SERVICE_PORT_APP: getOptionalProcessEnv('NLU_GATEWAY_SERVICE_PORT_APP'),
 
-  // server-data-api config
-  VF_DATA_ENDPOINT: getOptionalProcessEnv('VF_DATA_ENDPOINT'), // server-data-api endpoint
-  ADMIN_SERVER_DATA_API_TOKEN: getOptionalProcessEnv('ADMIN_SERVER_DATA_API_TOKEN'), // Server-data-api auth token
-
   // creator-api config
   CREATOR_API_ENDPOINT: getOptionalProcessEnv('CREATOR_API_ENDPOINT'),
   CREATOR_API_AUTHORIZATION: getOptionalProcessEnv('CREATOR_API_AUTHORIZATION'),

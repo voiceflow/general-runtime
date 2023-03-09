@@ -53,8 +53,6 @@ export interface Config extends RateLimitConfig {
   CREATOR_APP_ORIGIN: string | null;
   DISABLE_ORIGIN_CHECK: boolean;
 
-  ADMIN_SERVER_DATA_API_TOKEN: string | null;
-  VF_DATA_ENDPOINT: string | null;
   // Logging
   LOG_LEVEL: string | null;
   MIDDLEWARE_VERBOSITY: string | null;

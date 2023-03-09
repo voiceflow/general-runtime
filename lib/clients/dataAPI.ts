@@ -23,13 +23,7 @@ class DataAPI {
     { config, mongo }: { config: Config; mongo: MongoDB | null },
     API = { LocalDataApi, PrototypeDataAPI, CreatorDataApi }
   ) {
-    const {
-      PROJECT_SOURCE,
-      ADMIN_SERVER_DATA_API_TOKEN,
-      VF_DATA_ENDPOINT,
-      CREATOR_API_AUTHORIZATION,
-      CREATOR_API_ENDPOINT,
-    } = config;
+    const { PROJECT_SOURCE, CREATOR_API_AUTHORIZATION, CREATOR_API_ENDPOINT } = config;
 
     if (CREATOR_API_ENDPOINT) {
       this.creatorAPIAuthorization = CREATOR_API_AUTHORIZATION || '';
@@ -46,12 +40,12 @@ class DataAPI {
     }
 
     // fetch from server-data-api
-    if (ADMIN_SERVER_DATA_API_TOKEN && VF_DATA_ENDPOINT && mongo) {
+    if (mongo) {
       this.prototypeDataApi = new API.PrototypeDataAPI({ client: mongo.db });
     }
 
     // configuration not set
-    if (!PROJECT_SOURCE && (!VF_DATA_ENDPOINT || !ADMIN_SERVER_DATA_API_TOKEN) && !CREATOR_API_ENDPOINT) {
+    if (!PROJECT_SOURCE && !mongo && !CREATOR_API_ENDPOINT) {
       throw new Error('no data API env configuration set');
     }
   }

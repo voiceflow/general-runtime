@@ -48,11 +48,6 @@ Add your VF-Project JSON file under `projects/`
 
 - `PROJECT_SOURCE` - JSON File inside /projects to read version/program metadata [e.g `VF-Project-nPDdD6qZJ9.json`]
 
-### runtime-api (internal voiceflow dev use)
-
-- `VF_DATA_ENDPOINT` - voiceflow runtime API
-- `ADMIN_SERVER_DATA_API_TOKEN` - token generation key
-
 ---
 
 ## Mircoservices

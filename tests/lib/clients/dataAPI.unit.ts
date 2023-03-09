@@ -19,8 +19,6 @@ describe('dataAPI client unit tests', () => {
 
     const config = {
       PROJECT_SOURCE: 'cool.vf',
-      ADMIN_SERVER_DATA_API_TOKEN: 'token',
-      VF_DATA_ENDPOINT: 'endpoint',
       CREATOR_API_ENDPOINT: 'creator endpoint',
     };
 
@@ -40,8 +38,6 @@ describe('dataAPI client unit tests', () => {
     };
 
     const config = {
-      ADMIN_SERVER_DATA_API_TOKEN: 'token',
-      VF_DATA_ENDPOINT: 'endpoint',
       CREATOR_API_ENDPOINT: 'creator endpoint',
     };
 
@@ -59,7 +55,6 @@ describe('dataAPI client unit tests', () => {
     };
 
     const config = {
-      VF_DATA_ENDPOINT: 'endpoint',
       CREATOR_API_AUTHORIZATION: 'creator auth',
       CREATOR_API_ENDPOINT: 'creator endpoint',
     };
