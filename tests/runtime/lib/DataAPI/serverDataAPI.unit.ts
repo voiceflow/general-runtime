@@ -11,8 +11,8 @@ const MOCK_QUERY = { _id: new ObjectId(MOCK_ID) };
 
 const mockClient = () => {
   const collection = { findOne: sinon.stub().resolves(MOCK_RETURN_VALUE) };
-  const client = { collection: sinon.stub().returns(collection) } as any;
-  const api = new MongoDataAPI({ client });
+  const client = { db: { collection: sinon.stub().returns(collection) } } as any;
+  const api = new MongoDataAPI(client);
 
   return { client, collection, api };
 };
@@ -22,7 +22,7 @@ describe('mongoDataAPI client unit tests', () => {
     const { api, client, collection } = mockClient();
 
     expect(await api.getProgram(MOCK_ID)).to.eql(MOCK_RETURN_VALUE);
-    expect(client.collection.args).to.eql([['programs']]);
+    expect(client.db.collection.args).to.eql([['programs']]);
     expect(collection.findOne.args).to.eql([[MOCK_QUERY]]);
   });
 
@@ -30,7 +30,7 @@ describe('mongoDataAPI client unit tests', () => {
     const { api, client, collection } = mockClient();
 
     expect(await api.getVersion(MOCK_ID)).to.eql(MOCK_RETURN_VALUE);
-    expect(client.collection.args).to.eql([['versions']]);
+    expect(client.db.collection.args).to.eql([['versions']]);
     expect(collection.findOne.args).to.eql([[MOCK_QUERY]]);
   });
 
@@ -38,7 +38,7 @@ describe('mongoDataAPI client unit tests', () => {
     const { api, client, collection } = mockClient();
 
     expect(await api.getProject(MOCK_ID)).to.eql(MOCK_RETURN_VALUE);
-    expect(client.collection.args).to.eql([['projects']]);
+    expect(client.db.collection.args).to.eql([['projects']]);
     expect(collection.findOne.args).to.eql([[MOCK_QUERY]]);
   });
 
@@ -53,7 +53,7 @@ describe('mongoDataAPI client unit tests', () => {
     expect(await api.getVersion(MOCK_ID)).to.eql(MOCK_RETURN_VALUE);
     expect(await api.getProject(MOCK_ID)).to.eql(MOCK_RETURN_VALUE);
 
-    expect(client.collection.args).to.eql([['custom-programs'], ['custom-versions'], ['custom-projects']]);
+    expect(client.db.collection.args).to.eql([['custom-programs'], ['custom-versions'], ['custom-projects']]);
     expect(collection.findOne.args).to.eql([[MOCK_QUERY], [MOCK_QUERY], [MOCK_QUERY]]);
   });
 

@@ -11,13 +11,17 @@ export const shallowObjectIdToString = <T extends Record<string, any>>(obj: T): 
   ) as T;
 };
 
+interface Client {
+  db: Db;
+}
+
 class MongoDataAPI<
   P extends BaseModels.Program.Model<any, any>,
   V extends BaseModels.Version.Model<any>,
   PJ extends BaseModels.Project.Model<any, any> = BaseModels.Project.Model<AnyRecord, AnyRecord>
 > implements DataAPI<P, V, PJ>
 {
-  protected client: Db;
+  protected client: Client;
 
   protected programsCollection = 'programs';
 
@@ -25,14 +29,14 @@ class MongoDataAPI<
 
   protected projectsCollection = 'projects';
 
-  constructor({ client }: { client: Db }) {
+  constructor(client: Client) {
     this.client = client;
   }
 
   public getProgram = async (programID: string): Promise<P> => {
     if (!ObjectId.isValid(programID)) return this.getLegacyProgram(programID);
 
-    const program = await this.client
+    const program = await this.client.db
       .collection(this.programsCollection)
       .findOne<(P & { _id: ObjectId; versionID: ObjectId }) | null>({ _id: new ObjectId(programID) });
 
@@ -44,7 +48,7 @@ class MongoDataAPI<
   public getVersion = async (versionID: string): Promise<V> => {
     if (!ObjectId.isValid(versionID)) return this.getLegacyVersion(versionID);
 
-    const version = await this.client
+    const version = await this.client.db
       .collection(this.versionsCollection)
       .findOne<(V & { _id: ObjectId; projectID: ObjectId }) | null>({ _id: new ObjectId(versionID) });
 
@@ -54,7 +58,7 @@ class MongoDataAPI<
   };
 
   public getProject = async (projectID: string) => {
-    const project = await this.client
+    const project = await this.client.db
       .collection(this.projectsCollection)
       .findOne<(PJ & { _id: ObjectId; devVersion: ObjectId; liveVersion: ObjectId }) | null>({
         _id: new ObjectId(projectID),
@@ -67,13 +71,13 @@ class MongoDataAPI<
 
   /** @deprecated legacy versionID for alexa */
   private getLegacyVersion = async (legacyID: string) => {
-    const version = await this.client
+    const version = await this.client.db
       .collection(this.versionsCollection)
       .findOne<(V & { _id: ObjectId; projectID: ObjectId }) | null>({ legacyID });
 
     if (!version) throw new Error(`Version not found: ${version}`);
 
-    const program = await this.client
+    const program = await this.client.db
       .collection(this.programsCollection)
       .findOne<{ legacyID: string } | null>(
         { programID: new ObjectId(version.rootDiagramID) },
@@ -88,7 +92,7 @@ class MongoDataAPI<
 
   /** @deprecated legacy programID for alexa */
   private getLegacyProgram = async (legacyID: string) => {
-    const program = await this.client
+    const program = await this.client.db
       .collection(this.programsCollection)
       .findOne<(P & { _id: ObjectId; versionID: ObjectId }) | null>({ legacyID });
 

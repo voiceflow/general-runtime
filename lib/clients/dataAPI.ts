@@ -41,7 +41,7 @@ class DataAPI {
 
     // fetch from server-data-api
     if (mongo) {
-      this.prototypeDataApi = new API.PrototypeDataAPI({ client: mongo.db });
+      this.prototypeDataApi = new API.PrototypeDataAPI(mongo);
     }
 
     // configuration not set

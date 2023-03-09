@@ -15,13 +15,13 @@ describe('prototypeDataAPI client unit tests', () => {
     const mockProgramCollection = {
       findOne: sinon.stub().resolves(mockProgramValue),
     };
-    const mongoClient = { collection: sinon.stub().returns(mockProgramCollection) };
+    const mongoClient = { db: { collection: sinon.stub().returns(mockProgramCollection) } };
     const arg = '000000000000000000000000';
 
-    const client = new PrototypeDataAPI({ client: mongoClient } as any);
+    const client = new PrototypeDataAPI(mongoClient as any);
 
     expect(await client.getProgram(arg)).to.eql(mockProgramValue);
-    expect(mongoClient.collection.args).to.eql([['prototype-programs']]);
+    expect(mongoClient.db.collection.args).to.eql([['prototype-programs']]);
     expect(mockProgramCollection.findOne.args).to.eql([[{ _id: new ObjectId(arg) }]]);
   });
 });

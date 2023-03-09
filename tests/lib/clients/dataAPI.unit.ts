@@ -42,7 +42,7 @@ describe('dataAPI client unit tests', () => {
     };
 
     expect(await new DataAPI({ config, mongo: { db: 'mongodb' } } as any, API as any).get()).to.eql({ type: 'remote' });
-    expect(API.PrototypeDataAPI.args).to.eql([[{ client: 'mongodb' }]]);
+    expect(API.PrototypeDataAPI.args).to.eql([[{ db: 'mongodb' }]]);
     expect(API.CreatorDataApi.callCount).to.eql(0);
     expect(API.LocalDataApi.callCount).to.eql(0);
   });
