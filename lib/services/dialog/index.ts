@@ -140,7 +140,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               hasChannelIntents: project?.platformData?.hasChannelIntents,
               platform: version.prototype.platform as VoiceflowConstants.PlatformType,
               dmRequest: dmStateStore.intentRequest.payload,
-              workspaceID: parseInt(project.teamID, 10),
+              workspaceID: project.teamID,
             })
           : incomingRequest;
 

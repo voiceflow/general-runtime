@@ -70,7 +70,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     hasChannelIntents: boolean;
     platform: VoiceflowConstants.PlatformType;
     dmRequest?: BaseRequest.IntentRequestPayload;
-    workspaceID: number;
+    workspaceID: string;
   }): Promise<BaseRequest.IntentRequest> {
     // 1. first try restricted regex (no open slots) - exact string match
     if (model && locale) {
@@ -134,7 +134,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       nlp: project.prototype?.nlp,
       hasChannelIntents: project?.platformData?.hasChannelIntents,
       platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
-      workspaceID: Number(project.teamID),
+      workspaceID: project.teamID,
     });
 
     return { ...context, request };
