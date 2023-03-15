@@ -51,7 +51,7 @@
     "immer": "^9.0.6",
     "ioredis": "^4.22.0",
     "ip-range-check": "^0.2.0",
-    "isolated-vm": "^4.4.2",
+    "isolated-vm": "^4.5.0",
     "json-stringify-safe": "^5.0.1",
     "lodash": "^4.17.21",
     "mathjs": "^10.6.1",

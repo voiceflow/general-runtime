@@ -5,9 +5,11 @@ import { FullServiceMap } from '../services';
 import Interact from './interact';
 import Public from './public';
 import StateManagement from './stateManagement';
+import Test from './test';
 import Transcript from './transcript/transcript';
 
 export interface ControllerMap {
+  test: Test;
   public: Public;
   interact: Interact;
   stateManagement: StateManagement;
@@ -23,6 +25,7 @@ export interface ControllerClass<T = Controller> {
  */
 const buildControllers = (services: FullServiceMap, config: Config) => {
   const controllers: ControllerMap = {
+    test: new Test(services, config),
     public: new Public(services, config),
     interact: new Interact(services, config),
     stateManagement: new StateManagement(services, config),

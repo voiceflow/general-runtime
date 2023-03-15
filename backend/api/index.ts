@@ -15,7 +15,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.use('/interact', InteractRouter(middlewares, controllers));
   router.use('/state', StateRouter(middlewares, controllers));
   router.use('/public', PublicRouter(middlewares, controllers));
-  router.use('/test', TestRouter(middlewares));
+  router.use('/test', TestRouter(middlewares, controllers));
   router.use('/transcripts', TranscriptRouter(middlewares, controllers));
 
   return router;
