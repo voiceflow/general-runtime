@@ -16,6 +16,7 @@ import {
 import { Config } from '@/types';
 
 import _V1Handler from './_v1';
+import AIVariableHandler from './aiVariable';
 import APIHandler from './api';
 import CaptureHandler from './capture';
 import CaptureV2Handler from './captureV2';
@@ -50,6 +51,7 @@ export default (config: Config) => [
   APIHandler(config),
   IntegrationsHandler({ integrationsEndpoint: config.INTEGRATIONS_HANDLER_ENDPOINT }),
   RandomHandler(),
+  AIVariableHandler(),
   SetHandler(),
   SetV2Handler(),
   StartHandler(),
