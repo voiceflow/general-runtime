@@ -199,7 +199,7 @@ describe('Runtime unit', () => {
         [EventType.updateWillExecute, {}],
         [EventType.updateDidExecute, {}],
       ]);
-      expect(setActionStub.args).to.eql([[Action.REQUEST]]);
+      expect(setActionStub.args).to.eql([[Action.RUNNING]]);
       expect(cycleStackStub.args).to.eql([[runtime]]);
     });
 

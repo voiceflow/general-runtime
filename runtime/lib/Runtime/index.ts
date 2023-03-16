@@ -206,8 +206,12 @@ class Runtime<
         throw new Error('runtime updated twice');
       }
 
-      // request coming in
-      this.setAction(Action.REQUEST);
+      if (this.getRequest() !== null) {
+        // request coming in
+        this.setAction(Action.REQUEST);
+      } else {
+        this.setAction(Action.RUNNING);
+      }
 
       await cycleStack(this);
 
