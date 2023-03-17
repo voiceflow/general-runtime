@@ -16,14 +16,14 @@ import {
 import { Config } from '@/types';
 
 import _V1Handler from './_v1';
-import AIVariableHandler from './aiVariable';
+import AIResponseHandler from './aiResponse';
+import AISetHandler from './aiVariable';
 import APIHandler from './api';
 import CaptureHandler from './capture';
 import CaptureV2Handler from './captureV2';
 import CardV2Handler from './cardV2';
 import CarouselHandler from './caroussel';
 import ChannelActionHandler from './channelAction';
-import GenerativeHandler from './generative';
 import GoToHandler from './goTo';
 import InteractionHandler from './interaction';
 import SpeakHandler from './speak';
@@ -51,13 +51,13 @@ export default (config: Config) => [
   APIHandler(config),
   IntegrationsHandler({ integrationsEndpoint: config.INTEGRATIONS_HANDLER_ENDPOINT }),
   RandomHandler(),
-  AIVariableHandler(),
+  AISetHandler(),
   SetHandler(),
   SetV2Handler(),
   StartHandler(),
   VisualHandler(),
   TextHandler(),
-  GenerativeHandler(),
+  AIResponseHandler(),
   ...CardV2Handler(),
   ...CarouselHandler(),
   GoToNodeHandler(),

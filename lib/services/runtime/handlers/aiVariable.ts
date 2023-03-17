@@ -6,8 +6,8 @@ import Config from '@/config';
 import log from '@/logger';
 import { HandlerFactory } from '@/runtime';
 
-const AIVariableHandler: HandlerFactory<BaseNode.AIVariable.Node> = () => ({
-  canHandle: (node) => node.type === BaseNode.NodeType.AI_VARIABLE,
+const AIVariableHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
+  canHandle: (node) => node.type === BaseNode.NodeType.AI_SET,
   handle: async (node, _, variables) => {
     const nextID = node.nextId ?? null;
 

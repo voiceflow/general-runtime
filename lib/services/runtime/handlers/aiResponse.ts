@@ -12,7 +12,7 @@ import { outputTrace } from '../utils';
 import { generateOutput } from './utils/output';
 import { getVersionDefaultVoice } from './utils/version';
 
-const GenerativeHandler: HandlerFactory<VoiceNode.Generative.Node> = () => ({
+const AIResponseHandler: HandlerFactory<VoiceNode.Generative.Node> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.GENERATIVE,
   handle: async (node, runtime, variables) => {
     const nextID = node.nextId ?? null;
@@ -60,4 +60,4 @@ const GenerativeHandler: HandlerFactory<VoiceNode.Generative.Node> = () => ({
   },
 });
 
-export default GenerativeHandler;
+export default AIResponseHandler;
