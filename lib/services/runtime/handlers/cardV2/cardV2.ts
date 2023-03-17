@@ -56,11 +56,10 @@ export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof han
   canHandle: (node) => node.type === BaseNode.NodeType.CARD_V2,
 
   handle: (node, runtime, variables) => {
-    const isStartingFromCardV2Step = runtime.getAction() === Action.REQUEST && !runtime.getRequest();
     const defaultPath = node.nextId || null;
     const { isBlocking } = node;
 
-    if (runtime.getAction() === Action.RUNNING || isStartingFromCardV2Step) {
+    if (runtime.getAction() === Action.RUNNING) {
       const variablesMap = variables.getState();
       const description = getDescription(
         variablesMap,
