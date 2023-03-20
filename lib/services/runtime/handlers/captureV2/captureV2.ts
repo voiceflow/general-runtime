@@ -3,7 +3,7 @@ import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory } from '@/runtime';
 
-import { isIntentRequest, StorageType } from '../../types';
+import { isIntentRequest, RuntimeRequest, StorageType } from '../../types';
 import { addButtonsIfExists, mapEntities } from '../../utils';
 import CommandHandler from '../command';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
@@ -23,6 +23,28 @@ const isNodeCapturingEntity = (node: VoiceflowNode.CaptureV2.Node): node is Capt
 
 const isNodeCapturingEntireResponse = (node: VoiceflowNode.CaptureV2.Node): node is CaptureWithVariable =>
   typeof node.variable === 'string';
+
+const isSuccessfulCapture = (node: VoiceflowNode.CaptureV2.Node, request: RuntimeRequest) => {
+  /**
+   * If the CaptureV2 step is configured to capture the entire response, then the capture is successful
+   * regardless of the value the request.
+   *
+   * This must be executed first since `node.intent.name` is not defined when capturing the entire response.
+   */
+  if (isNodeCapturingEntireResponse(node)) return true;
+
+  /**
+   * If no intent specified, then the captureV2 is not configured to capture anything. Therefore, we automatically
+   * fail the Capture step.
+   */
+  if (!node.intent?.name) return false;
+
+  /**
+   * Otherwise, the CaptureV2 step is looking for an utterance that matches its Capture intent. Then, the capture
+   * is successful only if the intent detected by the NLU matches the Capture intent.
+   */
+  return isIntentRequest(request) && node.intent?.name === request.payload.intent.name;
+};
 
 const utilsObj = {
   repeatHandler: RepeatHandler(),
@@ -80,7 +102,7 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, type
     }
 
     // on successful match
-    if (isIntentRequest(request)) {
+    if (isSuccessfulCapture(node, request)) {
       const { query, intent } = request.payload;
 
       const handleCapturePath = () => {
