@@ -43,33 +43,49 @@ export const stringToNumIfNumeric = (str: string): string | number => {
 
 type Variable = string | number;
 
-// eslint-disable-next-line sonarjs/cognitive-complexity
 export const getVariable = (path: string, data: any): Variable | undefined => {
   if (!path || typeof path !== 'string') {
     return undefined;
   }
 
-  const props = path.split('.');
-  let curData: any = { response: data };
+  // Normalized array access syntax (e.g. [0] -> .0)
+  const normalizedPath = path.replace(/\[(\d+|{random})]/g, '.$1');
 
-  props.forEach((prop) => {
-    const propsAndInds = prop.split('[');
-    propsAndInds.forEach((propOrInd) => {
-      if (propOrInd.indexOf(']') >= 0) {
-        const indexStr = propOrInd.slice(0, -1);
-        let index;
-        if (indexStr.toLowerCase() === '{random}') {
-          index = Math.floor(Math.random() * curData.length);
-        } else {
-          index = parseInt(indexStr, 10);
-        }
-        curData = curData ? curData[index] : undefined;
+  // Split the path into its parts
+  const parts = normalizedPath.split('.');
+  let extracted: any = data;
+
+  // Loop through each part of the path
+  // eslint-disable-next-line no-restricted-syntax
+  for (const part of parts) {
+    // If the part is an array index, convert it to a number
+    const index = Number(part);
+
+    if (Number.isNaN(index)) {
+      // If the part is {random}, replace it with a random array index
+      if (part === '{random}' && Array.isArray(extracted)) {
+        extracted = extracted[Math.floor(Math.random() * extracted.length)];
       } else {
-        curData = curData ? curData[propOrInd] : undefined;
+        // If the part is not an array index, just use it as-is
+        extracted = extracted[part];
       }
-    });
-  });
-  return stringToNumIfNumeric(curData);
+    } else {
+      // If the part is an array index, use it as-is
+      extracted = extracted[index];
+    }
+
+    // If the extracted value is undefined, return undefined
+    if (extracted === undefined) {
+      return undefined;
+    }
+
+    // If the extracted value is a string, try to convert it to a number
+    if (typeof extracted === 'string') {
+      extracted = stringToNumIfNumeric(extracted);
+    }
+  }
+
+  return extracted;
 };
 
 export const ReduceKeyValue = (values: { key: string; val: string }[]) =>
