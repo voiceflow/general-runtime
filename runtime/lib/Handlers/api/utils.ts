@@ -43,6 +43,7 @@ export const stringToNumIfNumeric = (str: string): string | number => {
 
 type Variable = string | number;
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export const getVariable = (path: string, data: any): Variable | undefined => {
   if (!path || typeof path !== 'string') {
     return undefined;
@@ -53,6 +54,13 @@ export const getVariable = (path: string, data: any): Variable | undefined => {
 
   // Split the path into its parts
   const parts = normalizedPath.split('.');
+
+  // Originally, you were always required to prefix your path with "response."
+  // This makes it optional without breaking backwards compatibility
+  if (parts[0] === 'response') {
+    parts.shift();
+  }
+
   let extracted: any = data;
 
   // Loop through each part of the path

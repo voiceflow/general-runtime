@@ -92,6 +92,10 @@ describe('Handlers api utils unit tests', () => {
     it('converts string to number if numeric', () => {
       expect(getVariable('f', data)).to.eql(1);
     });
+
+    it('works with legacy response. prefix', () => {
+      expect(getVariable('response.a', data)).to.eql('a');
+    });
   });
 
   describe('ReduceKeyValue', () => {
