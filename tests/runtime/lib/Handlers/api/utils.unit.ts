@@ -44,12 +44,53 @@ describe('Handlers api utils unit tests', () => {
   });
 
   describe('getVariable', () => {
-    it('returns undefined if path is empty string', () => {
-      expect(getVariable('', {})).to.eql(undefined);
+    const data = {
+      a: 'a',
+      b: {
+        c: 'c',
+      },
+      d: {
+        e: ['e0', 'e1', 'e2'],
+      },
+      f: 1,
+    };
+
+    it('returns undefined if variable is missing from data at top-level', () => {
+      expect(getVariable('z', data)).to.eql(undefined);
     });
 
-    it('returns undefined if path is a number', () => {
-      expect(getVariable(5 as any, {})).to.eql(undefined);
+    it('returns undefined if variable is missing from nested data', () => {
+      expect(getVariable('b.f', data)).to.eql(undefined);
+    });
+
+    it('returns undefined if variable is missing from array', () => {
+      expect(getVariable('d.e[10]', data)).to.eql(undefined);
+    });
+
+    it('resolves {random} to a random array index', () => {
+      const extracted = getVariable('d.e[{random}]', data);
+      expect(extracted).to.be.oneOf(['e0', 'e1', 'e2']);
+    });
+
+    it('resolves the alternate syntax for {random}', () => {
+      const extracted = getVariable('d.e.{random}', data);
+      expect(extracted).to.be.oneOf(['e0', 'e1', 'e2']);
+    });
+
+    it('resolves the alternate syntax for array index', () => {
+      expect(getVariable('d.e.0', data)).to.eql('e0');
+    });
+
+    it('accesses top-level data', () => {
+      expect(getVariable('a', data)).to.eql('a');
+    });
+
+    it('accesses nested data', () => {
+      expect(getVariable('b.c', data)).to.eql('c');
+    });
+
+    it('converts string to number if numeric', () => {
+      expect(getVariable('f', data)).to.eql(1);
     });
   });
 
