@@ -19,7 +19,7 @@ const isConfidenceScoreAbove = (threshold: number, confidence: number) =>
   typeof confidence !== 'number' || confidence > threshold;
 
 const isNodeCapturingEntity = (node: VoiceflowNode.CaptureV2.Node): node is CaptureWithIntent =>
-  typeof node.intent?.name === 'string' && typeof node.intent?.entities != null;
+  typeof node.intent?.name === 'string' && typeof node.intent?.entities != null && !node.variable;
 
 const isNodeCapturingEntireResponse = (node: VoiceflowNode.CaptureV2.Node): node is CaptureWithVariable =>
   typeof node.variable === 'string';
@@ -110,6 +110,8 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, type
             ])
           ),
         });
+
+        return handleCapturePath();
       }
 
       if (isNodeCapturingEntireResponse(node)) {
@@ -123,9 +125,9 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, type
             },
           },
         });
-      }
 
-      return handleCapturePath();
+        return handleCapturePath();
+      }
     }
 
     const noMatchHandler = utils.entityFillingNoMatchHandler.handle(node, runtime, variables);
