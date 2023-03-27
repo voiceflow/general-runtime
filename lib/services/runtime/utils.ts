@@ -233,12 +233,16 @@ export function textOutputTrace({
   const richContent = {
     id: cuid.slug(),
     content,
-    messageDelayMilliseconds: delay ?? getVersionMessageDelay(version) ?? DEFAULT_DELAY,
   };
 
   const trace: BaseTrace.Text = {
     type: BaseNode.Utils.TraceType.TEXT,
-    payload: { slate: richContent, message: plainContent, ...(ai && { ai }) },
+    payload: {
+      slate: richContent,
+      message: plainContent,
+      delay: delay ?? getVersionMessageDelay(version) ?? DEFAULT_DELAY,
+      ...(ai && { ai }),
+    },
   };
 
   variables?.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, plainContent);
