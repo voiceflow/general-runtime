@@ -42,7 +42,7 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
                 model,
               })
               .then(({ data: { result } }) => result)
-              .catch(() => null)
+              .catch((error) => log.error(error))
           );
         })
     );

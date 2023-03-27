@@ -8,7 +8,7 @@ import log from '@/logger';
 import { HandlerFactory } from '@/runtime';
 
 import { FrameType, Output } from '../types';
-import { outputTrace } from '../utils';
+import { addOutputTrace, getOutputTrace } from '../utils';
 import { generateOutput } from './utils/output';
 import { getVersionDefaultVoice } from './utils/version';
 
@@ -36,7 +36,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
     const response = await axios
       .post<{ result: string }>(generativeEndpoint, { prompt, maxTokens, system, temperature, model })
       .then(({ data: { result } }) => result)
-      .catch(() => null);
+      .catch((error) => log.error(error));
 
     if (!response) return nextID;
 
@@ -49,14 +49,15 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
 
     runtime.stack.top().storage.set<Output>(FrameType.OUTPUT, output);
 
-    outputTrace({
-      addTrace: runtime.trace.addTrace.bind(runtime.trace),
-      debugLogging: runtime.debugLogging,
-      node,
-      output,
-      variables,
-      ai: true,
-    });
+    addOutputTrace(
+      runtime,
+      getOutputTrace({
+        output,
+        variables,
+        version: runtime.version,
+        ai: true,
+      })
+    );
 
     return nextID;
   },

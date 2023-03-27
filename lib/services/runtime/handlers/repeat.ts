@@ -6,10 +6,11 @@ import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { Runtime } from '@/runtime';
 
 import { FrameType, isIntentRequest, Output, StorageType, TurnType } from '../types';
-import { outputTrace } from '../utils';
+import { addOutputTrace, getOutputTrace } from '../utils';
 
 const utilsObj = {
-  outputTrace,
+  addOutputTrace,
+  getOutputTrace,
 };
 
 const repeatIntents = new Set<string>([
@@ -38,12 +39,16 @@ export const RepeatHandler = (utils: typeof utilsObj) => ({
         ? runtime.turn.get<Output>(TurnType.PREVIOUS_OUTPUT)
         : top.storage.get<Output>(FrameType.OUTPUT);
 
-    utils.outputTrace({
-      output,
-      addTrace: runtime.trace.addTrace.bind(runtime.trace),
-      debugLogging: runtime.debugLogging,
-      variables: runtime.variables,
-    });
+    if (output) {
+      utils.addOutputTrace(
+        runtime,
+        utils.getOutputTrace({
+          output,
+          version: runtime.version,
+          variables: runtime.variables,
+        })
+      );
+    }
 
     return top.getNodeID() || null;
   },

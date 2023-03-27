@@ -4,7 +4,7 @@ import log from '@/logger';
 import Client, { EventType } from '@/runtime';
 
 import { FrameType, Output, StorageType, StreamAction, StreamPlayStorage, TurnType } from './types';
-import { outputTrace } from './utils';
+import { addOutputTrace, getOutputTrace } from './utils';
 
 // initialize event behaviors for client
 const init = (client: Client) => {
@@ -33,12 +33,14 @@ const init = (client: Client) => {
       return;
     }
 
-    outputTrace({
-      addTrace: runtime.trace.addTrace.bind(runtime.trace),
-      debugLogging: runtime.debugLogging,
-      output,
-      variables: runtime.variables,
-    });
+    addOutputTrace(
+      runtime,
+      getOutputTrace({
+        output,
+        version: runtime.version,
+        variables: runtime.variables,
+      })
+    );
   });
 
   client.setEvent(EventType.handlerWillHandle, ({ runtime, node }) => {

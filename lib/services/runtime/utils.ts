@@ -1,4 +1,13 @@
-import { BaseModels, BaseNode, BaseRequest, BaseText, BaseTrace, RuntimeLogs, Text } from '@voiceflow/base-types';
+import {
+  BaseModels,
+  BaseNode,
+  BaseRequest,
+  BaseText,
+  BaseTrace,
+  BaseVersion,
+  RuntimeLogs,
+  Text,
+} from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables, transformStringVariableToNumber, Utils } from '@voiceflow/common';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import cuid from 'cuid';
@@ -198,41 +207,86 @@ export const removeEmptyPrompts = (
       prompt != null && (typeof prompt === 'string' ? prompt !== EMPTY_AUDIO_STRING : !!slateToPlaintext(prompt))
   ) ?? [];
 
+const DEFAULT_DELAY = 1000;
+
+const getVersionMessageDelay = (version?: BaseModels.Version.Model<BaseModels.Version.PlatformData>): number | null => {
+  return version?.platformData?.settings?.messageDelay?.durationMilliseconds ?? null;
+};
+
 interface OutputParams<V> {
-  output?: V;
+  output: V;
   variables?: Store;
-  node?: BaseModels.BaseNode;
-  debugLogging: DebugLogging;
-  addTrace: AddTraceFn;
   ai?: boolean;
+  version?: BaseVersion.Version;
 }
 
-export function outputTrace({ node, addTrace, debugLogging, output, variables, ai }: OutputParams<Output>): void {
+export function textOutputTrace({
+  ai,
+  delay,
+  output,
+  version,
+  variables,
+}: OutputParams<BaseText.SlateTextValue> & { delay?: number }) {
   const sanitizedVars = sanitizeVariables(variables?.getState() ?? {});
+  const content = slateInjectVariables(output, sanitizedVars);
+  const plainContent = slateToPlaintext(content);
+  const richContent = {
+    id: cuid.slug(),
+    content,
+    messageDelayMilliseconds: delay ?? getVersionMessageDelay(version) ?? DEFAULT_DELAY,
+  };
 
+  const trace: BaseTrace.Text = {
+    type: BaseNode.Utils.TraceType.TEXT,
+    payload: { slate: richContent, message: plainContent, ...(ai && { ai }) },
+  };
+
+  variables?.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, plainContent);
+
+  return trace;
+}
+
+export function speakOutputTrace({ variables, output }: OutputParams<string>) {
+  const sanitizedVars = sanitizeVariables(variables?.getState() ?? {});
+  const message = replaceVariables(output || '', sanitizedVars);
+
+  const trace: BaseTrace.Speak = {
+    type: BaseNode.Utils.TraceType.SPEAK,
+    payload: { message, type: BaseNode.Speak.TraceSpeakType.MESSAGE },
+  };
+
+  variables?.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, message);
+
+  return trace;
+}
+
+/** from a slate object or SSML string generate a full output trace with variables baked in */
+export function getOutputTrace(params: OutputParams<Output>): BaseTrace.Speak | BaseTrace.Text {
+  const { output } = params;
   if (Array.isArray(output)) {
-    const content = slateInjectVariables(output, sanitizedVars);
-    const plainContent = slateToPlaintext(content);
-    const richContent = { id: cuid.slug(), content };
+    return textOutputTrace({ ...params, output });
+  }
+  return speakOutputTrace({ ...params, output });
+}
 
-    addTrace({
-      type: BaseNode.Utils.TraceType.TEXT,
-      payload: { slate: richContent, message: plainContent, ai },
-    });
-    debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.TEXT, node, {
-      plainContent,
-      richContent,
-    });
-    variables?.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, plainContent);
-  } else {
-    const message = replaceVariables(output || '', sanitizedVars);
+export function addOutputTrace(
+  runtime: { trace: { addTrace: AddTraceFn }; debugLogging: DebugLogging },
+  trace: BaseTrace.Speak | BaseTrace.Text,
+  { node }: { node?: BaseModels.BaseNode } = {}
+) {
+  runtime.trace.addTrace(trace);
 
-    addTrace({
-      type: BaseNode.Utils.TraceType.SPEAK,
-      payload: { message, type: BaseNode.Speak.TraceSpeakType.MESSAGE },
+  if (trace.type === BaseNode.Utils.TraceType.SPEAK) {
+    runtime.debugLogging?.recordStepLog(RuntimeLogs.Kinds.StepLogKind.SPEAK, node, {
+      text: trace.payload.message,
     });
-    debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.SPEAK, node, { text: message });
-    variables?.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, message);
+  }
+
+  if (trace.type === BaseNode.Utils.TraceType.TEXT) {
+    runtime.debugLogging?.recordStepLog(RuntimeLogs.Kinds.StepLogKind.TEXT, node, {
+      plainContent: trace.payload.message,
+      richContent: trace.payload.slate,
+    });
   }
 }
 

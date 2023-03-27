@@ -1,19 +1,16 @@
-import { BaseNode, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
-import { sanitizeVariables } from '@voiceflow/common';
-import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
+import { BaseNode } from '@voiceflow/base-types';
 import _sample from 'lodash/sample';
 
 import log from '@/logger';
 import { HandlerFactory } from '@/runtime';
 
 import { FrameType, Output } from '../types';
-import { slateInjectVariables, slateToPlaintext } from '../utils';
+import { addOutputTrace, textOutputTrace } from '../utils';
 
 const handlerUtils = {
+  addOutputTrace,
+  textOutputTrace,
   _sample,
-  slateToPlaintext,
-  sanitizeVariables,
-  slateInjectVariables,
 };
 
 export const TextHandler: HandlerFactory<BaseNode.Text.Node, typeof handlerUtils> = (utils) => ({
@@ -23,20 +20,18 @@ export const TextHandler: HandlerFactory<BaseNode.Text.Node, typeof handlerUtils
 
     if (slate) {
       try {
-        const sanitizedVars = utils.sanitizeVariables(variables.getState());
-        const richContent = { ...slate, content: utils.slateInjectVariables(slate.content, sanitizedVars) };
-        const message = utils.slateToPlaintext(richContent.content);
+        const trace = utils.textOutputTrace({
+          delay: slate.messageDelayMilliseconds,
+          output: slate.content,
+          variables,
+          version: runtime.version,
+        });
 
-        runtime.stack.top().storage.set<Output>(FrameType.OUTPUT, richContent.content);
-        runtime.trace.addTrace<BaseTrace.TextTrace>({
-          type: BaseNode.Utils.TraceType.TEXT,
-          payload: { slate: richContent, message },
-        });
-        runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.TEXT, node, {
-          plainContent: message,
-          richContent,
-        });
-        variables.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, message);
+        utils.addOutputTrace(runtime, trace, { node });
+
+        if (trace.payload.slate.content) {
+          runtime.stack.top().storage.set<Output>(FrameType.OUTPUT, trace.payload.slate.content);
+        }
       } catch (error) {
         log.error(`[app] [runtime] [${TextHandler.name}] failed to add Slate trace ${log.vars({ error })}`);
       }

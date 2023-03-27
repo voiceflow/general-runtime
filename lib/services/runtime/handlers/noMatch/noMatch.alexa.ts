@@ -7,7 +7,7 @@ import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 import { Runtime, Store } from '@/runtime';
 
 import { NoMatchCounterStorage, StorageType } from '../../types';
-import { addRepromptIfExists, outputTrace } from '../../utils';
+import { addOutputTrace, addRepromptIfExists, getOutputTrace } from '../../utils';
 import { convertDeprecatedNoMatch, getOutput } from '.';
 
 export const NoMatchAlexaHandler = () => ({
@@ -23,13 +23,14 @@ export const NoMatchAlexaHandler = () => ({
       return node.noMatch?.nodeID ?? null;
     }
 
-    outputTrace({
-      addTrace: runtime.trace.addTrace.bind(runtime.trace),
-      debugLogging: runtime.debugLogging,
-      node,
-      output: output.output,
-      variables,
-    });
+    addOutputTrace(
+      runtime,
+      getOutputTrace({
+        output: output.output,
+        variables,
+      }),
+      { node }
+    );
 
     if (node.noMatch?.nodeID) {
       runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);

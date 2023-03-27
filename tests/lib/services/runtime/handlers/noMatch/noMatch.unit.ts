@@ -5,7 +5,7 @@ import sinon from 'sinon';
 
 import { NoMatchHandler } from '@/lib/services/runtime/handlers/noMatch';
 import { StorageType } from '@/lib/services/runtime/types';
-import { EMPTY_AUDIO_STRING, outputTrace } from '@/lib/services/runtime/utils';
+import { addOutputTrace, EMPTY_AUDIO_STRING, getOutputTrace } from '@/lib/services/runtime/utils';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
@@ -42,7 +42,8 @@ describe('noMatch handler unit tests', async () => {
       };
 
       const noMatchHandler = NoMatchHandler({
-        outputTrace,
+        addOutputTrace,
+        getOutputTrace,
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
@@ -105,7 +106,8 @@ describe('noMatch handler unit tests', async () => {
       };
 
       const noMatchHandler = NoMatchHandler({
-        outputTrace,
+        addOutputTrace,
+        getOutputTrace,
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
@@ -134,7 +136,8 @@ describe('noMatch handler unit tests', async () => {
       };
 
       const noMatchHandler = NoMatchHandler({
-        outputTrace,
+        addOutputTrace,
+        getOutputTrace,
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
@@ -172,7 +175,8 @@ describe('noMatch handler unit tests', async () => {
       const addButtonsIfExists = sinon.stub();
 
       const noMatchHandler = NoMatchHandler({
-        outputTrace,
+        addOutputTrace,
+        getOutputTrace,
         addButtonsIfExists,
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
@@ -235,7 +239,8 @@ describe('noMatch handler unit tests', async () => {
       const addButtonsIfExists = sinon.stub();
 
       const noMatchHandler = NoMatchHandler({
-        outputTrace,
+        addOutputTrace,
+        getOutputTrace,
         addButtonsIfExists,
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
@@ -297,7 +302,8 @@ describe('noMatch handler unit tests', async () => {
       };
 
       const noMatchHandler = NoMatchHandler({
-        outputTrace,
+        addOutputTrace,
+        getOutputTrace,
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
@@ -332,7 +338,8 @@ describe('noMatch handler unit tests', async () => {
       };
 
       const noMatchHandler = NoMatchHandler({
-        outputTrace,
+        addOutputTrace,
+        getOutputTrace,
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
@@ -367,7 +374,8 @@ describe('noMatch handler unit tests', async () => {
       };
 
       const noMatchHandler = NoMatchHandler({
-        outputTrace,
+        addOutputTrace,
+        getOutputTrace,
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
@@ -408,7 +416,8 @@ describe('noMatch handler unit tests', async () => {
       };
 
       const noMatchHandler = NoMatchHandler({
-        outputTrace,
+        addOutputTrace,
+        getOutputTrace,
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
@@ -449,7 +458,8 @@ describe('noMatch handler unit tests', async () => {
       };
 
       const noMatchHandler = NoMatchHandler({
-        outputTrace,
+        addOutputTrace,
+        getOutputTrace,
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
@@ -485,7 +495,8 @@ describe('noMatch handler unit tests', async () => {
       };
 
       const noMatchHandler = NoMatchHandler({
-        outputTrace,
+        addOutputTrace,
+        getOutputTrace,
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
@@ -544,7 +555,8 @@ describe('noMatch handler unit tests', async () => {
       };
 
       const noMatchHandler = NoMatchHandler({
-        outputTrace,
+        addOutputTrace,
+        getOutputTrace,
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
@@ -577,7 +589,8 @@ describe('noMatch handler unit tests', async () => {
       };
 
       const noMatchHandler = NoMatchHandler({
-        outputTrace,
+        addOutputTrace,
+        getOutputTrace,
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
@@ -610,7 +623,8 @@ describe('noMatch handler unit tests', async () => {
       };
 
       const noMatchHandler = NoMatchHandler({
-        outputTrace,
+        addOutputTrace,
+        getOutputTrace,
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });

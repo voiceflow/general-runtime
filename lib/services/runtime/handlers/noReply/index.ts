@@ -7,10 +7,11 @@ import { Runtime, Store } from '@/runtime';
 import { NoReplyCounterStorage, StorageType } from '../../types';
 import {
   addButtonsIfExists,
+  addOutputTrace,
   getDefaultNoReplyTimeoutSeconds,
   getGlobalNoReplyPrompt,
+  getOutputTrace,
   isPromptContentEmpty,
-  outputTrace,
   removeEmptyPrompts,
 } from '../../utils';
 
@@ -85,7 +86,8 @@ const getOutput = (runtime: Runtime, node: NoReplyNode, noReplyCounter: number) 
 };
 
 const utilsObj = {
-  outputTrace,
+  addOutputTrace,
+  getOutputTrace,
   addButtonsIfExists,
   addNoReplyTimeoutIfExists,
 };
@@ -116,13 +118,15 @@ export const NoReplyHandler = (utils: typeof utilsObj) => ({
       payload: { path: 'reprompt' },
     });
 
-    utils.outputTrace({
-      addTrace: runtime.trace.addTrace.bind(runtime.trace),
-      debugLogging: runtime.debugLogging,
-      node,
-      output,
-      variables,
-    });
+    utils.addOutputTrace(
+      runtime,
+      utils.getOutputTrace({
+        output,
+        version: runtime.version,
+        variables,
+      }),
+      { node }
+    );
 
     utils.addButtonsIfExists(node, runtime, variables);
     utils.addNoReplyTimeoutIfExists(node, runtime, delay);

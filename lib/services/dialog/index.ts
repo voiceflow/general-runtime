@@ -20,7 +20,7 @@ import { Context, ContextHandler, VersionTag } from '@/types';
 
 import { getNoneIntentRequest } from '../nlu/utils';
 import { isIntentRequest, StorageType } from '../runtime/types';
-import { outputTrace } from '../runtime/utils';
+import { addOutputTrace, getOutputTrace } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
 import { rectifyEntityValue } from './synonym';
 import {
@@ -33,7 +33,8 @@ import {
 } from './utils';
 
 export const utils = {
-  outputTrace,
+  addOutputTrace,
+  getOutputTrace,
   isIntentInScope,
 };
 
@@ -205,12 +206,14 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
             )
           : prompt.content;
 
-        utils.outputTrace({
-          addTrace,
-          debugLogging,
-          output,
-          variables,
-        });
+        utils.addOutputTrace(
+          { trace: { addTrace }, debugLogging },
+          utils.getOutputTrace({
+            output,
+            version,
+            variables,
+          })
+        );
       }
       if (prompt || hasElicit(incomingRequest)) {
         trace.push({

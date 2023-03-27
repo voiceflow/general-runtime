@@ -7,10 +7,11 @@ import { Runtime, Store } from '@/runtime';
 import { NoMatchCounterStorage, Output, StorageType } from '../../types';
 import {
   addButtonsIfExists,
+  addOutputTrace,
   getGlobalNoMatchPrompt,
+  getOutputTrace,
   isPromptContentEmpty,
   isPromptContentInitialyzed,
-  outputTrace,
   removeEmptyPrompts,
 } from '../../utils';
 import { addNoReplyTimeoutIfExists } from '../noReply';
@@ -20,7 +21,8 @@ import { generateOutput } from '../utils/output';
 export type NoMatchNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoMatchNode;
 
 const utilsObj = {
-  outputTrace,
+  getOutputTrace,
+  addOutputTrace,
   addButtonsIfExists,
   addNoReplyTimeoutIfExists,
 };
@@ -109,14 +111,16 @@ export const NoMatchHandler = (utils: typeof utilsObj) => ({
       payload: { path: 'reprompt' },
     });
 
-    utils.outputTrace({
-      addTrace: runtime.trace.addTrace.bind(runtime.trace),
-      debugLogging: runtime.debugLogging,
-      node,
-      output: output.output,
-      variables,
-      ai: output.ai,
-    });
+    utils.addOutputTrace(
+      runtime,
+      utils.getOutputTrace({
+        output: output.output,
+        version: runtime.version,
+        variables,
+        ai: output.ai,
+      }),
+      { node }
+    );
 
     runtime.storage.set(StorageType.NO_MATCHES_COUNTER, noMatchCounter + 1);
 

@@ -5,6 +5,7 @@ import sinon from 'sinon';
 
 import { RepeatHandler } from '@/lib/services/runtime/handlers/repeat';
 import { FrameType, StorageType, TurnType } from '@/lib/services/runtime/types';
+import { addOutputTrace } from '@/lib/services/runtime/utils';
 
 describe('repeat handler', () => {
   const intentRequest = {
@@ -74,8 +75,8 @@ describe('repeat handler', () => {
       };
 
       const TRACE = '_trace1';
-      const outputTrace = () => runtime.trace.addTrace(TRACE);
-      const repeatHandler = RepeatHandler({ outputTrace } as any);
+      const getOutputTrace = () => TRACE;
+      const repeatHandler = RepeatHandler({ getOutputTrace, addOutputTrace } as any);
 
       repeatHandler.handle(runtime as any);
 
@@ -108,8 +109,8 @@ describe('repeat handler', () => {
       };
 
       const TRACE = '_trace2';
-      const outputTrace = () => runtime.trace.addTrace(TRACE);
-      const repeatHandler = RepeatHandler({ outputTrace } as any);
+      const getOutputTrace = () => TRACE;
+      const repeatHandler = RepeatHandler({ getOutputTrace, addOutputTrace } as any);
 
       repeatHandler.handle(runtime as any);
 
