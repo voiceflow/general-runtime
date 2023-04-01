@@ -12,8 +12,8 @@ import { outputTrace } from '../utils';
 import { generateOutput } from './utils/output';
 import { getVersionDefaultVoice } from './utils/version';
 
-const AIResponseHandler: HandlerFactory<VoiceNode.Generative.Node> = () => ({
-  canHandle: (node) => node.type === BaseNode.NodeType.GENERATIVE,
+const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
+  canHandle: (node) => node.type === BaseNode.NodeType.AI_RESPONSE,
   handle: async (node, runtime, variables) => {
     const nextID = node.nextId ?? null;
 
@@ -29,10 +29,10 @@ const AIResponseHandler: HandlerFactory<VoiceNode.Generative.Node> = () => ({
 
     const sanitizedVars = sanitizeVariables(variables.getState());
     const prompt = replaceVariables(node.prompt, sanitizedVars);
-    const { length, voice } = node;
+    const { maxTokens, system, temperature, model, voice } = node;
 
     const response = await axios
-      .post<{ result: string }>(generativeEndpoint, { prompt, length })
+      .post<{ result: string }>(generativeEndpoint, { prompt, maxTokens, system, temperature, model })
       .then(({ data: { result } }) => result)
       .catch(() => null);
 

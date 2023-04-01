@@ -6,7 +6,7 @@ import Config from '@/config';
 import log from '@/logger';
 import { HandlerFactory } from '@/runtime';
 
-const AIVariableHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
+const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_SET,
   handle: async (node, _, variables) => {
     const nextID = node.nextId ?? null;
@@ -23,6 +23,8 @@ const AIVariableHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
 
     const sanitizedVars = sanitizeVariables(variables.getState());
 
+    const { maxTokens, system, temperature, model } = node;
+
     await Promise.all(
       node.sets
         .filter((set) => !!set.prompt && !!set.variable)
@@ -30,7 +32,13 @@ const AIVariableHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
           variables.set(
             set.variable!,
             await axios
-              .post<{ result: string }>(generativeEndpoint, { prompt: replaceVariables(set.prompt, sanitizedVars) })
+              .post<{ result: string }>(generativeEndpoint, {
+                prompt: replaceVariables(set.prompt, sanitizedVars),
+                maxTokens,
+                system,
+                temperature,
+                model,
+              })
               .then(({ data: { result } }) => result)
               .catch(() => null)
           );
@@ -41,4 +49,4 @@ const AIVariableHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
   },
 });
 
-export default AIVariableHandler;
+export default AISetHandler;

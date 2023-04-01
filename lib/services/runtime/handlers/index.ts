@@ -17,7 +17,7 @@ import { Config } from '@/types';
 
 import _V1Handler from './_v1';
 import AIResponseHandler from './aiResponse';
-import AISetHandler from './aiVariable';
+import AISetHandler from './aiSet';
 import APIHandler from './api';
 import CaptureHandler from './capture';
 import CaptureV2Handler from './captureV2';
