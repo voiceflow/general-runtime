@@ -29,7 +29,9 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
 
     const sanitizedVars = sanitizeVariables(variables.getState());
     const prompt = replaceVariables(node.prompt, sanitizedVars);
-    const { maxTokens, system, temperature, model, voice } = node;
+    const system = replaceVariables(node.system, sanitizedVars);
+
+    const { maxTokens, temperature, model, voice } = node;
 
     const response = await axios
       .post<{ result: string }>(generativeEndpoint, { prompt, maxTokens, system, temperature, model })

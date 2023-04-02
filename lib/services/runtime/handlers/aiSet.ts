@@ -23,7 +23,9 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
 
     const sanitizedVars = sanitizeVariables(variables.getState());
 
-    const { maxTokens, system, temperature, model } = node;
+    const { maxTokens, temperature, model } = node;
+
+    const system = replaceVariables(node.system, sanitizedVars);
 
     await Promise.all(
       node.sets
