@@ -70,14 +70,15 @@ export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof han
       );
 
       const title = replaceVariables(node.title, variablesMap);
+      const imageUrl = replaceVariables(node.imageUrl, variablesMap);
 
       const buttons = node.buttons.map((button) => utils.deepVariableSubstitution(button, variablesMap));
 
-      if (title || buttons.length || description.text || node.imageUrl) {
+      if (title || buttons.length || description.text || imageUrl) {
         runtime.trace.addTrace<BaseNode.CardV2.TraceFrame>({
           type: BaseTrace.TraceType.CARD_V2,
           payload: {
-            imageUrl: node.imageUrl,
+            imageUrl,
             description,
             buttons,
             title,
