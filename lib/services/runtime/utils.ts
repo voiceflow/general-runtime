@@ -287,3 +287,6 @@ export const processOutput = (output: string | Text.SlateTextValue | undefined, 
   const content = slateInjectVariables(output, sanitizedVars);
   return slateToPlaintext(content);
 };
+
+export const isConfidenceScoreAbove = (threshold: number, confidence: number) =>
+  typeof confidence !== 'number' || confidence > threshold;

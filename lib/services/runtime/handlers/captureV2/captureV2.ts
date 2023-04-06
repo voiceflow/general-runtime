@@ -4,7 +4,7 @@ import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 import { Action, HandlerFactory } from '@/runtime';
 
 import { isIntentRequest, StorageType } from '../../types';
-import { addButtonsIfExists, mapEntities } from '../../utils';
+import { addButtonsIfExists, isConfidenceScoreAbove, mapEntities } from '../../utils';
 import CommandHandler from '../command';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
 import RepeatHandler from '../repeat';
@@ -14,9 +14,6 @@ const ENTIRE_RESPONSE_CONFIDENCE_THRESHOLD = 0.6;
 
 type CaptureWithIntent = VoiceflowNode.CaptureV2.Node & { intent: Required<BaseNode.CaptureV2.NodeIntent> };
 type CaptureWithVariable = VoiceflowNode.CaptureV2.Node & { variable: string };
-
-const isConfidenceScoreAbove = (threshold: number, confidence: number) =>
-  typeof confidence !== 'number' || confidence > threshold;
 
 const isNodeCapturingEntity = (node: VoiceflowNode.CaptureV2.Node): node is CaptureWithIntent =>
   typeof node.intent?.name === 'string' && typeof node.intent?.entities != null;
