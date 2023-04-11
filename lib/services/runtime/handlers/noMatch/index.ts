@@ -119,7 +119,7 @@ export const NoMatchHandler = (utils: typeof utilsObj) => ({
         variables,
         ai: output.ai,
       }),
-      { node }
+      { node, variables }
     );
 
     runtime.storage.set(StorageType.NO_MATCHES_COUNTER, noMatchCounter + 1);

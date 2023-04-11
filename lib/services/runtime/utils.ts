@@ -16,6 +16,7 @@ import _cloneDeepWith from 'lodash/cloneDeepWith';
 import _uniqBy from 'lodash/uniqBy';
 import * as Slate from 'slate';
 
+import AIAssist from '@/lib/services/aiAssist';
 import { Runtime, Store } from '@/runtime';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { AddTraceFn } from '@/runtime/lib/Runtime/DebugLogging/utils';
@@ -278,9 +279,11 @@ export function getOutputTrace(params: OutputParams<Output>): BaseTrace.Speak | 
 export function addOutputTrace(
   runtime: { trace: { addTrace: AddTraceFn }; debugLogging: DebugLogging },
   trace: BaseTrace.Speak | BaseTrace.Text,
-  { node }: { node?: BaseModels.BaseNode } = {}
+  { node, variables }: { node?: BaseModels.BaseNode; variables?: Store } = {}
 ) {
   runtime.trace.addTrace(trace);
+
+  if (variables) AIAssist.injectOutput(variables, trace);
 
   if (trace.type === BaseNode.Utils.TraceType.SPEAK) {
     runtime.debugLogging?.recordStepLog(RuntimeLogs.Kinds.StepLogKind.SPEAK, node, {

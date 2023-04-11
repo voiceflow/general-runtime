@@ -56,7 +56,7 @@ export const CaptureHandler: HandlerFactory<VoiceflowNode.Capture.Node, typeof u
     }
 
     if (utils.repeatHandler.canHandle(runtime)) {
-      return utils.repeatHandler.handle(runtime);
+      return utils.repeatHandler.handle(runtime, variables);
     }
 
     const request = runtime.getRequest();

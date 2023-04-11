@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { PartialContext, State } from '@/runtime';
 import { Context, InitContextHandler } from '@/types';
 
+import AIAssist from '../aiAssist';
 import { AbstractManager, injectServices } from '../utils';
 import CacheDataAPI from './cacheDataAPI';
 

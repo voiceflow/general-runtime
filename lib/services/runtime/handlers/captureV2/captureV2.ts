@@ -73,7 +73,7 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, type
     }
 
     if (utils.repeatHandler.canHandle(runtime)) {
-      return utils.repeatHandler.handle(runtime);
+      return utils.repeatHandler.handle(runtime, variables);
     }
 
     // on successful match

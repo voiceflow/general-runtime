@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import Config from '@/config';
-import AIAssist from '@/lib/services/aiAssist';
+import AIAssist, { AIAssistLog } from '@/lib/services/aiAssist';
 import log from '@/logger';
 import { Runtime } from '@/runtime';
 
@@ -17,13 +17,11 @@ export const generateNoMatch = async (runtime: Runtime): Promise<Output | null> 
   const ML_GATEWAY_ENDPOINT = Config.ML_GATEWAY_ENDPOINT.split('/api')[0];
   const autoCompleteEndpoint = `${ML_GATEWAY_ENDPOINT}/api/v1/generation/autocomplete`;
 
-  const newInput = AIAssist.getInput(runtime.getRequest());
-  const storageAIAssistTranscript = runtime.storage.get<[string | null, string | null][]>(AIAssist.StorageKey) || [];
-  const aiAssistTranscript = [...storageAIAssistTranscript, [newInput, null]];
+  const aiAssistTranscript = runtime.variables.get<AIAssistLog>(AIAssist.StorageKey) || [];
 
-  const parsedAiAssistTranscript = aiAssistTranscript.reduce((acc, [input, output]) => {
-    if (input) acc += `P2: ${input}\n`;
-    if (output) acc += `AI: ${output}\n`;
+  const parsedAiAssistTranscript = aiAssistTranscript.reduce((acc, { role, content }) => {
+    if (role === 'user') acc += `P2: ${content}\n`;
+    if (role === 'assistant') acc += `AI: ${content}\n`;
     return acc;
   }, '');
 

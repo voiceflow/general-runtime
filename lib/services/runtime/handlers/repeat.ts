@@ -3,7 +3,7 @@ import { BaseVersion } from '@voiceflow/base-types';
 import { GoogleConstants } from '@voiceflow/google-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
-import { Runtime } from '@/runtime';
+import { Runtime, Store } from '@/runtime';
 
 import { FrameType, isIntentRequest, Output, StorageType, TurnType } from '../types';
 import { addOutputTrace, getOutputTrace } from '../utils';
@@ -30,7 +30,7 @@ export const RepeatHandler = (utils: typeof utilsObj) => ({
       [BaseVersion.RepeatType.ALL, BaseVersion.RepeatType.DIALOG].includes(repeat)
     );
   },
-  handle: (runtime: Runtime) => {
+  handle: (runtime: Runtime, variables: Store) => {
     const repeat = runtime.storage.get<BaseVersion.RepeatType>(StorageType.REPEAT);
     const top = runtime.stack.top();
 
@@ -45,8 +45,9 @@ export const RepeatHandler = (utils: typeof utilsObj) => ({
         utils.getOutputTrace({
           output,
           version: runtime.version,
-          variables: runtime.variables,
-        })
+          variables,
+        }),
+        { variables }
       );
     }
 

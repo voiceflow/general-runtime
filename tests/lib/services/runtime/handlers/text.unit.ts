@@ -59,25 +59,7 @@ describe('text handler unit tests', async () => {
 
       const textHandler = TextHandler(utils as any);
       expect(textHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
-      expect(runtime.trace.addTrace.args).to.eql([
-        [textTrace],
-        [
-          {
-            type: 'log',
-            payload: {
-              kind: 'step.text',
-              level: RuntimeLogs.LogLevel.INFO,
-              message: {
-                stepID: 'step-id',
-                componentName: RuntimeLogs.Kinds.StepLogKind.TEXT,
-                plainContent: 'plainText',
-                richContent: newSlate,
-              },
-              timestamp: getISO8601Timestamp(),
-            },
-          },
-        ],
-      ]);
+      expect(runtime.trace.addTrace.args).to.eql([[textTrace]]);
       expect(utils.textOutputTrace.args).to.eql([
         [{ delay: undefined, output: sample.content, version: undefined, variables }],
       ]);

@@ -80,7 +80,7 @@ export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, 
     }
 
     if (utils.repeatHandler.canHandle(runtime)) {
-      return utils.repeatHandler.handle(runtime);
+      return utils.repeatHandler.handle(runtime, variables);
     }
 
     return utils.noMatchHandler.handle(node, runtime, variables);
