@@ -55,11 +55,29 @@ describe('text handler unit tests', async () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
-      const variables = { getState: sinon.stub().returns('vars'), set: sinon.stub() };
+      const variables = { getState: sinon.stub().returns('vars'), set: sinon.stub(), get: sinon.stub() };
 
       const textHandler = TextHandler(utils as any);
       expect(textHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
-      expect(runtime.trace.addTrace.args).to.eql([[textTrace]]);
+      expect(runtime.trace.addTrace.args).to.eql([
+        [textTrace],
+        [
+          {
+            type: 'log',
+            payload: {
+              kind: 'step.text',
+              level: RuntimeLogs.LogLevel.INFO,
+              message: {
+                stepID: 'step-id',
+                componentName: RuntimeLogs.Kinds.StepLogKind.TEXT,
+                plainContent: 'plainText',
+                richContent: newSlate,
+              },
+              timestamp: getISO8601Timestamp(),
+            },
+          },
+        ],
+      ]);
       expect(utils.textOutputTrace.args).to.eql([
         [{ delay: undefined, output: sample.content, version: undefined, variables }],
       ]);
