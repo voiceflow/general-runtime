@@ -36,7 +36,15 @@ const state = {
       variables: {},
     },
   ],
-  variables: { slot1: 0, variable1: 1, variable2: 2, sessions: 1, timestamp: defaultTimestamp, user_id: userID },
+  variables: {
+    slot1: 0,
+    variable1: 1,
+    variable2: 2,
+    sessions: 1,
+    timestamp: defaultTimestamp,
+    user_id: userID,
+    auto_transcript: [],
+  },
   storage: {},
 };
 
@@ -78,7 +86,7 @@ describe('state manager unit tests', () => {
       const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
 
       expect(await stateManager.initializeVariables(version as any, {} as any)).to.eql({
-        variables: { variable1: 0, slot1: 0, timestamp: defaultTimestamp },
+        variables: { variable1: 0, slot1: 0, timestamp: defaultTimestamp, auto_transcript: [] },
       });
       expect(services.dataAPI.getVersion.callCount).to.eql(0);
     });
