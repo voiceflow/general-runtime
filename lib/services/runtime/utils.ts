@@ -230,9 +230,11 @@ export function textOutputTrace({
   const sanitizedVars = sanitizeVariables(variables?.getState() ?? {});
   const content = slateInjectVariables(output, sanitizedVars);
   const plainContent = slateToPlaintext(content);
+  const messageDelayMilliseconds = delay ?? getVersionMessageDelay(version) ?? DEFAULT_DELAY;
   const richContent = {
     id: cuid.slug(),
     content,
+    messageDelayMilliseconds,
   };
 
   const trace: BaseTrace.Text = {
@@ -240,7 +242,7 @@ export function textOutputTrace({
     payload: {
       slate: richContent,
       message: plainContent,
-      delay: delay ?? getVersionMessageDelay(version) ?? DEFAULT_DELAY,
+      delay: messageDelayMilliseconds,
       ...(ai && { ai }),
     },
   };
