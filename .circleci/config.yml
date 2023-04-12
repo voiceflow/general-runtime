@@ -1,6 +1,11 @@
 version: 2.1
 setup: true
 
+parameters:
+  ssh-fingerprint:
+    type: string
+    default: "61:71:13:8f:00:5f:da:63:a8:0c:6d:f3:b4:b1:17:b3"
+
 orbs:
   vfcommon: voiceflow/common@0.38.1
   gomplate: xavientois/gomplate@0.2.0
