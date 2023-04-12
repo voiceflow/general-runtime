@@ -1,220 +1,34 @@
 version: 2.1
-
-parameters:
-  npm-repo:
-    type: string
-    default: "@voiceflow/general-runtime"
-  container-image-url:
-    type: string
-    default: "168387678261.dkr.ecr.us-east-1.amazonaws.com/general-runtime"
-  k8s-asset:
-    type: string
-    default: "deployment/general-runtime"
-  k8s-namespace:
-    type: string
-    default: "voiceflow" # This is usually voiceflow
-  ssh-fingerprint:
-    type: string
-    default: "61:71:13:8f:00:5f:da:63:a8:0c:6d:f3:b4:b1:17:b3"
-  track-component:
-    type: string
-    default: "general-runtime"
-
-# Reusable YAML chunks
-defaults:
-
-  prod_deploy_filters: &prod_deploy_filters
-    filters:
-      branches:
-        only:
-          - production
-
-  ignore_master_prod_break_glass_deploy_filters: &ignore_master_prod_break_glass_deploy_filters
-      branches:
-        ignore:
-          - master
-          - production
-          - /^break-glass.*$/
-
-
-  ignore_break_glass_deploy_filters: &ignore_break_glass_deploy_filters
-    filters:
-      branches:
-        ignore:
-          - /^break-glass.*$/
-
-  trying_staging_filters: &trying_staging_filters
-    branches:
-      only:
-        - staging
-        - trying
-
-  slack-fail-post-step: &slack-fail-post-step
-    post-steps:
-      - vfcommon/notify_slack:
-          channel: dev_general
-          event: fail
-          mentions: "@eng_platform"
-          template: basic_fail_1
-          branch_pattern: master
+setup: true
 
 orbs:
-  vfcommon: voiceflow/common@0.27.1
-  sonarcloud: sonarsource/sonarcloud@1.0.2
+  vfcommon: voiceflow/common@0.38.1
+  gomplate: xavientois/gomplate@0.2.0
 
-jobs:
-
-  test:
-    executor: vfcommon/code-test-executor
-    steps:
-      - checkout
-      - vfcommon/install_node_modules:
-          avoid_post_install_scripts: false
-      - attach_workspace:
-          at: ~/voiceflow
-      - vfcommon/setup_dynamodb
-      - vfcommon/lint_report:
-          run_in_background: true
-      - vfcommon/lint_dockerfile:
-          run_in_background: true
-      - vfcommon/dependency_tests:
-          run_in_background: true
-      - vfcommon/unit_tests:
-          run_in_background: true
-      - vfcommon/integration_tests:
-          wait: true
-      - sonarcloud/scan
-
-
-# When should each job run and what are their dependencies?
 workflows:
-  # Merge Queue jobs
-  queue-jobs:
+  generate-config:
     when:
-      not:
-        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+      and:
+        - << pipeline.git.branch >> # Run nothing on tags
+        - not:
+            equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
-      - vfcommon/test_e2e:
-          <<: *slack-fail-post-step
-          github_username: GITHUB_USERNAME
-          github_token: GITHUB_TOKEN
-          creator_app_commit: DEFAULT_COMMIT
-          vf_service_commit: CIRCLE_SHA1
-          vf_service_name: "general-runtime"
-          vf_service_port: "8005"
+      - gomplate/render-config:
           context: dev-test
-          filters:
-            <<: *trying_staging_filters
+          executor: vfcommon/node-executor
+          pre-steps:
+            - checkout
+            - vfcommon/set-env-name: # On bors branches, we will be running the e2e tests in a dev environment
+                target_env_var: &env_name ENV_NAME
+            - vfcommon/set-json-string-from-env:
+                field: e2e_env_name
+                value-env-var: *env_name
+            - vfcommon/set-json-string-from-env:
+                field: common_orb_version
+                value-env-var: COMMON_ORB_VERSION
+            - run: cat values.json
+          contexts: values.json
 
-  # Master (production)
-  test-and-release-app:
-    when:
-      not:
-        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
-    jobs:
-      - vfcommon/install_and_build:
-          avoid_post_install_scripts: false
-          <<: *slack-fail-post-step
-          context: dev-test
-
-      - test:
-          <<: *slack-fail-post-step
-          context: dev-test
-          name: test-master
-          requires:
-            - vfcommon/install_and_build
-          filters:
-            branches:
-              only: master
-
-      - test:
-          <<: *slack-fail-post-step
-          context: dev-test
-          requires:
-            - vfcommon/install_and_build
-          filters:
-            <<: *ignore_master_prod_break_glass_deploy_filters
-
-
-      - vfcommon/release:
-          <<: *slack-fail-post-step
-          context: dev-test
-          requires:
-            - vfcommon/install_and_build
-            - test-master
-          filters:
-            branches:
-              only: master
-
-      - vfcommon/update_track:
-          <<: *ignore_break_glass_deploy_filters
-          context: dev-test
-          image_repo: << pipeline.parameters.container-image-url >>
-          component: << pipeline.parameters.track-component >>
-          requires:
-            - test-master
-            - vfcommon/install_and_build
-            - vfcommon/release
-
-      - vfcommon/sync_branches:
-          check_commit_message: "[bugfix]"
-          ssh_key: << pipeline.parameters.ssh-fingerprint >>
-          checkout: true
-          context: dev-test
-          name: sync-branches-bugfix
-          requires:
-            - vfcommon/install_and_build
-            - test-master
-            - test
-            - vfcommon/release
-          filters:
-            branches:
-              only: master
-
-      - vfcommon/sync_branches:
-          check_commit_message: "[breakglass]"
-          ssh_key: << pipeline.parameters.ssh-fingerprint >>
-          checkout: true
-          context: dev-test
-          name: sync-branches-break-glass
-          requires:
-            - vfcommon/install_and_build
-          filters:
-            branches:
-              only: master
-
-      - vfcommon/generate_technical_documentation:
-          <<: *slack-fail-post-step
-          context: dev-test
-          requires:
-            - test-master
-            - test
-            - vfcommon/release
-          filters:
-            branches:
-              only: master
-
-      # Update Production branch
-      - vfcommon/post_image_push_actions:
-          <<: *prod_deploy_filters
-          namespace: << pipeline.parameters.k8s-namespace >>
-          component: << pipeline.parameters.track-component >>
-          tagged: true
-          context: dev-test
-          requires:
-            - vfcommon/update_track
-
-      - vfcommon/build_push_image:
-          name: build-push-image-e2e
-          context: dev-test
-          image_repo: << pipeline.parameters.container-image-url >>
-          dockerfile: "Dockerfile.e2e"
-          image_tag: "latest-master-e2e"
-          requires:
-            - vfcommon/update_track
-          filters:
-            branches:
-              only: master
 
   # Cron Production update
   update-production-branch:
@@ -231,5 +45,3 @@ workflows:
           filters:
             branches:
               only: master
-
-# VS Code Extension Version: 1.5.1
