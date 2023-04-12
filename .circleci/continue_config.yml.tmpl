@@ -22,8 +22,6 @@ parameters:
 
 {{- $borsBranches := coll.Slice "trying" "staging" }}
 {{- $masterProdBranches := coll.Slice "master" "prod" }}
-{{- $isMasterProd := has $masterProdBranches .values.branch }}
-{{- $isBors := has $borsBranches .values.branch }}
 
 # Reusable YAML chunks
 defaults:
