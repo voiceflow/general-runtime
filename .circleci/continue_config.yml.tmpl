@@ -1,0 +1,205 @@
+version: 2.1
+
+parameters:
+  npm-repo:
+    type: string
+    default: "@voiceflow/general-runtime"
+  container-image-url:
+    type: string
+    default: "168387678261.dkr.ecr.us-east-1.amazonaws.com/general-runtime"
+  k8s-asset:
+    type: string
+    default: "deployment/general-runtime"
+  k8s-namespace:
+    type: string
+    default: "voiceflow" # This is usually voiceflow
+  ssh-fingerprint:
+    type: string
+    default: "61:71:13:8f:00:5f:da:63:a8:0c:6d:f3:b4:b1:17:b3"
+  track-component:
+    type: string
+    default: "general-runtime"
+
+{{- $borsBranches := coll.Slice "trying" "staging" }}
+{{- $masterProdBranches := coll.Slice "master" "prod" }}
+{{- $isMasterProd := has $masterProdBranches .values.branch }}
+{{- $isBors := has $borsBranches .values.branch }}
+
+# Reusable YAML chunks
+defaults:
+  bors_branches_filters: &bors_branches_filters
+    branches:
+      only:
+        {{- range $borsBranches }}
+        - {{ . }}
+        {{- end }}
+
+  slack-fail-post-step: &slack-fail-post-step
+    post-steps:
+      - vfcommon/notify_slack:
+          channel: dev_general
+          event: fail
+          mentions: "@eng_platform"
+          template: basic_fail_1
+          branch_pattern: master
+
+orbs:
+  vfcommon: voiceflow/common@{{ .values.common_orb_version }}
+  sonarcloud: sonarsource/sonarcloud@1.0.2
+
+jobs:
+  test:
+    executor: vfcommon/code-test-executor
+    steps:
+      - checkout
+      - vfcommon/install_node_modules:
+          avoid_post_install_scripts: false
+      - attach_workspace:
+          at: ~/voiceflow
+      - vfcommon/setup_dynamodb
+      - vfcommon/lint_report:
+          run_in_background: true
+      - vfcommon/lint_dockerfile:
+          run_in_background: true
+      - vfcommon/dependency_tests:
+          run_in_background: true
+      - vfcommon/unit_tests:
+          run_in_background: true
+      - vfcommon/integration_tests:
+          wait: true
+      - sonarcloud/scan
+
+
+workflows:
+  {{- if has $masterProdBranches .values.branch }}
+  test-and-release:
+  {{- else if has $borsBranches .values.branch }}
+  e2e-tests:
+  {{- else }}
+  test:
+  {{- end }}
+    jobs:
+      - vfcommon/install_and_build:
+          <<: *slack-fail-post-step
+          context: dev-test
+          avoid_post_install_scripts: false
+
+      - test:
+          <<: *slack-fail-post-step
+          context: dev-test
+          requires:
+            - vfcommon/install_and_build
+          filters:
+            branches:
+              ignore:
+                - production
+                - /^break-glass.*$/
+
+      - vfcommon/release:
+          <<: *slack-fail-post-step
+          context: dev-test
+          requires:
+            - vfcommon/install_and_build
+            - test
+          filters:
+            branches:
+              only: master
+
+      - vfcommon/update_track:
+          <<: *ignore_break_glass_deploy_filters
+          context: dev-test
+          image_repo: << pipeline.parameters.container-image-url >>
+          component: << pipeline.parameters.track-component >>
+          requires:
+            {{- if .values.branch == "master" }}
+            - test
+            {{- end }}
+            - vfcommon/install_and_build
+            - vfcommon/release
+          filters:
+            branches:
+              ignore:
+                - /^break-glass.*$/
+
+      - vfcommon/provision-env:
+          context: dev-test
+          env-name: {{ .values.e2e_env_name }}
+          filters: *bors_branches_filters
+      - vfcommon/prepare-env:
+          context: dev-test
+          env-name: {{ .values.e2e_env_name }}
+          branch: {{ .values.branch }}
+          tracked-components: << pipeline.parameters.track-component >>
+          filters: *bors_branches_filters
+          requires:
+            - vfcommon/provision-env
+            - vfcommon/update-track
+      - vfcommon/build-e2e-tests:
+          context: dev-test
+          filters: *bors_branches_filters
+          e2e_git_ref: ben/e2e-refactor/DX-355
+      - vfcommon/run-e2e-tests:
+          context: dev-test
+          env-name: {{ .values.e2e_env_name }}
+          requires:
+            - vfcommon/build-e2e-tests
+            - vfcommon/prepare-env
+          filters: *bors_branches_filters
+      - vfcommon/release-env:
+          context: dev-test
+          env-name: {{ .values.e2e_env_name }}
+          requires:
+            - vfcommon/run-e2e-tests
+          filters: *bors_branches_filters
+
+      - vfcommon/sync_branches:
+          check_commit_message: "[bugfix]"
+          ssh_key: << pipeline.parameters.ssh-fingerprint >>
+          checkout: true
+          context: dev-test
+          name: sync-branches-bugfix
+          requires:
+            - vfcommon/install_and_build
+            - test
+            - vfcommon/release
+          filters:
+            branches:
+              only: master
+
+      - vfcommon/sync_branches:
+          check_commit_message: "[breakglass]"
+          ssh_key: << pipeline.parameters.ssh-fingerprint >>
+          checkout: true
+          context: dev-test
+          name: sync-branches-break-glass
+          requires:
+            - vfcommon/install_and_build
+          filters:
+            branches:
+              only: master
+
+      - vfcommon/generate_technical_documentation:
+          <<: *slack-fail-post-step
+          context: dev-test
+          requires:
+            - test-master
+            - test
+            - vfcommon/release
+          filters:
+            branches:
+              only: master
+
+      # Update Production branch
+      - vfcommon/post_image_push_actions:
+          <<: *prod_deploy_filters
+          namespace: << pipeline.parameters.k8s-namespace >>
+          component: << pipeline.parameters.track-component >>
+          tagged: true
+          context: dev-test
+          requires:
+            - vfcommon/update_track
+          filters:
+            branches:
+              only:
+                - production
+

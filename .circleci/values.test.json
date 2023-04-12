@@ -1,0 +1,56 @@
+{
+  "e2e_env_name": "e2e-platform-0000000",
+  "services": [
+    {
+      "name": "admin",
+      "modified": true,
+      "component_name": "admin-api",
+      "directory": "apps"
+    },
+    {
+      "name": "analytics",
+      "modified": true,
+      "component_name": "analytics-api",
+      "directory": "apps"
+    },
+    {
+      "name": "auth",
+      "modified": true,
+      "component_name": "auth-api",
+      "directory": "apps"
+    },
+    {
+      "name": "billing",
+      "modified": true,
+      "component_name": "billing-api",
+      "directory": "apps"
+    },
+    {
+      "name": "compile",
+      "modified": true,
+      "component_name": "compile-api",
+      "directory": "apps"
+    },
+    {
+      "name": "identity",
+      "modified": true,
+      "component_name": "identity-api",
+      "directory": "apps"
+    },
+    {
+      "name": "nlu-gateway",
+      "modified": true,
+      "component_name": "nlu-gateway",
+      "directory": "apps"
+    },
+    {
+      "name": "runtime",
+      "modified": true,
+      "component_name": "runtime-api",
+      "directory": "apps"
+    }
+  ],
+  "build_all_services": false,
+  "branch": "trying",
+  "ecr_url": "168387678261.dkr.ecr.voiceflow.amazonaws.com"
+}
