@@ -106,12 +106,11 @@ workflows:
               only: master
 
       - vfcommon/update_track:
-          <<: *ignore_break_glass_deploy_filters
           context: dev-test
           image_repo: << pipeline.parameters.container-image-url >>
           component: << pipeline.parameters.track-component >>
           requires:
-            {{- if .values.branch == "master" }}
+            {{- if eq .values.branch "master" }}
             - test
             {{- end }}
             - vfcommon/install_and_build
@@ -133,7 +132,7 @@ workflows:
           filters: *bors_branches_filters
           requires:
             - vfcommon/provision-env
-            - vfcommon/update-track
+            - vfcommon/update_track
       - vfcommon/build-e2e-tests:
           context: dev-test
           filters: *bors_branches_filters
@@ -182,7 +181,6 @@ workflows:
           <<: *slack-fail-post-step
           context: dev-test
           requires:
-            - test-master
             - test
             - vfcommon/release
           filters:
@@ -191,7 +189,6 @@ workflows:
 
       # Update Production branch
       - vfcommon/post_image_push_actions:
-          <<: *prod_deploy_filters
           namespace: << pipeline.parameters.k8s-namespace >>
           component: << pipeline.parameters.track-component >>
           tagged: true

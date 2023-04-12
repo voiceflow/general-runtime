@@ -28,6 +28,9 @@ workflows:
             - vfcommon/set-json-string-from-env:
                 field: e2e_env_name
                 value-env-var: *env_name
+            - vfcommon/set-json-string:
+                field: branch
+                value: "<< pipeline.git.branch >>"
             - vfcommon/set-json-string-from-env:
                 field: common_orb_version
                 value-env-var: COMMON_ORB_VERSION
