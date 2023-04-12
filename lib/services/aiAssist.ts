@@ -7,7 +7,7 @@ import { Context, ContextHandler } from '@/types';
 
 import { AbstractManager } from './utils';
 
-const MAX_TURNS = 8;
+const MAX_TURNS = 10;
 
 export type AIAssistLog = { role: 'user' | 'assistant' | 'system'; content: string }[];
 
