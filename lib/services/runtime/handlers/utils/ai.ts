@@ -8,6 +8,11 @@ import { Store } from '@/runtime';
 
 import AIAssist, { AIAssistLog } from '../../../aiAssist';
 
+const logError = (error: Error) => {
+  log.error(error);
+  return null;
+};
+
 export const fetchPrompt = async (
   params: BaseUtils.ai.AIModelParams & { mode: string; prompt: string },
   variables: Store
@@ -39,7 +44,7 @@ export const fetchPrompt = async (
         model,
       })
       .then(({ data: { result } }) => result)
-      .catch(() => null);
+      .catch(logError);
   } else if (mode === 'Prompt + Memory') {
     const messages = [...(variables.get<AIAssistLog>(AIAssist.StorageKey) || [])];
     if (system) messages.unshift({ role: 'system', content: system });
@@ -53,7 +58,7 @@ export const fetchPrompt = async (
         model,
       })
       .then(({ data: { result } }) => result)
-      .catch(() => null);
+      .catch(logError);
   } else {
     if (!prompt) return null;
 
@@ -66,7 +71,7 @@ export const fetchPrompt = async (
         model,
       })
       .then(({ data: { result } }) => result)
-      .catch(() => null);
+      .catch(logError);
   }
 
   return response;
