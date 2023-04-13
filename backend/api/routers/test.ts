@@ -11,6 +11,7 @@ export default (middlewares: MiddlewareMap) => {
   const router = express.Router();
 
   router.use(bodyParser.json({ limit: BODY_PARSER_SIZE_LIMIT }));
+  router.use(middlewares.auth.verify);
   router.use(middlewares.rateLimit.verify);
 
   router.post('/api', async (req, res) => {

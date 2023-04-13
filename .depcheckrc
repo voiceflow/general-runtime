@@ -1,5 +1,14 @@
 {
-  "specials": ["bin", "eslint", "lint-staged", "istanbul", "commitizen", "husky", "prettier", "ttypescript"],
+  "specials": [
+    "bin",
+    "eslint",
+    "lint-staged",
+    "istanbul",
+    "commitizen",
+    "husky",
+    "prettier",
+    "ttypescript"
+  ],
   "ignores": [
     "@commitlint/*",
     "@types/*",
@@ -12,6 +21,7 @@
     "husky",
     "lint-staged",
     "http-status",
+    "nestjs-zod",
     "eslint-import-resolver-typescript"
   ]
 }

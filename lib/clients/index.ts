@@ -1,4 +1,6 @@
 import { RateLimitClient } from '@voiceflow/backend-utils';
+import { AuthSDK } from '@voiceflow/sdk-auth';
+import fetch from 'node-fetch';
 
 import { MongoSession } from '@/lib/services/session';
 import { Config } from '@/types';
@@ -11,6 +13,7 @@ import { RedisClient } from './redis';
 import Static, { StaticType } from './static';
 
 export interface ClientMap extends StaticType {
+  auth: AuthSDK | null;
   dataAPI: DataAPI;
   metrics: MetricsType;
   redis: ReturnType<typeof RedisClient>;
@@ -30,6 +33,9 @@ const buildClients = (config: Config): ClientMap => {
     ...Static,
     redis,
     mongo,
+    auth: config.AUTH_API_ENDPOINT
+      ? new AuthSDK({ authServiceURI: config.AUTH_API_ENDPOINT, fetchPonyfill: fetch })
+      : null,
     dataAPI: new DataAPI({ config, mongo }),
     metrics: Metrics(config),
     rateLimitClient: RateLimitClient('general-runtime', redis, config),
