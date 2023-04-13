@@ -149,6 +149,18 @@ workflows:
             - vfcommon/run-e2e-tests
           filters: *bors_branches_filters
 
+      - vfcommon/build_push_image:
+          name: build-push-image-e2e
+          context: dev-test
+          image_repo: << pipeline.parameters.container-image-url >>
+          dockerfile: "Dockerfile.e2e"
+          image_tag: "latest-master-e2e"
+          requires:
+            - vfcommon/update_track
+          filters:
+            branches:
+              only: master
+
       - vfcommon/sync_branches:
           check_commit_message: "[bugfix]"
           ssh_key: << pipeline.parameters.ssh-fingerprint >>
