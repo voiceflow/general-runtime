@@ -14,7 +14,7 @@ const logError = (error: Error) => {
 };
 
 export const fetchPrompt = async (
-  params: BaseUtils.ai.AIModelParams & { mode: string; prompt: string },
+  params: BaseUtils.ai.AIModelParams & { mode: BaseUtils.ai.PROMPT_MODE; prompt: string },
   variables: Store
 ) => {
   if (!Config.ML_GATEWAY_ENDPOINT) {
@@ -32,7 +32,7 @@ export const fetchPrompt = async (
 
   let response: string | null = null;
 
-  if (mode === 'Memory') {
+  if (mode === BaseUtils.ai.PROMPT_MODE.MEMORY) {
     const messages = [...(variables.get<AIAssistLog>(AIAssist.StorageKey) || [])];
     if (system) messages.unshift({ role: 'system', content: system });
 
@@ -45,7 +45,7 @@ export const fetchPrompt = async (
       })
       .then(({ data: { result } }) => result)
       .catch(logError);
-  } else if (mode === 'Prompt + Memory') {
+  } else if (mode === BaseUtils.ai.PROMPT_MODE.MEMORY_PROMPT) {
     const messages = [...(variables.get<AIAssistLog>(AIAssist.StorageKey) || [])];
     if (system) messages.unshift({ role: 'system', content: system });
     messages.push({ role: 'system', content: prompt });

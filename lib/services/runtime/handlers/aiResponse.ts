@@ -14,7 +14,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
   handle: async (node, runtime, variables) => {
     const nextID = node.nextId ?? null;
 
-    const response = await fetchPrompt(node as any, variables);
+    const response = await fetchPrompt(node, variables);
 
     if (!response) return nextID;
 
