@@ -4,7 +4,6 @@ import _ from 'lodash';
 import { PartialContext, State } from '@/runtime';
 import { Context, InitContextHandler } from '@/types';
 
-import AIAssist from '../aiAssist';
 import { AbstractManager, injectServices } from '../utils';
 import CacheDataAPI from './cacheDataAPI';
 
@@ -60,7 +59,6 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     return {
       ...state,
       variables: {
-        [AIAssist.StorageKey]: [],
         ...initializeStore(entities),
         ...initializeStore(version.variables),
         ...state.variables,

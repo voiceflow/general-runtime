@@ -42,12 +42,14 @@ class AIAssist extends AbstractManager implements ContextHandler {
     const { request } = context;
 
     const input = AIAssist.getInput(request);
-    if (!input) return context;
-
     const transcript: AIAssistLog = context.state.variables[AIAssist.StorageKey] || [];
-    transcript.push({ role: 'user', content: input });
 
-    if (transcript.length > MAX_TURNS) transcript.shift();
+    if (input) {
+      const transcript: AIAssistLog = context.state.variables[AIAssist.StorageKey] || [];
+      transcript.push({ role: 'user', content: input });
+
+      if (transcript.length > MAX_TURNS) transcript.shift();
+    }
 
     return {
       ...context,
