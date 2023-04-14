@@ -13,7 +13,7 @@ export type AIAssistLog = { role: 'user' | 'assistant' | 'system'; content: stri
 
 // writes a primative string aiAssistTranscript into the context state storage
 class AIAssist extends AbstractManager implements ContextHandler {
-  static StorageKey = 'auto_transcript';
+  static StorageKey = '_memory_';
 
   static getInput(request: RuntimeRequest) {
     return (isIntentRequest(request) && request.payload.query) || (isTextRequest(request) && request.payload) || null;
