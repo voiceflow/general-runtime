@@ -43,8 +43,10 @@ const CONFIG: Config = {
   PROJECT_SOURCE: getOptionalProcessEnv('PROJECT_SOURCE'),
 
   GENERAL_SERVICE_ENDPOINT: getOptionalProcessEnv('GENERAL_SERVICE_ENDPOINT'), // voiceflow nlu/tts services
-  AUTH_API_ENDPOINT: getOptionalProcessEnv('AUTH_API_ENDPOINT'),
   ML_GATEWAY_ENDPOINT: getOptionalProcessEnv('ML_GATEWAY_ENDPOINT'),
+
+  AUTH_API_SERVICE_HOST: getOptionalProcessEnv('AUTH_API_SERVICE_HOST'),
+  AUTH_API_SERVICE_PORT_APP: getOptionalProcessEnv('AUTH_API_SERVICE_PORT_APP'),
   NLU_GATEWAY_SERVICE_HOST: getOptionalProcessEnv('NLU_GATEWAY_SERVICE_HOST'),
   NLU_GATEWAY_SERVICE_PORT_APP: getOptionalProcessEnv('NLU_GATEWAY_SERVICE_PORT_APP'),
 

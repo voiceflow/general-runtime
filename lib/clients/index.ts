@@ -29,13 +29,22 @@ const buildClients = (config: Config): ClientMap => {
   const redis = RedisClient(config);
   const mongo = MongoSession.enabled(config) ? new MongoDB(config) : null;
 
+  const authServiceURI =
+    config.AUTH_API_SERVICE_HOST && config.AUTH_API_SERVICE_PORT_APP
+      ? new URL(
+          `${config.NODE_ENV === 'e2e' ? 'https' : 'http'}://${config.AUTH_API_SERVICE_HOST}:${
+            config.AUTH_API_SERVICE_PORT_APP
+          }`
+        ).href
+      : null;
+
+  const auth = authServiceURI ? new AuthSDK({ authServiceURI, fetchPonyfill: fetch }) : null;
+
   return {
     ...Static,
     redis,
     mongo,
-    auth: config.AUTH_API_ENDPOINT
-      ? new AuthSDK({ authServiceURI: config.AUTH_API_ENDPOINT, fetchPonyfill: fetch })
-      : null,
+    auth,
     dataAPI: new DataAPI({ config, mongo }),
     metrics: Metrics(config),
     rateLimitClient: RateLimitClient('general-runtime', redis, config),
