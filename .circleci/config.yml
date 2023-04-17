@@ -30,7 +30,9 @@ workflows:
                 value-env-var: *env_name
             - vfcommon/set-json-string:
                 field: branch
-                value: "<< pipeline.git.branch >>"
+                # HACK: this cannot be empty, so we pass both branch and tag (only one of them will be non-empty)
+                # TODO: Fix this once https://discuss.circleci.com/t/empty-string-for-parameter-breaks-config/47695 has a solution
+                value: "<< pipeline.git.branch >><< pipeline.git.tag >>"
             - vfcommon/set-json-string-from-env:
                 field: common_orb_version
                 value-env-var: COMMON_ORB_VERSION
