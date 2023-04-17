@@ -216,7 +216,6 @@ workflows:
     jobs:
       - vfcommon/test_e2e:
           <<: *slack-fail-post-step
-          name: old_e2e_tests
           github_username: GITHUB_USERNAME
           github_token: GITHUB_TOKEN
           creator_app_commit: master
