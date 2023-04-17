@@ -210,3 +210,18 @@ workflows:
               only:
                 - production
 
+
+      # Old E2E tests (Remove once new E2E tests are stable)
+      - vfcommon/test_e2e:
+          <<: *slack-fail-post-step
+          name: Old E2E Tests
+          github_username: GITHUB_USERNAME
+          github_token: GITHUB_TOKEN
+          creator_app_commit: DEFAULT_COMMIT
+          vf_service_commit: CIRCLE_SHA1
+          vf_service_name: "general-runtime"
+          vf_service_port: "8005"
+          context: dev-test
+          filters:
+            <<: *trying_staging_filters
+
