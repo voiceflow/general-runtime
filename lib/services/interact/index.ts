@@ -80,14 +80,14 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
 
     const turn = new this.services.utils.TurnBuilder<Context>(stateManager);
 
-    turn.addHandlers(asr, nlu, slots, dialog, runtime);
+    turn.addHandlers(asr, nlu, aiAssist, slots, dialog, runtime);
     turn.addHandlers(analytics);
 
     if (config.tts) {
       turn.addHandlers(tts);
     }
 
-    turn.addHandlers(speak, filter, aiAssist);
+    turn.addHandlers(speak, filter);
 
     if (config.selfDelegate) {
       return turn.resolve(turn.handle(context));

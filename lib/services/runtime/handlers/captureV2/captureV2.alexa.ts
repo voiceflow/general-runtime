@@ -46,7 +46,7 @@ export const CaptureV2AlexaHandler: HandlerFactory<VoiceflowNode.CaptureV2.Node,
       return utils.commandHandler.handle(runtime, variables);
     }
     if (utils.repeatHandler.canHandle(runtime)) {
-      return utils.repeatHandler.handle(runtime);
+      return utils.repeatHandler.handle(runtime, variables);
     }
 
     const { intent, entities } = request.payload;

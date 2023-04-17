@@ -75,7 +75,7 @@ export const InteractionAlexaHandler: HandlerFactory<VoiceflowNode.Interaction.N
       return utils.commandHandler.handle(runtime, variables);
     }
     if (utils.repeatHandler.canHandle(runtime)) {
-      return utils.repeatHandler.handle(runtime);
+      return utils.repeatHandler.handle(runtime, variables);
     }
 
     if (utils.noReplyHandler.canHandle(runtime)) {

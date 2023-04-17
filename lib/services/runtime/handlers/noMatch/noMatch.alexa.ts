@@ -29,7 +29,7 @@ export const NoMatchAlexaHandler = () => ({
         output: output.output,
         variables,
       }),
-      { node }
+      { node, variables }
     );
 
     if (node.noMatch?.nodeID) {

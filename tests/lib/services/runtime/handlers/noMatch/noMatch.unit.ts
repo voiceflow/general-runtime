@@ -37,6 +37,7 @@ describe('noMatch handler unit tests', async () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        get: sinon.stub(),
         set: sinon.stub(),
         getState: sinon.stub().returns({ counter: 5.2345 }),
       };
@@ -101,6 +102,7 @@ describe('noMatch handler unit tests', async () => {
         },
       };
       const variables = {
+        get: sinon.stub(),
         set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
@@ -131,6 +133,7 @@ describe('noMatch handler unit tests', async () => {
         },
       };
       const variables = {
+        get: sinon.stub(),
         set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
@@ -168,6 +171,7 @@ describe('noMatch handler unit tests', async () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        get: sinon.stub(),
         set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
@@ -232,6 +236,7 @@ describe('noMatch handler unit tests', async () => {
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
       const variables = {
+        get: sinon.stub(),
         set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
@@ -297,6 +302,7 @@ describe('noMatch handler unit tests', async () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        get: sinon.stub(),
         set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
@@ -333,6 +339,7 @@ describe('noMatch handler unit tests', async () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        get: sinon.stub(),
         set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
@@ -369,6 +376,7 @@ describe('noMatch handler unit tests', async () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        get: sinon.stub(),
         set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
@@ -411,6 +419,7 @@ describe('noMatch handler unit tests', async () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        get: sinon.stub(),
         set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
@@ -453,6 +462,7 @@ describe('noMatch handler unit tests', async () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        get: sinon.stub(),
         set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
@@ -490,6 +500,7 @@ describe('noMatch handler unit tests', async () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        get: sinon.stub(),
         set: sinon.stub(),
         getState: sinon.stub().returns({ counter: 5.2345 }),
       };
@@ -550,6 +561,7 @@ describe('noMatch handler unit tests', async () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        get: sinon.stub(),
         set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
@@ -584,6 +596,7 @@ describe('noMatch handler unit tests', async () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        get: sinon.stub(),
         set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };
@@ -618,6 +631,7 @@ describe('noMatch handler unit tests', async () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
+        get: sinon.stub(),
         set: sinon.stub(),
         getState: sinon.stub().returns({}),
       };

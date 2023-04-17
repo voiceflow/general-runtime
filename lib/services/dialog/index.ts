@@ -206,14 +206,17 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
             )
           : prompt.content;
 
+        const variableStore = new Store(context.state.variables);
         utils.addOutputTrace(
           { trace: { addTrace }, debugLogging },
           utils.getOutputTrace({
             output,
             version,
             variables,
-          })
+          }),
+          { variables: variableStore }
         );
+        context.state.variables = variableStore.getState();
       }
       if (prompt || hasElicit(incomingRequest)) {
         trace.push({

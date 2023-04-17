@@ -110,7 +110,7 @@ describe('CaptureV2 handler', () => {
 
         expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
         expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
-        expect(utils.repeatHandler.handle.args).to.eql([[runtime]]);
+        expect(utils.repeatHandler.handle.args).to.eql([[runtime, variables]]);
       });
 
       it('noReply can handle', () => {

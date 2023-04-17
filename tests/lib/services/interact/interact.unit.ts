@@ -12,14 +12,14 @@ const buildServices = (context: any) => ({
   state: { handle: sinon.stub().resolves(output(context, 'state')) },
   asr: { handle: sinon.stub().resolves(output(context, 'asr')) },
   nlu: { handle: sinon.stub().resolves(output(context, 'nlu')) },
+  aiAssist: { handle: sinon.stub().resolves(output(context, 'aiAssist')) },
   slots: { handle: sinon.stub().resolves(output(context, 'slots')) },
   tts: { handle: sinon.stub().resolves(output(context, 'tts')) },
   speak: { handle: sinon.stub().resolves(output(context, 'speak')) },
   runtime: { handle: sinon.stub().resolves(output(context, 'runtime')) },
   analytics: { handle: sinon.stub().resolves(output(context, 'analytics')) },
   dialog: { handle: sinon.stub().resolves(output(context, 'dialog')) },
-  filter: { handle: sinon.stub().resolves(output(context, 'filter')) },
-  aiAssist: { handle: sinon.stub().resolves(output(context, 'aiAssistTranscript', { trace: 'trace' })) },
+  filter: { handle: sinon.stub().resolves(output(context, 'filter', { trace: 'trace' })) },
   metrics: { generalRequest: sinon.stub() },
   utils: { TurnBuilder },
 });
@@ -65,7 +65,7 @@ describe('interact service unit tests', () => {
       const interactManager = new Interact(services as any, null as any);
 
       expect(await interactManager.handler(data as any)).to.eql({
-        state: 'aiAssistTranscript',
+        state: 'filter',
         request: context.request,
         trace: 'trace',
       });
@@ -74,6 +74,7 @@ describe('interact service unit tests', () => {
         'state',
         'asr',
         'nlu',
+        'aiAssist',
         'slots',
         'dialog',
         'runtime',
@@ -126,7 +127,7 @@ describe('interact service unit tests', () => {
       const interactController = new Interact(services as any, null as any);
 
       expect(await interactController.handler(data as any)).to.eql({
-        state: 'aiAssistTranscript',
+        state: 'filter',
         request: context.request,
         trace: 'trace',
       });
@@ -155,7 +156,7 @@ describe('interact service unit tests', () => {
 
     const interactController = new Interact(services as any, null as any);
     expect(await interactController.handler(data as any)).to.eql({
-      state: 'aiAssistTranscript',
+      state: 'filter',
       request: context.request,
       trace: 'trace',
     });
@@ -211,9 +212,9 @@ describe('interact service unit tests', () => {
     expect(await interactController.handler(data as any)).to.eql('resolved-state');
     expect(services.utils.TurnBuilder.args).to.eql([[services.state]]);
     expect(turnBuilder.addHandlers.args).to.eql([
-      [services.asr, services.nlu, services.slots, services.dialog, services.runtime],
+      [services.asr, services.nlu, services.aiAssist, services.slots, services.dialog, services.runtime],
       [services.analytics],
-      [services.speak, services.filter, services.aiAssist],
+      [services.speak, services.filter],
     ]);
     expect(services.utils.autoDelegate.args).to.eql([[turnBuilder, context]]);
     expect(await turnBuilder.resolve.args[0][0]).to.eql(finalState);

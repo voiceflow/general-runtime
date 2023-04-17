@@ -237,7 +237,7 @@ describe('Interaction handler', () => {
           expect(runtime.getAction.callCount).to.eql(1);
           expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
           expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
-          expect(utils.repeatHandler.handle.args).to.eql([[runtime]]);
+          expect(utils.repeatHandler.handle.args).to.eql([[runtime, variables]]);
         });
 
         it('noMatch can handle', () => {

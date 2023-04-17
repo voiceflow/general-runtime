@@ -78,7 +78,7 @@ describe('repeat handler', () => {
       const getOutputTrace = () => TRACE;
       const repeatHandler = RepeatHandler({ getOutputTrace, addOutputTrace } as any);
 
-      repeatHandler.handle(runtime as any);
+      repeatHandler.handle(runtime as any, null as any);
 
       expect(runtime.storage.get.args[0][0]).to.eql(StorageType.REPEAT);
       expect(runtime.stack.top.callCount).to.eql(1);
@@ -112,7 +112,7 @@ describe('repeat handler', () => {
       const getOutputTrace = () => TRACE;
       const repeatHandler = RepeatHandler({ getOutputTrace, addOutputTrace } as any);
 
-      repeatHandler.handle(runtime as any);
+      repeatHandler.handle(runtime as any, null as any);
 
       expect(runtime.storage.get.args[0][0]).to.eql(StorageType.REPEAT);
       expect(runtime.stack.top.callCount).to.eql(1);

@@ -36,7 +36,14 @@ const state = {
       variables: {},
     },
   ],
-  variables: { slot1: 0, variable1: 1, variable2: 2, sessions: 1, timestamp: defaultTimestamp, user_id: userID },
+  variables: {
+    slot1: 0,
+    variable1: 1,
+    variable2: 2,
+    sessions: 1,
+    timestamp: defaultTimestamp,
+    user_id: userID,
+  },
   storage: {},
 };
 

@@ -1,65 +1,63 @@
-import { Trace } from '@voiceflow/base-types';
+import { BaseTrace, Trace } from '@voiceflow/base-types';
 
 import { sanitizeSSML } from '@/lib/services/filter/utils';
 import { isIntentRequest, isTextRequest, RuntimeRequest } from '@/lib/services/runtime/types';
+import { Store } from '@/runtime';
 import { Context, ContextHandler } from '@/types';
 
 import { AbstractManager } from './utils';
 
-const MAX_TURNS = 3;
+const MAX_TURNS = 10;
+
+export type AIAssistLog = { role: 'user' | 'assistant' | 'system'; content: string }[];
 
 // writes a primative string aiAssistTranscript into the context state storage
 class AIAssist extends AbstractManager implements ContextHandler {
-  static StorageKey = 'aiAssistTranscript';
+  static StorageKey = '_memory_';
 
   static getInput(request: RuntimeRequest) {
     return (isIntentRequest(request) && request.payload.query) || (isTextRequest(request) && request.payload) || null;
   }
 
+  static injectOutput(variables: Store, trace: BaseTrace.TextTrace | BaseTrace.SpeakTrace) {
+    const transcript = (variables.get(AIAssist.StorageKey) as AIAssistLog) || [];
+
+    const lastTranscript = transcript[transcript.length - 1];
+
+    const content = trace.type === Trace.TraceType.SPEAK ? sanitizeSSML(trace.payload.message) : trace.payload.message;
+
+    if (lastTranscript?.role === 'assistant') {
+      lastTranscript.content += `\n${content}`;
+    } else {
+      transcript.push({ role: 'assistant', content });
+      if (transcript.length > MAX_TURNS) transcript.shift();
+    }
+
+    variables.set(AIAssist.StorageKey, transcript);
+  }
+
   handle = async (context: Context) => {
     if (!context.version?.projectID) return context;
 
-    // only store aiAssistTranscript if generateNoMatch is enabled
-    const project = await context.data.api.getProject(context.version.projectID).catch(() => null);
-    if (!project?.aiAssistSettings?.generateNoMatch) return context;
-
-    /**
-    // skip storing no matches into aiAssistTranscript
-    if (context.trace?.find((trace: any) => trace.type === Trace.TraceType.PATH && trace.payload.path === 'reprompt')) {
-      return context;
-    }
-    */
-
-    const { request, trace } = context;
+    const { request } = context;
 
     const input = AIAssist.getInput(request);
+    const transcript: AIAssistLog = context.state.variables[AIAssist.StorageKey] || [];
 
-    const output =
-      trace?.reduce((acc, t) => {
-        if (t.type === Trace.TraceType.SPEAK) {
-          acc += sanitizeSSML(t.payload.message);
-        }
-        if (t.type === Trace.TraceType.TEXT) {
-          acc += t.payload.message;
-        }
-        return acc;
-      }, '') || null;
+    if (input) {
+      const transcript: AIAssistLog = context.state.variables[AIAssist.StorageKey] || [];
+      transcript.push({ role: 'user', content: input });
 
-    if (!input && !output) return context;
-
-    const aiAssistTranscript = context.state.storage[AIAssist.StorageKey] || [];
-
-    aiAssistTranscript.push([input, output]);
-
-    if (aiAssistTranscript.length > MAX_TURNS) aiAssistTranscript.shift();
+      if (transcript.length > MAX_TURNS) transcript.shift();
+    }
 
     return {
       ...context,
       state: {
         ...context.state,
-        storage: {
-          ...context.state.storage,
-          [AIAssist.StorageKey]: aiAssistTranscript,
+        variables: {
+          ...context.state.variables,
+          [AIAssist.StorageKey]: transcript,
         },
       },
     };

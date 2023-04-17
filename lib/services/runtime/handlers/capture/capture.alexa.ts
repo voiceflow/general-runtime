@@ -68,7 +68,7 @@ export const CaptureAlexaHandler: HandlerFactory<VoiceflowNode.Capture.Node, typ
     }
 
     if (utils.repeatHandler.canHandle(runtime)) {
-      return utils.repeatHandler.handle(runtime);
+      return utils.repeatHandler.handle(runtime, variables);
     }
 
     const { intent } = request.payload;

@@ -27,7 +27,7 @@ export const TextHandler: HandlerFactory<BaseNode.Text.Node, typeof handlerUtils
           version: runtime.version,
         });
 
-        utils.addOutputTrace(runtime, trace, { node });
+        utils.addOutputTrace(runtime, trace, { node, variables });
 
         if (trace.payload.slate.content) {
           runtime.stack.top().storage.set<Output>(FrameType.OUTPUT, trace.payload.slate.content);

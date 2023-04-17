@@ -39,7 +39,8 @@ const init = (client: Client) => {
         output,
         version: runtime.version,
         variables: runtime.variables,
-      })
+      }),
+      { variables: runtime.variables }
     );
   });
 

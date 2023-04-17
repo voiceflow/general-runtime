@@ -125,7 +125,7 @@ export const NoReplyHandler = (utils: typeof utilsObj) => ({
         version: runtime.version,
         variables,
       }),
-      { node }
+      { node, variables }
     );
 
     utils.addButtonsIfExists(node, runtime, variables);

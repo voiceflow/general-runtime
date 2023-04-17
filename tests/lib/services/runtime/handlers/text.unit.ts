@@ -55,7 +55,7 @@ describe('text handler unit tests', async () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
-      const variables = { getState: sinon.stub().returns('vars'), set: sinon.stub() };
+      const variables = { getState: sinon.stub().returns('vars'), set: sinon.stub(), get: sinon.stub() };
 
       const textHandler = TextHandler(utils as any);
       expect(textHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);

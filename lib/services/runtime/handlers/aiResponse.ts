@@ -1,14 +1,11 @@
 import { BaseNode } from '@voiceflow/base-types';
-import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { VoiceNode } from '@voiceflow/voice-types';
-import axios from 'axios';
 
-import Config from '@/config';
-import log from '@/logger';
 import { HandlerFactory } from '@/runtime';
 
 import { FrameType, Output } from '../types';
 import { addOutputTrace, getOutputTrace } from '../utils';
+import { fetchPrompt } from './utils/ai';
 import { generateOutput } from './utils/output';
 import { getVersionDefaultVoice } from './utils/version';
 
@@ -17,26 +14,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
   handle: async (node, runtime, variables) => {
     const nextID = node.nextId ?? null;
 
-    if (!Config.ML_GATEWAY_ENDPOINT) {
-      log.error('ML_GATEWAY_ENDPOINT is not set, skipping generative node');
-      return nextID;
-    }
-
-    if (!node.prompt) return nextID;
-
-    const ML_GATEWAY_ENDPOINT = Config.ML_GATEWAY_ENDPOINT.split('/api')[0];
-    const generativeEndpoint = `${ML_GATEWAY_ENDPOINT}/api/v1/generation/generative-response`;
-
-    const sanitizedVars = sanitizeVariables(variables.getState());
-    const prompt = replaceVariables(node.prompt, sanitizedVars);
-    const system = replaceVariables(node.system, sanitizedVars);
-
-    const { maxTokens, temperature, model, voice } = node;
-
-    const response = await axios
-      .post<{ result: string }>(generativeEndpoint, { prompt, maxTokens, system, temperature, model })
-      .then(({ data: { result } }) => result)
-      .catch((error) => log.error(error));
+    const response = await fetchPrompt(node, variables);
 
     if (!response) return nextID;
 
@@ -44,7 +22,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
       response,
       runtime.project,
       // use default voice if voice doesn't exist
-      voice ?? getVersionDefaultVoice(runtime.version)
+      node.voice ?? getVersionDefaultVoice(runtime.version)
     );
 
     runtime.stack.top().storage.set<Output>(FrameType.OUTPUT, output);
@@ -56,7 +34,8 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
         variables,
         version: runtime.version,
         ai: true,
-      })
+      }),
+      { variables }
     );
 
     return nextID;
