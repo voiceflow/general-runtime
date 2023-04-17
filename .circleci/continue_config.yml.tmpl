@@ -222,6 +222,5 @@ workflows:
           vf_service_name: "general-runtime"
           vf_service_port: "8005"
           context: dev-test
-          filters:
-            <<: *trying_staging_filters
+          filters: *bors_branches_filters
 
