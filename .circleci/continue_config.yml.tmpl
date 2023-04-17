@@ -211,7 +211,9 @@ workflows:
                 - production
 
 
-      # Old E2E tests (Remove once new E2E tests are stable)
+  # Old E2E tests (Remove once new E2E tests are stable)
+  old-e2e-tests:
+    jobs:
       - vfcommon/test_e2e:
           <<: *slack-fail-post-step
           name: Old E2E Tests
