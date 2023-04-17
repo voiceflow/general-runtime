@@ -218,7 +218,7 @@ workflows:
           github_username: GITHUB_USERNAME
           github_token: GITHUB_TOKEN
           creator_app_commit: master
-          vf_service_commit: CIRCLE_SHA1
+          vf_service_commit: << pipeline.git.revision >>
           vf_service_name: "general-runtime"
           vf_service_port: "8005"
           context: dev-test
