@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/cognitive-complexity */
 import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 import axios from 'axios';
 import safeJSONStringify from 'json-stringify-safe';
@@ -17,6 +18,8 @@ export interface CodeOptions {
 
 export const GENERATED_CODE_NODE_ID = 'PROGRAMMATICALLY-GENERATED-CODE-NODE';
 
+const RESOLVED_PATH = '__RESOLVED_PATH__';
+
 const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
   endpoint,
   callbacks,
@@ -32,6 +35,11 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
         code: node.code,
         variables: variablesState,
       };
+
+      if (node.paths?.length) {
+        reqData.variables = { ...reqData.variables, [RESOLVED_PATH]: null };
+        reqData.code = `${RESOLVED_PATH} = (function(){\n${reqData.code}\n})()`;
+      }
 
       let newVariableState: Record<string, any>;
       // useStrictVM used for IfV2 and SetV2 to use isolated-vm
@@ -88,7 +96,18 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
         });
       }
 
-      variables.merge(newVariableState);
+      const { [RESOLVED_PATH]: resolvedPath, ...mergeVariableState } = newVariableState;
+
+      variables.merge(mergeVariableState);
+
+      if (node.paths?.length && resolvedPath) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const path of node.paths) {
+          if (path.label === resolvedPath) {
+            return path.nextId ?? null;
+          }
+        }
+      }
 
       return node.success_id ?? null;
     } catch (error) {
