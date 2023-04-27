@@ -16,6 +16,7 @@ import {
 } from '../../utils';
 import { addNoReplyTimeoutIfExists } from '../noReply';
 import { generateNoMatch } from '../utils/generativeNoMatch';
+import { knowledgeBaseNoMatch } from '../utils/knowledgeBaseNoMatch';
 import { generateOutput } from '../utils/output';
 
 export type NoMatchNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoMatchNode;
@@ -67,7 +68,7 @@ export const getOutput = async (
   }
 
   if (runtime.project?.aiAssistSettings?.generateNoMatch) {
-    const output = await generateNoMatch(runtime);
+    const output = await knowledgeBaseNoMatch(runtime);
 
     if (output) return { output, ai: true };
   }
