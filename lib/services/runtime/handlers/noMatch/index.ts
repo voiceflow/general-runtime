@@ -68,7 +68,7 @@ export const getOutput = async (
   }
 
   if (runtime.project?.aiAssistSettings?.generateNoMatch) {
-    const output = await knowledgeBaseNoMatch(runtime);
+    const output = (await knowledgeBaseNoMatch(runtime)) || (await generateNoMatch(runtime));
 
     if (output) return { output, ai: true };
   }
