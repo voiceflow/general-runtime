@@ -1,6 +1,7 @@
 import { BaseModels, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 import _ from 'lodash';
 
+import { FrameType } from '@/lib/services/runtime/types';
 import { PartialContext, State } from '@/runtime';
 import { Context, InitContextHandler } from '@/types';
 
@@ -81,6 +82,14 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     // sanitize incoming intents
     if (context.request && BaseRequest.isIntentRequest(context.request) && !context.request.payload.entities) {
       context.request.payload.entities = [];
+    }
+
+    // TODO: this is a hacky way to reset a session's stack after a version upgrade
+    // reset the stack for user if base frameID is not the same as the current version, otherwise they will never update
+    // this is for when the version is labelled as 'production' but can refer to an arbitrary versionID
+    const baseFrame = context.state?.stack?.[0];
+    if (baseFrame?.storage?.[FrameType.IS_BASE] && baseFrame.programID !== context.versionID) {
+      context.state!.stack = [];
     }
 
     // cache per interaction (save version call during request/response cycle)

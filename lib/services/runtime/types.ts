@@ -108,6 +108,7 @@ export type TurnData = Partial<{
 }>;
 
 export enum FrameType {
+  IS_BASE = 'isBase',
   OUTPUT = 'output',
   CALLED_COMMAND = 'calledCommand',
 }

@@ -1,5 +1,6 @@
 import * as BaseTypes from '@voiceflow/base-types';
 
+import { FrameType } from '@/lib/services/runtime/types';
 import Handler from '@/runtime/lib/Handler';
 import Lifecycle, { AbstractLifecycle, Event, EventType } from '@/runtime/lib/Lifecycle';
 import cycleStack from '@/runtime/lib/Runtime/cycleStack';
@@ -193,6 +194,7 @@ class Runtime<
         programID: this.versionID,
         commands: [...(program?.commands ?? [])],
         nodeID: null,
+        storage: { [FrameType.IS_BASE]: true },
       })
     );
   }
