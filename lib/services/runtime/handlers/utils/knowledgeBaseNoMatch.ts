@@ -25,6 +25,7 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | n
     const response = await axios.post(answerEndpoint, {
       projectID: runtime.project?._id,
       question: inputUtterance,
+      settings: runtime.project?.knowledgeBase?.settings,
     });
 
     if (!response?.data) return null;
