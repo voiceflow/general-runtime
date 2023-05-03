@@ -14,12 +14,12 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
   handle: async (node, runtime, variables) => {
     const nextID = node.nextId ?? null;
 
-    const response = await fetchPrompt(node, variables);
+    const response = await fetchPrompt(node, variables.getState());
 
-    if (!response) return nextID;
+    if (!response.output) return nextID;
 
     const output = generateOutput(
-      response,
+      response.output,
       runtime.project,
       // use default voice if voice doesn't exist
       node.voice ?? getVersionDefaultVoice(runtime.version)

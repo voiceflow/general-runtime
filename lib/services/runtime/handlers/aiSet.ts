@@ -15,7 +15,7 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
       node.sets
         .filter((set) => !!set.prompt && !!set.variable)
         .map(async ({ prompt, variable, mode }) => {
-          variables.set(variable!, await fetchPrompt({ ...node, prompt, mode }, variables));
+          variables.set(variable!, (await fetchPrompt({ ...node, prompt, mode }, variables.getState())).output);
         })
     );
 
