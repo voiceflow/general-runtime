@@ -51,7 +51,12 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | n
           content: 'frame the statement above so that it can be asked as a question to someone with no context.',
         },
       ];
-      const response = await fetchChat({ model: BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo, messages: contextMessages }, {});
+      const response = await fetchChat({
+        temperature: 0.1,
+        maxTokens: 128,
+        model: BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo,
+        messages: contextMessages,
+      });
 
       if (response.output) {
         question = response.output;

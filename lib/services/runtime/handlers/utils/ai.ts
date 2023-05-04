@@ -65,7 +65,7 @@ export const getMemoryMessages = (variablesState: Record<string, unknown>) => [
 
 export const fetchChat = async (
   params: BaseUtils.ai.AIModelParams & { messages: Message[] },
-  variablesState: Record<string, unknown>
+  variablesState: Record<string, unknown> = {}
 ): Promise<{ messages?: Message[]; output: string | null }> => {
   const sanitizedVars = sanitizeVariables(variablesState);
   const messages = params.messages.map((message) => ({
