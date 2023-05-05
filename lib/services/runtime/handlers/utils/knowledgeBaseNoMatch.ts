@@ -90,6 +90,8 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | n
 
       prompt += `Use the following documents as reference:\n\n${createKnowledgeString(data)}\n\n`;
 
+      if (!question.endsWith('?')) question += '?';
+
       const messages: Message[] = [
         { role: 'user', content: prompt },
         { role: 'user', content: question },
