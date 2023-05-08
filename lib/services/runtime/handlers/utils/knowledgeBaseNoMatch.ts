@@ -22,7 +22,7 @@ interface KnowledgeBaseResponse {
 }
 
 const createKnowledgeString = ({ chunks }: KnowledgeBaseResponse) => {
-  return chunks.map((chunk, index) => `${index + 1}: \n\n"${chunk.originalText}"\n\n`).join('');
+  return chunks.map((chunk, index) => `${index + 1}: ${chunk.originalText}\n\n`).join('');
 };
 
 export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | null> => {
@@ -88,20 +88,19 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | n
 
     if (!BaseUtils.ai.ChatModels.includes(options.model)) {
       // for GPT-3 completion model
-      prompt += `Use the following documents as reference:\n\n${createKnowledgeString(data)}\n\nQ: ${question}\nA: `;
+      prompt += `Here is some reference data:\n\n${createKnowledgeString(data)}\n\nQ: ${question}\nA: `;
 
       response = await fetchPrompt({ ...options, prompt, mode: BaseUtils.ai.PROMPT_MODE.PROMPT }, variables);
     } else {
       // for GPT-3.5 and 4.0 chat models
 
-      prompt += `Use the following documents as reference:\n\n${createKnowledgeString(data)}\n\n`;
+      prompt += `Here is some reference data:\n\n${createKnowledgeString(data)}\n\n`;
 
       if (!question.endsWith('?')) question += '?';
 
-      const messages: Message[] = [
-        { role: 'user', content: prompt },
-        { role: 'user', content: question },
-      ];
+      prompt += question;
+
+      const messages: Message[] = [{ role: 'user', content: prompt }];
 
       // TODO: memory depends on the size of the prompt
       response = await fetchChat({ ...options, messages }, variables);
