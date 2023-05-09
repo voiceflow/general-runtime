@@ -22,7 +22,7 @@ interface KnowledgeBaseResponse {
 }
 
 const createKnowledgeString = ({ chunks }: KnowledgeBaseResponse) => {
-  return chunks.map((chunk, index) => `${index + 1}: ${chunk.originalText}\n\n`).join('');
+  return chunks.map((chunk) => `"${chunk.originalText}"\n\n`).join('');
 };
 
 export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | null> => {
@@ -88,22 +88,18 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | n
 
     if (!BaseUtils.ai.ChatModels.includes(options.model)) {
       // for GPT-3 completion model
-      prompt += `Here is some reference data:\n\n${createKnowledgeString(data)}\n\nQ: ${question}\nA: `;
+      prompt += `reference info:\n\n${createKnowledgeString(data)}\n\nQ: ${question}\nA: `;
 
       response = await fetchPrompt({ ...options, prompt, mode: BaseUtils.ai.PROMPT_MODE.PROMPT }, variables);
     } else {
       // for GPT-3.5 and 4.0 chat models
 
-      prompt += `Here is some reference data:\n\n${createKnowledgeString(data)}\n\n`;
+      prompt += `reference info:\n\n${createKnowledgeString(data)}\n\n`;
 
-      if (!question.endsWith('?')) question += '?';
-
-      prompt += question;
-
-      const messages: Message[] = [{ role: 'user', content: prompt }];
+      const system = (options.system ? `${options.system}\n` : '') + prompt;
 
       // TODO: memory depends on the size of the prompt
-      response = await fetchChat({ ...options, messages }, variables);
+      response = await fetchChat({ ...options, system, messages: memory }, variables);
     }
 
     const { output, ...meta } = response;
@@ -120,6 +116,7 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | n
           documentID,
           documentData: documents[documentID]?.data,
         })),
+        query: question,
         ...meta,
       },
     } as any);
