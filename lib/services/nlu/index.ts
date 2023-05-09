@@ -66,7 +66,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     projectID: string;
     versionID: string;
     tag: VersionTag | string;
-    nlp: BaseModels.Project.PrototypeNLP | undefined;
+    nlp?: BaseModels.Project.PrototypeNLP;
     hasChannelIntents: boolean;
     platform: VoiceflowConstants.PlatformType;
     dmRequest?: BaseRequest.IntentRequestPayload;
@@ -81,7 +81,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     }
 
     // 2. next try to resolve with luis NLP
-    if (nlp && nlp.appID && nlp.resourceID) {
+    if (nlp) {
       const { data } = await this.services.axios
         .post<NLUGatewayPredictResponse>(`${this.getNluGatewayEndpoint()}/v1/predict/${versionID}`, {
           utterance: query,
