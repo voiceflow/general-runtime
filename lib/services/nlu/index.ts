@@ -66,7 +66,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     projectID: string;
     versionID: string;
     tag: VersionTag | string;
-    nlp?: BaseModels.Project.PrototypeNLP;
+    nlp: BaseModels.Project.PrototypeNLP | undefined;
     hasChannelIntents: boolean;
     platform: VoiceflowConstants.PlatformType;
     dmRequest?: BaseRequest.IntentRequestPayload;
