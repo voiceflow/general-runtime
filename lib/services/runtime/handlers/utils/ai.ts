@@ -63,10 +63,16 @@ export const getMemoryMessages = (variablesState: Record<string, unknown>) => [
   ...((variablesState?.[AIAssist.StorageKey] as AIAssistLog) || []),
 ];
 
+export interface AIResponse {
+  output: string | null;
+  messages?: Message[];
+  prompt?: string;
+}
+
 export const fetchChat = async (
   params: BaseUtils.ai.AIModelParams & { messages: Message[] },
   variablesState: Record<string, unknown> = {}
-): Promise<{ messages?: Message[]; output: string | null }> => {
+): Promise<AIResponse> => {
   const sanitizedVars = sanitizeVariables(variablesState);
   const messages = params.messages.map((message) => ({
     ...message,
@@ -81,8 +87,8 @@ export const fetchChat = async (
 
 export const fetchPrompt = async (
   params: BaseUtils.ai.AIModelParams & { mode: BaseUtils.ai.PROMPT_MODE; prompt: string },
-  variablesState: Record<string, unknown>
-): Promise<{ prompt?: string; messages?: Message[]; output: string | null }> => {
+  variablesState: Record<string, unknown> = {}
+): Promise<AIResponse> => {
   if (!Config.ML_GATEWAY_ENDPOINT) {
     log.error('ML_GATEWAY_ENDPOINT is not set, skipping generative node');
     return { output: null };

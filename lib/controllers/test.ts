@@ -1,4 +1,6 @@
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
+import { fetchKnowledgeBase } from '@/lib/services/runtime/handlers/utils/knowledgeBaseNoMatch';
+import { answerSynthesis } from '@/lib/services/runtime/handlers/utils/knowledgeBaseNoMatch/answer';
 import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
 import { Request, Response } from '@/types';
@@ -31,6 +33,20 @@ class TestController extends AbstractController {
     } catch (error) {
       res.status(400).send({ error: error.message });
     }
+  }
+
+  async testKnowledgeBase(req: Request, res: Response) {
+    const { projectID, question, settings } = req.body;
+
+    const data = await fetchKnowledgeBase(projectID, question, settings);
+
+    if (!data) return res.send({ output: null, chunks: [] });
+
+    const answer = await answerSynthesis({ question, data, options: settings?.summarization });
+
+    if (!answer?.output) return res.send({ ...answer, output: null, chunks: data.chunks });
+
+    return res.send({ ...answer, chunks: data.chunks });
   }
 }
 
