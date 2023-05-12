@@ -39,18 +39,12 @@ export const answerSynthesis = async ({
   } else {
     // for GPT-3.5 and 4.0 chat models
 
-    const refinedQuestion = question.endsWith('?') ? question : `${question}?`;
-
     const messages = [
       {
         role: 'user' as const,
         content: `reference info:\n\n${createKnowledgeString(
           data
-        )}\n\nUse the references to help answer but don't explicitly make reference to the info. If you are uncertain say exactly "NOT_FOUND".`,
-      },
-      {
-        role: 'user' as const,
-        content: refinedQuestion,
+        )}\n\nUse the references to help answer but don't explicitly make reference to the info. If you don't know the answer say exactly "NOT_FOUND".\n\n${question}`,
       },
     ];
 
