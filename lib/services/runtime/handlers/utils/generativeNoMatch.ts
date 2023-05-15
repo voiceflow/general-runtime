@@ -8,6 +8,11 @@ import { Runtime } from '@/runtime';
 import { Output } from '../../types';
 import { generateOutput } from './output';
 
+// get current UTC time, default to 1 newline after
+export const getCurrentTime = ({ newlines = 1 }: { newlines?: number } = {}) => {
+  return `Current time: ${new Date().toUTCString()}${newlines ? '\n'.repeat(newlines) : ''}`;
+};
+
 export const generateNoMatch = async (runtime: Runtime): Promise<Output | null> => {
   if (!Config.ML_GATEWAY_ENDPOINT) {
     log.error('ML_GATEWAY_ENDPOINT is not set, skipping generative NoMatch');
@@ -19,13 +24,15 @@ export const generateNoMatch = async (runtime: Runtime): Promise<Output | null> 
 
   const aiAssistTranscript = runtime.variables.get<AIAssistLog>(AIAssist.StorageKey) || [];
 
+  if (!aiAssistTranscript.length) return null;
+
+  const system = getCurrentTime();
+
   const parsedAiAssistTranscript = aiAssistTranscript.reduce((acc, { role, content }) => {
     if (role === 'user') acc += `P2: ${content}\n`;
     if (role === 'assistant') acc += `AI: ${content}\n`;
     return acc;
-  }, '');
-
-  if (!parsedAiAssistTranscript) return null;
+  }, system);
 
   const response = await axios
     .post(autoCompleteEndpoint, {

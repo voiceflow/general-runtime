@@ -1,6 +1,7 @@
 import { BaseUtils } from '@voiceflow/base-types';
 
 import { AIResponse, fetchChat, fetchPrompt } from '../ai';
+import { getCurrentTime } from '../generativeNoMatch';
 
 interface KnowledegeBaseChunk {
   score: number;
@@ -11,10 +12,6 @@ interface KnowledegeBaseChunk {
 interface KnowledgeBaseResponse {
   chunks: KnowledegeBaseChunk[];
 }
-
-const createKnowledgeString = ({ chunks }: KnowledgeBaseResponse) => {
-  return chunks.map((chunk, index) => `${index + 1}: "${chunk.originalText}"\n\n`).join('');
-};
 
 export const answerSynthesis = async ({
   question,
@@ -29,29 +26,37 @@ export const answerSynthesis = async ({
 }): Promise<AIResponse | null> => {
   let response: AIResponse;
 
-  const options = { model, system, temperature, maxTokens };
+  const systemWithTime = `${system}\n\n${getCurrentTime()}`.trim();
+
+  const options = { model, system: systemWithTime, temperature, maxTokens };
+
+  const context = data.chunks.map(({ originalText }) => originalText).join('\n');
 
   if (!BaseUtils.ai.ChatModels.includes(options.model)) {
     // for GPT-3 completion model
-    const prompt = `reference info:\n\n${createKnowledgeString(data)}\n\nQ: ${question}\nA: `;
+    const prompt = `context:\n${context}\n\nIf you don't know the answer say exactly "UNKNOWN".\n\nQ: ${question}\nA: `;
 
     response = await fetchPrompt({ ...options, prompt, mode: BaseUtils.ai.PROMPT_MODE.PROMPT }, variables);
   } else {
     // for GPT-3.5 and 4.0 chat models
-
     const messages = [
       {
         role: 'user' as const,
-        content: `reference info:\n\n${createKnowledgeString(
-          data
-        )}\n\nUse the references to help answer but don't explicitly make reference to the info. If you don't know the answer say exactly "NOT_FOUND".\n\n${question}`,
+        content: `context:\n${context}`,
+      },
+      {
+        role: 'user' as const,
+        content: `If you don't know the answer say exactly "UNKNOWN".\n\n${question}`,
       },
     ];
 
     response = await fetchChat({ ...options, messages }, variables);
   }
 
-  if (response.output?.toUpperCase().includes('NOT_FOUND')) return { ...response, output: null };
+  const output = response.output?.trim().toUpperCase();
+
+  if (output?.includes('UNKNOWN') || output?.startsWith("I'M SORRY,") || output?.includes('AS AN AI'))
+    return { ...response, output: null };
 
   return response;
 };
