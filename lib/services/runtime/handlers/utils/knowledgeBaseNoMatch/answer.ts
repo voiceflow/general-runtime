@@ -34,7 +34,7 @@ export const answerSynthesis = async ({
 
   if (!BaseUtils.ai.ChatModels.includes(options.model)) {
     // for GPT-3 completion model
-    const prompt = `context:\n${context}\n\nIf you don't know the answer say exactly "UNKNOWN".\n\nQ: ${question}\nA: `;
+    const prompt = `context:\n${context}\n\nIf you don't know the answer say exactly "NOT_FOUND".\n\nQ: ${question}\nA: `;
 
     response = await fetchPrompt({ ...options, prompt, mode: BaseUtils.ai.PROMPT_MODE.PROMPT }, variables);
   } else {
@@ -46,7 +46,7 @@ export const answerSynthesis = async ({
       },
       {
         role: 'user' as const,
-        content: `If you don't know the answer say exactly "UNKNOWN".\n\n${question}`,
+        content: `If you don't know the answer say exactly "NOT_FOUND".\n\n${question}`,
       },
     ];
 
@@ -55,7 +55,7 @@ export const answerSynthesis = async ({
 
   const output = response.output?.trim().toUpperCase();
 
-  if (output?.includes('UNKNOWN') || output?.startsWith("I'M SORRY,") || output?.includes('AS AN AI'))
+  if (output?.includes('NOT_FOUND') || output?.startsWith("I'M SORRY,") || output?.includes('AS AN AI'))
     return { ...response, output: null };
 
   return response;
