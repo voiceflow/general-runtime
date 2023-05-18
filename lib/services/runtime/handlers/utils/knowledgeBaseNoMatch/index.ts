@@ -44,11 +44,6 @@ export const fetchKnowledgeBase = async (
 };
 
 export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | null> => {
-  // if no documents in knowledge base, ignore
-  if (!Object.values(runtime.project?.knowledgeBase?.documents || {}).length) {
-    return null;
-  }
-
   if (!Config.KNOWLEDGE_BASE_LAMBDA_ENDPOINT) {
     log.error('[knowledgeBase] KNOWLEDGE_BASE_LAMBDA_ENDPOINT is not set');
     return null;

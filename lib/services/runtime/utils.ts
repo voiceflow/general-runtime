@@ -21,7 +21,7 @@ import { Runtime, Store } from '@/runtime';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { AddTraceFn } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
-import { isPrompt, Output, Prompt, TurnType } from './types';
+import { isPrompt, Output, TurnType } from './types';
 
 export const EMPTY_AUDIO_STRING = '<audio src=""/>';
 
@@ -168,14 +168,9 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
 
 export const getReadableConfidence = (confidence?: number): string => ((confidence ?? 1) * 100).toFixed(2);
 
-export const getGenericGlobalNoMatchPrompt =
-  ({ isPrompt }: { isPrompt: (prompt: unknown) => prompt is Prompt }) =>
-  (runtime: Runtime) => {
-    const { version } = runtime;
-    const prompt = version?.platformData.settings?.globalNoMatch?.prompt;
-    return prompt && isPrompt(prompt) ? prompt : null;
-  };
-export const getGlobalNoMatchPrompt = getGenericGlobalNoMatchPrompt({ isPrompt });
+export const getGlobalNoMatch = (runtime: Runtime) => {
+  return runtime.version?.platformData.settings?.globalNoMatch;
+};
 
 export const getGlobalNoReplyPrompt = (runtime: Runtime) => {
   const { version } = runtime;
@@ -189,7 +184,7 @@ export const slateToPlaintext = (content: Readonly<BaseText.SlateTextValue> = []
     .join('\n')
     .trim();
 
-export const isPromptContentInitialyzed = (content: BaseText.SlateTextValue | string | null | undefined) =>
+export const isPromptContentInitialized = (content: BaseText.SlateTextValue | string | null | undefined) =>
   content != null;
 
 export const isPromptContentEmpty = (content: BaseText.SlateTextValue | string | null | undefined) => {

@@ -26,7 +26,7 @@ export const generateNoMatch = async (runtime: Runtime): Promise<Output | null> 
 
   if (!aiAssistTranscript.length) return null;
 
-  const system = getCurrentTime();
+  const system = `${runtime.project?.knowledgeBase?.settings?.summarization?.system || ''}\n\n${getCurrentTime()}`;
 
   const parsedAiAssistTranscript = aiAssistTranscript.reduce((acc, { role, content }) => {
     if (role === 'user') acc += `P2: ${content}\n`;

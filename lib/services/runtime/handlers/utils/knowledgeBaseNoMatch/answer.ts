@@ -17,7 +17,7 @@ export const answerSynthesis = async ({
   question,
   data,
   variables,
-  options: { model = BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo, system, temperature, maxTokens } = {},
+  options: { model = BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo, system = '', temperature, maxTokens } = {},
 }: {
   question: string;
   data: KnowledgeBaseResponse;

@@ -6,7 +6,7 @@ import {
   addButtonsIfExists,
   getReadableConfidence,
   isPromptContentEmpty,
-  isPromptContentInitialyzed,
+  isPromptContentInitialized,
   mapEntities,
   slateInjectVariables,
   slateToPlaintext,
@@ -138,13 +138,13 @@ describe('runtime utils service unit tests', () => {
 
   describe('isPromptContentInitialyzed', () => {
     it('works', () => {
-      expect(isPromptContentInitialyzed(undefined)).to.eql(false);
-      expect(isPromptContentInitialyzed(null)).to.eql(false);
+      expect(isPromptContentInitialized(undefined)).to.eql(false);
+      expect(isPromptContentInitialized(null)).to.eql(false);
 
-      expect(isPromptContentInitialyzed('')).to.eql(true);
-      expect(isPromptContentInitialyzed([])).to.eql(true);
-      expect(isPromptContentInitialyzed([{ text: '' }])).to.eql(true);
-      expect(isPromptContentInitialyzed([{ text: 'text' }])).to.eql(true);
+      expect(isPromptContentInitialized('')).to.eql(true);
+      expect(isPromptContentInitialized([])).to.eql(true);
+      expect(isPromptContentInitialized([{ text: '' }])).to.eql(true);
+      expect(isPromptContentInitialized([{ text: 'text' }])).to.eql(true);
     });
   });
 

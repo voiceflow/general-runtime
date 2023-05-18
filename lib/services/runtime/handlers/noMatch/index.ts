@@ -1,17 +1,17 @@
-import { BaseNode, BaseRequest, BaseText, BaseTrace } from '@voiceflow/base-types';
+import { BaseNode, BaseRequest, BaseText, BaseTrace, BaseVersion } from '@voiceflow/base-types';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
 import { Runtime, Store } from '@/runtime';
 
-import { NoMatchCounterStorage, Output, StorageType } from '../../types';
+import { isPrompt, NoMatchCounterStorage, Output, StorageType } from '../../types';
 import {
   addButtonsIfExists,
   addOutputTrace,
-  getGlobalNoMatchPrompt,
+  getGlobalNoMatch,
   getOutputTrace,
   isPromptContentEmpty,
-  isPromptContentInitialyzed,
+  isPromptContentInitialized,
   removeEmptyPrompts,
 } from '../../utils';
 import { addNoReplyTimeoutIfExists } from '../noReply';
@@ -48,9 +48,10 @@ export const getOutput = async (
   node: NoMatchNode,
   runtime: Runtime,
   noMatchCounter: number
+  // eslint-disable-next-line sonarjs/cognitive-complexity
 ): Promise<{ output: Output; ai?: boolean } | void | null> => {
   const nonEmptyNoMatches = removeEmptyNoMatches(node);
-  const globalNoMatchPrompt = getGlobalNoMatchPrompt(runtime);
+  const globalNoMatch = getGlobalNoMatch(runtime);
   const exhaustedReprompts = noMatchCounter >= nonEmptyNoMatches.length;
 
   if (!exhaustedReprompts) {
@@ -67,22 +68,31 @@ export const getOutput = async (
     return null;
   }
 
-  if (runtime.project?.aiAssistSettings?.generateNoMatch) {
-    const output = (await knowledgeBaseNoMatch(runtime)) || (await generateNoMatch(runtime));
-
+  // use knowledge base if it exists
+  if (Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0) {
+    const output = await knowledgeBaseNoMatch(runtime);
     if (output) return { output, ai: true };
   }
 
+  if (
+    globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE &&
+    runtime.project?.aiAssistSettings?.generateNoMatch !== false
+  ) {
+    const output = await generateNoMatch(runtime);
+    if (output) return { output, ai: true };
+  }
+
+  const prompt = globalNoMatch && isPrompt(globalNoMatch?.prompt) ? globalNoMatch.prompt : null;
+
   // if user never set global no-match prompt, we should use default
-  if (!isPromptContentInitialyzed(globalNoMatchPrompt?.content)) {
+  if (!isPromptContentInitialized(prompt?.content)) {
     return {
       output: generateOutput(VoiceflowConstants.defaultMessages.globalNoMatch, runtime.project),
     };
   }
 
-  if (!isPromptContentEmpty(globalNoMatchPrompt?.content)) {
-    const output = globalNoMatchPrompt?.content;
-
+  if (!isPromptContentEmpty(prompt?.content)) {
+    const output = prompt?.content;
     if (output) return { output };
   }
 
