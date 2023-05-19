@@ -68,18 +68,17 @@ export const getOutput = async (
     return null;
   }
 
-  // use knowledge base if it exists
-  if (Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0) {
-    const output = await knowledgeBaseNoMatch(runtime);
-    if (output) return { output, ai: true };
-  }
+  if (runtime.project?.aiAssistSettings?.aiPlayground) {
+    // use knowledge base if it exists
+    if (Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0) {
+      const output = await knowledgeBaseNoMatch(runtime);
+      if (output) return { output, ai: true };
+    }
 
-  if (
-    globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE &&
-    runtime.project?.aiAssistSettings?.generateNoMatch !== false
-  ) {
-    const output = await generateNoMatch(runtime);
-    if (output) return { output, ai: true };
+    if (globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE) {
+      const output = await generateNoMatch(runtime, globalNoMatch.prompt);
+      if (output) return { output, ai: true };
+    }
   }
 
   const prompt = globalNoMatch && isPrompt(globalNoMatch?.prompt) ? globalNoMatch.prompt : null;
