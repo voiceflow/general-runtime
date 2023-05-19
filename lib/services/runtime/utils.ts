@@ -176,7 +176,7 @@ export const getGenericGlobalNoMatchPrompt =
   ({ isPrompt }: { isPrompt: (prompt: unknown) => prompt is Prompt }) =>
   (runtime: Runtime) => {
     const noMatch = getGlobalNoMatch(runtime);
-    return noMatch?.prompt && isPrompt(noMatch?.prompt) ? noMatch?.prompt : null;
+    return noMatch?.prompt && isPrompt(noMatch.prompt) ? noMatch.prompt : null;
   };
 
 export const getGlobalNoMatchPrompt = getGenericGlobalNoMatchPrompt({ isPrompt });
