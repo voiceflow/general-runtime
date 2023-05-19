@@ -21,7 +21,7 @@ import { Runtime, Store } from '@/runtime';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { AddTraceFn } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
-import { isPrompt, Output, TurnType } from './types';
+import { isPrompt, Output, Prompt, TurnType } from './types';
 
 export const EMPTY_AUDIO_STRING = '<audio src=""/>';
 
@@ -171,6 +171,15 @@ export const getReadableConfidence = (confidence?: number): string => ((confiden
 export const getGlobalNoMatch = (runtime: Runtime) => {
   return runtime.version?.platformData.settings?.globalNoMatch;
 };
+
+export const getGenericGlobalNoMatchPrompt =
+  ({ isPrompt }: { isPrompt: (prompt: unknown) => prompt is Prompt }) =>
+  (runtime: Runtime) => {
+    const noMatch = getGlobalNoMatch(runtime);
+    return noMatch?.prompt && isPrompt(noMatch?.prompt) ? noMatch?.prompt : null;
+  };
+
+export const getGlobalNoMatchPrompt = getGenericGlobalNoMatchPrompt({ isPrompt });
 
 export const getGlobalNoReplyPrompt = (runtime: Runtime) => {
   const { version } = runtime;
