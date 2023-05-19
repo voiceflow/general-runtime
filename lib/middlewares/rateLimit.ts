@@ -32,6 +32,22 @@ class RateLimit extends RateLimitMiddleware<FullServiceMap, Config> {
       resource: isPublic ? req.headers.versionID : req.headers.authorization,
     });
   }
+
+  consumeResource = (getResource: (req: Request) => string | undefined, prefix?: string, isPublic = false) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+      const resource = getResource(req);
+
+      if (!resource) {
+        res.sendStatus(401);
+        return;
+      }
+
+      this.consume(res, next, {
+        isPublic,
+        resource: prefix ? `${prefix}:${resource}` : resource,
+      });
+    };
+  };
 }
 
 export default RateLimit;

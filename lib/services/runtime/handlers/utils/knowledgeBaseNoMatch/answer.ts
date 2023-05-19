@@ -2,16 +2,7 @@ import { BaseUtils } from '@voiceflow/base-types';
 
 import { AIResponse, fetchChat, fetchPrompt } from '../ai';
 import { getCurrentTime } from '../generativeNoMatch';
-
-interface KnowledegeBaseChunk {
-  score: number;
-  chunkID: string;
-  documentID: string;
-  originalText: string;
-}
-interface KnowledgeBaseResponse {
-  chunks: KnowledegeBaseChunk[];
-}
+import type { KnowledgeBaseResponse } from '.';
 
 export const answerSynthesis = async ({
   question,
@@ -30,7 +21,7 @@ export const answerSynthesis = async ({
 
   const options = { model, system: systemWithTime, temperature, maxTokens };
 
-  const context = data.chunks.map(({ originalText }) => originalText).join('\n');
+  const context = data.chunks.map(({ content }) => content).join('\n');
 
   if (!BaseUtils.ai.ChatModels.includes(options.model)) {
     // for GPT-3 completion model
@@ -46,7 +37,7 @@ export const answerSynthesis = async ({
       },
       {
         role: 'user' as const,
-        content: `Answer the following question, if you don't know the answer say exactly "NOT_FOUND".\n\n${question}`,
+        content: `Answer the following question, if you don't know the answer say exactly "NOT_FOUND".\n\nQuestion:\n${question}`,
       },
     ];
 

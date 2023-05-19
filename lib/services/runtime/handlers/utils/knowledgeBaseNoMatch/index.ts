@@ -12,13 +12,13 @@ import { generateOutput } from '../output';
 import { answerSynthesis } from './answer';
 import { questionSynthesis } from './question';
 
-interface KnowledegeBaseChunk {
+export interface KnowledegeBaseChunk {
   score: number;
   chunkID: string;
   documentID: string;
-  originalText: string;
+  content: string;
 }
-interface KnowledgeBaseResponse {
+export interface KnowledgeBaseResponse {
   chunks: KnowledegeBaseChunk[];
 }
 

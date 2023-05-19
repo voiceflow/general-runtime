@@ -36,17 +36,30 @@ class TestController extends AbstractController {
   }
 
   async testKnowledgeBase(req: Request, res: Response) {
-    const { projectID, question, settings } = req.body;
+    const api = await this.services.dataAPI.get(req.headers.authorization);
 
-    const data = await fetchKnowledgeBase(projectID, question, settings);
+    // if DM API key infer project from header
+    const project = await api.getProject(req.body.projectID || req.headers.authorization);
+
+    const { question, settings, synthesis = true } = req.body;
+
+    const data = await fetchKnowledgeBase(project._id, question, settings);
 
     if (!data) return res.send({ output: null, chunks: [] });
 
+    // attach metadata to chunks
+    const chunks = data.chunks.map((chunk) => ({
+      ...chunk,
+      source: project.knowledgeBase?.documents?.[chunk.documentID]?.data,
+    }));
+
+    if (!synthesis) return res.send({ output: null, chunks });
+
     const answer = await answerSynthesis({ question, data, options: settings?.summarization });
 
-    if (!answer?.output) return res.send({ ...answer, output: null, chunks: data.chunks });
+    if (!answer?.output) return res.send({ ...answer, output: null, chunks });
 
-    return res.send({ ...answer, chunks: data.chunks });
+    return res.send({ ...answer, chunks });
   }
 }
 

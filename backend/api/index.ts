@@ -3,6 +3,7 @@ import express from 'express';
 import { ControllerMap, MiddlewareMap } from '@/lib';
 
 import InteractRouter from './routers/interact';
+import KnowledgeBaseRouter from './routers/knowledgeBase';
 import PublicRouter from './routers/public';
 import StateRouter from './routers/state';
 import TestRouter from './routers/test';
@@ -16,6 +17,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.use('/state', StateRouter(middlewares, controllers));
   router.use('/public', PublicRouter(middlewares, controllers));
   router.use('/test', TestRouter(middlewares, controllers));
+  router.use('/knowledge-base', KnowledgeBaseRouter(middlewares, controllers));
   router.use('/transcripts', TranscriptRouter(middlewares, controllers));
 
   return router;
