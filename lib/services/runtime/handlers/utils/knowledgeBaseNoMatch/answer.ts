@@ -47,7 +47,7 @@ export const answerSynthesis = async ({
   const output = response.output?.trim().toUpperCase();
 
   if (output?.includes('NOT_FOUND') || output?.startsWith("I'M SORRY,") || output?.includes('AS AN AI'))
-    return { ...response, output: null };
+    return { output: null };
 
-  return response;
+  return { output: response.output };
 };

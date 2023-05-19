@@ -57,9 +57,9 @@ class TestController extends AbstractController {
 
     const answer = await answerSynthesis({ question, data, options: settings?.summarization });
 
-    if (!answer?.output) return res.send({ ...answer, output: null, chunks });
+    if (!answer?.output) return res.send({ output: null, chunks });
 
-    return res.send({ ...answer, chunks });
+    return res.send({ output: answer.output, chunks });
   }
 }
 
