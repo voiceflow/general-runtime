@@ -13,7 +13,6 @@
     "@commitlint/*",
     "@types/*",
     "@voiceflow/commitlint-config",
-    "@voiceflow/internal",
     "@voiceflow/schema-types",
     "@voiceflow/git-branch-check",
     "typedoc-plugin-sourcefile-url",
