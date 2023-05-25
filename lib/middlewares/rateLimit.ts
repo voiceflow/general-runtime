@@ -11,6 +11,11 @@ const LOCAL_DEVELOPEMENT = [
 ];
 
 class RateLimit extends RateLimitMiddleware<FullServiceMap, Config> {
+  constructor(services: FullServiceMap, config: Config) {
+    super(services, config);
+    Object.assign(this.consumeResource, { callback: true });
+  }
+
   async verify(req: Request, _res: Response, next: NextFunction): Promise<void> {
     if (
       !this.config.PROJECT_SOURCE &&
