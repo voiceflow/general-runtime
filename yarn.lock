@@ -2388,10 +2388,10 @@
     jwt-decode "^3.1.2"
     superstruct "^0.10.12"
 
-"@voiceflow/backend-utils@4.8.4":
-  version "4.8.4"
-  resolved "https://registry.yarnpkg.com/@voiceflow/backend-utils/-/backend-utils-4.8.4.tgz#f18ade1e149ba87c39bd8d2b78ad19a1d8524714"
-  integrity sha512-8CdCNeuzcE19g+B1Jfs8375F1gXiyZi1wPEcuV16ytaCKe+qgd4gyrS3tXyFv3nQ2/CN0taqXR44flcXBmNVLg==
+"@voiceflow/backend-utils@4.8.3":
+  version "4.8.3"
+  resolved "https://registry.yarnpkg.com/@voiceflow/backend-utils/-/backend-utils-4.8.3.tgz#3ae979d156a466cbccd685c3a5d9f53a415f271e"
+  integrity sha512-6xAx2PrdCBf3SbLrCt5+9JRlBer2hFb1WnVQiuwnJlggFfU7m9xmGELJJ8mZEjXqa7eDQ06CvU3QZsu50BjEKw==
   dependencies:
     "@types/http-errors" "^1.8.2"
     "@voiceflow/logger" "1.6.1"
@@ -2452,23 +2452,6 @@
   version "7.27.3"
   resolved "https://registry.yarnpkg.com/@voiceflow/common/-/common-7.27.3.tgz#526f6ec00eed81d485b532412f29aaf30c340094"
   integrity sha512-iKZY6O4xX98mzOuPhvcEhPMMSqPKKwNIVwYVWd1EkI0/ZamvS5mIF/8+7DbP2k74MKXAg6zixVd/l5DaVHtsyg==
-  dependencies:
-    "@types/crypto-js" "^4.0.2"
-    "@types/shallowequal" "^1.1.1"
-    bson-objectid "^2.0.1"
-    crypto-js "^4.1.1"
-    cuid "^2.1.8"
-    dayjs "1.10.7"
-    lodash "^4.17.21"
-    murmurhash-wasm "^1.3.0"
-    number-to-words "^1.2.4"
-    shallowequal "^1.1.0"
-    typescript-fsa "3.0.0"
-
-"@voiceflow/common@8.1.5":
-  version "8.1.5"
-  resolved "https://registry.yarnpkg.com/@voiceflow/common/-/common-8.1.5.tgz#798481b96fb05f4e48a97537a808b8190ceb5102"
-  integrity sha512-tCMHPBEfNCcmvAVoe+WHv4anPcj+HngzPz5V819HcWyahhslL9cyd6C9l50iOTnvWljERMDzb2AABndZne0D1Q==
   dependencies:
     "@types/crypto-js" "^4.0.2"
     "@types/shallowequal" "^1.1.1"
@@ -2664,13 +2647,6 @@
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@voiceflow/prettier-config/-/prettier-config-1.2.1.tgz#906bc852bcd8b2586fa62e4635392a0bea1fdb59"
   integrity sha512-J7wnJCwRWSNX33Ji2eLeBxtwXplAKIk9/aOfrHVfKmYrLHqXvOcrl2/7xa37jqnuTl8vw3+UsfFo3sMDY6weTg==
-
-"@voiceflow/sdk-auth@1.44.2":
-  version "1.44.2"
-  resolved "https://registry.yarnpkg.com/@voiceflow/sdk-auth/-/sdk-auth-1.44.2.tgz#f188d528a7011682cc8076cdcc151e20d9212af2"
-  integrity sha512-gzN3oJDgtGKTFpE7zW+W04D9v548E8yIXgFJrrNdKEhXeO9FE78+vtm8pM78hBoqAoTqwMPmkcyQj/ROKTjvGQ==
-  dependencies:
-    "@voiceflow/common" "8.1.5"
 
 "@voiceflow/verror@1.1.3", "@voiceflow/verror@^1.1.3":
   version "1.1.3"
