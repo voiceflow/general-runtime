@@ -12,6 +12,8 @@ import { generateOutput } from '../output';
 import { answerSynthesis } from './answer';
 import { questionSynthesis } from './question';
 
+export { answerSynthesis, questionSynthesis };
+
 export interface KnowledegeBaseChunk {
   score: number;
   chunkID: string;

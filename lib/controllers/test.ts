@@ -3,8 +3,8 @@ import VError from '@voiceflow/verror';
 
 import AI from '@/lib/clients/ai';
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
-import { fetchKnowledgeBase } from '@/lib/services/runtime/handlers/utils/knowledgeBaseNoMatch';
-import { answerSynthesis } from '@/lib/services/runtime/handlers/utils/knowledgeBaseNoMatch/answer';
+import { fetchKnowledgeBase } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
+import { answerSynthesis } from '@/lib/services/runtime/handlers/utils/knowledgeBase/answer';
 import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
 import { Request, Response } from '@/types';

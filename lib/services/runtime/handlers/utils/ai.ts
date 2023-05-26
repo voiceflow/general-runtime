@@ -9,6 +9,12 @@ export const getMemoryMessages = (variablesState: Record<string, unknown>) => [
   ...((variablesState?.[AIAssist.StorageKey] as BaseUtils.ai.Message[]) || []),
 ];
 
+export const getMemoryMessagesString = (variablesState: Record<string, unknown>) => {
+  return getMemoryMessages(variablesState)
+    .map(({ content, role }) => (role === 'assistant' ? 'AI: ' : 'user: ') + content)
+    .join('\n');
+};
+
 export interface AIResponse {
   output: string | null;
   messages?: BaseUtils.ai.Message[];

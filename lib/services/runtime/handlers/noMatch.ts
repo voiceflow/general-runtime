@@ -16,7 +16,7 @@ import {
 } from '../utils';
 import { addNoReplyTimeoutIfExists } from './noReply';
 import { generateNoMatch } from './utils/generativeNoMatch';
-import { knowledgeBaseNoMatch } from './utils/knowledgeBaseNoMatch';
+import { knowledgeBaseNoMatch } from './utils/knowledgeBase';
 import { generateOutput } from './utils/output';
 
 export type NoMatchNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoMatchNode;
