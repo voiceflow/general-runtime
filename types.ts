@@ -74,6 +74,12 @@ export interface Config extends RateLimitConfig {
   ANALYTICS_ENDPOINT: string | null;
   ANALYTICS_WRITE_KEY: string | null;
   INGEST_V2_WEBHOOK_ENDPOINT: string | null;
+
+  // OpenAI LLM keys
+  AZURE_OPEN_API_KEY: string | null;
+  AZURE_OPEN_API_ENDPOINT: string | null;
+
+  OPEN_API_KEY: string | null;
 }
 
 export interface Request<
@@ -90,7 +96,7 @@ export type Response = Express.Response;
 
 export type Next = () => void;
 
-export interface Route<Params = Record<string, any>, T = void> {
+export interface Route<Params extends Record<string, any> = Record<string, any>, T = void> {
   (req: Request<Params>): Promise<T>;
 
   validations?: Validator.ValidationChain[];

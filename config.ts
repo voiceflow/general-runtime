@@ -93,6 +93,11 @@ const CONFIG: Config = {
   ANALYTICS_WRITE_KEY: getOptionalProcessEnv('ANALYTICS_WRITE_KEY') || null,
 
   INGEST_V2_WEBHOOK_ENDPOINT: getOptionalProcessEnv('INGEST_V2_WEBHOOK_ENDPOINT') || null,
+
+  // OpenAI
+  AZURE_OPEN_API_ENDPOINT: getOptionalProcessEnv('AZURE_OPEN_API_ENDPOINT') || null,
+  AZURE_OPEN_API_KEY: getOptionalProcessEnv('AZURE_OPEN_API_KEY') || null,
+  OPEN_API_KEY: getOptionalProcessEnv('OPEN_API_KEY') || null,
 };
 
 export default CONFIG;
