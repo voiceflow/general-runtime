@@ -1,40 +1,13 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
-import { ChatCompletionRequestMessageRoleEnum, Configuration, OpenAIApi } from '@voiceflow/openai';
+import { ChatCompletionRequestMessageRoleEnum } from '@voiceflow/openai';
 
 import log from '@/logger';
-import { Config } from '@/types';
 
-import { AIModel, Message } from './types';
+import { GPTAIModel, Message } from './types';
 
-export class GPT3 extends AIModel {
+export class GPT3 extends GPTAIModel {
   public modelName = BaseUtils.ai.GPT_MODEL.DaVinci_003;
-
-  private client: OpenAIApi;
-
-  constructor(config: Config) {
-    super();
-
-    if (config.AZURE_ENDPOINT && config.AZURE_OPENAI_API_KEY && config.AZURE_GPT35_DEPLOYMENTS) {
-      this.client = new OpenAIApi(
-        new Configuration({
-          azure: {
-            endpoint: config.AZURE_ENDPOINT,
-            apiKey: config.AZURE_OPENAI_API_KEY,
-            deploymentName: config.AZURE_GPT35_DEPLOYMENTS,
-          },
-        })
-      );
-      return;
-    }
-
-    if (config.OPENAI_API_KEY) {
-      this.client = new OpenAIApi(new Configuration({ apiKey: config.OPENAI_API_KEY }));
-      return;
-    }
-
-    throw new Error(`OpenAI client not initialized for ${this.modelName}`);
-  }
 
   static messagesToPrompt(messages: Message[]) {
     if (messages.length === 1) {

@@ -5,23 +5,14 @@ import { ChatCompletionRequestMessageRoleEnum, Configuration, OpenAIApi } from '
 import log from '@/logger';
 import { Config } from '@/types';
 
-import { AIModel, Message } from './types';
+import { GPTAIModel, Message } from './types';
 
-export class GPT4 extends AIModel {
+export class GPT4 extends GPTAIModel {
   public modelName = BaseUtils.ai.GPT_MODEL.GPT_4;
 
-  private client: OpenAIApi;
-
   constructor(config: Config) {
-    super();
-
     // we dont not have access to GPT 4 on Azure yet, use OpenAI API instead
-    if (config.OPENAI_API_KEY) {
-      this.client = new OpenAIApi(new Configuration({ apiKey: config.OPENAI_API_KEY }));
-      return;
-    }
-
-    throw new Error(`OpenAI client not initialized for ${this.modelName}`);
+    super({ OPENAI_API_KEY: config.OPENAI_API_KEY });
   }
 
   async generateCompletion(prompt: string, params: AIModelParams) {
