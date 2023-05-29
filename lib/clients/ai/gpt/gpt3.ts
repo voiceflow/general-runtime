@@ -35,13 +35,14 @@ export class GPT3 extends GPTAIModel {
       .createCompletion(
         {
           model: this.modelName,
-          ...params,
+          max_tokens: params.maxTokens,
+          temperature: params.temperature,
           prompt,
         },
         { timeout: this.TIMEOUT }
       )
       .catch((error) => {
-        log.warn(`GPT3 completion ${log.vars({ error, prompt, params })})}`);
+        log.warn(`GPT3 completion ${log.vars({ error, prompt, params, data: error?.response?.data?.error })})}`);
         return null;
       });
 

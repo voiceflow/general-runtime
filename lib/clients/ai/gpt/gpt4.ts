@@ -28,13 +28,14 @@ export class GPT4 extends GPTAIModel {
       .createChatCompletion(
         {
           model: this.modelName,
-          ...params,
+          max_tokens: params.maxTokens,
+          temperature: params.temperature,
           messages,
         },
         { timeout: this.TIMEOUT }
       )
       .catch((error) => {
-        log.warn(`GPT3_5 completion ${log.vars({ error, messages, params })})}`);
+        log.warn(`GPT4 completion ${log.vars({ error, messages, params, data: error?.response?.data?.error })})}`);
         return null;
       });
 

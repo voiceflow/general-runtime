@@ -13,10 +13,13 @@ export abstract class GPTAIModel extends AIModel {
     super();
 
     if (config.AZURE_ENDPOINT && config.AZURE_OPENAI_API_KEY && config.AZURE_GPT35_DEPLOYMENTS) {
+      // remove trailing slash
+      const endpoint = config.AZURE_ENDPOINT.replace(/\/$/, '');
+
       this.client = new OpenAIApi(
         new Configuration({
           azure: {
-            endpoint: config.AZURE_ENDPOINT,
+            endpoint,
             apiKey: config.AZURE_OPENAI_API_KEY,
             deploymentName: config.AZURE_GPT35_DEPLOYMENTS,
           },
@@ -27,6 +30,7 @@ export abstract class GPTAIModel extends AIModel {
 
     if (config.OPENAI_API_KEY) {
       this.client = new OpenAIApi(new Configuration({ apiKey: config.OPENAI_API_KEY }));
+
       return;
     }
 
