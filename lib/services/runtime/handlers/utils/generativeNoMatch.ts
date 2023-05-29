@@ -1,9 +1,11 @@
 import { BaseUtils } from '@voiceflow/base-types';
+import { ChatCompletionRequestMessageRoleEnum } from '@voiceflow/openai';
 
+import { Message } from '@/lib/clients/ai/types';
 import { Runtime } from '@/runtime';
 
 import { Output } from '../../types';
-import { fetchChat, getMemoryMessages, Message } from './ai';
+import { fetchChat, getMemoryMessages } from './ai';
 import { generateOutput } from './output';
 
 // get current UTC time, default to 1 newline after
@@ -18,7 +20,7 @@ export const generateNoMatch = async (
   const messages: Message[] = [
     ...getMemoryMessages(runtime.variables.getState()),
     {
-      role: 'system',
+      role: ChatCompletionRequestMessageRoleEnum.System,
       content: `${context.system || ''}\n\n${getCurrentTime()}`.trim(),
     },
   ];

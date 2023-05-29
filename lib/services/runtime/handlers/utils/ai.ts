@@ -1,14 +1,11 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
+import { ChatCompletionRequestMessageRoleEnum } from '@voiceflow/openai';
 
 import AI from '@/lib/clients/ai';
+import { Message } from '@/lib/clients/ai/types';
 
 import AIAssist, { AIAssistLog } from '../../../aiAssist';
-
-export interface Message {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-}
 
 export const getMemoryMessages = (variablesState: Record<string, unknown>) => [
   ...((variablesState?.[AIAssist.StorageKey] as AIAssistLog) || []),
@@ -34,7 +31,7 @@ export const fetchChat = async (
   }));
 
   const system = replaceVariables(params.system, sanitizedVars);
-  if (system) messages.unshift({ role: 'system', content: system });
+  if (system) messages.unshift({ role: ChatCompletionRequestMessageRoleEnum.System, content: system });
 
   return { messages, output: await model.generateChatCompletion(messages, params) };
 };
@@ -53,14 +50,14 @@ export const fetchPrompt = async (
 
   if (params.mode === BaseUtils.ai.PROMPT_MODE.MEMORY) {
     const messages = getMemoryMessages(variablesState);
-    if (system) messages.unshift({ role: 'system', content: system });
+    if (system) messages.unshift({ role: ChatCompletionRequestMessageRoleEnum.System, content: system });
 
     return { output: await model.generateChatCompletion(messages, params), messages };
   }
   if (params.mode === BaseUtils.ai.PROMPT_MODE.MEMORY_PROMPT) {
     const messages = getMemoryMessages(variablesState);
-    if (system) messages.unshift({ role: 'system', content: system });
-    if (prompt) messages.push({ role: 'user', content: prompt });
+    if (system) messages.unshift({ role: ChatCompletionRequestMessageRoleEnum.System, content: system });
+    if (prompt) messages.push({ role: ChatCompletionRequestMessageRoleEnum.User, content: prompt });
 
     return { output: await model.generateChatCompletion(messages, params), messages };
   }

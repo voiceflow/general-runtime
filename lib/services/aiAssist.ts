@@ -1,4 +1,5 @@
 import { BaseTrace, Trace } from '@voiceflow/base-types';
+import { ChatCompletionRequestMessageRoleEnum } from '@voiceflow/openai';
 
 import { sanitizeSSML } from '@/lib/services/filter/utils';
 import { isIntentRequest, isTextRequest, RuntimeRequest } from '@/lib/services/runtime/types';
@@ -9,7 +10,7 @@ import { AbstractManager } from './utils';
 
 const MAX_TURNS = 10;
 
-export type AIAssistLog = { role: 'user' | 'assistant' | 'system'; content: string }[];
+export type AIAssistLog = { role: ChatCompletionRequestMessageRoleEnum; content: string }[];
 
 // writes a primative string aiAssistTranscript into the context state storage
 class AIAssist extends AbstractManager implements ContextHandler {
@@ -26,10 +27,10 @@ class AIAssist extends AbstractManager implements ContextHandler {
 
     const content = trace.type === Trace.TraceType.SPEAK ? sanitizeSSML(trace.payload.message) : trace.payload.message;
 
-    if (lastTranscript?.role === 'assistant') {
+    if (lastTranscript?.role === ChatCompletionRequestMessageRoleEnum.Assistant) {
       lastTranscript.content += `\n${content}`;
     } else {
-      transcript.push({ role: 'assistant', content });
+      transcript.push({ role: ChatCompletionRequestMessageRoleEnum.Assistant, content });
       if (transcript.length > MAX_TURNS) transcript.shift();
     }
 
@@ -46,7 +47,7 @@ class AIAssist extends AbstractManager implements ContextHandler {
 
     if (input) {
       const transcript: AIAssistLog = context.state.variables[AIAssist.StorageKey] || [];
-      transcript.push({ role: 'user', content: input });
+      transcript.push({ role: ChatCompletionRequestMessageRoleEnum.User, content: input });
 
       if (transcript.length > MAX_TURNS) transcript.shift();
     }

@@ -1,6 +1,9 @@
 import { BaseUtils } from '@voiceflow/base-types';
+import { ChatCompletionRequestMessageRoleEnum } from '@voiceflow/openai';
 
-import { fetchChat, Message } from '../ai';
+import { Message } from '@/lib/clients/ai/types';
+
+import { fetchChat } from '../ai';
 
 export const questionSynthesis = async (question: string, memory: Message[]): Promise<string> => {
   if (memory.length > 1) {
@@ -8,12 +11,12 @@ export const questionSynthesis = async (question: string, memory: Message[]): Pr
 
     if (memory[memory.length - 1].content === question) {
       contextMessages.push({
-        role: 'user',
+        role: ChatCompletionRequestMessageRoleEnum.User,
         content: 'frame the statement above so that it can be asked as a question to someone with no context.',
       });
     } else {
       contextMessages.push({
-        role: 'user',
+        role: ChatCompletionRequestMessageRoleEnum.User,
         content: `Based on our conversation, frame this statement: "${question}", so that it can be asked as a question to someone with no context.`,
       });
     }
