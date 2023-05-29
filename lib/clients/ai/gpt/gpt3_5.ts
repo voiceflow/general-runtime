@@ -17,9 +17,13 @@ export class GPT3_5 extends GPTAIModel {
     return this.generateChatCompletion(messages, params);
   }
 
-  async generateChatCompletion(messages: Message[], params: AIModelParams) {
-    const result = await this.client
-      .createChatCompletion(
+  async generateChatCompletion(
+    messages: Message[],
+    params: AIModelParams,
+    client = this.client
+  ): Promise<string | null> {
+    try {
+      const result = await client.createChatCompletion(
         {
           model: this.modelName,
           max_tokens: params.maxTokens,
@@ -27,12 +31,18 @@ export class GPT3_5 extends GPTAIModel {
           messages,
         },
         { timeout: this.TIMEOUT }
-      )
-      .catch((error) => {
-        log.warn(`GPT3_5 completion ${log.vars({ error, messages, params, data: error?.response?.data?.error })})}`);
-        return null;
-      });
+      );
 
-    return result?.data.choices[0].message?.content ?? null;
+      return result?.data.choices[0].message?.content ?? null;
+    } catch (error) {
+      log.warn(`GPT3.5 completion ${log.vars({ error: error?.response ?? error, messages, params })})}`);
+
+      // if we fail on the azure instance due to rate limiting, retry with OpenAI API
+      if (this.azureClient && error?.response?.status === 429 && this.openAIClient) {
+        return this.generateChatCompletion(messages, params, this.openAIClient);
+      }
+
+      return null;
+    }
   }
 }

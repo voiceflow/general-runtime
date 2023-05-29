@@ -7,7 +7,9 @@ import { AIModel } from '../types';
 export abstract class GPTAIModel extends AIModel {
   protected TIMEOUT = 20000;
 
-  protected client: OpenAIApi;
+  protected azureClient?: OpenAIApi;
+
+  protected openAIClient?: OpenAIApi;
 
   constructor(config: Partial<Config>) {
     super();
@@ -16,7 +18,7 @@ export abstract class GPTAIModel extends AIModel {
       // remove trailing slash
       const endpoint = config.AZURE_ENDPOINT.replace(/\/$/, '');
 
-      this.client = new OpenAIApi(
+      this.azureClient = new OpenAIApi(
         new Configuration({
           azure: {
             endpoint,
@@ -29,11 +31,16 @@ export abstract class GPTAIModel extends AIModel {
     }
 
     if (config.OPENAI_API_KEY) {
-      this.client = new OpenAIApi(new Configuration({ apiKey: config.OPENAI_API_KEY }));
+      this.openAIClient = new OpenAIApi(new Configuration({ apiKey: config.OPENAI_API_KEY }));
 
       return;
     }
 
     throw new Error(`OpenAI client not initialized`);
+  }
+
+  get client(): OpenAIApi {
+    // one of them is guaranteed to be initialized, otherwise there would be an error
+    return (this.azureClient || this.openAIClient)!;
   }
 }
