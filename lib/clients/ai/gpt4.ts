@@ -1,6 +1,6 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
-import { ChatCompletionRequestMessageRoleEnum, Configuration, OpenAIApi } from '@voiceflow/openai';
+import { ChatCompletionRequestMessageRoleEnum } from '@voiceflow/openai';
 
 import log from '@/logger';
 import { Config } from '@/types';
