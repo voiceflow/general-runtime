@@ -2,7 +2,6 @@ import { BaseUtils } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 
 import AI from '@/lib/clients/ai';
-import log from '@/logger';
 
 import AIAssist, { AIAssistLog } from '../../../aiAssist';
 
