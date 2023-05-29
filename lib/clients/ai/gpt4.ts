@@ -1,22 +1,28 @@
-import { OpenAIClient, OpenAIKeyCredential } from '@azure/openai';
+import { OpenAIClient, OpenAIKeyCredential, RequestOptions } from '@azure/openai';
 import { BaseUtils } from '@voiceflow/base-types';
 import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 
+import log from '@/logger';
 import { Config } from '@/types';
 
-import { AIModel, Message } from './types';
+import { GPTAIModel, Message } from './types';
 
-export class GPT4 extends AIModel {
+export class GPT4 extends GPTAIModel {
   public modelName = BaseUtils.ai.GPT_MODEL.GPT_4;
 
-  private client: OpenAIClient;
+  private client: OpenAIClient & RequestOptions;
 
   constructor(config: Config) {
     super();
 
     // we dont not have access to GPT 4 on Azure yet, use OpenAI API instead
-    if (config.OPEN_API_KEY) {
-      this.client = new OpenAIClient(new OpenAIKeyCredential(config.OPEN_API_KEY));
+    if (config.OPENAI_API_KEY) {
+      const openAIKeyCredential = new OpenAIKeyCredential(config.OPENAI_API_KEY);
+      this.client = new OpenAIClient(openAIKeyCredential);
+
+      // this is a temporary fix until microsoft merges this PR: https://github.com/Azure/azure-sdk-for-js/pull/26023
+      this.client.requestOptions = { headers: { Authorization: openAIKeyCredential.key } };
+      this.setDeployments(this.modelName);
       return;
     }
 
@@ -28,8 +34,16 @@ export class GPT4 extends AIModel {
   }
 
   async generateChatCompletion(messages: Message[], params: AIModelParams) {
-    const result = await this.client.getChatCompletions(this.modelName, messages, params);
+    const result = await this.client
+      .getChatCompletions(this.deployment, messages, {
+        ...params,
+        requestOptions: this.client.requestOptions,
+      })
+      .catch((error) => {
+        log.warn(`GPT4 completion ${log.vars({ error, prompt, params })})}`);
+        return null;
+      });
 
-    return result.choices[0].message?.content ?? null;
+    return result?.choices[0].message?.content ?? null;
   }
 }

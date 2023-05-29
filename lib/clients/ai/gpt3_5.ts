@@ -1,26 +1,34 @@
-import { AzureKeyCredential, OpenAIClient, OpenAIKeyCredential } from '@azure/openai';
+import { AzureKeyCredential, OpenAIClient, OpenAIKeyCredential, RequestOptions } from '@azure/openai';
 import { BaseUtils } from '@voiceflow/base-types';
 import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 
+import log from '@/logger';
 import { Config } from '@/types';
 
-import { AIModel, Message } from './types';
+import { GPTAIModel, Message } from './types';
 
-export class GPT3_5 extends AIModel {
+export class GPT3_5 extends GPTAIModel {
   public modelName = BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo;
 
-  private client: OpenAIClient;
+  private client: OpenAIClient & RequestOptions;
 
   constructor(config: Config) {
     super();
 
-    if (config.AZURE_OPEN_API_ENDPOINT && config.AZURE_OPEN_API_KEY) {
-      this.client = new OpenAIClient(config.AZURE_OPEN_API_ENDPOINT, new AzureKeyCredential(config.AZURE_OPEN_API_KEY));
+    if (config.AZURE_ENDPOINT && config.AZURE_OPENAI_API_KEY && config.AZURE_GPT35_DEPLOYMENTS) {
+      this.client = new OpenAIClient(config.AZURE_ENDPOINT, new AzureKeyCredential(config.AZURE_OPENAI_API_KEY));
+      this.setDeployments(config.AZURE_GPT35_DEPLOYMENTS);
       return;
     }
 
-    if (config.OPEN_API_KEY) {
-      this.client = new OpenAIClient(new OpenAIKeyCredential(config.OPEN_API_KEY));
+    if (config.OPENAI_API_KEY) {
+      const openAIKeyCredential = new OpenAIKeyCredential(config.OPENAI_API_KEY);
+      this.client = new OpenAIClient(openAIKeyCredential);
+
+      // this is a temporary fix until microsoft merges this PR: https://github.com/Azure/azure-sdk-for-js/pull/26023
+      this.client.requestOptions = { headers: { Authorization: openAIKeyCredential.key } };
+      this.setDeployments(this.modelName);
+
       return;
     }
 
@@ -32,8 +40,16 @@ export class GPT3_5 extends AIModel {
   }
 
   async generateChatCompletion(messages: Message[], params: AIModelParams) {
-    const result = await this.client.getChatCompletions(this.modelName, messages, params);
+    const result = await this.client
+      .getChatCompletions(this.deployment, messages, {
+        ...params,
+        requestOptions: this.client.requestOptions,
+      })
+      .catch((error) => {
+        log.warn(`GPT3_5 completion ${log.vars({ error, messages, params })})}`);
+        return null;
+      });
 
-    return result.choices[0].message?.content ?? null;
+    return result?.choices[0].message?.content ?? null;
   }
 }

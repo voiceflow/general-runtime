@@ -43,7 +43,6 @@ export interface Config extends RateLimitConfig {
   BUILD_URL: string | null;
 
   GENERAL_SERVICE_ENDPOINT: string | null;
-  ML_GATEWAY_ENDPOINT: string | null;
   KNOWLEDGE_BASE_LAMBDA_ENDPOINT: string | null;
 
   AUTH_API_SERVICE_HOST: string | null;
@@ -76,10 +75,12 @@ export interface Config extends RateLimitConfig {
   INGEST_V2_WEBHOOK_ENDPOINT: string | null;
 
   // OpenAI LLM keys
-  AZURE_OPEN_API_KEY: string | null;
-  AZURE_OPEN_API_ENDPOINT: string | null;
+  AZURE_OPENAI_API_KEY: string | null;
+  AZURE_ENDPOINT: string | null;
+  AZURE_GPT3_DEPLOYMENTS: string | null;
+  AZURE_GPT35_DEPLOYMENTS: string | null;
 
-  OPEN_API_KEY: string | null;
+  OPENAI_API_KEY: string | null;
 }
 
 export interface Request<
