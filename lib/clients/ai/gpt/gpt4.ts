@@ -5,7 +5,8 @@ import { ChatCompletionRequestMessageRoleEnum } from '@voiceflow/openai';
 import log from '@/logger';
 import { Config } from '@/types';
 
-import { GPTAIModel, Message } from './types';
+import { Message } from '../types';
+import { GPTAIModel } from './utils';
 
 export class GPT4 extends GPTAIModel {
   public modelName = BaseUtils.ai.GPT_MODEL.GPT_4;
@@ -33,7 +34,7 @@ export class GPT4 extends GPTAIModel {
         { timeout: this.TIMEOUT }
       )
       .catch((error) => {
-        log.warn(`GPT4 completion ${log.vars({ error, messages, params })})}`);
+        log.warn(`GPT3_5 completion ${log.vars({ error, messages, params })})}`);
         return null;
       });
 

@@ -4,7 +4,8 @@ import { ChatCompletionRequestMessageRoleEnum } from '@voiceflow/openai';
 
 import log from '@/logger';
 
-import { GPTAIModel, Message } from './types';
+import { Message } from '../types';
+import { GPTAIModel } from './utils';
 
 export class GPT3 extends GPTAIModel {
   public modelName = BaseUtils.ai.GPT_MODEL.DaVinci_003;

@@ -4,9 +4,9 @@ import CONFIG from '@/config';
 import log from '@/logger';
 import type { Config } from '@/types';
 
-import { GPT3 } from './gpt3';
-import { GPT3_5 } from './gpt3_5';
-import { GPT4 } from './gpt4';
+import { GPT3 } from './gpt/gpt3';
+import { GPT3_5 } from './gpt/gpt3_5';
+import { GPT4 } from './gpt/gpt4';
 import { AIModel } from './types';
 
 class AIClient {
