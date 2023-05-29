@@ -30,7 +30,10 @@ export class GPT4 extends GPTAIModel {
   }
 
   async generateCompletion(prompt: string, params: AIModelParams) {
-    return this.generateChatCompletion([{ role: 'user', content: prompt }], params);
+    const messages: Message[] = [{ role: 'user', content: prompt }];
+    if (params.system) messages.unshift({ role: 'system', content: params.system });
+
+    return this.generateChatCompletion(messages, params);
   }
 
   async generateChatCompletion(messages: Message[], params: AIModelParams) {

@@ -29,5 +29,11 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
     controllers.test.testKnowledgeBase
   );
 
+  router.post(
+    '/completion',
+    middlewares.rateLimit.consumeResource((req) => req.headers.authorization, 'completion'),
+    controllers.test.testCompletion
+  );
+
   return router;
 };

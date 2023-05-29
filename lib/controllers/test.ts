@@ -1,3 +1,7 @@
+import { BaseUtils } from '@voiceflow/base-types';
+import VError from '@voiceflow/verror';
+
+import AI from '@/lib/clients/ai';
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
 import { fetchKnowledgeBase } from '@/lib/services/runtime/handlers/utils/knowledgeBaseNoMatch';
 import { answerSynthesis } from '@/lib/services/runtime/handlers/utils/knowledgeBaseNoMatch/answer';
@@ -5,6 +9,7 @@ import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
 import { Request, Response } from '@/types';
 
+import { fetchPrompt } from '../services/runtime/handlers/utils/ai';
 import { AbstractController } from './utils';
 
 class TestController extends AbstractController {
@@ -60,6 +65,17 @@ class TestController extends AbstractController {
     if (!answer?.output) return res.send({ output: null, chunks });
 
     return res.send({ output: answer.output, chunks });
+  }
+
+  async testCompletion(req: Request<BaseUtils.ai.AIModelParams & BaseUtils.ai.AIContextParams>, res: Response) {
+    const ai = AI.get(req.body.model);
+
+    if (!ai) throw new VError('invalid model', VError.HTTP_STATUS.BAD_REQUEST);
+    if (typeof req.body.prompt !== 'string') throw new VError('invalid prompt', VError.HTTP_STATUS.BAD_REQUEST);
+
+    const { output } = await fetchPrompt(req.body);
+
+    return res.send({ output });
   }
 }
 
