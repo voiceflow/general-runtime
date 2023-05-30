@@ -38,7 +38,7 @@ export class GPT3_5 extends GPTAIModel {
       log.warn(`GPT3.5 completion ${log.vars({ error: error?.response ?? error, messages, params })})}`);
 
       // if we fail on the azure instance due to rate limiting, retry with OpenAI API
-      if (this.azureClient && error?.response?.status === 429 && this.openAIClient) {
+      if (client === this.azureClient && error?.response?.status === 429 && this.openAIClient) {
         return this.generateChatCompletion(messages, params, this.openAIClient);
       }
 
