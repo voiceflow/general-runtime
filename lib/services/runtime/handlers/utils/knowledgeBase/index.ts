@@ -1,4 +1,4 @@
-import { BaseModels } from '@voiceflow/base-types';
+import { BaseModels, BaseUtils } from '@voiceflow/base-types';
 import axios from 'axios';
 
 import Config from '@/config';
@@ -9,8 +9,8 @@ import { Runtime } from '@/runtime';
 import { Output } from '../../../types';
 import { getMemoryMessages } from '../ai';
 import { generateOutput } from '../output';
-import { answerSynthesis } from './answer';
-import { questionSynthesis } from './question';
+import { answerSynthesis, promptAnswerSynthesis } from './answer';
+import { promptQuestionSynthesis, questionSynthesis } from './question';
 
 export { answerSynthesis, questionSynthesis };
 
@@ -95,4 +95,31 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | n
     log.error(`[knowledgeBase] ${log.vars({ err })}`);
     return null;
   }
+};
+
+export const promptSynthesis = async (
+  runtime: Runtime,
+  params: BaseUtils.ai.AIContextParams & BaseUtils.ai.AIModelParams,
+  variables: Record<string, any>
+) => {
+  const memory = getMemoryMessages(variables);
+
+  const query = await promptQuestionSynthesis({ prompt: params.prompt, variables, memory });
+
+  if (!query) return null;
+
+  const data = await fetchKnowledgeBase(runtime.project!._id, query);
+
+  if (!data) return null;
+
+  const answer = await promptAnswerSynthesis({
+    ...params,
+    data,
+    memory,
+    variables,
+  });
+
+  if (!answer?.output) return null;
+
+  return { ...answer, ...data, query };
 };

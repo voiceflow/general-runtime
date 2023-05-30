@@ -1,4 +1,6 @@
+/* eslint-disable sonarjs/no-nested-template-literals */
 import { BaseUtils } from '@voiceflow/base-types';
+import dedent from 'dedent';
 
 import { fetchChat } from '../ai';
 
@@ -29,4 +31,36 @@ export const questionSynthesis = async (question: string, memory: BaseUtils.ai.M
   }
 
   return question;
+};
+
+export const promptQuestionSynthesis = async ({
+  prompt,
+  memory,
+  variables,
+  options: { model = BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo, system = '', temperature, maxTokens } = {},
+}: {
+  prompt: string;
+  memory: BaseUtils.ai.Message[];
+  variables?: Record<string, any>;
+  options?: Partial<BaseUtils.ai.AIModelParams>;
+}): Promise<string | null> => {
+  const options = { model, system, temperature, maxTokens };
+
+  const questionMessages: BaseUtils.ai.Message[] = [
+    {
+      role: BaseUtils.ai.Role.USER,
+      content: dedent`
+      <Conversation_History>
+        ${memory.map((turn) => `${turn.role}: ${turn.content}`)}
+      </Conversation_History>
+
+      <Instructions>${prompt}</Instructions>
+
+      You can search a text knowledge base to fulfill <Instructions> based on <Conversation_History>. Write a sentence to search against:`,
+    },
+  ];
+
+  const response = await fetchChat({ ...options, messages: questionMessages }, variables);
+
+  return response.output;
 };

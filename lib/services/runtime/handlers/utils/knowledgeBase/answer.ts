@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-nested-template-literals */
 import { BaseUtils } from '@voiceflow/base-types';
 import dedent from 'dedent';
 
@@ -65,4 +66,53 @@ export const answerSynthesis = async ({
     return { output: null };
 
   return { output: response.output };
+};
+
+const DEFAULT_SYNTHESIS_SYSTEM =
+  'Always summarize your response to be as brief as possible and be extremely concise. Your responses should be fewer than a couple of sentences.';
+
+export const promptAnswerSynthesis = async ({
+  data,
+  prompt,
+  memory,
+  variables,
+  options: {
+    model = BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo,
+    system = DEFAULT_SYNTHESIS_SYSTEM,
+    temperature,
+    maxTokens,
+  } = {},
+}: {
+  data: KnowledgeBaseResponse;
+  prompt: string;
+  memory: BaseUtils.ai.Message[];
+  variables?: Record<string, any>;
+  options?: Partial<BaseUtils.ai.AIModelParams>;
+}): Promise<AIResponse | null> => {
+  const options = {
+    model,
+    system,
+    temperature,
+    maxTokens,
+  };
+
+  const questionMessages: BaseUtils.ai.Message[] = [
+    {
+      role: BaseUtils.ai.Role.USER,
+      content: dedent`
+      <Conversation_History>
+        ${memory.map((turn) => `${turn.role}: ${turn.content}`)}
+      </Conversation_History>
+
+      <Knowledge>
+        ${data.chunks.map(({ content }, index) => `<${index + 1}>${content}</${index + 1}>`)}
+      </Knowledge>
+
+      <Instructions>${prompt}</Instructions>
+
+      fulfill <Instructions> based on <Conversation_History>, and ONLY using information found in <Knowledge>`,
+    },
+  ];
+
+  return fetchChat({ ...options, messages: questionMessages }, variables);
 };
