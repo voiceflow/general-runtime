@@ -1,11 +1,12 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { VoiceNode } from '@voiceflow/voice-types';
 
+import { Message } from '@/lib/clients/ai/types';
 import { HandlerFactory } from '@/runtime';
 
 import { FrameType, Output } from '../types';
 import { addOutputTrace, getOutputTrace } from '../utils';
-import { fetchChat, fetchPrompt, getMemoryMessages, getMemoryMessagesString, Message } from './utils/ai';
+import { fetchChat, fetchPrompt, getMemoryMessagesString } from './utils/ai';
 import { fetchKnowledgeBase } from './utils/knowledgeBase';
 import { generateOutput } from './utils/output';
 import { getVersionDefaultVoice } from './utils/version';
@@ -53,11 +54,6 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
           model: BaseUtils.ai.GPT_MODEL.GPT_4,
         },
         variables.getState()
-      );
-
-      console.log(
-        data.chunks.map(({ content }) => content),
-        answer.messages
       );
 
       runtime.trace.addTrace({
