@@ -6,7 +6,9 @@ import log from '@/logger';
 import { GPTAIModel } from './utils';
 
 export class GPT3_5 extends GPTAIModel {
-  public modelName = BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo;
+  public modelRef = BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo;
+
+  protected gptModelName = 'gpt-3.5-turbo';
 
   async generateCompletion(prompt: string, params: AIModelParams) {
     const messages: BaseUtils.ai.Message[] = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
@@ -23,7 +25,7 @@ export class GPT3_5 extends GPTAIModel {
     try {
       const result = await client.createChatCompletion(
         {
-          model: this.modelName,
+          model: this.gptModelName,
           max_tokens: params.maxTokens,
           temperature: params.temperature,
           messages: messages.map(({ role, content }) => ({ role: GPTAIModel.RoleMapping[role], content })),

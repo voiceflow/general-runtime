@@ -6,7 +6,9 @@ import log from '@/logger';
 import { GPTAIModel } from './utils';
 
 export class GPT3 extends GPTAIModel {
-  public modelName = BaseUtils.ai.GPT_MODEL.DaVinci_003;
+  public modelRef = BaseUtils.ai.GPT_MODEL.DaVinci_003;
+
+  protected gptModelName = 'text-davinci-003';
 
   static messagesToPrompt(messages: BaseUtils.ai.Message[]) {
     if (messages.length === 1) {
@@ -32,7 +34,7 @@ export class GPT3 extends GPTAIModel {
     const result = await this.client
       .createCompletion(
         {
-          model: this.modelName,
+          model: this.gptModelName,
           max_tokens: params.maxTokens,
           temperature: params.temperature,
           prompt,

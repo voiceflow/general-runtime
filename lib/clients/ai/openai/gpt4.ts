@@ -7,7 +7,9 @@ import { Config } from '@/types';
 import { GPTAIModel } from './utils';
 
 export class GPT4 extends GPTAIModel {
-  public modelName = BaseUtils.ai.GPT_MODEL.GPT_4;
+  public modelRef = BaseUtils.ai.GPT_MODEL.GPT_4;
+
+  protected gptModelName = 'gpt-4';
 
   constructor(config: Config) {
     // we dont not have access to GPT 4 on Azure yet, use OpenAI API instead
@@ -25,7 +27,7 @@ export class GPT4 extends GPTAIModel {
     const result = await this.client
       .createChatCompletion(
         {
-          model: this.modelName,
+          model: this.gptModelName,
           max_tokens: params.maxTokens,
           temperature: params.temperature,
           messages: messages.map(({ role, content }) => ({ role: GPTAIModel.RoleMapping[role], content })),

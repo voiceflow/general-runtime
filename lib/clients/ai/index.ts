@@ -29,7 +29,7 @@ class AIClient {
     setModel(BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo, GPT3_5);
     setModel(BaseUtils.ai.GPT_MODEL.GPT_4, GPT4);
     setModel(BaseUtils.ai.GPT_MODEL.CLAUDE_V1, ClaudeV1);
-    setModel(BaseUtils.ai.GPT_MODEL.CLAUDE_V1_INSTANT, ClaudeV1Instant);
+    setModel(BaseUtils.ai.GPT_MODEL.CLAUDE_INSTANT_V1, ClaudeV1Instant);
   }
 
   get(modelName: BaseUtils.ai.GPT_MODEL = this.DEFAULT_MODEL): AIModel | null {

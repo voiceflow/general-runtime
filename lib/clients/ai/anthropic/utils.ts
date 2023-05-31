@@ -13,6 +13,8 @@ export abstract class AnthropicAIModel extends AIModel {
 
   protected client: Client;
 
+  protected abstract anthropicModel: string;
+
   constructor(config: Partial<Config>) {
     super();
 
@@ -49,13 +51,13 @@ export abstract class AnthropicAIModel extends AIModel {
     const result = await this.client
       .complete({
         prompt,
-        model: this.modelName,
+        model: this.anthropicModel,
         temperature: params.temperature,
         max_tokens_to_sample: params.maxTokens || 128,
         stop_sequences: [HUMAN_PROMPT],
       })
       .catch((error) => {
-        log.warn(`${this.modelName} completion ${log.vars({ error, messages, params })})}`);
+        log.warn(`${this.modelRef} completion ${log.vars({ error, messages, params })})}`);
         return null;
       });
 

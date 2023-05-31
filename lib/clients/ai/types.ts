@@ -1,7 +1,7 @@
 import { BaseUtils } from '@voiceflow/base-types';
 
 export abstract class AIModel {
-  public abstract modelName: BaseUtils.ai.GPT_MODEL;
+  public abstract modelRef: BaseUtils.ai.GPT_MODEL;
 
   protected TIMEOUT = 20000;
 
