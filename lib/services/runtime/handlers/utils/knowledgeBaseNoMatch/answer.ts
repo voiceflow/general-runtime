@@ -1,5 +1,4 @@
 import { BaseUtils } from '@voiceflow/base-types';
-import { ChatCompletionRequestMessageRoleEnum } from '@voiceflow/openai';
 
 import { AIResponse, fetchChat, fetchPrompt } from '../ai';
 import { getCurrentTime } from '../generativeNoMatch';
@@ -33,11 +32,11 @@ export const answerSynthesis = async ({
     // for GPT-3.5 and 4.0 chat models
     const messages = [
       {
-        role: ChatCompletionRequestMessageRoleEnum.System,
+        role: BaseUtils.ai.Role.SYSTEM,
         content: `context:\n${context}`,
       },
       {
-        role: ChatCompletionRequestMessageRoleEnum.User,
+        role: BaseUtils.ai.Role.USER,
         content: `Answer the following question using ONLY the provided context, if you don't know the answer say exactly "NOT_FOUND".\n\nQuestion:\n${question}`,
       },
     ];

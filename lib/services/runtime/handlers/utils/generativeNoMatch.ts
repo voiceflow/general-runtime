@@ -1,7 +1,5 @@
 import { BaseUtils } from '@voiceflow/base-types';
-import { ChatCompletionRequestMessageRoleEnum } from '@voiceflow/openai';
 
-import { Message } from '@/lib/clients/ai/types';
 import { Runtime } from '@/runtime';
 
 import { Output } from '../../types';
@@ -17,10 +15,10 @@ export const generateNoMatch = async (
   runtime: Runtime,
   context: BaseUtils.ai.AIModelParams
 ): Promise<Output | null> => {
-  const messages: Message[] = [
+  const messages: BaseUtils.ai.Message[] = [
     ...getMemoryMessages(runtime.variables.getState()),
     {
-      role: ChatCompletionRequestMessageRoleEnum.System,
+      role: BaseUtils.ai.Role.SYSTEM,
       content: `${context.system || ''}\n\n${getCurrentTime()}`.trim(),
     },
   ];

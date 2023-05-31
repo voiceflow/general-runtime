@@ -1,24 +1,22 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
-import { ChatCompletionRequestMessageRoleEnum } from '@voiceflow/openai';
 
 import log from '@/logger';
 
-import { Message } from '../types';
 import { GPTAIModel } from './utils';
 
 export class GPT3_5 extends GPTAIModel {
   public modelName = BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo;
 
   async generateCompletion(prompt: string, params: AIModelParams) {
-    const messages: Message[] = [{ role: ChatCompletionRequestMessageRoleEnum.User, content: prompt }];
-    if (params.system) messages.unshift({ role: ChatCompletionRequestMessageRoleEnum.System, content: params.system });
+    const messages: BaseUtils.ai.Message[] = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
+    if (params.system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: params.system });
 
     return this.generateChatCompletion(messages, params);
   }
 
   async generateChatCompletion(
-    messages: Message[],
+    messages: BaseUtils.ai.Message[],
     params: AIModelParams,
     client = this.client
   ): Promise<string | null> {
@@ -28,7 +26,7 @@ export class GPT3_5 extends GPTAIModel {
           model: this.modelName,
           max_tokens: params.maxTokens,
           temperature: params.temperature,
-          messages,
+          messages: messages.map(({ role, content }) => ({ role: GPTAIModel.RoleMapping[role], content })),
         },
         { timeout: this.TIMEOUT }
       );

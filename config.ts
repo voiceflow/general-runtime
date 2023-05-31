@@ -101,6 +101,8 @@ const CONFIG: Config = {
   AZURE_GPT35_DEPLOYMENTS: getOptionalProcessEnv('AZURE_GPT35_DEPLOYMENTS') || null,
 
   OPENAI_API_KEY: getOptionalProcessEnv('OPENAI_API_KEY') || null,
+
+  ANTHROPIC_API_KEY: getOptionalProcessEnv('ANTHROPIC_API_KEY') || null,
 };
 
 export default CONFIG;

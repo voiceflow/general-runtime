@@ -81,6 +81,8 @@ export interface Config extends RateLimitConfig {
   AZURE_GPT35_DEPLOYMENTS: string | null;
 
   OPENAI_API_KEY: string | null;
+
+  ANTHROPIC_API_KEY: string | null;
 }
 
 export interface Request<

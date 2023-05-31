@@ -1,24 +1,22 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
-import { ChatCompletionRequestMessageRoleEnum } from '@voiceflow/openai';
 
 import AI from '@/lib/clients/ai';
-import { Message } from '@/lib/clients/ai/types';
 
-import AIAssist, { AIAssistLog } from '../../../aiAssist';
+import AIAssist from '../../../aiAssist';
 
 export const getMemoryMessages = (variablesState: Record<string, unknown>) => [
-  ...((variablesState?.[AIAssist.StorageKey] as AIAssistLog) || []),
+  ...((variablesState?.[AIAssist.StorageKey] as BaseUtils.ai.Message[]) || []),
 ];
 
 export interface AIResponse {
   output: string | null;
-  messages?: Message[];
+  messages?: BaseUtils.ai.Message[];
   prompt?: string;
 }
 
 export const fetchChat = async (
-  params: BaseUtils.ai.AIModelParams & { messages: Message[] },
+  params: BaseUtils.ai.AIModelParams & { messages: BaseUtils.ai.Message[] },
   variablesState: Record<string, unknown> = {}
 ): Promise<AIResponse> => {
   const model = AI.get(params.model);
@@ -31,7 +29,7 @@ export const fetchChat = async (
   }));
 
   const system = replaceVariables(params.system, sanitizedVars);
-  if (system) messages.unshift({ role: ChatCompletionRequestMessageRoleEnum.System, content: system });
+  if (system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: system });
 
   return { messages, output: await model.generateChatCompletion(messages, params) };
 };
@@ -50,14 +48,14 @@ export const fetchPrompt = async (
 
   if (params.mode === BaseUtils.ai.PROMPT_MODE.MEMORY) {
     const messages = getMemoryMessages(variablesState);
-    if (system) messages.unshift({ role: ChatCompletionRequestMessageRoleEnum.System, content: system });
+    if (system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: system });
 
     return { output: await model.generateChatCompletion(messages, params), messages };
   }
   if (params.mode === BaseUtils.ai.PROMPT_MODE.MEMORY_PROMPT) {
     const messages = getMemoryMessages(variablesState);
-    if (system) messages.unshift({ role: ChatCompletionRequestMessageRoleEnum.System, content: system });
-    if (prompt) messages.push({ role: ChatCompletionRequestMessageRoleEnum.User, content: prompt });
+    if (system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: system });
+    if (prompt) messages.push({ role: BaseUtils.ai.Role.USER, content: prompt });
 
     return { output: await model.generateChatCompletion(messages, params), messages };
   }

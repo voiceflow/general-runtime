@@ -1,5 +1,4 @@
-import { BaseTrace, Trace } from '@voiceflow/base-types';
-import { ChatCompletionRequestMessageRoleEnum } from '@voiceflow/openai';
+import { BaseTrace, BaseUtils, Trace } from '@voiceflow/base-types';
 
 import { sanitizeSSML } from '@/lib/services/filter/utils';
 import { isIntentRequest, isTextRequest, RuntimeRequest } from '@/lib/services/runtime/types';
@@ -10,8 +9,6 @@ import { AbstractManager } from './utils';
 
 const MAX_TURNS = 10;
 
-export type AIAssistLog = { role: ChatCompletionRequestMessageRoleEnum; content: string }[];
-
 // writes a primative string aiAssistTranscript into the context state storage
 class AIAssist extends AbstractManager implements ContextHandler {
   static StorageKey = '_memory_';
@@ -21,16 +18,16 @@ class AIAssist extends AbstractManager implements ContextHandler {
   }
 
   static injectOutput(variables: Store, trace: BaseTrace.TextTrace | BaseTrace.SpeakTrace) {
-    const transcript = (variables.get(AIAssist.StorageKey) as AIAssistLog) || [];
+    const transcript = (variables.get(AIAssist.StorageKey) as BaseUtils.ai.Message[]) || [];
 
     const lastTranscript = transcript[transcript.length - 1];
 
     const content = trace.type === Trace.TraceType.SPEAK ? sanitizeSSML(trace.payload.message) : trace.payload.message;
 
-    if (lastTranscript?.role === ChatCompletionRequestMessageRoleEnum.Assistant) {
+    if (lastTranscript?.role === BaseUtils.ai.Role.ASSISTANT) {
       lastTranscript.content += `\n${content}`;
     } else {
-      transcript.push({ role: ChatCompletionRequestMessageRoleEnum.Assistant, content });
+      transcript.push({ role: BaseUtils.ai.Role.ASSISTANT, content });
       if (transcript.length > MAX_TURNS) transcript.shift();
     }
 
@@ -43,11 +40,11 @@ class AIAssist extends AbstractManager implements ContextHandler {
     const { request } = context;
 
     const input = AIAssist.getInput(request);
-    const transcript: AIAssistLog = context.state.variables[AIAssist.StorageKey] || [];
+    const transcript: BaseUtils.ai.Message[] = context.state.variables[AIAssist.StorageKey] || [];
 
     if (input) {
-      const transcript: AIAssistLog = context.state.variables[AIAssist.StorageKey] || [];
-      transcript.push({ role: ChatCompletionRequestMessageRoleEnum.User, content: input });
+      const transcript: BaseUtils.ai.Message[] = context.state.variables[AIAssist.StorageKey] || [];
+      transcript.push({ role: BaseUtils.ai.Role.USER, content: input });
 
       if (transcript.length > MAX_TURNS) transcript.shift();
     }

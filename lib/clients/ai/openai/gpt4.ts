@@ -1,11 +1,9 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
-import { ChatCompletionRequestMessageRoleEnum } from '@voiceflow/openai';
 
 import log from '@/logger';
 import { Config } from '@/types';
 
-import { Message } from '../types';
 import { GPTAIModel } from './utils';
 
 export class GPT4 extends GPTAIModel {
@@ -17,20 +15,20 @@ export class GPT4 extends GPTAIModel {
   }
 
   async generateCompletion(prompt: string, params: AIModelParams) {
-    const messages: Message[] = [{ role: ChatCompletionRequestMessageRoleEnum.User, content: prompt }];
-    if (params.system) messages.unshift({ role: ChatCompletionRequestMessageRoleEnum.System, content: params.system });
+    const messages: BaseUtils.ai.Message[] = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
+    if (params.system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: params.system });
 
     return this.generateChatCompletion(messages, params);
   }
 
-  async generateChatCompletion(messages: Message[], params: AIModelParams) {
+  async generateChatCompletion(messages: BaseUtils.ai.Message[], params: AIModelParams) {
     const result = await this.client
       .createChatCompletion(
         {
           model: this.modelName,
           max_tokens: params.maxTokens,
           temperature: params.temperature,
-          messages,
+          messages: messages.map(({ role, content }) => ({ role: GPTAIModel.RoleMapping[role], content })),
         },
         { timeout: this.TIMEOUT }
       )

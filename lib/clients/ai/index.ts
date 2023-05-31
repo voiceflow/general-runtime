@@ -4,9 +4,11 @@ import CONFIG from '@/config';
 import log from '@/logger';
 import type { Config } from '@/types';
 
-import { GPT3 } from './gpt/gpt3';
-import { GPT3_5 } from './gpt/gpt3_5';
-import { GPT4 } from './gpt/gpt4';
+import { ClaudeV1 } from './anthropic/claude_v1';
+import { ClaudeV1Instant } from './anthropic/claude_v1_instant';
+import { GPT3 } from './openai/gpt3';
+import { GPT3_5 } from './openai/gpt3_5';
+import { GPT4 } from './openai/gpt4';
 import { AIModel } from './types';
 
 class AIClient {
@@ -26,6 +28,8 @@ class AIClient {
     setModel(BaseUtils.ai.GPT_MODEL.DaVinci_003, GPT3);
     setModel(BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo, GPT3_5);
     setModel(BaseUtils.ai.GPT_MODEL.GPT_4, GPT4);
+    setModel(BaseUtils.ai.GPT_MODEL.CLAUDE_V1, ClaudeV1);
+    setModel(BaseUtils.ai.GPT_MODEL.CLAUDE_V1_INSTANT, ClaudeV1Instant);
   }
 
   get(modelName: BaseUtils.ai.GPT_MODEL = this.DEFAULT_MODEL): AIModel | null {
