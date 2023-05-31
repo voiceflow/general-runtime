@@ -5,6 +5,7 @@ import AIAssist from './aiAssist';
 import Analytics from './analytics';
 import ASR from './asr';
 import Dialog from './dialog';
+import Feedback from './feedback';
 import Filter from './filter';
 import Interact from './interact';
 import NLU from './nlu';
@@ -31,6 +32,7 @@ export interface ServiceMap {
   filter: Filter;
   session: Session;
   interact: Interact;
+  feedback: Feedback;
   analytics: Analytics;
   transcript: Transcript;
   stateManagement: StateManagement;
@@ -60,6 +62,7 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.transcript = new Transcript(services, config);
   services.aiAssist = new AIAssist(services, config);
   services.interact = new Interact(services, config);
+  services.feedback = new Feedback(services, config);
 
   if (config.SESSIONS_SOURCE === Source.LOCAL) {
     services.session = new LocalSession(services, config);

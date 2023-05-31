@@ -2,6 +2,7 @@ import express from 'express';
 
 import { ControllerMap, MiddlewareMap } from '@/lib';
 
+import FeedbackRouter from './routers/feedback';
 import InteractRouter from './routers/interact';
 import KnowledgeBaseRouter from './routers/knowledgeBase';
 import PublicRouter from './routers/public';
@@ -14,6 +15,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
 
   router.get('/health', (_, res) => res.send(`${process.env.NODE_ENV} Healthy`));
   router.use('/interact', InteractRouter(middlewares, controllers));
+  router.use('/feedback', FeedbackRouter(middlewares, controllers));
   router.use('/state', StateRouter(middlewares, controllers));
   router.use('/public', PublicRouter(middlewares, controllers));
   router.use('/test', TestRouter(middlewares, controllers));
