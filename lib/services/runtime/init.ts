@@ -1,10 +1,9 @@
 import { BaseNode, BaseTrace, BaseUtils } from '@voiceflow/base-types';
-import { match } from 'ts-pattern';
 
 import log from '@/logger';
 import Client, { EventType } from '@/runtime';
 
-import { FrameType, Output, StorageType, StreamAction, StreamPlayStorage, TurnType } from './types';
+import { FrameType, Output, TurnType } from './types';
 import { addOutputTrace, getOutputTrace } from './utils';
 
 // initialize event behaviors for client
@@ -55,35 +54,6 @@ const init = (client: Client) => {
   });
 
   client.setEvent(EventType.updateDidExecute, ({ runtime }) => {
-    const stream = runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY);
-
-    if (stream) {
-      const { action, src, token, loop, description, title, iconImage, backgroundImage } = stream;
-
-      const streamAction = match(action)
-        .with(StreamAction.START, StreamAction.RESUME, () => BaseNode.Stream.TraceStreamAction.PLAY)
-        .with(StreamAction.LOOP, () => BaseNode.Stream.TraceStreamAction.LOOP)
-        .with(StreamAction.END, () => BaseNode.Stream.TraceStreamAction.END)
-        .with(StreamAction.PAUSE, () => BaseNode.Stream.TraceStreamAction.PAUSE)
-        .otherwise(() => null);
-
-      if (streamAction) {
-        runtime.trace.addTrace<BaseNode.Stream.TraceFrame>({
-          type: BaseNode.Utils.TraceType.STREAM,
-          payload: {
-            src,
-            token,
-            action: streamAction,
-            loop,
-            description,
-            title,
-            iconImage,
-            backgroundImage,
-          },
-        });
-      }
-    }
-
     if (runtime.stack.isEmpty() && !runtime.turn.get(TurnType.END)) {
       runtime.trace.addTrace<BaseNode.Exit.TraceFrame>({ type: BaseNode.Utils.TraceType.END, payload: undefined });
     }

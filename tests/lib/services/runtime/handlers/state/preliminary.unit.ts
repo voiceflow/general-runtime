@@ -1,3 +1,4 @@
+import { BaseRequest } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -46,6 +47,23 @@ describe('preliminary handler unit tests', () => {
           null as any,
           null as any
         )
+      ).to.eql(false);
+    });
+
+    it('alexa intent request', () => {
+      const alexaEventIntentRequest = {
+        type: BaseRequest.RequestType.INTENT,
+        payload: { intent: { name: 'intent' }, entities: [], data: {} },
+      };
+
+      const runtime = {
+        getRequest: sinon.stub().returns(alexaEventIntentRequest),
+        getAction: sinon.stub().returns(Action.REQUEST),
+      };
+      expect(
+        PreliminaryHandlerFactory({
+          eventHandlers: [],
+        } as any).canHandle(null as any, runtime as any, null as any, null as any)
       ).to.eql(false);
     });
 

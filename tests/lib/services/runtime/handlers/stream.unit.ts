@@ -55,7 +55,11 @@ describe('stream handler unit tests', async () => {
         iconImage: 'icon-image',
         title: 'title',
       };
-      const runtime = { storage: { set: sinon.stub(), get: sinon.stub().returns(null) }, end: sinon.stub() };
+      const runtime = {
+        storage: { set: sinon.stub(), get: sinon.stub().returns(null) },
+        trace: { addTrace: sinon.stub() },
+        end: sinon.stub(),
+      };
       const variablesMap = { var1: 'val1', var2: 'val2' };
       const variables = { getState: sinon.stub().returns(variablesMap) };
 
@@ -81,6 +85,19 @@ describe('stream handler unit tests', async () => {
         ],
       ]);
       expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PAUSE]]);
+      expect(runtime.trace.addTrace.args[0][0]).to.eql({
+        type: BaseNode.Utils.TraceType.STREAM,
+        payload: {
+          src: urlSrc,
+          token: node.id,
+          action: BaseNode.Stream.TraceStreamAction.PLAY,
+          loop: node.loop,
+          description: node.description,
+          title: node.title,
+          iconImage: node.iconImage,
+          backgroundImage: node.backgroundImage,
+        },
+      });
       expect(runtime.end.callCount).to.eql(1);
     });
 
@@ -106,6 +123,7 @@ describe('stream handler unit tests', async () => {
       };
       const runtime = {
         storage: { set: sinon.stub(), get: sinon.stub().returns({ id: 'id2' }), delete: sinon.stub() },
+        trace: { addTrace: sinon.stub() },
         end: sinon.stub(),
       };
       const variablesMap = { var1: 'val1', var2: 'val2' };
@@ -134,6 +152,19 @@ describe('stream handler unit tests', async () => {
       ]);
       expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PAUSE]]);
       expect(runtime.storage.delete.args).to.eql([[StorageType.STREAM_PAUSE]]);
+      expect(runtime.trace.addTrace.args[0][0]).to.eql({
+        type: BaseNode.Utils.TraceType.STREAM,
+        payload: {
+          src: urlSrc,
+          token: node.id,
+          action: BaseNode.Stream.TraceStreamAction.PLAY,
+          loop: node.loop,
+          description: node.description,
+          title: node.title,
+          iconImage: node.iconImage,
+          backgroundImage: node.backgroundImage,
+        },
+      });
       expect(runtime.end.callCount).to.eql(1);
     });
 
@@ -164,8 +195,8 @@ describe('stream handler unit tests', async () => {
           set: sinon.stub(),
           get: sinon.stub().returns(streamPause),
           delete: sinon.stub(),
-          produce: sinon.stub(),
         },
+        trace: { addTrace: sinon.stub() },
         end: sinon.stub(),
       };
       const variablesMap = { var1: 'val1', var2: 'val2' };
@@ -179,8 +210,8 @@ describe('stream handler unit tests', async () => {
             src: urlSrc,
             loop: node.loop,
             token: node.id,
-            action: StreamAction.START,
-            offset: 0,
+            action: StreamAction.PAUSE,
+            offset: streamPause.offset,
             nodeID: node.id,
             nextID: node.nextID,
             pauseID: node.pauseID,
@@ -196,10 +227,19 @@ describe('stream handler unit tests', async () => {
       expect(runtime.storage.delete.args).to.eql([[StorageType.STREAM_PAUSE]]);
       expect(runtime.end.callCount).to.eql(1);
 
-      const produceFn = runtime.storage.produce.args[0][0];
-      const draft = { [StorageType.STREAM_PLAY]: {} };
-      produceFn(draft);
-      expect(draft).to.eql({ [StorageType.STREAM_PLAY]: { offset: streamPause.offset, action: StreamAction.PAUSE } });
+      expect(runtime.trace.addTrace.args[0][0]).to.eql({
+        type: BaseNode.Utils.TraceType.STREAM,
+        payload: {
+          src: urlSrc,
+          token: node.id,
+          action: BaseNode.Stream.TraceStreamAction.PAUSE,
+          loop: node.loop,
+          description: node.description,
+          title: node.title,
+          iconImage: node.iconImage,
+          backgroundImage: node.backgroundImage,
+        },
+      });
     });
   });
 });

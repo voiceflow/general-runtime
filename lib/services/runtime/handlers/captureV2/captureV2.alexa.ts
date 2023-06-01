@@ -3,6 +3,7 @@
  * it uses different command handler
  * it uses different EntityFillingNoMatch handler (response should never be elicit)
  */
+import { AlexaConstants } from '@voiceflow/alexa-types';
 import { VoiceModels } from '@voiceflow/voice-types';
 import { VoiceflowConstants, VoiceflowNode, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
@@ -30,13 +31,13 @@ const addPromptIfExists = (node: VoiceflowNode.CaptureV2.Node, runtime: Runtime,
   const unfulfilledEntity = getUnfulfilledEntity(intentRequest, runtime.version.prototype.model);
   if (!unfulfilledEntity) return;
 
-  const prompt = _.sample(unfulfilledEntity.dialog.prompt) as VoiceModels.IntentPrompt<VoiceflowConstants.Voice>;
+  const prompt = _.sample(unfulfilledEntity.dialog.prompt) as VoiceModels.IntentPrompt<AlexaConstants.Voice>;
   if (!prompt) return;
 
-  const output = fillStringEntities(
-    intentRequest,
-    inputToString(prompt, (runtime.version as VoiceflowVersion.VoiceVersion).platformData.settings.defaultVoice)
-  );
+  // in this case, for alexa voices we dont want to add the extra voice wrapper around the output
+  const voice = prompt.voice ?? (runtime.version as VoiceflowVersion.VoiceVersion).platformData.settings.defaultVoice;
+  const trimmedPrompt = voice?.trim() === AlexaConstants.Voice.ALEXA ? { text: prompt.text } : prompt;
+  const output = fillStringEntities(intentRequest, inputToString(trimmedPrompt));
   addOutputTrace(
     runtime,
     getOutputTrace({

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import init from '@/lib/services/runtime/init';
-import { FrameType, StorageType, StreamAction } from '@/lib/services/runtime/types';
+import { FrameType } from '@/lib/services/runtime/types';
 import { EventType } from '@/runtime';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
@@ -187,342 +187,55 @@ describe('runtime init service unit tests', () => {
   });
 
   describe('EventType.updateDidExecute', () => {
-    describe('falsy stream', () => {
-      it('works with empty stack and turn not end', () => {
-        const client = { setEvent: sinon.stub() };
-        const stream = undefined;
-        const runtime = {
-          stack: { isEmpty: sinon.stub().returns(true) },
-          storage: { get: sinon.stub().returns(stream) },
-          trace: { addTrace: sinon.stub() },
-          turn: { get: sinon.stub().returns(false) },
-        };
-        init(client as any);
+    it('works with empty stack and turn not end', () => {
+      const client = { setEvent: sinon.stub() };
+      const runtime = {
+        stack: { isEmpty: sinon.stub().returns(true) },
+        trace: { addTrace: sinon.stub() },
+        turn: { get: sinon.stub().returns(false) },
+      };
+      init(client as any);
 
-        expect(client.setEvent.args[3][0]).to.eql(EventType.updateDidExecute);
+      expect(client.setEvent.args[3][0]).to.eql(EventType.updateDidExecute);
 
-        const fn = client.setEvent.args[3][1];
-        fn({ runtime });
+      const fn = client.setEvent.args[3][1];
+      fn({ runtime });
 
-        expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-        expect(runtime.trace.addTrace.args).to.eql([[{ type: BaseNode.Utils.TraceType.END, payload: undefined }]]);
-      });
-
-      it('works with empty stack and turn is end', () => {
-        const client = { setEvent: sinon.stub() };
-        const stream = undefined;
-        const runtime = {
-          stack: { isEmpty: sinon.stub().returns(true) },
-          storage: { get: sinon.stub().returns(stream) },
-          trace: { addTrace: sinon.stub() },
-          turn: { get: sinon.stub().returns(true) },
-        };
-        init(client as any);
-
-        expect(client.setEvent.args[3][0]).to.eql(EventType.updateDidExecute);
-
-        const fn = client.setEvent.args[3][1];
-        fn({ runtime });
-
-        expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-        expect(runtime.trace.addTrace.callCount).to.eql(0);
-      });
-
-      it('works with non-empty stack and turn is end', () => {
-        const client = { setEvent: sinon.stub() };
-        const stream = undefined;
-        const runtime = {
-          stack: { isEmpty: sinon.stub().returns(false) },
-          storage: { get: sinon.stub().returns(stream) },
-          trace: { addTrace: sinon.stub() },
-          turn: { get: sinon.stub().returns(true) },
-        };
-        init(client as any);
-
-        expect(client.setEvent.args[3][0]).to.eql(EventType.updateDidExecute);
-
-        const fn = client.setEvent.args[3][1];
-        fn({ runtime });
-
-        expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-        expect(runtime.trace.addTrace.callCount).to.eql(0);
-      });
+      expect(runtime.trace.addTrace.args).to.eql([[{ type: BaseNode.Utils.TraceType.END, payload: undefined }]]);
     });
 
-    describe('defined stream', () => {
-      describe('START action', () => {
-        it('works', () => {
-          const client = { setEvent: sinon.stub() };
-          const stream = {
-            action: StreamAction.START,
-            src: 'src-val',
-            token: 'token-val',
-            loop: true,
-            backgroundImage: 'background-image-val',
-            description: 'description-val',
-            iconImage: 'icon-image-val',
-            title: 'title-val',
-          };
-          const runtime = {
-            stack: { isEmpty: sinon.stub().returns(true) },
-            storage: { get: sinon.stub().returns(stream) },
-            trace: { addTrace: sinon.stub() },
-            turn: { get: sinon.stub().returns(false) },
-          };
-          init(client as any);
+    it('works with empty stack and turn is end', () => {
+      const client = { setEvent: sinon.stub() };
+      const runtime = {
+        stack: { isEmpty: sinon.stub().returns(true) },
+        trace: { addTrace: sinon.stub() },
+        turn: { get: sinon.stub().returns(true) },
+      };
+      init(client as any);
 
-          expect(client.setEvent.args[3][0]).to.eql(EventType.updateDidExecute);
+      expect(client.setEvent.args[3][0]).to.eql(EventType.updateDidExecute);
 
-          const fn = client.setEvent.args[3][1];
-          fn({ runtime });
+      const fn = client.setEvent.args[3][1];
+      fn({ runtime });
 
-          expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-          expect(runtime.trace.addTrace.args).to.eql([
-            [
-              {
-                type: BaseNode.Utils.TraceType.STREAM,
-                payload: {
-                  src: stream.src,
-                  token: stream.token,
-                  action: BaseNode.Stream.TraceStreamAction.PLAY,
-                  loop: true,
-                  backgroundImage: stream.backgroundImage,
-                  description: stream.description,
-                  iconImage: stream.iconImage,
-                  title: stream.title,
-                },
-              },
-            ],
-            [{ type: BaseNode.Utils.TraceType.END, payload: undefined }],
-          ]);
-        });
-      });
-      describe('RESUME action', () => {
-        it('works', () => {
-          const client = { setEvent: sinon.stub() };
-          const stream = {
-            action: StreamAction.RESUME,
-            src: 'src-val',
-            token: 'token-val',
-            loop: true,
-            backgroundImage: 'background-image-val',
-            description: 'description-val',
-            iconImage: 'icon-image-val',
-            title: 'title-val',
-          };
-          const runtime = {
-            stack: { isEmpty: sinon.stub().returns(true) },
-            storage: { get: sinon.stub().returns(stream) },
-            trace: { addTrace: sinon.stub() },
-            turn: { get: sinon.stub().returns(false) },
-          };
-          init(client as any);
+      expect(runtime.trace.addTrace.callCount).to.eql(0);
+    });
 
-          expect(client.setEvent.args[3][0]).to.eql(EventType.updateDidExecute);
+    it('works with non-empty stack and turn is end', () => {
+      const client = { setEvent: sinon.stub() };
+      const runtime = {
+        stack: { isEmpty: sinon.stub().returns(false) },
+        trace: { addTrace: sinon.stub() },
+        turn: { get: sinon.stub().returns(true) },
+      };
+      init(client as any);
 
-          const fn = client.setEvent.args[3][1];
-          fn({ runtime });
+      expect(client.setEvent.args[3][0]).to.eql(EventType.updateDidExecute);
 
-          expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-          expect(runtime.trace.addTrace.args).to.eql([
-            [
-              {
-                type: BaseNode.Utils.TraceType.STREAM,
-                payload: {
-                  src: stream.src,
-                  token: stream.token,
-                  action: BaseNode.Stream.TraceStreamAction.PLAY,
-                  loop: true,
-                  backgroundImage: stream.backgroundImage,
-                  description: stream.description,
-                  iconImage: stream.iconImage,
-                  title: stream.title,
-                },
-              },
-            ],
-            [{ type: BaseNode.Utils.TraceType.END, payload: undefined }],
-          ]);
-        });
-      });
-      describe('LOOP action', () => {
-        it('works', () => {
-          const client = { setEvent: sinon.stub() };
-          const stream = {
-            action: StreamAction.LOOP,
-            src: 'src-val',
-            token: 'token-val',
-            loop: true,
-            backgroundImage: 'background-image-val',
-            description: 'description-val',
-            iconImage: 'icon-image-val',
-            title: 'title-val',
-          };
-          const runtime = {
-            stack: { isEmpty: sinon.stub().returns(false) },
-            storage: { get: sinon.stub().returns(stream) },
-            trace: { addTrace: sinon.stub() },
-            turn: { get: sinon.stub().returns(false) },
-          };
-          init(client as any);
+      const fn = client.setEvent.args[3][1];
+      fn({ runtime });
 
-          expect(client.setEvent.args[3][0]).to.eql(EventType.updateDidExecute);
-
-          const fn = client.setEvent.args[3][1];
-          fn({ runtime });
-
-          expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-          expect(runtime.trace.addTrace.args).to.eql([
-            [
-              {
-                type: BaseNode.Utils.TraceType.STREAM,
-                payload: {
-                  src: stream.src,
-                  token: stream.token,
-                  action: BaseNode.Stream.TraceStreamAction.LOOP,
-                  loop: true,
-                  backgroundImage: stream.backgroundImage,
-                  description: stream.description,
-                  iconImage: stream.iconImage,
-                  title: stream.title,
-                },
-              },
-            ],
-          ]);
-        });
-      });
-      describe('END action', () => {
-        it('works', () => {
-          const client = { setEvent: sinon.stub() };
-          const stream = {
-            action: StreamAction.END,
-            src: 'src-val',
-            token: 'token-val',
-            loop: true,
-            backgroundImage: 'background-image-val',
-            description: 'description-val',
-            iconImage: 'icon-image-val',
-            title: 'title-val',
-          };
-          const runtime = {
-            stack: { isEmpty: sinon.stub().returns(false) },
-            storage: { get: sinon.stub().returns(stream) },
-            trace: { addTrace: sinon.stub() },
-            turn: { get: sinon.stub().returns(false) },
-          };
-          init(client as any);
-
-          expect(client.setEvent.args[3][0]).to.eql(EventType.updateDidExecute);
-
-          const fn = client.setEvent.args[3][1];
-          fn({ runtime });
-
-          expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-          expect(runtime.trace.addTrace.args).to.eql([
-            [
-              {
-                type: BaseNode.Utils.TraceType.STREAM,
-                payload: {
-                  src: stream.src,
-                  token: stream.token,
-                  action: BaseNode.Stream.TraceStreamAction.END,
-                  loop: true,
-                  backgroundImage: stream.backgroundImage,
-                  description: stream.description,
-                  iconImage: stream.iconImage,
-                  title: stream.title,
-                },
-              },
-            ],
-          ]);
-        });
-      });
-      describe('PAUSE action', () => {
-        it('works', () => {
-          const client = { setEvent: sinon.stub() };
-          const stream = {
-            action: StreamAction.PAUSE,
-            src: 'src-val',
-            token: 'token-val',
-            loop: true,
-            backgroundImage: 'background-image-val',
-            description: 'description-val',
-            iconImage: 'icon-image-val',
-            title: 'title-val',
-          };
-          const runtime = {
-            stack: { isEmpty: sinon.stub().returns(false) },
-            storage: { get: sinon.stub().returns(stream) },
-            trace: { addTrace: sinon.stub() },
-            turn: { get: sinon.stub().returns(false) },
-          };
-          init(client as any);
-
-          expect(client.setEvent.args[3][0]).to.eql(EventType.updateDidExecute);
-
-          const fn = client.setEvent.args[3][1];
-          fn({ runtime });
-
-          expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-          expect(runtime.trace.addTrace.args).to.eql([
-            [
-              {
-                type: BaseNode.Utils.TraceType.STREAM,
-                payload: {
-                  src: stream.src,
-                  token: stream.token,
-                  action: BaseNode.Stream.TraceStreamAction.PAUSE,
-                  loop: true,
-                  backgroundImage: stream.backgroundImage,
-                  description: stream.description,
-                  iconImage: stream.iconImage,
-                  title: stream.title,
-                },
-              },
-            ],
-          ]);
-        });
-      });
-      describe('default action', () => {
-        it('works with at end', () => {
-          const client = { setEvent: sinon.stub() };
-          const stream = { action: 'someaction', src: 'src-val', token: 'token-val', loop: true };
-          const runtime = {
-            stack: { isEmpty: sinon.stub().returns(true) },
-            storage: { get: sinon.stub().returns(stream) },
-            trace: { addTrace: sinon.stub() },
-            turn: { get: sinon.stub().returns(false) },
-          };
-          init(client as any);
-
-          expect(client.setEvent.args[3][0]).to.eql(EventType.updateDidExecute);
-
-          const fn = client.setEvent.args[3][1];
-          fn({ runtime });
-
-          expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-          expect(runtime.trace.addTrace.args).to.eql([[{ type: BaseNode.Utils.TraceType.END, payload: undefined }]]);
-        });
-
-        it('works with not at end', () => {
-          const client = { setEvent: sinon.stub() };
-          const stream = { action: 'someaction', src: 'src-val', token: 'token-val', loop: true };
-          const runtime = {
-            stack: { isEmpty: sinon.stub().returns(false) },
-            storage: { get: sinon.stub().returns(stream) },
-            trace: { addTrace: sinon.stub() },
-            turn: { get: sinon.stub().returns(false) },
-          };
-          init(client as any);
-
-          expect(client.setEvent.args[3][0]).to.eql(EventType.updateDidExecute);
-
-          const fn = client.setEvent.args[3][1];
-          fn({ runtime });
-
-          expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
-          expect(runtime.trace.addTrace.args).to.eql([]);
-        });
-      });
+      expect(runtime.trace.addTrace.callCount).to.eql(0);
     });
   });
 });

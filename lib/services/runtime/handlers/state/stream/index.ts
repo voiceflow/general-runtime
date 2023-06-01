@@ -6,14 +6,15 @@ import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { HandlerFactory } from '@/runtime';
 
 import {
+  isAlexaEventIntentRequest,
   isIntentRequest,
-  StorageData,
   StorageType,
   StreamAction,
   StreamPauseStorage,
   StreamPlayStorage,
 } from '../../../types';
 import CommandHandler from '../../command';
+import { mapStreamActions } from '../../utils/stream';
 
 export const utilsObj = {
   commandHandler: CommandHandler(),
@@ -32,9 +33,14 @@ const previousIntents = new Set<string>([VoiceflowConstants.IntentName.PREVIOUS,
 const cancelIntents = new Set<string>([VoiceflowConstants.IntentName.CANCEL, AlexaConstants.AmazonIntent.CANCEL]);
 
 export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) => ({
-  canHandle: (_, runtime) =>
-    !!runtime.storage.get(StorageType.STREAM_PLAY) &&
-    runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY)!.action !== StreamAction.END,
+  canHandle: (_, runtime) => {
+    const request = runtime.getRequest();
+    return (
+      !isAlexaEventIntentRequest(request) &&
+      !!runtime.storage.get(StorageType.STREAM_PLAY) &&
+      runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY)!.action !== StreamAction.END
+    );
+  },
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (_, runtime, variables) => {
     const streamPlay = runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY)!;
@@ -43,6 +49,10 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
     const intentName = isIntentRequest(request) ? request.payload.intent.name : null;
 
     let nextId: BaseNode.Utils.NodeID = null;
+
+    const streamData = {
+      ...streamPlay,
+    };
 
     if (intentName && pauseIntents.has(intentName)) {
       if (streamPlay.pauseID) {
@@ -53,29 +63,19 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
         });
 
         nextId = streamPlay.pauseID;
-
-        runtime.storage.produce<StorageData>((draft) => {
-          draft[StorageType.STREAM_PLAY]!.action = StreamAction.END;
-        });
+        streamData.action = StreamAction.END;
       } else {
         // Literally just PAUSE
-        runtime.storage.produce<StorageData>((draft) => {
-          draft[StorageType.STREAM_PLAY]!.action = StreamAction.PAUSE;
-        });
+        streamData.action = StreamAction.PAUSE;
 
         runtime.end();
       }
     } else if (intentName && resumeIntents.has(intentName)) {
-      runtime.storage.produce<StorageData>((draft) => {
-        draft[StorageType.STREAM_PLAY]!.action = StreamAction.RESUME;
-      });
-
+      streamData.action = StreamAction.RESUME;
       runtime.end();
     } else if (intentName && (startOverIntents.has(intentName) || repeatIntents.has(intentName))) {
-      runtime.storage.produce<StorageData>((draft) => {
-        draft[StorageType.STREAM_PLAY]!.action = StreamAction.START;
-        draft[StorageType.STREAM_PLAY]!.offset = 0;
-      });
+      streamData.action = StreamAction.START;
+      streamData.offset = 0;
 
       runtime.end();
     } else if ((intentName && nextIntents.has(intentName)) || streamPlay.action === StreamAction.NEXT) {
@@ -83,49 +83,70 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
         nextId = streamPlay.nextID;
       }
 
-      runtime.storage.produce<StorageData>((draft) => {
-        draft[StorageType.STREAM_PLAY]!.action = StreamAction.END;
-      });
+      streamData.action = StreamAction.END;
     } else if (intentName && previousIntents.has(intentName)) {
       if (streamPlay.previousID) {
         nextId = streamPlay.previousID;
       }
 
-      runtime.storage.produce<StorageData>((draft) => {
-        draft[StorageType.STREAM_PLAY]!.action = StreamAction.END;
-      });
+      streamData.action = StreamAction.END;
     } else if (intentName && cancelIntents.has(intentName)) {
-      runtime.storage.produce<StorageData>((draft) => {
-        draft[StorageType.STREAM_PLAY]!.action = StreamAction.PAUSE;
-      });
-
+      streamData.action = StreamAction.PAUSE;
       runtime.end();
     } else if (intentName === AlexaConstants.AmazonIntent.PLAYBACK_NEARLY_FINISHED) {
       // if nearly finishing and loop, stop runtime processing, return loop action
       if (streamPlay.loop) {
-        runtime.storage.produce<StorageData>((draft) => {
-          draft[StorageType.STREAM_PLAY]!.action = StreamAction.LOOP;
-        });
+        streamData.action = StreamAction.LOOP;
         runtime.end();
       } else {
         // otherwise end stream and continue to to next node if exists
         if (streamPlay.nextID) nextId = streamPlay.nextID;
-        runtime.storage.produce<StorageData>((draft) => {
-          draft[StorageType.STREAM_PLAY]!.action = StreamAction.END;
-        });
+
+        streamData.action = StreamAction.END;
       }
     } else if (utils.commandHandler.canHandle(runtime)) {
-      runtime.storage.produce<StorageData>((draft) => {
-        draft[StorageType.STREAM_PLAY]!.action = StreamAction.END;
+      streamData.action = StreamAction.END;
+      runtime.storage.set<StreamPlayStorage>(StorageType.STREAM_PLAY, streamData);
+
+      runtime.trace.addTrace<BaseNode.Stream.TraceFrame>({
+        type: BaseNode.Utils.TraceType.STREAM,
+        payload: {
+          src: streamData.src,
+          token: streamData.token,
+          action: mapStreamActions(streamData.action)!,
+          loop: streamData.loop,
+          description: streamData.description,
+          title: streamData.title,
+          iconImage: streamData.iconImage,
+          backgroundImage: streamData.backgroundImage,
+        },
       });
 
       return utils.commandHandler.handle(runtime, variables);
     } else {
-      runtime.storage.produce<StorageData>((draft) => {
-        draft[StorageType.STREAM_PLAY]!.action = StreamAction.NOEFFECT;
-      });
+      streamData.action = StreamAction.NOEFFECT;
 
       runtime.end();
+    }
+
+    runtime.storage.set<StreamPlayStorage>(StorageType.STREAM_PLAY, streamData);
+
+    const mappedAction = mapStreamActions(streamData.action);
+
+    if (mappedAction) {
+      runtime.trace.addTrace<BaseNode.Stream.TraceFrame>({
+        type: BaseNode.Utils.TraceType.STREAM,
+        payload: {
+          src: streamData.src,
+          token: streamData.token,
+          action: mappedAction,
+          loop: streamData.loop,
+          description: streamData.description,
+          title: streamData.title,
+          iconImage: streamData.iconImage,
+          backgroundImage: streamData.backgroundImage,
+        },
+      });
     }
 
     return nextId ?? null;
