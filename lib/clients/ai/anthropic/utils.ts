@@ -1,5 +1,5 @@
 /* eslint-disable sonarjs/no-nested-template-literals */
-import { AI_PROMPT, Client, HUMAN_PROMPT } from '@anthropic-ai/sdk';
+import { AI_PROMPT, Client, HUMAN_PROMPT } from '@voiceflow/anthropic';
 import { BaseUtils } from '@voiceflow/base-types';
 import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 

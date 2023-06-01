@@ -12,11 +12,11 @@
     }
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.4.3",
     "@aws-sdk/client-s3": "^3.179.0",
     "@opentelemetry/api-metrics": "0.26.0",
     "@types/workerpool": "^5.0.1",
     "@voiceflow/alexa-types": "2.13.23",
+    "@voiceflow/anthropic": "^0.4.3",
     "@voiceflow/api-sdk": "3.23.27",
     "@voiceflow/backend-utils": "4.8.3",
     "@voiceflow/base-types": "2.84.3",
