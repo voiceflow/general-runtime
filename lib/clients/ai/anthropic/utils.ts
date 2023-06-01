@@ -9,11 +9,11 @@ import { Config } from '@/types';
 import { AIModel } from '../types';
 
 export abstract class AnthropicAIModel extends AIModel {
-  protected TIMEOUT = 20000;
-
   protected client: Client;
 
   protected abstract anthropicModel: string;
+
+  protected maxTokens = 128;
 
   constructor(config: Partial<Config>) {
     super();
@@ -53,7 +53,7 @@ export abstract class AnthropicAIModel extends AIModel {
         prompt,
         model: this.anthropicModel,
         temperature: params.temperature,
-        max_tokens_to_sample: params.maxTokens || 128,
+        max_tokens_to_sample: params.maxTokens || this.maxTokens,
         stop_sequences: [HUMAN_PROMPT],
       })
       .catch((error) => {

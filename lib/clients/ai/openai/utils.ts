@@ -6,8 +6,6 @@ import { Config } from '@/types';
 import { AIModel } from '../types';
 
 export abstract class GPTAIModel extends AIModel {
-  protected TIMEOUT = 20000;
-
   protected abstract gptModelName: string;
 
   protected azureClient?: OpenAIApi;
