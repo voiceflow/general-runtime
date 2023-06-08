@@ -64,6 +64,9 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
         ...initializeStore(version.variables),
         ...state.variables,
         timestamp: this.services.utils.getTime(), // unix time in seconds
+        // Hidden system variable for manipulating the response.
+        // This is legacy support for Alexa.
+        _response: null,
       },
     };
   }
