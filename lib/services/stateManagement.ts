@@ -18,7 +18,9 @@ class StateManagement extends AbstractManager {
       state = await this.reset(data);
     }
 
-    data.body.state = state;
+    data.body.state = _.merge(state, {
+      variables: data.body.state?.variables,
+    });
 
     const { state: updatedState, trace, request } = await this.services.interact.handler(data);
 
