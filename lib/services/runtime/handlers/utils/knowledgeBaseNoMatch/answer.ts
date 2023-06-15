@@ -49,7 +49,7 @@ export const answerSynthesis = async ({
       Using this information and the context from a previous question,
       try to answer in a concise way.
 
-      Use the following info but don't explicitly make reference to using it. Do not use first person in your answer.
+      Use the following info but don't explicitly make reference to using it. Do not use first person in your answer. If you don't know the answer say exactly \"NOT_FOUND\".
 
       <information>
         ${context}
