@@ -29,20 +29,25 @@ export const fetchKnowledgeBase = async (
   question: string,
   settings?: BaseModels.Project.KnowledgeBaseSettings
 ): Promise<KnowledgeBaseResponse | null> => {
-  const { KNOWLEDGE_BASE_LAMBDA_ENDPOINT } = Config;
-  if (!KNOWLEDGE_BASE_LAMBDA_ENDPOINT) return null;
+  try {
+    const { KNOWLEDGE_BASE_LAMBDA_ENDPOINT } = Config;
+    if (!KNOWLEDGE_BASE_LAMBDA_ENDPOINT) return null;
 
-  const answerEndpoint = `${KNOWLEDGE_BASE_LAMBDA_ENDPOINT}/answer`;
+    const answerEndpoint = `${KNOWLEDGE_BASE_LAMBDA_ENDPOINT}/answer`;
 
-  const { data } = await axios.post<KnowledgeBaseResponse>(answerEndpoint, {
-    projectID,
-    question,
-    settings,
-  });
+    const { data } = await axios.post<KnowledgeBaseResponse>(answerEndpoint, {
+      projectID,
+      question,
+      settings,
+    });
 
-  if (!data?.chunks?.length) return null;
+    if (!data?.chunks?.length) return null;
 
-  return data;
+    return data;
+  } catch (err) {
+    log.error(`[fetchKnowledgeBase] ${log.vars({ err })}`);
+    return null;
+  }
 };
 
 export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | null> => {
