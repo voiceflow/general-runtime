@@ -1,9 +1,10 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import VError from '@voiceflow/verror';
+import _merge from 'lodash/merge';
 
 import AI from '@/lib/clients/ai';
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
-import { fetchKnowledgeBase } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
+import { fetchKnowledgeBase, promptSynthesis } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
 import { answerSynthesis } from '@/lib/services/runtime/handlers/utils/knowledgeBase/answer';
 import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
@@ -40,17 +41,18 @@ class TestController extends AbstractController {
     }
   }
 
-  async testKnowledgeBase(req: Request, res: Response) {
+  async testKnowledgeBase(req: Request) {
     const api = await this.services.dataAPI.get(req.headers.authorization);
 
     // if DM API key infer project from header
     const project = await api.getProject(req.body.projectID || req.headers.authorization);
+    const settings = _merge({}, project.knowledgeBase?.settings, req.body.settings);
 
-    const { question, settings, synthesis = true } = req.body;
+    const { question, synthesis = true } = req.body;
 
     const data = await fetchKnowledgeBase(project._id, question, settings);
 
-    if (!data) return res.send({ output: null, chunks: [] });
+    if (!data) return { output: null, chunks: [] };
 
     // attach metadata to chunks
     const chunks = data.chunks.map((chunk) => ({
@@ -58,16 +60,32 @@ class TestController extends AbstractController {
       source: project.knowledgeBase?.documents?.[chunk.documentID]?.data,
     }));
 
-    if (!synthesis) return res.send({ output: null, chunks });
+    if (!synthesis) return { output: null, chunks };
 
     const answer = await answerSynthesis({ question, data, options: settings?.summarization });
 
-    if (!answer?.output) return res.send({ output: null, chunks });
+    if (!answer?.output) return { output: null, chunks };
 
-    return res.send({ output: answer.output, chunks });
+    return { output: answer.output, chunks };
   }
 
-  async testCompletion(req: Request<BaseUtils.ai.AIModelParams & BaseUtils.ai.AIContextParams>, res: Response) {
+  async testKnowledgeBasePrompt(req: Request) {
+    const api = await this.services.dataAPI.get(req.headers.authorization);
+
+    // if DM API key infer project from header
+    const project = await api.getProject(req.body.projectID || req.headers.authorization);
+    const settings = _merge({}, project.knowledgeBase?.settings, req.body.settings);
+
+    const { prompt } = req.body;
+
+    const answer = await promptSynthesis(project._id, { prompt, ...settings.summarization }, {});
+
+    if (!answer?.output) return { output: null, ...answer };
+
+    return answer;
+  }
+
+  async testCompletion(req: Request<BaseUtils.ai.AIModelParams & BaseUtils.ai.AIContextParams>) {
     const ai = AI.get(req.body.model);
 
     if (!ai) throw new VError('invalid model', VError.HTTP_STATUS.BAD_REQUEST);
@@ -75,7 +93,7 @@ class TestController extends AbstractController {
 
     const { output } = await fetchPrompt(req.body);
 
-    return res.send({ output });
+    return { output };
   }
 }
 

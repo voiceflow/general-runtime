@@ -96,21 +96,37 @@ export const promptAnswerSynthesis = async ({
     maxTokens,
   };
 
+  const knowledge = data.chunks.map(({ content }, index) => `<${index + 1}>${content}</${index + 1}>`).join('\n');
+  let content: string;
+
+  if (memory.length) {
+    content = dedent`
+    <Conversation_History>
+      ${memory.map((turn) => `${turn.role}: ${turn.content}`)}
+    </Conversation_History>
+
+    <Knowledge>
+      ${knowledge}
+    </Knowledge>
+
+    <Instructions>${prompt}</Instructions>
+
+    fulfill <Instructions> based on <Conversation_History>, and ONLY using information found in <Knowledge>:`;
+  } else {
+    content = dedent`
+    <Knowledge>
+      ${knowledge}
+    </Knowledge>
+
+    <Instructions>${prompt}</Instructions>
+
+    fulfill <Instructions> ONLY using information found in <Knowledge>:`;
+  }
+
   const questionMessages: BaseUtils.ai.Message[] = [
     {
       role: BaseUtils.ai.Role.USER,
-      content: dedent`
-      <Conversation_History>
-        ${memory.map((turn) => `${turn.role}: ${turn.content}`)}
-      </Conversation_History>
-
-      <Knowledge>
-        ${data.chunks.map(({ content }, index) => `<${index + 1}>${content}</${index + 1}>`)}
-      </Knowledge>
-
-      <Instructions>${prompt}</Instructions>
-
-      fulfill <Instructions> based on <Conversation_History>, and ONLY using information found in <Knowledge>`,
+      content,
     },
   ];
 

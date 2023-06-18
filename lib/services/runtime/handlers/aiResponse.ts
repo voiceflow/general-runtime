@@ -16,24 +16,24 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
     const nextID = node.nextId ?? null;
 
     if (node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE) {
-      const answer = await promptSynthesis(runtime, node, variables.getState());
+      const answer = await promptSynthesis(runtime.version!.projectID, node, variables.getState());
 
-      if (!answer?.output) return null;
-
-      runtime.trace.addTrace({
-        type: 'knowledgeBase',
-        payload: {
-          chunks: answer.chunks.map(({ score, documentID }) => ({
-            score,
-            documentID,
-            documentData: runtime.project?.knowledgeBase?.documents[documentID]?.data,
-          })),
-          query: answer.query,
-        },
-      } as any);
+      if (answer?.output) {
+        runtime.trace.addTrace({
+          type: 'knowledgeBase',
+          payload: {
+            chunks: answer.chunks.map(({ score, documentID }) => ({
+              score,
+              documentID,
+              documentData: runtime.project?.knowledgeBase?.documents[documentID]?.data,
+            })),
+            query: answer.query,
+          },
+        } as any);
+      }
 
       const output = generateOutput(
-        answer.output,
+        answer?.output || "Sorry, I'm encountering some problems with my knowledge base.",
         runtime.project,
         node.voice ?? getVersionDefaultVoice(runtime.version)
       );

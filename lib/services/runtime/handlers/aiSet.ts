@@ -21,7 +21,10 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
           const params = { ...node, prompt, mode };
 
           if (node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE) {
-            variables.set(variable, (await promptSynthesis(runtime, params, variables.getState()))?.output);
+            variables.set(
+              variable,
+              (await promptSynthesis(runtime.version!.projectID, params, variables.getState()))?.output
+            );
             return;
           }
 

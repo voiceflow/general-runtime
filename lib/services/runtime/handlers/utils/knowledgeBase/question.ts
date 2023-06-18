@@ -46,17 +46,28 @@ export const promptQuestionSynthesis = async ({
 }): Promise<string | null> => {
   const options = { model, system, temperature, maxTokens };
 
+  let content: string;
+
+  if (memory.length) {
+    content = dedent`
+    <Conversation_History>
+      ${memory.map((turn) => `${turn.role}: ${turn.content}`)}
+    </Conversation_History>
+
+    <Instructions>${prompt}</Instructions>
+
+    You can search a text knowledge base to fulfill <Instructions> based on <Conversation_History>. Write a sentence to search against:`;
+  } else {
+    content = dedent`
+    <Instructions>${prompt}</Instructions>
+
+    You can search a text knowledge base to fulfill <Instructions>. Write a sentence to search against:`;
+  }
+
   const questionMessages: BaseUtils.ai.Message[] = [
     {
       role: BaseUtils.ai.Role.USER,
-      content: dedent`
-      <Conversation_History>
-        ${memory.map((turn) => `${turn.role}: ${turn.content}`)}
-      </Conversation_History>
-
-      <Instructions>${prompt}</Instructions>
-
-      You can search a text knowledge base to fulfill <Instructions> based on <Conversation_History>. Write a sentence to search against:`,
+      content,
     },
   ];
 

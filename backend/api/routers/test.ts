@@ -30,6 +30,12 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   );
 
   router.post(
+    '/knowledge-base-prompt',
+    middlewares.rateLimit.consumeResource((req) => req.headers.authorization, 'knowledge-base'),
+    controllers.test.testKnowledgeBasePrompt
+  );
+
+  router.post(
     '/completion',
     middlewares.llmLimit.consumeResource((req) => req.headers.authorization, 'completion'),
     controllers.test.testCompletion

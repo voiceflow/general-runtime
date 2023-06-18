@@ -92,34 +92,42 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | n
 
     return generateOutput(output, runtime.project);
   } catch (err) {
-    log.error(`[knowledgeBase] ${log.vars({ err })}`);
+    log.error(`[knowledge-base no match] ${log.vars({ err })}`);
     return null;
   }
 };
 
 export const promptSynthesis = async (
-  runtime: Runtime,
+  projectID: string,
   params: BaseUtils.ai.AIContextParams & BaseUtils.ai.AIModelParams,
   variables: Record<string, any>
 ) => {
-  const memory = getMemoryMessages(variables);
+  try {
+    const { prompt } = params;
 
-  const query = await promptQuestionSynthesis({ prompt: params.prompt, variables, memory });
+    const memory = getMemoryMessages(variables);
 
-  if (!query) return null;
+    const query = await promptQuestionSynthesis({ prompt, variables, memory });
 
-  const data = await fetchKnowledgeBase(runtime.project!._id, query);
+    if (!query) return null;
 
-  if (!data) return null;
+    const data = await fetchKnowledgeBase(projectID, query);
 
-  const answer = await promptAnswerSynthesis({
-    ...params,
-    data,
-    memory,
-    variables,
-  });
+    if (!data) return null;
 
-  if (!answer?.output) return null;
+    const answer = await promptAnswerSynthesis({
+      prompt,
+      options: params,
+      data,
+      memory,
+      variables,
+    });
 
-  return { ...answer, ...data, query };
+    if (!answer?.output) return null;
+
+    return { ...answer, ...data, query };
+  } catch (err) {
+    log.error(`[knowledge-base prompt] ${log.vars({ err })}`);
+    return null;
+  }
 };
