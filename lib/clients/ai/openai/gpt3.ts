@@ -46,7 +46,13 @@ export class GPT3 extends GPTAIModel {
         return null;
       });
 
-    return result?.data.choices[0].text ?? null;
+    const output = result?.data.choices[0].text ?? null;
+    const tokens = result?.data.usage?.completion_tokens ?? 0;
+
+    return {
+      output,
+      tokens,
+    };
   }
 
   // turn messages into a singular prompt

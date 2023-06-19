@@ -5,10 +5,15 @@ export abstract class AIModel {
 
   protected TIMEOUT = 20000;
 
-  abstract generateCompletion(prompt: string, params: BaseUtils.ai.AIModelParams): Promise<string | null>;
+  abstract generateCompletion(prompt: string, params: BaseUtils.ai.AIModelParams): Promise<CompletionOutput | null>;
 
   abstract generateChatCompletion(
     messages: BaseUtils.ai.Message[],
     params: BaseUtils.ai.AIModelParams
-  ): Promise<string | null>;
+  ): Promise<CompletionOutput | null>;
+}
+
+export interface CompletionOutput {
+  output: string | null;
+  tokens: number;
 }

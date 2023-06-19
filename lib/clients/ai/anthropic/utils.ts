@@ -6,7 +6,7 @@ import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 import log from '@/logger';
 import { Config } from '@/types';
 
-import { AIModel } from '../types';
+import { AIModel, CompletionOutput } from '../types';
 
 export abstract class AnthropicAIModel extends AIModel {
   protected client: Client;
@@ -31,14 +31,17 @@ export abstract class AnthropicAIModel extends AIModel {
     [BaseUtils.ai.Role.ASSISTANT]: AI_PROMPT,
   };
 
-  generateCompletion(prompt: string, params: AIModelParams): Promise<string | null> {
+  generateCompletion(prompt: string, params: AIModelParams): Promise<CompletionOutput | null> {
     const messages: BaseUtils.ai.Message[] = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
     if (params.system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: params.system });
 
     return this.generateChatCompletion(messages, params);
   }
 
-  async generateChatCompletion(messages: BaseUtils.ai.Message[], params: AIModelParams): Promise<string | null> {
+  async generateChatCompletion(
+    messages: BaseUtils.ai.Message[],
+    params: AIModelParams
+  ): Promise<CompletionOutput | null> {
     let topSystem = '';
     if (messages[0]?.role === BaseUtils.ai.Role.SYSTEM) {
       topSystem = messages.shift()!.content;
@@ -61,6 +64,12 @@ export abstract class AnthropicAIModel extends AIModel {
         return null;
       });
 
-    return result?.completion?.trim() ?? null;
+    const output = result?.completion?.trim() ?? null;
+    const tokens = 1;
+
+    return {
+      output,
+      tokens,
+    };
   }
 }

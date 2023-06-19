@@ -3,6 +3,7 @@ import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 
 import log from '@/logger';
 
+import { CompletionOutput } from '../types';
 import { GPTAIModel } from './utils';
 
 export class GPT3_5 extends GPTAIModel {
@@ -21,7 +22,7 @@ export class GPT3_5 extends GPTAIModel {
     messages: BaseUtils.ai.Message[],
     params: AIModelParams,
     client = this.client
-  ): Promise<string | null> {
+  ): Promise<CompletionOutput | null> {
     try {
       const result = await client.createChatCompletion(
         {
@@ -33,7 +34,13 @@ export class GPT3_5 extends GPTAIModel {
         { timeout: this.TIMEOUT }
       );
 
-      return result?.data.choices[0].message?.content ?? null;
+      const output = result?.data.choices[0].message?.content ?? null;
+      const tokens = result.data.usage?.completion_tokens ?? 0;
+
+      return {
+        output,
+        tokens,
+      };
     } catch (error) {
       log.warn(`GPT3.5 completion ${log.vars({ error: error?.response ?? error, messages, params })})}`);
 

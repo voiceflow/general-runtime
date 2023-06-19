@@ -19,6 +19,7 @@ export interface AIResponse {
   output: string | null;
   messages?: BaseUtils.ai.Message[];
   prompt?: string;
+  tokens?: number;
 }
 
 export const fetchChat = async (
@@ -37,7 +38,9 @@ export const fetchChat = async (
   const system = replaceVariables(params.system, sanitizedVars);
   if (system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: system });
 
-  return { messages, output: await model.generateChatCompletion(messages, params) };
+  const { output, tokens } = (await model.generateChatCompletion(messages, params)) ?? { output: null, tokens: 0 };
+
+  return { messages, output, tokens };
 };
 
 export const fetchPrompt = async (
@@ -56,17 +59,23 @@ export const fetchPrompt = async (
     const messages = getMemoryMessages(variablesState);
     if (system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: system });
 
-    return { output: await model.generateChatCompletion(messages, params), messages };
+    const { output, tokens } = (await model.generateChatCompletion(messages, params)) ?? { output: null, tokens: 0 };
+
+    return { output, tokens, messages };
   }
   if (params.mode === BaseUtils.ai.PROMPT_MODE.MEMORY_PROMPT) {
     const messages = getMemoryMessages(variablesState);
     if (system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: system });
     if (prompt) messages.push({ role: BaseUtils.ai.Role.USER, content: prompt });
 
-    return { output: await model.generateChatCompletion(messages, params), messages };
+    const { output, tokens } = (await model.generateChatCompletion(messages, params)) ?? { output: null, tokens: 0 };
+
+    return { output, tokens, messages };
   }
 
   if (!prompt) return { output: null };
 
-  return { prompt, output: await model.generateCompletion(prompt, params) };
+  const { output, tokens } = (await model.generateCompletion(prompt, params)) ?? { output: null, tokens: 0 };
+
+  return { prompt, output, tokens };
 };
