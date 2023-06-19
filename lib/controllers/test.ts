@@ -41,6 +41,22 @@ class TestController extends AbstractController {
     }
   }
 
+  async testKnowledgeBasePrompt(req: Request) {
+    const api = await this.services.dataAPI.get(req.headers.authorization);
+
+    // if DM API key infer project from header
+    const project = await api.getProject(req.body.projectID || req.headers.authorization);
+    const settings = _merge({}, project.knowledgeBase?.settings, req.body.settings);
+
+    const { prompt } = req.body;
+
+    const answer = await promptSynthesis(project._id, { prompt, ...settings.summarization }, {});
+
+    if (!answer?.output) return { output: null, ...answer };
+
+    return answer;
+  }
+
   async testKnowledgeBase(req: Request) {
     const api = await this.services.dataAPI.get(req.headers.authorization);
 

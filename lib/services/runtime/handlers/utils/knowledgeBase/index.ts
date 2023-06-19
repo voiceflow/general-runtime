@@ -9,8 +9,8 @@ import { Runtime } from '@/runtime';
 import { Output } from '../../../types';
 import { getMemoryMessages } from '../ai';
 import { generateOutput } from '../output';
-import { answerSynthesis } from './answer';
-import { questionSynthesis } from './question';
+import { answerSynthesis, promptAnswerSynthesis } from './answer';
+import { promptQuestionSynthesis, questionSynthesis } from './question';
 
 export { answerSynthesis, questionSynthesis };
 
@@ -110,20 +110,27 @@ export const promptSynthesis = async (
   try {
     const { prompt } = params;
 
-    const data = await fetchKnowledgeBase(projectID, prompt);
+    const memory = getMemoryMessages(variables);
+
+    const query = await promptQuestionSynthesis({ prompt, variables, memory });
+
+    if (!query) return null;
+
+    const data = await fetchKnowledgeBase(projectID, query);
 
     if (!data) return null;
 
-    const answer = await answerSynthesis({
-      question: prompt,
+    const answer = await promptAnswerSynthesis({
+      prompt,
       options: params,
       data,
+      memory,
       variables,
     });
 
     if (!answer?.output) return null;
 
-    return { ...answer, ...data, query: prompt };
+    return { ...answer, ...data, query };
   } catch (err) {
     log.error(`[knowledge-base prompt] ${log.vars({ err })}`);
     return null;
