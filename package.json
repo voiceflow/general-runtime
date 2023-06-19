@@ -141,6 +141,10 @@
   ],
   "license": "ISC",
   "main": "build/start.js",
+  "optionalDependencies": {
+    "@voiceflow/sdk-auth": "^2.3.23",
+    "@voiceflow/sdk-billing": "^1.15.25"
+  },
   "private": false,
   "repository": {
     "type": "git",

@@ -85,13 +85,19 @@ class TestController extends AbstractController {
     return { output: answer.output, chunks };
   }
 
-  async testCompletion(req: Request<BaseUtils.ai.AIModelParams & BaseUtils.ai.AIContextParams>) {
+  async testCompletion(
+    req: Request<BaseUtils.ai.AIModelParams & BaseUtils.ai.AIContextParams & { workspaceID: string }>
+  ) {
     const ai = AI.get(req.body.model);
 
     if (!ai) throw new VError('invalid model', VError.HTTP_STATUS.BAD_REQUEST);
     if (typeof req.body.prompt !== 'string') throw new VError('invalid prompt', VError.HTTP_STATUS.BAD_REQUEST);
 
-    const { output } = await fetchPrompt(req.body);
+    const { output, tokens } = await fetchPrompt(req.body);
+
+    if (typeof tokens === 'number' && tokens > 0) {
+      await this.services.billing.consumeQuota(req.params.workspaceID, '', tokens).catch(() => null);
+    }
 
     return { output };
   }

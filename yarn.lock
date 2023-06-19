@@ -2483,6 +2483,23 @@
     shallowequal "^1.1.0"
     typescript-fsa "3.0.0"
 
+"@voiceflow/common@8.1.5":
+  version "8.1.5"
+  resolved "https://registry.yarnpkg.com/@voiceflow/common/-/common-8.1.5.tgz#798481b96fb05f4e48a97537a808b8190ceb5102"
+  integrity sha512-tCMHPBEfNCcmvAVoe+WHv4anPcj+HngzPz5V819HcWyahhslL9cyd6C9l50iOTnvWljERMDzb2AABndZne0D1Q==
+  dependencies:
+    "@types/crypto-js" "^4.0.2"
+    "@types/shallowequal" "^1.1.1"
+    bson-objectid "^2.0.1"
+    crypto-js "^4.1.1"
+    cuid "^2.1.8"
+    dayjs "1.10.7"
+    lodash "^4.17.21"
+    murmurhash-wasm "^1.3.0"
+    number-to-words "^1.2.4"
+    shallowequal "^1.1.0"
+    typescript-fsa "3.0.0"
+
 "@voiceflow/common@8.2.0", "@voiceflow/common@^8.2.0":
   version "8.2.0"
   resolved "https://registry.yarnpkg.com/@voiceflow/common/-/common-8.2.0.tgz#ecfef04ebd4386b292bc11db40296c5f4ee67a40"
@@ -2555,6 +2572,16 @@
     reflect-metadata "^0.1.13"
     rxjs "^7.2.0"
     zod "^3.11.6"
+
+"@voiceflow/exception@1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/exception/-/exception-1.4.0.tgz#4c6dd6c7536e038581998dde1b43149da9622541"
+  integrity sha512-G8zyssXIcL/bFnuuYkVBNbflu+Ut0cJulwfnOkdn5rvFmwEZ0xOFbxhcHAoTi18kCg49SkQ2PTWY9rDa2NZGsw==
+
+"@voiceflow/fetch@1.5.2":
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/@voiceflow/fetch/-/fetch-1.5.2.tgz#81685a7f94214ce572cf3074c53f0b5380fdb91b"
+  integrity sha512-UsdY5t5EQLdoLAVZSxaffyfGIdMpagOqnyLhLV1quYWEFJNv/bmm0Np7b6vK+WVTNe852xWe/oXKzkh4D7sdLg==
 
 "@voiceflow/git-branch-check@1.4.0":
   version "1.4.0"
@@ -2639,6 +2666,11 @@
     axios "^0.26.0"
     form-data "^4.0.0"
 
+"@voiceflow/orval-fetch@1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@voiceflow/orval-fetch/-/orval-fetch-1.1.2.tgz#7b2a0ccb4ff76898f8d1a4b88fe9556d8918ba5f"
+  integrity sha512-idIHU2alqCbLZjrjpah2dyq8887sK+ZrqXVqEzT5z1v3PLZk+JGt8epOME0179PsFJyeRLj+lz0chANQRIxHLg==
+
 "@voiceflow/pino-pretty@4.4.0":
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/@voiceflow/pino-pretty/-/pino-pretty-4.4.0.tgz#dd27cf16d14fe0fb3899b459a09c2449f10bc8ef"
@@ -2673,6 +2705,32 @@
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@voiceflow/prettier-config/-/prettier-config-1.2.1.tgz#906bc852bcd8b2586fa62e4635392a0bea1fdb59"
   integrity sha512-J7wnJCwRWSNX33Ji2eLeBxtwXplAKIk9/aOfrHVfKmYrLHqXvOcrl2/7xa37jqnuTl8vw3+UsfFo3sMDY6weTg==
+
+"@voiceflow/sdk-auth@^2.3.23":
+  version "2.3.23"
+  resolved "https://registry.yarnpkg.com/@voiceflow/sdk-auth/-/sdk-auth-2.3.23.tgz#8ed74077f6c7f41e368efe5c25ed4d8ab85286d7"
+  integrity sha512-SlA5qH86HG3Fy09931WKZVHIICpBwgrwpl2VgEk93+Z2vKeXp9rcIp2rPxMjP2P4YqavvP1QCuU1sQsiQ0P8qw==
+  dependencies:
+    "@voiceflow/common" "8.1.5"
+    "@voiceflow/orval-fetch" "1.1.2"
+    "@voiceflow/sdk-common" "1.9.0"
+    ts-pattern "^4.2.2"
+
+"@voiceflow/sdk-billing@^1.15.25":
+  version "1.15.25"
+  resolved "https://registry.yarnpkg.com/@voiceflow/sdk-billing/-/sdk-billing-1.15.25.tgz#ed463062d0a39a489ec76369f64455f5cfcbe684"
+  integrity sha512-w3EYO0/2Nyz8RgZn2zoHY5rqfbXJKVJu0hu8wIfELsC+ps3ZujFj8LtfLdTrx3hLGze+yOmbJLx2YeWEAHDQFQ==
+  dependencies:
+    "@voiceflow/orval-fetch" "1.1.2"
+    "@voiceflow/sdk-common" "1.9.0"
+
+"@voiceflow/sdk-common@1.9.0":
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/sdk-common/-/sdk-common-1.9.0.tgz#5496eaa33f7808e17acfe91f08893457518c54a8"
+  integrity sha512-3Jy6lNpdSrMcoBbrPQwCuAuc9BKG5TtLzY4Z0tL3+3fX1H0/0VlSNYLhEA2z8yBwxany1lQIdEWwIeX7AbU5/A==
+  dependencies:
+    "@voiceflow/exception" "1.4.0"
+    "@voiceflow/fetch" "1.5.2"
 
 "@voiceflow/verror@1.1.3", "@voiceflow/verror@^1.1.3":
   version "1.1.3"
@@ -11433,6 +11491,11 @@ ts-pattern@^4.0.5:
   version "4.0.5"
   resolved "https://registry.yarnpkg.com/ts-pattern/-/ts-pattern-4.0.5.tgz#8e87db265b890ddb0dfc10deda36568296ebd5c3"
   integrity sha512-Bq44KCEt7JVaNLa148mBCJkcQf4l7jtLEBDuDdeuLynWDA+1a60P4D0rMkqSM9mOKLQbIWUddE9h3XKyKwBeqA==
+
+ts-pattern@^4.2.2:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/ts-pattern/-/ts-pattern-4.3.0.tgz#7a995b39342f1b00d1507c2d2f3b90ea16e178a6"
+  integrity sha512-pefrkcd4lmIVR0LA49Imjf9DYLK8vtWhqBPA3Ya1ir8xCW0O2yjL9dsCVvI7pCodLC5q7smNpEtDR2yVulQxOg==
 
 tsconfig-paths@^3.12.0:
   version "3.14.1"

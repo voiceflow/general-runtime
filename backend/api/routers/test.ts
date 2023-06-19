@@ -8,8 +8,39 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   const router = express.Router();
 
   router.use(bodyParser.json({ limit: BODY_PARSER_SIZE_LIMIT }));
-  router.use(middlewares.auth.verify);
   router.use(middlewares.rateLimit.verify);
+
+  router.post(
+    '/:workspaceID/api',
+    middlewares.auth.authorize(['workspace:READ']),
+    middlewares.rateLimit.consumeResource((req) => req.headers.authorization, 'api'),
+    controllers.test.testAPI
+  );
+
+  router.post(
+    '/:workspaceID/code',
+    middlewares.auth.authorize(['workspace:READ']),
+    middlewares.rateLimit.consumeResource((req) => req.headers.authorization, 'code'),
+    controllers.test.testCode
+  );
+
+  router.post(
+    '/:workspaceID/knowledge-base',
+    middlewares.auth.authorize(['workspace:READ']),
+    middlewares.llmLimit.consumeResource((req) => req.headers.authorization, 'knowledge-base'),
+    controllers.test.testKnowledgeBase
+  );
+
+  router.post(
+    '/:workspaceID/completion',
+    middlewares.auth.authorize(['workspace:READ']),
+    middlewares.llmLimit.consumeResource((req) => req.headers.authorization, 'completion'),
+    middlewares.billing.checkQuota('OpenAI Tokens', (req) => req.params.workspaceID),
+    controllers.test.testCompletion
+  );
+
+  // TODO(trs): remove these legacy routes
+  router.use(middlewares.auth.verifyIdentity);
 
   router.post(
     '/api',

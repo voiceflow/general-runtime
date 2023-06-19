@@ -54,6 +54,9 @@ export interface Config extends RateLimitConfig {
   NLU_GATEWAY_SERVICE_HOST: string | null;
   NLU_GATEWAY_SERVICE_PORT_APP: string | null;
 
+  BILLING_API_SERVICE_HOST: string | null;
+  BILLING_API_SERVICE_PORT_APP: string | null;
+
   CREATOR_API_ENDPOINT: string | null;
   CREATOR_API_AUTHORIZATION: string | null;
 

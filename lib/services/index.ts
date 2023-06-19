@@ -4,6 +4,7 @@ import { ClientMap } from '../clients';
 import AIAssist from './aiAssist';
 import Analytics from './analytics';
 import ASR from './asr';
+import { BillingService } from './billing';
 import Dialog from './dialog';
 import Feedback from './feedback';
 import Filter from './filter';
@@ -36,6 +37,7 @@ export interface ServiceMap {
   analytics: Analytics;
   transcript: Transcript;
   stateManagement: StateManagement;
+  billing: BillingService;
 }
 
 export interface FullServiceMap extends ClientMap, ServiceMap {}
@@ -63,6 +65,7 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.aiAssist = new AIAssist(services, config);
   services.interact = new Interact(services, config);
   services.feedback = new Feedback(services, config);
+  services.billing = new BillingService(services, config);
 
   if (config.SESSIONS_SOURCE === Source.LOCAL) {
     services.session = new LocalSession(services, config);
