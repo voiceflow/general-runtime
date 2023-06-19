@@ -129,7 +129,7 @@ export const promptAnswerSynthesis = async ({
 
     <Instructions>${prompt}</Instructions>
 
-    fulfill <Instructions> based on <Conversation_History>, and ONLY using information found in <Knowledge>:`;
+    Using <Conversation_History> as context, fulfill <Instructions> ONLY using information found in <Knowledge>.`;
   } else {
     content = dedent`
     <Knowledge>
@@ -138,7 +138,7 @@ export const promptAnswerSynthesis = async ({
 
     <Instructions>${prompt}</Instructions>
 
-    fulfill <Instructions> ONLY using information found in <Knowledge>:`;
+    Fulfill <Instructions> ONLY using information found in <Knowledge>.`;
   }
 
   const questionMessages: BaseUtils.ai.Message[] = [
