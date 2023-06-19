@@ -1,10 +1,13 @@
-/* eslint-disable sonarjs/no-nested-template-literals */
 import { BaseUtils } from '@voiceflow/base-types';
 import dedent from 'dedent';
 
 import { AIResponse, fetchChat, fetchPrompt } from '../ai';
 import { getCurrentTime } from '../generativeNoMatch';
 import type { KnowledgeBaseResponse } from '.';
+
+const generateContext = (data: KnowledgeBaseResponse) => {
+  return data.chunks.map(({ content }, index) => `<${index + 1}>${content}</${index + 1}>`).join('\n');
+};
 
 export const answerSynthesis = async ({
   question,
@@ -23,25 +26,39 @@ export const answerSynthesis = async ({
 
   const options = { model, system: systemWithTime, temperature, maxTokens };
 
-  const context = data.chunks.map(({ content }) => content).join('\n');
+  const context = generateContext(data);
 
   if ([BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo, BaseUtils.ai.GPT_MODEL.GPT_4].includes(model)) {
     // for GPT-3.5 and 4.0 chat models
     const messages = [
       {
         role: BaseUtils.ai.Role.SYSTEM,
-        content: `context:\n${context}`,
+        content: dedent`
+          <context>
+            ${context}
+          </context>
+        `,
       },
       {
         role: BaseUtils.ai.Role.USER,
-        content: `Answer the following question using ONLY the provided context, if you don't know the answer say exactly "NOT_FOUND".\n\nQuestion:\n${question}`,
+        content: dedent`
+          Answer the following question using ONLY the provided <context>, if you don't know the answer say exactly "NOT_FOUND".
+
+          Question:
+          ${question}
+        `,
       },
     ];
 
     response = await fetchChat({ ...options, messages }, variables);
   } else if ([BaseUtils.ai.GPT_MODEL.DaVinci_003].includes(model)) {
     // for GPT-3 completion model
-    const prompt = `context:\n${context}\n\nIf you don't know the answer say exactly "NOT_FOUND".\n\nQ: ${question}\nA: `;
+    const prompt = dedent`
+      <context>
+        ${context}
+      </context>
+
+      If you don't know the answer say exactly "NOT_FOUND".\n\nQ: ${question}\nA: `;
 
     response = await fetchPrompt({ ...options, prompt, mode: BaseUtils.ai.PROMPT_MODE.PROMPT }, variables);
   } else if ([BaseUtils.ai.GPT_MODEL.CLAUDE_INSTANT_V1, BaseUtils.ai.GPT_MODEL.CLAUDE_V1].includes(model)) {
@@ -66,69 +83,4 @@ export const answerSynthesis = async ({
     return { output: null };
 
   return { output: response.output };
-};
-
-const DEFAULT_SYNTHESIS_SYSTEM =
-  'Always summarize your response to be as brief as possible and be extremely concise. Your responses should be fewer than a couple of sentences.';
-
-export const promptAnswerSynthesis = async ({
-  data,
-  prompt,
-  memory,
-  variables,
-  options: {
-    model = BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo,
-    system = DEFAULT_SYNTHESIS_SYSTEM,
-    temperature,
-    maxTokens,
-  } = {},
-}: {
-  data: KnowledgeBaseResponse;
-  prompt: string;
-  memory: BaseUtils.ai.Message[];
-  variables?: Record<string, any>;
-  options?: Partial<BaseUtils.ai.AIModelParams>;
-}): Promise<AIResponse | null> => {
-  const options = {
-    model,
-    system,
-    temperature,
-    maxTokens,
-  };
-
-  const knowledge = data.chunks.map(({ content }, index) => `<${index + 1}>${content}</${index + 1}>`).join('\n');
-  let content: string;
-
-  if (memory.length) {
-    content = dedent`
-    <Conversation_History>
-      ${memory.map((turn) => `${turn.role}: ${turn.content}`)}
-    </Conversation_History>
-
-    <Knowledge>
-      ${knowledge}
-    </Knowledge>
-
-    <Instructions>${prompt}</Instructions>
-
-    fulfill <Instructions> based on <Conversation_History>, and ONLY using information found in <Knowledge>:`;
-  } else {
-    content = dedent`
-    <Knowledge>
-      ${knowledge}
-    </Knowledge>
-
-    <Instructions>${prompt}</Instructions>
-
-    fulfill <Instructions> ONLY using information found in <Knowledge>:`;
-  }
-
-  const questionMessages: BaseUtils.ai.Message[] = [
-    {
-      role: BaseUtils.ai.Role.USER,
-      content,
-    },
-  ];
-
-  return fetchChat({ ...options, messages: questionMessages }, variables);
 };

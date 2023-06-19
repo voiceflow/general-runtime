@@ -16,7 +16,12 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
     const nextID = node.nextId ?? null;
 
     if (node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE) {
-      const answer = await promptSynthesis(runtime.version!.projectID, node, variables.getState());
+      const { prompt, mode } = node;
+      const answer = await promptSynthesis(
+        runtime.version!.projectID,
+        { ...runtime.project?.knowledgeBase?.settings?.summarization, prompt, mode },
+        variables.getState()
+      );
 
       if (answer?.output) {
         runtime.trace.addTrace({
@@ -33,7 +38,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
       }
 
       const output = generateOutput(
-        answer?.output || "Sorry, I'm encountering some problems with my knowledge base.",
+        answer?.output || 'Unable to find relevant answer.',
         runtime.project,
         node.voice ?? getVersionDefaultVoice(runtime.version)
       );
