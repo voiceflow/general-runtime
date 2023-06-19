@@ -50,7 +50,7 @@ class TestController extends AbstractController {
 
     const { prompt } = req.body;
 
-    const answer = await promptSynthesis(project._id, { prompt, ...settings.summarization }, {});
+    const answer = await promptSynthesis(project._id, { ...settings.summarization, prompt }, {});
 
     if (!answer?.output) return { output: null, ...answer };
 
