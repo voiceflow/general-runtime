@@ -1,7 +1,7 @@
 import { BaseNode, BaseTrace } from '@voiceflow/base-types';
-import { VoiceflowNode } from '@voiceflow/voiceflow-types';
+import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 
-import { Action, HandlerFactory } from '@/runtime';
+import { Action, HandlerFactory, Runtime, Store } from '@/runtime';
 
 import { StorageType } from '../../types';
 import { addButtonsIfExists, isConfidenceScoreAbove } from '../../utils';
@@ -21,10 +21,15 @@ export const utilsObj = {
   addNoReplyTimeoutIfExists,
 };
 
+type utilsObjType = typeof utilsObj & {
+  addNoReplyIfExists?: (node: VoiceflowNode.Interaction.Node, runtime: Runtime, variables: Store) => void;
+};
+
 const EVENT_CONFIDENCE_THRESHOLD = 0.6;
 
-export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, typeof utilsObj> = (utils) => ({
+export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, utilsObjType> = (utils) => ({
   canHandle: (node) => !!node.interactions,
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (node, runtime, variables) => {
     const runtimeAction = runtime.getAction();
     const request = runtime.getRequest();
@@ -36,6 +41,11 @@ export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, 
       // clean up no-matches and no-replies counters on new interaction
       runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);
       runtime.storage.delete(StorageType.NO_REPLIES_COUNTER);
+
+      // when it is an alexa project, we should return the no reply prompt if it exists
+      if (node.platform === VoiceflowConstants.PlatformType.ALEXA && utils.addNoReplyIfExists) {
+        utils.addNoReplyIfExists(node, runtime, variables);
+      }
 
       // quit cycleStack without ending session by stopping on itself
       return node.id;
