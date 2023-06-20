@@ -5,10 +5,10 @@ import { AbstractManager } from './utils';
 export class BillingService extends AbstractManager {
   private client?: unknown;
 
-  async consumeQuota(workspaceID: string, quotaName: string, count: number) {
+  private async getClient() {
     // eslint-disable-next-line import/no-extraneous-dependencies
     const sdk = await import('@voiceflow/sdk-billing').catch(() => null);
-    if (!sdk) return null;
+    if (!sdk) return undefined;
 
     if (!this.client) {
       const baseURL =
@@ -20,7 +20,7 @@ export class BillingService extends AbstractManager {
             ).href
           : null;
 
-      if (!baseURL) return null;
+      if (!baseURL) return undefined;
 
       this.client = new sdk.BillingClient({
         baseURL,
@@ -28,10 +28,13 @@ export class BillingService extends AbstractManager {
       });
     }
 
-    return (this.client as InstanceType<typeof sdk.BillingClient>).private.consumeWorkspaceQuotaByName(
-      workspaceID,
-      quotaName,
-      count
-    );
+    return this.client as InstanceType<typeof sdk.BillingClient>;
+  }
+
+  async consumeQuota(workspaceID: string, quotaName: string, count: number) {
+    const client = await this.getClient();
+    if (!client) return null;
+
+    return client.private.consumeWorkspaceQuotaByName(workspaceID, quotaName, count);
   }
 }

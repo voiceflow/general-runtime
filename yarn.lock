@@ -1980,6 +1980,11 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
+"@types/hashids@^1.0.30":
+  version "1.0.32"
+  resolved "https://registry.yarnpkg.com/@types/hashids/-/hashids-1.0.32.tgz#deebcad14b54310bbcc74c947f5dea09a2a5fa83"
+  integrity sha512-P32CY6d8OtisVqa92UalnCt/kMGbFE/u6mxyBY+ntv8jbFWrJ8EyG98ev3V/Efldn+SYLUJdQdlqWB1tWsCQLg==
+
 "@types/http-errors@^1.8.2":
   version "1.8.2"
   resolved "https://registry.yarnpkg.com/@types/http-errors/-/http-errors-1.8.2.tgz#7315b4c4c54f82d13fa61c228ec5c2ea5cc9e0e1"
@@ -6705,6 +6710,11 @@ hasha@^5.0.0:
   dependencies:
     is-stream "^2.0.0"
     type-fest "^0.8.0"
+
+hashids@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/hashids/-/hashids-1.2.2.tgz#28635c7f2f7360ba463686078eee837479e8eafb"
+  integrity sha512-dEHCG2LraR6PNvSGxosZHIRgxF5sNLOIBFEHbj8lfP9WWmu/PWPMzsip1drdVSOFi51N2pU7gZavrgn7sbGFuw==
 
 he@1.2.0:
   version "1.2.0"

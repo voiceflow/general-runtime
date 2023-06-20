@@ -96,7 +96,7 @@ class TestController extends AbstractController {
     const { output, tokens } = await fetchPrompt(req.body);
 
     if (typeof tokens === 'number' && tokens > 0) {
-      await this.services.billing.consumeQuota(req.params.workspaceID, '', tokens).catch(() => null);
+      await this.services.billing.consumeQuota(req.params.workspaceID, 'OpenAI Tokens', tokens).catch(() => null);
     }
 
     return { output };

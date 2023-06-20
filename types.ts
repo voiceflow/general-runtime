@@ -60,6 +60,9 @@ export interface Config extends RateLimitConfig {
   CREATOR_API_ENDPOINT: string | null;
   CREATOR_API_AUTHORIZATION: string | null;
 
+  HASHED_ID_SALT: string | null;
+  HASHED_WORKSPACE_ID_SALT: string | null;
+
   CREATOR_APP_ORIGIN: string | null;
   DISABLE_ORIGIN_CHECK: boolean;
 
@@ -103,7 +106,7 @@ export interface Request<
 
 export type Response = Express.Response;
 
-export type Next = () => void;
+export type Next = (err?: any) => void;
 
 export interface Route<Params extends Record<string, any> = Record<string, any>, T = void> {
   (req: Request<Params>): Promise<T>;

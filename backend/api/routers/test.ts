@@ -34,8 +34,8 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.post(
     '/:workspaceID/completion',
     middlewares.auth.authorize(['workspace:READ']),
-    middlewares.llmLimit.consumeResource((req) => req.headers.authorization, 'completion'),
     middlewares.billing.checkQuota('OpenAI Tokens', (req) => req.params.workspaceID),
+    middlewares.llmLimit.consumeResource((req) => req.headers.authorization, 'completion'),
     controllers.test.testCompletion
   );
 

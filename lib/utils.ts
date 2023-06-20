@@ -1,6 +1,5 @@
 import { ResponseBuilder, Validator } from '@voiceflow/backend-utils';
 import Ajv from 'ajv';
-import { RequestHandler } from 'express';
 
 import log from '@/logger';
 import { AnyClass } from '@/types';
@@ -30,12 +29,6 @@ export const customAJV = (schema: Record<string, any>) => (value: any) => {
   }
 
   return true;
-};
-
-export const factory = () => (_target: () => RequestHandler, _key: string, descriptor: PropertyDescriptor) => {
-  descriptor.value = Object.assign(descriptor.value, { callback: true });
-
-  return descriptor;
 };
 
 export const getInstanceMethodNames = (obj: AbstractMiddleware | AbstractController) => {
