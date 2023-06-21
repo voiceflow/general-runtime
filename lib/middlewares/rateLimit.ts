@@ -13,6 +13,8 @@ const LOCAL_DEVELOPEMENT = [
 class RateLimit extends RateLimitMiddleware<FullServiceMap, Config> {
   constructor(services: FullServiceMap, config: Config) {
     super(services, config);
+
+    // fix for unit tests
     Object.assign(this.consumeResource, { callback: true });
   }
 

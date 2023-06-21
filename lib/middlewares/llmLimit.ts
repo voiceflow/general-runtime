@@ -20,6 +20,9 @@ class LLMLimit extends AbstractMiddleware {
       RATE_LIMITER_POINTS_PRIVATE: this.MAX_POINTS,
       RATE_LIMITER_POINTS_PUBLIC: this.MAX_POINTS,
     });
+
+    // fix for unit tests
+    Object.assign(this.consumeResource, { callback: true });
   }
 
   consumeResource = (getResource: (req: Request) => string | undefined, prefix?: string) => {
