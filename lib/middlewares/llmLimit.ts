@@ -4,6 +4,7 @@ import { NextFunction, Response } from 'express';
 
 import { Request } from '@/types';
 
+import { factory } from '../utils';
 import { AbstractMiddleware } from './utils';
 
 class LLMLimit extends AbstractMiddleware {
@@ -25,7 +26,8 @@ class LLMLimit extends AbstractMiddleware {
     Object.assign(this.consumeResource, { callback: true });
   }
 
-  consumeResource = (getResource: (req: Request) => string | undefined, prefix?: string) => {
+  @factory()
+  consumeResource(getResource: (req: Request) => string | undefined, prefix?: string) {
     return async (req: Request, res: Response, next: NextFunction) => {
       const resource = getResource(req);
 
@@ -48,7 +50,7 @@ class LLMLimit extends AbstractMiddleware {
 
       next();
     };
-  };
+  }
 }
 
 export default LLMLimit;

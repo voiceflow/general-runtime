@@ -4,10 +4,16 @@ import fetch from 'node-fetch';
 
 import { Next, Request, Response } from '@/types';
 
+import { factory } from '../utils';
 import { AbstractMiddleware } from './utils';
 
 class Auth extends AbstractMiddleware {
   private client?: unknown;
+
+  // constructor(services: FullServiceMap, config: Config) {
+  //   super(services, config);
+  //   Object.assign(this.authorize, { callback: true });
+  // }
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
   private getClient = async () => {
@@ -44,20 +50,23 @@ class Auth extends AbstractMiddleware {
     return this.client as InstanceType<typeof sdk.AuthClient>;
   };
 
-  authorize = (actions: `${string}:${string}`[]) => async (req: Request, res: Response, next: Next) => {
-    try {
-      const client = await this.getClient();
-      if (!client) return next();
+  @factory()
+  authorize(actions: `${string}:${string}`[]) {
+    return async (req: Request, res: Response, next: Next) => {
+      try {
+        const client = await this.getClient();
+        if (!client) return next();
 
-      // eslint-disable-next-line import/no-extraneous-dependencies
-      const sdk = await import('@voiceflow/sdk-auth/express').catch(() => null);
-      if (!sdk) return next();
+        // eslint-disable-next-line import/no-extraneous-dependencies
+        const sdk = await import('@voiceflow/sdk-auth/express').catch(() => null);
+        if (!sdk) return next();
 
-      return sdk?.createAuthGuard(client)(actions as any[])(req, res, next);
-    } catch (err) {
-      return next(err);
-    }
-  };
+        return sdk?.createAuthGuard(client)(actions as any[])(req, res, next);
+      } catch (err) {
+        return next(err);
+      }
+    };
+  }
 
   async verifyIdentity(req: Request, _res: Response, next: Next): Promise<void> {
     const client = await this.getClient();

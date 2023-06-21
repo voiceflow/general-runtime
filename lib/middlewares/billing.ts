@@ -3,12 +3,13 @@ import { NextFunction, Response } from 'express';
 
 import { Request } from '@/types';
 
+import { factory } from '../utils';
 import { AbstractMiddleware } from './utils';
 
 export class BillingMiddleware extends AbstractMiddleware {
-  checkQuota =
-    (quotaName: string, getWorkspaceID: (req: Request) => string | undefined) =>
-    async (req: Request, _res: Response, next: NextFunction) => {
+  @factory()
+  checkQuota(quotaName: string, getWorkspaceID: (req: Request) => string | undefined) {
+    return async (req: Request, _res: Response, next: NextFunction) => {
       try {
         const workspaceID = getWorkspaceID(req);
         if (!workspaceID) {
@@ -21,4 +22,5 @@ export class BillingMiddleware extends AbstractMiddleware {
         return next(err);
       }
     };
+  }
 }

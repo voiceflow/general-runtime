@@ -4,6 +4,7 @@ import { NextFunction, Response } from 'express';
 import { Config, Request } from '@/types';
 
 import { FullServiceMap } from '../services';
+import { factory } from '../utils';
 
 const LOCAL_DEVELOPEMENT = [
   'https://creator-local.development.voiceflow.com:3002',
@@ -11,13 +12,6 @@ const LOCAL_DEVELOPEMENT = [
 ];
 
 class RateLimit extends RateLimitMiddleware<FullServiceMap, Config> {
-  constructor(services: FullServiceMap, config: Config) {
-    super(services, config);
-
-    // fix for unit tests
-    Object.assign(this.consumeResource, { callback: true });
-  }
-
   async verify(req: Request, _res: Response, next: NextFunction): Promise<void> {
     if (
       !this.config.PROJECT_SOURCE &&
@@ -40,7 +34,8 @@ class RateLimit extends RateLimitMiddleware<FullServiceMap, Config> {
     });
   }
 
-  consumeResource = (getResource: (req: Request) => string | undefined, prefix?: string, isPublic = false) => {
+  @factory()
+  consumeResource(getResource: (req: Request) => string | undefined, prefix?: string, isPublic = false) {
     return (req: Request, res: Response, next: NextFunction) => {
       const resource = getResource(req);
 
@@ -54,7 +49,7 @@ class RateLimit extends RateLimitMiddleware<FullServiceMap, Config> {
         resource: prefix ? `${prefix}:${resource}` : resource,
       });
     };
-  };
+  }
 }
 
 export default RateLimit;
