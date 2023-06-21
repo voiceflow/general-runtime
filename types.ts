@@ -60,9 +60,6 @@ export interface Config extends RateLimitConfig {
   CREATOR_API_ENDPOINT: string | null;
   CREATOR_API_AUTHORIZATION: string | null;
 
-  HASHED_ID_SALT: string | null;
-  HASHED_WORKSPACE_ID_SALT: string | null;
-
   CREATOR_APP_ORIGIN: string | null;
   DISABLE_ORIGIN_CHECK: boolean;
 

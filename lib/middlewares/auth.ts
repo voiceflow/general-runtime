@@ -10,12 +10,6 @@ import { AbstractMiddleware } from './utils';
 class Auth extends AbstractMiddleware {
   private client?: unknown;
 
-  // constructor(services: FullServiceMap, config: Config) {
-  //   super(services, config);
-  //   Object.assign(this.authorize, { callback: true });
-  // }
-
-  // eslint-disable-next-line sonarjs/cognitive-complexity
   private getClient = async () => {
     // eslint-disable-next-line import/no-extraneous-dependencies
     const sdk = await import('@voiceflow/sdk-auth').catch(() => null);
@@ -36,14 +30,6 @@ class Auth extends AbstractMiddleware {
       this.client = new sdk.AuthClient({
         baseURL,
         fetch,
-        decodeResource: (resource) => {
-          if (resource.kind === 'workspace')
-            return { ...resource, id: String(this.services.workspaceHashID?.decode(resource.id) ?? resource.id) };
-          if (resource.kind === 'organization')
-            return { ...resource, id: String(this.services.workspaceHashID?.decode(resource.id) ?? resource.id) };
-
-          return resource;
-        },
       });
     }
 

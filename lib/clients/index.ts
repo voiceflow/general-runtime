@@ -1,5 +1,4 @@
 import { RateLimitClient } from '@voiceflow/backend-utils';
-import Hashids from 'hashids';
 
 import { MongoSession } from '@/lib/services/session';
 import { Config } from '@/types';
@@ -18,7 +17,6 @@ export interface ClientMap extends StaticType {
   rateLimitClient: ReturnType<typeof RateLimitClient>;
   mongo: MongoDB | null;
   analyticsClient: AnalyticsSystem | null;
-  workspaceHashID: Hashids | null;
 }
 
 /**
@@ -28,8 +26,6 @@ const buildClients = (config: Config): ClientMap => {
   const redis = RedisClient(config);
   const mongo = MongoSession.enabled(config) ? new MongoDB(config) : null;
 
-  const workspaceHashID = config.HASHED_WORKSPACE_ID_SALT ? new Hashids(config.HASHED_WORKSPACE_ID_SALT, 10) : null;
-
   return {
     ...Static,
     redis,
@@ -38,7 +34,6 @@ const buildClients = (config: Config): ClientMap => {
     metrics: Metrics(config),
     rateLimitClient: RateLimitClient('general-runtime', redis, config),
     analyticsClient: Analytics(config),
-    workspaceHashID,
   };
 };
 
