@@ -37,4 +37,9 @@ export class BillingService extends AbstractManager {
 
     return client.private.consumeWorkspaceQuotaByName(workspaceID, quotaName, count);
   }
+
+  async checkQuota(workspaceID: string, quotaName: string) {
+    // Consume count of zero to check if quota has not been exceeded
+    return this.consumeQuota(workspaceID, quotaName, 0);
+  }
 }

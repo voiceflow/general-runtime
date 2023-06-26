@@ -16,7 +16,7 @@ export class BillingMiddleware extends AbstractMiddleware {
           return next(new VError('Unauthorized', VError.HTTP_STATUS.UNAUTHORIZED));
         }
 
-        await this.services.billing.consumeQuota(workspaceID, quotaName, 0);
+        await this.services.billing.checkQuota(workspaceID, quotaName);
         return next();
       } catch (err) {
         return next(new VError('Unauthorized', VError.HTTP_STATUS.UNAUTHORIZED));
