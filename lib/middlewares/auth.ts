@@ -49,29 +49,32 @@ class Auth extends AbstractMiddleware {
 
         return sdk?.createAuthGuard(client)(actions as any[])(req, res, next);
       } catch (err) {
-        return next(err);
+        return next(new VError('Unauthorized', VError.HTTP_STATUS.UNAUTHORIZED));
       }
     };
   }
 
   async verifyIdentity(req: Request, _res: Response, next: Next): Promise<void> {
-    const client = await this.getClient();
-    if (!client) return next();
-    const authorization = req.headers.authorization || req.cookies.auth_vf || '';
+    try {
+      const client = await this.getClient();
+      if (!client) return next();
+      const authorization = req.headers.authorization || req.cookies.auth_vf || '';
 
-    const identity = await client.getIdentity(authorization);
-    if (!identity?.identity?.id) throw new Error();
+      const identity = await client.getIdentity(authorization);
+      if (!identity?.identity?.id) throw new Error();
 
-    return next();
+      return next();
+    } catch {
+      return next(new VError('Unauthorized', VError.HTTP_STATUS.UNAUTHORIZED));
+    }
   }
 
   async verifyDMAPIKey(req: Request, res: Response, next: Next): Promise<void> {
     if (!BaseModels.ApiKey.isDialogManagerAPIKey(req.headers.authorization)) {
-      res.sendStatus(VError.HTTP_STATUS.UNAUTHORIZED);
-      return;
+      return next(new VError('Unauthorized', VError.HTTP_STATUS.UNAUTHORIZED));
     }
 
-    await this.verifyIdentity(req, res, next);
+    return this.verifyIdentity(req, res, next);
   }
 }
 

@@ -13,13 +13,13 @@ export class BillingMiddleware extends AbstractMiddleware {
       try {
         const workspaceID = getWorkspaceID(req);
         if (!workspaceID) {
-          return next(new VError('Unauthorized', 401));
+          return next(new VError('Unauthorized', VError.HTTP_STATUS.UNAUTHORIZED));
         }
 
         await this.services.billing.consumeQuota(workspaceID, quotaName, 0);
         return next();
       } catch (err) {
-        return next(err);
+        return next(new VError('Unauthorized', VError.HTTP_STATUS.UNAUTHORIZED));
       }
     };
   }
