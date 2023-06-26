@@ -37,7 +37,7 @@ class StateManagementController extends AbstractController {
     req: Request<
       { userID: string },
       any,
-      { projectID: string; authorization: string; versionID: string; state: Pick<State, 'variables'> },
+      { projectID: string; authorization: string; versionID: string },
       { verbose?: boolean; logs?: RuntimeLogs.LogLevel }
     >
   ) {
