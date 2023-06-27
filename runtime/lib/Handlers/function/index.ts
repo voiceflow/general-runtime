@@ -2,6 +2,7 @@ import { BaseNode } from '@voiceflow/base-types';
 
 import Handler from '../../Handler';
 import { FunctionHandlerConfig } from './functionHandler.interface';
+import { PathCode } from './functionHandler.types';
 import { Sandbox } from './sandbox/sandbox';
 
 export const FunctionHandler = (config: FunctionHandlerConfig): Handler<BaseNode.Code.Node> => ({
@@ -14,7 +15,7 @@ export const FunctionHandler = (config: FunctionHandlerConfig): Handler<BaseNode
 
       variables.merge(output);
 
-      if (port === 'FAILURE') {
+      if (port === PathCode.Error) {
         return node.fail_id ?? null;
       }
 
