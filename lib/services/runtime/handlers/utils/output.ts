@@ -22,5 +22,9 @@ export const generateOutput = (output: string, project?: BaseModels.Project.Mode
   }
 
   // return voice response
-  return inputToString({ voice, text: output });
+  return inputToString({
+    // "Alexa" is not a valid value for the voice attribute on Alexa projects, remove it
+    voice: project?.platform === VoiceflowConstants.PlatformType.ALEXA && voice === 'Alexa' ? '' : voice,
+    text: output,
+  });
 };
