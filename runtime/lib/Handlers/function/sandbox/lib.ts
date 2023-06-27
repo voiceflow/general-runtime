@@ -19,7 +19,7 @@ import { FetchResponse } from './lib.types';
 class Fetch {
   private static readonly timeoutMS = 1000;
 
-  private static readonly maxResponseSizeBytes = 1000;
+  private static readonly maxResponseSizeBytes = 1e6; // 1MB
 
   private static async processResponseBody(result: Response): Promise<FetchResponse> {
     const data = await result.json();
