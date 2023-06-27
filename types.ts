@@ -66,6 +66,7 @@ export interface Config extends RateLimitConfig {
   // Logging
   LOG_LEVEL: string | null;
   MIDDLEWARE_VERBOSITY: string | null;
+  DEBUG_FUNCTION_STEP: boolean;
 
   PROJECT_SOURCE: string | null;
 

@@ -77,6 +77,7 @@ const CONFIG: Config = {
   // Logging
   LOG_LEVEL: getOptionalProcessEnv('LOG_LEVEL'),
   MIDDLEWARE_VERBOSITY: getOptionalProcessEnv('MIDDLEWARE_VERBOSITY'),
+  DEBUG_FUNCTION_STEP: getOptionalProcessEnv('DEBUG_FUNCTION_STEP') === 'true' || false,
 
   REDIS_CLUSTER_HOST: getOptionalProcessEnv('REDIS_CLUSTER_HOST'),
   REDIS_CLUSTER_PORT: Number(getOptionalProcessEnv('REDIS_CLUSTER_PORT', '6379')),
