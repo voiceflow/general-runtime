@@ -1,4 +1,4 @@
 export enum PathCode {
   Success = 'Success',
-  Error = 'Error',
+  Failure = 'Failure',
 }

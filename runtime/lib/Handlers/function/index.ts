@@ -15,7 +15,7 @@ export const FunctionHandler = (config: FunctionHandlerConfig): Handler<BaseNode
 
       variables.merge(output);
 
-      if (port === PathCode.Error) {
+      if (port === PathCode.Failure) {
         return node.fail_id ?? null;
       }
 
