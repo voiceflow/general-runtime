@@ -7,6 +7,8 @@ import { Config } from '@/types';
 import { GPTAIModel } from './utils';
 
 export class GPT4 extends GPTAIModel {
+  public static TOKEN_MULTIPLIER = 10;
+
   public modelRef = BaseUtils.ai.GPT_MODEL.GPT_4;
 
   protected gptModelName = 'gpt-4';
@@ -44,7 +46,7 @@ export class GPT4 extends GPTAIModel {
 
     return {
       output,
-      tokens,
+      tokens: tokens * GPT4.TOKEN_MULTIPLIER,
     };
   }
 }
