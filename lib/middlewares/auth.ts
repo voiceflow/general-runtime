@@ -77,7 +77,9 @@ class Auth extends AbstractMiddleware {
       const authorization = req.headers.authorization || req.cookies.auth_vf || '';
       if (!authorization) throw new Error();
 
-      const identity = await client.getIdentity(formatAuthorizationToken(authorization));
+      req.headers.authorization = formatAuthorizationToken(authorization);
+
+      const identity = await client.getIdentity(req.headers.authorization);
 
       if (!identity?.identity?.id) throw new Error();
 
