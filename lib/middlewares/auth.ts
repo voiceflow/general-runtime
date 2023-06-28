@@ -7,6 +7,22 @@ import { Next, Request, Response } from '@/types';
 import { factory } from '../utils';
 import { AbstractMiddleware } from './utils';
 
+function formatAuthorizationToken(incomingAuthorizationToken: string) {
+  if (incomingAuthorizationToken.startsWith('ApiKey ')) {
+    return incomingAuthorizationToken;
+  }
+
+  if (incomingAuthorizationToken.startsWith('VF.')) {
+    return `ApiKey ${incomingAuthorizationToken}`;
+  }
+
+  if (!incomingAuthorizationToken.startsWith('Bearer ')) {
+    return `Bearer ${incomingAuthorizationToken}`;
+  }
+
+  return incomingAuthorizationToken;
+}
+
 class Auth extends AbstractMiddleware {
   private client?: unknown;
 
@@ -59,8 +75,10 @@ class Auth extends AbstractMiddleware {
       const client = await this.getClient();
       if (!client) return next();
       const authorization = req.headers.authorization || req.cookies.auth_vf || '';
+      if (!authorization) throw new Error();
 
-      const identity = await client.getIdentity(authorization);
+      const identity = await client.getIdentity(formatAuthorizationToken(authorization));
+
       if (!identity?.identity?.id) throw new Error();
 
       return next();
