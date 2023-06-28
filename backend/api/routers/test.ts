@@ -13,21 +13,21 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.post(
     '/:workspaceID/api',
     middlewares.auth.authorize(['workspace:READ']),
-    middlewares.rateLimit.consumeResource((req) => req.headers.authorization, 'api'),
+    middlewares.rateLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'api'),
     controllers.test.testAPI
   );
 
   router.post(
     '/:workspaceID/code',
     middlewares.auth.authorize(['workspace:READ']),
-    middlewares.rateLimit.consumeResource((req) => req.headers.authorization, 'code'),
+    middlewares.rateLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'code'),
     controllers.test.testCode
   );
 
   router.post(
     '/:workspaceID/knowledge-base',
     middlewares.auth.authorize(['workspace:READ']),
-    middlewares.llmLimit.consumeResource((req) => req.headers.authorization, 'knowledge-base'),
+    middlewares.llmLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'knowledge-base'),
     controllers.test.testKnowledgeBase
   );
 
@@ -35,7 +35,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
     '/:workspaceID/completion',
     middlewares.auth.authorize(['workspace:READ']),
     middlewares.billing.checkQuota('OpenAI Tokens', (req) => req.params.workspaceID),
-    middlewares.llmLimit.consumeResource((req) => req.headers.authorization, 'completion'),
+    middlewares.llmLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'completion'),
     controllers.test.testCompletion
   );
 
