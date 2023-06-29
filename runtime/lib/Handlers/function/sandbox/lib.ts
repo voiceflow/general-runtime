@@ -25,6 +25,8 @@ class Fetch {
     const data = await result.json();
 
     return {
+      ok: result.ok,
+      status: result.status,
       body: data,
       headers: result.headers,
     };
