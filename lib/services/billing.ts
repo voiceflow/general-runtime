@@ -2,6 +2,8 @@ import fetch from 'node-fetch';
 
 import { AbstractManager } from './utils';
 
+export type QuotaName = 'OpenAI Tokens';
+
 export class BillingService extends AbstractManager {
   private client?: unknown;
 
@@ -31,15 +33,20 @@ export class BillingService extends AbstractManager {
     return this.client as InstanceType<typeof sdk.BillingClient>;
   }
 
-  async consumeQuota(workspaceID: string, quotaName: string, count: number) {
+  async consumeQuota(workspaceID: string, quotaName: QuotaName, count: number) {
     const client = await this.getClient();
     if (!client) return null;
 
     return client.private.consumeWorkspaceQuotaByName(workspaceID, quotaName, count);
   }
 
-  async checkQuota(workspaceID: string, quotaName: string) {
-    // Consume count of zero to check if quota has not been exceeded
-    return this.consumeQuota(workspaceID, quotaName, 0);
+  async checkQuota(workspaceID: string, quotaName: QuotaName) {
+    try {
+      // Consume count of zero to check if quota has not been exceeded
+      await this.consumeQuota(workspaceID, quotaName, 0);
+      return true;
+    } catch {
+      return false;
+    }
   }
 }

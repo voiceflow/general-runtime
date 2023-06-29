@@ -50,6 +50,7 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
     ...clients,
   } as FullServiceMap;
 
+  services.billing = new BillingService(services, config);
   services.runtime = new Runtime(services, config);
   services.state = new State(services, config);
   services.asr = new ASR(services, config);
@@ -65,7 +66,6 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.aiAssist = new AIAssist(services, config);
   services.interact = new Interact(services, config);
   services.feedback = new Feedback(services, config);
-  services.billing = new BillingService(services, config);
 
   if (config.SESSIONS_SOURCE === Source.LOCAL) {
     services.session = new LocalSession(services, config);

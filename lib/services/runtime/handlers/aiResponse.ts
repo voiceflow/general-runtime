@@ -1,4 +1,5 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
+import VError from '@voiceflow/verror';
 import { VoiceNode } from '@voiceflow/voice-types';
 
 import { HandlerFactory } from '@/runtime';
@@ -14,6 +15,11 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_RESPONSE,
   handle: async (node, runtime, variables) => {
     const nextID = node.nextId ?? null;
+    const workspaceID = runtime.project?.teamID;
+
+    if (!(await runtime.services.billing.checkQuota(workspaceID, 'OpenAI Tokens'))) {
+      throw new VError('Quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
+    }
 
     if (node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE) {
       const { prompt, mode } = node;
@@ -22,6 +28,10 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
         { ...runtime.project?.knowledgeBase?.settings?.summarization, prompt, mode },
         variables.getState()
       );
+
+      if (answer && typeof answer.tokens === 'number' && answer.tokens > 0) {
+        await runtime.services.billing.consumeQuota(workspaceID, 'OpenAI Tokens', answer.tokens);
+      }
 
       if (answer?.output) {
         runtime.trace.addTrace({
@@ -58,6 +68,10 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
     }
 
     const response = await fetchPrompt(node, variables.getState());
+
+    if (typeof response.tokens === 'number' && response.tokens > 0) {
+      await runtime.services.billing.consumeQuota(workspaceID, 'OpenAI Tokens', response.tokens);
+    }
 
     if (!response.output) return nextID;
 
