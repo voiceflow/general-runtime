@@ -18,7 +18,7 @@ export class Sandbox {
 
   private readonly memoryLimit = 10;
 
-  private readonly sandboxTimeoutSec = 1;
+  private readonly sandboxTimeoutSec = 5;
 
   private readonly resolveFuncName = '__resolve__';
 

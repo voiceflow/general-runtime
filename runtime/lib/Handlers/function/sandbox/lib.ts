@@ -17,7 +17,7 @@ import { FetchResponse } from './lib.types';
  * data.
  */
 class Fetch {
-  private static readonly timeoutMS = 1000;
+  private static readonly timeoutMS = 2000;
 
   private static readonly maxResponseSizeBytes = 1e6; // 1MB
 
