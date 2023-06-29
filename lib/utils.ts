@@ -31,12 +31,6 @@ export const customAJV = (schema: Record<string, any>) => (value: any) => {
   return true;
 };
 
-export const factory = () => (_target: any, _propertyKey: string, descriptor: PropertyDescriptor) => {
-  descriptor.value = Object.assign(descriptor.value, { callback: true });
-
-  return descriptor;
-};
-
 export const getInstanceMethodNames = (obj: AbstractMiddleware | AbstractController) => {
   const proto = Object.getPrototypeOf(obj);
   if (proto.constructor.name === 'Object') {

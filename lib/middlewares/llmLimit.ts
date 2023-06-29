@@ -4,13 +4,12 @@ import { NextFunction, Response } from 'express';
 
 import { Request } from '@/types';
 
-import { factory } from '../utils';
 import { AbstractMiddleware } from './utils';
 
 class LLMLimit extends AbstractMiddleware {
   private rateLimitClient: ReturnType<typeof RateLimitClient>;
 
-  private MAX_POINTS = 5;
+  private MAX_POINTS = 1;
 
   constructor(...args: ConstructorParameters<typeof AbstractMiddleware>) {
     super(...args);
@@ -21,13 +20,9 @@ class LLMLimit extends AbstractMiddleware {
       RATE_LIMITER_POINTS_PRIVATE: this.MAX_POINTS,
       RATE_LIMITER_POINTS_PUBLIC: this.MAX_POINTS,
     });
-
-    // fix for unit tests
-    Object.assign(this.consumeResource, { callback: true });
   }
 
-  @factory()
-  consumeResource(getResource: (req: Request) => string | undefined, prefix?: string) {
+  consumeResource = (getResource: (req: Request) => string | undefined, prefix?: string) => {
     return async (req: Request, res: Response, next: NextFunction) => {
       const resource = getResource(req);
 
@@ -50,7 +45,7 @@ class LLMLimit extends AbstractMiddleware {
 
       next();
     };
-  }
+  };
 }
 
 export default LLMLimit;

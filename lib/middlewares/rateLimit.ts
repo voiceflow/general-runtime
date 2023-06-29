@@ -4,7 +4,6 @@ import { NextFunction, Response } from 'express';
 import { Config, Request } from '@/types';
 
 import { FullServiceMap } from '../services';
-import { factory } from '../utils';
 
 const LOCAL_DEVELOPEMENT = [
   'https://creator-local.development.voiceflow.com:3002',
@@ -34,8 +33,7 @@ class RateLimit extends RateLimitMiddleware<FullServiceMap, Config> {
     });
   }
 
-  @factory()
-  consumeResource(getResource: (req: Request) => string | undefined, prefix?: string, isPublic = false) {
+  consumeResource = (getResource: (req: Request) => string | undefined, prefix?: string, isPublic = false) => {
     return (req: Request, res: Response, next: NextFunction) => {
       const resource = getResource(req);
 
@@ -49,7 +47,7 @@ class RateLimit extends RateLimitMiddleware<FullServiceMap, Config> {
         resource: prefix ? `${prefix}:${resource}` : resource,
       });
     };
-  }
+  };
 }
 
 export default RateLimit;

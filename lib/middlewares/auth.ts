@@ -4,7 +4,6 @@ import fetch from 'node-fetch';
 
 import { Next, Request, Response } from '@/types';
 
-import { factory } from '../utils';
 import { AbstractMiddleware } from './utils';
 
 function formatAuthorizationToken(incomingAuthorizationToken: string) {
@@ -52,8 +51,7 @@ class Auth extends AbstractMiddleware {
     return this.client as InstanceType<typeof sdk.AuthClient>;
   };
 
-  @factory()
-  authorize(actions: `${string}:${string}`[]) {
+  authorize = (actions: `${string}:${string}`[]) => {
     return async (req: Request, res: Response, next: Next) => {
       try {
         const client = await this.getClient();
@@ -68,9 +66,9 @@ class Auth extends AbstractMiddleware {
         return next(new VError('Unauthorized', VError.HTTP_STATUS.UNAUTHORIZED));
       }
     };
-  }
+  };
 
-  async verifyIdentity(req: Request, _res: Response, next: Next): Promise<void> {
+  verifyIdentity = async (req: Request, _res: Response, next: Next): Promise<void> => {
     try {
       const client = await this.getClient();
       if (!client) return next();
@@ -87,7 +85,7 @@ class Auth extends AbstractMiddleware {
     } catch {
       return next(new VError('Unauthorized', VError.HTTP_STATUS.UNAUTHORIZED));
     }
-  }
+  };
 
   async verifyDMAPIKey(req: Request, res: Response, next: Next): Promise<void> {
     if (!BaseModels.ApiKey.isDialogManagerAPIKey(req.headers.authorization)) {
