@@ -39,38 +39,5 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
     controllers.test.testCompletion
   );
 
-  // TODO(trs): remove these legacy routes
-  router.use(middlewares.auth.verifyIdentity);
-
-  router.post(
-    '/api',
-    middlewares.rateLimit.consumeResource((req) => req.headers.authorization, 'api'),
-    controllers.test.testAPI
-  );
-
-  router.post(
-    '/code',
-    middlewares.rateLimit.consumeResource((req) => req.headers.authorization, 'code'),
-    controllers.test.testCode
-  );
-
-  router.post(
-    '/knowledge-base',
-    middlewares.llmLimit.consumeResource((req) => req.headers.authorization, 'knowledge-base'),
-    controllers.test.testKnowledgeBase
-  );
-
-  router.post(
-    '/knowledge-base-prompt',
-    middlewares.rateLimit.consumeResource((req) => req.headers.authorization, 'knowledge-base'),
-    controllers.test.testKnowledgeBasePrompt
-  );
-
-  router.post(
-    '/completion',
-    middlewares.llmLimit.consumeResource((req) => req.headers.authorization, 'completion'),
-    controllers.test.testCompletion
-  );
-
   return router;
 };
