@@ -9,7 +9,7 @@ import { AbstractMiddleware } from './utils';
 class LLMLimit extends AbstractMiddleware {
   private rateLimitClient: ReturnType<typeof RateLimitClient>;
 
-  private MAX_POINTS = 1;
+  private MAX_POINTS = 5;
 
   constructor(...args: ConstructorParameters<typeof AbstractMiddleware>) {
     super(...args);
