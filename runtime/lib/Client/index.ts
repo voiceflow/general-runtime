@@ -17,6 +17,7 @@ export interface CreateRuntimeOptions<
   options?: RuntimeOptions<DataAPI, Services>;
   version?: Version;
   project?: Project;
+  plan?: string;
 }
 
 class Controller<
@@ -45,6 +46,7 @@ class Controller<
     options,
     version,
     project,
+    plan
   }: CreateRuntimeOptions<Request, DataAPI, Services, Version, Project>): Runtime<Request, DataAPI, Services> {
     return new Runtime<Request, DataAPI, Services, Version, Project>({
       request,
@@ -54,6 +56,7 @@ class Controller<
       events: this.events,
       version,
       project,
+      plan
     });
   }
 }

@@ -43,6 +43,7 @@ export interface RuntimeOptions<
   events: Lifecycle;
   version?: Version;
   project?: Project;
+  plan?: string;
 }
 
 export enum Action {
@@ -94,6 +95,8 @@ class Runtime<
 
   public project?: Project;
 
+  public plan?: string;
+
   constructor({
     events,
     versionID,
@@ -102,6 +105,7 @@ class Runtime<
     request,
     state,
     options,
+    plan
   }: RuntimeOptions<Request, DataAPI, Services, Version, Project>) {
     super(events);
 
@@ -109,6 +113,7 @@ class Runtime<
     this.request = request ?? null;
     this.version = version;
     this.project = project;
+    this.plan = plan;
 
     const { services = {} as Services, handlers = [], api } = options;
 

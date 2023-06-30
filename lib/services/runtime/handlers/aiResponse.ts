@@ -10,6 +10,7 @@ import { fetchPrompt } from './utils/ai';
 import { promptSynthesis } from './utils/knowledgeBase';
 import { generateOutput } from './utils/output';
 import { getVersionDefaultVoice } from './utils/version';
+import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
 
 const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_RESPONSE,
@@ -65,6 +66,10 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
       );
 
       return nextID;
+    }
+
+    if (node.model === BaseUtils.ai.GPT_MODEL.GPT_4 && runtime.plan && !GPT4_ABLE_PLAN.has(runtime.plan)) {
+      throw new VError('Plan does not support GPT-4', VError.HTTP_STATUS.PAYMENT_REQUIRED);
     }
 
     const response = await fetchPrompt(node, variables.getState());

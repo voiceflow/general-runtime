@@ -19,6 +19,7 @@ export interface Context<
   project?: Project;
   versionID: string;
   projectID: string;
+  plan?: string;
   /** The most verbose logs to receive in runtime logging. */
   maxLogLevel: RuntimeLogs.LogLevel;
 }

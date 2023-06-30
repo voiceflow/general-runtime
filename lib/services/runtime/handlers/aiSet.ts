@@ -5,6 +5,7 @@ import { HandlerFactory } from '@/runtime';
 
 import { fetchPrompt } from './utils/ai';
 import { promptSynthesis } from './utils/knowledgeBase';
+import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
 
 const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_SET,
@@ -37,6 +38,10 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
 
             variables.set(variable, response?.output);
             return response?.tokens ?? 0;
+          }
+
+          if (node.model === BaseUtils.ai.GPT_MODEL.GPT_4 && runtime.plan && !GPT4_ABLE_PLAN.has(runtime.plan)) {
+            throw new VError('Plan does not support GPT-4', VError.HTTP_STATUS.PAYMENT_REQUIRED);
           }
 
           const response = await fetchPrompt({ ...node, prompt, mode }, variables.getState());
