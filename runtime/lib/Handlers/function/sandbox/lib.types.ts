@@ -19,6 +19,6 @@ export enum ParseType {
   Text = 'text',
 }
 
-export interface AdditionalOptions {
+export interface ExtendedFetchOptions {
   parseType?: ParseType;
 }

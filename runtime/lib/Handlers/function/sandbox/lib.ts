@@ -1,6 +1,6 @@
 import fetch, { RequestInit, Response } from 'node-fetch';
 
-import { AdditionalOptions, FetchResponse, ParseType } from './lib.types';
+import { ExtendedFetchOptions, FetchResponse, ParseType } from './lib.types';
 
 /**
  * Class implements an HTTP client interface which is injected into the sandbox
@@ -21,7 +21,7 @@ class Fetch {
 
   private static readonly maxResponseSizeBytes = 1e6; // 1MB
 
-  private static async processResponseBody(result: Response, options: AdditionalOptions) {
+  private static async processResponseBody(result: Response, options: ExtendedFetchOptions) {
     const contentType = result.headers.get('content-type') ?? '';
 
     // If user specified parsing options, then use that to format the response data.
@@ -49,7 +49,7 @@ class Fetch {
     return { text: await result.text() };
   }
 
-  private static async processResponse(result: Response, options: AdditionalOptions): Promise<FetchResponse> {
+  private static async processResponse(result: Response, options: ExtendedFetchOptions): Promise<FetchResponse> {
     const { statusText, ok, status, headers } = result;
 
     return {
@@ -61,7 +61,7 @@ class Fetch {
     };
   }
 
-  static async fetch(url: string, init: RequestInit = {}, options: AdditionalOptions = {}): Promise<FetchResponse> {
+  static async fetch(url: string, init: RequestInit = {}, options: ExtendedFetchOptions = {}): Promise<FetchResponse> {
     const result = await fetch(url, {
       ...init,
       timeout: Fetch.timeoutMS,
