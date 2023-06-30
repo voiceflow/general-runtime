@@ -14,7 +14,7 @@ export const getCurrentTime = ({ newlines = 1 }: { newlines?: number } = {}) => 
 export const generateNoMatch = async (
   runtime: Runtime,
   context: BaseUtils.ai.AIModelParams
-): Promise<Output | null> => {
+): Promise<{ output: Output; tokens: number } | null> => {
   const messages: BaseUtils.ai.Message[] = [
     ...getMemoryMessages(runtime.variables.getState()),
     {
@@ -23,7 +23,11 @@ export const generateNoMatch = async (
     },
   ];
 
-  const { output } = await fetchChat({ ...context, messages });
+  const { output, tokens } = await fetchChat({ ...context, messages });
+  if (!output) return null;
 
-  return output && generateOutput(output, runtime.project);
+  return {
+    output: generateOutput(output, runtime.project),
+    tokens: tokens ?? 0,
+  };
 };

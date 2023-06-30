@@ -1,4 +1,5 @@
 import { BaseNode, BaseRequest, BaseText, BaseTrace, BaseVersion } from '@voiceflow/base-types';
+import VError from '@voiceflow/verror';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
@@ -49,7 +50,7 @@ const getOutput = async (
   runtime: Runtime,
   noMatchCounter: number
   // eslint-disable-next-line sonarjs/cognitive-complexity
-): Promise<{ output: Output; ai?: boolean } | void | null> => {
+): Promise<{ output: Output; ai?: boolean; tokens?: number } | void | null> => {
   const nonEmptyNoMatches = removeEmptyNoMatches(node);
   const globalNoMatch = getGlobalNoMatch(runtime);
   const exhaustedReprompts = noMatchCounter >= nonEmptyNoMatches.length;
@@ -71,13 +72,13 @@ const getOutput = async (
   if (runtime.project?.aiAssistSettings?.aiPlayground) {
     // use knowledge base if it exists
     if (Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0) {
-      const output = await knowledgeBaseNoMatch(runtime);
-      if (output) return { output, ai: true };
+      const result = await knowledgeBaseNoMatch(runtime);
+      if (result?.output) return { output: result.output, ai: true, tokens: result.tokens };
     }
 
     if (globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE) {
-      const output = await generateNoMatch(runtime, globalNoMatch.prompt);
-      if (output) return { output, ai: true };
+      const result = await generateNoMatch(runtime, globalNoMatch.prompt);
+      if (result?.output) return { output: result.output, ai: true, tokens: result.tokens };
     }
   }
 
@@ -100,11 +101,17 @@ const getOutput = async (
 
 export const NoMatchHandler = (utils: typeof utilsObj) => ({
   handle: async (_node: NoMatchNode, runtime: Runtime, variables: Store) => {
+    const workspaceID = runtime.project?.teamID;
     const node = convertDeprecatedNoMatch(_node);
     const noMatchCounter = runtime.storage.get<NoMatchCounterStorage>(StorageType.NO_MATCHES_COUNTER) ?? 0;
-    const output = await getOutput(node, runtime, noMatchCounter);
 
-    if (!output) {
+    if (!(await runtime.services.billing.checkQuota(workspaceID, 'OpenAI Tokens'))) {
+      throw new VError('Quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
+    }
+
+    const result = await getOutput(node, runtime, noMatchCounter);
+
+    if (!result) {
       // clean up no matches counter
       runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);
 
@@ -116,6 +123,10 @@ export const NoMatchHandler = (utils: typeof utilsObj) => ({
       return node.noMatch?.nodeID ?? null;
     }
 
+    if (typeof result.tokens === 'number' && result.tokens > 0) {
+      await runtime.services.billing.consumeQuota(workspaceID, 'OpenAI Tokens', result.tokens);
+    }
+
     runtime.trace.addTrace<BaseTrace.PathTrace>({
       type: BaseNode.Utils.TraceType.PATH,
       payload: { path: 'reprompt' },
@@ -124,10 +135,10 @@ export const NoMatchHandler = (utils: typeof utilsObj) => ({
     utils.addOutputTrace(
       runtime,
       utils.getOutputTrace({
-        output: output.output,
+        output: result.output,
         version: runtime.version,
         variables,
-        ai: output.ai,
+        ai: result.ai,
       }),
       { node, variables }
     );

@@ -50,7 +50,7 @@ export const fetchKnowledgeBase = async (
   }
 };
 
-export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | null> => {
+export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<{ output: Output; tokens: number } | null> => {
   if (!Config.KNOWLEDGE_BASE_LAMBDA_ENDPOINT) {
     log.error('[knowledgeBase] KNOWLEDGE_BASE_LAMBDA_ENDPOINT is not set');
     return null;
@@ -62,11 +62,14 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | n
   if (!input) return null;
 
   try {
+    let tokens = 0;
     // expiremental module, frame the question
     const memory = getMemoryMessages(runtime.variables.getState());
 
     const question = await questionSynthesis(input, memory);
     if (!question?.output) return null;
+
+    tokens += question.tokens ?? 0;
 
     const data = await fetchKnowledgeBase(
       runtime.project._id,
@@ -82,6 +85,8 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | n
       variables: runtime.variables.getState(),
     });
     if (!answer?.output) return null;
+
+    tokens += answer.tokens ?? 0;
 
     const { output, ...meta } = answer;
 
@@ -100,7 +105,10 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | n
       },
     } as any);
 
-    return generateOutput(output, runtime.project);
+    return {
+      output: generateOutput(output, runtime.project),
+      tokens,
+    };
   } catch (err) {
     log.error(`[knowledge-base no match] ${log.vars({ err })}`);
     return null;
