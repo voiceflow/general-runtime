@@ -1,6 +1,6 @@
 import fetch, { RequestInit, Response } from 'node-fetch';
 
-import { FetchResponse } from './lib.types';
+import { AdditionalOptions, FetchResponse, ParseType } from './lib.types';
 
 /**
  * Class implements an HTTP client interface which is injected into the sandbox
@@ -21,25 +21,54 @@ class Fetch {
 
   private static readonly maxResponseSizeBytes = 1e6; // 1MB
 
-  private static async processResponseBody(result: Response): Promise<FetchResponse> {
-    const data = await result.json();
+  private static async processResponseBody(result: Response, options: AdditionalOptions) {
+    const contentType = result.headers.get('content-type') ?? '';
+
+    // If user specified parsing options, then use that to format the response data.
+    if (options) {
+      const { parseType } = options;
+
+      switch (parseType) {
+        case ParseType.ArrayBuffer:
+          return { arrayBuffer: await result.arrayBuffer() };
+        case ParseType.Blob:
+          return { blob: await result.blob() };
+        case ParseType.Text:
+          return { text: await result.text() };
+        case ParseType.JSON:
+          return { json: await result.json() };
+        default:
+          return {};
+      }
+    }
+
+    // Otherwise, try to make reasonable inferences on how we parse the data.
+    if (contentType.includes('application/json')) {
+      return { json: await result.json() };
+    }
+    return { text: await result.text() };
+  }
+
+  private static async processResponse(result: Response, options: AdditionalOptions): Promise<FetchResponse> {
+    const { statusText, ok, status, headers } = result;
 
     return {
-      ok: result.ok,
-      status: result.status,
-      body: data,
-      headers: result.headers,
+      statusText,
+      ok,
+      status,
+      headers,
+      ...(await Fetch.processResponseBody(result, options)),
     };
   }
 
-  static async fetch(url: string, init?: RequestInit): Promise<FetchResponse> {
+  static async fetch(url: string, init: RequestInit = {}, options: AdditionalOptions = {}): Promise<FetchResponse> {
     const result = await fetch(url, {
       ...init,
       timeout: Fetch.timeoutMS,
       size: Fetch.maxResponseSizeBytes,
     });
 
-    return Fetch.processResponseBody(result);
+    return Fetch.processResponse(result, options);
   }
 }
 
