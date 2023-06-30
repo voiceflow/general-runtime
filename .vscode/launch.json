@@ -28,6 +28,15 @@
       "pauseForSourceMap": true,
       "smartStep": true,
       "console": "integratedTerminal"
-    }
+    },
+    {
+      "type": "node",
+      "name": "debug:attach",
+      "port": 9229,
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "smartStep": true
+    },
   ]
 }

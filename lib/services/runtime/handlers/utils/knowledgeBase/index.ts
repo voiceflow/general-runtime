@@ -56,6 +56,8 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | n
     return null;
   }
 
+  if (!runtime.project?._id) return null;
+
   const input = AIAssist.getInput(runtime.getRequest());
   if (!input) return null;
 
@@ -64,14 +66,17 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | n
     const memory = getMemoryMessages(runtime.variables.getState());
 
     const question = await questionSynthesis(input, memory);
+    if (!question?.output) return null;
 
-    if (!runtime.project?._id) return null;
-
-    const data = await fetchKnowledgeBase(runtime.project._id, question, runtime.project?.knowledgeBase?.settings);
+    const data = await fetchKnowledgeBase(
+      runtime.project._id,
+      question.output,
+      runtime.project?.knowledgeBase?.settings
+    );
     if (!data) return null;
 
     const answer = await answerSynthesis({
-      question,
+      question: question.output,
       data,
       options: runtime.project?.knowledgeBase?.settings?.summarization,
       variables: runtime.variables.getState(),
@@ -90,7 +95,7 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<Output | n
           documentID,
           documentData: documents[documentID]?.data,
         })),
-        query: question,
+        query: question.output,
         ...meta,
       },
     } as any);
@@ -108,15 +113,17 @@ export const promptSynthesis = async (
   variables: Record<string, any>
 ) => {
   try {
+    let tokens = 0;
     const { prompt } = params;
 
     const memory = getMemoryMessages(variables);
 
     const query = await promptQuestionSynthesis({ prompt, variables, memory });
+    if (!query || !query.output) return null;
 
-    if (!query) return null;
+    tokens += query.tokens ?? 0;
 
-    const data = await fetchKnowledgeBase(projectID, query);
+    const data = await fetchKnowledgeBase(projectID, query.output);
 
     if (!data) return null;
 
@@ -130,7 +137,9 @@ export const promptSynthesis = async (
 
     if (!answer?.output) return null;
 
-    return { ...answer, ...data, query };
+    tokens += answer.tokens ?? 0;
+
+    return { ...answer, ...data, query, tokens };
   } catch (err) {
     log.error(`[knowledge-base prompt] ${log.vars({ err })}`);
     return null;

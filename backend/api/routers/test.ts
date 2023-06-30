@@ -27,8 +27,17 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.post(
     '/:workspaceID/knowledge-base',
     middlewares.auth.authorize(['workspace:READ']),
+    middlewares.billing.checkQuota('OpenAI Tokens', (req) => req.params.workspaceID),
     middlewares.llmLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'knowledge-base'),
     controllers.test.testKnowledgeBase
+  );
+
+  router.post(
+    '/:workspaceID/knowledge-base-prompt',
+    middlewares.auth.authorize(['workspace:READ']),
+    middlewares.billing.checkQuota('OpenAI Tokens', (req) => req.params.workspaceID),
+    middlewares.llmLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'knowledge-base'),
+    controllers.test.testKnowledgeBasePrompt
   );
 
   router.post(

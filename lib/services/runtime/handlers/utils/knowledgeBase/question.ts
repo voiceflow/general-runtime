@@ -1,9 +1,9 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import dedent from 'dedent';
 
-import { fetchChat } from '../ai';
+import { AIResponse, fetchChat } from '../ai';
 
-export const questionSynthesis = async (question: string, memory: BaseUtils.ai.Message[]): Promise<string> => {
+export const questionSynthesis = async (question: string, memory: BaseUtils.ai.Message[]): Promise<AIResponse> => {
   if (memory.length > 1) {
     const contextMessages: BaseUtils.ai.Message[] = [...memory];
 
@@ -26,10 +26,12 @@ export const questionSynthesis = async (question: string, memory: BaseUtils.ai.M
       messages: contextMessages,
     });
 
-    if (response.output) return response.output;
+    if (response.output) return response;
   }
 
-  return question;
+  return {
+    output: question,
+  };
 };
 
 export const promptQuestionSynthesis = async ({
@@ -42,7 +44,7 @@ export const promptQuestionSynthesis = async ({
   memory: BaseUtils.ai.Message[];
   variables?: Record<string, any>;
   options?: Partial<BaseUtils.ai.AIModelParams>;
-}): Promise<string | null> => {
+}): Promise<AIResponse> => {
   const options = { model, system, temperature, maxTokens };
 
   let content: string;
@@ -71,7 +73,5 @@ export const promptQuestionSynthesis = async ({
     },
   ];
 
-  const response = await fetchChat({ ...options, messages: questionMessages }, variables);
-
-  return response.output;
+  return fetchChat({ ...options, messages: questionMessages }, variables);
 };
