@@ -25,7 +25,7 @@ class Fetch {
     const contentType = result.headers.get('content-type') ?? '';
 
     // If user specified parsing options, then use that to format the response data.
-    if (options) {
+    if (options.parseType) {
       const { parseType } = options;
 
       switch (parseType) {
