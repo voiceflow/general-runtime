@@ -34,6 +34,26 @@ function diffChanges(oldVariableState: Record<string, any>, updatePatch: Record<
     .join('\n');
 }
 
+function formatError(errorMessage: string) {
+  if (errorMessage.includes('Error: Script execution timed out.')) {
+    return 'Error: Script execution exceeded timeout. Ensure that the script does not perform long-running computations or high latency network requests.';
+  }
+
+  if (errorMessage.includes('Error: Isolate was disposed during execution due to memory limit')) {
+    return 'Error: Script execution exhausted available memory. Ensure that the script does not make expensive memory allocations.';
+  }
+
+  if (errorMessage.includes('Error: Network timeout at:')) {
+    return 'Error: Network request in Function code exceeded timeout of 5 seconds. Ensure that the script does not perform a high latency network request.';
+  }
+
+  if (errorMessage.includes('Error: content size at')) {
+    return 'Error: Network request in Function code exceeded content size of 1 MB. Ensure that the network response body does not exceed the memory limit.';
+  }
+
+  return errorMessage;
+}
+
 export const FunctionHandler = (config: FunctionHandlerConfig): Handler<BaseNode.Code.Node> => ({
   canHandle: (node) => node.type === BaseNode.NodeType.CODE,
   handle: async (node, runtime, variables) => {
@@ -71,8 +91,9 @@ export const FunctionHandler = (config: FunctionHandlerConfig): Handler<BaseNode
     } catch (error) {
       const serializedError = error.response?.data || error.toString();
       const stringifiedError = safeJSONStringify(serializedError).replace('isolated-vm', 'sandbox');
+      const formattedError = formatError(stringifiedError);
 
-      runtime.trace.debug(`unable to resolve code  \n\`${stringifiedError}\``, BaseNode.NodeType.CODE);
+      runtime.trace.debug(`unable to resolve code  \n\`${formattedError}\``, BaseNode.NodeType.CODE);
 
       return node.fail_id ?? null;
     }
