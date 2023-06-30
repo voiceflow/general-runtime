@@ -132,14 +132,18 @@ export class Sandbox {
 
   private async executeUserCode(execContext: ExecutionContext) {
     const executeCode = async (resolve: (val: any) => void, reject: (reason?: any) => void) => {
-      await this.setupResolve(execContext, resolve, reject);
+      try {
+        await this.setupResolve(execContext, resolve, reject);
 
-      const mainModule = await this.setupMainModule(execContext);
+        const mainModule = await this.setupMainModule(execContext);
 
-      await mainModule.evaluate({
-        timeout: this.sandboxTimeoutSec,
-        promise: true,
-      });
+        await mainModule.evaluate({
+          timeout: this.sandboxTimeoutSec,
+          promise: true,
+        });
+      } catch (err) {
+        reject(err);
+      }
     };
 
     return new Promise((resolve, reject) => {
