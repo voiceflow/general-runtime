@@ -92,6 +92,7 @@ describe('runtime manager unit tests', () => {
             request,
             version: { id: VERSION_ID },
             project: { id: PROJECT_ID },
+            plan: undefined,
           },
         ],
       ]);
@@ -170,6 +171,7 @@ describe('runtime manager unit tests', () => {
             request,
             version: { id: VERSION_ID },
             project: { id: PROJECT_ID },
+            plan: undefined,
           },
         ],
       ]);
@@ -246,6 +248,7 @@ describe('runtime manager unit tests', () => {
             request,
             version: { id: VERSION_ID },
             project: { id: PROJECT_ID },
+            plan: undefined,
           },
         ],
       ]);
@@ -387,6 +390,7 @@ describe('runtime manager unit tests', () => {
             request,
             version: { id: VERSION_ID },
             project: { id: PROJECT_ID },
+            plan: undefined,
           },
         ],
       ]);

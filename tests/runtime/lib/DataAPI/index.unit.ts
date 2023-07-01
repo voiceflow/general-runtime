@@ -71,6 +71,7 @@ describe('client unit tests', () => {
             events: _.get(client, 'events'),
             version,
             project: undefined,
+            plan: undefined,
           },
         ],
       ]);
