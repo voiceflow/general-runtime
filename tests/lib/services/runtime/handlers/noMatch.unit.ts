@@ -34,6 +34,12 @@ describe('noMatch handler unit tests', async () => {
           addTrace: sinon.stub(),
         },
         debugLogging: null as unknown as DebugLogging,
+        services: {
+          billing: {
+            checkQuota: sinon.stub().resolves(true),
+            consumeQuota: sinon.stub().resolves(true),
+          },
+        },
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
@@ -100,6 +106,12 @@ describe('noMatch handler unit tests', async () => {
             },
           },
         },
+        services: {
+          billing: {
+            checkQuota: sinon.stub().resolves(true),
+            consumeQuota: sinon.stub().resolves(true),
+          },
+        },
       };
       const variables = {
         get: sinon.stub(),
@@ -130,6 +142,12 @@ describe('noMatch handler unit tests', async () => {
         },
         trace: {
           addTrace: sinon.stub(),
+        },
+        services: {
+          billing: {
+            checkQuota: sinon.stub().resolves(true),
+            consumeQuota: sinon.stub().resolves(true),
+          },
         },
       };
       const variables = {
@@ -168,6 +186,12 @@ describe('noMatch handler unit tests', async () => {
           addTrace: sinon.stub(),
         },
         debugLogging: null as unknown as DebugLogging,
+        services: {
+          billing: {
+            checkQuota: sinon.stub().resolves(true),
+            consumeQuota: sinon.stub().resolves(true),
+          },
+        },
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
@@ -232,6 +256,12 @@ describe('noMatch handler unit tests', async () => {
           addTrace: sinon.stub(),
         },
         debugLogging: null as unknown as DebugLogging,
+        services: {
+          billing: {
+            checkQuota: sinon.stub().resolves(true),
+            consumeQuota: sinon.stub().resolves(true),
+          },
+        },
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
@@ -299,6 +329,12 @@ describe('noMatch handler unit tests', async () => {
           addTrace: sinon.stub(),
         },
         debugLogging: null as unknown as DebugLogging,
+        services: {
+          billing: {
+            checkQuota: sinon.stub().resolves(true),
+            consumeQuota: sinon.stub().resolves(true),
+          },
+        },
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
@@ -336,6 +372,12 @@ describe('noMatch handler unit tests', async () => {
           addTrace: sinon.stub(),
         },
         debugLogging: null as unknown as DebugLogging,
+        services: {
+          billing: {
+            checkQuota: sinon.stub().resolves(true),
+            consumeQuota: sinon.stub().resolves(true),
+          },
+        },
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
@@ -373,6 +415,12 @@ describe('noMatch handler unit tests', async () => {
           addTrace: sinon.stub(),
         },
         debugLogging: null as unknown as DebugLogging,
+        services: {
+          billing: {
+            checkQuota: sinon.stub().resolves(true),
+            consumeQuota: sinon.stub().resolves(true),
+          },
+        },
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
@@ -416,6 +464,12 @@ describe('noMatch handler unit tests', async () => {
           },
         },
         debugLogging: null as unknown as DebugLogging,
+        services: {
+          billing: {
+            checkQuota: sinon.stub().resolves(true),
+            consumeQuota: sinon.stub().resolves(true),
+          },
+        },
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
@@ -459,6 +513,12 @@ describe('noMatch handler unit tests', async () => {
           },
         },
         debugLogging: null as unknown as DebugLogging,
+        services: {
+          billing: {
+            checkQuota: sinon.stub().resolves(true),
+            consumeQuota: sinon.stub().resolves(true),
+          },
+        },
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
@@ -497,6 +557,12 @@ describe('noMatch handler unit tests', async () => {
           addTrace: sinon.stub(),
         },
         debugLogging: null as unknown as DebugLogging,
+        services: {
+          billing: {
+            checkQuota: sinon.stub().resolves(true),
+            consumeQuota: sinon.stub().resolves(true),
+          },
+        },
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
@@ -558,6 +624,12 @@ describe('noMatch handler unit tests', async () => {
           addTrace: sinon.stub(),
         },
         debugLogging: null as unknown as DebugLogging,
+        services: {
+          billing: {
+            checkQuota: sinon.stub().resolves(true),
+            consumeQuota: sinon.stub().resolves(true),
+          },
+        },
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
@@ -593,6 +665,12 @@ describe('noMatch handler unit tests', async () => {
           addTrace: sinon.stub(),
         },
         debugLogging: null as unknown as DebugLogging,
+        services: {
+          billing: {
+            checkQuota: sinon.stub().resolves(true),
+            consumeQuota: sinon.stub().resolves(true),
+          },
+        },
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
@@ -628,6 +706,12 @@ describe('noMatch handler unit tests', async () => {
           addTrace: sinon.stub(),
         },
         debugLogging: null as unknown as DebugLogging,
+        services: {
+          billing: {
+            checkQuota: sinon.stub().resolves(true),
+            consumeQuota: sinon.stub().resolves(true),
+          },
+        },
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = {
