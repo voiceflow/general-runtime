@@ -2,18 +2,19 @@ import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import VError from '@voiceflow/verror';
 import { VoiceNode } from '@voiceflow/voice-types';
 
+import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
 import { HandlerFactory } from '@/runtime';
 
 import { FrameType, Output } from '../types';
 import { addOutputTrace, getOutputTrace } from '../utils';
-import { fetchPrompt } from './utils/ai';
+import { AIResponse, fetchPrompt } from './utils/ai';
 import { promptSynthesis } from './utils/knowledgeBase';
 import { generateOutput } from './utils/output';
 import { getVersionDefaultVoice } from './utils/version';
-import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
 
 const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_RESPONSE,
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: async (node, runtime, variables) => {
     const nextID = node.nextId ?? null;
     const workspaceID = runtime.project?.teamID;
@@ -68,11 +69,15 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
       return nextID;
     }
 
+    let response: AIResponse;
     if (node.model === BaseUtils.ai.GPT_MODEL.GPT_4 && runtime.plan && !GPT4_ABLE_PLAN.has(runtime.plan)) {
-      throw new VError('Plan does not support GPT-4', VError.HTTP_STATUS.PAYMENT_REQUIRED);
+      response = {
+        output: 'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.',
+        tokens: 0,
+      };
+    } else {
+      response = await fetchPrompt(node, variables.getState());
     }
-
-    const response = await fetchPrompt(node, variables.getState());
 
     if (typeof response.tokens === 'number' && response.tokens > 0) {
       await runtime.services.billing.consumeQuota(workspaceID, 'OpenAI Tokens', response.tokens);

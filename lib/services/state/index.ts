@@ -1,4 +1,5 @@
 import { BaseModels, BaseRequest, BaseTrace } from '@voiceflow/base-types';
+import axios from 'axios';
 import _ from 'lodash';
 
 import { FrameType } from '@/lib/services/runtime/types';
@@ -98,12 +99,13 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     const version = await api.getVersion(context.versionID!);
     const project = await api.getProject(version.projectID);
 
-    let plan: string | undefined = undefined;
-    plan = 'starter';
-    // if (this.config.CREATOR_API_ENDPOINT) {
-    //   const planResponse = await (dataApi as CreatorDataApi)['client'].fetch.get<{plan: string}>(`/private/project/${project._id}/plan`);
-    //   plan = planResponse.data.plan;
-    // }
+    let plan;
+    if (this.config.CREATOR_API_ENDPOINT) {
+      const planResponse = await axios
+        .get<{ plan: string }>(`${this.config.CREATOR_API_ENDPOINT}/private/project/${project._id}/plan`)
+        .catch(() => null);
+      plan = planResponse?.data.plan;
+    }
 
     const locale = context.data?.locale || version.prototype?.data?.locales?.[0];
 
@@ -124,7 +126,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
       data: { ...context.data, locale, api },
       version,
       project,
-      plan
+      plan,
     };
   }
 }

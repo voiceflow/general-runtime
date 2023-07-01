@@ -3,6 +3,7 @@ import VError from '@voiceflow/verror';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
+import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
 import { Runtime, Store } from '@/runtime';
 
 import { isPrompt, NoMatchCounterStorage, Output, StorageType } from '../types';
@@ -19,7 +20,6 @@ import { addNoReplyTimeoutIfExists } from './noReply';
 import { generateNoMatch } from './utils/generativeNoMatch';
 import { knowledgeBaseNoMatch } from './utils/knowledgeBase';
 import { generateOutput } from './utils/output';
-import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
 
 export type NoMatchNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoMatchNode;
 
@@ -78,8 +78,16 @@ const getOutput = async (
     }
 
     if (globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE) {
-      if (globalNoMatch.prompt.model === BaseUtils.ai.GPT_MODEL.GPT_4 && runtime.plan && !GPT4_ABLE_PLAN.has(runtime.plan)) {
-        throw new VError('Plan does not support GPT-4', VError.HTTP_STATUS.PAYMENT_REQUIRED);
+      if (
+        globalNoMatch.prompt.model === BaseUtils.ai.GPT_MODEL.GPT_4 &&
+        runtime.plan &&
+        !GPT4_ABLE_PLAN.has(runtime.plan)
+      ) {
+        return {
+          output: 'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.',
+          ai: true,
+          tokens: 0,
+        };
       }
 
       const result = await generateNoMatch(runtime, globalNoMatch.prompt);
