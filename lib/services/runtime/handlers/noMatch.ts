@@ -1,9 +1,8 @@
-import { BaseNode, BaseRequest, BaseText, BaseTrace, BaseUtils, BaseVersion } from '@voiceflow/base-types';
+import { BaseNode, BaseRequest, BaseText, BaseTrace, BaseVersion } from '@voiceflow/base-types';
 import VError from '@voiceflow/verror';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
-import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
 import { Runtime, Store } from '@/runtime';
 
 import { isPrompt, NoMatchCounterStorage, Output, StorageType } from '../types';
@@ -78,18 +77,6 @@ const getOutput = async (
     }
 
     if (globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE) {
-      if (
-        globalNoMatch.prompt.model === BaseUtils.ai.GPT_MODEL.GPT_4 &&
-        runtime.plan &&
-        !GPT4_ABLE_PLAN.has(runtime.plan)
-      ) {
-        return {
-          output: 'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.',
-          ai: true,
-          tokens: 0,
-        };
-      }
-
       const result = await generateNoMatch(runtime, globalNoMatch.prompt);
       if (result?.output) return { output: result.output, ai: true, tokens: result.tokens };
     }

@@ -46,7 +46,7 @@ class Controller<
     options,
     version,
     project,
-    plan
+    plan,
   }: CreateRuntimeOptions<Request, DataAPI, Services, Version, Project>): Runtime<Request, DataAPI, Services> {
     return new Runtime<Request, DataAPI, Services, Version, Project>({
       request,
@@ -56,7 +56,7 @@ class Controller<
       events: this.events,
       version,
       project,
-      plan
+      plan,
     });
   }
 }

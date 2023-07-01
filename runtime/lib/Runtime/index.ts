@@ -105,7 +105,7 @@ class Runtime<
     request,
     state,
     options,
-    plan
+    plan,
   }: RuntimeOptions<Request, DataAPI, Services, Version, Project>) {
     super(events);
 

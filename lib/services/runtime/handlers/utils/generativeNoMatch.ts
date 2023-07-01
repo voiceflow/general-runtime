@@ -1,5 +1,6 @@
 import { BaseUtils } from '@voiceflow/base-types';
 
+import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
 import { Runtime } from '@/runtime';
 
 import { Output } from '../../types';
@@ -15,6 +16,16 @@ export const generateNoMatch = async (
   runtime: Runtime,
   context: BaseUtils.ai.AIModelParams
 ): Promise<{ output: Output; tokens: number } | null> => {
+  if (context.model === BaseUtils.ai.GPT_MODEL.GPT_4 && runtime.plan && !GPT4_ABLE_PLAN.has(runtime.plan)) {
+    return {
+      output: generateOutput(
+        'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.',
+        runtime.project
+      ),
+      tokens: 0,
+    };
+  }
+
   const messages: BaseUtils.ai.Message[] = [
     ...getMemoryMessages(runtime.variables.getState()),
     {
