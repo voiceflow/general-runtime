@@ -37,11 +37,13 @@ function diffChanges(oldVariableState: Record<string, any>, updatePatch: Record<
 
 function formatError(errorMessage: string, sandboxOptions: SandboxOptions) {
   if (errorMessage.includes('Error: Script execution timed out.')) {
-    return 'Error: Script execution exceeded timeout. Ensure that the script does not perform long-running computations or high latency network requests.';
+    const timeoutS = Math.floor(sandboxOptions.sandboxTimeoutSec / 1000);
+    return `Error: Script execution exceeded timeout of ${timeoutS} seconds. Ensure that the script does not perform long-running computations or high latency network requests.`;
   }
 
   if (errorMessage.includes('Error: Isolate was disposed during execution due to memory limit')) {
-    return 'Error: Script execution exhausted available memory. Ensure that the script does not make expensive memory allocations.';
+    const memLimitMB = Math.floor(sandboxOptions.sandboxMemLimitMB / 1e6);
+    return `Error: Script execution exhausted available memory of size ${memLimitMB} MB. Ensure that the script does not make expensive memory allocations.`;
   }
 
   if (errorMessage.includes('Error: Network timeout at:')) {
