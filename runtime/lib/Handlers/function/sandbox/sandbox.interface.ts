@@ -2,6 +2,8 @@ export interface SandboxOptions {
   shouldEnableInject: boolean;
   fetchTimeoutMS: number;
   fetchMaxResponseSizeBytes: number;
+  sandboxMemLimitMB: number;
+  sandboxTimeoutSec: number;
 }
 
 type SimpleType = number | string | boolean;

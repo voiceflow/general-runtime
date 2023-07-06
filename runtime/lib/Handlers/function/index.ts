@@ -67,6 +67,8 @@ export const FunctionHandler = (config: FunctionHandlerConfig): Handler<BaseNode
     const resourceLimits = {
       fetchTimeoutMS: 2 * 1000,
       fetchMaxResponseSizeBytes: 1e6,
+      sandboxMemLimitMB: 8,
+      sandboxTimeoutSec: 5,
     };
 
     const sandboxConfig: SandboxOptions = {

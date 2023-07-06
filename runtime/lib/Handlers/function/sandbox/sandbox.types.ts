@@ -6,7 +6,7 @@ export interface ExecutionContext {
   userCodeModule: ivm.Module;
 }
 
-export interface SandboxResourceLimits {
+export interface FetchResourceLimits {
   fetchTimeoutMS: number;
   fetchMaxResponseSizeBytes: number;
 }
