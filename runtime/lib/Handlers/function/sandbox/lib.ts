@@ -17,11 +17,16 @@ import { ExtendedFetchOptions, FetchResponse, ParseType } from './lib.types';
  * data.
  */
 class Fetch {
-  private static readonly timeoutMS = 2000;
+  private static readonly timeoutMaximum = 10 * 1000;
 
-  private static readonly maxResponseSizeBytes = 1e6; // 1MB
+  private static readonly maxResponseSizeMax = 10e6; // 10MB
 
-  private static async processResponseBody(result: Response, options: ExtendedFetchOptions) {
+  constructor(private readonly timeoutMS = 2 * 1000, private readonly maxResponseSizeBytes = 1e6) {
+    this.timeoutMS = Math.min(Fetch.timeoutMaximum, this.timeoutMS);
+    this.maxResponseSizeBytes = Math.min(Fetch.maxResponseSizeMax, this.maxResponseSizeBytes);
+  }
+
+  private async processResponseBody(result: Response, options: ExtendedFetchOptions) {
     const contentType = result.headers.get('content-type') ?? '';
 
     // If user specified parsing options, then use that to format the response data.
@@ -49,7 +54,7 @@ class Fetch {
     return { text: await result.text() };
   }
 
-  private static async processResponse(result: Response, options: ExtendedFetchOptions): Promise<FetchResponse> {
+  private async processResponse(result: Response, options: ExtendedFetchOptions): Promise<FetchResponse> {
     const { statusText, ok, status, headers } = result;
 
     return {
@@ -57,18 +62,18 @@ class Fetch {
       ok,
       status,
       headers,
-      ...(await Fetch.processResponseBody(result, options)),
+      ...(await this.processResponseBody(result, options)),
     };
   }
 
-  static async fetch(url: string, init: RequestInit = {}, options: ExtendedFetchOptions = {}): Promise<FetchResponse> {
+  public async fetch(url: string, init: RequestInit = {}, options: ExtendedFetchOptions = {}): Promise<FetchResponse> {
     const result = await fetch(url, {
       ...init,
-      timeout: Fetch.timeoutMS,
-      size: Fetch.maxResponseSizeBytes,
+      timeout: this.timeoutMS,
+      size: this.maxResponseSizeBytes,
     });
 
-    return Fetch.processResponse(result, options);
+    return this.processResponse(result, options);
   }
 }
 

@@ -4,7 +4,7 @@ import log from '@/logger';
 
 import { stdlib } from './lib';
 import { SandboxOptions, SandboxResult } from './sandbox.interface';
-import { ExecutionContext } from './sandbox.types';
+import { ExecutionContext, SandboxResourceLimits } from './sandbox.types';
 
 export class Sandbox {
   static async execute(
@@ -13,7 +13,7 @@ export class Sandbox {
     options: SandboxOptions
   ): Promise<SandboxResult> {
     const sandbox = new Sandbox(code, variables, options);
-    return sandbox.execute();
+    return sandbox.execute(options);
   }
 
   private readonly memoryLimit = 10;
@@ -58,14 +58,18 @@ export class Sandbox {
     }
   }
 
-  private async injectFetch(context: ivm.Context) {
+  private async injectFetch(
+    context: ivm.Context,
+    { fetchTimeoutMS, fetchMaxResponseSizeBytes }: SandboxResourceLimits
+  ) {
+    const fetcher = new stdlib.Fetch(fetchTimeoutMS, fetchMaxResponseSizeBytes);
     return context.evalClosure(
       `
             fetch = function(...args) {
                 return $0.apply(undefined, args, { arguments: { copy: true }, result: { promise: true, copy: true } });
             }
         `,
-      [stdlib.Fetch.fetch],
+      [(...args: Parameters<typeof fetcher.fetch>) => fetcher.fetch(...args)],
       { arguments: { reference: true } }
     );
   }
@@ -176,11 +180,11 @@ export class Sandbox {
     return true;
   }
 
-  private async execute(): Promise<SandboxResult> {
+  private async execute(options: SandboxResourceLimits): Promise<SandboxResult> {
     const isolate = new ivm.Isolate({ memoryLimit: this.memoryLimit });
     const context = await isolate.createContext();
 
-    await this.injectFetch(context);
+    await this.injectFetch(context, options);
     await this.injectLog(context);
 
     const userCodeModule = await this.compileUserCode(isolate);

@@ -5,6 +5,7 @@ import Handler from '../../Handler';
 import { FunctionHandlerConfig } from './functionHandler.interface';
 import { PathCode } from './functionHandler.types';
 import { Sandbox } from './sandbox/sandbox';
+import { SandboxOptions } from './sandbox/sandbox.interface';
 
 function sanitizeOutput(output: unknown) {
   if (typeof output !== 'object') return {};
@@ -34,7 +35,7 @@ function diffChanges(oldVariableState: Record<string, any>, updatePatch: Record<
     .join('\n');
 }
 
-function formatError(errorMessage: string) {
+function formatError(errorMessage: string, sandboxOptions: SandboxOptions) {
   if (errorMessage.includes('Error: Script execution timed out.')) {
     return 'Error: Script execution exceeded timeout. Ensure that the script does not perform long-running computations or high latency network requests.';
   }
@@ -44,11 +45,13 @@ function formatError(errorMessage: string) {
   }
 
   if (errorMessage.includes('Error: Network timeout at:')) {
-    return 'Error: Network request in Function code exceeded timeout of 5 seconds. Ensure that the script does not perform a high latency network request.';
+    const timeoutS = Math.floor(sandboxOptions.fetchTimeoutMS / 1000);
+    return `Error: Network request in Function code exceeded timeout of ${timeoutS} seconds. Ensure that the script does not perform a high latency network request.`;
   }
 
   if (errorMessage.includes('Error: content size at')) {
-    return 'Error: Network request in Function code exceeded content size of 1 MB. Ensure that the network response body does not exceed the memory limit.';
+    const fetchMaxResponseSizeMB = Math.floor(sandboxOptions.fetchMaxResponseSizeBytes / 1e6);
+    return `Error: Network request in Function code exceeded content size of ${fetchMaxResponseSizeMB} MB. Ensure that the network response body does not exceed the memory limit.`;
   }
 
   return errorMessage;
@@ -57,12 +60,24 @@ function formatError(errorMessage: string) {
 export const FunctionHandler = (config: FunctionHandlerConfig): Handler<BaseNode.Code.Node> => ({
   canHandle: (node) => node.type === BaseNode.NodeType.CODE,
   handle: async (node, runtime, variables) => {
+    // $TODO$ - The resource limits should be passed in when invoking the runtime as some kind of execution
+    // config object. The caller of the runtime (or one of its callers) is responsible for retrieving the
+    // resource limits associated with a given plan, e.g, a starter use has 2s timeout on `fetch` whereas
+    // an enterprise user has 10s timeout.
+    const resourceLimits = {
+      fetchTimeoutMS: 2 * 1000,
+      fetchMaxResponseSizeBytes: 1e6,
+    };
+
+    const sandboxConfig: SandboxOptions = {
+      shouldEnableInject: config.shouldInjectLog,
+      ...resourceLimits,
+    };
+
     try {
       const variableState = variables.getState();
 
-      const { port, output: rawOutput } = await Sandbox.execute(node.code, variableState, {
-        shouldEnableInject: config.shouldInjectLog,
-      });
+      const { port, output: rawOutput } = await Sandbox.execute(node.code, variableState, sandboxConfig);
 
       const output = sanitizeOutput(rawOutput);
 
@@ -91,7 +106,7 @@ export const FunctionHandler = (config: FunctionHandlerConfig): Handler<BaseNode
     } catch (error) {
       const serializedError = error.response?.data || error.toString();
       const stringifiedError = safeJSONStringify(serializedError).replace('isolated-vm', 'sandbox');
-      const formattedError = formatError(stringifiedError);
+      const formattedError = formatError(stringifiedError, sandboxConfig);
 
       runtime.trace.debug(`unable to resolve code  \n\`${formattedError}\``, BaseNode.NodeType.CODE);
 
