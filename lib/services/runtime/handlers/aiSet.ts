@@ -1,7 +1,7 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
-import VError from '@voiceflow/verror';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
+import { QuotaName } from '@/lib/services/billing';
 import { HandlerFactory } from '@/runtime';
 
 import { fetchPrompt } from './utils/ai';
@@ -15,8 +15,9 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
 
     if (!node.sets?.length) return nextID;
 
-    if (!(await runtime.services.billing.checkQuota(workspaceID, 'OpenAI Tokens'))) {
-      throw new VError('Quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
+    if (!(await runtime.services.billing.checkQuota(workspaceID, QuotaName.OPEN_API_TOKENS))) {
+      runtime.trace.debug('token quota exceeded', BaseNode.NodeType.AI_SET);
+      return nextID;
     }
 
     const result = await Promise.all(
@@ -56,7 +57,7 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
     const tokens = result.reduce((acc, curr) => acc + curr, 0);
 
     if (typeof tokens === 'number' && tokens > 0) {
-      await runtime.services.billing.consumeQuota(workspaceID, 'OpenAI Tokens', tokens);
+      await runtime.services.billing.consumeQuota(workspaceID, QuotaName.OPEN_API_TOKENS, tokens);
     }
 
     return nextID;

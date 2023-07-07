@@ -1,8 +1,8 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
-import VError from '@voiceflow/verror';
 import { VoiceNode } from '@voiceflow/voice-types';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
+import { QuotaName } from '@/lib/services/billing';
 import { HandlerFactory } from '@/runtime';
 
 import { FrameType, Output } from '../types';
@@ -19,8 +19,17 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
     const nextID = node.nextId ?? null;
     const workspaceID = runtime.project?.teamID;
 
-    if (!(await runtime.services.billing.checkQuota(workspaceID, 'OpenAI Tokens'))) {
-      throw new VError('Quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
+    if (!(await runtime.services.billing.checkQuota(workspaceID, QuotaName.OPEN_API_TOKENS))) {
+      addOutputTrace(
+        runtime,
+        getOutputTrace({
+          output: generateOutput('[token quota exceeded]', runtime.project),
+          version: runtime.version,
+          ai: true,
+        })
+      );
+      runtime.trace.debug('token quota exceeded', BaseNode.NodeType.AI_RESPONSE);
+      return nextID;
     }
 
     if (node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE) {
@@ -32,7 +41,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
       );
 
       if (answer && typeof answer.tokens === 'number' && answer.tokens > 0) {
-        await runtime.services.billing.consumeQuota(workspaceID, 'OpenAI Tokens', answer.tokens);
+        await runtime.services.billing.consumeQuota(workspaceID, QuotaName.OPEN_API_TOKENS, answer.tokens);
       }
 
       if (answer?.output) {
@@ -80,7 +89,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
     }
 
     if (typeof response.tokens === 'number' && response.tokens > 0) {
-      await runtime.services.billing.consumeQuota(workspaceID, 'OpenAI Tokens', response.tokens);
+      await runtime.services.billing.consumeQuota(workspaceID, QuotaName.OPEN_API_TOKENS, response.tokens);
     }
 
     if (!response.output) return nextID;

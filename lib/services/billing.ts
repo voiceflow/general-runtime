@@ -2,7 +2,9 @@ import fetch from 'node-fetch';
 
 import { AbstractManager } from './utils';
 
-export type QuotaName = 'OpenAI Tokens';
+export enum QuotaName {
+  OPEN_API_TOKENS = 'OpenAI Tokens',
+}
 
 export class BillingService extends AbstractManager {
   private client?: unknown;

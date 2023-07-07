@@ -11,6 +11,7 @@ import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
 import { Request, Response } from '@/types';
 
+import { QuotaName } from '../services/billing';
 import { fetchPrompt } from '../services/runtime/handlers/utils/ai';
 import { AbstractController } from './utils';
 
@@ -56,9 +57,11 @@ class TestController extends AbstractController {
     if (!answer?.output) return { output: null };
 
     if (typeof answer.tokens === 'number' && answer.tokens > 0) {
-      await this.services.billing.consumeQuota(req.params.workspaceID, 'OpenAI Tokens', answer.tokens).catch((err) => {
-        log.warn(`Failed to consume tokens for workspace ${req.params.workspaceID} (${JSON.stringify(err)})`);
-      });
+      await this.services.billing
+        .consumeQuota(req.params.workspaceID, QuotaName.OPEN_API_TOKENS, answer.tokens)
+        .catch((err) => {
+          log.warn(`Failed to consume tokens for workspace ${req.params.workspaceID} (${JSON.stringify(err)})`);
+        });
     }
 
     return { output: answer.output };
@@ -90,9 +93,11 @@ class TestController extends AbstractController {
     if (!answer?.output) return { output: null, chunks };
 
     if (typeof answer.tokens === 'number' && answer.tokens > 0) {
-      await this.services.billing.consumeQuota(req.params.workspaceID, 'OpenAI Tokens', answer.tokens).catch((err) => {
-        log.warn(`Failed to consume tokens for workspace ${req.params.workspaceID} (${JSON.stringify(err)})`);
-      });
+      await this.services.billing
+        .consumeQuota(req.params.workspaceID, QuotaName.OPEN_API_TOKENS, answer.tokens)
+        .catch((err) => {
+          log.warn(`Failed to consume tokens for workspace ${req.params.workspaceID} (${JSON.stringify(err)})`);
+        });
     }
 
     return { output: answer.output, chunks };
@@ -109,9 +114,11 @@ class TestController extends AbstractController {
     const { output, tokens } = await fetchPrompt(req.body);
 
     if (typeof tokens === 'number' && tokens > 0) {
-      await this.services.billing.consumeQuota(req.params.workspaceID, 'OpenAI Tokens', tokens).catch((err) => {
-        log.warn(`Failed to consume tokens for workspace ${req.params.workspaceID} (${JSON.stringify(err)})`);
-      });
+      await this.services.billing
+        .consumeQuota(req.params.workspaceID, QuotaName.OPEN_API_TOKENS, tokens)
+        .catch((err) => {
+          log.warn(`Failed to consume tokens for workspace ${req.params.workspaceID} (${JSON.stringify(err)})`);
+        });
     }
 
     return { output };

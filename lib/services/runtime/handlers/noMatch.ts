@@ -1,8 +1,8 @@
 import { BaseNode, BaseRequest, BaseText, BaseTrace, BaseVersion } from '@voiceflow/base-types';
-import VError from '@voiceflow/verror';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
+import { QuotaName } from '@/lib/services/billing';
 import { Runtime, Store } from '@/runtime';
 
 import { isPrompt, NoMatchCounterStorage, Output, StorageType } from '../types';
@@ -70,16 +70,28 @@ const getOutput = async (
   }
 
   if (runtime.project?.aiAssistSettings?.aiPlayground) {
+    const workspaceID = runtime.project?.teamID;
+
+    if (!(await runtime.services.billing.checkQuota(workspaceID, QuotaName.OPEN_API_TOKENS))) {
+      runtime.trace.debug('token quota exceeded', BaseNode.NodeType.AI_SET);
+      return { output: generateOutput('global no match [token quota exceeded]', runtime.project), ai: true };
+    }
+
     // use knowledge base if it exists
+    let result: { output: Output; tokens: number } | null = null;
     if (Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0) {
-      const result = await knowledgeBaseNoMatch(runtime);
-      if (result?.output) return { output: result.output, ai: true, tokens: result.tokens };
+      result = await knowledgeBaseNoMatch(runtime);
     }
 
     if (globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE) {
-      const result = await generateNoMatch(runtime, globalNoMatch.prompt);
-      if (result?.output) return { output: result.output, ai: true, tokens: result.tokens };
+      result = await generateNoMatch(runtime, globalNoMatch.prompt);
     }
+
+    if (typeof result?.tokens === 'number' && result.tokens > 0) {
+      await runtime.services.billing.consumeQuota(workspaceID, QuotaName.OPEN_API_TOKENS, result.tokens);
+    }
+
+    if (result?.output) return { output: result.output, ai: true, tokens: result.tokens };
   }
 
   const prompt = globalNoMatch && isPrompt(globalNoMatch?.prompt) ? globalNoMatch.prompt : null;
@@ -101,13 +113,8 @@ const getOutput = async (
 
 export const NoMatchHandler = (utils: typeof utilsObj) => ({
   handle: async (_node: NoMatchNode, runtime: Runtime, variables: Store) => {
-    const workspaceID = runtime.project?.teamID;
     const node = convertDeprecatedNoMatch(_node);
     const noMatchCounter = runtime.storage.get<NoMatchCounterStorage>(StorageType.NO_MATCHES_COUNTER) ?? 0;
-
-    if (!(await runtime.services.billing.checkQuota(workspaceID, 'OpenAI Tokens'))) {
-      throw new VError('Quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
-    }
 
     const result = await getOutput(node, runtime, noMatchCounter);
 
@@ -121,10 +128,6 @@ export const NoMatchHandler = (utils: typeof utilsObj) => ({
       });
 
       return node.noMatch?.nodeID ?? null;
-    }
-
-    if (typeof result.tokens === 'number' && result.tokens > 0) {
-      await runtime.services.billing.consumeQuota(workspaceID, 'OpenAI Tokens', result.tokens);
     }
 
     runtime.trace.addTrace<BaseTrace.PathTrace>({
