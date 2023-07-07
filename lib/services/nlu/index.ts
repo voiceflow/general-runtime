@@ -82,7 +82,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       }
     }
 
-    // 2. next try to resolve with luis NLP
+    // 2. next try to determine the intent of an utterance with an NLU
     if (nlp) {
       const { data } = await this.services.axios
         .post<NLUGatewayPredictResponse>(`${this.getNluGatewayEndpoint()}/v1/predict/${versionID}`, {

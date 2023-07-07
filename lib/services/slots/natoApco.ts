@@ -50,11 +50,20 @@ const processQuery = (query: string, entityVerboseValue: BaseRequest.VerboseValu
   return processed;
 };
 
-// Combines the NATO/APCO words identified by LUIS together with their first letters.
-// entity.verboseValue contains the words to parse and entity.value will store the result.
-// The only exceptions to taking the first letter of the strings is '00' and '000'.
-// This function also adds multi-digit numbers and other exceptions to entity.value if
-// they are between detected NATO/APCO words.
+/**
+ * @deprecated
+ *
+ * $TODO$ - Remove this or determine how much of the code needs to be changed to be independent of LUIS.
+ *
+ * This method was built for Microsoft LUIS, our previous NLU provider. Avoid supporting LUIS-related
+ * functionality as much as possible, since it is being sunset on October 1st, 2025.
+ *
+ * Combines the NATO/APCO words identified by LUIS together with their first letters.
+ * entity.verboseValue contains the words to parse and entity.value will store the result.
+ * The only exceptions to taking the first letter of the strings is '00' and '000'.
+ * This function also adds multi-digit numbers and other exceptions to entity.value if
+ * they are between detected NATO/APCO words.
+ */
 export const natoApcoConverter = (entities: BaseRequest.Entity[], slots: Slot[], query: string) => {
   // eslint-disable-next-line sonarjs/cognitive-complexity
   entities.forEach((entity) => {

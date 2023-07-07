@@ -395,7 +395,7 @@ tags:
 
   - name: Custom NLP/NLU
     description: |
-      Instead of using the default NLP service (Microsoft LUIS) provided by Voiceflow, it's easy to use a preferred custom NLP service.
+      Instead of using the default NLP service (VFNLU) provided by Voiceflow, it's easy to use a preferred custom NLP service.
       When making an API request, instead of using a `TextRequest` where the raw string of the user input is provided, use an
       `IntentRequest` and the default Voiceflow NLP is skipped.
 
