@@ -65,7 +65,8 @@ export abstract class AnthropicAIModel extends AIModel {
       });
 
     const output = result?.completion?.trim() ?? null;
-    const tokens = 1;
+    // NOTE: tokens are not returned by the API
+    const tokens = 0;
 
     return {
       output,
