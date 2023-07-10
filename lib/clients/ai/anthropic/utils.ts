@@ -38,6 +38,14 @@ export abstract class AnthropicAIModel extends AIModel {
     return this.generateChatCompletion(messages, params);
   }
 
+  /**
+   * Approximate the number of tokens used by the model based on the text length.
+   * Uses 4 tokens per character as a rough estimate.
+   */
+  private calculateTokenUsage(text: string): number {
+    return text.length / 4;
+  }
+
   async generateChatCompletion(
     messages: BaseUtils.ai.Message[],
     params: AIModelParams
@@ -50,6 +58,8 @@ export abstract class AnthropicAIModel extends AIModel {
     const prompt = `${topSystem}\n\n${messages.map(
       (message) => `${AnthropicAIModel.RoleMap[message.role]} ${message.content}`
     )}${AI_PROMPT}`;
+
+    let tokens = this.calculateTokenUsage(prompt);
 
     const result = await this.client
       .complete({
@@ -65,8 +75,8 @@ export abstract class AnthropicAIModel extends AIModel {
       });
 
     const output = result?.completion?.trim() ?? null;
-    // NOTE: tokens are not returned by the API
-    const tokens = 0;
+
+    tokens += this.calculateTokenUsage(output ?? '');
 
     return {
       output,
