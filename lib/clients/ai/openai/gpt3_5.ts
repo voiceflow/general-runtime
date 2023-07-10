@@ -35,7 +35,7 @@ export class GPT3_5 extends GPTAIModel {
       );
 
       const output = result?.data.choices[0].message?.content ?? null;
-      const tokens = result.data.usage?.completion_tokens ?? 0;
+      const tokens = result.data.usage?.total_tokens ?? 0;
 
       return {
         output,
