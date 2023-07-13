@@ -43,7 +43,7 @@ export abstract class AnthropicAIModel extends AIModel {
    * Uses 4 tokens per character as a rough estimate.
    */
   private calculateTokenUsage(text: string): number {
-    return text.length / 4;
+    return Math.floor(text.length / 4);
   }
 
   async generateChatCompletion(
