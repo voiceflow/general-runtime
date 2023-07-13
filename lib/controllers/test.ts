@@ -59,9 +59,11 @@ class TestController extends AbstractController {
     if (typeof answer.tokens === 'number' && answer.tokens > 0) {
       await this.services.billing
         .consumeQuota(req.params.workspaceID, QuotaName.OPEN_API_TOKENS, answer.tokens)
-        .catch((err) => {
-          log.warn(`Failed to consume tokens for workspace ${req.params.workspaceID} (${JSON.stringify(err)})`);
-        });
+        .catch((err: Error) =>
+          log.warn(
+            `[KB Prompt Test] Error consuming quota for workspace ${req.params.workspaceID}: ${log.vars({ err })}`
+          )
+        );
     }
 
     return { output: answer.output };
@@ -95,9 +97,9 @@ class TestController extends AbstractController {
     if (typeof answer.tokens === 'number' && answer.tokens > 0) {
       await this.services.billing
         .consumeQuota(req.params.workspaceID, QuotaName.OPEN_API_TOKENS, answer.tokens)
-        .catch((err) => {
-          log.warn(`Failed to consume tokens for workspace ${req.params.workspaceID} (${JSON.stringify(err)})`);
-        });
+        .catch((err: Error) =>
+          log.warn(`[KB Test] Error consuming quota for workspace ${req.params.workspaceID}: ${log.vars({ err })}`)
+        );
     }
 
     return { output: answer.output, chunks };
@@ -116,9 +118,11 @@ class TestController extends AbstractController {
     if (typeof tokens === 'number' && tokens > 0) {
       await this.services.billing
         .consumeQuota(req.params.workspaceID, QuotaName.OPEN_API_TOKENS, tokens)
-        .catch((err) => {
-          log.warn(`Failed to consume tokens for workspace ${req.params.workspaceID} (${JSON.stringify(err)})`);
-        });
+        .catch((err: Error) =>
+          log.warn(
+            `[Completion Test] Error consuming quota for workspace ${req.params.workspaceID}: ${log.vars({ err })}`
+          )
+        );
     }
 
     return { output };

@@ -3,6 +3,7 @@ import { VoiceNode } from '@voiceflow/voice-types';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
 import { QuotaName } from '@/lib/services/billing';
+import log from '@/logger';
 import { HandlerFactory } from '@/runtime';
 
 import { FrameType, Output } from '../types';
@@ -41,7 +42,11 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
       );
 
       if (answer && typeof answer.tokens === 'number' && answer.tokens > 0) {
-        await runtime.services.billing.consumeQuota(workspaceID, QuotaName.OPEN_API_TOKENS, answer.tokens);
+        await runtime.services.billing
+          .consumeQuota(workspaceID, QuotaName.OPEN_API_TOKENS, answer.tokens)
+          .catch((err: Error) =>
+            log.error(`[AI Response KB] Error consuming quota for workspace ${workspaceID}: ${log.vars({ err })}`)
+          );
       }
 
       if (answer?.output) {
@@ -89,7 +94,9 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
     }
 
     if (typeof response.tokens === 'number' && response.tokens > 0) {
-      await runtime.services.billing.consumeQuota(workspaceID, QuotaName.OPEN_API_TOKENS, response.tokens);
+      await runtime.services.billing
+        .consumeQuota(workspaceID, QuotaName.OPEN_API_TOKENS, response.tokens)
+        .catch((err: Error) => log.error(`[AI Response] Error consuming quota: ${log.vars({ err })}`));
     }
 
     if (!response.output) return nextID;

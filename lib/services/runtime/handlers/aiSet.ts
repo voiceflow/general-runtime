@@ -2,6 +2,7 @@ import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
 import { QuotaName } from '@/lib/services/billing';
+import log from '@/logger';
 import { HandlerFactory } from '@/runtime';
 
 import { fetchPrompt } from './utils/ai';
@@ -57,7 +58,11 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
     const tokens = result.reduce((acc, curr) => acc + curr, 0);
 
     if (typeof tokens === 'number' && tokens > 0) {
-      await runtime.services.billing.consumeQuota(workspaceID, QuotaName.OPEN_API_TOKENS, tokens);
+      await runtime.services.billing
+        .consumeQuota(workspaceID, QuotaName.OPEN_API_TOKENS, tokens)
+        .catch((err: Error) =>
+          log.error(`[API Set] Error consuming quota for workspace ${workspaceID}: ${log.vars({ err })}`)
+        );
     }
 
     return nextID;

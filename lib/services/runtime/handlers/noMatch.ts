@@ -3,6 +3,7 @@ import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
 import { QuotaName } from '@/lib/services/billing';
+import log from '@/logger';
 import { Runtime, Store } from '@/runtime';
 
 import { isPrompt, NoMatchCounterStorage, Output, StorageType } from '../types';
@@ -88,7 +89,11 @@ const getOutput = async (
     }
 
     if (typeof result?.tokens === 'number' && result.tokens > 0) {
-      await runtime.services.billing.consumeQuota(workspaceID, QuotaName.OPEN_API_TOKENS, result.tokens);
+      await runtime.services.billing
+        .consumeQuota(workspaceID, QuotaName.OPEN_API_TOKENS, result.tokens)
+        .catch((err: Error) =>
+          log.error(`[No Match] Error consuming quota for workspace ${workspaceID}: ${log.vars({ err })}`)
+        );
     }
 
     if (result?.output) return { output: result.output, ai: true, tokens: result.tokens };
