@@ -51,7 +51,7 @@ export class GPT3 extends GPTAIModel {
 
     return {
       output,
-      tokens,
+      tokens: this.calculateTokenMultiplier(tokens),
     };
   }
 

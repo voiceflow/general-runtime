@@ -46,6 +46,10 @@ export abstract class GPTAIModel extends AIModel {
     throw new Error(`OpenAI client not initialized`);
   }
 
+  protected calculateTokenMultiplier(tokens: number): number {
+    return Math.floor(tokens * this.TOKEN_MULTIPLIER);
+  }
+
   get client(): OpenAIApi {
     // one of them is guaranteed to be initialized, otherwise there would be an error
     return (this.azureClient || this.openAIClient)!;

@@ -39,7 +39,7 @@ export class GPT3_5 extends GPTAIModel {
 
       return {
         output,
-        tokens,
+        tokens: this.calculateTokenMultiplier(tokens),
       };
     } catch (error) {
       log.warn(`GPT3.5 completion ${log.vars({ error: error?.response ?? error, messages, params })})}`);

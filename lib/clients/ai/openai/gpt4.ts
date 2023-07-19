@@ -7,7 +7,7 @@ import { Config } from '@/types';
 import { GPTAIModel } from './utils';
 
 export class GPT4 extends GPTAIModel {
-  public static TOKEN_MULTIPLIER = 10;
+  TOKEN_MULTIPLIER = 25;
 
   public modelRef = BaseUtils.ai.GPT_MODEL.GPT_4;
 
@@ -46,7 +46,7 @@ export class GPT4 extends GPTAIModel {
 
     return {
       output,
-      tokens: tokens * GPT4.TOKEN_MULTIPLIER,
+      tokens: this.calculateTokenMultiplier(tokens),
     };
   }
 }

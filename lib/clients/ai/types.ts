@@ -5,6 +5,8 @@ export abstract class AIModel {
 
   protected TIMEOUT = 20000;
 
+  protected TOKEN_MULTIPLIER = 1;
+
   abstract generateCompletion(prompt: string, params: BaseUtils.ai.AIModelParams): Promise<CompletionOutput | null>;
 
   abstract generateChatCompletion(
