@@ -25,7 +25,7 @@ export interface KnowledgeBaseResponse {
   chunks: KnowledegeBaseChunk[];
 }
 
-export const FLAGGED_WORSPACE_IDS = [80627];
+export const FLAGGED_WORSPACE_IDS = ['80627', 'Brk8AaGjlQ'];
 
 const { KL_RETRIEVER_SERVICE_HOST: host, KL_RETRIEVER_SERVICE_PORT: port } = Config;
 const scheme = process.env.NODE_ENV === 'e2e' ? 'https' : 'http';
@@ -33,7 +33,7 @@ export const RETRIEVE_ENDPOINT = host && port ? new URL(`${scheme}://${host}:${p
 export const { KNOWLEDGE_BASE_LAMBDA_ENDPOINT } = Config;
 
 export const getAnswerEndpoint = (workspaceID: string | undefined): string | null => {
-  if (workspaceID && FLAGGED_WORSPACE_IDS.includes(parseInt(workspaceID, 10))) {
+  if (workspaceID && FLAGGED_WORSPACE_IDS.includes(String(workspaceID))) {
     return RETRIEVE_ENDPOINT;
   }
   if (!KNOWLEDGE_BASE_LAMBDA_ENDPOINT) return null;
