@@ -1103,8 +1103,6 @@ components:
           type: object
           required:
             - intent
-            - query
-            - entities
           properties:
             intent:
               type: object
