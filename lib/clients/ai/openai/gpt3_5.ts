@@ -42,7 +42,10 @@ export class GPT3_5 extends GPTAIModel {
         tokens: this.calculateTokenMultiplier(tokens),
       };
     } catch (error) {
-      const truncatedMessages = messages.slice(0, 10);
+      const truncatedMessages = messages.slice(0, 10).map(({ content, ...rest }) => ({
+        ...rest,
+        content: content.substring(0, 200),
+      }));
       log.warn(
         `GPT3.5 completion ${log.vars({
           error: error?.response ?? error,
