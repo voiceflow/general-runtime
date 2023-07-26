@@ -44,13 +44,17 @@ export class GPT3_5 extends GPTAIModel {
     } catch (error) {
       const truncatedMessages = messages.slice(0, 10).map(({ content, ...rest }) => ({
         ...rest,
-        content: content.substring(0, 200),
+        content: content.substring(0, 256),
       }));
+      const truncatedParams = {
+        ...params,
+        system: params.system?.substring(0, 512),
+      };
       log.warn(
         `GPT3.5 completion ${log.vars({
           error: error?.response ?? error,
           messages: truncatedMessages,
-          params,
+          params: truncatedParams,
         })})}`
       );
 
