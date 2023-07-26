@@ -52,7 +52,8 @@ export class GPT3_5 extends GPTAIModel {
       };
       log.warn(
         `GPT3.5 completion ${log.vars({
-          error: error?.response ?? error,
+          error: error?.message,
+          code: error?.code,
           messages: truncatedMessages,
           params: truncatedParams,
         })})}`
