@@ -1,4 +1,5 @@
 import { Validator } from '@voiceflow/backend-utils';
+import VError from '@voiceflow/verror';
 import { VoiceflowConstants, VoiceflowProject } from '@voiceflow/voiceflow-types';
 
 import { Request, VersionTag } from '@/types';
@@ -30,6 +31,10 @@ class NLUController extends AbstractController {
 
     const api = await this.services.dataAPI.get();
     const [version, project] = await Promise.all([api.getVersion(versionID), api.getProject(projectID)]);
+
+    if (version.projectID !== project._id) {
+      throw new VError('Missmatch in projectID/versionID', VError.HTTP_STATUS.BAD_REQUEST);
+    }
 
     return this.services.nlu.predict({
       versionID,
