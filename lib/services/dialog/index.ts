@@ -144,7 +144,6 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         const dmPrefixedResult = this.isNluGatwayEndpointConfigured()
           ? await this.services.nlu.predict({
               query: `${prefix} ${query}`,
-              projectID: version.projectID,
               versionID: context.versionID,
               model: version.prototype?.model,
               locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,

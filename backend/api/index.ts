@@ -5,6 +5,7 @@ import { ControllerMap, MiddlewareMap } from '@/lib';
 import FeedbackRouter from './routers/feedback';
 import InteractRouter from './routers/interact';
 import KnowledgeBaseRouter from './routers/knowledgeBase';
+import NLURouter from './routers/nlu';
 import PublicRouter from './routers/public';
 import StateRouter from './routers/state';
 import TestRouter from './routers/test';
@@ -21,6 +22,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.use('/test', TestRouter(middlewares, controllers));
   router.use('/knowledge-base', KnowledgeBaseRouter(middlewares, controllers));
   router.use('/transcripts', TranscriptRouter(middlewares, controllers));
+  router.use('/nlu', NLURouter(middlewares, controllers));
 
   return router;
 };

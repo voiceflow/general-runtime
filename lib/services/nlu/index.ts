@@ -63,7 +63,6 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     query: string;
     model?: BaseModels.PrototypeModel;
     locale?: VoiceflowConstants.Locale;
-    projectID: string;
     versionID: string;
     tag: VersionTag | string;
     nlp: BaseModels.Project.PrototypeNLP | undefined;
@@ -128,7 +127,6 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       query: context.request.payload,
       model: version.prototype?.model,
       locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
-      projectID: version.projectID,
       versionID: context.versionID,
       tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
       nlp: project.prototype?.nlp,
