@@ -6,14 +6,14 @@ import { Request, VersionTag } from '@/types';
 import { validate } from '../utils';
 import { AbstractController } from './utils';
 
-const { query, header } = Validator;
+const { query, param } = Validator;
 const VALIDATIONS = {
   QUERY: {
     QUERY: query('query').exists().isString(),
   },
-  HEADERS: {
-    PROJECT_ID: header('projectID').exists().isString(),
-    VERSION_ID: header('versionID').exists().isString(),
+  PARAMS: {
+    PROJECT_ID: param('projectID').exists().isString(),
+    VERSION_ID: param('versionID').exists().isString(),
   },
 };
 
@@ -21,12 +21,12 @@ class NLUController extends AbstractController {
   static VALIDATIONS = VALIDATIONS;
 
   @validate({
-    HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID,
-    HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
+    PARAMS_PROJECT_ID: VALIDATIONS.PARAMS.PROJECT_ID,
+    PARAMS_VERSION_ID: VALIDATIONS.PARAMS.VERSION_ID,
     QUERY: VALIDATIONS.QUERY.QUERY,
   })
   async inference(req: Request) {
-    const { versionID, projectID } = req.headers;
+    const { versionID, projectID } = req.params;
 
     const api = await this.services.dataAPI.get();
     const [version, project] = await Promise.all([api.getVersion(versionID), api.getProject(projectID)]);

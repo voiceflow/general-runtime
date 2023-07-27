@@ -6,9 +6,9 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   const router = express.Router();
 
   router.get(
-    '/inference',
-    middlewares.project.resolveVersionAlias,
-    middlewares.project.attachProjectID,
+    '/project/:projectID/version/:versionID/inference',
+    middlewares.auth.authorize(['project:READ']),
+    middlewares.project.paramsToLegacyHeader,
     middlewares.rateLimit.versionConsume,
     controllers.nlu.inference
   );

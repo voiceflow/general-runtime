@@ -61,7 +61,10 @@ class Auth extends AbstractMiddleware {
         const sdk = await import('@voiceflow/sdk-auth/express').catch(() => null);
         if (!sdk) return next();
 
-        return sdk?.createAuthGuard(client)(actions as any[])(req, res, next);
+        // we cant return immediatly here or the catch is not caught properly
+        // eslint-disable-next-line sonarjs/prefer-immediate-return
+        const authorizedNext = await sdk?.createAuthGuard(client)(actions as any[])(req, res, next);
+        return authorizedNext;
       } catch (err) {
         return next(new VError('Unauthorized', VError.HTTP_STATUS.UNAUTHORIZED));
       }

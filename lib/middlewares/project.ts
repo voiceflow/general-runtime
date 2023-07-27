@@ -1,7 +1,7 @@
 import { Validator } from '@voiceflow/backend-utils';
 import { BaseModels } from '@voiceflow/base-types';
 import VError from '@voiceflow/verror';
-import { NextFunction, Response } from 'express';
+import { NextFunction, Request as ExpressRequest, Response } from 'express';
 
 import { isVersionTag, Request, VersionTag } from '@/types';
 
@@ -129,6 +129,14 @@ class Project extends AbstractMiddleware {
     } catch (err) {
       return next(err instanceof VError ? err : new VError('Unknown error', VError.HTTP_STATUS.INTERNAL_SERVER_ERROR));
     }
+  }
+
+  // ensuring backwards compatibility with old runtime routes
+  async paramsToLegacyHeader(req: ExpressRequest, _: Response, next: NextFunction): Promise<void> {
+    Object.entries(req.params).forEach(([paramName, paramValue]) => {
+      req.headers[paramName] = paramValue;
+    });
+    return next();
   }
 
   @validate({
