@@ -54,6 +54,27 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
       ...streamPlay,
     };
 
+    if (utils.commandHandler.canHandle(runtime)) {
+      streamData.action = StreamAction.END;
+      runtime.storage.set<StreamPlayStorage>(StorageType.STREAM_PLAY, streamData);
+
+      runtime.trace.addTrace<BaseNode.Stream.TraceFrame>({
+        type: BaseNode.Utils.TraceType.STREAM,
+        payload: {
+          src: streamData.src,
+          token: streamData.token,
+          action: mapStreamActions(streamData.action)!,
+          loop: streamData.loop,
+          description: streamData.description,
+          title: streamData.title,
+          iconImage: streamData.iconImage,
+          backgroundImage: streamData.backgroundImage,
+        },
+      });
+
+      return utils.commandHandler.handle(runtime, variables);
+    }
+
     if (intentName && pauseIntents.has(intentName)) {
       if (streamPlay.pauseID) {
         // If it is linked to something else, save current pause state
@@ -104,25 +125,6 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
 
         streamData.action = StreamAction.END;
       }
-    } else if (utils.commandHandler.canHandle(runtime)) {
-      streamData.action = StreamAction.END;
-      runtime.storage.set<StreamPlayStorage>(StorageType.STREAM_PLAY, streamData);
-
-      runtime.trace.addTrace<BaseNode.Stream.TraceFrame>({
-        type: BaseNode.Utils.TraceType.STREAM,
-        payload: {
-          src: streamData.src,
-          token: streamData.token,
-          action: mapStreamActions(streamData.action)!,
-          loop: streamData.loop,
-          description: streamData.description,
-          title: streamData.title,
-          iconImage: streamData.iconImage,
-          backgroundImage: streamData.backgroundImage,
-        },
-      });
-
-      return utils.commandHandler.handle(runtime, variables);
     } else {
       streamData.action = StreamAction.NOEFFECT;
 
