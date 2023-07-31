@@ -18,6 +18,8 @@ export abstract class AIModel {
 export interface CompletionOutput {
   output: string | null;
   tokens: number;
+  queryTokens: number;
+  answerTokens: number;
 }
 
 export const GPT4_ABLE_PLAN = new Set(['old_pro', 'old_team', 'pro', 'team', 'enterprise']);

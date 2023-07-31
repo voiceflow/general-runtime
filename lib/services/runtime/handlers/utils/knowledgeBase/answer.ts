@@ -82,7 +82,7 @@ export const answerSynthesis = async ({
   if (output?.includes('NOT_FOUND') || output?.startsWith("I'M SORRY,") || output?.includes('AS AN AI'))
     return { output: null };
 
-  return { output: response.output };
+  return response;
 };
 
 const DEFAULT_SYNTHESIS_SYSTEM =

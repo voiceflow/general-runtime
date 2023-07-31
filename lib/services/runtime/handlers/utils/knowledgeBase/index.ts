@@ -85,7 +85,8 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<{ output: 
     const question = await questionSynthesis(input, memory);
     if (!question?.output) return null;
 
-    tokens += question.tokens ?? 0;
+    const queryTokens = question.tokens ?? 0;
+    tokens += queryTokens;
 
     const data = await fetchKnowledgeBase(
       runtime.project._id,
@@ -103,9 +104,8 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<{ output: 
     });
     if (!answer?.output) return null;
 
-    tokens += answer.tokens ?? 0;
-
-    const { output, ...meta } = answer;
+    const answerTokens = answer.tokens ?? 0;
+    tokens += answerTokens;
 
     const documents = runtime.project?.knowledgeBase?.documents || {};
 
@@ -117,13 +117,28 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<{ output: 
           documentID,
           documentData: documents[documentID]?.data,
         })),
-        query: question.output,
-        ...meta,
+        query: {
+          messages: question.messages,
+          output: question.output,
+          tokenInfo: {
+            tokens: question.tokens,
+            queryTokens: question.queryTokens,
+            answerTokens: question.answerTokens,
+          },
+        },
+        synthesis: {
+          output: answer.output,
+          tokenInfo: {
+            tokens: answer.tokens,
+            queryTokens: answer.queryTokens,
+            answerTokens: answer.answerTokens,
+          },
+        },
       },
     } as any);
 
     return {
-      output: generateOutput(output, runtime.project),
+      output: generateOutput(answer.output, runtime.project),
       tokens,
     };
   } catch (err) {
@@ -136,18 +151,16 @@ export const promptSynthesis = async (
   projectID: string,
   workspaceID: string | undefined,
   params: BaseUtils.ai.AIContextParams & BaseUtils.ai.AIModelParams,
-  variables: Record<string, any>
+  variables: Record<string, any>,
+  runtime?: Runtime
 ) => {
   try {
-    let tokens = 0;
     const { prompt } = params;
 
     const memory = getMemoryMessages(variables);
 
     const query = await promptQuestionSynthesis({ prompt, variables, memory });
     if (!query || !query.output) return null;
-
-    tokens += query.tokens ?? 0;
 
     const data = await fetchKnowledgeBase(projectID, workspaceID, query.output);
 
@@ -163,7 +176,37 @@ export const promptSynthesis = async (
 
     if (!answer?.output) return null;
 
-    tokens += answer.tokens ?? 0;
+    if (runtime) {
+      runtime.trace.addTrace({
+        type: 'knowledgeBase',
+        payload: {
+          chunks: data.chunks.map(({ score, documentID }) => ({
+            score,
+            documentID,
+            documentData: runtime.project?.knowledgeBase?.documents[documentID]?.data,
+          })),
+          query: {
+            messages: query.messages,
+            output: query.output,
+            tokenInfo: {
+              tokens: query.tokens,
+              queryTokens: query.queryTokens,
+              answerTokens: query.answerTokens,
+            },
+          },
+          synthesis: {
+            output: answer.output,
+            tokenInfo: {
+              tokens: answer.tokens,
+              queryTokens: answer.queryTokens,
+              answerTokens: answer.answerTokens,
+            },
+          },
+        },
+      } as any);
+    }
+
+    const tokens = (query.tokens ?? 0) + (answer.tokens ?? 0);
 
     return { ...answer, ...data, query, tokens };
   } catch (err) {

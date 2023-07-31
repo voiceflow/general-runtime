@@ -15,7 +15,6 @@ import { getVersionDefaultVoice } from './utils/version';
 
 const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_RESPONSE,
-  // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: async (node, runtime, variables) => {
     const nextID = node.nextId ?? null;
     const workspaceID = runtime.project?.teamID;
@@ -40,7 +39,8 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
         runtime.version!.projectID,
         workspaceID,
         { ...runtime.project?.knowledgeBase?.settings?.summarization, prompt, mode },
-        variables.getState()
+        variables.getState(),
+        runtime
       );
 
       if (answer && typeof answer.tokens === 'number' && answer.tokens > 0) {
@@ -49,20 +49,6 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
           .catch((err: Error) =>
             log.error(`[AI Response KB] Error consuming quota for workspace ${workspaceID}: ${log.vars({ err })}`)
           );
-      }
-
-      if (answer?.output) {
-        runtime.trace.addTrace({
-          type: 'knowledgeBase',
-          payload: {
-            chunks: answer.chunks.map(({ score, documentID }) => ({
-              score,
-              documentID,
-              documentData: runtime.project?.knowledgeBase?.documents[documentID]?.data,
-            })),
-            query: answer.query,
-          },
-        } as any);
       }
 
       const output = generateOutput(
@@ -90,6 +76,8 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
       response = {
         output: 'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.',
         tokens: 0,
+        queryTokens: 0,
+        answerTokens: 0,
       };
     } else {
       response = await fetchPrompt(node, variables.getState());
@@ -102,6 +90,18 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
     }
 
     if (!response.output) return nextID;
+
+    runtime.trace.addTrace({
+      type: 'genAI',
+      payload: {
+        output: response.output,
+        tokenInfo: {
+          tokens: response.tokens,
+          queryTokens: response.queryTokens,
+          answerTokens: response.answerTokens,
+        },
+      },
+    } as any);
 
     const output = generateOutput(
       response.output,

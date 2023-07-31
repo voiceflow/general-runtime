@@ -48,10 +48,14 @@ export class GPT3 extends GPTAIModel {
 
     const output = result?.data.choices[0].text ?? null;
     const tokens = result?.data.usage?.total_tokens ?? 0;
+    const queryTokens = result?.data.usage?.prompt_tokens ?? 0;
+    const answerTokens = result?.data.usage?.completion_tokens ?? 0;
 
     return {
       output,
       tokens: this.calculateTokenMultiplier(tokens),
+      queryTokens: this.calculateTokenMultiplier(queryTokens),
+      answerTokens: this.calculateTokenMultiplier(answerTokens),
     };
   }
 

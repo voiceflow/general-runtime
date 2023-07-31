@@ -20,6 +20,8 @@ export interface AIResponse {
   messages?: BaseUtils.ai.Message[];
   prompt?: string;
   tokens?: number;
+  queryTokens?: number;
+  answerTokens?: number;
 }
 
 export const fetchChat = async (
@@ -38,9 +40,14 @@ export const fetchChat = async (
   const system = replaceVariables(params.system, sanitizedVars);
   if (system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: system });
 
-  const { output, tokens } = (await model.generateChatCompletion(messages, params)) ?? { output: null, tokens: 0 };
+  const { output, tokens, queryTokens, answerTokens } = (await model.generateChatCompletion(messages, params)) ?? {
+    output: null,
+    tokens: 0,
+    queryTokens: 0,
+    answerTokens: 0,
+  };
 
-  return { messages, output, tokens };
+  return { messages, output, tokens, queryTokens, answerTokens };
 };
 
 export const fetchPrompt = async (
@@ -59,23 +66,38 @@ export const fetchPrompt = async (
     const messages = getMemoryMessages(variablesState);
     if (system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: system });
 
-    const { output, tokens } = (await model.generateChatCompletion(messages, params)) ?? { output: null, tokens: 0 };
+    const { output, tokens, queryTokens, answerTokens } = (await model.generateChatCompletion(messages, params)) ?? {
+      output: null,
+      tokens: 0,
+      queryTokens: 0,
+      answerTokens: 0,
+    };
 
-    return { output, tokens, messages };
+    return { output, tokens, queryTokens, answerTokens };
   }
   if (params.mode === BaseUtils.ai.PROMPT_MODE.MEMORY_PROMPT) {
     const messages = getMemoryMessages(variablesState);
     if (system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: system });
     if (prompt) messages.push({ role: BaseUtils.ai.Role.USER, content: prompt });
 
-    const { output, tokens } = (await model.generateChatCompletion(messages, params)) ?? { output: null, tokens: 0 };
+    const { output, tokens, queryTokens, answerTokens } = (await model.generateChatCompletion(messages, params)) ?? {
+      output: null,
+      tokens: 0,
+      queryTokens: 0,
+      answerTokens: 0,
+    };
 
-    return { output, tokens, messages };
+    return { output, tokens, queryTokens, answerTokens };
   }
 
   if (!prompt) return { output: null };
 
-  const { output, tokens } = (await model.generateCompletion(prompt, params)) ?? { output: null, tokens: 0 };
+  const { output, tokens, queryTokens, answerTokens } = (await model.generateCompletion(prompt, params)) ?? {
+    output: null,
+    tokens: 0,
+    queryTokens: 0,
+    answerTokens: 0,
+  };
 
-  return { prompt, output, tokens };
+  return { output, tokens, queryTokens, answerTokens };
 };

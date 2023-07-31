@@ -34,11 +34,23 @@ export const generateNoMatch = async (
     },
   ];
 
-  const { output, tokens } = await fetchChat({ ...context, messages });
-  if (!output) return null;
+  const response = await fetchChat({ ...context, messages });
+  if (!response.output) return null;
+
+  runtime.trace.addTrace({
+    type: 'genAI',
+    payload: {
+      output: response.output,
+      tokenInfo: {
+        tokens: response.tokens,
+        queryTokens: response.queryTokens,
+        answerTokens: response.answerTokens,
+      },
+    },
+  } as any);
 
   return {
-    output: generateOutput(output, runtime.project),
-    tokens: tokens ?? 0,
+    output: generateOutput(response.output, runtime.project),
+    tokens: response.tokens ?? 0,
   };
 };

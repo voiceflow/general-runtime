@@ -36,7 +36,8 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
                 mode,
                 prompt,
               },
-              variables.getState()
+              variables.getState(),
+              runtime
             );
 
             variables.set(variable, response?.output);
@@ -49,6 +50,18 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
           }
 
           const response = await fetchPrompt({ ...node, prompt, mode }, variables.getState());
+
+          runtime.trace.addTrace({
+            type: 'genAI',
+            payload: {
+              output: response.output,
+              tokenInfo: {
+                tokens: response.tokens,
+                queryTokens: response.queryTokens,
+                answerTokens: response.answerTokens,
+              },
+            },
+          } as any);
 
           variables.set(variable!, response.output);
 
