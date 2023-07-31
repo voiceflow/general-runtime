@@ -60,7 +60,6 @@ export abstract class AnthropicAIModel extends AIModel {
     )}${AI_PROMPT}`;
 
     const queryTokens = this.calculateTokenUsage(prompt);
-    let tokens = queryTokens;
 
     const result = await this.client
       .complete({
@@ -78,11 +77,10 @@ export abstract class AnthropicAIModel extends AIModel {
     const output = result?.completion?.trim() ?? null;
 
     const answerTokens = this.calculateTokenUsage(output ?? '');
-    tokens += this.calculateTokenUsage(output ?? '');
 
     return {
       output,
-      tokens,
+      tokens: queryTokens + answerTokens,
       queryTokens,
       answerTokens,
     };
