@@ -21,6 +21,10 @@ const cycleHandler = async (runtime: Runtime, program: ProgramModel, variableSta
     if (i > HANDLER_OVERFLOW) {
       node = null;
       break;
+    } else if (runtime.hasTimedOut()) {
+      await runtime.callEvent(EventType.timeout, {});
+      runtime.end();
+      break;
     } else if (nextID) {
       referenceFrame.setNodeID(nextID);
       node = program.getNode(nextID);

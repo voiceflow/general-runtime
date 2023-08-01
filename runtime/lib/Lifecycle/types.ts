@@ -27,6 +27,7 @@ export enum EventType {
   variablesWillUpdate = 'variablesWillUpdate',
   variablesDidUpdate = 'variablesDidUpdate',
   traceWillAdd = 'traceWillAdd',
+  timeout = 'timeout',
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -118,6 +119,8 @@ export interface EventMap<TF extends BaseNode.Utils.BaseTraceFrame> {
   [EventType.variablesDidUpdate]: BaseEvent;
 
   [EventType.traceWillAdd]: TraceWillAddEvent<TF | BaseTrace.DebugTrace>;
+
+  [EventType.timeout]: BaseEvent;
 }
 
 export type Event<

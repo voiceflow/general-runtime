@@ -44,6 +44,7 @@ export interface RuntimeOptions<
   version?: Version;
   project?: Project;
   plan?: string;
+  timeout: number;
 }
 
 export enum Action {
@@ -97,6 +98,10 @@ class Runtime<
 
   public plan?: string;
 
+  public timeout: number;
+
+  public startTime = 0;
+
   constructor({
     events,
     versionID,
@@ -106,6 +111,7 @@ class Runtime<
     state,
     options,
     plan,
+    timeout,
   }: RuntimeOptions<Request, DataAPI, Services, Version, Project>) {
     super(events);
 
@@ -114,6 +120,7 @@ class Runtime<
     this.version = version;
     this.project = project;
     this.plan = plan;
+    this.timeout = timeout;
 
     const { services = {} as Services, handlers = [], api } = options;
 
@@ -220,6 +227,7 @@ class Runtime<
         this.setAction(Action.RUNNING);
       }
 
+      this.startTime = Date.now();
       await cycleStack(this);
 
       await this.callEvent(EventType.updateDidExecute, {});
@@ -267,6 +275,10 @@ class Runtime<
 
   public getVersionID() {
     return this.versionID;
+  }
+
+  public hasTimedOut() {
+    return Date.now() - this.startTime > this.timeout;
   }
 }
 

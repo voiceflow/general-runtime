@@ -88,6 +88,7 @@ export const isIntentInScope = async ({ data: { api }, versionID, state, request
     request,
     version,
     project,
+    timeout: 0,
   });
 
   // check if there is a command in the stack that fulfills request
