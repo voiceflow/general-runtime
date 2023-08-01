@@ -36,6 +36,8 @@ export class BillingService extends AbstractManager {
   }
 
   async consumeQuota(workspaceID: string, quotaName: QuotaName, count: number) {
+    if (!(typeof count === 'number' && count > 0)) return null;
+
     const client = await this.getClient();
     if (!client) return null;
 

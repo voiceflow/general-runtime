@@ -1,7 +1,7 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import dedent from 'dedent';
 
-import { AIResponse, fetchChat } from '../ai';
+import { AIResponse, EMPTY_AI_RESPONSE, fetchChat } from '../ai';
 
 export const questionSynthesis = async (question: string, memory: BaseUtils.ai.Message[]): Promise<AIResponse> => {
   if (memory.length > 1) {
@@ -30,6 +30,7 @@ export const questionSynthesis = async (question: string, memory: BaseUtils.ai.M
   }
 
   return {
+    ...EMPTY_AI_RESPONSE,
     output: question,
   };
 };

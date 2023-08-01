@@ -1,7 +1,7 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import dedent from 'dedent';
 
-import { AIResponse, fetchChat, fetchPrompt } from '../ai';
+import { AIResponse, EMPTY_AI_RESPONSE, fetchChat, fetchPrompt } from '../ai';
 import { getCurrentTime } from '../generativeNoMatch';
 import type { KnowledgeBaseResponse } from '.';
 
@@ -20,7 +20,7 @@ export const answerSynthesis = async ({
   variables?: Record<string, any>;
   options?: Partial<BaseUtils.ai.AIModelParams>;
 }): Promise<AIResponse | null> => {
-  let response: AIResponse = { output: null };
+  let response: AIResponse = EMPTY_AI_RESPONSE;
 
   const systemWithTime = `${system}\n\n${getCurrentTime()}`.trim();
 
@@ -80,7 +80,7 @@ export const answerSynthesis = async ({
   const output = response.output?.trim().toUpperCase();
 
   if (output?.includes('NOT_FOUND') || output?.startsWith("I'M SORRY,") || output?.includes('AS AN AI'))
-    return { output: null };
+    return { ...response, output: null };
 
   return response;
 };

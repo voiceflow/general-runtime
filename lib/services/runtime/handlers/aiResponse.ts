@@ -2,13 +2,11 @@ import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { VoiceNode } from '@voiceflow/voice-types';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
-import { QuotaName } from '@/lib/services/billing';
-import log from '@/logger';
 import { HandlerFactory } from '@/runtime';
 
 import { FrameType, Output } from '../types';
 import { addOutputTrace, getOutputTrace } from '../utils';
-import { AIResponse, fetchPrompt } from './utils/ai';
+import { AIResponse, checkTokens, consumeResources, fetchPrompt } from './utils/ai';
 import { promptSynthesis } from './utils/knowledgeBase';
 import { generateOutput } from './utils/output';
 import { getVersionDefaultVoice } from './utils/version';
@@ -19,7 +17,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
     const nextID = node.nextId ?? null;
     const workspaceID = runtime.project?.teamID;
 
-    if (!(await runtime.services.billing.checkQuota(workspaceID, QuotaName.OPEN_API_TOKENS))) {
+    if (!(await checkTokens(runtime, node.type))) {
       addOutputTrace(
         runtime,
         getOutputTrace({
@@ -28,7 +26,6 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
           ai: true,
         })
       );
-      runtime.trace.debug('token quota exceeded', BaseNode.NodeType.AI_RESPONSE);
       return nextID;
     }
 
@@ -43,13 +40,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
         runtime
       );
 
-      if (answer && typeof answer.tokens === 'number' && answer.tokens > 0) {
-        await runtime.services.billing
-          .consumeQuota(workspaceID, QuotaName.OPEN_API_TOKENS, answer.tokens)
-          .catch((err: Error) =>
-            log.error(`[AI Response KB] Error consuming quota for workspace ${workspaceID}: ${log.vars({ err })}`)
-          );
-      }
+      await consumeResources('AI Response KB', runtime, answer);
 
       const output = generateOutput(
         answer?.output || 'Unable to find relevant answer.',
@@ -83,11 +74,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
       response = await fetchPrompt(node, variables.getState());
     }
 
-    if (typeof response.tokens === 'number' && response.tokens > 0) {
-      await runtime.services.billing
-        .consumeQuota(workspaceID, QuotaName.OPEN_API_TOKENS, response.tokens)
-        .catch((err: Error) => log.error(`[AI Response] Error consuming quota: ${log.vars({ err })}`));
-    }
+    await consumeResources('AI Response', runtime, response);
 
     if (!response.output) return nextID;
 
