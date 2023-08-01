@@ -62,7 +62,7 @@ const init = (client: Client) => {
   client.setEvent(EventType.handlerDidCatch, ({ error }) => log.debug(error));
 
   client.setEvent(EventType.timeout, ({ runtime }) => {
-    runtime.trace.debug('turn timeout - check for infinite loops');
+    runtime.trace.debug('ERROR: turn timeout - check for infinite loops');
   });
 };
 
