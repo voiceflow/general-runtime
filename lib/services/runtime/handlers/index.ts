@@ -30,12 +30,19 @@ import SpeakHandler from './speak';
 import StateHandlers from './state';
 import StreamHandler from './stream';
 import TextHandler from './text';
+import { V3 } from './v3';
 import VisualHandler from './visual';
 
 const _v1Handler = _V1Handler();
 
 export default (config: Config) => [
   ...StateHandlers(),
+
+  // BEGIN V3
+  V3.ResponseHandler(),
+  V3.ListenHandler(),
+  // END V3
+
   SpeakHandler(),
   ...GoToHandler(),
   ...InteractionHandler(),
