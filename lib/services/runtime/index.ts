@@ -103,7 +103,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
       version: context.version,
       project: context.project,
       plan: context.plan,
-      timeout: this.config.ERROR_RESPONSE_MS - 5000,
+      timeout: Math.max(this.config.ERROR_RESPONSE_MS - 5000, 0),
     });
 
     runtime.debugLogging.refreshContext(context);
