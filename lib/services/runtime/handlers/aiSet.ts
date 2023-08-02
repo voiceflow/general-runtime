@@ -78,11 +78,7 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
       { tokens: 0, queryTokens: 0, answerTokens: 0 }
     );
 
-    await consumeResources('AI Set', runtime, {
-      tokens: totals.tokens,
-      queryTokens: totals.queryTokens,
-      answerTokens: totals.answerTokens,
-    });
+    await consumeResources('AI Set', runtime, { ...totals });
 
     return nextID;
   },
