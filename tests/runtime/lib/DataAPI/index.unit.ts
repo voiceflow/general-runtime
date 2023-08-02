@@ -50,6 +50,7 @@ describe('client unit tests', () => {
       const state = 'state';
       const request = 'request';
       const options = { op1: 'val1' };
+      const timeout = Math.random() * 1000;
 
       expect(
         client.createRuntime({
@@ -58,6 +59,7 @@ describe('client unit tests', () => {
           request,
           options,
           version,
+          timeout,
         } as any)
       ).to.eql(newRuntime);
       expect(runtimeStub.calledWithNew()).to.eql(true);
@@ -72,6 +74,7 @@ describe('client unit tests', () => {
             version,
             project: undefined,
             plan: undefined,
+            timeout,
           },
         ],
       ]);

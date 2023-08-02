@@ -13,6 +13,7 @@ describe('Runtime cycleHandler unit tests', () => {
     const runtime = {
       stack: { getFrames: sinon.stub().returns([]), top: sinon.stub().returns(referenceFrame) },
       getAction: sinon.stub().returns(Action.RUNNING),
+      hasTimedOut: sinon.stub().returns(false),
     };
     const program = { getNode: sinon.stub().returns(null) };
     const variableState = {};
@@ -29,6 +30,7 @@ describe('Runtime cycleHandler unit tests', () => {
       stack: { getFrames: sinon.stub().returns([]), top: sinon.stub().returns(referenceFrame) },
       getHandlers: sinon.stub().returns(handlers),
       getAction: sinon.stub().returns(Action.RUNNING),
+      hasTimedOut: sinon.stub().returns(false),
     };
     const node = {};
     const program = { getNode: sinon.stub().returns(node) };
@@ -49,6 +51,7 @@ describe('Runtime cycleHandler unit tests', () => {
       end: sinon.stub(),
       hasEnded: sinon.stub().returns(true),
       getAction: sinon.stub().returns(Action.RUNNING),
+      hasTimedOut: sinon.stub().returns(false),
     };
     const node = { id: nodeID };
     const program = { getNode: sinon.stub().returns(node) };
@@ -73,6 +76,7 @@ describe('Runtime cycleHandler unit tests', () => {
       getHandlers: sinon.stub().returns(handlers),
       hasEnded: sinon.stub().returns(true),
       getAction: sinon.stub().returns(Action.RUNNING),
+      hasTimedOut: sinon.stub().returns(false),
     };
     const node = {};
     const program = { getNode: sinon.stub().returns(node) };
@@ -98,6 +102,7 @@ describe('Runtime cycleHandler unit tests', () => {
       getHandlers: sinon.stub().returns(handlers),
       hasEnded: sinon.stub().returns(false),
       getAction: sinon.stub().returns(Action.RUNNING),
+      hasTimedOut: sinon.stub().returns(false),
     };
     const node = {};
     const program = { getNode: sinon.stub().returns(node) };
@@ -122,6 +127,7 @@ describe('Runtime cycleHandler unit tests', () => {
       getHandlers: sinon.stub().returns(handlers),
       hasEnded: sinon.stub().returns(false),
       getAction: sinon.stub().returns(Action.RUNNING),
+      hasTimedOut: sinon.stub().returns(false),
     };
     const node = {};
     const program = { getNode: sinon.stub().returns(node) };
@@ -147,6 +153,7 @@ describe('Runtime cycleHandler unit tests', () => {
       hasEnded: sinon.stub().returns(false),
       getAction: sinon.stub().returns(Action.REQUEST),
       setAction: sinon.stub(),
+      hasTimedOut: sinon.stub().returns(false),
     };
     const node = {};
     const program = { getNode: sinon.stub().returns(node) };

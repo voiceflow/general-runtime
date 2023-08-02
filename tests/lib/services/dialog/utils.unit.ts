@@ -122,6 +122,7 @@ describe('dialog manager utilities unit tests', () => {
             request: context.request,
             version: context.version,
             project: context.project,
+            timeout: 0,
           },
         ],
       ]);

@@ -53,7 +53,9 @@ describe('runtime manager unit tests', () => {
         Handlers: () => 'foo',
       };
 
-      const config = {};
+      const config = {
+        ERROR_RESPONSE_MS: 10000,
+      };
 
       const runtimeManager = new RuntimeManager(
         { ...services, utils: { ...defaultUtils, ...utils } } as any,
@@ -93,6 +95,7 @@ describe('runtime manager unit tests', () => {
             version: { id: VERSION_ID },
             project: { id: PROJECT_ID },
             plan: undefined,
+            timeout: 5000,
           },
         ],
       ]);
@@ -129,7 +132,9 @@ describe('runtime manager unit tests', () => {
         Handlers: () => 'foo',
       };
 
-      const config = {};
+      const config = {
+        ERROR_RESPONSE_MS: 10000,
+      };
 
       const runtimeManager = new RuntimeManager(
         { ...services, utils: { ...defaultUtils, ...utils } } as any,
@@ -172,6 +177,7 @@ describe('runtime manager unit tests', () => {
             version: { id: VERSION_ID },
             project: { id: PROJECT_ID },
             plan: undefined,
+            timeout: 5000,
           },
         ],
       ]);
@@ -207,7 +213,9 @@ describe('runtime manager unit tests', () => {
         Handlers: sinon.stub().returns([]),
       };
 
-      const config = {};
+      const config = {
+        ERROR_RESPONSE_MS: 10000,
+      };
 
       const runtimeManager = new RuntimeManager(
         { ...services, utils: { ...defaultUtils, ...utils } } as any,
@@ -249,6 +257,7 @@ describe('runtime manager unit tests', () => {
             version: { id: VERSION_ID },
             project: { id: PROJECT_ID },
             plan: undefined,
+            timeout: 5000,
           },
         ],
       ]);
@@ -349,7 +358,9 @@ describe('runtime manager unit tests', () => {
         Handlers: () => 'foo',
       };
 
-      const config = {};
+      const config = {
+        ERROR_RESPONSE_MS: 10000,
+      };
 
       const runtimeManager = new RuntimeManager(
         { ...services, utils: { ...defaultUtils, ...utils } } as any,
@@ -391,6 +402,7 @@ describe('runtime manager unit tests', () => {
             version: { id: VERSION_ID },
             project: { id: PROJECT_ID },
             plan: undefined,
+            timeout: 5000,
           },
         ],
       ]);
