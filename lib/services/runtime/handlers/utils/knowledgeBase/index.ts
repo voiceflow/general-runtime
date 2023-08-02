@@ -66,7 +66,9 @@ export const fetchKnowledgeBase = async (
   }
 };
 
-export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<{ output: Output; tokens: number } | null> => {
+export const knowledgeBaseNoMatch = async (
+  runtime: Runtime
+): Promise<{ output: Output; tokens: number; queryTokens: number; answerTokens: number } | null> => {
   if (!RETRIEVE_ENDPOINT || !KNOWLEDGE_BASE_LAMBDA_ENDPOINT) {
     log.error('[knowledgeBase] one of RETRIEVE_ENDPOINT or KNOWLEDGE_BASE_LAMBDA_ENDPOINT is null');
     return null;
@@ -120,19 +122,6 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<{ output: 
         query: {
           messages: question.messages,
           output: question.output,
-          tokenInfo: {
-            tokens: question.tokens,
-            queryTokens: question.queryTokens,
-            answerTokens: question.answerTokens,
-          },
-        },
-        synthesis: {
-          output: answer.output,
-          tokenInfo: {
-            tokens: answer.tokens,
-            queryTokens: answer.queryTokens,
-            answerTokens: answer.answerTokens,
-          },
         },
       },
     } as any);
@@ -140,6 +129,8 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<{ output: 
     return {
       output: generateOutput(answer.output, runtime.project),
       tokens,
+      queryTokens: question.queryTokens + answer.queryTokens,
+      answerTokens: question.answerTokens + answer.answerTokens,
     };
   } catch (err) {
     log.error(`[knowledge-base no match] ${log.vars({ err })}`);
@@ -188,19 +179,6 @@ export const promptSynthesis = async (
           query: {
             messages: query.messages,
             output: query.output,
-            tokenInfo: {
-              tokens: query.tokens,
-              queryTokens: query.queryTokens,
-              answerTokens: query.answerTokens,
-            },
-          },
-          synthesis: {
-            output: answer.output,
-            tokenInfo: {
-              tokens: answer.tokens,
-              queryTokens: answer.queryTokens,
-              answerTokens: answer.answerTokens,
-            },
           },
         },
       } as any);
@@ -208,7 +186,10 @@ export const promptSynthesis = async (
 
     const tokens = (query.tokens ?? 0) + (answer.tokens ?? 0);
 
-    return { ...answer, ...data, query, tokens };
+    const queryTokens = query.queryTokens + answer.queryTokens;
+    const answerTokens = query.answerTokens + answer.answerTokens;
+
+    return { ...answer, ...data, query, tokens, queryTokens, answerTokens };
   } catch (err) {
     log.error(`[knowledge-base prompt] ${log.vars({ err })}`);
     return null;

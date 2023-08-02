@@ -78,18 +78,6 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
 
     if (!response.output) return nextID;
 
-    runtime.trace.addTrace({
-      type: 'genAI',
-      payload: {
-        output: response.output,
-        tokenInfo: {
-          tokens: response.tokens,
-          queryTokens: response.queryTokens,
-          answerTokens: response.answerTokens,
-        },
-      },
-    } as any);
-
     const output = generateOutput(
       response.output,
       runtime.project,

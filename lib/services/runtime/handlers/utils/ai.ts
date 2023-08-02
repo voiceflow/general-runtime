@@ -96,8 +96,12 @@ export const fetchPrompt = async (
   return { output, tokens, queryTokens, answerTokens };
 };
 
-export const consumeResources = async (reference: string, runtime: Runtime, resources: { tokens?: number } | null) => {
-  const { tokens = 0 } = resources ?? {};
+export const consumeResources = async (
+  reference: string,
+  runtime: Runtime,
+  resources: { tokens?: number; queryTokens?: number; answerTokens?: number } | null
+) => {
+  const { tokens = 0, queryTokens = 0, answerTokens = 0 } = resources ?? {};
 
   const workspaceID = runtime.project?.teamID;
 
@@ -106,6 +110,10 @@ export const consumeResources = async (reference: string, runtime: Runtime, reso
     .catch((err: Error) =>
       log.error(`[${reference}] Error consuming quota for workspace ${workspaceID}: ${log.vars({ err })}`)
     );
+
+  runtime.trace.debug(
+    `__${reference}__ \`tokens: {total: ${tokens} query: ${queryTokens},  answer: ${answerTokens}}\``
+  );
 };
 
 export const checkTokens = async (runtime: Runtime, nodeType?: BaseNode.NodeType) => {

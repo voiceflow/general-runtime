@@ -15,7 +15,7 @@ export const getCurrentTime = ({ newlines = 1 }: { newlines?: number } = {}) => 
 export const generateNoMatch = async (
   runtime: Runtime,
   context: BaseUtils.ai.AIModelParams
-): Promise<{ output: Output; tokens: number } | null> => {
+): Promise<{ output: Output; tokens: number; queryTokens: number; answerTokens: number } | null> => {
   if (context.model === BaseUtils.ai.GPT_MODEL.GPT_4 && runtime.plan && !GPT4_ABLE_PLAN.has(runtime.plan)) {
     return {
       ...EMPTY_AI_RESPONSE,
@@ -37,20 +37,10 @@ export const generateNoMatch = async (
   const response = await fetchChat({ ...context, messages });
   if (!response.output) return null;
 
-  runtime.trace.addTrace({
-    type: 'genAI',
-    payload: {
-      output: response.output,
-      tokenInfo: {
-        tokens: response.tokens,
-        queryTokens: response.queryTokens,
-        answerTokens: response.answerTokens,
-      },
-    },
-  } as any);
-
   return {
     output: generateOutput(response.output, runtime.project),
     tokens: response.tokens ?? 0,
+    queryTokens: response.queryTokens ?? 0,
+    answerTokens: response.answerTokens ?? 0,
   };
 };
