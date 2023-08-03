@@ -9,6 +9,14 @@ const generateContext = (data: KnowledgeBaseResponse) => {
   return data.chunks.map(({ content }, index) => `<${index + 1}>${content}</${index + 1}>`).join('\n');
 };
 
+export const filterNotFound = (output: string) => {
+  const upperCase = output?.toUpperCase();
+  if (upperCase?.includes('NOT_FOUND') || upperCase?.startsWith("I'M SORRY,") || upperCase?.includes('AS AN AI')) {
+    return null;
+  }
+  return output;
+};
+
 export const answerSynthesis = async ({
   question,
   data,
@@ -77,10 +85,9 @@ export const answerSynthesis = async ({
     response = await fetchPrompt({ ...options, prompt, mode: BaseUtils.ai.PROMPT_MODE.PROMPT }, variables);
   }
 
-  const output = response.output?.trim().toUpperCase();
-
-  if (output?.includes('NOT_FOUND') || output?.startsWith("I'M SORRY,") || output?.includes('AS AN AI'))
-    return { ...response, output: null };
+  if (response.output) {
+    response.output = filterNotFound(response.output.trim());
+  }
 
   return response;
 };

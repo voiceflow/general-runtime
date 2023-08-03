@@ -75,16 +75,17 @@ const getOutput = async (
     }
 
     // use knowledge base if it exists
-    let result: { output: Output; tokens: number; queryTokens: number; answerTokens: number } | null = null;
+    let result: { output?: Output; tokens: number; queryTokens: number; answerTokens: number } | null = null;
     if (Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0) {
       result = await knowledgeBaseNoMatch(runtime);
+      await consumeResources('KB No Match', runtime, result);
     }
 
-    if (globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE) {
+    // hit global no match if KB wasn't successful
+    if (!result?.output && globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE) {
       result = await generateNoMatch(runtime, globalNoMatch.prompt);
+      await consumeResources('Generative No Match', runtime, result);
     }
-
-    await consumeResources('No Match', runtime, result);
 
     if (result?.output) return { output: result.output, ai: true, tokens: result.tokens };
   }

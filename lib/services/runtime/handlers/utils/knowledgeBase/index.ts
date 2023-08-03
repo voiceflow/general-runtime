@@ -68,7 +68,7 @@ export const fetchKnowledgeBase = async (
 
 export const knowledgeBaseNoMatch = async (
   runtime: Runtime
-): Promise<{ output: Output; tokens: number; queryTokens: number; answerTokens: number } | null> => {
+): Promise<{ output?: Output; tokens: number; queryTokens: number; answerTokens: number } | null> => {
   if (!RETRIEVE_ENDPOINT || !KNOWLEDGE_BASE_LAMBDA_ENDPOINT) {
     log.error('[knowledgeBase] one of RETRIEVE_ENDPOINT or KNOWLEDGE_BASE_LAMBDA_ENDPOINT is null');
     return null;
@@ -80,15 +80,11 @@ export const knowledgeBaseNoMatch = async (
   if (!input) return null;
 
   try {
-    let tokens = 0;
     // expiremental module, frame the question
     const memory = getMemoryMessages(runtime.variables.getState());
 
     const question = await questionSynthesis(input, memory);
     if (!question?.output) return null;
-
-    const queryTokens = question.tokens ?? 0;
-    tokens += queryTokens;
 
     const data = await fetchKnowledgeBase(
       runtime.project._id,
@@ -104,11 +100,17 @@ export const knowledgeBaseNoMatch = async (
       options: runtime.project?.knowledgeBase?.settings?.summarization,
       variables: runtime.variables.getState(),
     });
-    if (!answer?.output) return null;
 
-    const answerTokens = answer.tokens ?? 0;
-    tokens += answerTokens;
+    if (!answer) return null;
 
+    const queryTokens = question.queryTokens + answer.queryTokens;
+    const answerTokens = question.answerTokens + answer.answerTokens;
+    const tokens = queryTokens + answerTokens;
+
+    // KB NOT_FOUND still uses tokens
+    if (!answer.output) return { tokens, queryTokens, answerTokens };
+
+    // only add KB trace if result is success
     const documents = runtime.project?.knowledgeBase?.documents || {};
 
     runtime.trace.addTrace({
@@ -129,8 +131,8 @@ export const knowledgeBaseNoMatch = async (
     return {
       output: generateOutput(answer.output, runtime.project),
       tokens,
-      queryTokens: question.queryTokens + answer.queryTokens,
-      answerTokens: question.answerTokens + answer.answerTokens,
+      queryTokens,
+      answerTokens,
     };
   } catch (err) {
     log.error(`[knowledge-base no match] ${log.vars({ err })}`);
