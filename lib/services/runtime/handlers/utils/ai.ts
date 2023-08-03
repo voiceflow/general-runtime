@@ -112,7 +112,7 @@ export const consumeResources = async (
     );
 
   runtime.trace.debug(
-    `__${reference}__ \`tokens: {total: ${tokens} query: ${queryTokens},  answer: ${answerTokens}}\``
+    `__${reference}__ \`tokens: {total: ${tokens}, query: ${queryTokens}, answer: ${answerTokens}}\``
   );
 };
 
