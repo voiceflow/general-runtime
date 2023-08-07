@@ -128,7 +128,7 @@ describe('stream state handler unit tests', () => {
     describe('with intent request', () => {
       describe('IntentName.PAUSE', () => {
         it('with pauseID', () => {
-          const utils = {};
+          const utils = { commandHandler: { canHandle: sinon.stub().returns(false) } };
           const request = {
             type: BaseRequest.RequestType.INTENT,
             payload: { intent: { name: VoiceflowConstants.IntentName.PAUSE }, entities: [] },
@@ -169,7 +169,7 @@ describe('stream state handler unit tests', () => {
         });
 
         it('no pauseID', () => {
-          const utils = {};
+          const utils = { commandHandler: { canHandle: sinon.stub().returns(false) } };
           const request = {
             type: BaseRequest.RequestType.INTENT,
             payload: { intent: { name: VoiceflowConstants.IntentName.PAUSE }, entities: [] },
@@ -208,7 +208,7 @@ describe('stream state handler unit tests', () => {
       });
 
       it('IntentName.RESUME', () => {
-        const utils = {};
+        const utils = { commandHandler: { canHandle: sinon.stub().returns(false) } };
         const request = {
           type: BaseRequest.RequestType.INTENT,
           payload: { intent: { name: VoiceflowConstants.IntentName.RESUME }, entities: [] },
@@ -248,7 +248,7 @@ describe('stream state handler unit tests', () => {
       });
 
       it('IntentName.START_OVER', () => {
-        const utils = {};
+        const utils = { commandHandler: { canHandle: sinon.stub().returns(false) } };
         const request = {
           type: BaseRequest.RequestType.INTENT,
           payload: { intent: { name: VoiceflowConstants.IntentName.START_OVER }, entities: [] },
@@ -287,7 +287,7 @@ describe('stream state handler unit tests', () => {
       });
 
       it('IntentName.REPEAT', () => {
-        const utils = {};
+        const utils = { commandHandler: { canHandle: sinon.stub().returns(false) } };
         const request = {
           type: BaseRequest.RequestType.INTENT,
           payload: { intent: { name: VoiceflowConstants.IntentName.REPEAT }, entities: [] },
@@ -328,7 +328,7 @@ describe('stream state handler unit tests', () => {
       describe('NEXT', () => {
         it('intent', () => {
           const nextID = 'next-id';
-          const utils = {};
+          const utils = { commandHandler: { canHandle: sinon.stub().returns(false) } };
           const request = {
             type: BaseRequest.RequestType.INTENT,
             payload: { intent: { name: VoiceflowConstants.IntentName.NEXT }, entities: [] },
@@ -364,7 +364,7 @@ describe('stream state handler unit tests', () => {
         });
 
         it('streamAction', () => {
-          const utils = {};
+          const utils = { commandHandler: { canHandle: sinon.stub().returns(false) } };
           const request = {
             type: BaseRequest.RequestType.INTENT,
             payload: { intent: { name: 'random' }, entities: [] },
@@ -402,7 +402,7 @@ describe('stream state handler unit tests', () => {
 
       describe('IntentName.PREVIOUS', () => {
         it('no previousId', () => {
-          const utils = {};
+          const utils = { commandHandler: { canHandle: sinon.stub().returns(false) } };
           const request = {
             type: BaseRequest.RequestType.INTENT,
             payload: { intent: { name: VoiceflowConstants.IntentName.PREVIOUS }, entities: [] },
@@ -439,7 +439,7 @@ describe('stream state handler unit tests', () => {
 
         it('with previousId', () => {
           const previousID = 'previous-id';
-          const utils = {};
+          const utils = { commandHandler: { canHandle: sinon.stub().returns(false) } };
           const request = {
             type: BaseRequest.RequestType.INTENT,
             payload: { intent: { name: VoiceflowConstants.IntentName.PREVIOUS }, entities: [] },
@@ -476,7 +476,7 @@ describe('stream state handler unit tests', () => {
       });
 
       it('IntentName.Cancel', () => {
-        const utils = {};
+        const utils = { commandHandler: { canHandle: sinon.stub().returns(false) } };
         const request = {
           type: BaseRequest.RequestType.INTENT,
           payload: { intent: { name: VoiceflowConstants.IntentName.CANCEL }, entities: [] },
@@ -517,7 +517,7 @@ describe('stream state handler unit tests', () => {
       // eslint-disable-next-line no-secrets/no-secrets
       describe('IntentName.PLAYBACK_NEARLY_FINISHED', () => {
         it('with loop', () => {
-          const utils = {};
+          const utils = { commandHandler: { canHandle: sinon.stub().returns(false) } };
           const request = {
             type: BaseRequest.RequestType.INTENT,
             payload: { intent: { name: AlexaConstants.AmazonIntent.PLAYBACK_NEARLY_FINISHED }, entities: [] },
@@ -556,7 +556,7 @@ describe('stream state handler unit tests', () => {
         });
 
         it('without loop AND no nextID', () => {
-          const utils = {};
+          const utils = { commandHandler: { canHandle: sinon.stub().returns(false) } };
           const request = {
             type: BaseRequest.RequestType.INTENT,
             payload: { intent: { name: AlexaConstants.AmazonIntent.PLAYBACK_NEARLY_FINISHED }, entities: [] },
@@ -592,7 +592,7 @@ describe('stream state handler unit tests', () => {
         });
 
         it('without loop AND nextID', () => {
-          const utils = {};
+          const utils = { commandHandler: { canHandle: sinon.stub().returns(false) } };
           const request = {
             type: BaseRequest.RequestType.INTENT,
             payload: { intent: { name: AlexaConstants.AmazonIntent.PLAYBACK_NEARLY_FINISHED }, entities: [] },
