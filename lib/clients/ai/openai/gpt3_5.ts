@@ -18,6 +18,45 @@ export class GPT3_5 extends GPTAIModel {
     return this.generateChatCompletion(messages, params);
   }
 
+  async createCompletionWithRetry(
+    messages: BaseUtils.ai.Message[],
+    params: AIModelParams,
+    cutoff?: number,
+    retries = 0
+  ): Promise<AxiosResponse<CreateChatCompletionResponse, any>> {
+    /* 
+      Will retry requests that take longer than cutoff until the last attempt,
+      where it will use the default global timeout.
+      Meant to be used to abort calls that may "instintcively" be taking too long.
+    */
+
+    let retryCount = 0;
+    const requestMessages = messages.map(({ role, content }) => ({ role: GPTAIModel.RoleMapping[role], content }));
+
+    while (retryCount <= retries) {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        return await this.client.createChatCompletion(
+          {
+            model: this.gptModelName,
+            max_tokens: params.maxTokens,
+            temperature: params.temperature,
+            messages: requestMessages,
+          },
+          { timeout: retryCount === retries ? this.TIMEOUT : cutoff || this.TIMEOUT }
+        );
+      } catch (error) {
+        // timeout hit
+        if (error.code === 'ECONNABORTED') {
+          retryCount++;
+        } else {
+          throw error;
+        }
+      }
+    }
+    throw new Error(`Azure API call failed after ${retries} retries`);
+  }
+
   async generateChatCompletion(
     messages: BaseUtils.ai.Message[],
     params: AIModelParams,
