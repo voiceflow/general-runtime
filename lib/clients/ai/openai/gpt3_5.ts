@@ -24,15 +24,20 @@ export class GPT3_5 extends GPTAIModel {
     client = this.client
   ): Promise<CompletionOutput | null> {
     try {
-      const result = await client.createChatCompletion(
-        {
-          model: this.gptModelName,
-          max_tokens: params.maxTokens,
-          temperature: params.temperature,
-          messages: messages.map(({ role, content }) => ({ role: GPTAIModel.RoleMapping[role], content })),
-        },
-        { timeout: this.TIMEOUT }
-      );
+      let result;
+      if (client === this.azureClient) {
+        result = await this.createCompletionWithRetry(messages, params, 4000, 3);
+      } else {
+        result = await this.client.createChatCompletion(
+          {
+            model: this.gptModelName,
+            max_tokens: params.maxTokens,
+            temperature: params.temperature,
+            messages: messages.map(({ role, content }) => ({ role: GPTAIModel.RoleMapping[role], content })),
+          },
+          { timeout: this.TIMEOUT }
+        );
+      }
 
       const output = result?.data.choices[0].message?.content ?? null;
       const tokens = result?.data.usage?.total_tokens ?? 0;
