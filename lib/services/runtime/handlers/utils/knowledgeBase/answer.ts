@@ -5,6 +5,9 @@ import { AIResponse, EMPTY_AI_RESPONSE, fetchChat, fetchPrompt } from '../ai';
 import { getCurrentTime } from '../generativeNoMatch';
 import type { KnowledgeBaseResponse } from '.';
 
+const DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS = 4000;
+const DEFAULT_ANSWER_SYNTHESIS_RETRIES = 2;
+
 const generateContext = (data: KnowledgeBaseResponse) => {
   return data.chunks.map(({ content }, index) => `<${index + 1}>${content}</${index + 1}>`).join('\n');
 };
@@ -58,7 +61,12 @@ export const answerSynthesis = async ({
       },
     ];
 
-    response = await fetchChat({ ...options, messages }, variables);
+    response = await fetchChat(
+      { ...options, messages },
+      variables,
+      DEFAULT_ANSWER_SYNTHESIS_RETRIES,
+      DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS
+    );
   } else if ([BaseUtils.ai.GPT_MODEL.DaVinci_003].includes(model)) {
     // for GPT-3 completion model
     const prompt = dedent`
@@ -150,5 +158,10 @@ export const promptAnswerSynthesis = async ({
     },
   ];
 
-  return fetchChat({ ...options, messages: questionMessages }, variables);
+  return fetchChat(
+    { ...options, messages: questionMessages },
+    variables,
+    DEFAULT_ANSWER_SYNTHESIS_RETRIES,
+    DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS
+  );
 };

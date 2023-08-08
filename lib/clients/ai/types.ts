@@ -7,11 +7,16 @@ export abstract class AIModel {
 
   protected TOKEN_MULTIPLIER = 1;
 
-  abstract generateCompletion(prompt: string, params: BaseUtils.ai.AIModelParams): Promise<CompletionOutput | null>;
+  abstract generateCompletion(
+    prompt: string,
+    params: BaseUtils.ai.AIModelParams,
+    requestConfig?: CompletionRequestConfig
+  ): Promise<CompletionOutput | null>;
 
   abstract generateChatCompletion(
     messages: BaseUtils.ai.Message[],
-    params: BaseUtils.ai.AIModelParams
+    params: BaseUtils.ai.AIModelParams,
+    requestConfig?: CompletionRequestConfig
   ): Promise<CompletionOutput | null>;
 }
 
@@ -20,6 +25,11 @@ export interface CompletionOutput {
   tokens: number;
   queryTokens: number;
   answerTokens: number;
+}
+
+export interface CompletionRequestConfig {
+  backupInvocations?: number;
+  backupInvocationDelay?: number;
 }
 
 export const GPT4_ABLE_PLAN = new Set(['old_pro', 'old_team', 'pro', 'team', 'enterprise']);

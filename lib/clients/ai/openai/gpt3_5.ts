@@ -1,9 +1,10 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
+import { ChatCompletionRequestMessage } from '@voiceflow/openai';
 
 import log from '@/logger';
 
-import { CompletionOutput } from '../types';
+import { CompletionOutput, CompletionRequestConfig } from '../types';
 import { GPTAIModel } from './utils';
 
 export class GPT3_5 extends GPTAIModel {
@@ -11,68 +12,80 @@ export class GPT3_5 extends GPTAIModel {
 
   protected gptModelName = 'gpt-3.5-turbo';
 
-  async generateCompletion(prompt: string, params: AIModelParams) {
+  async generateCompletion(prompt: string, params: AIModelParams, requestConfig?: CompletionRequestConfig) {
     const messages: BaseUtils.ai.Message[] = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
     if (params.system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: params.system });
 
-    return this.generateChatCompletion(messages, params);
+    return this.generateChatCompletion(messages, params, requestConfig);
   }
 
-  async createCompletionWithRetry(
-    messages: BaseUtils.ai.Message[],
+  async raceChatCompletionCalls(
+    messages: ChatCompletionRequestMessage[],
     params: AIModelParams,
-    cutoff?: number,
-    retries = 0
+    delay = 4000,
+    backupCalls = 0
   ): Promise<any> {
-    /* 
-      Will retry requests that take longer than cutoff until the last attempt,
-      where it will use the default global timeout.
-      Meant to be used to abort calls that may "instintcively" be taking too long.
+    /*
+      Races maxCalls calls to openAI with delay inbetween each call.
+      e.g. OpenAI call 1 -> wait [delay] ms -> OpenAI Call 2 -> OpenAI call 2 resolves -> return result 2.
+      This is in response to latency spikes that impact random Azure OpenAI requests. 
     */
 
-    let retryCount = 0;
-    const requestMessages = messages.map(({ role, content }) => ({ role: GPTAIModel.RoleMapping[role], content }));
+    let result;
+    const chatCompletionPromises = [];
+    for (let i = 0; i <= backupCalls; i++) {
+      const chatCompletionPromise = this.client.createChatCompletion(
+        {
+          model: this.gptModelName,
+          max_tokens: params.maxTokens,
+          temperature: params.temperature,
+          messages,
+        },
+        { timeout: this.TIMEOUT }
+      );
+      chatCompletionPromises.push(chatCompletionPromise);
 
-    while (retryCount <= retries) {
-      try {
-        // eslint-disable-next-line no-await-in-loop
-        return await this.client.createChatCompletion(
-          {
-            model: this.gptModelName,
-            max_tokens: params.maxTokens,
-            temperature: params.temperature,
-            messages: requestMessages,
-          },
-          { timeout: retryCount === retries ? this.TIMEOUT : cutoff || this.TIMEOUT }
-        );
-      } catch (error) {
-        // timeout hit
-        if (error.code === 'ECONNABORTED') {
-          retryCount++;
-        } else {
-          throw error;
-        }
+      const timeoutPromise = new Promise((resolve) => {
+        setTimeout(resolve, delay);
+      });
+
+      // eslint-disable-next-line no-await-in-loop
+      result = await Promise.race([...chatCompletionPromises, timeoutPromise]);
+
+      // if the timeout is the race winner, result will be undefined and we continue the loop
+      if (result) {
+        return result;
       }
     }
-    throw new Error(`Azure API call failed after ${retries} retries`);
+
+    // if all retries are already invoked, wait for first one to finish
+    return Promise.race([...chatCompletionPromises]);
   }
 
   async generateChatCompletion(
     messages: BaseUtils.ai.Message[],
     params: AIModelParams,
+    requestConfig?: CompletionRequestConfig,
     client = this.client
   ): Promise<CompletionOutput | null> {
     try {
       let result;
+      const formattedMessages = messages.map(({ role, content }) => ({ role: GPTAIModel.RoleMapping[role], content }));
+
       if (client === this.azureClient) {
-        result = await this.createCompletionWithRetry(messages, params, 4000, 3);
+        result = await this.raceChatCompletionCalls(
+          formattedMessages,
+          params,
+          requestConfig?.backupInvocationDelay,
+          requestConfig?.backupInvocations
+        );
       } else {
         result = await this.client.createChatCompletion(
           {
             model: this.gptModelName,
             max_tokens: params.maxTokens,
             temperature: params.temperature,
-            messages: messages.map(({ role, content }) => ({ role: GPTAIModel.RoleMapping[role], content })),
+            messages: formattedMessages,
           },
           { timeout: this.TIMEOUT }
         );
@@ -109,7 +122,7 @@ export class GPT3_5 extends GPTAIModel {
 
       // if we fail on the azure instance due to rate limiting, retry with OpenAI API
       if (client === this.azureClient && error?.response?.status === 429 && this.openAIClient) {
-        return this.generateChatCompletion(messages, params, this.openAIClient);
+        return this.generateChatCompletion(messages, params, requestConfig, this.openAIClient);
       }
 
       return null;
