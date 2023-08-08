@@ -1,5 +1,7 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
+import { CreateChatCompletionResponse } from '@voiceflow/openai';
+import { AxiosResponse } from 'axios';
 
 import log from '@/logger';
 
