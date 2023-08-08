@@ -25,7 +25,7 @@ export class GPT3_5 extends GPTAIModel {
     params: AIModelParams,
     cutoff?: number,
     retries = 0
-  ): Promise<AxiosResponse<CreateChatCompletionResponse, any>> {
+  ): Promise<any> {
     /* 
       Will retry requests that take longer than cutoff until the last attempt,
       where it will use the default global timeout.
