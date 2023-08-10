@@ -68,5 +68,11 @@ describe.only('ai client utils unit tests', () => {
         expect(func.callCount).to.equal(1); // no retries for rejections
       }
     });
+
+    it('still run first function if delay is 0', async () => {
+      const func = sinon.stub().resolves(Utils.promise.delay(50, 'slow'));
+      const result = await delayedPromiseRace(func, 0, 0);
+      expect(result).to.equal('slow');
+    });
   });
 });
