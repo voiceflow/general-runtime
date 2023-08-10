@@ -7,7 +7,7 @@ import Interact from './interact';
 import NLU from './nlu';
 import Public from './public';
 import StateManagement from './stateManagement';
-import Test from './test';
+import Test from './test/test.controller';
 import Transcript from './transcript/transcript';
 
 export interface ControllerMap {

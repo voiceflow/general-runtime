@@ -11,9 +11,10 @@ import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
 import { Request, Response } from '@/types';
 
-import { QuotaName } from '../services/billing';
-import { fetchPrompt } from '../services/runtime/handlers/utils/ai';
-import { AbstractController } from './utils';
+import { QuotaName } from '../../services/billing';
+import { fetchPrompt } from '../../services/runtime/handlers/utils/ai';
+import { AbstractController } from '../utils';
+import { TestFunctionBody, TestFunctionParams, TestFunctionResponse, TestFunctionStatus } from './test.interface';
 
 class TestController extends AbstractController {
   async testAPI(req: Request, res: Response) {
@@ -126,6 +127,37 @@ class TestController extends AbstractController {
     }
 
     return { output };
+  }
+
+  async testFunction(req: Request<TestFunctionParams, TestFunctionBody>): Promise<TestFunctionResponse> {
+    const {
+      params: { functionID },
+      body: inputMapping,
+    } = req;
+
+    await this.services.test.testFunction(functionID, inputMapping);
+
+    return {
+      status: TestFunctionStatus.Success,
+      latencyMS: 483,
+      outputMapping: {
+        str_value: 'hello, world!',
+        num_value: 123456.789,
+        bool_value: true,
+        arr_value: ['a', 'b', 'c', ['1', '2', '3'], { a: '1', b: 2, c: false }],
+        obj_value: {
+          x: 1,
+          y: 'string',
+          z: true,
+          w: [1, '2', false, [1, 2, 3], { a: 1 }],
+          v: {
+            '1': 1,
+            2: 2,
+            '3': false,
+          },
+        },
+      },
+    };
   }
 }
 
