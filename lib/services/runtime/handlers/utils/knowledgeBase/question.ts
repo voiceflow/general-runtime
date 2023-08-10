@@ -30,8 +30,10 @@ export const questionSynthesis = async (question: string, memory: BaseUtils.ai.M
         messages: contextMessages,
       },
       undefined,
-      DEFAULT_QUESTION_SYNTHESIS_RETRIES,
-      DEFAULT_QUESTION_SYNTHESIS_RETRY_DELAY_MS
+      {
+        retries: DEFAULT_QUESTION_SYNTHESIS_RETRIES,
+        retryDelay: DEFAULT_QUESTION_SYNTHESIS_RETRY_DELAY_MS,
+      }
     );
 
     if (response.output) return response;
@@ -82,10 +84,8 @@ export const promptQuestionSynthesis = async ({
     },
   ];
 
-  return fetchChat(
-    { ...options, messages: questionMessages },
-    variables,
-    DEFAULT_QUESTION_SYNTHESIS_RETRIES,
-    DEFAULT_QUESTION_SYNTHESIS_RETRY_DELAY_MS
-  );
+  return fetchChat({ ...options, messages: questionMessages }, variables, {
+    retries: DEFAULT_QUESTION_SYNTHESIS_RETRIES,
+    retryDelay: DEFAULT_QUESTION_SYNTHESIS_RETRY_DELAY_MS,
+  });
 };

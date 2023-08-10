@@ -61,12 +61,10 @@ export const answerSynthesis = async ({
       },
     ];
 
-    response = await fetchChat(
-      { ...options, messages },
-      variables,
-      DEFAULT_ANSWER_SYNTHESIS_RETRIES,
-      DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS
-    );
+    response = await fetchChat({ ...options, messages }, variables, {
+      retries: DEFAULT_ANSWER_SYNTHESIS_RETRIES,
+      retryDelay: DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
+    });
   } else if ([BaseUtils.ai.GPT_MODEL.DaVinci_003].includes(model)) {
     // for GPT-3 completion model
     const prompt = dedent`
@@ -158,10 +156,8 @@ export const promptAnswerSynthesis = async ({
     },
   ];
 
-  return fetchChat(
-    { ...options, messages: questionMessages },
-    variables,
-    DEFAULT_ANSWER_SYNTHESIS_RETRIES,
-    DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS
-  );
+  return fetchChat({ ...options, messages: questionMessages }, variables, {
+    retries: DEFAULT_ANSWER_SYNTHESIS_RETRIES,
+    retryDelay: DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
+  });
 };

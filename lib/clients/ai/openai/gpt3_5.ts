@@ -1,10 +1,10 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
-import { ChatCompletionRequestMessage } from '@voiceflow/openai';
 
 import log from '@/logger';
 
-import { CompletionOutput, CompletionRequestConfig } from '../types';
+import { CompletionOptions, CompletionOutput } from '../types';
+import { delayedPromiseRace } from '../utils';
 import { GPTAIModel } from './utils';
 
 export class GPT3_5 extends GPTAIModel {
@@ -12,83 +12,36 @@ export class GPT3_5 extends GPTAIModel {
 
   protected gptModelName = 'gpt-3.5-turbo';
 
-  async generateCompletion(prompt: string, params: AIModelParams, requestConfig?: CompletionRequestConfig) {
+  async generateCompletion(prompt: string, params: AIModelParams) {
     const messages: BaseUtils.ai.Message[] = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
     if (params.system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: params.system });
 
-    return this.generateChatCompletion(messages, params, requestConfig);
-  }
-
-  async raceChatCompletionCalls(
-    messages: ChatCompletionRequestMessage[],
-    params: AIModelParams,
-    delay = 4000,
-    backupCalls = 0
-  ): Promise<any> {
-    /*
-      Races maxCalls calls to openAI with delay inbetween each call.
-      e.g. OpenAI call 1 -> wait [delay] ms -> OpenAI Call 2 -> OpenAI call 2 resolves -> return result 2.
-      This is in response to latency spikes that impact random Azure OpenAI requests. 
-    */
-
-    let result;
-    const chatCompletionPromises = [];
-    for (let i = 0; i <= backupCalls; i++) {
-      const chatCompletionPromise = this.client.createChatCompletion(
-        {
-          model: this.gptModelName,
-          max_tokens: params.maxTokens,
-          temperature: params.temperature,
-          messages,
-        },
-        { timeout: this.TIMEOUT }
-      );
-      chatCompletionPromises.push(chatCompletionPromise);
-
-      const timeoutPromise = new Promise((resolve) => {
-        setTimeout(resolve, delay);
-      });
-
-      // eslint-disable-next-line no-await-in-loop
-      result = await Promise.race([...chatCompletionPromises, timeoutPromise]);
-
-      // if the timeout is the race winner, result will be undefined and we continue the loop
-      if (result) {
-        return result;
-      }
-    }
-
-    // if all retries are already invoked, wait for first one to finish
-    return Promise.race([...chatCompletionPromises]);
+    return this.generateChatCompletion(messages, params);
   }
 
   async generateChatCompletion(
     messages: BaseUtils.ai.Message[],
     params: AIModelParams,
-    requestConfig?: CompletionRequestConfig,
-    client = this.client
+    options?: CompletionOptions,
+    client = this.azureClient
   ): Promise<CompletionOutput | null> {
+    const resolveCompletion = () =>
+      this.client.createChatCompletion(
+        {
+          model: this.gptModelName,
+          max_tokens: params.maxTokens,
+          temperature: params.temperature,
+          messages: messages.map(({ role, content }) => ({ role: GPTAIModel.RoleMapping[role], content })),
+        },
+        { timeout: this.TIMEOUT }
+      );
+
     try {
       let result;
-      const formattedMessages = messages.map(({ role, content }) => ({ role: GPTAIModel.RoleMapping[role], content }));
-
       if (client === this.azureClient) {
-        result = await this.raceChatCompletionCalls(
-          formattedMessages,
-          params,
-          requestConfig?.backupInvocationDelay,
-          requestConfig?.backupInvocations
-        );
+        result = await delayedPromiseRace(resolveCompletion, options?.retryDelay || 4000, options?.retries);
       } else {
-        result = await this.client.createChatCompletion(
-          {
-            model: this.gptModelName,
-            max_tokens: params.maxTokens,
-            temperature: params.temperature,
-            messages: formattedMessages,
-          },
-          { timeout: this.TIMEOUT }
-        );
+        result = await resolveCompletion();
       }
 
       const output = result?.data.choices[0].message?.content ?? null;
@@ -122,7 +75,7 @@ export class GPT3_5 extends GPTAIModel {
 
       // if we fail on the azure instance due to rate limiting, retry with OpenAI API
       if (client === this.azureClient && error?.response?.status === 429 && this.openAIClient) {
-        return this.generateChatCompletion(messages, params, requestConfig, this.openAIClient);
+        return this.generateChatCompletion(messages, params, options, this.openAIClient);
       }
 
       return null;

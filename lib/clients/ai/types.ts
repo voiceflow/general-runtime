@@ -10,13 +10,13 @@ export abstract class AIModel {
   abstract generateCompletion(
     prompt: string,
     params: BaseUtils.ai.AIModelParams,
-    requestConfig?: CompletionRequestConfig
+    options?: CompletionOptions
   ): Promise<CompletionOutput | null>;
 
   abstract generateChatCompletion(
     messages: BaseUtils.ai.Message[],
     params: BaseUtils.ai.AIModelParams,
-    requestConfig?: CompletionRequestConfig
+    options?: CompletionOptions
   ): Promise<CompletionOutput | null>;
 }
 
@@ -27,9 +27,9 @@ export interface CompletionOutput {
   answerTokens: number;
 }
 
-export interface CompletionRequestConfig {
-  backupInvocations?: number;
-  backupInvocationDelay?: number;
+export interface CompletionOptions {
+  retries?: number;
+  retryDelay?: number;
 }
 
 export const GPT4_ABLE_PLAN = new Set(['old_pro', 'old_team', 'pro', 'team', 'enterprise']);
