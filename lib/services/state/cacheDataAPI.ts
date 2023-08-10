@@ -14,6 +14,10 @@ class CacheDataAPI implements DataAPI<VoiceflowProgram.Program, VoiceflowVersion
     return this.api.getProgram(programID);
   }
 
+  async getVariableState(variableStateID: string) {
+    return this.api.getVariableState(variableStateID);
+  }
+
   async getVersion(versionID: string) {
     if (!(versionID in this.versions)) {
       this.versions[versionID] = await this.api.getVersion(versionID);

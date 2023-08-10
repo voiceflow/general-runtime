@@ -7,8 +7,9 @@ import { extractAPIKeyID } from './utils';
 class CreatorDataAPI<
   P extends BaseModels.Program.Model<any, any> = BaseModels.Program.Model<any, any>,
   V extends BaseModels.Version.Model<any> = BaseModels.Version.Model<any>,
-  PJ extends BaseModels.Project.Model<any, any> = BaseModels.Project.Model<AnyRecord, AnyRecord>
-> implements DataAPI<P, V, PJ>
+  PJ extends BaseModels.Project.Model<any, any> = BaseModels.Project.Model<AnyRecord, AnyRecord>,
+  VS extends BaseModels.VariableState.Model = BaseModels.VariableState.Model
+> implements DataAPI<P, V, PJ, VS>
 {
   protected client: Client;
 
@@ -50,6 +51,10 @@ class CreatorDataAPI<
 
   public getVersion = async (versionID: string) => {
     return (await this.client.version.get(versionID)) as V;
+  };
+
+  public getVariableState = async (variableStateID: string) => {
+    return (await this.client.variableState.get(variableStateID)) as VS;
   };
 
   public getProject = async (ref: string) => {

@@ -21,7 +21,8 @@ interface Client {
 class MongoDataAPI<
   P extends BaseModels.Program.Model<any, any>,
   V extends BaseModels.Version.Model<any>,
-  PJ extends BaseModels.Project.Model<any, any> = BaseModels.Project.Model<AnyRecord, AnyRecord>
+  PJ extends BaseModels.Project.Model<any, any> = BaseModels.Project.Model<AnyRecord, AnyRecord>,
+  VS extends BaseModels.VariableState.Model = BaseModels.VariableState.Model
 > implements DataAPI<P, V, PJ>
 {
   protected client: Client;
@@ -31,6 +32,8 @@ class MongoDataAPI<
   protected versionsCollection = 'versions';
 
   protected projectsCollection = 'projects';
+
+  protected variableStatesCollection = 'variable-states';
 
   constructor(client: Client) {
     this.client = client;
@@ -58,6 +61,16 @@ class MongoDataAPI<
     if (!version) throw new Error(`Version not found: ${versionID}`);
 
     return shallowObjectIdToString(version);
+  };
+
+  public getVariableState = async (variableStateID: string): Promise<VS> => {
+    const persona = await this.client.db
+      .collection(this.variableStatesCollection)
+      .findOne<(VS & { _id: ObjectId; projectID: ObjectId }) | null>({ _id: new ObjectId(variableStateID) });
+
+    if (!persona) throw new Error(`Persona not found: ${variableStateID}`);
+
+    return shallowObjectIdToString(persona);
   };
 
   public getProject = async (projectID: string) => {

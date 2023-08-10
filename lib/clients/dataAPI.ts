@@ -1,4 +1,5 @@
-import { VoiceflowProgram, VoiceflowVersion } from '@voiceflow/voiceflow-types';
+import { BaseModels } from '@voiceflow/base-types';
+import { VoiceflowProgram, VoiceflowProject, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 
 import { CreatorDataApi, LocalDataApi } from '@/runtime';
 import { Config } from '@/types';
@@ -17,7 +18,14 @@ class DataAPI {
 
   creatorAPIAuthorization?: string;
 
-  creatorDataApi?: (authorization: string) => CreatorDataApi<VoiceflowProgram.Program, VoiceflowVersion.Version>;
+  creatorDataApi?: (
+    authorization: string
+  ) => CreatorDataApi<
+    VoiceflowProgram.Program,
+    VoiceflowVersion.Version,
+    VoiceflowProject.Project,
+    BaseModels.VariableState.Model
+  >;
 
   constructor(
     { config, mongo }: { config: Config; mongo: MongoDB | null },

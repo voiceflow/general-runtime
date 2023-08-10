@@ -7,11 +7,14 @@ export interface Display {
 export interface DataAPI<
   P extends BaseModels.Program.Model<any, any> = BaseModels.Program.Model<BaseModels.BaseNode, BaseModels.BaseCommand>,
   V extends BaseModels.Version.Model<any> = BaseModels.Version.Model<BaseModels.Version.PlatformData>,
-  PJ extends BaseModels.Project.Model<any, any> = BaseModels.Project.Model<AnyRecord, AnyRecord>
+  PJ extends BaseModels.Project.Model<any, any> = BaseModels.Project.Model<AnyRecord, AnyRecord>,
+  VS = BaseModels.VariableState.Model
 > {
   getProgram(programID: string): Promise<P>;
 
   getVersion(versionID: string): Promise<V>;
 
   getProject(projectID: string): Promise<PJ>;
+
+  getVariableState(variableStateID: string): Promise<VS>;
 }
