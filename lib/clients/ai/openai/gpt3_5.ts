@@ -12,11 +12,11 @@ export class GPT3_5 extends GPTAIModel {
 
   protected gptModelName = 'gpt-3.5-turbo';
 
-  async generateCompletion(prompt: string, params: AIModelParams) {
+  async generateCompletion(prompt: string, params: AIModelParams, options?: CompletionOptions) {
     const messages: BaseUtils.ai.Message[] = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
     if (params.system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: params.system });
 
-    return this.generateChatCompletion(messages, params);
+    return this.generateChatCompletion(messages, params, options);
   }
 
   async generateChatCompletion(
