@@ -2676,6 +2676,11 @@
   resolved "https://registry.yarnpkg.com/@voiceflow/orval-fetch/-/orval-fetch-1.1.2.tgz#7b2a0ccb4ff76898f8d1a4b88fe9556d8918ba5f"
   integrity sha512-idIHU2alqCbLZjrjpah2dyq8887sK+ZrqXVqEzT5z1v3PLZk+JGt8epOME0179PsFJyeRLj+lz0chANQRIxHLg==
 
+"@voiceflow/orval-fetch@1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/orval-fetch/-/orval-fetch-1.2.0.tgz#02d24862f37c95d2d02d09c15f1f5285647b202e"
+  integrity sha512-XHIQrqAoTackQXVSLF83xfPcmZGuH5iE+cFhIAp72ddv4fctBn3STCEG2pXKAIB+QbfBa9+I9qPx50a0b883YA==
+
 "@voiceflow/pino-pretty@4.4.0":
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/@voiceflow/pino-pretty/-/pino-pretty-4.4.0.tgz#dd27cf16d14fe0fb3899b459a09c2449f10bc8ef"
@@ -2711,13 +2716,13 @@
   resolved "https://registry.yarnpkg.com/@voiceflow/prettier-config/-/prettier-config-1.2.1.tgz#906bc852bcd8b2586fa62e4635392a0bea1fdb59"
   integrity sha512-J7wnJCwRWSNX33Ji2eLeBxtwXplAKIk9/aOfrHVfKmYrLHqXvOcrl2/7xa37jqnuTl8vw3+UsfFo3sMDY6weTg==
 
-"@voiceflow/sdk-auth@^2.3.23":
-  version "2.3.23"
-  resolved "https://registry.yarnpkg.com/@voiceflow/sdk-auth/-/sdk-auth-2.3.23.tgz#8ed74077f6c7f41e368efe5c25ed4d8ab85286d7"
-  integrity sha512-SlA5qH86HG3Fy09931WKZVHIICpBwgrwpl2VgEk93+Z2vKeXp9rcIp2rPxMjP2P4YqavvP1QCuU1sQsiQ0P8qw==
+"@voiceflow/sdk-auth@^2.4.2":
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/@voiceflow/sdk-auth/-/sdk-auth-2.4.2.tgz#581662e55afc8eb1a9fd28f14f8bab494f24366e"
+  integrity sha512-u8sM1z11gmvkDgPHd7A56idB/Qfm9J2QZdKaLTDcfLJiYjBt14u/c4PCtkP5sGRDNnT+ksNbUyFBMFlJqq7Jlg==
   dependencies:
     "@voiceflow/common" "8.1.5"
-    "@voiceflow/orval-fetch" "1.1.2"
+    "@voiceflow/orval-fetch" "1.2.0"
     "@voiceflow/sdk-common" "1.9.0"
     ts-pattern "^4.2.2"
 
