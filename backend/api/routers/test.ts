@@ -14,7 +14,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.post(
     '/workspaces/:workspaceID/functions/:functionID',
     middlewares.auth.authorize(['workspace:READ']),
-    middlewares.rateLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'function'),
+    middlewares.rateLimit.consumeResource((req) => req.headers.authorization ?? req.cookies.auth_vf, 'function'),
     controllers.test.testFunction
   );
 
