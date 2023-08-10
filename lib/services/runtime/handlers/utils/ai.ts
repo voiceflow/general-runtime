@@ -105,11 +105,13 @@ export const consumeResources = async (
 
   const workspaceID = runtime.project?.teamID;
 
-  await runtime.services.billing
-    .consumeQuota(workspaceID, QuotaName.OPEN_API_TOKENS, tokens)
-    .catch((err: Error) =>
-      log.error(`[${reference}] Error consuming quota for workspace ${workspaceID}: ${log.vars({ err })}`)
-    );
+  if (typeof tokens === 'number' && tokens > 0) {
+    await runtime.services.billing
+      .consumeQuota(workspaceID, QuotaName.OPEN_API_TOKENS, tokens)
+      .catch((err: Error) =>
+        log.error(`[${reference}] Error consuming quota for workspace ${workspaceID}: ${log.vars({ err })}`)
+      );
+  }
 
   runtime.trace.debug(
     `__${reference}__ \`tokens: {total: ${tokens}, query: ${queryTokens}, answer: ${answerTokens}}\``
