@@ -17,7 +17,7 @@ import Slots from './slots';
 import Speak from './speak';
 import State from './state';
 import StateManagement from './stateManagement';
-import { TestService } from './test/test.service';
+import { TestService } from './test';
 import Transcript from './transcript';
 import TTS from './tts';
 

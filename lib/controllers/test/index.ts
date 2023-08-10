@@ -14,7 +14,7 @@ import { Request, Response } from '@/types';
 import { QuotaName } from '../../services/billing';
 import { fetchPrompt } from '../../services/runtime/handlers/utils/ai';
 import { AbstractController } from '../utils';
-import { TestFunctionBody, TestFunctionParams, TestFunctionResponse, TestFunctionStatus } from './test.interface';
+import { TestFunctionBody, TestFunctionParams, TestFunctionResponse, TestFunctionStatus } from './interface';
 
 class TestController extends AbstractController {
   async testAPI(req: Request, res: Response) {
