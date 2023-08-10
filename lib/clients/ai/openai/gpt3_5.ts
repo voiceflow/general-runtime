@@ -39,7 +39,7 @@ export class GPT3_5 extends GPTAIModel {
     try {
       let result;
       if (client === this.azureClient) {
-        result = await delayedPromiseRace(resolveCompletion, options?.retryDelay || 4000, options?.retries);
+        result = await delayedPromiseRace(resolveCompletion, options?.retryDelay ?? 5000, options?.retries ?? 1);
       } else {
         result = await resolveCompletion();
       }
