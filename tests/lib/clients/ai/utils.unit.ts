@@ -4,7 +4,7 @@ import sinon from 'sinon';
 
 import { delayedPromiseRace } from '@/lib/clients/ai/utils';
 
-describe.only('ai client utils unit tests', () => {
+describe('ai client utils unit tests', () => {
   describe('delayedPromiseRace', () => {
     it('should directly return', async () => {
       const func = sinon.stub().onFirstCall().resolves(Utils.promise.delay(10, 'fast'));
