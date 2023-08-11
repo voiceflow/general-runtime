@@ -2,6 +2,7 @@ import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 
 import AI from '@/lib/clients/ai';
+import { AIModel } from '@/lib/clients/ai/types';
 import { QuotaName } from '@/lib/services/billing';
 import log from '@/logger';
 import { Runtime } from '@/runtime';
@@ -99,7 +100,8 @@ export const fetchPrompt = async (
 export const consumeResources = async (
   reference: string,
   runtime: Runtime,
-  resources: { tokens?: number; queryTokens?: number; answerTokens?: number } | null
+  model?: AIModel | null,
+  resources?: { tokens?: number; queryTokens?: number; answerTokens?: number } | null
 ) => {
   const { tokens = 0, queryTokens = 0, answerTokens = 0 } = resources ?? {};
 
@@ -114,7 +116,7 @@ export const consumeResources = async (
   }
 
   runtime.trace.debug(
-    `__${reference}__ \`tokens: {total: ${tokens}, query: ${queryTokens}, answer: ${answerTokens}}\``
+    `__${reference}__ \`model: ${model?.modelRef}\ntoken-multiplier: ${model?.TOKEN_MULTIPLIER}\nvf-token-consumption: {total: ${tokens}, query: ${queryTokens}, answer: ${answerTokens}}\``
   );
 };
 

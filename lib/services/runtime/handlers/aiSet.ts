@@ -1,5 +1,6 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 
+import AI from '@/lib/clients/ai';
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
 import { HandlerFactory } from '@/runtime';
 
@@ -78,7 +79,9 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
       { tokens: 0, queryTokens: 0, answerTokens: 0 }
     );
 
-    await consumeResources('AI Set', runtime, { ...totals });
+    const model = AI.get(node.model);
+
+    await consumeResources('AI Set', runtime, model, { ...totals });
 
     return nextID;
   },

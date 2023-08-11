@@ -2,6 +2,7 @@ import { BaseNode, BaseRequest, BaseText, BaseTrace, BaseVersion } from '@voicef
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
+import AI from '@/lib/clients/ai';
 import { Runtime, Store } from '@/runtime';
 
 import { isPrompt, NoMatchCounterStorage, Output, StorageType } from '../types';
@@ -78,13 +79,15 @@ const getOutput = async (
     let result: { output?: Output; tokens: number; queryTokens: number; answerTokens: number } | null = null;
     if (Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0) {
       result = await knowledgeBaseNoMatch(runtime);
-      await consumeResources('KB No Match', runtime, result);
+      const model = AI.get(runtime.project?.knowledgeBase?.settings?.summarization.model);
+      await consumeResources('KB No Match', runtime, model, result);
     }
 
     // hit global no match if KB wasn't successful
     if (!result?.output && globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE) {
       result = await generateNoMatch(runtime, globalNoMatch.prompt);
-      await consumeResources('Generative No Match', runtime, result);
+      const model = AI.get(globalNoMatch.prompt.model);
+      await consumeResources('Generative No Match', runtime, model, result);
     }
 
     if (result?.output) return { output: result.output, ai: true, tokens: result.tokens };

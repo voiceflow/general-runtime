@@ -1,6 +1,7 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { VoiceNode } from '@voiceflow/voice-types';
 
+import AI from '@/lib/clients/ai';
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
 import { HandlerFactory } from '@/runtime';
 
@@ -16,6 +17,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
   handle: async (node, runtime, variables) => {
     const nextID = node.nextId ?? null;
     const workspaceID = runtime.project?.teamID;
+    const model = AI.get(node.model);
 
     if (!(await checkTokens(runtime, node.type))) {
       addOutputTrace(
@@ -40,7 +42,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
         runtime
       );
 
-      await consumeResources('AI Response KB', runtime, answer);
+      await consumeResources('AI Response KB', runtime, model, answer);
 
       const output = generateOutput(
         answer?.output || 'Unable to find relevant answer.',
@@ -74,7 +76,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
       response = await fetchPrompt(node, variables.getState());
     }
 
-    await consumeResources('AI Response', runtime, response);
+    await consumeResources('AI Response', runtime, model, response);
 
     if (!response.output) return nextID;
 
