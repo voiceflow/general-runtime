@@ -4,6 +4,7 @@ import { Config, Controller } from '@/types';
 import { FullServiceMap } from '../services';
 import Feedback from './feedback';
 import Interact from './interact';
+import NLU from './nlu';
 import Public from './public';
 import StateManagement from './stateManagement';
 import Test from './test';
@@ -16,6 +17,7 @@ export interface ControllerMap {
   interact: Interact;
   stateManagement: StateManagement;
   transcript: Transcript;
+  nlu: NLU;
 }
 
 export interface ControllerClass<T = Controller> {
@@ -33,6 +35,7 @@ const buildControllers = (services: FullServiceMap, config: Config) => {
     interact: new Interact(services, config),
     stateManagement: new StateManagement(services, config),
     transcript: new Transcript(services, config),
+    nlu: new NLU(services, config),
   };
 
   // everything before this will be route-wrapped

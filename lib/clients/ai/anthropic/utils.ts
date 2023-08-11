@@ -1,5 +1,5 @@
 /* eslint-disable sonarjs/no-nested-template-literals */
-import { AI_PROMPT, Client, HUMAN_PROMPT } from '@voiceflow/anthropic';
+import Client, { AI_PROMPT, HUMAN_PROMPT } from '@anthropic-ai/sdk';
 import { BaseUtils } from '@voiceflow/base-types';
 import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 
@@ -22,7 +22,7 @@ export abstract class AnthropicAIModel extends AIModel {
       throw new Error(`Anthropic client not initialized`);
     }
 
-    this.client = new Client(config.ANTHROPIC_API_KEY);
+    this.client = new Client({ apiKey: config.ANTHROPIC_API_KEY });
   }
 
   static RoleMap = {
@@ -61,8 +61,8 @@ export abstract class AnthropicAIModel extends AIModel {
 
     const queryTokens = this.calculateTokenUsage(prompt);
 
-    const result = await this.client
-      .complete({
+    const result = await this.client.completions
+      .create({
         prompt,
         model: this.anthropicModel,
         temperature: params.temperature,
