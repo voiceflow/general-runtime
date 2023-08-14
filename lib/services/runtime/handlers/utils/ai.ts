@@ -100,10 +100,14 @@ export const fetchPrompt = async (
 export const consumeResources = async (
   reference: string,
   runtime: Runtime,
-  model?: AIModel | null,
-  resources?: { tokens?: number; queryTokens?: number; answerTokens?: number } | null
+  model: AIModel | null,
+  resources: { tokens?: number; queryTokens?: number; answerTokens?: number } | null
 ) => {
   const { tokens = 0, queryTokens = 0, answerTokens = 0 } = resources ?? {};
+  const multiplier = model?.TOKEN_MULTIPLIER ?? 1;
+  const baseTokens = multiplier === 0 ? 0 : Math.ceil(tokens / multiplier);
+  const baseQueryTokens = multiplier === 0 ? 0 : Math.ceil(queryTokens / multiplier);
+  const baseAnswerTokens = multiplier === 0 ? 0 : Math.ceil(answerTokens / multiplier);
 
   const workspaceID = runtime.project?.teamID;
 
@@ -116,7 +120,11 @@ export const consumeResources = async (
   }
 
   runtime.trace.debug(
-    `__${reference}__ \`model: ${model?.modelRef}\ntoken-multiplier: ${model?.TOKEN_MULTIPLIER}\nvf-token-consumption: {total: ${tokens}, query: ${queryTokens}, answer: ${answerTokens}}\``
+    `__${reference}__
+    <br /> Model: \`${model?.modelRef}\`
+    <br /> Token Multiplier: \`${multiplier}x\`
+    <br /> Base Token Consumption: \`{total: ${baseTokens}, query: ${baseQueryTokens}, answer: ${baseAnswerTokens}}\`
+    <br /> VF Token Consumption: \`{total: ${tokens}, query: ${queryTokens}, answer: ${answerTokens}}\``
   );
 };
 
