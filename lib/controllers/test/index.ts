@@ -1,3 +1,4 @@
+import { Validator } from '@voiceflow/backend-utils';
 import { BaseUtils } from '@voiceflow/base-types';
 import VError from '@voiceflow/verror';
 import _merge from 'lodash/merge';
@@ -13,8 +14,19 @@ import { Request, Response } from '@/types';
 
 import { QuotaName } from '../../services/billing';
 import { fetchPrompt } from '../../services/runtime/handlers/utils/ai';
+import { validate } from '../../utils';
 import { AbstractController } from '../utils';
 import { TestFunctionBody, TestFunctionParams, TestFunctionResponse, TestFunctionStatus } from './interface';
+
+const { body } = Validator;
+
+const VALIDATIONS = {
+  BODY: {
+    CHUNK_LIMIT: body('chunkLimit').optional().isInt({ min: 1, max: 10 }),
+    QUESTION: body('question').exists().isString(),
+    SYNTHESIS: body('synthesis').optional().isBoolean(),
+  },
+};
 
 class TestController extends AbstractController {
   async testAPI(req: Request, res: Response) {
@@ -70,14 +82,25 @@ class TestController extends AbstractController {
     return { output: answer.output };
   }
 
-  async testKnowledgeBase(req: Request) {
+  @validate({
+    BODY_CHUNK_LIMIT: VALIDATIONS.BODY.CHUNK_LIMIT,
+    BODY_QUESTION: VALIDATIONS.BODY.QUESTION,
+    BODY_SYNTHESIS: VALIDATIONS.BODY.SYNTHESIS,
+  })
+  async testKnowledgeBase(
+    req: Request<any, { projectID?: string; question: string; synthesis?: boolean; chunkLimit?: number }>
+  ) {
+    const { question, synthesis = true, chunkLimit } = req.body;
+
     const api = await this.services.dataAPI.get(req.headers.authorization);
-
     // if DM API key infer project from header
-    const project = await api.getProject(req.body.projectID || req.headers.authorization);
-    const settings = _merge({}, project.knowledgeBase?.settings, req.body.settings);
+    const project = await api.getProject(req.body.projectID || req.headers.authorization!);
 
-    const { question, synthesis = true } = req.body;
+    if (!(await this.services.billing.checkQuota(project.teamID, QuotaName.OPEN_API_TOKENS))) {
+      throw new VError('token quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
+    }
+
+    const settings = _merge({}, project.knowledgeBase?.settings, { search: { limit: chunkLimit } });
 
     const data = await fetchKnowledgeBase(project._id, project.teamID, question, settings);
 
@@ -95,11 +118,12 @@ class TestController extends AbstractController {
 
     if (!answer?.output) return { output: null, chunks };
 
+    // do this async to not block the response
     if (typeof answer.tokens === 'number' && answer.tokens > 0) {
-      await this.services.billing
-        .consumeQuota(req.params.workspaceID, QuotaName.OPEN_API_TOKENS, answer.tokens)
+      this.services.billing
+        .consumeQuota(project.teamID, QuotaName.OPEN_API_TOKENS, answer.tokens)
         .catch((err: Error) =>
-          log.warn(`[KB Test] Error consuming quota for workspace ${req.params.workspaceID}: ${log.vars({ err })}`)
+          log.warn(`[KB Test] Error consuming quota for workspace ${project.teamID}: ${log.vars({ err })}`)
         );
     }
 
