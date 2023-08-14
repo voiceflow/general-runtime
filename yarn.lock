@@ -2602,10 +2602,10 @@
   resolved "https://registry.yarnpkg.com/@voiceflow/fetch/-/fetch-1.5.2.tgz#81685a7f94214ce572cf3074c53f0b5380fdb91b"
   integrity sha512-UsdY5t5EQLdoLAVZSxaffyfGIdMpagOqnyLhLV1quYWEFJNv/bmm0Np7b6vK+WVTNe852xWe/oXKzkh4D7sdLg==
 
-"@voiceflow/git-branch-check@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/git-branch-check/-/git-branch-check-1.4.0.tgz#5874af67eaaca0bc5270098f9cca0d65ddeb860a"
-  integrity sha512-NqxeJ4Xl5dA1XnaYxEy7mdTVNbO8C0eUO9RjG/LVJneBch1eL7KfDWjyZ66+fZvUTJPbVu7LwZPnFYKw/ncgbA==
+"@voiceflow/git-branch-check@1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@voiceflow/git-branch-check/-/git-branch-check-1.4.1.tgz#afc8df689f656189a3b4ef3aaf7ee247581afa5b"
+  integrity sha512-btj43ZdlbaAowzQZWUiZq7ssiV9r0M3uyF9ARjsRLMEigeqc/tTKjkKCXlg70Vd0DXrvsDhEW6q+rB+yACZpGw==
   dependencies:
     current-git-branch "^1.1.0"
 

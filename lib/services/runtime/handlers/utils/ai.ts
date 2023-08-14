@@ -2,7 +2,7 @@ import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 
 import AI from '@/lib/clients/ai';
-import { AIModel } from '@/lib/clients/ai/types';
+import { AIModel, CompletionOptions } from '@/lib/clients/ai/types';
 import { QuotaName } from '@/lib/services/billing';
 import log from '@/logger';
 import { Runtime } from '@/runtime';
@@ -37,7 +37,8 @@ export const EMPTY_AI_RESPONSE: AIResponse = {
 
 export const fetchChat = async (
   params: BaseUtils.ai.AIModelParams & { messages: BaseUtils.ai.Message[] },
-  variablesState: Record<string, unknown> = {}
+  variablesState: Record<string, unknown> = {},
+  options: CompletionOptions = {}
 ): Promise<AIResponse> => {
   const model = AI.get(params.model);
   if (!model) return EMPTY_AI_RESPONSE;
@@ -52,14 +53,15 @@ export const fetchChat = async (
   if (system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: system });
 
   const { output, tokens, queryTokens, answerTokens } =
-    (await model.generateChatCompletion(messages, params)) ?? EMPTY_AI_RESPONSE;
+    (await model.generateChatCompletion(messages, params, options)) ?? EMPTY_AI_RESPONSE;
 
   return { messages, output, tokens, queryTokens, answerTokens };
 };
 
 export const fetchPrompt = async (
   params: BaseUtils.ai.AIModelParams & { mode: BaseUtils.ai.PROMPT_MODE; prompt: string },
-  variablesState: Record<string, unknown> = {}
+  variablesState: Record<string, unknown> = {},
+  options: CompletionOptions = {}
 ): Promise<AIResponse> => {
   const model = AI.get(params.model);
   if (!model) return EMPTY_AI_RESPONSE;
@@ -74,7 +76,7 @@ export const fetchPrompt = async (
     if (system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: system });
 
     const { output, tokens, queryTokens, answerTokens } =
-      (await model.generateChatCompletion(messages, params)) ?? EMPTY_AI_RESPONSE;
+      (await model.generateChatCompletion(messages, params, options)) ?? EMPTY_AI_RESPONSE;
 
     return { output, tokens, queryTokens, answerTokens };
   }
@@ -84,7 +86,7 @@ export const fetchPrompt = async (
     if (prompt) messages.push({ role: BaseUtils.ai.Role.USER, content: prompt });
 
     const { output, tokens, queryTokens, answerTokens } =
-      (await model.generateChatCompletion(messages, params)) ?? EMPTY_AI_RESPONSE;
+      (await model.generateChatCompletion(messages, params, options)) ?? EMPTY_AI_RESPONSE;
 
     return { output, tokens, queryTokens, answerTokens };
   }
@@ -92,7 +94,7 @@ export const fetchPrompt = async (
   if (!prompt) return EMPTY_AI_RESPONSE;
 
   const { output, tokens, queryTokens, answerTokens } =
-    (await model.generateCompletion(prompt, params)) ?? EMPTY_AI_RESPONSE;
+    (await model.generateCompletion(prompt, params, options)) ?? EMPTY_AI_RESPONSE;
 
   return { output, tokens, queryTokens, answerTokens };
 };

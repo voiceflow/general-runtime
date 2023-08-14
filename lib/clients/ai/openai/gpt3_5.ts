@@ -3,7 +3,8 @@ import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 
 import log from '@/logger';
 
-import { CompletionOutput } from '../types';
+import { CompletionOptions, CompletionOutput } from '../types';
+import { delayedPromiseRace } from '../utils';
 import { GPTAIModel } from './utils';
 
 export class GPT3_5 extends GPTAIModel {
@@ -11,20 +12,21 @@ export class GPT3_5 extends GPTAIModel {
 
   protected gptModelName = 'gpt-3.5-turbo';
 
-  async generateCompletion(prompt: string, params: AIModelParams) {
+  async generateCompletion(prompt: string, params: AIModelParams, options?: CompletionOptions) {
     const messages: BaseUtils.ai.Message[] = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
     if (params.system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: params.system });
 
-    return this.generateChatCompletion(messages, params);
+    return this.generateChatCompletion(messages, params, options);
   }
 
   async generateChatCompletion(
     messages: BaseUtils.ai.Message[],
     params: AIModelParams,
-    client = this.client
+    options?: CompletionOptions,
+    client = this.azureClient
   ): Promise<CompletionOutput | null> {
-    try {
-      const result = await client.createChatCompletion(
+    const resolveCompletion = () =>
+      this.client.createChatCompletion(
         {
           model: this.gptModelName,
           max_tokens: params.maxTokens,
@@ -33,6 +35,14 @@ export class GPT3_5 extends GPTAIModel {
         },
         { timeout: this.TIMEOUT }
       );
+
+    try {
+      let result;
+      if (client === this.azureClient) {
+        result = await delayedPromiseRace(resolveCompletion, options?.retryDelay ?? 5000, options?.retries ?? 1);
+      } else {
+        result = await resolveCompletion();
+      }
 
       const output = result?.data.choices[0].message?.content ?? null;
       const tokens = result?.data.usage?.total_tokens ?? 0;
@@ -65,7 +75,7 @@ export class GPT3_5 extends GPTAIModel {
 
       // if we fail on the azure instance due to rate limiting, retry with OpenAI API
       if (client === this.azureClient && error?.response?.status === 429 && this.openAIClient) {
-        return this.generateChatCompletion(messages, params, this.openAIClient);
+        return this.generateChatCompletion(messages, params, options, this.openAIClient);
       }
 
       return null;
