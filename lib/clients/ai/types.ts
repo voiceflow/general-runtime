@@ -5,7 +5,11 @@ export abstract class AIModel {
 
   protected TIMEOUT = 30000;
 
-  public TOKEN_MULTIPLIER = 1;
+  protected TOKEN_MULTIPLIER = 1;
+
+  get tokenMultiplier() {
+    return this.TOKEN_MULTIPLIER;
+  }
 
   abstract generateCompletion(
     prompt: string,

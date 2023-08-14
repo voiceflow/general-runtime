@@ -106,7 +106,7 @@ export const consumeResources = async (
   resources: { tokens?: number; queryTokens?: number; answerTokens?: number } | null
 ) => {
   const { tokens = 0, queryTokens = 0, answerTokens = 0 } = resources ?? {};
-  const multiplier = model?.TOKEN_MULTIPLIER ?? 1;
+  const multiplier = model?.tokenMultiplier ?? 1;
   const baseTokens = multiplier === 0 ? 0 : Math.ceil(tokens / multiplier);
   const baseQueryTokens = multiplier === 0 ? 0 : Math.ceil(queryTokens / multiplier);
   const baseAnswerTokens = multiplier === 0 ? 0 : Math.ceil(answerTokens / multiplier);
