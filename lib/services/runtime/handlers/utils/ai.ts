@@ -125,8 +125,8 @@ export const consumeResources = async (
     `__${reference}__
     <br /> Model: \`${model?.modelRef}\`
     <br /> Token Multiplier: \`${multiplier}x\`
-    <br /> Base Token Consumption: \`{total: ${baseTokens}, query: ${baseQueryTokens}, answer: ${baseAnswerTokens}}\`
-    <br /> VF Token Consumption: \`{total: ${tokens}, query: ${queryTokens}, answer: ${answerTokens}}\``
+    <br /> Token Consumption: \`{total: ${baseTokens}, query: ${baseQueryTokens}, answer: ${baseAnswerTokens}}\`
+    <br /> Post-Multiplier Token Consumption: \`{total: ${tokens}, query: ${queryTokens}, answer: ${answerTokens}}\``
   );
 };
 
