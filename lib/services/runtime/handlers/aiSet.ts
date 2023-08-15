@@ -13,6 +13,8 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
   handle: async (node, runtime, variables) => {
     const nextID = node.nextId ?? null;
     const workspaceID = runtime.project?.teamID;
+    const generativeModel = AI.get(node.model);
+    const kbModel = AI.get(runtime.project?.knowledgeBase?.settings?.summarization.model);
 
     if (!node.sets?.length) return nextID;
 
@@ -79,7 +81,7 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
       { tokens: 0, queryTokens: 0, answerTokens: 0 }
     );
 
-    const model = AI.get(node.model);
+    const model = node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE ? kbModel : generativeModel;
 
     await consumeResources('AI Set', runtime, model, { ...totals });
 

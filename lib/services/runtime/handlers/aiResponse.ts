@@ -17,7 +17,8 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
   handle: async (node, runtime, variables) => {
     const nextID = node.nextId ?? null;
     const workspaceID = runtime.project?.teamID;
-    const model = AI.get(node.model);
+    const generativeModel = AI.get(node.model);
+    const kbModel = AI.get(runtime.project?.knowledgeBase?.settings?.summarization.model);
 
     if (!(await checkTokens(runtime, node.type))) {
       addOutputTrace(
@@ -42,7 +43,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
         runtime
       );
 
-      await consumeResources('AI Response KB', runtime, model, answer);
+      await consumeResources('AI Response KB', runtime, kbModel, answer);
 
       const output = generateOutput(
         answer?.output || 'Unable to find relevant answer.',
@@ -76,7 +77,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
       response = await fetchPrompt(node, variables.getState());
     }
 
-    await consumeResources('AI Response', runtime, model, response);
+    await consumeResources('AI Response', runtime, generativeModel, response);
 
     if (!response.output) return nextID;
 
