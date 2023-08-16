@@ -32,8 +32,11 @@ const scheme = process.env.NODE_ENV === 'e2e' ? 'https' : 'http';
 export const RETRIEVE_ENDPOINT = host && port ? new URL(`${scheme}://${host}:${port}/retrieve`).href : null;
 export const { KNOWLEDGE_BASE_LAMBDA_ENDPOINT } = Config;
 
-export const getAnswerEndpoint = (workspaceID: string | undefined): string | null => {
-  if (workspaceID && FLAGGED_WORSPACE_IDS.includes(String(workspaceID))) {
+export const getAnswerEndpoint = (cloud_env: string, workspaceID: string | undefined): string | null => {
+  if (cloud_env === 'public' && workspaceID && FLAGGED_WORSPACE_IDS.includes(String(workspaceID))) {
+    return RETRIEVE_ENDPOINT;
+  }
+  if (cloud_env === 'usbank') {
     return RETRIEVE_ENDPOINT;
   }
   if (!KNOWLEDGE_BASE_LAMBDA_ENDPOINT) return null;
@@ -47,7 +50,8 @@ export const fetchKnowledgeBase = async (
   settings?: BaseModels.Project.KnowledgeBaseSettings
 ): Promise<KnowledgeBaseResponse | null> => {
   try {
-    const answerEndpoint = getAnswerEndpoint(workspaceID);
+    const cloud_env = Config.CLOUD_ENV || '';
+    const answerEndpoint = getAnswerEndpoint(cloud_env, workspaceID);
 
     if (!answerEndpoint) return null;
 
