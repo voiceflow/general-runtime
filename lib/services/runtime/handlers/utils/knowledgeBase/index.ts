@@ -54,8 +54,8 @@ export const fetchKnowledgeBase = async (
   settings?: BaseModels.Project.KnowledgeBaseSettings
 ): Promise<KnowledgeBaseResponse | null> => {
   try {
-    const cloud_env = Config.CLOUD_ENV || '';
-    const answerEndpoint = getAnswerEndpoint(cloud_env, workspaceID || '');
+    const cloudEnv = Config.CLOUD_ENV || '';
+    const answerEndpoint = getAnswerEndpoint(cloudEnv, workspaceID || '');
 
     if (!answerEndpoint) return null;
 
