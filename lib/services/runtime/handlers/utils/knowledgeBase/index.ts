@@ -11,6 +11,7 @@ import { getMemoryMessages } from '../ai';
 import { generateOutput } from '../output';
 import { answerSynthesis, promptAnswerSynthesis } from './answer';
 import { promptQuestionSynthesis, questionSynthesis } from './question';
+import { CloudEnv } from './types';
 
 export { answerSynthesis, questionSynthesis };
 
@@ -25,21 +26,20 @@ export interface KnowledgeBaseResponse {
   chunks: KnowledegeBaseChunk[];
 }
 
-const flaggedWorkspaces: { [env: string]: string[] } = {};
-flaggedWorkspaces.public = ['80627', 'Brk8AaGjlQ'];
-flaggedWorkspaces.usbank = [];
+const FLAGGED_WORKSPACES_MAP = new Map<string, string[]>([
+  [CloudEnv.Public, ['80627', 'Brk8AaGjlQ']],
+  [CloudEnv.USBank, []],
+]);
 
 const { KL_RETRIEVER_SERVICE_HOST: host, KL_RETRIEVER_SERVICE_PORT: port } = Config;
 const scheme = process.env.NODE_ENV === 'e2e' ? 'https' : 'http';
 export const RETRIEVE_ENDPOINT = host && port ? new URL(`${scheme}://${host}:${port}/retrieve`).href : null;
 export const { KNOWLEDGE_BASE_LAMBDA_ENDPOINT } = Config;
 
-export const getAnswerEndpoint = (cloud_env: string, workspaceID: string): string | null => {
+export const getAnswerEndpoint = (cloudEnv: string, workspaceID: string): string | null => {
   // check if env/workspace pair is flagged, if flagged workspaces list is empty, accept them all
-  if (
-    cloud_env in flaggedWorkspaces &&
-    (flaggedWorkspaces[cloud_env].length === 0 || flaggedWorkspaces[cloud_env].includes(String(workspaceID)))
-  ) {
+  const flaggedWorkspaces = FLAGGED_WORKSPACES_MAP.get(cloudEnv);
+  if (flaggedWorkspaces?.length === 0 || flaggedWorkspaces?.includes(String(workspaceID))) {
     return RETRIEVE_ENDPOINT;
   }
 
