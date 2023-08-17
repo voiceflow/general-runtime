@@ -25,20 +25,24 @@ export interface KnowledgeBaseResponse {
   chunks: KnowledegeBaseChunk[];
 }
 
-export const FLAGGED_WORSPACE_IDS = ['80627', 'Brk8AaGjlQ'];
+const flaggedWorkspaces: { [env: string]: string[] } = {};
+flaggedWorkspaces.public = ['80627', 'Brk8AaGjlQ'];
+flaggedWorkspaces.usbank = [];
 
 const { KL_RETRIEVER_SERVICE_HOST: host, KL_RETRIEVER_SERVICE_PORT: port } = Config;
 const scheme = process.env.NODE_ENV === 'e2e' ? 'https' : 'http';
 export const RETRIEVE_ENDPOINT = host && port ? new URL(`${scheme}://${host}:${port}/retrieve`).href : null;
 export const { KNOWLEDGE_BASE_LAMBDA_ENDPOINT } = Config;
 
-export const getAnswerEndpoint = (cloud_env: string, workspaceID: string | undefined): string | null => {
-  if (cloud_env === 'public' && workspaceID && FLAGGED_WORSPACE_IDS.includes(String(workspaceID))) {
+export const getAnswerEndpoint = (cloud_env: string, workspaceID: string): string | null => {
+  // check if env/workspace pair is flagged, if flagged workspaces list is empty, accept them all
+  if (
+    cloud_env in flaggedWorkspaces &&
+    (flaggedWorkspaces[cloud_env].length === 0 || flaggedWorkspaces[cloud_env].includes(String(workspaceID)))
+  ) {
     return RETRIEVE_ENDPOINT;
   }
-  if (cloud_env === 'usbank') {
-    return RETRIEVE_ENDPOINT;
-  }
+
   if (!KNOWLEDGE_BASE_LAMBDA_ENDPOINT) return null;
   return `${KNOWLEDGE_BASE_LAMBDA_ENDPOINT}/answer`;
 };
@@ -51,7 +55,7 @@ export const fetchKnowledgeBase = async (
 ): Promise<KnowledgeBaseResponse | null> => {
   try {
     const cloud_env = Config.CLOUD_ENV || '';
-    const answerEndpoint = getAnswerEndpoint(cloud_env, workspaceID);
+    const answerEndpoint = getAnswerEndpoint(cloud_env, workspaceID || '');
 
     if (!answerEndpoint) return null;
 
