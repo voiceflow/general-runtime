@@ -95,9 +95,10 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       if (data) {
         let intentRequest = this.adaptNLUPrediction(data);
 
-        if (!isConfidenceScoreAbove(intentConfidence, intentRequest.payload.confidence)) {
+        const { confidence } = intentRequest.payload;
+        if (typeof confidence === 'number' && !isConfidenceScoreAbove(intentConfidence, confidence)) {
           // confidence of a none intent is inverse to the confidence of the predicted intent
-          intentRequest = getNoneIntentRequest({ query, confidence: 1 - intentRequest.payload.confidence! });
+          intentRequest = getNoneIntentRequest({ query, confidence: 1 - confidence });
         }
 
         return mapChannelData(intentRequest, platform, hasChannelIntents);

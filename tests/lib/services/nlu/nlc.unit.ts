@@ -89,7 +89,7 @@ describe('nlu nlc service unit tests', () => {
       const getNoneIntentRequestStub = sinon.stub(utils, 'getNoneIntentRequest').returns(output as any);
 
       expect(nlcToIntent(null)).to.eql(output);
-      expect(getNoneIntentRequestStub.args).to.eql([['']]);
+      expect(getNoneIntentRequestStub.args).to.eql([[{ query: '' }]]);
     });
 
     it('with intent', () => {
