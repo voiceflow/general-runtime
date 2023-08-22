@@ -10,6 +10,7 @@ import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { isTextRequest } from '@/lib/services/runtime/types';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
+import { isConfidenceScoreAbove } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
 import { handleNLCCommand } from './nlc';
 import { getNoneIntentRequest, mapChannelData } from './utils';
@@ -59,6 +60,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     platform,
     dmRequest,
     workspaceID,
+    intentConfidence = 0.6,
   }: {
     query: string;
     model?: BaseModels.PrototypeModel;
@@ -70,6 +72,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     platform: VoiceflowConstants.PlatformType;
     dmRequest?: BaseRequest.IntentRequestPayload;
     workspaceID: string;
+    intentConfidence?: number;
   }): Promise<BaseRequest.IntentRequest> {
     // 1. first try restricted regex (no open slots) - exact string match
     if (model && locale) {
@@ -90,7 +93,13 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
         .catch(() => ({ data: null }));
 
       if (data) {
-        const intentRequest = this.adaptNLUPrediction(data);
+        let intentRequest = this.adaptNLUPrediction(data);
+
+        if (!isConfidenceScoreAbove(intentConfidence, intentRequest.payload.confidence)) {
+          // confidence of a none intent is inverse to the confidence of the predicted intent
+          intentRequest = getNoneIntentRequest({ query, confidence: 1 - intentRequest.payload.confidence! });
+        }
+
         return mapChannelData(intentRequest, platform, hasChannelIntents);
       }
     }
@@ -133,6 +142,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       hasChannelIntents: project?.platformData?.hasChannelIntents,
       platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
       workspaceID: project.teamID,
+      intentConfidence: version?.platformData?.settings?.intentConfidence,
     });
 
     return { ...context, request };

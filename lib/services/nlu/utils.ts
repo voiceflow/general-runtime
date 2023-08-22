@@ -4,7 +4,10 @@ import { GoogleConstants } from '@voiceflow/google-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { match } from 'ts-pattern';
 
-export const getNoneIntentRequest = (query = ''): BaseRequest.IntentRequest => ({
+export const getNoneIntentRequest = ({
+  query = '',
+  confidence,
+}: { query?: string; confidence?: number } = {}): BaseRequest.IntentRequest => ({
   type: BaseRequest.RequestType.INTENT,
   payload: {
     query,
@@ -12,6 +15,7 @@ export const getNoneIntentRequest = (query = ''): BaseRequest.IntentRequest => (
       name: VoiceflowConstants.IntentName.NONE,
     },
     entities: [],
+    confidence,
   },
 });
 

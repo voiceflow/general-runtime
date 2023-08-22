@@ -46,6 +46,7 @@ class NLUController extends AbstractController {
       hasChannelIntents: (project as VoiceflowProject.Project)?.platformData?.hasChannelIntents,
       platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
       workspaceID: project.teamID,
+      intentConfidence: version?.platformData?.settings?.intentConfidence,
     });
   }
 }

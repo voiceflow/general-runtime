@@ -96,7 +96,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       dmStateStore.intentRequest = incomingRequest;
     } else {
       // CASE-A2: The prefixed and regular calls do not match the same intent
-      dmStateStore.intentRequest = getNoneIntentRequest(incomingRequest.payload.query);
+      dmStateStore.intentRequest = getNoneIntentRequest({ query: incomingRequest.payload.query });
     }
   };
 
@@ -153,6 +153,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               platform: version.prototype.platform as VoiceflowConstants.PlatformType,
               dmRequest: dmStateStore.intentRequest.payload,
               workspaceID: project.teamID,
+              intentConfidence: version?.platformData?.settings?.intentConfidence,
             })
           : incomingRequest;
 
@@ -166,7 +167,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         if (dmStateStore.intentRequest.payload.intent.name === VoiceflowConstants.IntentName.NONE) {
           return {
             ...DialogManagement.setDMStore(context, { ...dmStateStore, intentRequest: undefined }),
-            request: getNoneIntentRequest(query),
+            request: getNoneIntentRequest({ query }),
           };
         }
       } catch (err) {
@@ -257,7 +258,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       }
       return {
         ...DialogManagement.setDMStore(context, { ...dmStateStore, intentRequest: undefined }),
-        request: getNoneIntentRequest(query),
+        request: getNoneIntentRequest({ query }),
       };
     }
 

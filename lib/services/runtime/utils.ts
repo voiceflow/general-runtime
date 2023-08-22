@@ -345,5 +345,5 @@ export const getDefaultNoReplyTimeoutSeconds = (platform: string | undefined) =>
   return delayByPlatform[platform] ?? defaultTimeout;
 };
 
-export const isConfidenceScoreAbove = (threshold: number, confidence: number) =>
+export const isConfidenceScoreAbove = (threshold: number, confidence?: number) =>
   typeof confidence !== 'number' || confidence > threshold;

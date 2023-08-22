@@ -214,6 +214,7 @@ describe('nlu manager unit tests', () => {
           payload: {
             ...noneIntent.payload,
             query: '',
+            confidence: undefined,
           },
         },
       });

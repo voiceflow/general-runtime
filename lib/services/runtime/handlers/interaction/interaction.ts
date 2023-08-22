@@ -4,7 +4,7 @@ import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import { Action, HandlerFactory, Runtime, Store } from '@/runtime';
 
 import { StorageType } from '../../types';
-import { addButtonsIfExists, isConfidenceScoreAbove } from '../../utils';
+import { addButtonsIfExists } from '../../utils';
 import CommandHandler from '../command';
 import { findEventMatcher } from '../event';
 import NoMatchHandler from '../noMatch';
@@ -25,14 +25,10 @@ type utilsObjType = typeof utilsObj & {
   addNoReplyIfExists?: (node: VoiceflowNode.Interaction.Node, runtime: Runtime, variables: Store) => void;
 };
 
-const EVENT_CONFIDENCE_THRESHOLD = 0.6;
-
 export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, utilsObjType> = (utils) => ({
   canHandle: (node) => !!node.interactions,
-  // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (node, runtime, variables) => {
     const runtimeAction = runtime.getAction();
-    const request = runtime.getRequest();
 
     if (runtimeAction === Action.RUNNING) {
       utils.addButtonsIfExists(node, runtime, variables);
@@ -60,7 +56,6 @@ export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, 
 
       const matcher = utils.findEventMatcher({ event, runtime });
       if (!matcher) continue;
-      if (!isConfidenceScoreAbove(EVENT_CONFIDENCE_THRESHOLD, request.payload?.confidence)) continue;
 
       // allow handler to apply side effects
       matcher.sideEffect(variables);
