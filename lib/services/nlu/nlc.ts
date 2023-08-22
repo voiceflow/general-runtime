@@ -141,7 +141,7 @@ export const nlcToIntent = (intent: IIntentFullfilment | null, query = '', confi
       confidence,
     },
   }) ||
-  getNoneIntentRequest(query);
+  getNoneIntentRequest({ query });
 
 export const handleNLCCommand = ({
   query,
