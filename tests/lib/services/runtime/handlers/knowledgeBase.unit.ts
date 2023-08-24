@@ -9,10 +9,8 @@ import { CloudEnv } from '@/lib/services/runtime/handlers/utils/knowledgeBase/ty
 
 describe('knowledgebase retrieval unit tests', () => {
   describe('test getAnswerEndpoint', async () => {
-    it('calls new KB when appropriate', async () => {
-      // id for the Python KB Testing workspace created to test this feature
-      const flaggedWorkspaceID = '80627';
-      const endpoint = getAnswerEndpoint(CloudEnv.Public, flaggedWorkspaceID);
+    it('calls new KB for public', async () => {
+      const endpoint = getAnswerEndpoint(CloudEnv.Public, 'anything');
 
       expect(endpoint).to.eql(RETRIEVE_ENDPOINT);
     });
@@ -22,14 +20,6 @@ describe('knowledgebase retrieval unit tests', () => {
       const endpoint = getAnswerEndpoint(CloudEnv.USBank, 'anything');
 
       expect(endpoint).to.eql(RETRIEVE_ENDPOINT);
-    });
-
-    it('calls old KB when appropriate (wrong workspace)', async () => {
-      const nonFlaggedWorkspaceID = '123';
-      const expectedEndpoint = `${KNOWLEDGE_BASE_LAMBDA_ENDPOINT}/answer`;
-      const endpoint = getAnswerEndpoint(CloudEnv.Public, nonFlaggedWorkspaceID);
-
-      expect(endpoint).to.eql(expectedEndpoint);
     });
 
     it('calls old KB when appropriate (wrong cloud env)', async () => {

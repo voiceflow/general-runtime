@@ -27,7 +27,7 @@ export interface KnowledgeBaseResponse {
 }
 
 const FLAGGED_WORKSPACES_MAP = new Map<string, string[]>([
-  [CloudEnv.Public, ['80627', 'Brk8AaGjlQ']],
+  [CloudEnv.Public, []],
   [CloudEnv.USBank, []],
 ]);
 
