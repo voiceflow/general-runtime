@@ -4,6 +4,7 @@ import axios from 'axios';
 import safeJSONStringify from 'json-stringify-safe';
 import _ from 'lodash';
 
+import log from '@/logger';
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
 import { ENDPOINTS_MAP, resultMappings } from './utils';
@@ -38,6 +39,15 @@ const IntegrationsHandler: HandlerFactory<BaseNode.Integration.Node, Integration
       const { data } = await axios.post(
         `${integrationsEndpoint}${ENDPOINTS_MAP[selectedIntegration][selectedAction]}`,
         actionBodyData
+      );
+
+      log.warn(
+        log.vars({
+          integration: selectedIntegration,
+          action: selectedAction,
+          versionID: runtime.getVersionID(),
+          projectID: runtime.project?._id,
+        })
       );
 
       // map result data to variables
