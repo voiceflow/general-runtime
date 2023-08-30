@@ -122,7 +122,7 @@ describe('integrationsHandler unit tests', () => {
       const axiosPost = sinon.stub(axios, 'post').resolves(resultVariables);
 
       const node = { success_id: 'success-id', selected_integration: 'Zapier', selected_action: 'Start a Zap' };
-      const runtime = { trace: { debug: sinon.stub() } };
+      const runtime = { trace: { debug: sinon.stub() }, getVersionID: sinon.stub() };
       const variables = { getState: sinon.stub().returns({}), merge: sinon.stub() };
 
       expect(await integrationsHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
