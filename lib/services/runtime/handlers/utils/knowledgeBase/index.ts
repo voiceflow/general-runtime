@@ -61,6 +61,7 @@ export const fetchKnowledgeBase = async (
 
     const { data } = await axios.post<KnowledgeBaseResponse>(answerEndpoint, {
       projectID,
+      workspaceID,
       question,
       settings,
     });
