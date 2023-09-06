@@ -13,6 +13,8 @@ import Server from './server';
 
   // Graceful shutdown from SIGTERM
   process.on('SIGTERM', async () => {
+    log.warn('DONT MERGE THIS');
+
     log.warn('[app] [http] SIGTERM received stopping server');
 
     await server.stop();
