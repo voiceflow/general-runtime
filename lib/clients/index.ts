@@ -1,9 +1,11 @@
 import { RateLimitClient } from '@voiceflow/backend-utils';
+import { AnalyticsClient } from '@voiceflow/sdk-analytics';
+import fetch from 'node-fetch';
 
 import { MongoSession } from '@/lib/services/session';
 import { Config } from '@/types';
 
-import Analytics, { AnalyticsSystem } from './analytics';
+import AnalyticsIngester, { IngesterClient } from './analytics-ingester';
 import DataAPI from './dataAPI';
 import Metrics, { MetricsType } from './metrics';
 import MongoDB from './mongodb';
@@ -16,7 +18,8 @@ export interface ClientMap extends StaticType {
   redis: ReturnType<typeof RedisClient>;
   rateLimitClient: ReturnType<typeof RateLimitClient>;
   mongo: MongoDB | null;
-  analyticsClient: AnalyticsSystem | null;
+  analyticsIngester: IngesterClient | null;
+  analyticsClient: AnalyticsClient;
 }
 
 /**
@@ -33,7 +36,15 @@ const buildClients = (config: Config): ClientMap => {
     dataAPI: new DataAPI({ config, mongo }),
     metrics: Metrics(config),
     rateLimitClient: RateLimitClient('general-runtime', redis, config),
-    analyticsClient: Analytics(config),
+    analyticsIngester: AnalyticsIngester(config),
+    analyticsClient: new AnalyticsClient({
+      fetchPonyfill: fetch,
+      baseURL: new URL(
+        `${config.NODE_ENV === 'e2e' ? 'https' : 'http'}://${config.ANALYTICS_API_SERVICE_HOST}:${
+          config.ANALYTICS_API_SERVICE_PORT_APP
+        }`
+      ).href,
+    }),
   };
 };
 
