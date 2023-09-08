@@ -18,7 +18,7 @@ describe('analytics manager unit tests', () => {
 
   it('works correctly', async () => {
     const services = {
-      analyticsClient: {
+      analyticsIngester: {
         track: sinon.stub().resolves(),
       },
     };
@@ -26,7 +26,7 @@ describe('analytics manager unit tests', () => {
     const context = { versionID: 1, projectID: '1234', data: '_context123' };
     expect(analytics.handle(context as any)).to.eql(context);
 
-    expect(services.analyticsClient.track.args).to.eql([
+    expect(services.analyticsIngester.track.args).to.eql([
       [
         {
           projectID: context.projectID,
