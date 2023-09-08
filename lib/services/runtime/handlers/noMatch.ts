@@ -3,6 +3,7 @@ import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
 import AI from '@/lib/clients/ai';
+import { ModerationError } from '@/lib/clients/ai/utils';
 import { Runtime, Store } from '@/runtime';
 
 import { isPrompt, NoMatchCounterStorage, Output, StorageType } from '../types';
@@ -75,22 +76,29 @@ const getOutput = async (
       return { output: generateOutput('global no match [token quota exceeded]', runtime.project), ai: true };
     }
 
-    // use knowledge base if it exists
     let result: { output?: Output; tokens: number; queryTokens: number; answerTokens: number } | null = null;
-    if (Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0) {
-      result = await knowledgeBaseNoMatch(runtime);
-      const model = AI.get(runtime.project?.knowledgeBase?.settings?.summarization.model);
-      await consumeResources('KB Fallback', runtime, model, result);
-    }
+    try {
+      // use knowledge base if it exists
+      if (Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0) {
+        result = await knowledgeBaseNoMatch(runtime);
+        const model = AI.get(runtime.project?.knowledgeBase?.settings?.summarization.model);
+        await consumeResources('KB Fallback', runtime, model, result);
+      }
 
-    // hit global no match if KB wasn't successful
-    if (!result?.output && globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE) {
-      result = await generateNoMatch(runtime, globalNoMatch.prompt);
-      const model = AI.get(globalNoMatch.prompt.model);
-      await consumeResources('Generative No Match', runtime, model, result);
-    }
+      // hit global no match if KB wasn't successful
+      if (!result?.output && globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE) {
+        result = await generateNoMatch(runtime, globalNoMatch.prompt);
+        const model = AI.get(globalNoMatch.prompt.model);
+        await consumeResources('Generative No Match', runtime, model, result);
+      }
 
-    if (result?.output) return { output: result.output, ai: true, tokens: result.tokens };
+      if (result?.output) return { output: result.output, ai: true, tokens: result.tokens };
+    } catch (err) {
+      if (err instanceof ModerationError) {
+        return { output: generateOutput('global no match [moderation error]', runtime.project), ai: true };
+      }
+      throw err;
+    }
   }
 
   const prompt = globalNoMatch && isPrompt(globalNoMatch?.prompt) ? globalNoMatch.prompt : null;

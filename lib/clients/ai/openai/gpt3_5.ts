@@ -25,6 +25,8 @@ export class GPT3_5 extends GPTAIModel {
     options?: CompletionOptions,
     client = this.azureClient
   ): Promise<CompletionOutput | null> {
+    await this.checkModeration(messages.map((message) => message.content));
+
     const resolveCompletion = () =>
       this.client.createChatCompletion(
         {

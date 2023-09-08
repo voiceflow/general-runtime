@@ -1,4 +1,15 @@
 import { Utils } from '@voiceflow/common';
+import { CreateModerationResponseResultsInner } from '@voiceflow/openai';
+
+interface ModerationErrorDataItem {
+  input: string;
+  error: CreateModerationResponseResultsInner;
+}
+export class ModerationError extends Error {
+  constructor(public readonly data: ModerationErrorDataItem[]) {
+    super('Moderation request failed');
+  }
+}
 
 export const delayedPromiseRace = async <T extends () => Promise<any>>(
   func: T,
