@@ -31,6 +31,8 @@ export class GPT3 extends GPTAIModel {
   }
 
   async generateCompletion(prompt: string, params: AIModelParams) {
+    await this.checkModeration(prompt);
+
     const result = await this.client
       .createCompletion(
         {

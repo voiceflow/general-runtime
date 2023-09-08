@@ -16,7 +16,7 @@ export abstract class AnthropicAIModel extends AIModel {
   protected maxTokens = 128;
 
   constructor(config: AnthropicConfig) {
-    super(config.AI_GENERATION_TIMEOUT);
+    super(config);
 
     if (!config.ANTHROPIC_API_KEY) {
       throw new Error(`Anthropic client not initialized`);
@@ -58,6 +58,8 @@ export abstract class AnthropicAIModel extends AIModel {
     const prompt = `${topSystem}\n\n${messages.map(
       (message) => `${AnthropicAIModel.RoleMap[message.role]} ${message.content}`
     )}${AI_PROMPT}`;
+
+    await this.checkModeration(prompt);
 
     const queryTokens = this.calculateTokenUsage(prompt);
 

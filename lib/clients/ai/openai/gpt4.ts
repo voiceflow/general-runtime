@@ -31,6 +31,8 @@ export class GPT4 extends GPTAIModel {
   }
 
   async generateChatCompletion(messages: BaseUtils.ai.Message[], params: AIModelParams) {
+    await this.checkModeration(messages.map((message) => message.content));
+
     const result = await this.client
       .createChatCompletion(
         {

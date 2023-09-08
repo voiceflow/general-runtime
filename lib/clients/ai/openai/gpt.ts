@@ -4,14 +4,12 @@ import { ChatCompletionRequestMessageRoleEnum, Configuration, OpenAIApi } from '
 import { Config } from '@/types';
 
 import { AIModel } from '../types';
-import { isAzureBasedGPTConfig, isOpenAIGPTConfig } from './gpt.interface';
+import { isAzureBasedGPTConfig } from './gpt.interface';
 
 export abstract class GPTAIModel extends AIModel {
   protected abstract gptModelName: string;
 
   protected azureClient?: OpenAIApi;
-
-  protected openAIClient?: OpenAIApi;
 
   static RoleMapping = {
     [BaseUtils.ai.Role.ASSISTANT]: ChatCompletionRequestMessageRoleEnum.Assistant,
@@ -20,7 +18,7 @@ export abstract class GPTAIModel extends AIModel {
   };
 
   constructor(config: Config) {
-    super(config.AI_GENERATION_TIMEOUT);
+    super(config);
 
     if (isAzureBasedGPTConfig(config)) {
       // remove trailing slash
@@ -38,13 +36,9 @@ export abstract class GPTAIModel extends AIModel {
       return;
     }
 
-    if (isOpenAIGPTConfig(config)) {
-      this.openAIClient = new OpenAIApi(new Configuration({ apiKey: config.OPENAI_API_KEY }));
-
-      return;
+    if (!this.azureClient && !this.openAIClient) {
+      throw new Error(`OpenAI client not initialized`);
     }
-
-    throw new Error(`OpenAI client not initialized`);
   }
 
   protected calculateTokenMultiplier(tokens: number): number {
