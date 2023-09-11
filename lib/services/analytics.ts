@@ -9,7 +9,7 @@ class Analytics extends AbstractManager implements ContextHandler {
   handle = (context: Context) => {
     const { versionID, projectID } = context;
 
-    this.services.analyticsClient
+    this.services.analyticsIngester
       ?.track({
         projectID,
         versionID,

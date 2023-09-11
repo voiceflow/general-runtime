@@ -143,6 +143,7 @@
   "license": "ISC",
   "main": "build/start.js",
   "optionalDependencies": {
+    "@voiceflow/sdk-analytics": "^1.26.0",
     "@voiceflow/sdk-auth": "^2.4.2",
     "@voiceflow/sdk-billing": "^1.15.25"
   },

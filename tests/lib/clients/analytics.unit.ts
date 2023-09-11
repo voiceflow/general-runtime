@@ -2,12 +2,12 @@ import { Event } from '@voiceflow/event-ingestion-service/build/lib/types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import AnalyticsClient from '@/lib/clients/analytics';
+import AnalyticsIngester from '@/lib/clients/analytics-ingester';
 
 describe('Analytics client unit tests', () => {
   describe('Track', () => {
     it('throws on unknown events', () => {
-      const client = AnalyticsClient({} as any);
+      const client = AnalyticsIngester({} as any);
 
       expect(
         client.track({
@@ -21,7 +21,7 @@ describe('Analytics client unit tests', () => {
     });
 
     it('throws on interact events', () => {
-      const client = AnalyticsClient({} as any);
+      const client = AnalyticsIngester({} as any);
 
       expect(
         client.track({
@@ -51,7 +51,7 @@ describe('Analytics client unit tests', () => {
         trace: [{ payload: 'trace payload' }],
       };
 
-      const client = AnalyticsClient(config as any);
+      const client = AnalyticsIngester(config as any);
 
       const ingestClient = { ingestInteraction: sinon.stub().resolves({ data: { turnID: 'turnID' } }) };
 

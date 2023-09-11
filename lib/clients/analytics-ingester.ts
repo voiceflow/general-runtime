@@ -15,7 +15,7 @@ type GeneralInteractionBody = IngestableInteraction<
 >;
 type GeneralTraceBody = IngestableTrace<BaseTrace.AnyTrace | RuntimeRequest>;
 
-export class AnalyticsSystem extends AbstractClient {
+export class IngesterClient extends AbstractClient {
   private ingestClient?: IngestApi<GeneralInteractionBody, GeneralTraceBody>;
 
   constructor(config: Config) {
@@ -102,6 +102,6 @@ export class AnalyticsSystem extends AbstractClient {
   }
 }
 
-const AnalyticsClient = (config: Config) => new AnalyticsSystem(config);
+const AnalyticsIngester = (config: Config) => new IngesterClient(config);
 
-export default AnalyticsClient;
+export default AnalyticsIngester;
