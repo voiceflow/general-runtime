@@ -1,6 +1,7 @@
 import { Validator } from '@voiceflow/backend-utils';
 import VError from '@voiceflow/verror';
 import { VoiceflowProject } from '@voiceflow/voiceflow-types';
+import { ObjectId } from 'mongodb';
 
 import { shallowObjectIdToString } from '@/runtime/lib/DataAPI/mongoDataAPI';
 import { Request, VersionTag } from '@/types';
@@ -34,7 +35,7 @@ class NLUController extends AbstractController {
       const version = await this.services.mongo?.db
         .collection('versions')
         .findOne(
-          { _id: versionID },
+          { _id: new ObjectId(versionID) },
           { projection: { projectID: 1, 'version.platformData.settings.intentConfidence': 1 } }
         );
 
@@ -47,7 +48,7 @@ class NLUController extends AbstractController {
       const project = await this.services.mongo?.db
         .collection('projects')
         .findOne(
-          { _id: projectID },
+          { _id: new ObjectId(projectID) },
           { projection: { _id: 1, liveVersion: 1, 'prototype.nlp': 1, 'version.platformData.hasChannelIntents': 1 } }
         );
 
