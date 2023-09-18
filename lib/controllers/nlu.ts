@@ -1,6 +1,6 @@
 import { Validator } from '@voiceflow/backend-utils';
 import VError from '@voiceflow/verror';
-import { VoiceflowConstants, VoiceflowProject } from '@voiceflow/voiceflow-types';
+import { VoiceflowProject } from '@voiceflow/voiceflow-types';
 
 import { shallowObjectIdToString } from '@/runtime/lib/DataAPI/mongoDataAPI';
 import { Request, VersionTag } from '@/types';
