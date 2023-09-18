@@ -67,9 +67,9 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     locale?: VoiceflowConstants.Locale;
     versionID: string;
     tag: VersionTag | string;
-    nlp: BaseModels.Project.PrototypeNLP | undefined;
+    nlp: boolean;
     hasChannelIntents: boolean;
-    platform: VoiceflowConstants.PlatformType;
+    platform?: VoiceflowConstants.PlatformType;
     dmRequest?: BaseRequest.IntentRequestPayload;
     workspaceID: string;
     intentConfidence?: number;
@@ -139,7 +139,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
       versionID: context.versionID,
       tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
-      nlp: project.prototype?.nlp,
+      nlp: !!project.prototype?.nlp,
       hasChannelIntents: project?.platformData?.hasChannelIntents,
       platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
       workspaceID: project.teamID,

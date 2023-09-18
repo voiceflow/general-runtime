@@ -2,6 +2,7 @@ import { Validator } from '@voiceflow/backend-utils';
 import VError from '@voiceflow/verror';
 import { VoiceflowConstants, VoiceflowProject } from '@voiceflow/voiceflow-types';
 
+import { shallowObjectIdToString } from '@/runtime/lib/DataAPI/mongoDataAPI';
 import { Request, VersionTag } from '@/types';
 
 import { validate } from '../utils';
@@ -29,8 +30,33 @@ class NLUController extends AbstractController {
   async inference(req: Request) {
     const { versionID, projectID } = req.params;
 
-    const api = await this.services.dataAPI.get();
-    const [version, project] = await Promise.all([api.getVersion(versionID), api.getProject(projectID)]);
+    const getVersion = async (versionID: string) => {
+      const version = await this.services.mongo?.db
+        .collection('versions')
+        .findOne(
+          { _id: versionID },
+          { projection: { projectID: 1, 'version.platformData.settings.intentConfidence': 1 } }
+        );
+
+      if (!version) throw new Error(`Version not found: ${versionID}`);
+
+      return shallowObjectIdToString(version);
+    };
+
+    const getProject = async (projectID: string) => {
+      const project = await this.services.mongo?.db
+        .collection('projects')
+        .findOne(
+          { _id: projectID },
+          { projection: { _id: 1, liveVersion: 1, 'prototype.nlp': 1, 'version.platformData.hasChannelIntents': 1 } }
+        );
+
+      if (!project) throw new Error(`Project not found: ${projectID}`);
+
+      return shallowObjectIdToString(project);
+    };
+
+    const [version, project] = await Promise.all([getVersion(versionID), getProject(projectID)]);
 
     if (version.projectID !== project._id) {
       throw new VError('Missmatch in projectID/versionID', VError.HTTP_STATUS.BAD_REQUEST);
@@ -39,12 +65,9 @@ class NLUController extends AbstractController {
     return this.services.nlu.predict({
       versionID,
       query: req.query.query,
-      model: version.prototype?.model,
-      locale: version.prototype?.data?.locales?.[0],
       tag: project.liveVersion === versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
-      nlp: project.prototype?.nlp,
+      nlp: !!project.prototype?.nlp,
       hasChannelIntents: (project as VoiceflowProject.Project)?.platformData?.hasChannelIntents,
-      platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
       workspaceID: project.teamID,
       intentConfidence: version?.platformData?.settings?.intentConfidence,
     });

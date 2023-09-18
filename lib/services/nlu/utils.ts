@@ -23,7 +23,7 @@ const googleIntentMap = GoogleConstants.VOICEFLOW_TO_GOOGLE_INTENT_MAP;
 // we dont want to map NONE into Fallback otherwise we might introduce issues on the dialog handler
 const { None, ...alexaIntentMap } = AlexaConstants.VoiceflowToAmazonIntentMap;
 
-export const mapChannelData = (data: any, platform: VoiceflowConstants.PlatformType, hasChannelIntents?: boolean) => {
+export const mapChannelData = (data: any, platform?: VoiceflowConstants.PlatformType, hasChannelIntents?: boolean) => {
   // FIXME: PROJ - Adapters
   // google/dfes intents were never given meaningful examples untill https://github.com/voiceflow/general-service/pull/379 was merged
   // this means that sometimes we might predict a VF intent when it should be a google one
