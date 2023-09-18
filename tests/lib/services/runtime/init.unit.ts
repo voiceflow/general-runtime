@@ -33,11 +33,12 @@ describe('runtime init service unit tests', () => {
 
     it('with top frame', () => {
       const client = { setEvent: sinon.stub() };
-      const programID = 'program-id';
+      const versionID = 'version-id';
+      const diagramID = 'diagram-id';
       const name = 'flow-name';
-      const topFrame = { getProgramID: sinon.stub().returns(programID), getName: sinon.stub().returns(name) };
+      const topFrame = { getDiagramID: sinon.stub().returns(diagramID), getName: sinon.stub().returns(name) };
       const runtime = {
-        getVersionID: sinon.stub().returns('versionID'),
+        getVersionID: sinon.stub().returns(versionID),
         stack: { top: sinon.stub().returns(topFrame) },
         trace: { addTrace: sinon.stub() },
       };
@@ -52,7 +53,7 @@ describe('runtime init service unit tests', () => {
         [
           {
             type: BaseNode.Utils.TraceType.FLOW,
-            payload: { diagramID: programID, name },
+            payload: { diagramID, name },
           },
         ],
       ]);
@@ -60,13 +61,14 @@ describe('runtime init service unit tests', () => {
 
     it('base frame', () => {
       const client = { setEvent: sinon.stub() };
-      const programID = 'program-id';
-      const topFrame = { getProgramID: sinon.stub().returns(programID) };
+      const diagramID = 'diagram-id';
+      const topFrame = { getDiagramID: sinon.stub().returns(diagramID), getName: sinon.stub().returns('base') };
       const runtime = {
-        getVersionID: sinon.stub().returns(programID),
+        getVersionID: sinon.stub().returns(diagramID),
         stack: { top: sinon.stub().returns(topFrame) },
         trace: { addTrace: sinon.stub() },
       };
+
       init(client as any);
 
       expect(client.setEvent.args[0][0]).to.eql(EventType.stackDidChange);

@@ -1,9 +1,14 @@
 import { BaseModels } from '@voiceflow/base-types';
 
-type MinimalProgram = Partial<BaseModels.Program.Model> & Pick<BaseModels.Program.Model, 'id' | 'lines' | 'startId'>;
+type MinimalProgram = Partial<BaseModels.Program.Model> &
+  Pick<BaseModels.Program.Model, 'id' | 'lines' | 'startId' | 'versionID' | 'diagramID'>;
 
 export class ProgramModel {
   private id: string;
+
+  private diagramID: string;
+
+  private versionID: string;
 
   private name?: string;
 
@@ -15,7 +20,9 @@ export class ProgramModel {
 
   private startNodeID: string;
 
-  constructor({ id, lines, variables = [], commands = [], name, startId }: MinimalProgram) {
+  constructor({ id, versionID, diagramID, lines, variables = [], commands = [], name, startId }: MinimalProgram) {
+    this.versionID = versionID;
+    this.diagramID = diagramID;
     this.id = id;
     this.name = name;
     this.nodes = lines;
@@ -26,6 +33,14 @@ export class ProgramModel {
 
   public getID(): string {
     return this.id;
+  }
+
+  public getDiagramID(): string {
+    return this.diagramID;
+  }
+
+  public getVersionID(): string {
+    return this.versionID;
   }
 
   public getNode(nodeID?: string | null): BaseModels.BaseNode | null {

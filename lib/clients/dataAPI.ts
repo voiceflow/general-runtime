@@ -1,6 +1,6 @@
 import { VoiceflowProgram, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 
-import { CreatorDataApi, LocalDataApi } from '@/runtime';
+import { LocalDataApi } from '@/runtime';
 import { Config } from '@/types';
 
 import MongoDB from './mongodb';
@@ -17,22 +17,8 @@ class DataAPI {
 
   creatorAPIAuthorization?: string;
 
-  creatorDataApi?: (authorization: string) => CreatorDataApi<VoiceflowProgram.Program, VoiceflowVersion.Version>;
-
-  constructor(
-    { config, mongo }: { config: Config; mongo: MongoDB | null },
-    API = { LocalDataApi, PrototypeDataAPI, CreatorDataApi }
-  ) {
-    const { PROJECT_SOURCE, CREATOR_API_AUTHORIZATION, CREATOR_API_ENDPOINT } = config;
-
-    if (CREATOR_API_ENDPOINT) {
-      this.creatorAPIAuthorization = CREATOR_API_AUTHORIZATION || '';
-      this.creatorDataApi = (authorization) =>
-        new API.CreatorDataApi({
-          endpoint: `${CREATOR_API_ENDPOINT}/v2`,
-          authorization,
-        });
-    }
+  constructor({ config, mongo }: { config: Config; mongo: MongoDB | null }, API = { LocalDataApi, PrototypeDataAPI }) {
+    const { PROJECT_SOURCE } = config;
 
     // fetch from local VF file
     if (PROJECT_SOURCE) {
@@ -45,16 +31,12 @@ class DataAPI {
     }
 
     // configuration not set
-    if (!PROJECT_SOURCE && !mongo && !CREATOR_API_ENDPOINT) {
+    if (!PROJECT_SOURCE && !mongo) {
       throw new Error('no data API env configuration set');
     }
   }
 
-  public async get(authorization = this.creatorAPIAuthorization) {
-    if (this.creatorDataApi && authorization) {
-      return this.creatorDataApi(authorization);
-    }
-
+  public async get() {
     if (this.localDataApi) {
       return this.localDataApi;
     }

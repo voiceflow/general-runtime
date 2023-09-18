@@ -8,7 +8,7 @@ describe('Runtime Stack Frame unit tests', () => {
   it('getState', () => {
     const options = {
       nodeID: 'node-id',
-      programID: 'program-id',
+      diagramID: 'diagram-id',
       storage: { s1: 'v1' },
       commands: [{ type: 'c1' }, { type: 'c2' }],
       variables: { v1: 'v1' },
@@ -16,7 +16,7 @@ describe('Runtime Stack Frame unit tests', () => {
     const frame = new Frame(options);
     expect(frame.getState()).to.eql({
       nodeID: options.nodeID,
-      programID: options.programID,
+      diagramID: options.diagramID,
       storage: options.storage,
       commands: options.commands,
       variables: options.variables,
@@ -36,17 +36,17 @@ describe('Runtime Stack Frame unit tests', () => {
     expect(_.get(frame, 'nodeID')).to.eql(nodeID);
   });
 
-  it('getProgramID', () => {
-    const programID = 'program-id';
-    const frame = new Frame({ programID } as any);
-    expect(frame.getProgramID()).to.eql(programID);
+  it('getDiagramID', () => {
+    const diagramID = 'diagram-id';
+    const frame = new Frame({ diagramID } as any);
+    expect(frame.getDiagramID()).to.eql(diagramID);
   });
 
-  it('setProgramID', () => {
-    const programID = 'program-id';
+  it('setDiagramID', () => {
+    const diagramID = 'diagram-id';
     const frame = new Frame({} as any);
-    frame.setProgramID(programID);
-    expect(_.get(frame, 'programID')).to.eql(programID);
+    frame.setDiagramID(diagramID);
+    expect(_.get(frame, 'diagramID')).to.eql(diagramID);
   });
 
   it('getCommands', () => {

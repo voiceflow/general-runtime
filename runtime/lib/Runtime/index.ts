@@ -186,24 +186,24 @@ class Runtime<
     await super.callEvent<K>(type, event, this);
   }
 
-  public getProgram(programID: string) {
-    return this.programManager.get(programID);
+  public getProgram(versionID: string, diagramID: string) {
+    return this.programManager.get(versionID, diagramID);
   }
 
   private async injectBaseProgram() {
-    if (this.stack.get(0)?.getProgramID() === this.versionID) {
+    if (this.stack.get(0)?.getDiagramID() === this.versionID) {
       return;
     }
 
     // insert base program to the stack
-    const program = await this.api.getProgram(this.versionID).catch(() => null);
+    const program = await this.api.getProgram(this.versionID, this.versionID).catch(() => null);
     if (!program) {
       return;
     }
 
     this.stack.unshift(
       new Frame({
-        programID: this.versionID,
+        diagramID: this.versionID,
         commands: [...(program?.commands ?? [])],
         nodeID: null,
         storage: { [FrameType.IS_BASE]: true },
@@ -259,11 +259,12 @@ class Runtime<
 
   public async hydrateStack(): Promise<void> {
     await this.injectBaseProgram();
+
     await Promise.all(
       this.stack.getFrames().map(async (frame) => {
         if (frame.isHydrated()) return;
 
-        const program = await this.getProgram(frame.getProgramID());
+        const program = await this.getProgram(this.getVersionID(), frame.getDiagramID());
         frame.hydrate(program);
       })
     );

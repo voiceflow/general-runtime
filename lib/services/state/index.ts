@@ -26,7 +26,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
    * @param versionID - project version to generate the context for
    */
   generate({ prototype, rootDiagramID }: BaseModels.Version.Model<any>, state?: State, userID?: string): State {
-    const DEFAULT_STACK = [{ programID: rootDiagramID, storage: {}, variables: {} }];
+    const DEFAULT_STACK = [{ diagramID: rootDiagramID, storage: {}, variables: {} }];
 
     const stack =
       prototype?.context.stack?.map((frame) => ({
@@ -89,12 +89,12 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     // reset the stack for user if base frameID is not the same as the current version, otherwise they will never update
     // this is for when the version is labelled as 'production' but can refer to an arbitrary versionID
     const baseFrame = context.state?.stack?.[0];
-    if (baseFrame?.storage?.[FrameType.IS_BASE] && baseFrame.programID !== context.versionID) {
+    if (baseFrame?.storage?.[FrameType.IS_BASE] && baseFrame.diagramID !== context.versionID) {
       context.state!.stack = [];
     }
 
     // cache per interaction (save version call during request/response cycle)
-    const dataApi = await this.services.dataAPI.get(context.data?.reqHeaders?.authorization);
+    const dataApi = await this.services.dataAPI.get();
     const api = new CacheDataAPI(dataApi);
     const version = await api.getVersion(context.versionID!);
     const project = await api.getProject(version.projectID);

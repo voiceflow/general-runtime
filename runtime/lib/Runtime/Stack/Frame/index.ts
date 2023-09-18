@@ -11,7 +11,7 @@ import Store, { State as StoreState } from '../../Store';
 
 export interface State {
   nodeID?: string | null;
-  programID: string;
+  diagramID: string;
   name?: string;
 
   storage: StoreState;
@@ -21,7 +21,7 @@ export interface State {
 
 export interface Options {
   nodeID?: string | null;
-  programID: string;
+  diagramID: string;
   name?: string;
 
   storage?: StoreState;
@@ -30,7 +30,7 @@ export interface Options {
 
   // deprecated
   blockID?: string | null;
-  diagramID?: string;
+  programID?: string;
 }
 
 class Frame {
@@ -40,7 +40,7 @@ class Frame {
 
   private startNodeID: string | null = null;
 
-  private programID: string;
+  private diagramID: string;
 
   private name?: string;
 
@@ -55,7 +55,7 @@ class Frame {
     if ('blockID' in frameState) this.nodeID = frameState.blockID;
     if ('nodeID' in frameState) this.nodeID = frameState.nodeID;
 
-    this.programID = frameState.diagramID ?? frameState.programID;
+    this.diagramID = frameState.diagramID ?? frameState.programID;
     this.name = frameState.name;
 
     this.storage = new Store(frameState.storage);
@@ -66,7 +66,7 @@ class Frame {
   public getState(): State {
     return {
       nodeID: this.nodeID,
-      programID: this.programID,
+      diagramID: this.diagramID,
 
       storage: this.storage.getState(),
       commands: this.commands,
@@ -130,8 +130,8 @@ class Frame {
     this.nodeID = nodeID;
   }
 
-  public getProgramID(): string {
-    return this.programID;
+  public getDiagramID(): string {
+    return this.diagramID;
   }
 
   public getName(): string | undefined {
@@ -142,8 +142,8 @@ class Frame {
     return this.hydrated;
   }
 
-  public setProgramID(programID: string): void {
-    this.programID = programID;
+  public setDiagramID(diagramID: string): void {
+    this.diagramID = diagramID;
   }
 
   public getCommands<T extends BaseModels.BaseCommand = BaseModels.BaseCommand>(): T[] {

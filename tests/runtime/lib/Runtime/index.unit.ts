@@ -102,11 +102,13 @@ describe('Runtime unit', () => {
       version: null,
     } as any);
 
-    const programId = 'program-id';
-    expect(runtime.getProgram(programId)).to.eql(program);
+    const diagramID = 'diagram-id';
+    const versionID = 'version-id';
+
+    expect(runtime.getProgram(versionID, diagramID)).to.eql(program);
     expect(ProgramManagerStub.calledWithNew()).to.eql(true);
     expect(ProgramManagerStub.args).to.eql([[runtime]]);
-    expect(getProgram.args).to.eql([[programId]]);
+    expect(getProgram.args).to.eql([[versionID, diagramID]]);
   });
 
   it('getHandlers', () => {
@@ -226,7 +228,7 @@ describe('Runtime unit', () => {
     });
 
     it('injectBaseProgram', async () => {
-      const versionID = 'version id';
+      const versionID = 'version_id';
       const cycleStackStub = sinon.stub(cycleStack, 'default');
       const program = { commands: [] };
       const runtime = new Runtime({
@@ -248,7 +250,7 @@ describe('Runtime unit', () => {
       expect(callEventStub.args[3]).to.eql([EventType.updateDidExecute, {}]);
       expect(setActionStub.args).to.eql([[Action.REQUEST]]);
       expect(cycleStackStub.args).to.eql([[runtime]]);
-      expect(runtime.stack.get(0)?.getProgramID()).to.eql(versionID);
+      expect(runtime.stack.get(0)?.getDiagramID()).to.eql(versionID);
     });
   });
 

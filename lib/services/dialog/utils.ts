@@ -97,7 +97,7 @@ export const isIntentInScope = async ({ data: { api }, versionID, state, request
   }
 
   const currentFrame = runtime.stack.top();
-  const program = await runtime.getProgram(currentFrame?.getProgramID()).catch(() => null);
+  const program = await runtime.getProgram(runtime.getVersionID(), currentFrame?.getDiagramID()).catch(() => null);
   const node = program?.getNode(currentFrame.getNodeID());
   const variables = Store.merge(runtime.variables, currentFrame.variables);
 

@@ -135,12 +135,12 @@ describe('stateManagement manager unit tests', () => {
       const data = {
         params: { userID: 'user-id' },
         body: {},
-        headers: { projectID: 'project-id', versionID: 'version-id', authorization: 'VF.ABCD.EFGH' },
+        headers: { projectID: 'project-id', versionID: 'version-id' },
       };
 
       expect(await service.reset(data as any)).to.eql(session);
 
-      expect(services.interact.state.args[0]).to.eql([data.headers.versionID, data.headers.authorization]);
+      expect(services.interact.state.args[0]).to.eql([data.headers.versionID]);
       expect(services.session.saveToDb.args[0]).to.eql([data.headers.projectID, data.params.userID, session]);
     });
   });

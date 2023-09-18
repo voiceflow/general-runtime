@@ -15,9 +15,9 @@ import { SharedValidations } from '../validations';
 import { AbstractController } from './utils';
 
 class InteractController extends AbstractController {
-  async state(req: { headers: { authorization: string; versionID: string } }): Promise<State> {
-    const { versionID, authorization } = req.headers;
-    return this.services.interact.state(versionID, authorization);
+  async state(req: { headers: { versionID: string } }): Promise<State> {
+    const { versionID } = req.headers;
+    return this.services.interact.state(versionID);
   }
 
   @validate({

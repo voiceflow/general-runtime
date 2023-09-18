@@ -10,8 +10,8 @@ class CacheDataAPI implements DataAPI<VoiceflowProgram.Program, VoiceflowVersion
 
   constructor(private api: DataAPI<VoiceflowProgram.Program, VoiceflowVersion.Version>) {}
 
-  async getProgram(programID: string) {
-    return this.api.getProgram(programID);
+  async getProgram(versionID: string, diagramID: string) {
+    return this.api.getProgram(versionID, diagramID);
   }
 
   async getVersion(versionID: string) {

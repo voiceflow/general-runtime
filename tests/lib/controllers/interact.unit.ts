@@ -5,7 +5,6 @@ import Interact from '@/lib/controllers/interact';
 
 describe('interact controller unit tests', () => {
   const versionID = 'some-version-id';
-  const authorization = 'VF.ABCD.efgh';
 
   describe('state', () => {
     it('works', async () => {
@@ -14,12 +13,12 @@ describe('interact controller unit tests', () => {
       const controller = new Interact(services as any, {} as any);
 
       const req = {
-        headers: { versionID, authorization },
+        headers: { versionID },
         params: {},
         body: {},
       };
       expect(await controller.state(req as any)).to.eql(output);
-      expect(services.interact.state.args[0]).to.eql([versionID, authorization]);
+      expect(services.interact.state.args[0]).to.eql([versionID]);
     });
   });
 

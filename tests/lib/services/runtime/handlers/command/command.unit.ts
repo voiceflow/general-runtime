@@ -198,7 +198,7 @@ describe('Command handler', () => {
           [`matched command **${commandObj.type}** - adding command flow`, BaseNode.NodeType.COMMAND],
         ]);
         expect(storageSetStub.args).to.eql([[FrameType.CALLED_COMMAND, true]]);
-        expect(utils.Frame.args).to.eql([[{ programID: commandObj.diagramID }]]);
+        expect(utils.Frame.args).to.eql([[{ diagramID: commandObj.diagramID }]]);
         expect(runtime.stack.push.args).to.eql([[{}]]);
         expect(runtime.trace.addTrace.args).to.eql([[PushPathTrace]]);
       });

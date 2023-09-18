@@ -10,13 +10,16 @@ describe('cacheDataAPI unit tests', () => {
 
   describe('getProgram', () => {
     it('works', async () => {
+      const versionID = 'version-id';
+      const diagramID = 'diagram-id';
+
       const getProgramStub = sinon.stub().returns('getProgram-value');
       const dataAPIStub = { getProgram: getProgramStub };
 
       const cacheDataApi = new CacheDataAPI(dataAPIStub as any);
 
-      expect(await cacheDataApi.getProgram('program-id')).to.eql('getProgram-value');
-      expect(getProgramStub.args).to.eql([['program-id']]);
+      expect(await cacheDataApi.getProgram(versionID, diagramID)).to.eql('getProgram-value');
+      expect(getProgramStub.args).to.eql([[versionID, diagramID]]);
     });
   });
 

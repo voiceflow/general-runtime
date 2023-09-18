@@ -11,25 +11,25 @@ export const GoToNodeHandler: HandlerFactory<BaseNode.GoToNode.Node, typeof util
   canHandle: (node) => node.type === BaseNode.NodeType.GOTO_NODE,
 
   handle: (node, runtime): string | null => {
-    if (!node.diagramID || node.diagramID === runtime.stack.top().getProgramID()) return node.nextId ?? null;
+    if (!node.diagramID || node.diagramID === runtime.stack.top().getDiagramID()) return node.nextId ?? null;
 
     runtime.trace.addTrace<BaseTrace.PathTrace>({
       type: BaseNode.Utils.TraceType.PATH,
       payload: { path: 'jump' },
     });
 
-    const frameIndex = runtime.stack.getFrames().findIndex((frame) => frame.getProgramID() === node.diagramID);
+    const frameIndex = runtime.stack.getFrames().findIndex((frame) => frame.getDiagramID() === node.diagramID);
 
     // always keep base frame in the stack
     runtime.stack.popTo(Math.max(frameIndex + 1, 1));
 
-    const newFrame = new utils.Frame({ programID: node.diagramID });
+    const newFrame = new utils.Frame({ diagramID: node.diagramID });
 
     runtime.stack.push(newFrame);
     runtime.stack.top().setNodeID(node.nextId || null);
 
     runtime.trace.debug(
-      `entering flow \`${newFrame.getName() || newFrame.getProgramID()}\``,
+      `entering flow \`${newFrame.getName() || newFrame.getDiagramID()}\``,
       BaseNode.NodeType.GOTO_NODE
     );
 

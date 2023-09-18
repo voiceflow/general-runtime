@@ -11,27 +11,32 @@ class ProgramManager {
 
   constructor(private runtime: Runtime) {}
 
-  public async get(programID: string): Promise<ProgramModel> {
+  public async get(versionID: string, diagramID: string): Promise<ProgramModel> {
     let program: ProgramModel | undefined;
 
     // Event.programWillFetch can optionally override the program
     await this.runtime.callEvent(EventType.programWillFetch, {
-      programID,
+      versionID,
+      diagramID,
       override: (_program: ProgramModel | undefined) => {
         program = _program;
       },
     });
 
     // this manager currently just caches the current program, incase it is repeatedly called
-    if (!program && programID === this.cachedProgram?.getID()) {
+    if (
+      !program &&
+      diagramID === this.cachedProgram?.getDiagramID() &&
+      versionID === this.cachedProgram?.getVersionID()
+    ) {
       program = this.cachedProgram;
     }
 
     if (!program) {
-      program = new ProgramModel(await this.runtime.api.getProgram(programID));
+      program = new ProgramModel(await this.runtime.api.getProgram(versionID, diagramID));
     }
 
-    this.runtime.callEvent(EventType.programDidFetch, { programID, program });
+    this.runtime.callEvent(EventType.programDidFetch, { versionID, diagramID, program });
 
     this.cachedProgram = program;
     return program;

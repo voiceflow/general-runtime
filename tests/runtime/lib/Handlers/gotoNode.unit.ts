@@ -44,7 +44,7 @@ describe('GotoNode handler', () => {
 
       const runtime = {
         stack: {
-          top: sinon.stub().returns({ getProgramID: sinon.stub().returns(node.diagramID) }),
+          top: sinon.stub().returns({ getDiagramID: sinon.stub().returns(node.diagramID) }),
         },
       };
 
@@ -68,16 +68,16 @@ describe('GotoNode handler', () => {
 
       const runtime = {
         stack: {
-          top: sinon.stub().returns({ setNodeID, getProgramID: sinon.stub().returns('new') }),
+          top: sinon.stub().returns({ setNodeID, getDiagramID: sinon.stub().returns('new') }),
           push: sinon.stub(),
           popTo: sinon.stub(),
           getFrames: sinon
             .stub()
             .returns([
-              { getProgramID: sinon.stub() },
-              { getProgramID: sinon.stub() },
-              { getProgramID: sinon.stub().returns(node.diagramID) },
-              { getProgramID: sinon.stub() },
+              { getDiagramID: sinon.stub() },
+              { getDiagramID: sinon.stub() },
+              { getDiagramID: sinon.stub().returns(node.diagramID) },
+              { getDiagramID: sinon.stub() },
             ]),
         },
         trace: {
@@ -93,7 +93,7 @@ describe('GotoNode handler', () => {
       ]);
       expect(runtime.stack.getFrames.callCount).to.eql(1);
       expect(runtime.stack.popTo.args).to.eql([[3]]);
-      expect(Frame.args).to.eql([[{ programID: 'diagramID' }]]);
+      expect(Frame.args).to.eql([[{ diagramID: 'diagramID' }]]);
       expect(runtime.stack.push.args).to.eql([[frame]]);
       expect(setNodeID.args).to.eql([['next-id']]);
       expect(runtime.trace.debug.args).to.eql([['entering flow `name`', 'goToNode']]);

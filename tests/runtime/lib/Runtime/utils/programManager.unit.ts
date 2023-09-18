@@ -10,9 +10,10 @@ describe('Runtime utils ProgramManager', () => {
   afterEach(() => sinon.restore());
 
   it('get', async () => {
-    const programID = 'program-id';
+    const diagramID = 'diagram-id';
+    const versionID = 'version-id';
     const data = {
-      id: programID,
+      id: diagramID,
       startId: 'start-id',
       variables: { var: 'val' },
       lines: [{ b1: 'v1' }, { b2: 'v2' }],
@@ -24,16 +25,17 @@ describe('Runtime utils ProgramManager', () => {
     };
     const programManager = new ProgramManager(runtime as any);
 
-    const program = await programManager.get(programID);
-    expect(program.getID()).to.eql(programID);
+    const program = await programManager.get(versionID, diagramID);
+
+    expect(program.getID()).to.eql(diagramID);
     expect(program.getStartNodeID()).to.eql(data.startId);
     expect(program.getVariables()).to.eql(data.variables);
     expect(program.getRaw()).to.eql(data.lines);
     expect(program.getCommands()).to.eql(data.commands);
-    expect(runtime.api.getProgram.args).to.eql([[programID]]);
+    expect(runtime.api.getProgram.args).to.eql([[versionID, diagramID]]);
     expect(runtime.callEvent.args[0][0]).to.eql(EventType.programWillFetch);
-    expect(runtime.callEvent.args[0][1].programID).to.eql(programID);
-    expect(runtime.callEvent.args[1]).to.eql([EventType.programDidFetch, { programID, program }]);
+    expect(runtime.callEvent.args[0][1].programID).to.eql(diagramID);
+    expect(runtime.callEvent.args[1]).to.eql([EventType.programDidFetch, { programID: diagramID, program }]);
 
     expect(runtime.callEvent.args[0][1].override()).to.eql(undefined);
   });
@@ -43,39 +45,46 @@ describe('Runtime utils ProgramManager', () => {
     const runtime = { callEvent: sinon.stub(), api: { getProgram: sinon.stub().resolves(program) } };
     const programManager = new ProgramManager(runtime as any);
 
-    const programID = 'program-id';
+    const diagramID = 'diagram-id';
+    const versionID = 'version-id';
     const programModel = new ProgramModel(program as any);
-    expect(await programManager.get(programID)).to.eql(programModel);
+    expect(await programManager.get(versionID, diagramID)).to.eql(programModel);
     expect(_.get(programManager, 'cachedProgram')).to.eql(programModel);
     expect(runtime.callEvent.callCount).to.eql(2);
     expect(runtime.callEvent.args[0][0]).to.eql(EventType.programWillFetch);
     expect(Object.keys(runtime.callEvent.args[0][1])).to.eql(['programID', 'override']);
-    expect(runtime.callEvent.args[0][1].programID).to.eql(programID);
+    expect(runtime.callEvent.args[0][1].programID).to.eql(diagramID);
     expect(typeof runtime.callEvent.args[0][1].override).to.eql('function');
-    expect(runtime.callEvent.args[1]).to.eql([EventType.programDidFetch, { programID, program: programModel }]);
+    expect(runtime.callEvent.args[1]).to.eql([
+      EventType.programDidFetch,
+      { programID: diagramID, program: programModel },
+    ]);
   });
 
   it('program gets injected', async () => {
     const runtime = { callEvent: sinon.stub() };
     const injectedProgramModel = { foo: 'bar' };
-    const fakeFn = (_event: string, utils: { programID: string; override: (...args: any[]) => any }) => {
+    const fakeFn = (_event: string, utils: { diagramID: string; override: (...args: any[]) => any }) => {
       utils.override(injectedProgramModel);
     };
 
     runtime.callEvent.onFirstCall().callsFake(fakeFn);
 
     const programManager = new ProgramManager(runtime as any);
-    expect(await programManager.get('program-id')).to.eql(injectedProgramModel);
+    expect(await programManager.get('version-id', 'diagram-id')).to.eql(injectedProgramModel);
   });
 
   it('program is in cache', async () => {
-    const runtime = { callEvent: sinon.stub() };
+    const runtime = { callEvent: sinon.stub(), api: { getProgram: sinon.stub().resolves({}) } };
     const programManager = new ProgramManager(runtime as any);
 
     const programID = 'program-id';
-    _.set(programManager, 'cachedProgram', new ProgramModel({ id: programID } as any));
+    const diagramID = 'diagram-id';
+    const versionID = 'version-id';
 
-    const program = await programManager.get(programID);
+    _.set(programManager, 'cachedProgram', new ProgramModel({ id: programID, diagramID, versionID } as any));
+
+    const program = await programManager.get(versionID, diagramID);
     expect(program.getID()).to.eql(programID);
   });
 });

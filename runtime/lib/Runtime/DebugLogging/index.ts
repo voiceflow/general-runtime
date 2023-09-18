@@ -52,7 +52,7 @@ export default class DebugLogging {
   public static createFlowReference(frame: Frame): RuntimeLogs.FlowReference {
     return {
       name: frame.getName() ?? null,
-      programID: frame.getProgramID(),
+      diagramID: frame.getDiagramID(),
     };
   }
 

@@ -36,14 +36,14 @@ describe('flowHandler unit tests', () => {
       const newFrame = {
         storage: { set: sinon.stub() },
         getName: sinon.stub().returns(undefined),
-        getProgramID: sinon.stub().returns('new-frame-program-id'),
+        getDiagramID: sinon.stub().returns('new-frame-diagram-id'),
         variables: 'frame-variables',
       };
       frameStub.returns(newFrame);
 
       const node = {
         nodeID: 'node-id',
-        diagram_id: 'program-id',
+        diagram_id: 'diagram-id',
         nextId: 'next-id',
         id: 'step-id',
         type: BaseNode.NodeType.FLOW,
@@ -51,7 +51,7 @@ describe('flowHandler unit tests', () => {
       const topFrame = {
         setNodeID: sinon.stub(),
         getName: () => 'top-frame-name',
-        getProgramID: () => 'top-frame-program-id',
+        getDiagramID: () => 'top-frame-diagram-id',
       };
       const runtime = {
         stack: { top: sinon.stub().returns(topFrame), push: sinon.stub() },
@@ -64,13 +64,13 @@ describe('flowHandler unit tests', () => {
       // assertions
       expect(flowHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
       expect(frameStub.calledWithNew()).to.eql(true);
-      expect(frameStub.args).to.eql([[{ programID: node.diagram_id }]]);
+      expect(frameStub.args).to.eql([[{ diagramID: node.diagram_id }]]);
       expect(mapStoresStub.args).to.eql([[[], variables, newFrame.variables]]);
       expect(newFrame.storage.set.args).to.eql([[S.OUTPUT_MAP, undefined]]);
       expect(topFrame.setNodeID.args).to.eql([[node.nextId]]);
       expect(runtime.stack.push.args).to.eql([[newFrame]]);
       expect(runtime.trace.debug.args).to.eql([
-        [`entering flow \`${newFrame.getProgramID()}\``, BaseNode.NodeType.FLOW],
+        [`entering flow \`${newFrame.getDiagramID()}\``, BaseNode.NodeType.FLOW],
       ]);
       expect(runtime.trace.addTrace.args).to.eql([
         [
@@ -85,11 +85,11 @@ describe('flowHandler unit tests', () => {
                 flow: {
                   before: {
                     name: 'top-frame-name',
-                    programID: 'top-frame-program-id',
+                    diagramID: 'top-frame-diagram-id',
                   },
                   after: {
                     name: null,
-                    programID: 'new-frame-program-id',
+                    diagramID: 'new-frame-diagram-id',
                   },
                 },
               },
@@ -108,13 +108,13 @@ describe('flowHandler unit tests', () => {
         storage: { set: sinon.stub() },
         getName: sinon.stub().returns('new-frame-name'),
         variables: 'frame-variables',
-        getProgramID: sinon.stub().returns('new-frame-program-id'),
+        getDiagramID: sinon.stub().returns('new-frame-diagram-id'),
       };
       frameStub.returns(newFrame);
 
       const node = {
         nodeID: 'node-id',
-        diagram_id: 'program-id',
+        diagram_id: 'diagram-id',
         id: 'step-id',
         type: BaseNode.NodeType.FLOW,
         variable_map: {
@@ -131,7 +131,7 @@ describe('flowHandler unit tests', () => {
       const topFrame = {
         setNodeID: sinon.stub(),
         getName: () => 'top-frame-name',
-        getProgramID: () => 'top-frame-program-id',
+        getDiagramID: () => 'top-frame-diagram-id',
       };
       const runtime = {
         stack: { top: sinon.stub().returns(topFrame), push: sinon.stub() },
@@ -144,7 +144,7 @@ describe('flowHandler unit tests', () => {
       // assertions
       expect(flowHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
       expect(frameStub.calledWithNew()).to.eql(true);
-      expect(frameStub.args).to.eql([[{ programID: node.diagram_id }]]);
+      expect(frameStub.args).to.eql([[{ diagramID: node.diagram_id }]]);
       expect(mapStoresStub.args).to.eql([[node.variable_map.inputs, variables, newFrame.variables]]);
       expect(newFrame.storage.set.args).to.eql([
         [
@@ -171,11 +171,11 @@ describe('flowHandler unit tests', () => {
                 flow: {
                   before: {
                     name: 'top-frame-name',
-                    programID: 'top-frame-program-id',
+                    diagramID: 'top-frame-diagram-id',
                   },
                   after: {
                     name: 'new-frame-name',
-                    programID: 'new-frame-program-id',
+                    diagramID: 'new-frame-diagram-id',
                   },
                 },
               },

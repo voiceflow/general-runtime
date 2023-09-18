@@ -11,12 +11,12 @@ const init = (client: Client) => {
   client.setEvent(EventType.stackDidChange, ({ runtime }) => {
     const top = runtime.stack.top();
 
-    if (!top || top.getProgramID() === runtime.getVersionID()) {
+    if (!top || top.getDiagramID() === runtime.getVersionID()) {
       return;
     }
     runtime.trace.addTrace<BaseNode.Flow.TraceFrame>({
       type: BaseNode.Utils.TraceType.FLOW,
-      payload: { diagramID: top.getProgramID(), name: top.getName() },
+      payload: { diagramID: top.getDiagramID(), name: top.getName() },
     });
   });
 

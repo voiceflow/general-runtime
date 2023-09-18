@@ -33,7 +33,7 @@ const plan = undefined;
 const state = {
   stack: [
     {
-      programID: version.rootDiagramID,
+      diagramID: version.rootDiagramID,
       storage: {},
       variables: {},
     },

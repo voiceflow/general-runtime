@@ -13,7 +13,7 @@ const cycleStack = async (runtime: Runtime, depth = 0): Promise<void> => {
     return;
   }
 
-  if (runtime.stack.top()?.getProgramID() === runtime.getVersionID()) {
+  if (runtime.stack.top()?.getDiagramID() === runtime.getVersionID()) {
     runtime.stack.flush();
     runtime.end();
     return;
@@ -22,7 +22,7 @@ const cycleStack = async (runtime: Runtime, depth = 0): Promise<void> => {
   const currentFrame = runtime.stack.top();
   const currentFrames = runtime.stack.getFrames();
 
-  const program = await runtime.getProgram(currentFrame.getProgramID());
+  const program = await runtime.getProgram(runtime.getVersionID(), currentFrame.getDiagramID());
 
   // hydrate frame with program properties
   currentFrame.hydrate(program);

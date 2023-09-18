@@ -20,7 +20,7 @@ const FlowHandler: HandlerFactory<BaseNode.Flow.Node> = () => ({
       return node.nextId || null;
     }
 
-    const newFrame = new Frame({ programID: node.diagram_id });
+    const newFrame = new Frame({ diagramID: node.diagram_id });
 
     // map node variable map input to frame
     mapStores(node.variable_map?.inputs || [], variables, newFrame.variables);
@@ -38,7 +38,7 @@ const FlowHandler: HandlerFactory<BaseNode.Flow.Node> = () => ({
 
     runtime.stack.push(newFrame);
 
-    runtime.trace.debug(`entering flow \`${newFrame.getName() || newFrame.getProgramID()}\``, BaseNode.NodeType.FLOW);
+    runtime.trace.debug(`entering flow \`${newFrame.getName() || newFrame.getDiagramID()}\``, BaseNode.NodeType.FLOW);
     runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.FLOW, node, {
       flow: {
         before: DebugLogging.createFlowReference(topFrame),

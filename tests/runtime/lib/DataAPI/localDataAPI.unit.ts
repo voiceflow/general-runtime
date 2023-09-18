@@ -82,7 +82,7 @@ describe('localDataAPI client unit tests', () => {
     const stubFS = {
       readFileSync: sinon.stub().returns('readFileSync-val'),
     };
-    const jsonParseStub = sinon.stub(JSON, 'parse').returns(content as any);
+    sinon.stub(JSON, 'parse').returns(content as any);
     const path = {
       join: sinon.stub().returns('join-val'),
     };
@@ -92,7 +92,7 @@ describe('localDataAPI client unit tests', () => {
       { fs: stubFS as any, path: path as any }
     );
 
-    expect(await LocalDataApi.getProgram('a')).to.eql('b');
+    expect(await LocalDataApi.getProgram('a', 'a')).to.eql('b');
   });
 
   it('getProject', async () => {
@@ -104,7 +104,7 @@ describe('localDataAPI client unit tests', () => {
     const stubFS = {
       readFileSync: sinon.stub().returns('readFileSync-val'),
     };
-    const jsonParseStub = sinon.stub(JSON, 'parse').returns(content as any);
+    sinon.stub(JSON, 'parse').returns(content as any);
     const path = {
       join: sinon.stub().returns('join-val'),
     };

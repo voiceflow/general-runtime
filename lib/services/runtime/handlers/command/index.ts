@@ -59,8 +59,8 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
       // destructive and pop off everything before the command node
       stack.popTo(index + 1);
 
-      if (command.diagramID && command.diagramID !== stack.top().getProgramID()) {
-        const newFrame = new utils.Frame({ programID: command.diagramID });
+      if (command.diagramID && command.diagramID !== stack.top().getDiagramID()) {
+        const newFrame = new utils.Frame({ diagramID: command.diagramID });
         stack.push(newFrame);
       }
 
@@ -77,7 +77,7 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
       stack.top().storage.set(FrameType.CALLED_COMMAND, true);
       trace.debug(`matched command **${command.type}** - adding command flow`, BaseNode.NodeType.COMMAND);
       // reset state to beginning of new diagram and store current line to the stack
-      const newFrame = new utils.Frame({ programID: command.diagramID });
+      const newFrame = new utils.Frame({ diagramID: command.diagramID });
       stack.push(newFrame);
     }
 

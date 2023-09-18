@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import _ from 'lodash';
 import sinon from 'sinon';
 
 import DataAPI from '@/lib/clients/dataAPI';
@@ -45,33 +44,6 @@ describe('dataAPI client unit tests', () => {
     expect(API.PrototypeDataAPI.args).to.eql([[{ db: 'mongodb' }]]);
     expect(API.CreatorDataApi.callCount).to.eql(0);
     expect(API.LocalDataApi.callCount).to.eql(0);
-  });
-
-  it('creator api', async () => {
-    const API = {
-      LocalDataApi: sinon.stub().returns({ type: 'local' }),
-      PrototypeDataAPI: sinon.stub().returns({ type: 'remote' }),
-      CreatorDataApi: sinon.stub().returns({ type: 'creator' }),
-    };
-
-    const config = {
-      CREATOR_API_AUTHORIZATION: 'creator auth',
-      CREATOR_API_ENDPOINT: 'creator endpoint',
-    };
-
-    const dataAPI = new DataAPI({ config } as any, API as any);
-
-    expect(await dataAPI.get()).to.eql({ type: 'creator' });
-    expect(API.CreatorDataApi.args).to.eql([
-      [{ endpoint: `${config.CREATOR_API_ENDPOINT}/v2`, authorization: config.CREATOR_API_AUTHORIZATION }],
-    ]);
-    expect(API.LocalDataApi.callCount).to.eql(0);
-    expect(API.PrototypeDataAPI.callCount).to.eql(0);
-
-    expect(await dataAPI.get('new auth')).to.eql({ type: 'creator' });
-    expect(API.CreatorDataApi.secondCall.args).to.eql([
-      { endpoint: `${config.CREATOR_API_ENDPOINT}/v2`, authorization: 'new auth' },
-    ]);
   });
 
   it('fails if no data API env configuration set', () => {

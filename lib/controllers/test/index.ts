@@ -57,7 +57,7 @@ class TestController extends AbstractController {
   }
 
   async testKnowledgeBasePrompt(req: Request) {
-    const api = await this.services.dataAPI.get(req.headers.authorization);
+    const api = await this.services.dataAPI.get();
 
     // if DM API key infer project from header
     const project = await api.getProject(req.body.projectID || req.headers.authorization);
@@ -92,7 +92,7 @@ class TestController extends AbstractController {
   ) {
     const { question, synthesis = true, chunkLimit } = req.body;
 
-    const api = await this.services.dataAPI.get(req.headers.authorization);
+    const api = await this.services.dataAPI.get();
     // if DM API key infer project from header
     const project = await api.getProject(req.body.projectID || req.headers.authorization!);
 

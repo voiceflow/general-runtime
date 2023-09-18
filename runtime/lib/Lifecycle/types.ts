@@ -39,12 +39,14 @@ interface BaseErrorEvent {
 interface UpdateDidCatchEvent extends BaseEvent, BaseErrorEvent {}
 
 interface ProgramWillFetchEvent extends BaseEvent {
-  programID: string;
+  versionID: string;
+  diagramID: string;
   override: (_program: Program | undefined) => void;
 }
 
 interface ProgramDidFetchEvent extends BaseEvent {
-  programID: string;
+  diagramID: string;
+  versionID: string;
   program: Program;
 }
 

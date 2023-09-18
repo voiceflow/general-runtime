@@ -32,18 +32,29 @@ class MongoDataAPI<
 
   protected projectsCollection = 'projects';
 
+  protected apiKeyCollection = 'api-keys';
+
   constructor(client: Client) {
     this.client = client;
   }
 
-  public getProgram = async (programID: string): Promise<P> => {
-    if (!isValidObjectID(programID)) return this.getLegacyProgram(programID);
+  static isolateAPIKey(authorization: string) {
+    if (authorization.startsWith('ApiKey ')) return authorization.replace('ApiKey ', '');
+    if (authorization.startsWith('Bearer ')) return authorization.replace('Bearer ', '');
+    return authorization;
+  }
+
+  public getProgram = async (versionID: string, diagramID: string): Promise<P> => {
+    if (!isValidObjectID(diagramID)) return this.getLegacyProgram(diagramID);
 
     const program = await this.client.db
       .collection(this.programsCollection)
-      .findOne<(P & { _id: ObjectId; versionID: ObjectId }) | null>({ _id: new ObjectId(programID) });
+      .findOne<(P & { _id: ObjectId; versionID: ObjectId }) | null>({
+        versionID: new ObjectId(versionID),
+        diagramID: new ObjectId(diagramID),
+      });
 
-    if (!program) throw new Error(`Program not found: ${programID}`);
+    if (!program) throw new Error(`Program not found: ${diagramID}`);
 
     return shallowObjectIdToString(program);
   };
@@ -60,14 +71,40 @@ class MongoDataAPI<
     return shallowObjectIdToString(version);
   };
 
-  public getProject = async (projectID: string) => {
+  public getProject = async (projectIDOrAuth: string) => {
+    if (!isValidObjectID(projectIDOrAuth)) {
+      return this.getProjectByAPIKey(projectIDOrAuth);
+    }
+
     const project = await this.client.db
       .collection(this.projectsCollection)
       .findOne<(PJ & { _id: ObjectId; devVersion: ObjectId; liveVersion: ObjectId }) | null>({
-        _id: new ObjectId(projectID),
+        _id: new ObjectId(projectIDOrAuth),
       });
 
-    if (!project) throw new Error(`Project not found: ${projectID}`);
+    if (!project) throw new Error(`Project not found: ${projectIDOrAuth}`);
+
+    return shallowObjectIdToString(project);
+  };
+
+  public getProjectByAPIKey = async (auth: string) => {
+    const [apiKeyID, apiKeyKey] = MongoDataAPI.isolateAPIKey(auth).replace('VF.', '').replace('DM.', '').split('.');
+
+    const apiKey = await this.client.db
+      .collection(this.apiKeyCollection)
+      .findOne<{ projectID: string } | null>({ _id: new ObjectId(apiKeyID), key: apiKeyKey });
+
+    if (!apiKey) {
+      throw new Error(`Invalid api key: ${apiKey}`);
+    }
+
+    const project = await this.client.db
+      .collection(this.projectsCollection)
+      .findOne<(PJ & { _id: ObjectId; devVersion: ObjectId; liveVersion: ObjectId }) | null>({
+        _id: new ObjectId(apiKey.projectID),
+      });
+
+    if (!project) throw new Error(`Project not found: ${apiKey}`);
 
     return shallowObjectIdToString(project);
   };

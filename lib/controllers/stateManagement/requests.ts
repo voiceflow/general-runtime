@@ -3,10 +3,10 @@ import { ArrayField, BooleanField, ObjectField, StringField } from '@/lib/contro
 const StackFrame = {
   type: 'object',
   additionalProperties: true,
-  required: ['programID'],
+  required: ['diagramID'],
   properties: {
     nodeID: StringField('nodeID'),
-    programID: StringField('programID'),
+    diagramID: StringField('diagramID'),
     storage: ObjectField('storage'),
     commands: ArrayField('commands', ObjectField('command')),
     variables: ObjectField('variables'),

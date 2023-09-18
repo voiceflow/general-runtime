@@ -70,7 +70,7 @@ class Project extends AbstractMiddleware {
         return next();
       }
 
-      const api = await this.services.dataAPI.get(req.headers.authorization).catch(() => {
+      const api = await this.services.dataAPI.get().catch(() => {
         throw new VError('Error setting up data API', VError.HTTP_STATUS.UNAUTHORIZED);
       });
 
@@ -114,7 +114,7 @@ class Project extends AbstractMiddleware {
         throw new VError('Missing versionID, could not resolve project');
       }
 
-      const api = await this.services.dataAPI.get(req.headers.authorization);
+      const api = await this.services.dataAPI.get();
 
       const { projectID } = await api.getVersion(req.headers.versionID).catch(() => {
         throw new VError(

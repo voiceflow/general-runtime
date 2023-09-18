@@ -159,7 +159,7 @@ describe('command handler unit tests', async () => {
           [`matched command **${res.command.type}** - adding command flow`, BaseNode.NodeType.COMMAND],
         ]);
         // expect(topFrame.storage.set.args).to.eql([[F.CALLED_COMMAND, true]]);
-        expect(utils.Frame.args).to.eql([[{ programID: res.command.diagramID }]]);
+        expect(utils.Frame.args).to.eql([[{ diagramID: res.command.diagramID }]]);
         expect(runtime.stack.push.args).to.eql([[{}]]);
       });
 
@@ -220,14 +220,14 @@ describe('command handler unit tests', async () => {
         });
 
         it('intent with diagramID', () => {
-          const programID = 'program-id';
+          const diagramID = 'diagram-id';
           const frame = { foo: 'bar' };
           const res = {
             command: {
               nextID: 'next-id',
               intent: 'intent',
               type: BaseNode.Utils.CommandType.JUMP,
-              diagramID: programID,
+              diagramID,
             },
             index: 1,
             match: { sideEffect: () => {} },
@@ -235,7 +235,7 @@ describe('command handler unit tests', async () => {
           const utils = { getCommand: sinon.stub().returns(res), Frame: sinon.stub().returns(frame) };
           const commandHandler = CommandAlexaHandler(utils as any);
 
-          const topFrame = { setNodeID: sinon.stub(), getProgramID: sinon.stub().returns('different-program-id') };
+          const topFrame = { setNodeID: sinon.stub(), getDiagramID: sinon.stub().returns('different-program-id') };
           const runtime = {
             trace: { debug: sinon.stub(), addTrace: sinon.stub() },
             turn: { delete: sinon.stub() },
@@ -245,7 +245,7 @@ describe('command handler unit tests', async () => {
           expect(commandHandler.handle(runtime as any, null as any)).to.eql(null);
           expect(runtime.stack.popTo.args).to.eql([[res.index + 1]]);
           expect(topFrame.setNodeID.args).to.eql([[res.command.nextID]]);
-          expect(utils.Frame.args).to.eql([[{ programID: res.command.diagramID }]]);
+          expect(utils.Frame.args).to.eql([[{ diagramID: res.command.diagramID }]]);
           expect(runtime.stack.push.args).to.eql([[frame]]);
           expect(runtime.trace.debug.args).to.eql([
             [`matched command **${res.command.type}** - jumping to node`, BaseNode.NodeType.COMMAND],

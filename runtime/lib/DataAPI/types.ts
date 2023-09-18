@@ -9,7 +9,7 @@ export interface DataAPI<
   V extends BaseModels.Version.Model<any> = BaseModels.Version.Model<BaseModels.Version.PlatformData>,
   PJ extends BaseModels.Project.Model<any, any> = BaseModels.Project.Model<AnyRecord, AnyRecord>
 > {
-  getProgram(programID: string): Promise<P>;
+  getProgram(versionID: string, diagramID: string): Promise<P>;
 
   getVersion(versionID: string): Promise<V>;
 
