@@ -1,6 +1,6 @@
 import { BaseUtils } from '@voiceflow/base-types';
 
-import { AnthropicAIModel } from './utils';
+import { AnthropicAIModel } from './anthropic';
 
 export class ClaudeV2 extends AnthropicAIModel {
   TOKEN_MULTIPLIER = 10;

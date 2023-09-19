@@ -1,6 +1,6 @@
 import { BaseUtils } from '@voiceflow/base-types';
 
-import { AnthropicAIModel } from './utils';
+import { AnthropicAIModel } from './anthropic';
 
 export class ClaudeV1Instant extends AnthropicAIModel {
   modelRef = BaseUtils.ai.GPT_MODEL.CLAUDE_INSTANT_V1;

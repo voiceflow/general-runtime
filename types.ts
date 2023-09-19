@@ -92,6 +92,9 @@ export interface Config extends RateLimitConfig {
   OPENAI_API_KEY: string | null;
 
   ANTHROPIC_API_KEY: string | null;
+
+  // AI Configuration
+  AI_GENERATION_TIMEOUT: number | null;
 }
 
 export interface Request<

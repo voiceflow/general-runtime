@@ -5,7 +5,7 @@ import log from '@/logger';
 
 import { CompletionOptions, CompletionOutput } from '../types';
 import { delayedPromiseRace } from '../utils';
-import { GPTAIModel } from './utils';
+import { GPTAIModel } from './openai';
 
 export class GPT3_5 extends GPTAIModel {
   public modelRef = BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo;

@@ -112,6 +112,9 @@ const CONFIG: Config = {
   OPENAI_API_KEY: getOptionalProcessEnv('OPENAI_API_KEY') || null,
 
   ANTHROPIC_API_KEY: getOptionalProcessEnv('ANTHROPIC_API_KEY') || null,
+
+  // AI Generation Settings
+  AI_GENERATION_TIMEOUT: Number(getOptionalProcessEnv('AI_GENERATION_TIMEOUT')) || null,
 };
 
 export default CONFIG;

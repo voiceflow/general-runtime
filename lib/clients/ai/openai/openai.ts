@@ -4,6 +4,7 @@ import { ChatCompletionRequestMessageRoleEnum, Configuration, OpenAIApi } from '
 import { Config } from '@/types';
 
 import { AIModel } from '../types';
+import { isAzureBasedGPTConfig, isOpenAIGPTConfig } from './openai.interface';
 
 export abstract class GPTAIModel extends AIModel {
   protected abstract gptModelName: string;
@@ -18,10 +19,10 @@ export abstract class GPTAIModel extends AIModel {
     [BaseUtils.ai.Role.USER]: ChatCompletionRequestMessageRoleEnum.User,
   };
 
-  constructor(config: Partial<Config>) {
-    super();
+  constructor(config: Config) {
+    super(config.AI_GENERATION_TIMEOUT);
 
-    if (config.AZURE_ENDPOINT && config.AZURE_OPENAI_API_KEY && config.AZURE_GPT35_DEPLOYMENTS) {
+    if (isAzureBasedGPTConfig(config)) {
       // remove trailing slash
       const endpoint = config.AZURE_ENDPOINT.replace(/\/$/, '');
 
@@ -37,7 +38,7 @@ export abstract class GPTAIModel extends AIModel {
       return;
     }
 
-    if (config.OPENAI_API_KEY) {
+    if (isOpenAIGPTConfig(config)) {
       this.openAIClient = new OpenAIApi(new Configuration({ apiKey: config.OPENAI_API_KEY }));
 
       return;

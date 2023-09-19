@@ -4,9 +4,9 @@ import { BaseUtils } from '@voiceflow/base-types';
 import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 
 import log from '@/logger';
-import { Config } from '@/types';
 
 import { AIModel, CompletionOutput } from '../types';
+import { AnthropicConfig } from './anthropic.interface';
 
 export abstract class AnthropicAIModel extends AIModel {
   protected client: Client;
@@ -15,8 +15,8 @@ export abstract class AnthropicAIModel extends AIModel {
 
   protected maxTokens = 128;
 
-  constructor(config: Partial<Config>) {
-    super();
+  constructor(config: AnthropicConfig) {
+    super(config.AI_GENERATION_TIMEOUT);
 
     if (!config.ANTHROPIC_API_KEY) {
       throw new Error(`Anthropic client not initialized`);
