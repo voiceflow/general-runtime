@@ -4,6 +4,7 @@ import { Config, MiddlewareGroup } from '@/types';
 import { FullServiceMap } from '../services';
 import Auth from './auth';
 import { BillingMiddleware } from './billing';
+import InferenceLimit from './inferenceLimit';
 import LLMLimit from './llmLimit';
 import Project from './project';
 import RateLimit from './rateLimit';
@@ -14,6 +15,7 @@ export interface MiddlewareMap {
   project: Project;
   rateLimit: RateLimit;
   llmLimit: LLMLimit;
+  inferenceLimit: InferenceLimit;
 }
 
 export interface MiddlewareClass<T = MiddlewareGroup> {
@@ -30,6 +32,7 @@ const buildMiddleware = (services: FullServiceMap, config: Config) => {
     project: new Project(services, config),
     rateLimit: new RateLimit(services, config),
     llmLimit: new LLMLimit(services, config),
+    inferenceLimit: new InferenceLimit(services, config),
   };
 
   // everything before this will be route-wrapped

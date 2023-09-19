@@ -16,7 +16,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
       { kind: 'project', id: req.headers.projectID },
       { kind: 'version', id: req.headers.versionID },
     ]),
-    middlewares.rateLimit.versionConsume,
+    middlewares.inferenceLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'inference'),
     controllers.nlu.inference
   );
 
