@@ -4,7 +4,7 @@ import { ChatCompletionRequestMessageRoleEnum, Configuration, OpenAIApi } from '
 import { Config } from '@/types';
 
 import { AIModel } from '../types';
-import { isAzureBasedGPTConfig, isOpenAIGPTConfig } from './openai.interface';
+import { isAzureBasedGPTConfig, isOpenAIGPTConfig } from './gpt.interface';
 
 export abstract class GPTAIModel extends AIModel {
   protected abstract gptModelName: string;

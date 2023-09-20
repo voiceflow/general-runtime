@@ -4,7 +4,7 @@ import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 import log from '@/logger';
 import { Config } from '@/types';
 
-import { GPTAIModel } from './openai';
+import { GPTAIModel } from './gpt';
 
 export class GPT4 extends GPTAIModel {
   TOKEN_MULTIPLIER = 25;

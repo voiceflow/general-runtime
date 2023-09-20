@@ -3,7 +3,7 @@ import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 
 import log from '@/logger';
 
-import { GPTAIModel } from './openai';
+import { GPTAIModel } from './gpt';
 
 export class GPT3 extends GPTAIModel {
   public modelRef = BaseUtils.ai.GPT_MODEL.DaVinci_003;
