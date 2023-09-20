@@ -127,7 +127,13 @@ class TestController extends AbstractController {
         );
     }
 
-    return { output: answer.output, chunks };
+    return {
+      output: answer.output,
+      chunks,
+      queryTokens: answer.queryTokens,
+      answerTokens: answer.answerTokens,
+      totalTokens: answer.tokens,
+    };
   }
 
   async testCompletion(
