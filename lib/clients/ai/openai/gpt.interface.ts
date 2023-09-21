@@ -13,17 +13,9 @@ interface OpenAIGPTConfig extends Config {
 export type OpenAIConfig = AzureBasedGPTConfig | OpenAIGPTConfig;
 
 export const isAzureBasedGPTConfig = (config: Config): config is AzureBasedGPTConfig => {
-  return (
-    'AZURE_ENDPOINT' in config &&
-    'AZURE_OPENAI_API_KEY' in config &&
-    // eslint-disable-next-line no-secrets/no-secrets
-    'AZURE_GPT35_DEPLOYMENTS' in config &&
-    !!config.AZURE_ENDPOINT &&
-    !!config.AZURE_OPENAI_API_KEY &&
-    !!config.AZURE_GPT35_DEPLOYMENTS
-  );
+  return !!config.AZURE_ENDPOINT && !!config.AZURE_OPENAI_API_KEY && !!config.AZURE_GPT35_DEPLOYMENTS;
 };
 
 export const isOpenAIGPTConfig = (config: Config): config is OpenAIGPTConfig => {
-  return 'OPENAI_API_KEY' in config && !!config.OPENAI_API_KEY;
+  return !!config.OPENAI_API_KEY;
 };
