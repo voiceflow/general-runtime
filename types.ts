@@ -94,7 +94,7 @@ export interface Config extends RateLimitConfig {
   ANTHROPIC_API_KEY: string | null;
 
   // AI Configuration
-  AI_GENERATION_TIMEOUT: number | null;
+  AI_GENERATION_TIMEOUT: number;
 }
 
 export interface Request<

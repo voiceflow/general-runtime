@@ -114,7 +114,7 @@ const CONFIG: Config = {
   ANTHROPIC_API_KEY: getOptionalProcessEnv('ANTHROPIC_API_KEY') || null,
 
   // AI Generation Settings
-  AI_GENERATION_TIMEOUT: Number(getOptionalProcessEnv('AI_GENERATION_TIMEOUT')) || null,
+  AI_GENERATION_TIMEOUT: Number(getOptionalProcessEnv('AI_GENERATION_TIMEOUT')) || 30000,
 };
 
 export default CONFIG;
