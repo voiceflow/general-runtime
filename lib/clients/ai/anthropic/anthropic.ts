@@ -22,7 +22,7 @@ export abstract class AnthropicAIModel extends AIModel {
       throw new Error(`Anthropic client not initialized`);
     }
 
-    this.client = new Client({ apiKey: config.ANTHROPIC_API_KEY });
+    this.client = new Client({ apiKey: config.ANTHROPIC_API_KEY, timeout: this.TIMEOUT });
   }
 
   static RoleMap = {
