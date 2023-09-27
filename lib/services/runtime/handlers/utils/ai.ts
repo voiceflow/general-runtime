@@ -1,7 +1,6 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 
-import AI from '@/lib/clients/ai';
 import { AIModel, CompletionOptions } from '@/lib/clients/ai/types';
 import { QuotaName } from '@/lib/services/billing';
 import log from '@/logger';
@@ -37,10 +36,10 @@ export const EMPTY_AI_RESPONSE: AIResponse = {
 
 export const fetchChat = async (
   params: BaseUtils.ai.AIModelParams & { messages: BaseUtils.ai.Message[] },
+  model: AIModel | null,
   variablesState: Record<string, unknown> = {},
   options: CompletionOptions = {}
 ): Promise<AIResponse> => {
-  const model = AI.get(params.model);
   if (!model) return EMPTY_AI_RESPONSE;
 
   const sanitizedVars = sanitizeVariables(variablesState);
@@ -60,10 +59,10 @@ export const fetchChat = async (
 
 export const fetchPrompt = async (
   params: BaseUtils.ai.AIModelParams & { mode: BaseUtils.ai.PROMPT_MODE; prompt: string },
+  model: AIModel | null,
   variablesState: Record<string, unknown> = {},
   options: CompletionOptions = {}
 ): Promise<AIResponse> => {
-  const model = AI.get(params.model);
   if (!model) return EMPTY_AI_RESPONSE;
 
   const sanitizedVars = sanitizeVariables(variablesState);

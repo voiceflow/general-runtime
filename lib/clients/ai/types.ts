@@ -1,9 +1,13 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { Configuration, OpenAIApi } from '@voiceflow/openai';
 
+import log from '@/logger';
 import { Config } from '@/types';
 
+import UnleashClient from '../unleash';
 import { ModerationError } from './utils';
+
+const LLM_MODERATION_FAIL_FF = 'LLM_MODERATION_FAIL_FF';
 
 export abstract class AIModel {
   public abstract modelRef: BaseUtils.ai.GPT_MODEL;
@@ -14,7 +18,10 @@ export abstract class AIModel {
 
   protected readonly TIMEOUT: number;
 
-  constructor(config: Pick<Config, 'AI_GENERATION_TIMEOUT' | 'OPENAI_API_KEY'>) {
+  constructor(
+    config: Pick<Config, 'AI_GENERATION_TIMEOUT' | 'OPENAI_API_KEY'>,
+    private readonly unleashClient: UnleashClient
+  ) {
     this.TIMEOUT = config.AI_GENERATION_TIMEOUT;
     // all models have an openAPI client in order to make moderation calls
     if (config.OPENAI_API_KEY) {
@@ -27,9 +34,9 @@ export abstract class AIModel {
   }
 
   async checkModeration(input: string | string[]) {
-    if (!this.openAIClient) return true;
+    if (!this.openAIClient) return;
 
-    if (!input || !input.length) return true;
+    if (!input || !input.length) return;
     const moderationResult = await this.openAIClient.createModeration({ input });
 
     const failedModeration = moderationResult.data.results.flatMap((result, idx) => {
@@ -43,10 +50,21 @@ export abstract class AIModel {
       }
       return [];
     });
-    if (failedModeration.length) {
+
+    failedModeration.forEach((failedModeration) => {
+      const failedModerationCategories = Object.entries(failedModeration.error.categories).reduce<string[]>(
+        (acc, [key, value]) => {
+          if (value) acc.push(key);
+          return acc;
+        },
+        []
+      );
+      log.warn(`[moderation error] input=${failedModeration.input} | categories=${failedModerationCategories}`);
+    });
+
+    if (this.unleashClient.isEnabled(LLM_MODERATION_FAIL_FF)) {
       throw new ModerationError(failedModeration);
     }
-    return true;
   }
 
   abstract generateCompletion(

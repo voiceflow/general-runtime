@@ -1,7 +1,6 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { VoiceNode } from '@voiceflow/voice-types';
 
-import AI from '@/lib/clients/ai';
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
 import { ModerationError } from '@/lib/clients/ai/utils';
 import { HandlerFactory } from '@/runtime';
@@ -9,7 +8,6 @@ import { HandlerFactory } from '@/runtime';
 import { FrameType, Output } from '../types';
 import { addOutputTrace, getOutputTrace } from '../utils';
 import { AIResponse, checkTokens, consumeResources, fetchPrompt } from './utils/ai';
-import { promptSynthesis } from './utils/knowledgeBase';
 import { generateOutput } from './utils/output';
 import { getVersionDefaultVoice } from './utils/version';
 
@@ -18,8 +16,8 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
   handle: async (node, runtime, variables) => {
     const nextID = node.nextId ?? null;
     const workspaceID = runtime.project?.teamID;
-    const generativeModel = AI.get(node.model);
-    const kbModel = AI.get(runtime.project?.knowledgeBase?.settings?.summarization.model);
+    const generativeModel = runtime.services.ai.get(node.model);
+    const kbModel = runtime.services.ai.get(runtime.project?.knowledgeBase?.settings?.summarization.model);
 
     if (!(await checkTokens(runtime, node.type))) {
       addOutputTrace(
@@ -37,7 +35,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
       if (node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE) {
         const { prompt, mode } = node;
 
-        const answer = await promptSynthesis(
+        const answer = await runtime.services.aiSynthesis.promptSynthesis(
           runtime.version!.projectID,
           workspaceID,
           { ...runtime.project?.knowledgeBase?.settings?.summarization, prompt, mode },
@@ -76,7 +74,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
           answerTokens: 0,
         };
       } else {
-        response = await fetchPrompt(node, variables.getState());
+        response = await fetchPrompt(node, generativeModel, variables.getState());
       }
 
       await consumeResources('AI Response', runtime, generativeModel, response);
@@ -109,7 +107,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
         addOutputTrace(
           runtime,
           getOutputTrace({
-            output: generateOutput('[moderation error]', runtime.project),
+            output: generateOutput(err.message, runtime.project),
             version: runtime.version,
             ai: true,
           })

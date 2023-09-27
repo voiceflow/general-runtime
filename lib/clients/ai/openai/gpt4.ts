@@ -4,6 +4,7 @@ import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 import log from '@/logger';
 import { Config } from '@/types';
 
+import UnleashClient from '../../unleash';
 import { GPTAIModel } from './gpt';
 
 export class GPT4 extends GPTAIModel {
@@ -13,14 +14,17 @@ export class GPT4 extends GPTAIModel {
 
   protected gptModelName = 'gpt-4';
 
-  constructor(config: Config) {
-    // we dont not have access to GPT 4 on Azure yet, use OpenAI API instead
-    super({
-      ...config,
-      AZURE_ENDPOINT: null,
-      AZURE_OPENAI_API_KEY: null,
-      AZURE_GPT35_DEPLOYMENTS: null,
-    });
+  constructor(config: Config, unleashClient: UnleashClient) {
+    // we dont have access to GPT 4 on Azure yet, use OpenAI API instead
+    super(
+      {
+        ...config,
+        AZURE_ENDPOINT: null,
+        AZURE_OPENAI_API_KEY: null,
+        AZURE_GPT35_DEPLOYMENTS: null,
+      },
+      unleashClient
+    );
   }
 
   async generateCompletion(prompt: string, params: AIModelParams) {

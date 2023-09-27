@@ -1,12 +1,10 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 
-import AI from '@/lib/clients/ai';
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
 import { ModerationError } from '@/lib/clients/ai/utils';
 import { HandlerFactory } from '@/runtime';
 
 import { checkTokens, consumeResources, fetchPrompt } from './utils/ai';
-import { promptSynthesis } from './utils/knowledgeBase';
 
 const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_SET,
@@ -14,8 +12,8 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
   handle: async (node, runtime, variables) => {
     const nextID = node.nextId ?? null;
     const workspaceID = runtime.project?.teamID;
-    const generativeModel = AI.get(node.model);
-    const kbModel = AI.get(runtime.project?.knowledgeBase?.settings?.summarization.model);
+    const generativeModel = runtime.services.ai.get(node.model);
+    const kbModel = runtime.services.ai.get.get(runtime.project?.knowledgeBase?.settings?.summarization.model);
 
     if (!node.sets?.length) return nextID;
 
@@ -35,7 +33,7 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
               if (!variable) return emptyResult;
 
               if (node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE) {
-                const response = await promptSynthesis(
+                const response = await runtime.services.aiSynthesis.promptSynthesis(
                   runtime.version!.projectID,
                   workspaceID,
                   {
@@ -63,7 +61,7 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
                 return emptyResult;
               }
 
-              const response = await fetchPrompt({ ...node, prompt, mode }, variables.getState());
+              const response = await fetchPrompt({ ...node, prompt, mode }, generativeModel, variables.getState());
               const tokens = response?.tokens ?? 0;
               const queryTokens = response?.queryTokens ?? 0;
               const answerTokens = response?.answerTokens ?? 0;
