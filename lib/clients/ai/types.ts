@@ -5,7 +5,7 @@ import log from '@/logger';
 import { Config } from '@/types';
 
 import UnleashClient from '../unleash';
-import { ModerationError } from './utils';
+import { AIModerationError } from './utils';
 
 const LLM_MODERATION_FAIL_FF = 'LLM_MODERATION_FAIL_FF';
 
@@ -63,7 +63,7 @@ export abstract class AIModel {
     });
 
     if (this.unleashClient.isEnabled(LLM_MODERATION_FAIL_FF)) {
-      throw new ModerationError(failedModeration);
+      throw new AIModerationError(failedModeration);
     }
   }
 

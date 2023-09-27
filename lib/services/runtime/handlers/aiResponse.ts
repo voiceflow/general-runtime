@@ -2,7 +2,7 @@ import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { VoiceNode } from '@voiceflow/voice-types';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
-import { ModerationError } from '@/lib/clients/ai/utils';
+import { AIModerationError } from '@/lib/clients/ai/utils';
 import { HandlerFactory } from '@/runtime';
 
 import { FrameType, Output } from '../types';
@@ -103,7 +103,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
 
       return nextID;
     } catch (err) {
-      if (err instanceof ModerationError) {
+      if (err instanceof AIModerationError) {
         addOutputTrace(
           runtime,
           getOutputTrace({
