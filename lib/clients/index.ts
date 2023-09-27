@@ -61,7 +61,7 @@ export const initClients = async (clients: ClientMap) => {
 };
 
 export const stopClients = async (_config: Config, clients: ClientMap) => {
-  await clients.unleash?.destroy();
+  clients.unleash?.destroy();
   await clients.mongo?.stop();
   await clients.metrics?.stop();
 };

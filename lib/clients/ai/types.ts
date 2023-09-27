@@ -36,7 +36,7 @@ export abstract class AIModel {
   async checkModeration(input: string | string[]) {
     if (!this.openAIClient) return;
 
-    if (!input || !input.length) return;
+    if (!input?.length) return;
     const moderationResult = await this.openAIClient.createModeration({ input });
 
     const failedModeration = moderationResult.data.results.flatMap((result, idx) => {

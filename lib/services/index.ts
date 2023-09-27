@@ -54,7 +54,9 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
     ...clients,
   } as FullServiceMap;
 
+  // order here matters, services defined after runtime are not available inside of it
   services.billing = new BillingService(services, config);
+  services.aiSynthesis = new AISynthesis(services, config);
   services.runtime = new Runtime(services, config);
   services.state = new State(services, config);
   services.asr = new ASR(services, config);
@@ -69,7 +71,6 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.test = new TestService(services, config);
   services.transcript = new Transcript(services, config);
   services.aiAssist = new AIAssist(services, config);
-  services.aiSynthesis = new AISynthesis(services, config);
   services.interact = new Interact(services, config);
   services.feedback = new Feedback(services, config);
 
