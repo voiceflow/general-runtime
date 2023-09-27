@@ -2,7 +2,7 @@ import { BaseNode, BaseRequest, BaseText, BaseTrace, BaseVersion } from '@voicef
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
-import { ModerationError } from '@/lib/clients/ai/utils';
+import { AIModerationError } from '@/lib/clients/ai/utils';
 import { Runtime, Store } from '@/runtime';
 
 import { isPrompt, NoMatchCounterStorage, Output, StorageType } from '../types';
@@ -93,7 +93,7 @@ const getOutput = async (
 
       if (result?.output) return { output: result.output, ai: true, tokens: result.tokens };
     } catch (err) {
-      if (err instanceof ModerationError) {
+      if (err instanceof AIModerationError) {
         return { output: generateOutput(`global no match ${err.message}`, runtime.project), ai: true };
       }
       throw err;
