@@ -12,7 +12,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
 
   router.post(
     '/query',
-    middlewares.auth.verifyDMAPIKey,
+    middlewares.auth.verifyIdentity,
     middlewares.auth.verifyParamConsistency((req: Request) => ({
       projectID: req.body.projectID,
       auth: req.headers.authorization,

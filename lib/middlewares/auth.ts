@@ -1,4 +1,3 @@
-import { BaseModels } from '@voiceflow/base-types';
 import VError from '@voiceflow/verror';
 import fetch from 'node-fetch';
 
@@ -6,24 +5,12 @@ import { Next, Request, Response } from '@/types';
 
 import { AbstractMiddleware } from './utils';
 
-function formatAuthorizationToken(incomingAuthorizationToken: string) {
-  if (incomingAuthorizationToken.startsWith('ApiKey ')) {
-    return incomingAuthorizationToken;
-  }
-
-  if (incomingAuthorizationToken.startsWith('VF.')) {
-    return `ApiKey ${incomingAuthorizationToken}`;
-  }
-
-  if (!incomingAuthorizationToken.startsWith('Bearer ')) {
-    return `Bearer ${incomingAuthorizationToken}`;
-  }
-
-  return incomingAuthorizationToken;
-}
-
 class Auth extends AbstractMiddleware {
   private client?: unknown;
+
+  private permissionGuard?: unknown;
+
+  private identityGuard?: unknown;
 
   private getClient = async () => {
     // eslint-disable-next-line import/no-extraneous-dependencies
@@ -51,50 +38,59 @@ class Auth extends AbstractMiddleware {
     return this.client as InstanceType<typeof sdk.AuthClient>;
   };
 
-  // TODO: fix this any type once the sdk is not an optional dependency
-  authorize = (actions: `${string}:${string}`[], getResource?: any) => {
+  private getPermissionGuard = async () => {
+    // eslint-disable-next-line import/no-extraneous-dependencies
+    const sdk = await import('@voiceflow/sdk-auth/express').catch(() => null);
+    if (!sdk) return undefined;
+
+    if (!this.permissionGuard) {
+      const client = await this.getClient();
+      if (!client) return undefined;
+
+      this.permissionGuard = sdk?.createPermissionGuard(client);
+    }
+
+    return this.permissionGuard as ReturnType<typeof sdk.createPermissionGuard>;
+  };
+
+  authorize = (actions: `${string}:${string}`[]) => {
     return async (req: Request, res: Response, next: Next) => {
       try {
-        const client = await this.getClient();
-        if (!client) return next();
+        const guard = await this.getPermissionGuard();
+        if (!guard) return next();
 
-        // eslint-disable-next-line import/no-extraneous-dependencies
-        const sdk = await import('@voiceflow/sdk-auth/express').catch(() => null);
-        if (!sdk) return next();
-
-        return sdk?.createAuthGuard(client, getResource)(actions as any[])(req, res, next);
+        return guard(actions as any[])(req, res, next);
       } catch (err) {
         return next(new VError('Unauthorized', VError.HTTP_STATUS.UNAUTHORIZED));
       }
     };
   };
 
-  verifyIdentity = async (req: Request, _res: Response, next: Next): Promise<void> => {
-    try {
+  private getIdentityGuard = async () => {
+    // eslint-disable-next-line import/no-extraneous-dependencies
+    const sdk = await import('@voiceflow/sdk-auth/express').catch(() => null);
+    if (!sdk) return undefined;
+
+    if (!this.identityGuard) {
       const client = await this.getClient();
-      if (!client) return next();
-      const authorization = req.headers.authorization || req.cookies.auth_vf || '';
-      if (!authorization) throw new Error();
+      if (!client) return undefined;
 
-      req.headers.authorization = formatAuthorizationToken(authorization);
+      this.identityGuard = sdk?.createIdentityGuard(client);
+    }
 
-      const identity = await client.getIdentity(req.headers.authorization);
+    return this.identityGuard as ReturnType<typeof sdk.createIdentityGuard>;
+  };
 
-      if (!identity?.identity?.id) throw new Error();
+  verifyIdentity = async (req: Request, res: Response, next: Next): Promise<void> => {
+    try {
+      const guard = await this.getIdentityGuard();
+      if (!guard) return next();
 
-      return next();
+      return guard()(req, res, next);
     } catch {
       return next(new VError('Unauthorized', VError.HTTP_STATUS.UNAUTHORIZED));
     }
   };
-
-  async verifyDMAPIKey(req: Request, res: Response, next: Next): Promise<void> {
-    if (!BaseModels.ApiKey.isDialogManagerAPIKey(req.headers.authorization)) {
-      return next(new VError('Unauthorized', VError.HTTP_STATUS.UNAUTHORIZED));
-    }
-
-    return this.verifyIdentity(req, res, next);
-  }
 
   verifyParamConsistency = (
     mapFromRequest: (req: Request) => { projectID?: string; auth?: string; versionID?: string }
