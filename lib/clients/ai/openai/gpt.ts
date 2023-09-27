@@ -3,6 +3,7 @@ import { ChatCompletionRequestMessageRoleEnum, Configuration, OpenAIApi } from '
 
 import { Config } from '@/types';
 
+import UnleashClient from '../../unleash';
 import { AIModel } from '../types';
 import { isAzureBasedGPTConfig } from './gpt.interface';
 
@@ -17,8 +18,8 @@ export abstract class GPTAIModel extends AIModel {
     [BaseUtils.ai.Role.USER]: ChatCompletionRequestMessageRoleEnum.User,
   };
 
-  constructor(config: Config) {
-    super(config);
+  constructor(config: Config, unleashClient: UnleashClient) {
+    super(config, unleashClient);
 
     if (isAzureBasedGPTConfig(config)) {
       // remove trailing slash

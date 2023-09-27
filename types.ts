@@ -15,7 +15,8 @@ export interface Config extends RateLimitConfig {
   PORT_METRICS: string | null;
   ERROR_RESPONSE_MS: number;
 
-  CLOUD_ENV: string | null;
+  CLOUD_ENV: string;
+  DEPLOY_ENV: string;
   IS_PRIVATE_CLOUD: boolean;
 
   AWS_ACCESS_KEY_ID: string | null;
@@ -95,6 +96,10 @@ export interface Config extends RateLimitConfig {
 
   // AI Configuration
   AI_GENERATION_TIMEOUT: number;
+
+  // Unleash
+  UNLEASH_URL: string | null;
+  UNLEASH_API_KEY: string | null;
 }
 
 export interface Request<

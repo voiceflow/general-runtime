@@ -34,7 +34,8 @@ export const generateNoMatch = async (
     },
   ];
 
-  const response = await fetchChat({ ...context, messages });
+  const model = runtime.services.ai.get(context.model);
+  const response = await fetchChat({ ...context, messages }, model);
   if (!response.output) return null;
 
   return {

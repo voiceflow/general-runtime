@@ -7,7 +7,9 @@ interface ModerationErrorDataItem {
 }
 export class ModerationError extends Error {
   constructor(public readonly data: ModerationErrorDataItem[]) {
-    super('Moderation request failed');
+    super(
+      '[moderation error] Sorry, we can’t fulfill your request due to language or content in your message that violates our Terms of Service.'
+    );
   }
 }
 
