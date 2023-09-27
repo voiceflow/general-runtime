@@ -54,10 +54,7 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
               }
 
               if (node.model === BaseUtils.ai.GPT_MODEL.GPT_4 && runtime.plan && !GPT4_ABLE_PLAN.has(runtime.plan)) {
-                variables.set(
-                  variable!,
-                  'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.'
-                );
+                variables.set(variable, 'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.');
                 return emptyResult;
               }
 

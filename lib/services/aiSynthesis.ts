@@ -212,7 +212,7 @@ class AISynthesis extends AbstractManager {
       const memory = getMemoryMessages(variables);
 
       const query = await this.promptQuestionSynthesis({ prompt, variables, memory });
-      if (!query || !query.output) return null;
+      if (!query?.output) return null;
 
       const data = await fetchKnowledgeBase(projectID, workspaceID, query.output);
 

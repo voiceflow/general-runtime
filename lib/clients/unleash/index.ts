@@ -20,7 +20,7 @@ interface InternalContext {
 const awaitInstanceReady = (instance: Unleash.Unleash) =>
   new Promise((resolve, reject) => {
     instance.once('ready', resolve);
-    instance.once('error', () => reject());
+    instance.once('error', (error) => reject(error));
   });
 
 export class UnleashClient extends AbstractClient {
