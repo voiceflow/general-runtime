@@ -14,6 +14,7 @@ describe('Runtime utils ProgramManager', () => {
     const versionID = 'version-id';
     const data = {
       id: diagramID,
+      diagramID,
       startId: 'start-id',
       variables: { var: 'val' },
       lines: [{ b1: 'v1' }, { b2: 'v2' }],
@@ -27,15 +28,15 @@ describe('Runtime utils ProgramManager', () => {
 
     const program = await programManager.get(versionID, diagramID);
 
-    expect(program.getID()).to.eql(diagramID);
+    expect(program.getDiagramID()).to.eql(diagramID);
     expect(program.getStartNodeID()).to.eql(data.startId);
     expect(program.getVariables()).to.eql(data.variables);
     expect(program.getRaw()).to.eql(data.lines);
     expect(program.getCommands()).to.eql(data.commands);
     expect(runtime.api.getProgram.args).to.eql([[versionID, diagramID]]);
     expect(runtime.callEvent.args[0][0]).to.eql(EventType.programWillFetch);
-    expect(runtime.callEvent.args[0][1].programID).to.eql(diagramID);
-    expect(runtime.callEvent.args[1]).to.eql([EventType.programDidFetch, { programID: diagramID, program }]);
+    expect(runtime.callEvent.args[0][1].diagramID).to.eql(diagramID);
+    expect(runtime.callEvent.args[1]).to.eql([EventType.programDidFetch, { diagramID, versionID, program }]);
 
     expect(runtime.callEvent.args[0][1].override()).to.eql(undefined);
   });
@@ -52,12 +53,12 @@ describe('Runtime utils ProgramManager', () => {
     expect(_.get(programManager, 'cachedProgram')).to.eql(programModel);
     expect(runtime.callEvent.callCount).to.eql(2);
     expect(runtime.callEvent.args[0][0]).to.eql(EventType.programWillFetch);
-    expect(Object.keys(runtime.callEvent.args[0][1])).to.eql(['programID', 'override']);
-    expect(runtime.callEvent.args[0][1].programID).to.eql(diagramID);
+    expect(Object.keys(runtime.callEvent.args[0][1])).to.eql(['versionID', 'diagramID', 'override']);
+    expect(runtime.callEvent.args[0][1].diagramID).to.eql(diagramID);
     expect(typeof runtime.callEvent.args[0][1].override).to.eql('function');
     expect(runtime.callEvent.args[1]).to.eql([
       EventType.programDidFetch,
-      { programID: diagramID, program: programModel },
+      { versionID, diagramID, program: programModel },
     ]);
   });
 

@@ -14,7 +14,7 @@ class LocalDataAPI<
 
   private project: PJ;
 
-  private programs: Record<string, Record<string, P>>;
+  private programs: Record<string, P>;
 
   constructor({ projectSource }: { projectSource: string }, { fs, path }: { fs: typeof FS; path: typeof Path }) {
     if (!projectSource) throw new Error('project source undefined');
@@ -28,7 +28,7 @@ class LocalDataAPI<
 
   public getVersion = async () => this.version;
 
-  public getProgram = async (versionID: string, diagramID: string) => this.programs[versionID]?.[diagramID] ?? null;
+  public getProgram = async (_versionID: string, diagramID: string) => this.programs[diagramID] ?? null;
 
   public getProject = async () => this.project;
 }
