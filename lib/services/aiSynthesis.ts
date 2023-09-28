@@ -82,7 +82,6 @@ class AISynthesis extends AbstractManager {
         },
       ];
 
-      const generativeModel = this.services.ai.get(options.model);
       response = await fetchChat({ ...options, messages }, generativeModel, variables, {
         retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
         retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,

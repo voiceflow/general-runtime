@@ -3,12 +3,14 @@ import { ChatCompletionRequestMessageRoleEnum, Configuration, OpenAIApi } from '
 
 import { Config } from '@/types';
 
-import UnleashClient from '../../unleash';
+import { ContentModerationClient } from '../../contentModeration';
 import { AIModel } from '../types';
-import { isAzureBasedGPTConfig } from './gpt.interface';
+import { isAzureBasedGPTConfig, isOpenAIGPTConfig } from './gpt.interface';
 
 export abstract class GPTAIModel extends AIModel {
   protected abstract gptModelName: string;
+
+  protected openAIClient?: OpenAIApi;
 
   protected azureClient?: OpenAIApi;
 
@@ -18,8 +20,8 @@ export abstract class GPTAIModel extends AIModel {
     [BaseUtils.ai.Role.USER]: ChatCompletionRequestMessageRoleEnum.User,
   };
 
-  constructor(config: Config, unleashClient: UnleashClient) {
-    super(config, unleashClient);
+  constructor(config: Config, protected readonly contentModerationClient: ContentModerationClient) {
+    super(config);
 
     if (isAzureBasedGPTConfig(config)) {
       // remove trailing slash
@@ -37,9 +39,12 @@ export abstract class GPTAIModel extends AIModel {
       return;
     }
 
-    if (!this.azureClient && !this.openAIClient) {
-      throw new Error(`OpenAI client not initialized`);
+    if (isOpenAIGPTConfig(config)) {
+      this.openAIClient = new OpenAIApi(new Configuration({ apiKey: config.OPENAI_API_KEY }));
+      return;
     }
+
+    throw new Error(`OpenAI client not initialized`);
   }
 
   protected calculateTokenMultiplier(tokens: number): number {
