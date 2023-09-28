@@ -3,7 +3,7 @@ import { BaseUtils } from '@voiceflow/base-types';
 import log from '@/logger';
 import type { Config } from '@/types';
 
-import UnleashClient from '../unleash';
+import ContentModerationClient from '../contentModeration';
 import { AbstractClient } from '../utils';
 import { ClaudeV1 } from './anthropic/claude_v1';
 import { ClaudeV1Instant } from './anthropic/claude_v1_instant';
@@ -18,14 +18,14 @@ export class AIClient extends AbstractClient {
 
   models: Partial<Record<BaseUtils.ai.GPT_MODEL, AIModel>> = {};
 
-  constructor(config: Config, unleashClient: UnleashClient) {
+  constructor(config: Config, contentModerationClients: Record<BaseUtils.ai.GPT_MODEL, ContentModerationClient>) {
     super(config);
     const setModel = (
       modelName: BaseUtils.ai.GPT_MODEL,
-      Model: new (config: Config, unleashClient: UnleashClient) => AIModel
+      Model: new (config: Config, contentModerationClient: ContentModerationClient) => AIModel
     ) => {
       try {
-        this.models[modelName] = new Model(config, unleashClient);
+        this.models[modelName] = new Model(config, contentModerationClients[modelName]);
       } catch (error) {
         log.warn(`failed to initialize ${modelName} ${log.vars({ error })}`);
       }

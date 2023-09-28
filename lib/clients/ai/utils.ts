@@ -1,17 +1,4 @@
 import { Utils } from '@voiceflow/common';
-import { CreateModerationResponseResultsInner } from '@voiceflow/openai';
-
-interface AIModerationErrorDataItem {
-  input: string;
-  error: CreateModerationResponseResultsInner;
-}
-export class AIModerationError extends Error {
-  constructor(public readonly data: AIModerationErrorDataItem[]) {
-    super(
-      '[moderation error] Sorry, we can’t fulfill your request due to language or content in your message that violates our Terms of Service.'
-    );
-  }
-}
 
 export const delayedPromiseRace = async <T extends () => Promise<any>>(
   func: T,

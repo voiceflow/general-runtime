@@ -5,7 +5,7 @@ import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 
 import log from '@/logger';
 
-import UnleashClient from '../../unleash';
+import { ContentModerationClient } from '../../contentModeration';
 import { AIModel, CompletionOutput } from '../types';
 import { AnthropicConfig } from './anthropic.interface';
 
@@ -16,8 +16,8 @@ export abstract class AnthropicAIModel extends AIModel {
 
   protected maxTokens = 128;
 
-  constructor(config: AnthropicConfig, unleashClient: UnleashClient) {
-    super(config, unleashClient);
+  constructor(config: AnthropicConfig, protected readonly contentModerationClient: ContentModerationClient) {
+    super(config);
 
     if (!config.ANTHROPIC_API_KEY) {
       throw new Error(`Anthropic client not initialized`);
@@ -60,7 +60,7 @@ export abstract class AnthropicAIModel extends AIModel {
       (message) => `${AnthropicAIModel.RoleMap[message.role]} ${message.content}`
     )}${AI_PROMPT}`;
 
-    await this.checkModeration(prompt);
+    await this.contentModerationClient.checkModeration(prompt);
 
     const queryTokens = this.calculateTokenUsage(prompt);
 
