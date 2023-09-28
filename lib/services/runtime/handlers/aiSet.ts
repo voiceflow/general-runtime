@@ -13,7 +13,7 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
     const nextID = node.nextId ?? null;
     const workspaceID = runtime.project?.teamID;
     const generativeModel = runtime.services.ai.get(node.model);
-    const kbModel = runtime.services.ai.get.get(runtime.project?.knowledgeBase?.settings?.summarization.model);
+    const kbModel = runtime.services.ai.get(runtime.project?.knowledgeBase?.settings?.summarization.model);
 
     if (!node.sets?.length) return nextID;
 
