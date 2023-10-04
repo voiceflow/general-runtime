@@ -5,7 +5,7 @@ import _merge from 'lodash/merge';
 
 import AI from '@/lib/clients/ai';
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
-import { fetchKnowledgeBase, promptSynthesis } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
+import { fetchFaq, fetchKnowledgeBase, promptSynthesis } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
 import { answerSynthesis } from '@/lib/services/runtime/handlers/utils/knowledgeBase/answer';
 import log from '@/logger';
 import { callAPI } from '@/runtime/lib/Handlers/api/utils';
@@ -101,6 +101,10 @@ class TestController extends AbstractController {
     }
 
     const settings = _merge({}, project.knowledgeBase?.settings, { search: { limit: chunkLimit } });
+
+    const faq = await fetchFaq(project._id, project.teamID, question, settings);
+
+    if (faq?.answer) return { output: faq.answer };
 
     const data = await fetchKnowledgeBase(project._id, project.teamID, question, settings);
 

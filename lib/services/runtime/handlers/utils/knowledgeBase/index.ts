@@ -7,7 +7,7 @@ import log from '@/logger';
 import { Runtime } from '@/runtime';
 
 import { Output } from '../../../types';
-import { getMemoryMessages } from '../ai';
+import { AIResponse, getMemoryMessages } from '../ai';
 import { generateOutput } from '../output';
 import { answerSynthesis, promptAnswerSynthesis } from './answer';
 import { promptQuestionSynthesis, questionSynthesis } from './question';
@@ -26,6 +26,15 @@ export interface KnowledgeBaseResponse {
   chunks: KnowledegeBaseChunk[];
 }
 
+export interface KnowledgeBaseFaq {
+  question?: string;
+  answer?: string;
+}
+
+export interface KnowledgeBaseFaqResponse {
+  faq: KnowledgeBaseFaq | null;
+}
+
 const FLAGGED_WORKSPACES_MAP = new Map<string, string[]>([
   [CloudEnv.Public, []],
   [CloudEnv.USBank, []],
@@ -34,9 +43,13 @@ const FLAGGED_WORKSPACES_MAP = new Map<string, string[]>([
   [CloudEnv.JPMC, []],
 ]);
 
+const FAQ_FLAGGED_WORKSPACES_MAP = new Map<string, string[]>([[CloudEnv.Public, ['80627']]]);
+
 const { KL_RETRIEVER_SERVICE_HOST: host, KL_RETRIEVER_SERVICE_PORT: port } = Config;
 const scheme = process.env.NODE_ENV === 'e2e' ? 'https' : 'http';
 export const RETRIEVE_ENDPOINT = host && port ? new URL(`${scheme}://${host}:${port}/retrieve`).href : null;
+export const FAQ_RETRIEVAL_ENDPOINT =
+  host && port ? new URL(`${scheme}://${host}:${port}/poc/retrieve/faq`).href : null;
 export const { KNOWLEDGE_BASE_LAMBDA_ENDPOINT } = Config;
 
 export const getAnswerEndpoint = (cloudEnv: string, workspaceID: string): string | null => {
@@ -48,6 +61,42 @@ export const getAnswerEndpoint = (cloudEnv: string, workspaceID: string): string
 
   if (!KNOWLEDGE_BASE_LAMBDA_ENDPOINT) return null;
   return `${KNOWLEDGE_BASE_LAMBDA_ENDPOINT}/answer`;
+};
+
+export const fetchFaq = async (
+  projectID: string,
+  workspaceID: string | undefined,
+  question: string,
+  settings?: BaseModels.Project.KnowledgeBaseSettings
+): Promise<KnowledgeBaseFaq | null> => {
+  const cloudEnv = Config.CLOUD_ENV || '';
+  const flaggedWorkspaces = FAQ_FLAGGED_WORKSPACES_MAP.get(cloudEnv);
+
+  if (FAQ_RETRIEVAL_ENDPOINT && (flaggedWorkspaces?.length === 0 || flaggedWorkspaces?.includes(String(workspaceID)))) {
+    const { data } = await axios.post<KnowledgeBaseFaqResponse>(FAQ_RETRIEVAL_ENDPOINT, {
+      projectID,
+      workspaceID,
+      question,
+      settings,
+    });
+    return data?.faq;
+  }
+
+  return null;
+};
+
+const addFaqTrace = (runtime: Runtime, faq: KnowledgeBaseFaq, question: AIResponse) => {
+  runtime.trace.addTrace({
+    type: 'knowledgeBase',
+    payload: {
+      faqQuestion: faq?.question,
+      faqAnswer: faq?.answer,
+      query: {
+        messages: question.messages,
+        output: question.output,
+      },
+    },
+  } as any);
 };
 
 export const fetchKnowledgeBase = async (
@@ -97,6 +146,23 @@ export const knowledgeBaseNoMatch = async (
 
     const question = await questionSynthesis(input, memory);
     if (!question?.output) return null;
+
+    // before checking KB, check if it is an FAQ
+    const faq = await fetchFaq(
+      runtime.project._id,
+      runtime.project.teamID,
+      question.output,
+      runtime.project?.knowledgeBase?.settings
+    );
+    if (faq?.answer) {
+      addFaqTrace(runtime, faq, question);
+      return {
+        output: generateOutput(faq.answer, runtime.project),
+        tokens: question.queryTokens + question.answerTokens,
+        queryTokens: question.queryTokens,
+        answerTokens: question.answerTokens,
+      };
+    }
 
     const data = await fetchKnowledgeBase(
       runtime.project._id,
@@ -166,6 +232,21 @@ export const promptSynthesis = async (
 
     const query = await promptQuestionSynthesis({ prompt, variables, memory });
     if (!query || !query.output) return null;
+
+    // before checking KB, check if it is an FAQ
+    const faq = await fetchFaq(projectID, workspaceID, query.output, runtime?.project?.knowledgeBase?.settings);
+    if (faq?.answer) {
+      if (runtime) {
+        addFaqTrace(runtime, faq, query);
+      }
+
+      return {
+        output: faq.answer,
+        tokens: query.queryTokens + query.answerTokens,
+        queryTokens: query.queryTokens,
+        answerTokens: query.answerTokens,
+      };
+    }
 
     const data = await fetchKnowledgeBase(projectID, workspaceID, query.output);
 
