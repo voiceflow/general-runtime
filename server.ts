@@ -24,7 +24,7 @@ class Server {
   constructor(public serviceManager: ServiceManager, public config: Config) {}
 
   /**
-   * Start server
+   * Start server.
    * - Creates express app and services
    */
   async start() {
