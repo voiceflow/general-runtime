@@ -24,7 +24,7 @@ const resolveLogLevel = (value: LogLevelResolvable): RuntimeLogs.LogLevel => {
     case 'false':
     case undefined:
       return RuntimeLogs.LogLevel.OFF;
-    // Opt in but didn't specify a specific log level to use
+    // Opt in but didn't specify a specific log level to use.
     case true:
     case 'true':
       return RuntimeLogs.DEFAULT_LOG_LEVEL;
