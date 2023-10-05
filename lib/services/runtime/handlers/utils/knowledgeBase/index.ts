@@ -93,7 +93,10 @@ export const knowledgeBaseNoMatch = async (
     // expiremental module, frame the question
     const memory = getMemoryMessages(runtime.variables.getState());
 
-    const question = await runtime.services.aiSynthesis.questionSynthesis(input, memory);
+    const question = await runtime.services.aiSynthesis.questionSynthesis(input, memory, {
+      projectID: runtime.project._id,
+      workspaceID: runtime.project.teamID,
+    });
     if (!question?.output) return null;
 
     const data = await fetchKnowledgeBase(
@@ -109,6 +112,7 @@ export const knowledgeBaseNoMatch = async (
       data,
       options: runtime.project?.knowledgeBase?.settings?.summarization,
       variables: runtime.variables.getState(),
+      context: { projectID: runtime.project._id, workspaceID: runtime.project.teamID },
     });
 
     if (!answer) return null;

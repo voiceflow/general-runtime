@@ -4,7 +4,7 @@ import { FeatureFlag } from '@/lib/feature-flags';
 import log from '@/logger';
 import { Config } from '@/types';
 
-import UnleashClient from '../../unleash';
+import UnleashClient from '../../../unleash';
 import ContentModerationClient from '..';
 import { ContentModerationError } from '../utils';
 
@@ -20,7 +20,7 @@ export class OpenAIModerationClient extends ContentModerationClient {
     throw new Error(`OpenAI moderation client not initialized`);
   }
 
-  async checkModeration(input: string | string[]) {
+  async checkModeration(input: string | string[], context?: { workspaceID?: string; projectID?: string }) {
     if (!this.openAIClient) return;
 
     if (!input?.length) return;
@@ -31,6 +31,8 @@ export class OpenAIModerationClient extends ContentModerationClient {
         return [
           {
             input: Array.isArray(input) ? input[idx] : input,
+            projectID: context?.projectID,
+            workspaceID: context?.workspaceID,
             error: result,
           },
         ];
@@ -46,7 +48,9 @@ export class OpenAIModerationClient extends ContentModerationClient {
         },
         []
       );
-      log.warn(`[moderation error] input=${failedModeration.input} | categories=${failedModerationCategories}`);
+      log.warn(
+        `[moderation error]input=${failedModeration.input} | categories=${failedModerationCategories} | projectID=${context?.projectID} | workspaceID=${context?.workspaceID}`
+      );
     });
 
     if (this.unleashClient.isEnabled(FeatureFlag.LLM_MODERATION_FAIL_FF) && failedModeration.length) {

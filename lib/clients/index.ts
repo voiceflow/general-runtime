@@ -1,5 +1,4 @@
 import { RateLimitClient } from '@voiceflow/backend-utils';
-import { GPT_MODEL } from '@voiceflow/base-types/build/cjs/utils/ai';
 
 import { MongoSession } from '@/lib/services/session';
 import { Config } from '@/types';
@@ -7,7 +6,6 @@ import { Config } from '@/types';
 import AIClient from './ai';
 import { AnalyticsClient } from './analytics-client';
 import AnalyticsIngester, { IngesterClient } from './analytics-ingester';
-import { OpenAIModerationClient } from './contentModeration/openai/openai';
 import DataAPI from './dataAPI';
 import Metrics, { MetricsType } from './metrics';
 import MongoDB from './mongodb';
@@ -35,8 +33,6 @@ const buildClients = (config: Config): ClientMap => {
   const mongo = MongoSession.enabled(config) ? new MongoDB(config) : null;
   const unleash = new Unleash(config);
 
-  const openAIModerationClient = new OpenAIModerationClient(config, unleash);
-
   return {
     ...Static,
     redis,
@@ -55,14 +51,7 @@ const buildClients = (config: Config): ClientMap => {
         : null
     ),
     unleash,
-    ai: new AIClient(config, {
-      [GPT_MODEL.CLAUDE_INSTANT_V1]: openAIModerationClient,
-      [GPT_MODEL.CLAUDE_V1]: openAIModerationClient,
-      [GPT_MODEL.CLAUDE_V2]: openAIModerationClient,
-      [GPT_MODEL.DaVinci_003]: openAIModerationClient,
-      [GPT_MODEL.GPT_3_5_turbo]: openAIModerationClient,
-      [GPT_MODEL.GPT_4]: openAIModerationClient,
-    }),
+    ai: new AIClient(config, unleash),
   };
 };
 

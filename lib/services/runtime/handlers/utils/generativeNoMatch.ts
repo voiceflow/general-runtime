@@ -1,6 +1,6 @@
 import { BaseUtils } from '@voiceflow/base-types';
 
-import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
+import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import { Runtime } from '@/runtime';
 
 import { Output } from '../../types';
@@ -34,7 +34,10 @@ export const generateNoMatch = async (
     },
   ];
 
-  const model = runtime.services.ai.get(context.model);
+  const model = runtime.services.ai.get(context.model, {
+    projectID: runtime.project?._id,
+    workspaceID: runtime.project?.teamID,
+  });
   const response = await fetchChat({ ...context, messages }, model);
   if (!response.output) return null;
 

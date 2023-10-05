@@ -2,6 +2,9 @@ import { BaseUtils } from '@voiceflow/base-types';
 
 import { Config } from '@/types';
 
+import { AIModelContext, APIClient, CompletionOptions, CompletionOutput } from './ai-model.interface';
+import ContentModerationClient from './contentModeration';
+
 export abstract class AIModel {
   public abstract modelRef: BaseUtils.ai.GPT_MODEL;
 
@@ -9,7 +12,12 @@ export abstract class AIModel {
 
   protected readonly TIMEOUT: number;
 
-  constructor(config: Pick<Config, 'AI_GENERATION_TIMEOUT'>) {
+  constructor(
+    config: Pick<Config, 'AI_GENERATION_TIMEOUT'>,
+    protected readonly client: APIClient,
+    protected readonly contentModerationClient: ContentModerationClient,
+    protected context: AIModelContext
+  ) {
     this.TIMEOUT = config.AI_GENERATION_TIMEOUT;
   }
 
@@ -29,17 +37,3 @@ export abstract class AIModel {
     options?: CompletionOptions
   ): Promise<CompletionOutput | null>;
 }
-
-export interface CompletionOutput {
-  output: string | null;
-  tokens: number;
-  queryTokens: number;
-  answerTokens: number;
-}
-
-export interface CompletionOptions {
-  retries?: number;
-  retryDelay?: number;
-}
-
-export const GPT4_ABLE_PLAN = new Set(['old_pro', 'old_team', 'pro', 'team', 'enterprise']);

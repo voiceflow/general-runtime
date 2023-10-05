@@ -1,7 +1,8 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 
-import { AIModel, CompletionOptions } from '@/lib/clients/ai/types';
+import { AIModel } from '@/lib/clients/ai/ai-model';
+import { CompletionOptions } from '@/lib/clients/ai/ai-model.interface';
 import { QuotaName } from '@/lib/services/billing';
 import log from '@/logger';
 import { Runtime } from '@/runtime';

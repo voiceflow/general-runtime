@@ -1,6 +1,7 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import dedent from 'dedent';
 
+import { AIModelContext } from '@/lib/clients/ai/ai-model.interface';
 import {
   AIResponse,
   EMPTY_AI_RESPONSE,
@@ -44,21 +45,23 @@ class AISynthesis extends AbstractManager {
     data,
     variables,
     options: { model = BaseUtils.ai.GPT_MODEL.CLAUDE_V1, system = '', temperature, maxTokens } = {},
+    context,
   }: {
     question: string;
     data: KnowledgeBaseResponse;
     variables?: Record<string, any>;
     options?: Partial<BaseUtils.ai.AIModelParams>;
+    context: AIModelContext;
   }): Promise<AIResponse | null> {
     let response: AIResponse = EMPTY_AI_RESPONSE;
 
-    const generativeModel = this.services.ai.get(model);
+    const generativeModel = this.services.ai.get(model, context);
 
     const systemWithTime = `${system}\n\n${getCurrentTime()}`.trim();
 
     const options = { model, system: systemWithTime, temperature, maxTokens };
 
-    const context = this.generateContext(data);
+    const synthesisContext = this.generateContext(data);
 
     if ([BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo, BaseUtils.ai.GPT_MODEL.GPT_4].includes(model)) {
       // for GPT-3.5 and 4.0 chat models
@@ -67,7 +70,7 @@ class AISynthesis extends AbstractManager {
           role: BaseUtils.ai.Role.SYSTEM,
           content: dedent`
             <context>
-              ${context}
+              ${synthesisContext}
             </context>
           `,
         },
@@ -90,7 +93,7 @@ class AISynthesis extends AbstractManager {
       // for GPT-3 completion model
       const prompt = dedent`
         <context>
-          ${context}
+          ${synthesisContext}
         </context>
   
         If you don't know the answer say exactly "NOT_FOUND".\n\nQ: ${question}\nA: `;
@@ -109,7 +112,7 @@ class AISynthesis extends AbstractManager {
     ) {
       const prompt = dedent`
         <information>
-          ${context}
+          ${synthesisContext}
         </information>
   
         If the question is not relevant to the provided <information>, print("NOT_FOUND") and return.
@@ -142,12 +145,14 @@ class AISynthesis extends AbstractManager {
       temperature,
       maxTokens,
     } = {},
+    context,
   }: {
     data: KnowledgeBaseResponse;
     prompt: string;
     memory: BaseUtils.ai.Message[];
     variables?: Record<string, any>;
     options?: Partial<BaseUtils.ai.AIModelParams>;
+    context: AIModelContext;
   }): Promise<AIResponse | null> {
     const options = {
       model,
@@ -191,7 +196,7 @@ class AISynthesis extends AbstractManager {
       },
     ];
 
-    const generativeModel = this.services.ai.get(options.model);
+    const generativeModel = this.services.ai.get(options.model, context);
     return fetchChat({ ...options, messages: questionMessages }, generativeModel, variables, {
       retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
       retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
@@ -210,7 +215,12 @@ class AISynthesis extends AbstractManager {
 
       const memory = getMemoryMessages(variables);
 
-      const query = await this.promptQuestionSynthesis({ prompt, variables, memory });
+      const query = await this.promptQuestionSynthesis({
+        prompt,
+        variables,
+        memory,
+        context: { projectID, workspaceID },
+      });
       if (!query?.output) return null;
 
       const data = await fetchKnowledgeBase(projectID, workspaceID, query.output);
@@ -223,6 +233,7 @@ class AISynthesis extends AbstractManager {
         data,
         memory,
         variables,
+        context: { projectID, workspaceID },
       });
 
       if (!answer?.output) return null;
@@ -256,7 +267,11 @@ class AISynthesis extends AbstractManager {
     }
   }
 
-  async questionSynthesis(question: string, memory: BaseUtils.ai.Message[]): Promise<AIResponse> {
+  async questionSynthesis(
+    question: string,
+    memory: BaseUtils.ai.Message[],
+    context: AIModelContext
+  ): Promise<AIResponse> {
     if (memory.length > 1) {
       const contextMessages: BaseUtils.ai.Message[] = [...memory];
 
@@ -272,7 +287,7 @@ class AISynthesis extends AbstractManager {
         });
       }
 
-      const generativeModel = this.services.ai.get(BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo);
+      const generativeModel = this.services.ai.get(BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo, context);
       const response = await fetchChat(
         {
           temperature: 0.1,
@@ -301,11 +316,13 @@ class AISynthesis extends AbstractManager {
     memory,
     variables,
     options: { model = BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo, system = '', temperature, maxTokens } = {},
+    context,
   }: {
     prompt: string;
     memory: BaseUtils.ai.Message[];
     variables?: Record<string, any>;
     options?: Partial<BaseUtils.ai.AIModelParams>;
+    context: AIModelContext;
   }): Promise<AIResponse> {
     const options = { model, system, temperature, maxTokens };
 
@@ -335,7 +352,7 @@ class AISynthesis extends AbstractManager {
       },
     ];
 
-    const generativeModel = this.services.ai.get(options.model);
+    const generativeModel = this.services.ai.get(options.model, context);
     return fetchChat({ ...options, messages: questionMessages }, generativeModel, variables, {
       retries: this.DEFAULT_QUESTION_SYNTHESIS_RETRIES,
       retryDelay: this.DEFAULT_QUESTION_SYNTHESIS_RETRY_DELAY_MS,

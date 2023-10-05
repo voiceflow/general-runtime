@@ -2,7 +2,7 @@ import { BaseNode, BaseRequest, BaseText, BaseTrace, BaseVersion } from '@voicef
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
-import { ContentModerationError } from '@/lib/clients/contentModeration/utils';
+import { ContentModerationError } from '@/lib/clients/ai/contentModeration/utils';
 import { Runtime, Store } from '@/runtime';
 
 import { isPrompt, NoMatchCounterStorage, Output, StorageType } from '../types';
@@ -80,14 +80,20 @@ const getOutput = async (
       // use knowledge base if it exists
       if (Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0) {
         result = await knowledgeBaseNoMatch(runtime);
-        const model = runtime.services.ai.get(runtime.project?.knowledgeBase?.settings?.summarization.model);
+        const model = runtime.services.ai.get(runtime.project?.knowledgeBase?.settings?.summarization.model, {
+          projectID: runtime.project?._id,
+          workspaceID: runtime.project?.teamID,
+        });
         await consumeResources('KB Fallback', runtime, model, result);
       }
 
       // hit global no match if KB wasn't successful
       if (!result?.output && globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE) {
         result = await generateNoMatch(runtime, globalNoMatch.prompt);
-        const model = runtime.services.ai.get(globalNoMatch.prompt.model);
+        const model = runtime.services.ai.get(globalNoMatch.prompt.model, {
+          projectID: runtime.project?._id,
+          workspaceID: runtime.project?.teamID,
+        });
         await consumeResources('Generative No Match', runtime, model, result);
       }
 

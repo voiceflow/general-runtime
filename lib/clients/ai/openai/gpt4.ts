@@ -1,10 +1,12 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
+import { OpenAIApi } from '@voiceflow/openai';
 
 import log from '@/logger';
 import { Config } from '@/types';
 
-import { ContentModerationClient } from '../../contentModeration';
+import { AIModelContext } from '../ai-model.interface';
+import { ContentModerationClient } from '../contentModeration';
 import { GPTAIModel } from './gpt';
 
 export class GPT4 extends GPTAIModel {
@@ -14,7 +16,12 @@ export class GPT4 extends GPTAIModel {
 
   protected gptModelName = 'gpt-4';
 
-  constructor(config: Config, contentModerationClient: ContentModerationClient) {
+  constructor(
+    config: Config,
+    protected readonly client: OpenAIApi,
+    protected readonly contentModerationClient: ContentModerationClient,
+    protected context: AIModelContext
+  ) {
     // we dont have access to GPT 4 on Azure yet, use OpenAI API instead
     super(
       {
@@ -23,7 +30,9 @@ export class GPT4 extends GPTAIModel {
         AZURE_OPENAI_API_KEY: null,
         AZURE_GPT35_DEPLOYMENTS: null,
       },
-      contentModerationClient
+      client,
+      contentModerationClient,
+      context
     );
   }
 
@@ -35,7 +44,10 @@ export class GPT4 extends GPTAIModel {
   }
 
   async generateChatCompletion(messages: BaseUtils.ai.Message[], params: AIModelParams) {
-    await this.contentModerationClient.checkModeration(messages.map((message) => message.content));
+    await this.contentModerationClient.checkModeration(
+      messages.map((message) => message.content),
+      this.context
+    );
 
     const result = await this.client
       .createChatCompletion(

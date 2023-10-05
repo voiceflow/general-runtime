@@ -3,7 +3,7 @@ import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 
 import log from '@/logger';
 
-import { CompletionOptions, CompletionOutput } from '../types';
+import { CompletionOptions, CompletionOutput } from '../ai-model.interface';
 import { delayedPromiseRace } from '../utils';
 import { GPTAIModel } from './gpt';
 
@@ -25,7 +25,10 @@ export class GPT3_5 extends GPTAIModel {
     options?: CompletionOptions,
     client = this.azureClient
   ): Promise<CompletionOutput | null> {
-    await this.contentModerationClient.checkModeration(messages.map((message) => message.content));
+    await this.contentModerationClient.checkModeration(
+      messages.map((message) => message.content),
+      this.context
+    );
 
     const resolveCompletion = () =>
       this.client.createChatCompletion(

@@ -1,8 +1,8 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { VoiceNode } from '@voiceflow/voice-types';
 
-import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/types';
-import { ContentModerationError } from '@/lib/clients/contentModeration/utils';
+import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
+import { ContentModerationError } from '@/lib/clients/ai/contentModeration/utils';
 import { HandlerFactory } from '@/runtime';
 
 import { FrameType, Output } from '../types';
@@ -16,8 +16,11 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
   handle: async (node, runtime, variables) => {
     const nextID = node.nextId ?? null;
     const workspaceID = runtime.project?.teamID;
-    const generativeModel = runtime.services.ai.get(node.model);
-    const kbModel = runtime.services.ai.get(runtime.project?.knowledgeBase?.settings?.summarization.model);
+    const generativeModel = runtime.services.ai.get(node.model, { projectID: runtime.project?._id, workspaceID });
+    const kbModel = runtime.services.ai.get(runtime.project?.knowledgeBase?.settings?.summarization.model, {
+      projectID: runtime.project?._id,
+      workspaceID,
+    });
 
     if (!(await checkTokens(runtime, node.type))) {
       addOutputTrace(

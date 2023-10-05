@@ -133,6 +133,7 @@ class TestController extends AbstractController {
       question,
       data,
       options: settings?.summarization,
+      context: { projectID: project._id, workspaceID: project.teamID },
     });
 
     if (!answer?.output) return { output: null, chunks };
@@ -158,7 +159,7 @@ class TestController extends AbstractController {
   async testCompletion(
     req: Request<BaseUtils.ai.AIModelParams & BaseUtils.ai.AIContextParams & { workspaceID: string }>
   ) {
-    const model = this.services.ai.get(req.body.model);
+    const model = this.services.ai.get(req.body.model, { workspaceID: req.params.workspaceID });
 
     if (!model) throw new VError('invalid model', VError.HTTP_STATUS.BAD_REQUEST);
     if (typeof req.body.prompt !== 'string') throw new VError('invalid prompt', VError.HTTP_STATUS.BAD_REQUEST);

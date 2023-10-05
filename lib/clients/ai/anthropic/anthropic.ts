@@ -1,29 +1,27 @@
 /* eslint-disable sonarjs/no-nested-template-literals */
-import Client, { AI_PROMPT, HUMAN_PROMPT } from '@anthropic-ai/sdk';
+import AnthropicApi, { AI_PROMPT, HUMAN_PROMPT } from '@anthropic-ai/sdk';
 import { BaseUtils } from '@voiceflow/base-types';
 import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 
 import log from '@/logger';
 
-import { ContentModerationClient } from '../../contentModeration';
-import { AIModel, CompletionOutput } from '../types';
+import { AIModel } from '../ai-model';
+import { AIModelContext, CompletionOutput } from '../ai-model.interface';
+import { ContentModerationClient } from '../contentModeration';
 import { AnthropicConfig } from './anthropic.interface';
 
 export abstract class AnthropicAIModel extends AIModel {
-  protected client: Client;
-
   protected abstract anthropicModel: string;
 
   protected maxTokens = 128;
 
-  constructor(config: AnthropicConfig, protected readonly contentModerationClient: ContentModerationClient) {
-    super(config);
-
-    if (!config.ANTHROPIC_API_KEY) {
-      throw new Error(`Anthropic client not initialized`);
-    }
-
-    this.client = new Client({ apiKey: config.ANTHROPIC_API_KEY, timeout: this.TIMEOUT });
+  constructor(
+    config: AnthropicConfig,
+    protected readonly client: AnthropicApi,
+    protected readonly contentModerationClient: ContentModerationClient,
+    context: AIModelContext
+  ) {
+    super(config, client, contentModerationClient, context);
   }
 
   static RoleMap = {
@@ -60,7 +58,7 @@ export abstract class AnthropicAIModel extends AIModel {
       (message) => `${AnthropicAIModel.RoleMap[message.role]} ${message.content}`
     )}${AI_PROMPT}`;
 
-    await this.contentModerationClient.checkModeration(prompt);
+    await this.contentModerationClient.checkModeration(prompt, this.context);
 
     const queryTokens = this.calculateTokenUsage(prompt);
 
