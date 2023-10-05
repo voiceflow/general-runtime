@@ -8,6 +8,7 @@ import UnleashClient from '../../../unleash';
 import ContentModerationClient from '..';
 import { ContentModerationError } from '../utils';
 
+// if the OPENAI_API_KEY is not set, the content moderation is just ignored
 export class OpenAIModerationClient extends ContentModerationClient {
   protected openAIClient?: OpenAIApi;
 
@@ -15,9 +16,7 @@ export class OpenAIModerationClient extends ContentModerationClient {
     super(config, unleashClient);
     if (config.OPENAI_API_KEY) {
       this.openAIClient = new OpenAIApi(new Configuration({ apiKey: config.OPENAI_API_KEY }));
-      return;
     }
-    throw new Error(`OpenAI moderation client not initialized`);
   }
 
   async checkModeration(input: string | string[], context?: { workspaceID?: string; projectID?: string }) {
