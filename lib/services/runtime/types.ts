@@ -73,6 +73,18 @@ export enum StreamAudioDirective {
   REPLACE_ALL = 'REPLACE_ALL',
 }
 
+export enum AiRequestActionType {
+  AI_RESPONSE_STEP = 'AI Response Step',
+  AI_SET_STEP = 'AI Set Step',
+  KB_PAGE = 'KB Page',
+  KB_FALLBACK = 'KB Fallback',
+  AI_GLOBAL_NO_MATCH = 'AI Global No Match',
+}
+
+export enum SegmentEventType {
+  AI_REQUEST = 'AI Request',
+}
+
 export interface StreamPlayStorage {
   src: string;
   loop: boolean;

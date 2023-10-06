@@ -3,9 +3,14 @@ import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
 import AI from '@/lib/clients/ai';
-import { Runtime, Store } from '@/runtime';
-
-import { isPrompt, NoMatchCounterStorage, Output, StorageType } from '../types';
+import {
+  AiRequestActionType,
+  isPrompt,
+  NoMatchCounterStorage,
+  Output,
+  SegmentEventType,
+  StorageType,
+} from '@/lib/services/runtime/types';
 import {
   addButtonsIfExists,
   addOutputTrace,
@@ -14,7 +19,11 @@ import {
   isPromptContentEmpty,
   isPromptContentInitialized,
   removeEmptyPrompts,
-} from '../utils';
+  slateToPlaintext,
+} from '@/lib/services/runtime/utils';
+import log from '@/logger';
+import { Runtime, Store } from '@/runtime';
+
 import { addNoReplyTimeoutIfExists } from './noReply';
 import { checkTokens, consumeResources } from './utils/ai';
 import { generateNoMatch } from './utils/generativeNoMatch';
@@ -39,6 +48,48 @@ export const convertDeprecatedNoMatch = ({ noMatch, elseId, noMatches, randomize
     },
     ...node,
   } as NoMatchNode);
+
+const sendSegmentEvent = async (
+  runtime: Runtime,
+  action_type: AiRequestActionType,
+  startTime: any,
+  result: { output?: Output; tokens: number; queryTokens: number; answerTokens: number } | null
+): Promise<void | null> => {
+  const responseTokens = result?.answerTokens ?? 0;
+  const queryTokens = result?.queryTokens ?? 0;
+  const currentDate = new Date().toISOString().slice(0, 10);
+
+  const properties = {
+    action_type,
+    source: 'Runtime',
+    response_tokens: responseTokens,
+    response_content: slateToPlaintext(result?.output as BaseText.SlateTextValue),
+    runtime: performance.now() - startTime,
+    total_tokens: queryTokens + responseTokens,
+    workspace_id: runtime?.project?.teamID,
+    organiztion_id: runtime?.project?.teamID,
+    project_id: runtime?.project?._id,
+    project_platform: runtime?.project?.platform,
+    project_type: runtime?.project?.type,
+    model: runtime?.project?.knowledgeBase?.settings?.summarization.model,
+    temperature: runtime?.project?.knowledgeBase?.settings?.summarization.temperature,
+    max_tokens: runtime?.project?.knowledgeBase?.settings?.summarization.maxTokens,
+    system_prompt: runtime?.project?.knowledgeBase?.settings?.summarization.prompt,
+    prompt_tokens: queryTokens,
+    success: !!result?.output,
+    http_return_code: !result?.output ? 500 : 200,
+  };
+
+  const analyticsPlatformClient = await runtime.services.analyticsPlatform.getClient();
+
+  if (analyticsPlatformClient) {
+    analyticsPlatformClient.track({
+      identity: { userID: Number(runtime?.project?.creatorID.toString()) },
+      name: SegmentEventType.AI_REQUEST,
+      properties: { ...properties, last_product_activity: currentDate },
+    });
+  }
+};
 
 const removeEmptyNoMatches = (node: NoMatchNode) => {
   const prompts: Array<BaseText.SlateTextValue | string> = node.noMatch?.prompts ?? [];
@@ -78,14 +129,25 @@ const getOutput = async (
     // use knowledge base if it exists
     let result: { output?: Output; tokens: number; queryTokens: number; answerTokens: number } | null = null;
     if (Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0) {
+      const startTime = performance.now();
       result = await knowledgeBaseNoMatch(runtime);
+      const action_type = AiRequestActionType.KB_FALLBACK;
+
+      sendSegmentEvent(runtime, action_type, startTime, result).catch(() => null);
+
       const model = AI.get(runtime.project?.knowledgeBase?.settings?.summarization.model);
       await consumeResources('KB Fallback', runtime, model, result);
     }
 
     // hit global no match if KB wasn't successful
     if (!result?.output && globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE) {
+      const startTime = performance.now();
       result = await generateNoMatch(runtime, globalNoMatch.prompt);
+
+      const action_type = AiRequestActionType.AI_GLOBAL_NO_MATCH;
+
+      sendSegmentEvent(runtime, action_type, startTime, result).catch(() => null);
+
       const model = AI.get(globalNoMatch.prompt.model);
       await consumeResources('Generative No Match', runtime, model, result);
     }

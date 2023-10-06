@@ -1,19 +1,20 @@
 import { Validator } from '@voiceflow/backend-utils';
-import { BaseUtils } from '@voiceflow/base-types';
+import { BaseModels, BaseUtils } from '@voiceflow/base-types';
+import { KnowledgeBaseSettings } from '@voiceflow/base-types/build/cjs/models/project/knowledgeBase';
 import VError from '@voiceflow/verror';
 import _merge from 'lodash/merge';
 
-import AI from '@/lib/clients/ai';
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
 import { fetchKnowledgeBase, promptSynthesis } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
 import { answerSynthesis } from '@/lib/services/runtime/handlers/utils/knowledgeBase/answer';
+import { AiRequestActionType, SegmentEventType } from '@/lib/services/runtime/types';
 import log from '@/logger';
 import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
 import { Request, Response } from '@/types';
 
 import { QuotaName } from '../../services/billing';
-import { fetchPrompt } from '../../services/runtime/handlers/utils/ai';
+import { AIResponse, fetchPrompt } from '../../services/runtime/handlers/utils/ai';
 import { validate } from '../../utils';
 import { AbstractController } from '../utils';
 import { TestFunctionBody, TestFunctionParams, TestFunctionResponse, TestFunctionStatus } from './interface';
@@ -56,6 +57,64 @@ class TestController extends AbstractController {
     }
   }
 
+  testSendSegmentEvent = async ({
+    req,
+    answer,
+    startTime,
+    settings,
+    project,
+    action_type,
+    isKB,
+  }: {
+    req: Request;
+    answer: AIResponse | null;
+    startTime: any;
+    settings: KnowledgeBaseSettings;
+    project: BaseModels.Project.Model<any, any>;
+    action_type: AiRequestActionType;
+    isKB: boolean;
+  }) => {
+    const responseTokens = answer?.answerTokens ?? 0;
+    const queryTokens = answer?.queryTokens ?? 0;
+    const responseOutput = answer?.output;
+    const currentDate = new Date().toISOString().slice(0, 10);
+
+    const properties = {
+      KB: isKB,
+      action_type,
+      source: 'Runtime',
+      method: 'Preview',
+      runtime: performance.now() - startTime,
+      response_tokens: responseTokens,
+      response_content: responseOutput,
+      total_tokens: queryTokens + responseTokens,
+      workspace_id: req.params.workspaceID,
+      organization_id: project?.teamID,
+      project_id: project?._id,
+      project_platform: project?.platform,
+      project_type: project?.type,
+      prompt_type: settings?.summarization?.mode,
+      model: settings?.summarization?.model,
+      temperature: settings?.summarization?.temperature,
+      max_tokens: settings?.summarization?.maxTokens,
+      system_prompt: settings?.summarization?.prompt,
+      prompt_tokens: queryTokens,
+      prompt_content: req.body.prompt,
+      success: !!answer?.output,
+      http_return_code: answer?.output ? 200 : 500,
+    };
+
+    const analyticsPlatformClient = await this.services.analyticsPlatform.getClient();
+
+    if (analyticsPlatformClient) {
+      analyticsPlatformClient.track({
+        identity: { userID: project.creatorID },
+        name: SegmentEventType.AI_REQUEST,
+        properties: { ...properties, last_product_activity: currentDate },
+      });
+    }
+  };
+
   async testKnowledgeBasePrompt(req: Request) {
     const api = await this.services.dataAPI.get();
 
@@ -64,8 +123,21 @@ class TestController extends AbstractController {
     const settings = _merge({}, project.knowledgeBase?.settings, req.body.settings);
 
     const { prompt } = req.body;
+    const startTime = performance.now();
 
     const answer = await promptSynthesis(project._id, project.teamID, { ...settings.summarization, prompt }, {});
+
+    const segmentSourceInfo = {
+      req,
+      answer,
+      startTime,
+      settings,
+      project,
+      action_type: AiRequestActionType.AI_RESPONSE_STEP,
+      isKB: true,
+    };
+
+    this.testSendSegmentEvent(segmentSourceInfo);
 
     if (!answer?.output) return { output: null };
 
@@ -113,8 +185,23 @@ class TestController extends AbstractController {
     }));
 
     if (!synthesis) return { output: null, chunks };
+    const startTime = performance.now();
 
     const answer = await answerSynthesis({ question, data, options: settings?.summarization });
+
+    if (!(req.headers.authorization && req.headers.authorization.startsWith('ApiKey '))) {
+      const segmentSourceInfo = {
+        req,
+        answer,
+        startTime,
+        settings,
+        project,
+        action_type: AiRequestActionType.KB_PAGE,
+        isKB: true,
+      };
+
+      this.testSendSegmentEvent(segmentSourceInfo);
+    }
 
     if (!answer?.output) return { output: null, chunks };
 
@@ -137,18 +224,40 @@ class TestController extends AbstractController {
   }
 
   async testCompletion(
-    req: Request<BaseUtils.ai.AIModelParams & BaseUtils.ai.AIContextParams & { workspaceID: string }>
+    req: Request<BaseUtils.ai.AIModelParams & BaseUtils.ai.AIContextParams & { workspaceID: string; identity: object }>
   ) {
-    const ai = AI.get(req.body.model);
-
-    if (!ai) throw new VError('invalid model', VError.HTTP_STATUS.BAD_REQUEST);
     if (typeof req.body.prompt !== 'string') throw new VError('invalid prompt', VError.HTTP_STATUS.BAD_REQUEST);
 
-    const { output, tokens } = await fetchPrompt(req.body);
+    const startTime = performance.now();
 
-    if (typeof tokens === 'number' && tokens > 0) {
+    const answer = await fetchPrompt(req.body);
+    const { output } = answer;
+
+    const segmentSourceInfo = {
+      req,
+      answer,
+      startTime,
+      settings: {
+        summarization: {
+          mode: req.body?.mode,
+          model: req.body?.model,
+          temperature: req.body?.temperature,
+          maxTokens: req.body?.maxTokens,
+          prompt: req.body?.prompt,
+        },
+      },
+      project: {},
+      action_type:
+        req.body.type && req.body.type === 'ai_set'
+          ? AiRequestActionType.AI_SET_STEP
+          : AiRequestActionType.AI_RESPONSE_STEP,
+      isKB: true,
+    };
+    this.testSendSegmentEvent(segmentSourceInfo);
+
+    if (typeof answer.tokens === 'number' && answer.tokens > 0) {
       await this.services.billing
-        .consumeQuota(req.params.workspaceID, QuotaName.OPEN_API_TOKENS, tokens)
+        .consumeQuota(req.params.workspaceID, QuotaName.OPEN_API_TOKENS, answer.tokens)
         .catch((err: Error) =>
           log.warn(
             `[Completion Test] Error consuming quota for workspace ${req.params.workspaceID}: ${log.vars({ err })}`
