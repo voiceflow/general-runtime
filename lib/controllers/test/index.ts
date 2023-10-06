@@ -1,5 +1,5 @@
 import { Validator } from '@voiceflow/backend-utils';
-import { BaseUtils } from '@voiceflow/base-types';
+import { BaseModels, BaseUtils } from '@voiceflow/base-types';
 import VError from '@voiceflow/verror';
 import _merge from 'lodash/merge';
 
@@ -88,9 +88,18 @@ class TestController extends AbstractController {
     BODY_SYNTHESIS: VALIDATIONS.BODY.SYNTHESIS,
   })
   async testKnowledgeBase(
-    req: Request<any, { projectID?: string; question: string; synthesis?: boolean; chunkLimit?: number }>
+    req: Request<
+      any,
+      {
+        projectID?: string;
+        question: string;
+        synthesis?: boolean;
+        chunkLimit?: number;
+        tags?: BaseModels.Project.KnowledgeBaseTagsFilter;
+      }
+    >
   ) {
-    const { question, synthesis = true, chunkLimit } = req.body;
+    const { question, synthesis = true, chunkLimit, tags } = req.body;
 
     const api = await this.services.dataAPI.get();
     // if DM API key infer project from header
@@ -102,14 +111,17 @@ class TestController extends AbstractController {
 
     const settings = _merge({}, project.knowledgeBase?.settings, { search: { limit: chunkLimit } });
 
-    const data = await fetchKnowledgeBase(project._id, project.teamID, question, settings);
+    const data = await fetchKnowledgeBase(project._id, project.teamID, question, settings, tags);
 
     if (!data) return { output: null, chunks: [] };
 
     // attach metadata to chunks
     const chunks = data.chunks.map((chunk) => ({
       ...chunk,
-      source: project.knowledgeBase?.documents?.[chunk.documentID]?.data,
+      source: {
+        ...project.knowledgeBase?.documents?.[chunk.documentID]?.data,
+        tags: project.knowledgeBase?.documents?.[chunk.documentID]?.tags,
+      },
     }));
 
     if (!synthesis) return { output: null, chunks };

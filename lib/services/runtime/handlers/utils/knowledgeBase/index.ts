@@ -14,7 +14,6 @@ import { promptQuestionSynthesis, questionSynthesis } from './question';
 import { CloudEnv } from './types';
 
 export { answerSynthesis, questionSynthesis };
-
 export interface KnowledegeBaseChunk {
   score: number;
   chunkID: string;
@@ -54,7 +53,8 @@ export const fetchKnowledgeBase = async (
   projectID: string,
   workspaceID: string | undefined,
   question: string,
-  settings?: BaseModels.Project.KnowledgeBaseSettings
+  settings?: BaseModels.Project.KnowledgeBaseSettings,
+  tags?: BaseModels.Project.KnowledgeBaseTagsFilter
 ): Promise<KnowledgeBaseResponse | null> => {
   try {
     const cloudEnv = Config.CLOUD_ENV || '';
@@ -67,6 +67,7 @@ export const fetchKnowledgeBase = async (
       workspaceID,
       question,
       settings,
+      tags,
     });
 
     if (!data?.chunks?.length) return null;
