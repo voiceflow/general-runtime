@@ -1,18 +1,15 @@
 import { BaseUtils } from '@voiceflow/base-types';
-import { ChatCompletionRequestMessageRoleEnum, OpenAIApi } from '@voiceflow/openai';
+import { ChatCompletionRequestMessageRoleEnum } from '@voiceflow/openai';
 
 import { Config } from '@/types';
 
 import { AIModel } from '../ai-model';
 import { AIModelContext } from '../ai-model.interface';
 import { ContentModerationClient } from '../contentModeration';
+import { OpenAIClient } from './api-client';
 
 export abstract class GPTAIModel extends AIModel {
   protected abstract gptModelName: string;
-
-  protected openAIClient?: OpenAIApi;
-
-  protected azureClient?: OpenAIApi;
 
   static RoleMapping = {
     [BaseUtils.ai.Role.ASSISTANT]: ChatCompletionRequestMessageRoleEnum.Assistant,
@@ -22,11 +19,11 @@ export abstract class GPTAIModel extends AIModel {
 
   constructor(
     config: Config,
-    protected readonly client: OpenAIApi,
+    protected readonly client: OpenAIClient,
     protected readonly contentModerationClient: ContentModerationClient,
     protected context: AIModelContext
   ) {
-    super(config, client, contentModerationClient, context);
+    super(config);
   }
 
   protected calculateTokenMultiplier(tokens: number): number {

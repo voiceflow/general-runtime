@@ -33,7 +33,7 @@ export class GPT3 extends GPTAIModel {
   async generateCompletion(prompt: string, params: AIModelParams) {
     await this.contentModerationClient.checkModeration(prompt, this.context);
 
-    const result = await this.client
+    const result = await this.client.client
       .createCompletion(
         {
           model: this.gptModelName,

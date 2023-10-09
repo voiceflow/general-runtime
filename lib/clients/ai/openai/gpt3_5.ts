@@ -23,7 +23,7 @@ export class GPT3_5 extends GPTAIModel {
     messages: BaseUtils.ai.Message[],
     params: AIModelParams,
     options?: CompletionOptions,
-    client = this.azureClient
+    client = this.client.client
   ): Promise<CompletionOutput | null> {
     await this.contentModerationClient.checkModeration(
       messages.map((message) => message.content),
@@ -31,7 +31,7 @@ export class GPT3_5 extends GPTAIModel {
     );
 
     const resolveCompletion = () =>
-      this.client.createChatCompletion(
+      client.createChatCompletion(
         {
           model: this.gptModelName,
           max_tokens: params.maxTokens,
@@ -43,7 +43,7 @@ export class GPT3_5 extends GPTAIModel {
 
     try {
       let result;
-      if (client === this.azureClient) {
+      if (client === this.client.azureClient) {
         result = await delayedPromiseRace(resolveCompletion, options?.retryDelay ?? 5000, options?.retries ?? 1);
       } else {
         result = await resolveCompletion();
@@ -79,8 +79,8 @@ export class GPT3_5 extends GPTAIModel {
       );
 
       // if we fail on the azure instance due to rate limiting, retry with OpenAI API
-      if (client === this.azureClient && error?.response?.status === 429 && this.openAIClient) {
-        return this.generateChatCompletion(messages, params, options, this.openAIClient);
+      if (client === this.client.azureClient && error?.response?.status === 429 && this.client.openAIClient) {
+        return this.generateChatCompletion(messages, params, options, this.client.openAIClient);
       }
 
       return null;

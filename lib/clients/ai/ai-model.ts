@@ -2,8 +2,7 @@ import { BaseUtils } from '@voiceflow/base-types';
 
 import { Config } from '@/types';
 
-import { AIModelContext, APIClient, CompletionOptions, CompletionOutput } from './ai-model.interface';
-import ContentModerationClient from './contentModeration';
+import { CompletionOptions, CompletionOutput } from './ai-model.interface';
 
 export abstract class AIModel {
   public abstract modelRef: BaseUtils.ai.GPT_MODEL;
@@ -12,12 +11,7 @@ export abstract class AIModel {
 
   protected readonly TIMEOUT: number;
 
-  constructor(
-    config: Pick<Config, 'AI_GENERATION_TIMEOUT'>,
-    protected readonly client: APIClient,
-    protected readonly contentModerationClient: ContentModerationClient,
-    protected context: AIModelContext
-  ) {
+  constructor(config: Pick<Config, 'AI_GENERATION_TIMEOUT'>) {
     this.TIMEOUT = config.AI_GENERATION_TIMEOUT;
   }
 

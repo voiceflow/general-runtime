@@ -5,6 +5,7 @@ import log from '@/logger';
 import { Config } from '@/types';
 
 import UnleashClient from '../../../unleash';
+import { AIModelContext } from '../../ai-model.interface';
 import ContentModerationClient from '..';
 import { ContentModerationError } from '../utils';
 
@@ -19,7 +20,7 @@ export class OpenAIModerationClient extends ContentModerationClient {
     }
   }
 
-  async checkModeration(input: string | string[], context?: { workspaceID?: string; projectID?: string }) {
+  async checkModeration(input: string | string[], context: AIModelContext) {
     if (!this.openAIClient) return;
 
     if (!input?.length) return;

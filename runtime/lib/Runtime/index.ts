@@ -1,4 +1,5 @@
 import * as BaseTypes from '@voiceflow/base-types';
+import { PlanType } from '@voiceflow/internal';
 
 import { FrameType } from '@/lib/services/runtime/types';
 import Handler from '@/runtime/lib/Handler';
@@ -96,7 +97,7 @@ class Runtime<
 
   public project?: Project;
 
-  public plan?: string;
+  public plan?: PlanType;
 
   public timeout: number;
 
@@ -119,7 +120,7 @@ class Runtime<
     this.request = request ?? null;
     this.version = version;
     this.project = project;
-    this.plan = plan;
+    this.plan = plan as PlanType;
     this.timeout = timeout;
 
     const { services = {} as Services, handlers = [], api } = options;

@@ -6,9 +6,9 @@ import { AbstractClient } from '../../utils';
 import { isAzureBasedGPTConfig, isOpenAIGPTConfig } from './gpt.interface';
 
 export class OpenAIClient extends AbstractClient {
-  protected openAIClient?: OpenAIApi;
+  openAIClient?: OpenAIApi;
 
-  protected azureClient?: OpenAIApi;
+  azureClient?: OpenAIApi;
 
   constructor(config: Config) {
     super(config);

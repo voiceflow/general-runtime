@@ -12,9 +12,10 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
   handle: async (node, runtime, variables) => {
     const nextID = node.nextId ?? null;
     const workspaceID = runtime.project?.teamID;
-    const generativeModel = runtime.services.ai.get(node.model, { projectID: runtime.project?._id, workspaceID });
+    const projectID = runtime.project?._id;
+    const generativeModel = runtime.services.ai.get(node.model, { projectID, workspaceID });
     const kbModel = runtime.services.ai.get(runtime.project?.knowledgeBase?.settings?.summarization.model, {
-      projectID: runtime.project?._id,
+      projectID,
       workspaceID,
     });
 

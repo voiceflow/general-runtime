@@ -24,6 +24,7 @@
     "@voiceflow/common": "8.2.1",
     "@voiceflow/event-ingestion-service": "1.5.1",
     "@voiceflow/google-types": "2.20.12",
+    "@voiceflow/internal": "3.2.3",
     "@voiceflow/logger": "^1.6.1",
     "@voiceflow/metrics": "1.4.1",
     "@voiceflow/natural-language-commander": "^0.5.1",

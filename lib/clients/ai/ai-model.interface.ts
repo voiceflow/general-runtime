@@ -1,7 +1,9 @@
-import AnthropicApi from '@anthropic-ai/sdk';
-import { OpenAIApi } from '@voiceflow/openai';
+import { PlanType } from '@voiceflow/internal';
 
-export type APIClient = OpenAIApi | AnthropicApi;
+import { AnthropicAIClient } from './anthropic/api-client';
+import { OpenAIClient } from './openai/api-client';
+
+export type APIClient = OpenAIClient | AnthropicAIClient;
 
 export interface CompletionOutput {
   output: string | null;
@@ -20,4 +22,10 @@ export interface AIModelContext {
   projectID?: string;
 }
 
-export const GPT4_ABLE_PLAN = new Set(['old_pro', 'old_team', 'pro', 'team', 'enterprise']);
+export const GPT4_ABLE_PLAN = new Set([
+  PlanType.OLD_PRO,
+  PlanType.OLD_TEAM,
+  PlanType.PRO,
+  PlanType.TEAM,
+  PlanType.ENTERPRISE,
+]);

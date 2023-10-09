@@ -1,6 +1,4 @@
-import AnthropicApi from '@anthropic-ai/sdk';
 import { BaseUtils } from '@voiceflow/base-types';
-import { OpenAIApi } from '@voiceflow/openai';
 import { match } from 'ts-pattern';
 
 import log from '@/logger';
@@ -24,17 +22,17 @@ import { GPT4 } from './openai/gpt4';
 export class AIClient extends AbstractClient {
   private DEFAULT_MODEL = BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo;
 
-  private openAIClient: OpenAIApi;
+  private openAIClient: OpenAIClient;
 
-  private anthropicClient: AnthropicApi;
+  private anthropicClient: AnthropicAIClient;
 
   private contentModerationClient: ContentModerationClient;
 
   constructor(config: Config, unleash: Unleash) {
     super(config);
 
-    this.openAIClient = new OpenAIClient(config).client;
-    this.anthropicClient = new AnthropicAIClient(config).client;
+    this.openAIClient = new OpenAIClient(config);
+    this.anthropicClient = new AnthropicAIClient(config);
     this.contentModerationClient = new OpenAIModerationClient(config, unleash);
   }
 

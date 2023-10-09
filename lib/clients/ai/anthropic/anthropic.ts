@@ -1,5 +1,5 @@
 /* eslint-disable sonarjs/no-nested-template-literals */
-import AnthropicApi, { AI_PROMPT, HUMAN_PROMPT } from '@anthropic-ai/sdk';
+import { AI_PROMPT, HUMAN_PROMPT } from '@anthropic-ai/sdk';
 import { BaseUtils } from '@voiceflow/base-types';
 import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 
@@ -9,6 +9,7 @@ import { AIModel } from '../ai-model';
 import { AIModelContext, CompletionOutput } from '../ai-model.interface';
 import { ContentModerationClient } from '../contentModeration';
 import { AnthropicConfig } from './anthropic.interface';
+import { AnthropicAIClient } from './api-client';
 
 export abstract class AnthropicAIModel extends AIModel {
   protected abstract anthropicModel: string;
@@ -17,11 +18,11 @@ export abstract class AnthropicAIModel extends AIModel {
 
   constructor(
     config: AnthropicConfig,
-    protected readonly client: AnthropicApi,
+    protected readonly client: AnthropicAIClient,
     protected readonly contentModerationClient: ContentModerationClient,
-    context: AIModelContext
+    protected context: AIModelContext
   ) {
-    super(config, client, contentModerationClient, context);
+    super(config);
   }
 
   static RoleMap = {
@@ -62,7 +63,7 @@ export abstract class AnthropicAIModel extends AIModel {
 
     const queryTokens = this.calculateTokenUsage(prompt);
 
-    const result = await this.client.completions
+    const result = await this.client.client.completions
       .create({
         prompt,
         model: this.anthropicModel,
