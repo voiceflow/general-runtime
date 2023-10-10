@@ -4,6 +4,9 @@ import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 import log from '@/logger';
 import { Config } from '@/types';
 
+import { AIModelContext } from '../ai-model.interface';
+import { ContentModerationClient } from '../contentModeration';
+import { OpenAIClient } from './api-client';
 import { GPTAIModel } from './gpt';
 
 export class GPT4 extends GPTAIModel {
@@ -13,14 +16,13 @@ export class GPT4 extends GPTAIModel {
 
   protected gptModelName = 'gpt-4';
 
-  constructor(config: Config) {
-    // we dont not have access to GPT 4 on Azure yet, use OpenAI API instead
-    super({
-      ...config,
-      AZURE_ENDPOINT: null,
-      AZURE_OPENAI_API_KEY: null,
-      AZURE_GPT35_DEPLOYMENTS: null,
-    });
+  constructor(
+    config: Config,
+    protected readonly client: OpenAIClient,
+    protected readonly contentModerationClient: ContentModerationClient,
+    protected context: AIModelContext
+  ) {
+    super(config, client, contentModerationClient, context);
   }
 
   async generateCompletion(prompt: string, params: AIModelParams) {
@@ -31,7 +33,17 @@ export class GPT4 extends GPTAIModel {
   }
 
   async generateChatCompletion(messages: BaseUtils.ai.Message[], params: AIModelParams) {
-    const result = await this.client
+    await this.contentModerationClient.checkModeration(
+      messages.map((message) => message.content),
+      this.context
+    );
+
+    // we dont have access to GPT 4 on Azure yet, use OpenAI API instead
+    if (!this.client.openAIClient) {
+      log.warn('Cant use GPT4 completion as no valid openAI configuration is set');
+      return null;
+    }
+    const result = await this.client.openAIClient
       .createChatCompletion(
         {
           model: this.gptModelName,

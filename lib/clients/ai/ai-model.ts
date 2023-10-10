@@ -1,11 +1,19 @@
 import { BaseUtils } from '@voiceflow/base-types';
 
+import { Config } from '@/types';
+
+import { CompletionOptions, CompletionOutput } from './ai-model.interface';
+
 export abstract class AIModel {
   public abstract modelRef: BaseUtils.ai.GPT_MODEL;
 
   protected TOKEN_MULTIPLIER = 1;
 
-  constructor(protected readonly TIMEOUT: number) {}
+  protected readonly TIMEOUT: number;
+
+  constructor(config: Pick<Config, 'AI_GENERATION_TIMEOUT'>) {
+    this.TIMEOUT = config.AI_GENERATION_TIMEOUT;
+  }
 
   get tokenMultiplier() {
     return this.TOKEN_MULTIPLIER;
@@ -23,17 +31,3 @@ export abstract class AIModel {
     options?: CompletionOptions
   ): Promise<CompletionOutput | null>;
 }
-
-export interface CompletionOutput {
-  output: string | null;
-  tokens: number;
-  queryTokens: number;
-  answerTokens: number;
-}
-
-export interface CompletionOptions {
-  retries?: number;
-  retryDelay?: number;
-}
-
-export const GPT4_ABLE_PLAN = new Set(['old_pro', 'old_team', 'pro', 'team', 'enterprise']);

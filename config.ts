@@ -20,6 +20,7 @@ const CONFIG: Config = {
   ERROR_RESPONSE_MS: Number(getOptionalProcessEnv('ERROR_RESPONSE_MS', (20 * 1000).toString())),
 
   CLOUD_ENV,
+  DEPLOY_ENV: getOptionalProcessEnv('DEPLOY_ENV') || NODE_ENV,
 
   IS_PRIVATE_CLOUD: NODE_ENV === 'production' && CLOUD_ENV !== 'public',
 
@@ -115,6 +116,10 @@ const CONFIG: Config = {
 
   // AI Generation Settings
   AI_GENERATION_TIMEOUT: Number(getOptionalProcessEnv('AI_GENERATION_TIMEOUT')) || 30000,
+
+  // Unleash
+  UNLEASH_API_KEY: getOptionalProcessEnv('UNLEASH_API_KEY'),
+  UNLEASH_URL: getOptionalProcessEnv('UNLEASH_URL'),
 };
 
 export default CONFIG;
