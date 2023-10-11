@@ -9,7 +9,7 @@ import log from '@/logger';
 import { Runtime } from '@/runtime';
 
 import { Output } from '../../../types';
-import { AIResponse, getMemoryMessages } from '../ai';
+import { getMemoryMessages } from '../ai';
 import { generateOutput } from '../output';
 import { CloudEnv } from './types';
 
