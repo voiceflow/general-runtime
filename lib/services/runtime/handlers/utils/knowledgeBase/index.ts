@@ -43,9 +43,9 @@ const FLAGGED_WORKSPACES_MAP = new Map<string, string[]>([
 
 const { KL_RETRIEVER_SERVICE_HOST: host, KL_RETRIEVER_SERVICE_PORT: port } = Config;
 const scheme = process.env.NODE_ENV === 'e2e' ? 'https' : 'http';
-export const RETRIEVE_ENDPOINT = host && port ? new URL(`${scheme}://${host}:${port}/retrieve`).href : null;
-export const FAQ_RETRIEVAL_ENDPOINT =
-  host && port ? new URL(`${scheme}://${host}:${port}/poc/retrieve/faq`).href : null;
+const baseApiUrl = host && port ? `${scheme}://${host}:${port}` : null;
+export const RETRIEVE_ENDPOINT = baseApiUrl ? new URL(`${baseApiUrl}/retrieve`).href : null;
+export const FAQ_RETRIEVAL_ENDPOINT = baseApiUrl ? new URL(`${baseApiUrl}/poc/retrieve/faq`).href : null;
 export const { KNOWLEDGE_BASE_LAMBDA_ENDPOINT } = Config;
 
 export const getAnswerEndpoint = (cloudEnv: string, workspaceID: string): string | null => {
