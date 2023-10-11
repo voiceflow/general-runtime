@@ -3,6 +3,7 @@ import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
 import { ContentModerationError } from '@/lib/clients/ai/contentModeration/utils';
+import { FeatureFlag } from '@/lib/feature-flags';
 import { Runtime, Store } from '@/runtime';
 
 import { isPrompt, NoMatchCounterStorage, Output, StorageType } from '../types';
@@ -77,8 +78,11 @@ const getOutput = async (
 
     let result: { output?: Output; tokens: number; queryTokens: number; answerTokens: number } | null = null;
     try {
-      // use knowledge base if it exists
-      if (Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0) {
+      // use knowledge base if it exists OR if the user has FAQs
+      if (
+        Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0 ||
+        runtime.services.unleash.client.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(runtime.project?.teamID) })
+      ) {
         result = await knowledgeBaseNoMatch(runtime);
         const model = runtime.services.ai.get(runtime.project?.knowledgeBase?.settings?.summarization.model, {
           projectID: runtime.project?._id,

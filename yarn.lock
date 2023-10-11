@@ -2491,18 +2491,26 @@
     rate-limiter-flexible "^2.2.2"
     sinon "^10.0.0"
 
-"@voiceflow/base-types@2.91.0", "@voiceflow/base-types@^2.91.0":
-  version "2.91.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-2.91.0.tgz#46bbe9e8831803140190cd40c28fb0801ed8236f"
-  integrity sha512-fjlVICaJPMSCCCfBrxVJYBlVzdh66Bq7MuCyMIRZk+NpatAuHudpsmxWsYEqB8ZO3wqArroXW6sJBXfolbZz+g==
-  dependencies:
-    "@voiceflow/common" "^8.2.1"
-    slate "0.94.1"
-
 "@voiceflow/base-types@2.90.1":
   version "2.90.1"
   resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-2.90.1.tgz#b78f03229cefb5c51b386f5ab4e2c9189a9b0e90"
   integrity sha512-VSZgeu08aTfQoFQ2m8IuWRJZj6T6dZv6HNZbxR5oPIFwhbyVbCPMrar6Qw4L9jS4zQaOr2qfs9W1U7zdc062Kw==
+  dependencies:
+    "@voiceflow/common" "^8.2.1"
+    slate "0.94.1"
+
+"@voiceflow/base-types@2.93.0":
+  version "2.93.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-2.93.0.tgz#0418df78628075e8e75f7506af593867c243ea38"
+  integrity sha512-oxKfRWCkPMMwpBUlBiAJtiuZLlA8+XfHiYFKSFSLbMaoXF/favhdFYo7edXxSKH52540B/2L06SrkZ3LjDw/QQ==
+  dependencies:
+    "@voiceflow/common" "^8.2.1"
+    slate "0.94.1"
+
+"@voiceflow/base-types@^2.91.0":
+  version "2.91.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/base-types/-/base-types-2.91.0.tgz#46bbe9e8831803140190cd40c28fb0801ed8236f"
+  integrity sha512-fjlVICaJPMSCCCfBrxVJYBlVzdh66Bq7MuCyMIRZk+NpatAuHudpsmxWsYEqB8ZO3wqArroXW6sJBXfolbZz+g==
   dependencies:
     "@voiceflow/common" "^8.2.1"
     slate "0.94.1"
@@ -11083,15 +11091,6 @@ slate@0.72.3:
   version "0.72.3"
   resolved "https://registry.yarnpkg.com/slate/-/slate-0.72.3.tgz#c74eb85133b975b2d44d219462c127cdb992e76b"
   integrity sha512-ALsYQHKTN4rC+iHnOJzV+aC4AHdhoPkBWrfEK3W/LbXOzPrR+wL80a66OZiYg9Xb0QeGzlLSGdOOFQd2ix9Wmg==
-  dependencies:
-    immer "^9.0.6"
-    is-plain-object "^5.0.0"
-    tiny-warning "^1.0.3"
-
-slate@0.94.1:
-  version "0.94.1"
-  resolved "https://registry.yarnpkg.com/slate/-/slate-0.94.1.tgz#13b0ba7d0a7eeb0ec89a87598e9111cbbd685696"
-  integrity sha512-GH/yizXr1ceBoZ9P9uebIaHe3dC/g6Plpf9nlUwnvoyf6V1UOYrRwkabtOCd3ZfIGxomY4P7lfgLr7FPH8/BKA==
   dependencies:
     immer "^9.0.6"
     is-plain-object "^5.0.0"

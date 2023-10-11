@@ -10,10 +10,16 @@ import {
   getMemoryMessages,
 } from '@/lib/services/runtime/handlers/utils/ai';
 import { getCurrentTime } from '@/lib/services/runtime/handlers/utils/generativeNoMatch';
-import { fetchKnowledgeBase, KnowledgeBaseResponse } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
+import {
+  addFaqTrace,
+  fetchFaq,
+  fetchKnowledgeBase,
+  KnowledgeBaseResponse,
+} from '@/lib/services/runtime/handlers/utils/knowledgeBase';
 import log from '@/logger';
 import { Runtime } from '@/runtime';
 
+import { FeatureFlag } from '../feature-flags';
 import { AbstractManager } from './utils';
 
 class AISynthesis extends AbstractManager {
@@ -222,6 +228,24 @@ class AISynthesis extends AbstractManager {
         context: { projectID, workspaceID },
       });
       if (!query?.output) return null;
+
+      if (this.services.unleash.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(workspaceID) })) {
+        // check if question is an faq before searching all chunks.
+        const faq = await fetchFaq(projectID, workspaceID, query.output, runtime?.project?.knowledgeBase?.settings);
+        if (faq?.answer) {
+          // eslint-disable-next-line max-depth
+          if (runtime) {
+            addFaqTrace(runtime, faq, query);
+          }
+
+          return {
+            output: faq.answer,
+            tokens: query.queryTokens + query.answerTokens,
+            queryTokens: query.queryTokens,
+            answerTokens: query.answerTokens,
+          };
+        }
+      }
 
       const data = await fetchKnowledgeBase(projectID, workspaceID, query.output);
 

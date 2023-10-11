@@ -1,7 +1,9 @@
-import { BaseModels } from '@voiceflow/base-types';
+import { BaseModels, BaseNode, BaseTrace } from '@voiceflow/base-types';
+import { KnowledgeBaseCtxType } from '@voiceflow/base-types/build/cjs/node/knowledgeBase';
 import axios from 'axios';
 
 import Config from '@/config';
+import { FeatureFlag } from '@/lib/feature-flags';
 import AIAssist from '@/lib/services/aiAssist';
 import log from '@/logger';
 import { Runtime } from '@/runtime';
@@ -39,8 +41,6 @@ const FLAGGED_WORKSPACES_MAP = new Map<string, string[]>([
   [CloudEnv.JPMC, []],
 ]);
 
-const FAQ_FLAGGED_WORKSPACES_MAP = new Map<string, string[]>([[CloudEnv.Public, ['80627']]]);
-
 const { KL_RETRIEVER_SERVICE_HOST: host, KL_RETRIEVER_SERVICE_PORT: port } = Config;
 const scheme = process.env.NODE_ENV === 'e2e' ? 'https' : 'http';
 export const RETRIEVE_ENDPOINT = host && port ? new URL(`${scheme}://${host}:${port}/retrieve`).href : null;
@@ -65,10 +65,7 @@ export const fetchFaq = async (
   question: string,
   settings?: BaseModels.Project.KnowledgeBaseSettings
 ): Promise<KnowledgeBaseFaq | null> => {
-  const cloudEnv = Config.CLOUD_ENV || '';
-  const flaggedWorkspaces = FAQ_FLAGGED_WORKSPACES_MAP.get(cloudEnv);
-
-  if (FAQ_RETRIEVAL_ENDPOINT && (flaggedWorkspaces?.length === 0 || flaggedWorkspaces?.includes(String(workspaceID)))) {
+  if (FAQ_RETRIEVAL_ENDPOINT) {
     const { data } = await axios.post<KnowledgeBaseFaqResponse>(FAQ_RETRIEVAL_ENDPOINT, {
       projectID,
       workspaceID,
@@ -81,18 +78,16 @@ export const fetchFaq = async (
   return null;
 };
 
-const addFaqTrace = (runtime: Runtime, faq: KnowledgeBaseFaq, question: AIResponse) => {
+export const addFaqTrace = (runtime: Runtime, faq: KnowledgeBaseFaq, question: AIResponse) => {
   runtime.trace.addTrace({
-    type: 'knowledgeBase',
+    type: BaseNode.Utils.TraceType.KNOWLEDGE_BASE,
     payload: {
+      contextType: KnowledgeBaseCtxType.FAQ,
       faqQuestion: faq?.question,
       faqAnswer: faq?.answer,
-      query: {
-        messages: question.messages,
-        output: question.output,
-      },
+      query: question.output,
     },
-  } as any);
+  } as BaseTrace.KnowledgeBase);
 };
 
 export const fetchKnowledgeBase = async (
@@ -148,21 +143,25 @@ export const knowledgeBaseNoMatch = async (
     });
     if (!question?.output) return null;
 
-    // before checking KB, check if it is an FAQ
-    const faq = await fetchFaq(
-      runtime.project._id,
-      runtime.project.teamID,
-      question.output,
-      runtime.project?.knowledgeBase?.settings
-    );
-    if (faq?.answer) {
-      addFaqTrace(runtime, faq, question);
-      return {
-        output: generateOutput(faq.answer, runtime.project),
-        tokens: question.queryTokens + question.answerTokens,
-        queryTokens: question.queryTokens,
-        answerTokens: question.answerTokens,
-      };
+    if (
+      runtime.services.unleash.client.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(runtime.project.teamID) })
+    ) {
+      // before checking KB, check if it is an FAQ
+      const faq = await fetchFaq(
+        runtime.project._id,
+        runtime.project.teamID,
+        question.output,
+        runtime.project?.knowledgeBase?.settings
+      );
+      if (faq?.answer) {
+        addFaqTrace(runtime, faq, question);
+        return {
+          output: generateOutput(faq.answer, runtime.project),
+          tokens: question.queryTokens + question.answerTokens,
+          queryTokens: question.queryTokens,
+          answerTokens: question.answerTokens,
+        };
+      }
     }
 
     const data = await fetchKnowledgeBase(
