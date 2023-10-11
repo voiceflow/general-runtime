@@ -78,15 +78,15 @@ export const fetchFaq = async (
   return null;
 };
 
-export const addFaqTrace = (runtime: Runtime, faq: KnowledgeBaseFaq, question: AIResponse) => {
+export const addFaqTrace = (runtime: Runtime, faqQuestion: string, faqAnswer: string, query: string) => {
   runtime.trace.addTrace<BaseTrace.KnowledgeBase>({
     type: BaseNode.Utils.TraceType.KNOWLEDGE_BASE,
     payload: {
       contextType: KnowledgeBaseCtxType.FAQ,
-      faqQuestion: faq?.question || '',
-      faqAnswer: faq?.answer || '',
-      query: question.output || '',
-      message: faq?.answer || '',
+      faqQuestion,
+      faqAnswer,
+      query,
+      message: faqAnswer,
     },
   });
 };
@@ -155,7 +155,7 @@ export const knowledgeBaseNoMatch = async (
         runtime.project?.knowledgeBase?.settings
       );
       if (faq?.answer) {
-        addFaqTrace(runtime, faq, question);
+        addFaqTrace(runtime, faq.question || '', faq.answer, question.output);
         return {
           output: generateOutput(faq.answer, runtime.project),
           tokens: question.queryTokens + question.answerTokens,

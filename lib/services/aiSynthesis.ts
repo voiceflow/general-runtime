@@ -235,7 +235,7 @@ class AISynthesis extends AbstractManager {
         if (faq?.answer) {
           // eslint-disable-next-line max-depth
           if (runtime) {
-            addFaqTrace(runtime, faq, query);
+            addFaqTrace(runtime, faq?.question || '', faq.answer, query.output);
           }
 
           return {
