@@ -79,15 +79,16 @@ export const fetchFaq = async (
 };
 
 export const addFaqTrace = (runtime: Runtime, faq: KnowledgeBaseFaq, question: AIResponse) => {
-  runtime.trace.addTrace({
+  runtime.trace.addTrace<BaseTrace.KnowledgeBase>({
     type: BaseNode.Utils.TraceType.KNOWLEDGE_BASE,
     payload: {
       contextType: KnowledgeBaseCtxType.FAQ,
-      faqQuestion: faq?.question,
-      faqAnswer: faq?.answer,
-      query: question.output,
+      faqQuestion: faq?.question || '',
+      faqAnswer: faq?.answer || '',
+      query: question.output || '',
+      message: faq?.answer || '',
     },
-  } as BaseTrace.KnowledgeBase);
+  });
 };
 
 export const fetchKnowledgeBase = async (
