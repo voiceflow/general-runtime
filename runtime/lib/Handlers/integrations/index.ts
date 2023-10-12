@@ -2,7 +2,7 @@ import { BaseNode } from '@voiceflow/base-types';
 import { deepVariableSubstitution } from '@voiceflow/common';
 import axios from 'axios';
 import safeJSONStringify from 'json-stringify-safe';
-import _ from 'lodash';
+import _cloneDeep from 'lodash/cloneDeep';
 
 import log from '@/logger';
 import { HandlerFactory } from '@/runtime/lib/Handler';
@@ -34,7 +34,7 @@ const IntegrationsHandler: HandlerFactory<BaseNode.Integration.Node, Integration
     try {
       const { selected_action: selectedAction, selected_integration: selectedIntegration } = node;
 
-      const actionBodyData = deepVariableSubstitution(_.cloneDeep(node.action_data), variables.getState());
+      const actionBodyData = deepVariableSubstitution(_cloneDeep(node.action_data), variables.getState());
 
       const { data } = await axios.post(
         `${integrationsEndpoint}${ENDPOINTS_MAP[selectedIntegration][selectedAction]}`,

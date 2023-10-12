@@ -1,7 +1,7 @@
 import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 import { deepVariableSubstitution } from '@voiceflow/common';
 import safeJSONStringify from 'json-stringify-safe';
-import _ from 'lodash';
+import _cloneDeep from 'lodash/cloneDeep';
 
 import Handler from '@/runtime/lib/Handler';
 
@@ -80,7 +80,7 @@ const APIHandler = (config: Partial<APIHandlerConfig>): Handler<BaseNode.Integra
   handle: async (node, runtime, variables) => {
     let nextId: string | null = null;
 
-    const actionBodyData = deepVariableSubstitution(_.cloneDeep(node.action_data), variables.getState()) as APINodeData;
+    const actionBodyData = deepVariableSubstitution(_cloneDeep(node.action_data), variables.getState()) as APINodeData;
 
     // override user agent
     const headers = actionBodyData.headers || [];

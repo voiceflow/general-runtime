@@ -1,5 +1,6 @@
 import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { deepVariableSubstitution, replaceVariables, sanitizeVariables } from '@voiceflow/common';
+import _cloneDeep from 'lodash/cloneDeep';
 
 import { Action, HandlerFactory } from '@/runtime';
 
@@ -41,7 +42,7 @@ export const CarouselHandler: HandlerFactory<BaseNode.Carousel.Node, typeof util
             slate,
             text,
           },
-          buttons: card.buttons.map((button) => deepVariableSubstitution(button, variablesMap)),
+          buttons: _cloneDeep(card.buttons).map((button) => deepVariableSubstitution(button, variablesMap)),
         };
 
         if (item.title || item.imageUrl || item.description.text || item.buttons.length) {

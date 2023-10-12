@@ -1,6 +1,7 @@
 import { AnyRecord, BaseNode, BaseText, BaseTrace } from '@voiceflow/base-types';
 import { deepVariableSubstitution, replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
+import _cloneDeep from 'lodash/cloneDeep';
 
 import { Action, HandlerFactory } from '@/runtime';
 
@@ -72,7 +73,7 @@ export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof uti
       const title = replaceVariables(node.title, variablesMap);
       const imageUrl = replaceVariables(node.imageUrl, variablesMap);
 
-      const buttons = node.buttons.map((button) => utils.deepVariableSubstitution(button, variablesMap));
+      const buttons = _cloneDeep(node.buttons).map((button) => utils.deepVariableSubstitution(button, variablesMap));
 
       if (title || buttons.length || description.text || imageUrl) {
         runtime.trace.addTrace<BaseNode.CardV2.TraceFrame>({
