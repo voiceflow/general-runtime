@@ -17,11 +17,8 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
     const nextID = node.nextId ?? null;
     const projectID = runtime.project?._id;
     const workspaceID = runtime.project?.teamID;
-    const generativeModel = runtime.services.ai.get(node.model, { projectID, workspaceID });
-    const kbModel = runtime.services.ai.get(runtime.project?.knowledgeBase?.settings?.summarization.model, {
-      projectID,
-      workspaceID,
-    });
+    const generativeModel = runtime.services.ai.get(node.model);
+    const kbModel = runtime.services.ai.get(runtime.project?.knowledgeBase?.settings?.summarization.model);
 
     if (!(await checkTokens(runtime, node.type))) {
       addOutputTrace(
@@ -78,7 +75,9 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
           answerTokens: 0,
         };
       } else {
-        response = await fetchPrompt(node, generativeModel, variables.getState());
+        response = await fetchPrompt(node, generativeModel, variables.getState(), {
+          context: { projectID, workspaceID },
+        });
       }
 
       await consumeResources('AI Response', runtime, generativeModel, response);

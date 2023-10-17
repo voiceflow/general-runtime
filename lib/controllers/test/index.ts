@@ -164,12 +164,17 @@ class TestController extends AbstractController {
   async testCompletion(
     req: Request<BaseUtils.ai.AIModelParams & BaseUtils.ai.AIContextParams & { workspaceID: string }>
   ) {
-    const model = this.services.ai.get(req.body.model, { workspaceID: req.params.workspaceID });
+    const model = this.services.ai.get(req.body.model);
 
     if (!model) throw new VError('invalid model', VError.HTTP_STATUS.BAD_REQUEST);
     if (typeof req.body.prompt !== 'string') throw new VError('invalid prompt', VError.HTTP_STATUS.BAD_REQUEST);
 
-    const { output, tokens } = await fetchPrompt(req.body, model);
+    const { output, tokens } = await fetchPrompt(
+      req.body,
+      model,
+      {},
+      { context: { workspaceID: req.params.workspaceID } }
+    );
 
     if (typeof tokens === 'number' && tokens > 0) {
       await this.services.billing

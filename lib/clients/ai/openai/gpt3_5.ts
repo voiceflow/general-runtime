@@ -25,9 +25,9 @@ export class GPT3_5 extends GPTAIModel {
     options?: CompletionOptions,
     client = this.client.client
   ): Promise<CompletionOutput | null> {
-    await this.contentModerationClient.checkModeration(
+    await this.contentModerationClient?.checkModeration(
       messages.map((message) => message.content),
-      this.context
+      options?.context
     );
 
     const resolveCompletion = () =>

@@ -4,7 +4,7 @@ import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 import log from '@/logger';
 import { Config } from '@/types';
 
-import { AIModelContext } from '../ai-model.interface';
+import { CompletionOptions } from '../ai-model.interface';
 import { ContentModerationClient } from '../contentModeration';
 import { OpenAIClient } from './api-client';
 import { GPTAIModel } from './gpt';
@@ -16,26 +16,25 @@ export class GPT4 extends GPTAIModel {
 
   protected gptModelName = 'gpt-4';
 
-  constructor(
-    config: Config,
-    protected readonly client: OpenAIClient,
-    protected readonly contentModerationClient: ContentModerationClient,
-    protected context: AIModelContext
-  ) {
-    super(config, client, contentModerationClient, context);
+  protected readonly client: OpenAIClient;
+
+  constructor(config: Config, protected readonly contentModerationClient: ContentModerationClient | null) {
+    super(config, contentModerationClient);
+
+    this.client = new OpenAIClient(config);
   }
 
-  async generateCompletion(prompt: string, params: AIModelParams) {
+  async generateCompletion(prompt: string, params: AIModelParams, options?: CompletionOptions) {
     const messages: BaseUtils.ai.Message[] = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
     if (params.system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: params.system });
 
-    return this.generateChatCompletion(messages, params);
+    return this.generateChatCompletion(messages, params, options);
   }
 
-  async generateChatCompletion(messages: BaseUtils.ai.Message[], params: AIModelParams) {
-    await this.contentModerationClient.checkModeration(
+  async generateChatCompletion(messages: BaseUtils.ai.Message[], params: AIModelParams, options?: CompletionOptions) {
+    await this.contentModerationClient?.checkModeration(
       messages.map((message) => message.content),
-      this.context
+      options?.context
     );
 
     // we dont have access to GPT 4 on Azure yet, use OpenAI API instead

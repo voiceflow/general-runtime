@@ -3,6 +3,7 @@ import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 
 import log from '@/logger';
 
+import { CompletionOptions } from '../ai-model.interface';
 import { GPTAIModel } from './gpt';
 
 export class GPT3 extends GPTAIModel {
@@ -30,8 +31,8 @@ export class GPT3 extends GPTAIModel {
     return `${transcript.trim()}\nuser: `;
   }
 
-  async generateCompletion(prompt: string, params: AIModelParams) {
-    await this.contentModerationClient.checkModeration(prompt, this.context);
+  async generateCompletion(prompt: string, params: AIModelParams, options?: CompletionOptions) {
+    await this.contentModerationClient?.checkModeration(prompt, options?.context);
 
     const result = await this.client.client
       .createCompletion(
@@ -62,7 +63,7 @@ export class GPT3 extends GPTAIModel {
   }
 
   // turn messages into a singular prompt
-  async generateChatCompletion(messages: BaseUtils.ai.Message[], params: AIModelParams) {
-    return this.generateCompletion(GPT3.messagesToPrompt(messages), params);
+  async generateChatCompletion(messages: BaseUtils.ai.Message[], params: AIModelParams, options?: CompletionOptions) {
+    return this.generateCompletion(GPT3.messagesToPrompt(messages), params, options);
   }
 }

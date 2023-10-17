@@ -61,7 +61,7 @@ class AISynthesis extends AbstractManager {
   }): Promise<AIResponse | null> {
     let response: AIResponse = EMPTY_AI_RESPONSE;
 
-    const generativeModel = this.services.ai.get(model, context);
+    const generativeModel = this.services.ai.get(model);
 
     const systemWithTime = `${system}\n\n${getCurrentTime()}`.trim();
 
@@ -84,7 +84,7 @@ class AISynthesis extends AbstractManager {
           role: BaseUtils.ai.Role.USER,
           content: dedent`
             Answer the following question using ONLY the provided <context>, if you don't know the answer say exactly "NOT_FOUND".
-  
+
             Question:
             ${question}
           `,
@@ -101,13 +101,14 @@ class AISynthesis extends AbstractManager {
         <context>
           ${synthesisContext}
         </context>
-  
+
         If you don't know the answer say exactly "NOT_FOUND".\n\nQ: ${question}\nA: `;
 
       response = await fetchPrompt(
         { ...options, prompt, mode: BaseUtils.ai.PROMPT_MODE.PROMPT },
         generativeModel,
-        variables
+        variables,
+        { context }
       );
     } else if (
       [
@@ -120,16 +121,17 @@ class AISynthesis extends AbstractManager {
         <information>
           ${synthesisContext}
         </information>
-  
+
         If the question is not relevant to the provided <information>, print("NOT_FOUND") and return.
         Otherwise, you may - very concisely - answer the user using only the relevant <information>.
-  
+
         <question>${question}</question>`;
 
       response = await fetchPrompt(
         { ...options, prompt, mode: BaseUtils.ai.PROMPT_MODE.PROMPT },
         generativeModel,
-        variables
+        variables,
+        { context }
       );
     }
 
@@ -176,22 +178,22 @@ class AISynthesis extends AbstractManager {
       <Conversation_History>
         ${history}
       </Conversation_History>
-  
+
       <Knowledge>
         ${knowledge}
       </Knowledge>
-  
+
       <Instructions>${prompt}</Instructions>
-  
+
       Using <Conversation_History> as context, fulfill <Instructions> ONLY using information found in <Knowledge>.`;
     } else {
       content = dedent`
       <Knowledge>
         ${knowledge}
       </Knowledge>
-  
+
       <Instructions>${prompt}</Instructions>
-  
+
       Fulfill <Instructions> ONLY using information found in <Knowledge>.`;
     }
 
@@ -202,8 +204,9 @@ class AISynthesis extends AbstractManager {
       },
     ];
 
-    const generativeModel = this.services.ai.get(options.model, context);
+    const generativeModel = this.services.ai.get(options.model);
     return fetchChat({ ...options, messages: questionMessages }, generativeModel, variables, {
+      context,
       retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
       retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
     });
@@ -311,7 +314,7 @@ class AISynthesis extends AbstractManager {
         });
       }
 
-      const generativeModel = this.services.ai.get(BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo, context);
+      const generativeModel = this.services.ai.get(BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo);
       const response = await fetchChat(
         {
           temperature: 0.1,
@@ -321,6 +324,7 @@ class AISynthesis extends AbstractManager {
         },
         generativeModel,
         {
+          context,
           retries: this.DEFAULT_QUESTION_SYNTHESIS_RETRIES,
           retryDelay: this.DEFAULT_QUESTION_SYNTHESIS_RETRY_DELAY_MS,
         }
@@ -358,14 +362,14 @@ class AISynthesis extends AbstractManager {
       <Conversation_History>
         ${history}
       </Conversation_History>
-  
+
       <Instructions>${prompt}</Instructions>
-  
+
       Using <Conversation_History> as context, you are searching a text knowledge base to fulfill <Instructions>. Write a sentence to search against.`;
     } else {
       content = dedent`
       <Instructions>${prompt}</Instructions>
-  
+
       You can search a text knowledge base to fulfill <Instructions>. Write a sentence to search against.`;
     }
 
@@ -376,8 +380,9 @@ class AISynthesis extends AbstractManager {
       },
     ];
 
-    const generativeModel = this.services.ai.get(options.model, context);
+    const generativeModel = this.services.ai.get(options.model);
     return fetchChat({ ...options, messages: questionMessages }, generativeModel, variables, {
+      context,
       retries: this.DEFAULT_QUESTION_SYNTHESIS_RETRIES,
       retryDelay: this.DEFAULT_QUESTION_SYNTHESIS_RETRY_DELAY_MS,
     });

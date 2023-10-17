@@ -9,7 +9,7 @@ export abstract class ContentModerationClient extends AbstractClient {
     super(config);
   }
 
-  abstract checkModeration(input: string | string[], context: AIModelContext): Promise<void>;
+  abstract checkModeration(input: string | string[], context?: AIModelContext): Promise<void>;
 }
 
 export default ContentModerationClient;

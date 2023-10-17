@@ -12,14 +12,14 @@ export interface CompletionOutput {
   answerTokens: number;
 }
 
-export interface CompletionOptions {
-  retries?: number;
-  retryDelay?: number;
-}
-
 export interface AIModelContext {
   workspaceID?: string;
   projectID?: string;
+}
+export interface CompletionOptions {
+  context?: AIModelContext;
+  retries?: number;
+  retryDelay?: number;
 }
 
 export const GPT4_ABLE_PLAN = new Set([
