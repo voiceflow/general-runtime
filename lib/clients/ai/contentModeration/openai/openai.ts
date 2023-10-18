@@ -17,7 +17,7 @@ export class OpenAIModerationClient extends ContentModerationClient {
     super(config, unleashClient);
     if (config.OPENAI_API_KEY) {
       this.openAIClient = new OpenAIApi(
-        new Configuration({ apiKey: config.OPENAI_API_KEY, basePath: config.OPENAI_API_ENDPOINT ?? undefined })
+        new Configuration({ apiKey: config.OPENAI_API_KEY, basePath: config.OPENAI_API_ENDPOINT || undefined })
       );
     }
   }
