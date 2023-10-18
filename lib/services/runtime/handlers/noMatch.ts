@@ -84,7 +84,8 @@ const getOutput = async (
         runtime.services.unleash.client.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(runtime.project?.teamID) })
       ) {
         result = await knowledgeBaseNoMatch(runtime);
-        const model = runtime.services.ai.get(runtime.project?.knowledgeBase?.settings?.summarization.model, {
+        const kbSettings = runtime.version?.knowledgeBase?.settings || runtime.project?.knowledgeBase?.settings;
+        const model = runtime.services.ai.get(kbSettings?.summarization.model, {
           projectID: runtime.project?._id,
           workspaceID: runtime.project?.teamID,
         });

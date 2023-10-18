@@ -59,8 +59,10 @@ class TestController extends AbstractController {
     const api = await this.services.dataAPI.get();
 
     // if DM API key infer project from header
-    const project = await api.getProject(req.body.projectID || req.headers.authorization);
-    const settings = _merge({}, project.knowledgeBase?.settings, req.body.settings);
+    const project = await api.getProject(req.headers.authorization || req.body.projectID);
+    const version = req.body.versionID ? await api.getVersion(req.body.versionID) : null;
+
+    const settings = _merge({}, version?.knowledgeBase?.settings || project.knowledgeBase?.settings, req.body.settings);
 
     const { prompt } = req.body;
 
@@ -95,6 +97,7 @@ class TestController extends AbstractController {
     req: Request<
       any,
       {
+        versionID?: string;
         projectID?: string;
         question: string;
         synthesis?: boolean;
@@ -107,13 +110,16 @@ class TestController extends AbstractController {
 
     const api = await this.services.dataAPI.get();
     // if DM API key infer project from header
-    const project = await api.getProject(req.body.projectID || req.headers.authorization!);
+    const project = await api.getProject(req.headers.authorization || req.body.projectID!);
+    const version = req.body.versionID ? await api.getVersion(req.body.versionID) : null;
 
     if (!(await this.services.billing.checkQuota(project.teamID, QuotaName.OPEN_API_TOKENS))) {
       throw new VError('token quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
     }
 
-    const settings = _merge({}, project.knowledgeBase?.settings, { search: { limit: chunkLimit } });
+    const settings = _merge({}, version?.knowledgeBase?.settings || project.knowledgeBase?.settings, {
+      search: { limit: chunkLimit },
+    });
 
     if (this.services.unleash.client.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(project.teamID) })) {
       const faq = await fetchFaq(project._id, project.teamID, question, settings);

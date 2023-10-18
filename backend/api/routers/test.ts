@@ -35,6 +35,11 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.post(
     '/:workspaceID/knowledge-base',
     middlewares.auth.authorize(['workspace:READ']),
+    middlewares.auth.verifyParamConsistency(
+      (req) => req.body.projectID,
+      (req) => req.headers.authorization,
+      (req) => req.body.versionID
+    ),
     middlewares.billing.checkQuota(QuotaName.OPEN_API_TOKENS, (req) => req.params.workspaceID),
     middlewares.llmLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'knowledge-base'),
     controllers.test.testKnowledgeBase
@@ -43,6 +48,11 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.post(
     '/:workspaceID/knowledge-base-prompt',
     middlewares.auth.authorize(['workspace:READ']),
+    middlewares.auth.verifyParamConsistency(
+      (req) => req.body.projectID,
+      (req) => req.headers.authorization,
+      (req) => req.body.versionID
+    ),
     middlewares.billing.checkQuota(QuotaName.OPEN_API_TOKENS, (req) => req.params.workspaceID),
     middlewares.llmLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'knowledge-base'),
     controllers.test.testKnowledgeBasePrompt

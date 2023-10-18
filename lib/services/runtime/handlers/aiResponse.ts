@@ -18,7 +18,8 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
     const projectID = runtime.project?._id;
     const workspaceID = runtime.project?.teamID;
     const generativeModel = runtime.services.ai.get(node.model, { projectID, workspaceID });
-    const kbModel = runtime.services.ai.get(runtime.project?.knowledgeBase?.settings?.summarization.model, {
+    const settings = runtime.version?.knowledgeBase?.settings || runtime.project?.knowledgeBase?.settings;
+    const kbModel = runtime.services.ai.get(settings?.summarization.model, {
       projectID,
       workspaceID,
     });
@@ -42,7 +43,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
         const answer = await runtime.services.aiSynthesis.promptSynthesis(
           runtime.version!.projectID,
           workspaceID,
-          { ...runtime.project?.knowledgeBase?.settings?.summarization, prompt, mode },
+          { ...settings?.summarization, prompt, mode },
           variables.getState(),
           runtime
         );

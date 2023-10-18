@@ -12,6 +12,11 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.post(
     '/query',
     middlewares.auth.verifyDMAPIKey,
+    middlewares.auth.verifyParamConsistency(
+      (req) => req.body.projectID,
+      (req) => req.headers.authorization,
+      (req) => req.body.versionID
+    ),
     middlewares.rateLimit.consumeResource((req) => req.headers.authorization, 'knowledge-base'),
     controllers.test.testKnowledgeBase
   );

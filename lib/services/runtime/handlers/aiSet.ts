@@ -14,7 +14,8 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
     const workspaceID = runtime.project?.teamID;
     const projectID = runtime.project?._id;
     const generativeModel = runtime.services.ai.get(node.model, { projectID, workspaceID });
-    const kbModel = runtime.services.ai.get(runtime.project?.knowledgeBase?.settings?.summarization.model, {
+    const settings = runtime.version?.knowledgeBase?.settings || runtime.project?.knowledgeBase?.settings;
+    const kbModel = runtime.services.ai.get(settings?.summarization.model, {
       projectID,
       workspaceID,
     });
@@ -41,7 +42,7 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
                   runtime.version!.projectID,
                   workspaceID,
                   {
-                    ...runtime.project?.knowledgeBase?.settings?.summarization,
+                    ...settings?.summarization,
                     mode,
                     prompt,
                   },

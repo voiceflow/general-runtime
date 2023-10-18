@@ -231,7 +231,12 @@ class AISynthesis extends AbstractManager {
 
       if (this.services.unleash.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(workspaceID) })) {
         // check if question is an faq before searching all chunks.
-        const faq = await fetchFaq(projectID, workspaceID, query.output, runtime?.project?.knowledgeBase?.settings);
+        const faq = await fetchFaq(
+          projectID,
+          workspaceID,
+          query.output,
+          runtime?.version?.knowledgeBase?.settings || runtime?.project?.knowledgeBase?.settings
+        );
         if (faq?.answer) {
           // eslint-disable-next-line max-depth
           if (runtime) {

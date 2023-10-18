@@ -137,6 +137,7 @@ export const knowledgeBaseNoMatch = async (
   try {
     // expiremental module, frame the question
     const memory = getMemoryMessages(runtime.variables.getState());
+    const kbSettings = runtime.version?.knowledgeBase?.settings || runtime.project?.knowledgeBase?.settings;
 
     const question = await runtime.services.aiSynthesis.questionSynthesis(input, memory, {
       projectID: runtime.project._id,
@@ -148,12 +149,7 @@ export const knowledgeBaseNoMatch = async (
       runtime.services.unleash.client.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(runtime.project.teamID) })
     ) {
       // before checking KB, check if it is an FAQ
-      const faq = await fetchFaq(
-        runtime.project._id,
-        runtime.project.teamID,
-        question.output,
-        runtime.project?.knowledgeBase?.settings
-      );
+      const faq = await fetchFaq(runtime.project._id, runtime.project.teamID, question.output, kbSettings);
       if (faq?.answer) {
         addFaqTrace(runtime, faq.question || '', faq.answer, question.output);
         return {
@@ -165,18 +161,13 @@ export const knowledgeBaseNoMatch = async (
       }
     }
 
-    const data = await fetchKnowledgeBase(
-      runtime.project._id,
-      runtime.project.teamID,
-      question.output,
-      runtime.project?.knowledgeBase?.settings
-    );
+    const data = await fetchKnowledgeBase(runtime.project._id, runtime.project.teamID, question.output, kbSettings);
     if (!data) return null;
 
     const answer = await runtime.services.aiSynthesis.answerSynthesis({
       question: question.output,
       data,
-      options: runtime.project?.knowledgeBase?.settings?.summarization,
+      options: kbSettings?.summarization,
       variables: runtime.variables.getState(),
       context: { projectID: runtime.project._id, workspaceID: runtime.project.teamID },
     });
