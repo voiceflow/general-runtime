@@ -16,11 +16,14 @@ export class OpenAIModerationClient extends ContentModerationClient {
   constructor(config: Config, unleashClient: UnleashClient) {
     super(config, unleashClient);
     if (config.OPENAI_API_KEY) {
-      this.openAIClient = new OpenAIApi(new Configuration({ apiKey: config.OPENAI_API_KEY }));
+      this.openAIClient = new OpenAIApi(
+        new Configuration({ apiKey: config.OPENAI_API_KEY, basePath: config.OPENAI_API_ENDPOINT ?? undefined })
+      );
     }
   }
 
   async checkModeration(input: string | string[], context?: AIModelContext) {
+    if (!this.unleashClient.isEnabled(FeatureFlag.LLM_MODERATION_FAIL_FF)) return;
     if (!this.openAIClient) return;
 
     if (!input?.length) return;
@@ -53,7 +56,7 @@ export class OpenAIModerationClient extends ContentModerationClient {
       );
     });
 
-    if (this.unleashClient.isEnabled(FeatureFlag.LLM_MODERATION_FAIL_FF) && failedModeration.length) {
+    if (failedModeration.length) {
       throw new ContentModerationError(failedModeration);
     }
   }
