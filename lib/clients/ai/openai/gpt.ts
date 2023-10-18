@@ -4,12 +4,13 @@ import { ChatCompletionRequestMessageRoleEnum } from '@voiceflow/openai';
 import { Config } from '@/types';
 
 import { AIModel } from '../ai-model';
-import { AIModelContext } from '../ai-model.interface';
 import { ContentModerationClient } from '../contentModeration';
 import { OpenAIClient } from './api-client';
 
 export abstract class GPTAIModel extends AIModel {
   protected abstract gptModelName: string;
+
+  protected readonly client: OpenAIClient;
 
   static RoleMapping = {
     [BaseUtils.ai.Role.ASSISTANT]: ChatCompletionRequestMessageRoleEnum.Assistant,
@@ -17,13 +18,9 @@ export abstract class GPTAIModel extends AIModel {
     [BaseUtils.ai.Role.USER]: ChatCompletionRequestMessageRoleEnum.User,
   };
 
-  constructor(
-    config: Config,
-    protected readonly client: OpenAIClient,
-    protected readonly contentModerationClient: ContentModerationClient,
-    protected context: AIModelContext
-  ) {
+  constructor(config: Config, protected readonly contentModerationClient: ContentModerationClient | null) {
     super(config);
+    this.client = new OpenAIClient(config);
   }
 
   protected calculateTokenMultiplier(tokens: number): number {

@@ -34,11 +34,13 @@ export const generateNoMatch = async (
     },
   ];
 
-  const model = runtime.services.ai.get(context.model, {
-    projectID: runtime.project?._id,
-    workspaceID: runtime.project?.teamID,
+  const model = runtime.services.ai.get(context.model);
+  const response = await fetchChat({ ...context, messages }, model, {
+    context: {
+      projectID: runtime.project?._id,
+      workspaceID: runtime.project?.teamID,
+    },
   });
-  const response = await fetchChat({ ...context, messages }, model);
   if (!response.output) return null;
 
   return {

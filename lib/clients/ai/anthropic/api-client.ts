@@ -1,15 +1,11 @@
 import Client from '@anthropic-ai/sdk';
 
-import { Config } from '@/types';
+import { AnthropicConfig } from './anthropic.interface';
 
-import { AbstractClient } from '../../utils';
-
-export class AnthropicAIClient extends AbstractClient {
+export class AnthropicAIClient {
   client: Client;
 
-  constructor(config: Config) {
-    super(config);
-
+  constructor(config: AnthropicConfig) {
     if (!config.ANTHROPIC_API_KEY) {
       throw new Error(`Anthropic client not initialized`);
     }

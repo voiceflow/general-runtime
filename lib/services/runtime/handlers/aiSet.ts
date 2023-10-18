@@ -13,7 +13,7 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
     const nextID = node.nextId ?? null;
     const workspaceID = runtime.project?.teamID;
     const projectID = runtime.project?._id;
-    const generativeModel = runtime.services.ai.get(node.model, { projectID, workspaceID });
+    const generativeModel = runtime.services.ai.get(node.model);
     const settings = runtime.version?.knowledgeBase?.settings || runtime.project?.knowledgeBase?.settings;
     const kbModel = runtime.services.ai.get(settings?.summarization.model, {
       projectID,
@@ -63,7 +63,9 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
                 return emptyResult;
               }
 
-              const response = await fetchPrompt({ ...node, prompt, mode }, generativeModel, variables.getState());
+              const response = await fetchPrompt({ ...node, prompt, mode }, generativeModel, variables.getState(), {
+                context: { projectID, workspaceID },
+              });
               const tokens = response?.tokens ?? 0;
               const queryTokens = response?.queryTokens ?? 0;
               const answerTokens = response?.answerTokens ?? 0;

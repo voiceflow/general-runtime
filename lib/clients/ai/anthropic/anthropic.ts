@@ -6,7 +6,7 @@ import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
 import log from '@/logger';
 
 import { AIModel } from '../ai-model';
-import { AIModelContext, CompletionOutput } from '../ai-model.interface';
+import { CompletionOptions, CompletionOutput } from '../ai-model.interface';
 import { ContentModerationClient } from '../contentModeration';
 import { AnthropicConfig } from './anthropic.interface';
 import { AnthropicAIClient } from './api-client';
@@ -14,15 +14,14 @@ import { AnthropicAIClient } from './api-client';
 export abstract class AnthropicAIModel extends AIModel {
   protected abstract anthropicModel: string;
 
+  protected readonly client: AnthropicAIClient;
+
   protected maxTokens = 128;
 
-  constructor(
-    config: AnthropicConfig,
-    protected readonly client: AnthropicAIClient,
-    protected readonly contentModerationClient: ContentModerationClient,
-    protected context: AIModelContext
-  ) {
+  constructor(config: AnthropicConfig, protected readonly contentModerationClient: ContentModerationClient | null) {
     super(config);
+
+    this.client = new AnthropicAIClient(config);
   }
 
   static RoleMap = {
@@ -31,11 +30,15 @@ export abstract class AnthropicAIModel extends AIModel {
     [BaseUtils.ai.Role.ASSISTANT]: AI_PROMPT,
   };
 
-  generateCompletion(prompt: string, params: AIModelParams): Promise<CompletionOutput | null> {
+  generateCompletion(
+    prompt: string,
+    params: AIModelParams,
+    options: CompletionOptions
+  ): Promise<CompletionOutput | null> {
     const messages: BaseUtils.ai.Message[] = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
     if (params.system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: params.system });
 
-    return this.generateChatCompletion(messages, params);
+    return this.generateChatCompletion(messages, params, options);
   }
 
   /**
@@ -48,7 +51,8 @@ export abstract class AnthropicAIModel extends AIModel {
 
   async generateChatCompletion(
     messages: BaseUtils.ai.Message[],
-    params: AIModelParams
+    params: AIModelParams,
+    options: CompletionOptions
   ): Promise<CompletionOutput | null> {
     let topSystem = '';
     if (messages[0]?.role === BaseUtils.ai.Role.SYSTEM) {
@@ -59,7 +63,7 @@ export abstract class AnthropicAIModel extends AIModel {
       (message) => `${AnthropicAIModel.RoleMap[message.role]} ${message.content}`
     )}${AI_PROMPT}`;
 
-    await this.contentModerationClient.checkModeration(prompt, this.context);
+    await this.contentModerationClient?.checkModeration(prompt, options.context);
 
     const queryTokens = this.calculateTokenUsage(prompt);
 

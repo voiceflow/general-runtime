@@ -20,7 +20,7 @@ export class OpenAIModerationClient extends ContentModerationClient {
     }
   }
 
-  async checkModeration(input: string | string[], context: AIModelContext) {
+  async checkModeration(input: string | string[], context?: AIModelContext) {
     if (!this.openAIClient) return;
 
     if (!input?.length) return;
