@@ -24,17 +24,17 @@ export class GPT4 extends GPTAIModel {
     this.client = new OpenAIClient(config);
   }
 
-  async generateCompletion(prompt: string, params: AIModelParams, options?: CompletionOptions) {
+  async generateCompletion(prompt: string, params: AIModelParams, options: CompletionOptions) {
     const messages: BaseUtils.ai.Message[] = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
     if (params.system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: params.system });
 
     return this.generateChatCompletion(messages, params, options);
   }
 
-  async generateChatCompletion(messages: BaseUtils.ai.Message[], params: AIModelParams, options?: CompletionOptions) {
+  async generateChatCompletion(messages: BaseUtils.ai.Message[], params: AIModelParams, options: CompletionOptions) {
     await this.contentModerationClient?.checkModeration(
       messages.map((message) => message.content),
-      options?.context
+      options.context
     );
 
     // we dont have access to GPT 4 on Azure yet, use OpenAI API instead

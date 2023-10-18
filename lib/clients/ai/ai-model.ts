@@ -22,12 +22,12 @@ export abstract class AIModel {
   abstract generateCompletion(
     prompt: string,
     params: BaseUtils.ai.AIModelParams,
-    options?: CompletionOptions
+    options: CompletionOptions
   ): Promise<CompletionOutput | null>;
 
   abstract generateChatCompletion(
     messages: BaseUtils.ai.Message[],
     params: BaseUtils.ai.AIModelParams,
-    options?: CompletionOptions
+    options: CompletionOptions
   ): Promise<CompletionOutput | null>;
 }

@@ -52,7 +52,7 @@ export abstract class AnthropicAIModel extends AIModel {
   async generateChatCompletion(
     messages: BaseUtils.ai.Message[],
     params: AIModelParams,
-    options?: CompletionOptions
+    options: CompletionOptions
   ): Promise<CompletionOutput | null> {
     let topSystem = '';
     if (messages[0]?.role === BaseUtils.ai.Role.SYSTEM) {
@@ -63,7 +63,7 @@ export abstract class AnthropicAIModel extends AIModel {
       (message) => `${AnthropicAIModel.RoleMap[message.role]} ${message.content}`
     )}${AI_PROMPT}`;
 
-    await this.contentModerationClient?.checkModeration(prompt, options?.context);
+    await this.contentModerationClient?.checkModeration(prompt, options.context);
 
     const queryTokens = this.calculateTokenUsage(prompt);
 

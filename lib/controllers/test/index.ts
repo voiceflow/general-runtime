@@ -172,8 +172,8 @@ class TestController extends AbstractController {
     const { output, tokens } = await fetchPrompt(
       req.body,
       model,
-      {},
-      { context: { workspaceID: req.params.workspaceID } }
+      { context: { workspaceID: req.params.workspaceID } },
+      {}
     );
 
     if (typeof tokens === 'number' && tokens > 0) {

@@ -91,10 +91,16 @@ class AISynthesis extends AbstractManager {
         },
       ];
 
-      response = await fetchChat({ ...options, messages }, generativeModel, variables, {
-        retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
-        retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
-      });
+      response = await fetchChat(
+        { ...options, messages },
+        generativeModel,
+        {
+          retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
+          retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
+          context,
+        },
+        variables
+      );
     } else if ([BaseUtils.ai.GPT_MODEL.DaVinci_003].includes(model)) {
       // for GPT-3 completion model
       const prompt = dedent`
@@ -107,8 +113,8 @@ class AISynthesis extends AbstractManager {
       response = await fetchPrompt(
         { ...options, prompt, mode: BaseUtils.ai.PROMPT_MODE.PROMPT },
         generativeModel,
-        variables,
-        { context }
+        { context },
+        variables
       );
     } else if (
       [
@@ -130,8 +136,8 @@ class AISynthesis extends AbstractManager {
       response = await fetchPrompt(
         { ...options, prompt, mode: BaseUtils.ai.PROMPT_MODE.PROMPT },
         generativeModel,
-        variables,
-        { context }
+        { context },
+        variables
       );
     }
 
@@ -205,11 +211,16 @@ class AISynthesis extends AbstractManager {
     ];
 
     const generativeModel = this.services.ai.get(options.model);
-    return fetchChat({ ...options, messages: questionMessages }, generativeModel, variables, {
-      context,
-      retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
-      retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
-    });
+    return fetchChat(
+      { ...options, messages: questionMessages },
+      generativeModel,
+      {
+        context,
+        retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
+        retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
+      },
+      variables
+    );
   }
 
   async promptSynthesis(
@@ -381,11 +392,16 @@ class AISynthesis extends AbstractManager {
     ];
 
     const generativeModel = this.services.ai.get(options.model);
-    return fetchChat({ ...options, messages: questionMessages }, generativeModel, variables, {
-      context,
-      retries: this.DEFAULT_QUESTION_SYNTHESIS_RETRIES,
-      retryDelay: this.DEFAULT_QUESTION_SYNTHESIS_RETRY_DELAY_MS,
-    });
+    return fetchChat(
+      { ...options, messages: questionMessages },
+      generativeModel,
+      {
+        context,
+        retries: this.DEFAULT_QUESTION_SYNTHESIS_RETRIES,
+        retryDelay: this.DEFAULT_QUESTION_SYNTHESIS_RETRY_DELAY_MS,
+      },
+      variables
+    );
   }
 }
 

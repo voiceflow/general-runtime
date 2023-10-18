@@ -12,7 +12,7 @@ export class GPT3_5 extends GPTAIModel {
 
   protected gptModelName = 'gpt-3.5-turbo';
 
-  async generateCompletion(prompt: string, params: AIModelParams, options?: CompletionOptions) {
+  async generateCompletion(prompt: string, params: AIModelParams, options: CompletionOptions) {
     const messages: BaseUtils.ai.Message[] = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
     if (params.system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: params.system });
 
@@ -22,12 +22,12 @@ export class GPT3_5 extends GPTAIModel {
   async generateChatCompletion(
     messages: BaseUtils.ai.Message[],
     params: AIModelParams,
-    options?: CompletionOptions,
+    options: CompletionOptions,
     client = this.client.client
   ): Promise<CompletionOutput | null> {
     await this.contentModerationClient?.checkModeration(
       messages.map((message) => message.content),
-      options?.context
+      options.context
     );
 
     const resolveCompletion = () =>

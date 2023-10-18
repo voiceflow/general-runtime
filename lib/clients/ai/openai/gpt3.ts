@@ -31,8 +31,8 @@ export class GPT3 extends GPTAIModel {
     return `${transcript.trim()}\nuser: `;
   }
 
-  async generateCompletion(prompt: string, params: AIModelParams, options?: CompletionOptions) {
-    await this.contentModerationClient?.checkModeration(prompt, options?.context);
+  async generateCompletion(prompt: string, params: AIModelParams, options: CompletionOptions) {
+    await this.contentModerationClient?.checkModeration(prompt, options.context);
 
     const result = await this.client.client
       .createCompletion(
@@ -63,7 +63,7 @@ export class GPT3 extends GPTAIModel {
   }
 
   // turn messages into a singular prompt
-  async generateChatCompletion(messages: BaseUtils.ai.Message[], params: AIModelParams, options?: CompletionOptions) {
+  async generateChatCompletion(messages: BaseUtils.ai.Message[], params: AIModelParams, options: CompletionOptions) {
     return this.generateCompletion(GPT3.messagesToPrompt(messages), params, options);
   }
 }

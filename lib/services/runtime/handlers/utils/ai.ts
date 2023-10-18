@@ -38,8 +38,8 @@ export const EMPTY_AI_RESPONSE: AIResponse = {
 export const fetchChat = async (
   params: BaseUtils.ai.AIModelParams & { messages: BaseUtils.ai.Message[] },
   model: AIModel | null,
-  variablesState: Record<string, unknown> = {},
-  options: CompletionOptions = {}
+  options: CompletionOptions,
+  variablesState: Record<string, unknown> = {}
 ): Promise<AIResponse> => {
   if (!model) return EMPTY_AI_RESPONSE;
 
@@ -61,8 +61,8 @@ export const fetchChat = async (
 export const fetchPrompt = async (
   params: BaseUtils.ai.AIModelParams & { mode: BaseUtils.ai.PROMPT_MODE; prompt: string },
   model: AIModel | null,
-  variablesState: Record<string, unknown> = {},
-  options: CompletionOptions = {}
+  options: CompletionOptions,
+  variablesState: Record<string, unknown> = {}
 ): Promise<AIResponse> => {
   if (!model) return EMPTY_AI_RESPONSE;
 

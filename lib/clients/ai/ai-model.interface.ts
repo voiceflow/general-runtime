@@ -17,7 +17,7 @@ export interface AIModelContext {
   projectID?: string;
 }
 export interface CompletionOptions {
-  context?: AIModelContext;
+  context: AIModelContext;
   retries?: number;
   retryDelay?: number;
 }
