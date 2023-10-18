@@ -108,6 +108,19 @@ class TestController extends AbstractController {
     const api = await this.services.dataAPI.get();
     // if DM API key infer project from header
     const project = await api.getProject(req.body.projectID || req.headers.authorization!);
+    if (tags) {
+      if (tags?.include?.items) {
+        tags.include.items = Array.from(
+          await this.services.test.tagNamesToObjectIds(tags.include.items, project.knowledgeBase?.tags)
+        );
+      }
+
+      if (tags?.exclude?.items) {
+        tags.exclude.items = Array.from(
+          await this.services.test.tagNamesToObjectIds(tags.exclude.items, project.knowledgeBase?.tags)
+        );
+      }
+    }
 
     if (!(await this.services.billing.checkQuota(project.teamID, QuotaName.OPEN_API_TOKENS))) {
       throw new VError('token quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
