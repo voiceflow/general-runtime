@@ -55,6 +55,37 @@ class TestController extends AbstractController {
     }
   }
 
+  static generateTagLabelMap(existingTags: Record<string, BaseModels.Project.KBTag>): Record<string, string> {
+    const result: Record<string, string> = {};
+
+    Object.keys(existingTags).forEach((tagID) => {
+      result[existingTags[tagID].label] = tagID;
+    });
+
+    return result;
+  }
+
+  static convertTagsFilterToLabels(
+    tags: BaseModels.Project.KnowledgeBaseTagsFilter,
+    tagLabelMap: Record<string, string>
+  ): BaseModels.Project.KnowledgeBaseTagsFilter {
+    const result = tags;
+
+    if (result?.include?.items) {
+      result.include.items = result.include.items
+        .filter((label) => tagLabelMap[label] !== undefined)
+        .map((label) => tagLabelMap[label]);
+    }
+
+    if (result?.exclude?.items) {
+      result.exclude.items = result.exclude.items
+        .filter((label) => tagLabelMap[label] !== undefined)
+        .map((label) => tagLabelMap[label]);
+    }
+
+    return result;
+  }
+
   async testKnowledgeBasePrompt(req: Request) {
     const api = await this.services.dataAPI.get();
 
@@ -104,22 +135,14 @@ class TestController extends AbstractController {
     >
   ) {
     const { question, synthesis = true, chunkLimit, tags } = req.body;
+    let tagsFilter: BaseModels.Project.KnowledgeBaseTagsFilter = {};
 
     const api = await this.services.dataAPI.get();
     // if DM API key infer project from header
     const project = await api.getProject(req.body.projectID || req.headers.authorization!);
     if (tags) {
-      if (tags?.include?.items) {
-        tags.include.items = Array.from(
-          await this.services.test.tagNamesToObjectIds(tags.include.items, project.knowledgeBase?.tags)
-        );
-      }
-
-      if (tags?.exclude?.items) {
-        tags.exclude.items = Array.from(
-          await this.services.test.tagNamesToObjectIds(tags.exclude.items, project.knowledgeBase?.tags)
-        );
-      }
+      const tagLabelMap = TestController.generateTagLabelMap(project.knowledgeBase?.tags ?? {});
+      tagsFilter = TestController.convertTagsFilterToLabels(tags, tagLabelMap);
     }
 
     if (!(await this.services.billing.checkQuota(project.teamID, QuotaName.OPEN_API_TOKENS))) {
@@ -133,7 +156,7 @@ class TestController extends AbstractController {
       if (faq?.answer) return { output: faq.answer };
     }
 
-    const data = await fetchKnowledgeBase(project._id, project.teamID, question, settings, tags);
+    const data = await fetchKnowledgeBase(project._id, project.teamID, question, settings, tagsFilter);
     if (!data) return { output: null, chunks: [] };
 
     // attach metadata to chunks
@@ -141,7 +164,9 @@ class TestController extends AbstractController {
       ...chunk,
       source: {
         ...project.knowledgeBase?.documents?.[chunk.documentID]?.data,
-        tags: project.knowledgeBase?.documents?.[chunk.documentID]?.tags,
+        tags: project.knowledgeBase?.documents?.[chunk.documentID]?.tags?.map(
+          (tagID) => (project?.knowledgeBase?.tags ?? {})[tagID]?.label
+        ),
       },
     }));
 
