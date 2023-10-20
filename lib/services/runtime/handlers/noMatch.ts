@@ -19,7 +19,7 @@ import {
 import { addNoReplyTimeoutIfExists } from './noReply';
 import { checkTokens, consumeResources } from './utils/ai';
 import { generateNoMatch } from './utils/generativeNoMatch';
-import { knowledgeBaseNoMatch } from './utils/knowledgeBase';
+import { getKBSettings, knowledgeBaseNoMatch } from './utils/knowledgeBase';
 import { generateOutput } from './utils/output';
 
 export type NoMatchNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoMatchNode & { type: BaseNode.NodeType };
@@ -84,7 +84,12 @@ const getOutput = async (
         runtime.services.unleash.client.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(runtime.project?.teamID) })
       ) {
         result = await knowledgeBaseNoMatch(runtime);
-        const kbSettings = runtime.version?.knowledgeBase?.settings || runtime.project?.knowledgeBase?.settings;
+        const kbSettings = getKBSettings(
+          runtime?.services.unleash,
+          runtime.project?.teamID,
+          runtime?.version?.knowledgeBase?.settings,
+          runtime?.project?.knowledgeBase?.settings
+        );
         const model = runtime.services.ai.get(kbSettings?.summarization.model, {
           projectID: runtime.project?._id,
           workspaceID: runtime.project?.teamID,

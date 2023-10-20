@@ -5,7 +5,7 @@ import _merge from 'lodash/merge';
 
 import { FeatureFlag } from '@/lib/feature-flags';
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
-import { fetchFaq, fetchKnowledgeBase } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
+import { fetchFaq, fetchKnowledgeBase, getKBSettings } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
 import log from '@/logger';
 import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
@@ -93,7 +93,13 @@ class TestController extends AbstractController {
     const project = await api.getProject(req.headers.authorization || req.body.projectID);
     const version = req.body.versionID ? await api.getVersion(req.body.versionID) : null;
 
-    const settings = _merge({}, version?.knowledgeBase?.settings || project.knowledgeBase?.settings, req.body.settings);
+    const globalKBSettings = getKBSettings(
+      this.services.unleash,
+      project.teamID,
+      version?.knowledgeBase?.settings,
+      project.knowledgeBase?.settings
+    );
+    const settings = _merge({}, globalKBSettings, req.body.settings);
 
     const { prompt } = req.body;
 
@@ -153,7 +159,13 @@ class TestController extends AbstractController {
       throw new VError('token quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
     }
 
-    const settings = _merge({}, version?.knowledgeBase?.settings || project.knowledgeBase?.settings, {
+    const globalKBSettings = getKBSettings(
+      this.services.unleash,
+      project.teamID,
+      version?.knowledgeBase?.settings,
+      project.knowledgeBase?.settings
+    );
+    const settings = _merge({}, globalKBSettings, {
       search: { limit: chunkLimit },
     });
 

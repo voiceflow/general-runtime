@@ -3,6 +3,7 @@ import { KnowledgeBaseCtxType } from '@voiceflow/base-types/build/cjs/node/knowl
 import axios from 'axios';
 
 import Config from '@/config';
+import UnleashClient from '@/lib/clients/unleash';
 import { FeatureFlag } from '@/lib/feature-flags';
 import AIAssist from '@/lib/services/aiAssist';
 import log from '@/logger';
@@ -78,6 +79,18 @@ export const fetchFaq = async (
   return null;
 };
 
+export const getKBSettings = (
+  unleashClient: UnleashClient,
+  teamID?: string,
+  versionSettings?: BaseModels.Project.KnowledgeBaseSettings,
+  projectSettings?: BaseModels.Project.KnowledgeBaseSettings
+) => {
+  const useVersionedSettings = unleashClient.client.isEnabled(FeatureFlag.VERSIONED_KB_SETTINGS, {
+    workspaceID: Number(teamID),
+  });
+  return (useVersionedSettings && versionSettings) || projectSettings;
+};
+
 export const addFaqTrace = (runtime: Runtime, faqQuestion: string, faqAnswer: string, query: string) => {
   runtime.trace.addTrace<BaseTrace.KnowledgeBase>({
     type: BaseNode.Utils.TraceType.KNOWLEDGE_BASE,
@@ -137,7 +150,12 @@ export const knowledgeBaseNoMatch = async (
   try {
     // expiremental module, frame the question
     const memory = getMemoryMessages(runtime.variables.getState());
-    const kbSettings = runtime.version?.knowledgeBase?.settings || runtime.project?.knowledgeBase?.settings;
+    const kbSettings = getKBSettings(
+      runtime?.services.unleash,
+      runtime.project?.teamID,
+      runtime?.version?.knowledgeBase?.settings,
+      runtime?.project?.knowledgeBase?.settings
+    );
 
     const question = await runtime.services.aiSynthesis.questionSynthesis(input, memory, {
       projectID: runtime.project._id,

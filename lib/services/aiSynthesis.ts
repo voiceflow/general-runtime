@@ -14,6 +14,7 @@ import {
   addFaqTrace,
   fetchFaq,
   fetchKnowledgeBase,
+  getKBSettings,
   KnowledgeBaseResponse,
 } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
 import log from '@/logger';
@@ -230,6 +231,12 @@ class AISynthesis extends AbstractManager {
     variables: Record<string, any>,
     runtime?: Runtime
   ) {
+    const kbSettings = getKBSettings(
+      runtime?.services.unleash,
+      workspaceID,
+      runtime?.version?.knowledgeBase?.settings,
+      runtime?.project?.knowledgeBase?.settings
+    );
     try {
       const { prompt } = params;
 
@@ -245,12 +252,7 @@ class AISynthesis extends AbstractManager {
 
       if (this.services.unleash.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(workspaceID) })) {
         // check if question is an faq before searching all chunks.
-        const faq = await fetchFaq(
-          projectID,
-          workspaceID,
-          query.output,
-          runtime?.version?.knowledgeBase?.settings || runtime?.project?.knowledgeBase?.settings
-        );
+        const faq = await fetchFaq(projectID, workspaceID, query.output, kbSettings);
         if (faq?.answer) {
           // eslint-disable-next-line max-depth
           if (runtime) {

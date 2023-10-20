@@ -5,6 +5,7 @@ import { ContentModerationError } from '@/lib/clients/ai/contentModeration/utils
 import { HandlerFactory } from '@/runtime';
 
 import { checkTokens, consumeResources, fetchPrompt } from './utils/ai';
+import { getKBSettings } from './utils/knowledgeBase';
 
 const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_SET,
@@ -14,8 +15,13 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
     const workspaceID = runtime.project?.teamID;
     const projectID = runtime.project?._id;
     const generativeModel = runtime.services.ai.get(node.model);
-    const settings = runtime.version?.knowledgeBase?.settings || runtime.project?.knowledgeBase?.settings;
-    const kbModel = runtime.services.ai.get(settings?.summarization.model, {
+    const kbSettings = getKBSettings(
+      runtime?.services.unleash,
+      workspaceID,
+      runtime?.version?.knowledgeBase?.settings,
+      runtime?.project?.knowledgeBase?.settings
+    );
+    const kbModel = runtime.services.ai.get(kbSettings?.summarization.model, {
       projectID,
       workspaceID,
     });
@@ -42,7 +48,7 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
                   runtime.version!.projectID,
                   workspaceID,
                   {
-                    ...settings?.summarization,
+                    ...kbSettings?.summarization,
                     mode,
                     prompt,
                   },
