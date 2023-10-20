@@ -65,11 +65,37 @@ class TestController extends AbstractController {
     return result;
   }
 
-  static convertTagsFilterToLabels(
+  static checkKBTagLabelsExists(tagLabelMap: Record<string, string>, tagLabels: string[]) {
+    // check that KB tag labels exists, this is not atomic but it prevents a class of bugs
+    const nonExistingTags: string[] = [];
+
+    tagLabels.forEach((label) => {
+      const tagID: string | null | undefined = tagLabelMap?.[label];
+      if (!tagID) {
+        nonExistingTags.push(label);
+      }
+    });
+
+    if (nonExistingTags.length > 0) {
+      const formattedTags = nonExistingTags.map((tag) => `\`${tag}\``).join(', ');
+      throw new VError(`tags with the following labels do not exist: ${formattedTags}`, VError.HTTP_STATUS.NOT_FOUND);
+    }
+  }
+
+  static convertTagsFilterToIDs(
     tags: BaseModels.Project.KnowledgeBaseTagsFilter,
     tagLabelMap: Record<string, string>
   ): BaseModels.Project.KnowledgeBaseTagsFilter {
     const result = tags;
+    const includeTagsArray = result?.include?.items ?? [];
+    const excludeTagsArray = result?.exclude?.items ?? [];
+
+    if (includeTagsArray.length > 0 || excludeTagsArray.length > 0) {
+      TestController.checkKBTagLabelsExists(
+        tagLabelMap,
+        Array.from(new Set([...includeTagsArray, ...excludeTagsArray]))
+      );
+    }
 
     if (result?.include?.items) {
       result.include.items = result.include.items
@@ -142,7 +168,7 @@ class TestController extends AbstractController {
     const project = await api.getProject(req.body.projectID || req.headers.authorization!);
     if (tags) {
       const tagLabelMap = TestController.generateTagLabelMap(project.knowledgeBase?.tags ?? {});
-      tagsFilter = TestController.convertTagsFilterToLabels(tags, tagLabelMap);
+      tagsFilter = TestController.convertTagsFilterToIDs(tags, tagLabelMap);
     }
 
     if (!(await this.services.billing.checkQuota(project.teamID, QuotaName.OPEN_API_TOKENS))) {
