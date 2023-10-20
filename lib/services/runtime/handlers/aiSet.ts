@@ -63,9 +63,12 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
                 return emptyResult;
               }
 
-              const response = await fetchPrompt({ ...node, prompt, mode }, generativeModel, variables.getState(), {
-                context: { projectID, workspaceID },
-              });
+              const response = await fetchPrompt(
+                { ...node, prompt, mode },
+                generativeModel,
+                { context: { projectID, workspaceID } },
+                variables.getState()
+              );
               const tokens = response?.tokens ?? 0;
               const queryTokens = response?.queryTokens ?? 0;
               const answerTokens = response?.answerTokens ?? 0;

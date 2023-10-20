@@ -29,7 +29,9 @@ export class OpenAIClient extends AbstractClient {
     }
 
     if (isOpenAIGPTConfig(config)) {
-      this.openAIClient = new OpenAIApi(new Configuration({ apiKey: config.OPENAI_API_KEY }));
+      this.openAIClient = new OpenAIApi(
+        new Configuration({ apiKey: config.OPENAI_API_KEY, basePath: config.OPENAI_API_ENDPOINT || undefined })
+      );
     }
 
     if (!this.openAIClient && !this.azureClient) {

@@ -79,9 +79,14 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
           answerTokens: 0,
         };
       } else {
-        response = await fetchPrompt(node, generativeModel, variables.getState(), {
-          context: { projectID, workspaceID },
-        });
+        response = await fetchPrompt(
+          node,
+          generativeModel,
+          {
+            context: { projectID, workspaceID },
+          },
+          variables.getState()
+        );
       }
 
       await consumeResources('AI Response', runtime, generativeModel, response);

@@ -55,6 +55,37 @@ class TestController extends AbstractController {
     }
   }
 
+  static generateTagLabelMap(existingTags: Record<string, BaseModels.Project.KBTag>): Record<string, string> {
+    const result: Record<string, string> = {};
+
+    Object.keys(existingTags).forEach((tagID) => {
+      result[existingTags[tagID].label] = tagID;
+    });
+
+    return result;
+  }
+
+  static convertTagsFilterToLabels(
+    tags: BaseModels.Project.KnowledgeBaseTagsFilter,
+    tagLabelMap: Record<string, string>
+  ): BaseModels.Project.KnowledgeBaseTagsFilter {
+    const result = tags;
+
+    if (result?.include?.items) {
+      result.include.items = result.include.items
+        .filter((label) => tagLabelMap[label] !== undefined)
+        .map((label) => tagLabelMap[label]);
+    }
+
+    if (result?.exclude?.items) {
+      result.exclude.items = result.exclude.items
+        .filter((label) => tagLabelMap[label] !== undefined)
+        .map((label) => tagLabelMap[label]);
+    }
+
+    return result;
+  }
+
   async testKnowledgeBasePrompt(req: Request) {
     const api = await this.services.dataAPI.get();
 
@@ -107,11 +138,16 @@ class TestController extends AbstractController {
     >
   ) {
     const { question, synthesis = true, chunkLimit, tags } = req.body;
+    let tagsFilter: BaseModels.Project.KnowledgeBaseTagsFilter = {};
 
     const api = await this.services.dataAPI.get();
     // if DM API key infer project from header
     const project = await api.getProject(req.headers.authorization || req.body.projectID!);
     const version = req.body.versionID ? await api.getVersion(req.body.versionID) : null;
+    if (tags) {
+      const tagLabelMap = TestController.generateTagLabelMap(project.knowledgeBase?.tags ?? {});
+      tagsFilter = TestController.convertTagsFilterToLabels(tags, tagLabelMap);
+    }
 
     if (!(await this.services.billing.checkQuota(project.teamID, QuotaName.OPEN_API_TOKENS))) {
       throw new VError('token quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
@@ -126,7 +162,7 @@ class TestController extends AbstractController {
       if (faq?.answer) return { output: faq.answer };
     }
 
-    const data = await fetchKnowledgeBase(project._id, project.teamID, question, settings, tags);
+    const data = await fetchKnowledgeBase(project._id, project.teamID, question, settings, tagsFilter);
     if (!data) return { output: null, chunks: [] };
 
     // attach metadata to chunks
@@ -134,7 +170,9 @@ class TestController extends AbstractController {
       ...chunk,
       source: {
         ...project.knowledgeBase?.documents?.[chunk.documentID]?.data,
-        tags: project.knowledgeBase?.documents?.[chunk.documentID]?.tags,
+        tags: project.knowledgeBase?.documents?.[chunk.documentID]?.tags?.map(
+          (tagID) => (project?.knowledgeBase?.tags ?? {})[tagID]?.label
+        ),
       },
     }));
 
