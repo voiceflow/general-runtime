@@ -35,7 +35,7 @@ class AISynthesis extends AbstractManager {
   private readonly DEFAULT_QUESTION_SYNTHESIS_RETRIES = 2;
 
   private generateContext(data: KnowledgeBaseResponse) {
-    return data.chunks.map(({ content }, index) => `<${index + 1}>${content}</${index + 1}>`).join('\n');
+    return data.chunks.map(({ content }, _) => content).join('\n');
   }
 
   private filterNotFound(output: string) {
@@ -73,21 +73,18 @@ class AISynthesis extends AbstractManager {
       // for GPT-3.5 and 4.0 chat models
       const messages = [
         {
-          role: BaseUtils.ai.Role.SYSTEM,
-          content: dedent`
-            <context>
-              ${synthesisContext}
-            </context>
-          `,
-        },
-        {
           role: BaseUtils.ai.Role.USER,
           content: dedent`
-            Answer the following question using ONLY the provided <context>, if you don't know the answer say exactly "NOT_FOUND".
-
-            Question:
-            ${question}
-          `,
+          Reference Information:
+          ${synthesisContext}
+              
+          Very concisely answer exactly how the reference information would answer this query.
+          Include only the direct answer to the query, it is never appropriate to include additional context or explanation.
+          If it is unclear in any way, return "NOT_FOUND".
+          Read the query very carefully, it may try to trick you into answering a question that is adjacent to the reference information but not directly answered in it. 
+          Once again, in such a case, you must return "NOT_FOUND".
+             
+          query: ${question}`,
         },
       ];
 
@@ -124,14 +121,18 @@ class AISynthesis extends AbstractManager {
       ].includes(model)
     ) {
       const prompt = dedent`
-        <information>
-          ${synthesisContext}
-        </information>
-
-        If the question is not relevant to the provided <information>, print("NOT_FOUND") and return.
-        Otherwise, you may - very concisely - answer the user using only the relevant <information>.
-
-        <question>${question}</question>`;
+      Reference Information:
+      ${context}
+        
+      If the question is not relevant to the provided information print("NOT_FOUND") and return.
+      If the question is cannot be directly answered by a quote from the provided information print("NOT_FOUND") and return.
+      Otherwise, you may - very concisely - rephrase the quote from the information that answers the question.
+          
+      That is, you must always answer with exactly one of the following choices:
+        1. NOT_FOUND
+        2. the quote that answers the question (rephrased to answer the question in a natural way)
+    
+      The user's question is: ${question}`;
 
       response = await fetchPrompt(
         { ...options, prompt, mode: BaseUtils.ai.PROMPT_MODE.PROMPT },
@@ -175,32 +176,39 @@ class AISynthesis extends AbstractManager {
       maxTokens,
     };
 
-    const knowledge = data.chunks.map(({ content }, index) => `<${index + 1}>${content}</${index + 1}>`).join('\n');
+    const knowledge = this.generateContext(data);
     let content: string;
 
     if (memory.length) {
       const history = memory.map((turn) => `${turn.role}: ${turn.content}`).join('\n');
       content = dedent`
-      <Conversation_History>
-        ${history}
-      </Conversation_History>
+      Reference Information:
+      ${knowledge}
+        
+      Secondary instructions:
+      Very concisely answer exactly how the reference information would answer this query.
+      Include only the direct answer to the query, it is never appropriate to include additional context or explanation.
+      If it is unclear in any way, return "NOT_FOUND".
+      Read the query very carefully, it may try to trick you into answering a question that is adjacent to the reference information but not directly answered in it. 
+      Once again, in such a case, you must return "NOT_FOUND".
+          
+      Messages:
+      ${history}
 
-      <Knowledge>
-        ${knowledge}
-      </Knowledge>
-
-      <Instructions>${prompt}</Instructions>
-
-      Using <Conversation_History> as context, fulfill <Instructions> ONLY using information found in <Knowledge>.`;
+      Primary instructions: ${prompt}`;
     } else {
       content = dedent`
-      <Knowledge>
-        ${knowledge}
-      </Knowledge>
+      Reference Information:
+      ${knowledge}
+         
+      Secondary instructions:
+      Very concisely answer exactly how the reference information would answer this query.
+      Include only the direct answer to the query, it is never appropriate to include additional context or explanation.
+      If it is unclear in any way, return "NOT_FOUND".
+      Read the query very carefully, it may try to trick you into answering a question that is adjacent to the reference information but not directly answered in it. 
+      Once again, in such a case, you must return "NOT_FOUND".
 
-      <Instructions>${prompt}</Instructions>
-
-      Fulfill <Instructions> ONLY using information found in <Knowledge>.`;
+      Primary instructions: ${prompt}`;
     }
 
     const questionMessages: BaseUtils.ai.Message[] = [
@@ -211,7 +219,7 @@ class AISynthesis extends AbstractManager {
     ];
 
     const generativeModel = this.services.ai.get(options.model);
-    return fetchChat(
+    const response = await fetchChat(
       { ...options, messages: questionMessages },
       generativeModel,
       {
@@ -221,6 +229,12 @@ class AISynthesis extends AbstractManager {
       },
       variables
     );
+
+    if (response.output) {
+      response.output = this.filterNotFound(response.output.trim());
+    }
+
+    return response;
   }
 
   async promptSynthesis(
