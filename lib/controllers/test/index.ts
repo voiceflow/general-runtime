@@ -58,8 +58,8 @@ class TestController extends AbstractController {
   static generateTagLabelMap(existingTags: Record<string, BaseModels.Project.KBTag>): Record<string, string> {
     const result: Record<string, string> = {};
 
-    Object.keys(existingTags).forEach((tagID) => {
-      result[existingTags[tagID].label] = tagID;
+    Object.entries(existingTags).forEach(([tagID, tag]) => {
+      result[tag.label] = tagID;
     });
 
     return result;
@@ -67,14 +67,7 @@ class TestController extends AbstractController {
 
   static checkKBTagLabelsExists(tagLabelMap: Record<string, string>, tagLabels: string[]) {
     // check that KB tag labels exists, this is not atomic but it prevents a class of bugs
-    const nonExistingTags: string[] = [];
-
-    tagLabels.forEach((label) => {
-      const tagID: string | null | undefined = tagLabelMap?.[label];
-      if (!tagID) {
-        nonExistingTags.push(label);
-      }
-    });
+    const nonExistingTags = tagLabels.filter((label) => !tagLabelMap[label]);
 
     if (nonExistingTags.length > 0) {
       const formattedTags = nonExistingTags.map((tag) => `\`${tag}\``).join(', ');
