@@ -121,7 +121,7 @@ class AISynthesis extends AbstractManager {
         BaseUtils.ai.GPT_MODEL.CLAUDE_V2,
       ].includes(model)
     ) {
-      // This prompt scored 11% higher than the previous prompt on the squad2 benchmark
+      // This prompt scored 10% higher than the previous prompt on the squad2 benchmark
       const prompt = dedent`
       Reference Information:
       ${context}
