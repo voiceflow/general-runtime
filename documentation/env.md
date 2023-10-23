@@ -15,9 +15,6 @@ INTEGRATIONS_HANDLER_ENDPOINT="none"
 
 GENERAL_SERVICE_ENDPOINT='https://general-service.voiceflow.com'
 
-CREATOR_API_ENDPOINT='https://api.voiceflow.com'
-CREATOR_API_AUTHORIZATION='[YOUR JWT TOKEN HERE]'
-
 # uncomment PROJECT_SOURCE to use local file
 # PROJECT_SOURCE='file.vfr'
 ```
@@ -36,11 +33,6 @@ CREATOR_API_AUTHORIZATION='[YOUR JWT TOKEN HERE]'
 ## Configurations
 
 Where to read your project info and diagrams from. Choose one of these sets of environment variables to populate. Likely you will use the creator-api implementation.
-
-### creator-api
-
-- `CREATOR_API_ENDPOINT` - voiceflow creator API [eg. `https://api.voiceflow.com`]
-- `CREATOR_API_AUTHORIZATION` - voiceflow creator token (JWT string)
 
 ### local .vfr
 
