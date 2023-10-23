@@ -71,6 +71,7 @@ class AISynthesis extends AbstractManager {
 
     if ([BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo, BaseUtils.ai.GPT_MODEL.GPT_4].includes(model)) {
       // for GPT-3.5 and 4.0 chat models
+      // This prompt scored 1% higher than the previous prompt on the squad2 benchmark
       const messages = [
         {
           role: BaseUtils.ai.Role.USER,
@@ -120,6 +121,7 @@ class AISynthesis extends AbstractManager {
         BaseUtils.ai.GPT_MODEL.CLAUDE_V2,
       ].includes(model)
     ) {
+      // This prompt scored 11% higher than the previous prompt on the squad2 benchmark
       const prompt = dedent`
       Reference Information:
       ${context}
@@ -179,6 +181,7 @@ class AISynthesis extends AbstractManager {
     const knowledge = this.generateContext(data);
     let content: string;
 
+    // These prompts are as similar as possible to the preview/no match prompts with the goal of consistency
     if (memory.length) {
       const history = memory.map((turn) => `${turn.role}: ${turn.content}`).join('\n');
       content = dedent`
