@@ -35,7 +35,7 @@ class AISynthesis extends AbstractManager {
   private readonly DEFAULT_QUESTION_SYNTHESIS_RETRIES = 2;
 
   private generateContext(data: KnowledgeBaseResponse) {
-    return data.chunks.map(({ content }, _) => content).join('\n');
+    return data.chunks.map(({ content }) => content).join('\n');
   }
 
   private filterNotFound(output: string) {
