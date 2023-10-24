@@ -124,7 +124,7 @@ class AISynthesis extends AbstractManager {
       // This prompt scored 10% higher than the previous prompt on the squad2 benchmark
       const prompt = dedent`
       Reference Information:
-      ${context}
+      ${synthesisContext}
         
       If the question is not relevant to the provided information print("NOT_FOUND") and return.
       If the question is cannot be directly answered by a quote from the provided information print("NOT_FOUND") and return.
