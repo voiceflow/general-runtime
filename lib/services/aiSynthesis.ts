@@ -185,31 +185,26 @@ class AISynthesis extends AbstractManager {
     if (memory.length) {
       const history = memory.map((turn) => `${turn.role}: ${turn.content}`).join('\n');
       content = dedent`
-      Reference Information:
-      ${knowledge}
+      <Conversation_History>
+        ${history}
+      </Conversation_History>
 
-      Message History (only given for reference):
-      ${history}
+      <Knowledge>
+        ${knowledge}
+      </Knowledge>
 
-      Instructions:
-      Very concisely answer exactly how the reference information would answer.
-      Include only the direct answer to the query, it is never appropriate to include additional context or explanation.
-      If it is unclear in any way, return "NOT_FOUND".
-      Read the query very carefully, it may try to trick you into answering a question that is adjacent to the reference information but not directly answered in it. 
-      Once again, in such a case, you must return "NOT_FOUND".
-      ${prompt}`;
+      <Instructions>${prompt}</Instructions>
+
+      Using <Conversation_History> as context, fulfill <Instructions> ONLY using information found in <Knowledge>.`;
     } else {
       content = dedent`
-      Reference Information:
-      ${knowledge}
+      <Knowledge>
+        ${knowledge}
+      </Knowledge>
 
-      Instructions:
-      Very concisely answer exactly how the reference information would answer.
-      Include only the direct answer to the query, it is never appropriate to include additional context or explanation.
-      If it is unclear in any way, return "NOT_FOUND".
-      Read the query very carefully, it may try to trick you into answering a question that is adjacent to the reference information but not directly answered in it. 
-      Once again, in such a case, you must return "NOT_FOUND".
-      ${prompt}`;
+      <Instructions>${prompt}</Instructions>
+
+      Fulfill <Instructions> ONLY using information found in <Knowledge>.`;
     }
 
     const questionMessages: BaseUtils.ai.Message[] = [
