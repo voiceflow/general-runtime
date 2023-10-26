@@ -13,7 +13,7 @@ import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
 import { Request, Response } from '@/types';
 import { formatZodError } from '@/utils/zod-error/formatZodError';
 
-import { QuotaName } from '../../services/billing';
+import { ItemName, ResourceType } from '../../services/billing';
 import { fetchPrompt } from '../../services/runtime/handlers/utils/ai';
 import { validate } from '../../utils';
 import { AbstractController } from '../utils';
@@ -90,7 +90,7 @@ class TestController extends AbstractController {
 
     if (typeof answer.tokens === 'number' && answer.tokens > 0) {
       await this.services.billing
-        .consumeQuota(req.params.workspaceID, QuotaName.OPEN_API_TOKENS, answer.tokens)
+        .trackUsage(ResourceType.WORKSPACE, req.params.workspaceID, ItemName.AITokens, answer.tokens)
         .catch((err: Error) =>
           log.warn(
             `[KB Prompt Test] Error consuming quota for workspace ${req.params.workspaceID}: ${log.vars({ err })}`
@@ -147,7 +147,7 @@ class TestController extends AbstractController {
     // do this async to not block the response
     if (typeof answer.tokens === 'number' && answer.tokens > 0) {
       this.services.billing
-        .consumeQuota(project.teamID, QuotaName.OPEN_API_TOKENS, answer.tokens)
+        .trackUsage(ResourceType.WORKSPACE, project.teamID, ItemName.AITokens, answer.tokens)
         .catch((err: Error) =>
           log.warn(`[KB Test] Error consuming quota for workspace ${project.teamID}: ${log.vars({ err })}`)
         );
@@ -173,7 +173,7 @@ class TestController extends AbstractController {
 
     if (typeof tokens === 'number' && tokens > 0) {
       await this.services.billing
-        .consumeQuota(req.params.workspaceID, QuotaName.OPEN_API_TOKENS, tokens)
+        .trackUsage(ResourceType.WORKSPACE, req.params.workspaceID, ItemName.AITokens, tokens)
         .catch((err: Error) =>
           log.warn(
             `[Completion Test] Error consuming quota for workspace ${req.params.workspaceID}: ${log.vars({ err })}`

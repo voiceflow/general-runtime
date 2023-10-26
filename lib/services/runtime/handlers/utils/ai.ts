@@ -3,7 +3,7 @@ import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 
 import { AIModel } from '@/lib/clients/ai/ai-model';
 import { CompletionOptions } from '@/lib/clients/ai/ai-model.interface';
-import { QuotaName } from '@/lib/services/billing';
+import { ItemName, ResourceType } from '@/lib/services/billing';
 import log from '@/logger';
 import { Runtime } from '@/runtime';
 
@@ -115,7 +115,7 @@ export const consumeResources = async (
 
   if (typeof tokens === 'number' && tokens > 0) {
     await runtime.services.billing
-      .consumeQuota(workspaceID, QuotaName.OPEN_API_TOKENS, tokens)
+      .trackUsage(ResourceType.WORKSPACE, workspaceID, ItemName.AITokens, tokens)
       .catch((err: Error) =>
         log.error(`[${reference}] Error consuming quota for workspace ${workspaceID}: ${log.vars({ err })}`)
       );
@@ -133,7 +133,7 @@ export const consumeResources = async (
 export const checkTokens = async (runtime: Runtime, nodeType?: BaseNode.NodeType) => {
   const workspaceID = runtime.project?.teamID;
 
-  if (await runtime.services.billing.checkQuota(workspaceID, QuotaName.OPEN_API_TOKENS)) return true;
+  if (await runtime.services.billing.authorize(ResourceType.WORKSPACE, workspaceID, ItemName.AITokens)) return true;
 
   runtime.trace.debug('token quota exceeded', nodeType);
   return false;

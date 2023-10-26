@@ -2,14 +2,20 @@ import fetch from 'node-fetch';
 
 import { AbstractManager } from './utils';
 
-export enum QuotaName {
-  OPEN_API_TOKENS = 'OpenAI Tokens',
+// we cannot import these from the sdk-billing because its an optional dependency on the runtime
+// once that changes we should refactor this
+export enum ItemName {
+  AITokens = 'addon-tokens',
+}
+
+export enum ResourceType {
+  WORKSPACE = 'workspace',
 }
 
 export class BillingService extends AbstractManager {
   private client?: unknown;
 
-  private async getClient() {
+  public async getClient() {
     // eslint-disable-next-line import/no-extraneous-dependencies
     const sdk = await import('@voiceflow/sdk-billing').catch(() => null);
     if (!sdk) return undefined;
@@ -35,20 +41,26 @@ export class BillingService extends AbstractManager {
     return this.client as InstanceType<typeof sdk.BillingClient>;
   }
 
-  async consumeQuota(workspaceID: string, quotaName: QuotaName, count: number) {
+  async trackUsage(resourceType: ResourceType, resourceID: string, itemName: ItemName, itemValue: number) {
     const client = await this.getClient();
     if (!client) return null;
 
-    return client.private.consumeWorkspaceQuotaByName(workspaceID, quotaName, count);
+    return client.private.trackUsage({
+      resourceType,
+      resourceID,
+      items: [{ value: itemValue, item: itemName }],
+    });
   }
 
-  async checkQuota(workspaceID: string, quotaName: QuotaName) {
-    try {
-      // Consume count of zero to check if quota has not been exceeded
-      await this.consumeQuota(workspaceID, quotaName, 0);
-      return true;
-    } catch {
-      return false;
-    }
+  async authorize(resourceType: ResourceType, resourceID: string, itemName: ItemName, itemValue?: number) {
+    const client = await this.getClient();
+    if (!client) return null;
+
+    return client.private.authorize({
+      resourceType,
+      resourceID,
+      item: itemName,
+      ...(itemValue !== null && itemValue !== undefined ? { value: itemValue } : {}),
+    });
   }
 }
