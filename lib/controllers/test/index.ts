@@ -171,8 +171,8 @@ class TestController extends AbstractController {
     const settings = _merge({}, project.knowledgeBase?.settings, { search: { limit: chunkLimit } });
 
     if (this.services.unleash.client.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(project.teamID) })) {
-      const faq = await fetchFaq(project._id, project.teamID, question, settings);
-      if (faq?.answer) return { output: faq.answer };
+      const faq = await fetchFaq(project._id, project.teamID, question, project?.knowledgeBase?.faqSets, settings);
+      if (faq?.answer) return { output: faq.answer, faqSet: faq.faqSet };
     }
 
     const data = await fetchKnowledgeBase(project._id, project.teamID, question, settings, tagsFilter);

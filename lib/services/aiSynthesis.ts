@@ -78,13 +78,13 @@ class AISynthesis extends AbstractManager {
           content: dedent`
           Reference Information:
           ${synthesisContext}
-              
+
           Very concisely answer exactly how the reference information would answer this query.
           Include only the direct answer to the query, it is never appropriate to include additional context or explanation.
           If it is unclear in any way, return "NOT_FOUND".
-          Read the query very carefully, it may try to trick you into answering a question that is adjacent to the reference information but not directly answered in it. 
+          Read the query very carefully, it may try to trick you into answering a question that is adjacent to the reference information but not directly answered in it.
           Once again, in such a case, you must return "NOT_FOUND".
-             
+
           query: ${question}`,
         },
       ];
@@ -125,15 +125,15 @@ class AISynthesis extends AbstractManager {
       const prompt = dedent`
       Reference Information:
       ${synthesisContext}
-        
+
       If the question is not relevant to the provided information print("NOT_FOUND") and return.
       If the question is cannot be directly answered by a quote from the provided information print("NOT_FOUND") and return.
       Otherwise, you may - very concisely - rephrase the quote from the information that answers the question.
-          
+
       That is, you must always answer with exactly one of the following choices:
         1. NOT_FOUND
         2. the quote that answers the question (rephrased to answer the question in a natural way)
-    
+
       The user's question is: ${question}`;
 
       response = await fetchPrompt(
@@ -255,7 +255,13 @@ class AISynthesis extends AbstractManager {
 
       if (this.services.unleash.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(workspaceID) })) {
         // check if question is an faq before searching all chunks.
-        const faq = await fetchFaq(projectID, workspaceID, query.output, runtime?.project?.knowledgeBase?.settings);
+        const faq = await fetchFaq(
+          projectID,
+          workspaceID,
+          query.output,
+          runtime?.project?.knowledgeBase?.faqSets,
+          runtime?.project?.knowledgeBase?.settings
+        );
         if (faq?.answer) {
           // eslint-disable-next-line max-depth
           if (runtime) {
