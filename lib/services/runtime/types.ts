@@ -73,6 +73,11 @@ export enum StreamAudioDirective {
   REPLACE_ALL = 'REPLACE_ALL',
 }
 
+export enum SegmentEventType {
+  KB_TAGS_USED = 'AI - KB Tags Used',
+  AI_REQUEST = 'AI Request',
+}
+
 export interface StreamPlayStorage {
   src: string;
   loop: boolean;

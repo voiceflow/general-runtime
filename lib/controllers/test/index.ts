@@ -6,6 +6,7 @@ import _merge from 'lodash/merge';
 import { FeatureFlag } from '@/lib/feature-flags';
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
 import { fetchFaq, fetchKnowledgeBase } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
+import { SegmentEventType } from '@/lib/services/runtime/types';
 import log from '@/logger';
 import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
@@ -105,6 +106,34 @@ class TestController extends AbstractController {
     return result;
   }
 
+  testSendSegmentTagsFilterEvent = async ({
+    userID,
+    tagsFilter,
+  }: {
+    userID: number;
+    tagsFilter: BaseModels.Project.KnowledgeBaseTagsFilter;
+  }) => {
+    const analyticsPlatformClient = await this.services.analyticsPlatform.getClient();
+    const operators: string[] = [];
+
+    if (tagsFilter?.includeAllTagged) operators.push('includeAllTagged');
+    if (tagsFilter?.includeAllNonTagged) operators.push('includeAllNonTagged');
+    if (tagsFilter?.include) operators.push('include');
+    if (tagsFilter?.exclude) operators.push('exclude');
+
+    const includeTagsArray = tagsFilter?.include?.items || [];
+    const excludeTagsArray = tagsFilter?.exclude?.items || [];
+    const tags = Array.from(new Set([...includeTagsArray, ...excludeTagsArray]));
+
+    if (analyticsPlatformClient) {
+      analyticsPlatformClient.track({
+        identity: { userID },
+        name: SegmentEventType.KB_TAGS_USED,
+        properties: { operators, tags_searched: tags, number_of_tags: tags.length },
+      });
+    }
+  };
+
   async testKnowledgeBasePrompt(req: Request) {
     const api = await this.services.dataAPI.get();
 
@@ -162,6 +191,8 @@ class TestController extends AbstractController {
     if (tags) {
       const tagLabelMap = TestController.generateTagLabelMap(project.knowledgeBase?.tags ?? {});
       tagsFilter = TestController.convertTagsFilterToIDs(tags, tagLabelMap);
+
+      this.testSendSegmentTagsFilterEvent({ userID: project.creatorID, tagsFilter });
     }
 
     if (!(await this.services.billing.checkQuota(project.teamID, QuotaName.OPEN_API_TOKENS))) {
