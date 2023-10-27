@@ -42,7 +42,7 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@{{ .values.common_orb_version }}
+  vfcommon: voiceflow/common@dev:b7d1b5312262edeaca8868cb59f1e51d0c991282 #{{ .values.common_orb_version }}
   sonarcloud: sonarsource/sonarcloud@2.0.0
 
 jobs:
@@ -134,7 +134,7 @@ workflows:
       - vfcommon/build-e2e-tests:
           context: dev-test
           filters: *bors_branches_filters
-          
+
       - vfcommon/run-e2e-tests:
           context: dev-test
           env-name: {{ .values.e2e_env_name }}
