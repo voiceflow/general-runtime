@@ -21,7 +21,7 @@ const VALIDATIONS = {
 class Project extends AbstractMiddleware {
   static VALIDATIONS = VALIDATIONS;
 
-  async checkPublicAccessControlOrigin(req: Request, res: Response, next: NextFunction): Promise<void> {
+  checkPublicAccessControlOrigin(req: Request, res: Response, next: NextFunction): void {
     if (
       this.config.ALLOWED_PUBLIC_ORIGINS &&
       !this.config.ALLOWED_PUBLIC_ORIGINS.split(',').includes(req.headers.origin ?? '')
