@@ -7,6 +7,8 @@ import { ControllerMap, MiddlewareMap } from '@/lib';
 export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   const router = express.Router();
 
+  router.use(middlewares.project.checkPublicAccessControlOrigin);
+
   router.use(bodyParser.json({ limit: BODY_PARSER_SIZE_LIMIT }));
 
   const interactMiddleware = [middlewares.project.resolvePublicProjectID, middlewares.rateLimit.versionConsume];

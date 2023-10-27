@@ -101,6 +101,8 @@ export interface Config extends RateLimitConfig {
   // Unleash
   UNLEASH_URL: string | null;
   UNLEASH_API_KEY: string | null;
+
+  ALLOWED_PUBLIC_ORIGINS: string | null;
 }
 
 export interface Request<
