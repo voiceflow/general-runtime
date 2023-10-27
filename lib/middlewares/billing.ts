@@ -10,7 +10,7 @@ export class BillingMiddleware extends AbstractMiddleware {
     resourceType: ResourceType | ((req: Request) => ResourceType);
     resourceID: string | ((req: Request) => string);
     itemName: ItemName | ((req: Request) => ItemName);
-    itemValue?: number | ((req: Request) => number);
+    itemValue?: number | ((req: Request) => number | undefined);
   }) => {
     return async (req: Request, res: Response, next: NextFunction) => {
       const client = await this.services.billing.getClient();
