@@ -40,7 +40,7 @@ class AISynthesis extends AbstractManager {
     /Instructions/,
     /user:/,
     /assistant:/,
-    /<.*>/,
+    /<[^<>]*>/,
   ];
 
   private readonly MAX_LLM_TRIES = 2;
