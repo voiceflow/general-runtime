@@ -918,6 +918,7 @@ paths:
                   value:
                     stack:
                       - programID: 6062631246b44d80a8a345b4
+                        diagramID: 653fb8df7d32ab70457438f4
                         nodeID: 60626307fd9a230006a5e289
                     storage: {}
                     variables:
@@ -945,6 +946,7 @@ paths:
                   value:
                     stack:
                       - programID: 6062631246b44d80a8a345b4
+                        diagramID: 653fb8df7d32ab70457438f4
                         nodeID: 60626307fd9a230006a5e289
                     storage: {}
                     variables:
@@ -960,12 +962,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/State'
+              allOf:
+                  - $ref: '#/components/schemas/State'
+              properties:
+                stack:
+                  items:
+                    properties:
+                      diagramID:
+                        description: The ID of the diagram the flow belongs to. This can be retrieve either on the response of the interact call (when called using the verbose flag) or by fetching the current state.
             examples:
               Example State:
                 value:
                   stack:
                     - programID: 6062631246b44d80a8a345b4
+                      diagramID: 653fb8df7d32ab70457438f4
                       nodeID: 60626307fd9a230006a5e289
                   storage: {}
                   variables:
@@ -1011,6 +1021,7 @@ paths:
                   value:
                     stack:
                       - programID: 6062631246b44d80a8a345b4
+                        diagramID: 653fb8df7d32ab70457438f4
                         nodeID: 60626307fd9a230006a5e289
                     storage: {}
                     variables:
@@ -1488,6 +1499,7 @@ components:
         Example State:
           stack:
             - programID: 6062631246b44d80a8a345b4
+              diagramID: 653fb8df7d32ab70457438f4
               nodeID: 60626307fd9a230006a5e289
           storage: {}
           variables:
@@ -1505,6 +1517,10 @@ components:
                 type: string
                 description: The flow that the user has on the stack
                 example: 6062631246b44d80a8a345b4
+              diagramID:
+                type: string
+                description: The ID of the diagram the flow belongs to
+                example: 653fb8df7d32ab70457438f4
               nodeID:
                 type: string
                 nullable: true
@@ -1530,6 +1546,7 @@ components:
                       type: object
             required:
               - programID
+              - diagramID
         storage:
           type: object
         variables:
