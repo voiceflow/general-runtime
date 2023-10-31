@@ -131,7 +131,7 @@ class Project extends AbstractMiddleware {
     }
   }
 
-  // ensuring backwards compatibility with old runtime routes
+  // ensuring backwards compatibility with old runtime routes/middlewares
   async paramsToLegacyHeader(req: ExpressRequest, _: Response, next: NextFunction): Promise<void> {
     Object.entries(req.params).forEach(([paramName, paramValue]) => {
       req.headers[paramName] = paramValue;

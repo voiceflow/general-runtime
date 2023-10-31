@@ -9,6 +9,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
     '/project/:projectID/version/:versionID/inference',
     middlewares.auth.authorize(['project:READ']),
     middlewares.project.paramsToLegacyHeader,
+    middlewares.project.resolveVersionAlias,
     middlewares.rateLimit.versionConsume,
     controllers.nlu.inference
   );

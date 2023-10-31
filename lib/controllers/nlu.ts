@@ -14,7 +14,7 @@ const VALIDATIONS = {
   QUERY: {
     QUERY: query('query').exists().isString(),
   },
-  PARAMS: {
+  HEADERS: {
     PROJECT_ID: param('projectID').exists().isString(),
     VERSION_ID: param('versionID').exists().isString(),
   },
@@ -24,12 +24,12 @@ class NLUController extends AbstractController {
   static VALIDATIONS = VALIDATIONS;
 
   @validate({
-    PARAMS_PROJECT_ID: VALIDATIONS.PARAMS.PROJECT_ID,
-    PARAMS_VERSION_ID: VALIDATIONS.PARAMS.VERSION_ID,
+    HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID,
+    HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
     QUERY: VALIDATIONS.QUERY.QUERY,
   })
   async inference(req: Request) {
-    const { versionID, projectID } = req.params;
+    const { versionID, projectID } = req.headers;
 
     const getVersion = async (versionID: string) => {
       const version = await this.services.mongo?.db
