@@ -34,6 +34,17 @@ class AISynthesis extends AbstractManager {
 
   private readonly DEFAULT_QUESTION_SYNTHESIS_RETRIES = 2;
 
+  private readonly REGEX_PROMPT_TERMS = [
+    /Conversation_History/,
+    /Knowledge/,
+    /Instructions/,
+    /user:/,
+    /assistant:/,
+    /<.*>/,
+  ];
+
+  private readonly MAX_LLM_TRIES = 2;
+
   private generateContext(data: KnowledgeBaseResponse) {
     return data.chunks.map(({ content }) => content).join('\n');
   }
@@ -44,6 +55,10 @@ class AISynthesis extends AbstractManager {
       return null;
     }
     return output;
+  }
+
+  private detectPromptLeak(output: string) {
+    return this.REGEX_PROMPT_TERMS.some((regex) => regex.test(output));
   }
 
   async answerSynthesis({
@@ -181,7 +196,6 @@ class AISynthesis extends AbstractManager {
     const knowledge = this.generateContext(data);
     let content: string;
 
-    // These prompts are as similar as possible to the preview/no match prompts with the goal of consistency
     if (memory.length) {
       const history = memory.map((turn) => `${turn.role}: ${turn.content}`).join('\n');
       content = dedent`
@@ -215,22 +229,42 @@ class AISynthesis extends AbstractManager {
     ];
 
     const generativeModel = this.services.ai.get(options.model);
-    const response = await fetchChat(
-      { ...options, messages: questionMessages },
-      generativeModel,
-      {
-        context,
-        retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
-        retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
-      },
-      variables
-    );
 
-    if (response.output) {
-      response.output = this.filterNotFound(response.output.trim());
+    const fetchChatTask = () =>
+      fetchChat(
+        { ...options, messages: questionMessages },
+        generativeModel,
+        {
+          context,
+          retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
+          retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
+        },
+        variables
+      );
+
+    // log & retry the LLM call if we detect prompt leak
+    let response: AIResponse;
+    for (let i = 0; i < this.MAX_LLM_TRIES; i++) {
+      // eslint-disable-next-line no-await-in-loop
+      response = await fetchChatTask();
+
+      if (response.output) {
+        response.output = this.filterNotFound(response.output.trim());
+      }
+
+      if (response.output && this.detectPromptLeak(response.output)) {
+        log.warn(
+          `prompt leak detected\nLLM response: ${response.output}\nAttempt: ${
+            i + 1
+          }\nPrompt: ${content}\nLLM Settings: ${JSON.stringify(options)}`
+        );
+      } else {
+        break;
+      }
     }
 
-    return response;
+    // will always be defined as long as MAX_LLM_TRIES is greater than 0
+    return response!;
   }
 
   async promptSynthesis(
