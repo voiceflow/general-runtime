@@ -34,14 +34,7 @@ class AISynthesis extends AbstractManager {
 
   private readonly DEFAULT_QUESTION_SYNTHESIS_RETRIES = 2;
 
-  private readonly REGEX_PROMPT_TERMS = [
-    /conversation_history/i,
-    /knowledge/i,
-    /instructions/i,
-    /user:/i,
-    /assistant:/i,
-    /<[^<>]*>/,
-  ];
+  private readonly REGEX_PROMPT_TERMS = [/conversation_history/i, /user:/i, /assistant:/i, /<[^<>]*>/];
 
   private readonly MAX_LLM_TRIES = 2;
 
