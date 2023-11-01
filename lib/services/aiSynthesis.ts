@@ -35,11 +35,11 @@ class AISynthesis extends AbstractManager {
   private readonly DEFAULT_QUESTION_SYNTHESIS_RETRIES = 2;
 
   private readonly REGEX_PROMPT_TERMS = [
-    /Conversation_History/,
-    /Knowledge/,
-    /Instructions/,
-    /user:/,
-    /assistant:/,
+    /conversation_history/i,
+    /knowledge/i,
+    /instructions/i,
+    /user:/i,
+    /assistant:/i,
     /<[^<>]*>/,
   ];
 
@@ -244,21 +244,25 @@ class AISynthesis extends AbstractManager {
 
     // log & retry the LLM call if we detect prompt leak
     let response: AIResponse;
+    let leak: boolean;
     for (let i = 0; i < this.MAX_LLM_TRIES; i++) {
       // eslint-disable-next-line no-await-in-loop
       response = await fetchChatTask();
+      leak = false;
 
       if (response.output) {
         response.output = this.filterNotFound(response.output.trim());
       }
 
       if (response.output && this.detectPromptLeak(response.output)) {
+        leak = true;
         log.warn(
-          `prompt leak detected\nLLM response: ${response.output}\nAttempt: ${
-            i + 1
-          }\nPrompt: ${content}\nLLM Settings: ${JSON.stringify(options)}`
+          `prompt leak detected\nLLM response: ${response.output}\nAttempt: ${i + 1}
+          \nPrompt: ${content}\nLLM Settings: ${JSON.stringify(options)}`
         );
-      } else {
+      }
+
+      if (!leak || options.temperature === 0) {
         break;
       }
     }
