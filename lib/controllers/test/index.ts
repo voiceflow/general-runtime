@@ -6,6 +6,7 @@ import _merge from 'lodash/merge';
 import { FeatureFlag } from '@/lib/feature-flags';
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
 import { fetchFaq, fetchKnowledgeBase, getKBSettings } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
+import { SegmentEventType } from '@/lib/services/runtime/types';
 import log from '@/logger';
 import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
@@ -58,18 +59,37 @@ class TestController extends AbstractController {
   static generateTagLabelMap(existingTags: Record<string, BaseModels.Project.KBTag>): Record<string, string> {
     const result: Record<string, string> = {};
 
-    Object.keys(existingTags).forEach((tagID) => {
-      result[existingTags[tagID].label] = tagID;
+    Object.entries(existingTags).forEach(([tagID, tag]) => {
+      result[tag.label] = tagID;
     });
 
     return result;
   }
 
-  static convertTagsFilterToLabels(
+  static checkKBTagLabelsExists(tagLabelMap: Record<string, string>, tagLabels: string[]) {
+    // check that KB tag labels exists, this is not atomic but it prevents a class of bugs
+    const nonExistingTags = tagLabels.filter((label) => !tagLabelMap[label]);
+
+    if (nonExistingTags.length > 0) {
+      const formattedTags = nonExistingTags.map((tag) => `\`${tag}\``).join(', ');
+      throw new VError(`tags with the following labels do not exist: ${formattedTags}`, VError.HTTP_STATUS.NOT_FOUND);
+    }
+  }
+
+  static convertTagsFilterToIDs(
     tags: BaseModels.Project.KnowledgeBaseTagsFilter,
     tagLabelMap: Record<string, string>
   ): BaseModels.Project.KnowledgeBaseTagsFilter {
     const result = tags;
+    const includeTagsArray = result?.include?.items ?? [];
+    const excludeTagsArray = result?.exclude?.items ?? [];
+
+    if (includeTagsArray.length > 0 || excludeTagsArray.length > 0) {
+      TestController.checkKBTagLabelsExists(
+        tagLabelMap,
+        Array.from(new Set([...includeTagsArray, ...excludeTagsArray]))
+      );
+    }
 
     if (result?.include?.items) {
       result.include.items = result.include.items
@@ -85,6 +105,34 @@ class TestController extends AbstractController {
 
     return result;
   }
+
+  testSendSegmentTagsFilterEvent = async ({
+    userID,
+    tagsFilter,
+  }: {
+    userID: number;
+    tagsFilter: BaseModels.Project.KnowledgeBaseTagsFilter;
+  }) => {
+    const analyticsPlatformClient = await this.services.analyticsPlatform.getClient();
+    const operators: string[] = [];
+
+    if (tagsFilter?.includeAllTagged) operators.push('includeAllTagged');
+    if (tagsFilter?.includeAllNonTagged) operators.push('includeAllNonTagged');
+    if (tagsFilter?.include) operators.push('include');
+    if (tagsFilter?.exclude) operators.push('exclude');
+
+    const includeTagsArray = tagsFilter?.include?.items || [];
+    const excludeTagsArray = tagsFilter?.exclude?.items || [];
+    const tags = Array.from(new Set([...includeTagsArray, ...excludeTagsArray]));
+
+    if (analyticsPlatformClient) {
+      analyticsPlatformClient.track({
+        identity: { userID },
+        name: SegmentEventType.KB_TAGS_USED,
+        properties: { operators, tags_searched: tags, number_of_tags: tags.length },
+      });
+    }
+  };
 
   async testKnowledgeBasePrompt(req: Request) {
     const api = await this.services.dataAPI.get();
@@ -152,7 +200,9 @@ class TestController extends AbstractController {
     const version = req.body.versionID ? await api.getVersion(req.body.versionID) : null;
     if (tags) {
       const tagLabelMap = TestController.generateTagLabelMap(project.knowledgeBase?.tags ?? {});
-      tagsFilter = TestController.convertTagsFilterToLabels(tags, tagLabelMap);
+      tagsFilter = TestController.convertTagsFilterToIDs(tags, tagLabelMap);
+
+      this.testSendSegmentTagsFilterEvent({ userID: project.creatorID, tagsFilter });
     }
 
     if (!(await this.services.billing.checkQuota(project.teamID, QuotaName.OPEN_API_TOKENS))) {
@@ -170,8 +220,8 @@ class TestController extends AbstractController {
     });
 
     if (this.services.unleash.client.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(project.teamID) })) {
-      const faq = await fetchFaq(project._id, project.teamID, question, settings);
-      if (faq?.answer) return { output: faq.answer };
+      const faq = await fetchFaq(project._id, project.teamID, question, project?.knowledgeBase?.faqSets, settings);
+      if (faq?.answer) return { output: faq.answer, faqSet: faq.faqSet };
     }
 
     const data = await fetchKnowledgeBase(project._id, project.teamID, question, settings, tagsFilter);

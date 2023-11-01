@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-nested-template-literals */
 import { AI_PROMPT, HUMAN_PROMPT } from '@anthropic-ai/sdk';
 import { BaseUtils } from '@voiceflow/base-types';
 import { AIModelParams } from '@voiceflow/base-types/build/cjs/utils/ai';
@@ -55,13 +54,21 @@ export abstract class AnthropicAIModel extends AIModel {
     options: CompletionOptions
   ): Promise<CompletionOutput | null> {
     let topSystem = '';
-    if (messages[0]?.role === BaseUtils.ai.Role.SYSTEM) {
-      topSystem = messages.shift()!.content;
+    let prompt = '';
+    for (let i = 0; i < messages.length; i++) {
+      if (i === 0 && messages[i].role === BaseUtils.ai.Role.SYSTEM) {
+        topSystem = messages[i].content;
+        continue;
+      }
+      if (i === 1 && topSystem) {
+        // add the system prompt to the first message
+        prompt += `${AnthropicAIModel.RoleMap[messages[i].role]} ${topSystem}\n${messages[i].content}`;
+      } else {
+        prompt += `${AnthropicAIModel.RoleMap[messages[i].role]} ${messages[i].content}`;
+      }
     }
-
-    const prompt = `${topSystem}\n\n${messages.map(
-      (message) => `${AnthropicAIModel.RoleMap[message.role]} ${message.content}`
-    )}${AI_PROMPT}`;
+    // claude prompt must end with AI prompt
+    prompt += AI_PROMPT;
 
     await this.contentModerationClient?.checkModeration(prompt, options.context);
 
