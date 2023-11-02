@@ -24,9 +24,22 @@ export interface KnowledgeBaseResponse {
   chunks: KnowledegeBaseChunk[];
 }
 
-export interface KnowledgeBaseFaq {
+export interface KnowledgeBaseFaqSet {
+  faqSetID?: string;
+  name?: string;
+}
+
+export interface KnowledgeBaseFaqGeneral {
   question?: string;
   answer?: string;
+}
+
+export interface KnowledgeBaseFaq extends KnowledgeBaseFaqGeneral {
+  faqSetID?: string;
+}
+
+export interface KnowledgeFaqRetrieve extends KnowledgeBaseFaqGeneral {
+  faqSet?: KnowledgeBaseFaqSet;
 }
 
 export interface KnowledgeBaseFaqResponse {
@@ -63,8 +76,9 @@ export const fetchFaq = async (
   projectID: string,
   workspaceID: string | undefined,
   question: string,
+  faqSets?: Record<string, BaseModels.Project.KnowledgeBaseSetFaq>,
   settings?: BaseModels.Project.KnowledgeBaseSettings
-): Promise<KnowledgeBaseFaq | null> => {
+): Promise<KnowledgeFaqRetrieve | null> => {
   if (FAQ_RETRIEVAL_ENDPOINT) {
     const { data } = await axios.post<KnowledgeBaseFaqResponse>(FAQ_RETRIEVAL_ENDPOINT, {
       projectID,
@@ -72,7 +86,19 @@ export const fetchFaq = async (
       question,
       settings,
     });
-    return data?.faq;
+
+    const faq = data?.faq;
+
+    if (faq?.answer) {
+      let faqSetData: KnowledgeBaseFaqSet = {};
+
+      if (faq?.faqSetID) {
+        const faqSet: BaseModels.Project.KnowledgeBaseSetFaq | undefined = faqSets?.[faq?.faqSetID];
+        faqSetData = { faqSetID: faqSet?.faqSetID, name: faqSet?.name };
+      }
+
+      return { answer: faq.answer, question: faq.question, faqSet: faqSetData };
+    }
   }
 
   return null;
@@ -152,6 +178,7 @@ export const knowledgeBaseNoMatch = async (
         runtime.project._id,
         runtime.project.teamID,
         question.output,
+        runtime.project?.knowledgeBase?.faqSets,
         runtime.project?.knowledgeBase?.settings
       );
       if (faq?.answer) {

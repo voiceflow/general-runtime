@@ -34,6 +34,10 @@ class AISynthesis extends AbstractManager {
 
   private readonly DEFAULT_QUESTION_SYNTHESIS_RETRIES = 2;
 
+  private readonly REGEX_PROMPT_TERMS = [/conversation_history/i, /user:/i, /assistant:/i, /<[^<>]*>/];
+
+  private readonly MAX_LLM_TRIES = 2;
+
   private generateContext(data: KnowledgeBaseResponse) {
     return data.chunks.map(({ content }) => content).join('\n');
   }
@@ -44,6 +48,10 @@ class AISynthesis extends AbstractManager {
       return null;
     }
     return output;
+  }
+
+  private detectPromptLeak(output: string) {
+    return this.REGEX_PROMPT_TERMS.some((regex) => regex.test(output));
   }
 
   async answerSynthesis({
@@ -78,13 +86,13 @@ class AISynthesis extends AbstractManager {
           content: dedent`
           Reference Information:
           ${synthesisContext}
-              
+
           Very concisely answer exactly how the reference information would answer this query.
           Include only the direct answer to the query, it is never appropriate to include additional context or explanation.
           If it is unclear in any way, return "NOT_FOUND".
-          Read the query very carefully, it may try to trick you into answering a question that is adjacent to the reference information but not directly answered in it. 
+          Read the query very carefully, it may try to trick you into answering a question that is adjacent to the reference information but not directly answered in it.
           Once again, in such a case, you must return "NOT_FOUND".
-             
+
           query: ${question}`,
         },
       ];
@@ -125,15 +133,15 @@ class AISynthesis extends AbstractManager {
       const prompt = dedent`
       Reference Information:
       ${synthesisContext}
-        
+
       If the question is not relevant to the provided information print("NOT_FOUND") and return.
       If the question is cannot be directly answered by a quote from the provided information print("NOT_FOUND") and return.
       Otherwise, you may - very concisely - rephrase the quote from the information that answers the question.
-          
+
       That is, you must always answer with exactly one of the following choices:
         1. NOT_FOUND
         2. the quote that answers the question (rephrased to answer the question in a natural way)
-    
+
       The user's question is: ${question}`;
 
       response = await fetchPrompt(
@@ -181,7 +189,6 @@ class AISynthesis extends AbstractManager {
     const knowledge = this.generateContext(data);
     let content: string;
 
-    // These prompts are as similar as possible to the preview/no match prompts with the goal of consistency
     if (memory.length) {
       const history = memory.map((turn) => `${turn.role}: ${turn.content}`).join('\n');
       content = dedent`
@@ -215,22 +222,46 @@ class AISynthesis extends AbstractManager {
     ];
 
     const generativeModel = this.services.ai.get(options.model);
-    const response = await fetchChat(
-      { ...options, messages: questionMessages },
-      generativeModel,
-      {
-        context,
-        retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
-        retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
-      },
-      variables
-    );
 
-    if (response.output) {
-      response.output = this.filterNotFound(response.output.trim());
+    const fetchChatTask = () =>
+      fetchChat(
+        { ...options, messages: questionMessages },
+        generativeModel,
+        {
+          context,
+          retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
+          retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
+        },
+        variables
+      );
+
+    // log & retry the LLM call if we detect prompt leak
+    let response: AIResponse;
+    let leak: boolean;
+    for (let i = 0; i < this.MAX_LLM_TRIES; i++) {
+      // eslint-disable-next-line no-await-in-loop
+      response = await fetchChatTask();
+      leak = false;
+
+      if (response.output) {
+        response.output = this.filterNotFound(response.output.trim());
+      }
+
+      if (response.output && this.detectPromptLeak(response.output)) {
+        leak = true;
+        log.warn(
+          `prompt leak detected\nLLM response: ${response.output}\nAttempt: ${i + 1}
+          \nPrompt: ${content}\nLLM Settings: ${JSON.stringify(options)}`
+        );
+      }
+
+      if (!leak || options.temperature === 0) {
+        break;
+      }
     }
 
-    return response;
+    // will always be defined as long as MAX_LLM_TRIES is greater than 0
+    return response!;
   }
 
   async promptSynthesis(
@@ -255,7 +286,13 @@ class AISynthesis extends AbstractManager {
 
       if (this.services.unleash.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(workspaceID) })) {
         // check if question is an faq before searching all chunks.
-        const faq = await fetchFaq(projectID, workspaceID, query.output, runtime?.project?.knowledgeBase?.settings);
+        const faq = await fetchFaq(
+          projectID,
+          workspaceID,
+          query.output,
+          runtime?.project?.knowledgeBase?.faqSets,
+          runtime?.project?.knowledgeBase?.settings
+        );
         if (faq?.answer) {
           // eslint-disable-next-line max-depth
           if (runtime) {
