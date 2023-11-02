@@ -17,7 +17,7 @@ const utilsObj = {
 const isTraceNode = (
   node: BaseNode._v1.Node
 ): node is BaseNode._v1.Node & { payload: { name: string; body: string; bodyType: string } } =>
-  node.type === BaseNode.NodeType.TRACE;
+  node.type === BaseNode.NodeType.TRACE && (node.payload as any)?.name && (node.payload as any)?.body;
 
 export const _V1Handler: HandlerFactory<BaseNode._v1.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => node._v === 1,
