@@ -21,6 +21,18 @@ const VALIDATIONS = {
 class Project extends AbstractMiddleware {
   static VALIDATIONS = VALIDATIONS;
 
+  checkPublicAccessControlOrigin(req: Request, res: Response, next: NextFunction): void {
+    if (
+      this.config.ALLOWED_PUBLIC_ORIGINS &&
+      !this.config.ALLOWED_PUBLIC_ORIGINS.split(',').includes(req.headers.origin ?? '')
+    ) {
+      res.status(403).send('Forbidden: Invalid Origin');
+      return;
+    }
+
+    next();
+  }
+
   @validate({
     HEADER_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
     PARAMS_VERSION_ID: VALIDATIONS.PARAMS.VERSION_ID,
@@ -131,7 +143,7 @@ class Project extends AbstractMiddleware {
     }
   }
 
-  // ensuring backwards compatibility with old runtime routes
+  // ensuring backwards compatibility with old runtime routes/middlewares
   async paramsToLegacyHeader(req: ExpressRequest, _: Response, next: NextFunction): Promise<void> {
     Object.entries(req.params).forEach(([paramName, paramValue]) => {
       req.headers[paramName] = paramValue;

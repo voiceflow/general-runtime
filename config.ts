@@ -121,6 +121,8 @@ const CONFIG: Config = {
   // Unleash
   UNLEASH_API_KEY: getOptionalProcessEnv('UNLEASH_API_KEY'),
   UNLEASH_URL: getOptionalProcessEnv('UNLEASH_URL'),
+
+  ALLOWED_PUBLIC_ORIGINS: getOptionalProcessEnv('ALLOWED_PUBLIC_ORIGINS'),
 };
 
 export default CONFIG;
