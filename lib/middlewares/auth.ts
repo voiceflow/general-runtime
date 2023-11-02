@@ -51,7 +51,8 @@ class Auth extends AbstractMiddleware {
     return this.client as InstanceType<typeof sdk.AuthClient>;
   };
 
-  authorize = (actions: `${string}:${string}`[]) => {
+  // TODO fix this any type once the sdk is not an optional dependency
+  authorize = (actions: `${string}:${string}`[], getResource?: any) => {
     return async (req: Request, res: Response, next: Next) => {
       try {
         const client = await this.getClient();
@@ -61,7 +62,7 @@ class Auth extends AbstractMiddleware {
         const sdk = await import('@voiceflow/sdk-auth/express').catch(() => null);
         if (!sdk) return next();
 
-        return sdk?.createAuthGuard(client)(actions as any[])(req, res, next);
+        return sdk?.createAuthGuard(client, getResource)(actions as any[])(req, res, next);
       } catch (err) {
         return next(new VError('Unauthorized', VError.HTTP_STATUS.UNAUTHORIZED));
       }
