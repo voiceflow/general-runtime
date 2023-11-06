@@ -1,6 +1,5 @@
 import { isAfter, isValid } from 'date-fns';
-import { Strategy } from 'unleash-client';
-import { Context } from 'unleash-client/lib/context';
+import { Context, Strategy } from 'unleash-client';
 
 class WithWorkspaceCreatedAfterStrategy extends Strategy {
   constructor() {
