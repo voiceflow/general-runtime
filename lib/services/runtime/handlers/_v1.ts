@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/cognitive-complexity */
 /* eslint-disable no-restricted-syntax */
 import { BaseNode } from '@voiceflow/base-types';
 import { object, replaceVariables } from '@voiceflow/common';
@@ -12,6 +13,11 @@ const utilsObj = {
   commandHandler: CommandHandler(),
   findEventMatcher,
 };
+
+const isTraceNode = (
+  node: BaseNode._v1.Node
+): node is BaseNode._v1.Node & { payload: { name: string; body: string; bodyType: string } } =>
+  node.type === BaseNode.NodeType.TRACE && (node.payload as any)?.name && (node.payload as any)?.body;
 
 export const _V1Handler: HandlerFactory<BaseNode._v1.Node, typeof utilsObj> = (utils) => ({
   canHandle: (node) => node._v === 1,
@@ -40,10 +46,27 @@ export const _V1Handler: HandlerFactory<BaseNode._v1.Node, typeof utilsObj> = (u
     }
 
     const variablesMap = variables.getState();
-    const type = replaceVariables(node.type, variablesMap);
-    const payload = object.deepMap(node.payload, (value) =>
-      typeof value === 'string' ? replaceVariables(value, variablesMap) : value
-    );
+
+    let type;
+    let payload;
+
+    if (isTraceNode(node)) {
+      type = replaceVariables(node.payload.name, variablesMap);
+      payload = replaceVariables(node.payload.body, variablesMap);
+
+      if (node.payload.bodyType === 'json') {
+        try {
+          payload = JSON.parse(payload);
+        } catch (error) {
+          runtime.trace.debug(`error parsing as JSON: ${error.message}\n\`\`\`${payload}\`\`\``);
+        }
+      }
+    } else {
+      type = replaceVariables(node.type, variablesMap);
+      payload = object.deepMap(node.payload, (value) =>
+        typeof value === 'string' ? replaceVariables(value, variablesMap) : value
+      );
+    }
 
     runtime.trace.addTrace<BaseNode.Utils.BaseTraceFrame<unknown>>({
       type,
