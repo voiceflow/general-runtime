@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 
-import { BaseNode } from '@voiceflow/base-types';
+import { BaseNode, BaseRequest } from '@voiceflow/base-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import Client, { Action as RuntimeAction, Runtime } from '@/runtime';
@@ -97,6 +97,10 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
   }
 
   private getRuntimeForContext(context: Context): Runtime {
+    if (context.request && BaseRequest.isLaunchRequest(context.request)) {
+      context.request = null;
+    }
+
     const runtime = this.createClient(context.data.api).createRuntime({
       versionID: context.versionID,
       state: context.state,
