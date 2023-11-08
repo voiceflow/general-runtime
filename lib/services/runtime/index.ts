@@ -62,6 +62,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
         runtime.variables.set(VoiceflowConstants.BuiltInVariable.LAST_UTTERANCE, request.payload.query);
       }
     }
+    runtime.variables.set(VoiceflowConstants.BuiltInVariable.LAST_EVENT, request);
 
     if (context.data.config?.stopTypes) {
       runtime.turn.set(TurnType.STOP_TYPES, context.data.config.stopTypes);

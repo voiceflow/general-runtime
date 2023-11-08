@@ -1,6 +1,5 @@
 import { randomUUID } from 'crypto';
 import * as Unleash from 'unleash-client';
-import type { Context } from 'unleash-client/lib/context';
 
 import log from '@/logger';
 import { Config } from '@/types';
@@ -24,7 +23,7 @@ const awaitInstanceReady = (instance: Unleash.Unleash) =>
   });
 
 export class UnleashClient extends AbstractClient {
-  staticContext: Required<Pick<Context, 'appName' | 'environment'>>;
+  staticContext: Required<Pick<Unleash.Context, 'appName' | 'environment'>>;
 
   instance?: Unleash.Unleash;
 

@@ -325,6 +325,7 @@ describe('runtime manager unit tests', () => {
       expect(runtime.variables.set.args).to.eql([
         ['intent_confidence', 86.12],
         ['last_utterance', 'hello world'],
+        ['last_event', request],
         ['timestamp', timestamp],
       ]);
     });
@@ -408,6 +409,7 @@ describe('runtime manager unit tests', () => {
       ]);
       expect(runtime.update.callCount).to.eql(1);
       expect(runtime.variables.set.args).to.eql([
+        [VoiceflowConstants.BuiltInVariable.LAST_EVENT, request],
         [VoiceflowConstants.BuiltInVariable.TIMESTAMP, 0],
         [VoiceflowConstants.BuiltInVariable.USER_ID, 'someUserId'],
       ]);
