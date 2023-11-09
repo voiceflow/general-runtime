@@ -110,11 +110,11 @@ export const getKBSettings = (
   teamID?: string,
   versionSettings?: BaseModels.Project.KnowledgeBaseSettings,
   projectSettings?: BaseModels.Project.KnowledgeBaseSettings
-) => {
+): BaseModels.Project.KnowledgeBaseSettings | null => {
   const useVersionedSettings = unleashClient.client.isEnabled(FeatureFlag.VERSIONED_KB_SETTINGS, {
     workspaceID: Number(teamID),
   });
-  return (useVersionedSettings && versionSettings) || projectSettings;
+  return (useVersionedSettings && versionSettings) || projectSettings || null;
 };
 
 export const addFaqTrace = (runtime: Runtime, faqQuestion: string, faqAnswer: string, query: string) => {

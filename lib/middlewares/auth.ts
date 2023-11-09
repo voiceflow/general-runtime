@@ -97,31 +97,28 @@ class Auth extends AbstractMiddleware {
   }
 
   verifyParamConsistency = (
-    getProjectID: (req: Request) => string | undefined,
-    getAuth: (req: Request) => string | undefined,
-    getVersionID: (req: Request) => string | undefined
+    mapFromRequest: (req: Request) => { projectID?: string; auth?: string; versionID?: string }
   ) => {
     return async (req: Request, _res: Response, next: Next) => {
       try {
-        const projectID = getProjectID(req);
-        const auth = getAuth(req);
-        const versionID = getVersionID(req);
+        const { projectID, auth, versionID } = mapFromRequest(req);
 
         const api = await this.services.dataAPI.get();
         const authenticatedProject = auth ? await api.getProject(auth) : null;
         const version = versionID ? await api.getVersion(versionID) : null;
 
-        const projectIDs = [projectID, authenticatedProject?._id, version?.projectID].filter((item) => item);
-        const isInconsistent = projectIDs.length > 0 && projectIDs.some((item, _, arr) => item !== arr[0]);
+        const projectIDs = [projectID, authenticatedProject?._id, version?.projectID].filter((item) => !!item);
 
-        if (isInconsistent) {
-          return next(new VError('Unauthorized', VError.HTTP_STATUS.UNAUTHORIZED));
+        const isConsistent = projectIDs.length > 0 && projectIDs.every((item, _, arr) => item === arr[0]);
+
+        if (!isConsistent) {
+          throw new VError('Inconsistent projectIDs in request parameters');
         }
-
-        return next();
       } catch (err) {
         return next(new VError('Unauthorized', VError.HTTP_STATUS.UNAUTHORIZED));
       }
+
+      return next();
     };
   };
 }
