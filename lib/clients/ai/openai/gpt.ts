@@ -24,6 +24,6 @@ export abstract class GPTAIModel extends AIModel {
   }
 
   protected calculateTokenMultiplier(tokens: number): number {
-    return Math.floor(tokens * this.TOKEN_MULTIPLIER);
+    return Math.ceil(tokens * this.TOKEN_MULTIPLIER);
   }
 }

@@ -77,7 +77,6 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     if (context.request && BaseRequest.isLaunchRequest(context.request) && context.state) {
       context.state.stack = [];
       context.state.storage = {};
-      context.request = null;
     }
 
     // sanitize incoming intents

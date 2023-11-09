@@ -8,6 +8,8 @@ import { delayedPromiseRace } from '../utils';
 import { GPTAIModel } from './gpt';
 
 export class GPT3_5 extends GPTAIModel {
+  TOKEN_MULTIPLIER = 0.75;
+
   public modelRef = BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo;
 
   protected gptModelName = 'gpt-3.5-turbo';
