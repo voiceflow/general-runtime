@@ -49,6 +49,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.post(
     '/:workspaceID/knowledge-base-prompt',
     middlewares.auth.authorize(['workspace:READ']),
+    // eslint-disable-next-line sonarjs/no-identical-functions
     middlewares.auth.verifyParamConsistency((req: Request) => ({
       projectID: req.body.projectID,
       auth: req.headers.authorization,
