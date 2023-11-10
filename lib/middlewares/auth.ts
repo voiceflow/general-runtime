@@ -107,9 +107,10 @@ class Auth extends AbstractMiddleware {
         const authenticatedProject = auth ? await api.getProject(auth) : null;
         const version = versionID ? await api.getVersion(versionID) : null;
 
-        const projectIDs = [projectID, authenticatedProject?._id, version?.projectID].filter((item) => !!item);
+        const projectIDs = new Set([projectID, authenticatedProject?._id, version?.projectID].filter((item) => !!item));
 
-        const isConsistent = projectIDs.length > 0 && projectIDs.every((item, _, arr) => item === arr[0]);
+        // at least 1 and exactly 1 unique ID
+        const isConsistent = projectIDs.size === 1;
 
         if (!isConsistent) {
           throw new VError('Inconsistent projectIDs in request parameters');
