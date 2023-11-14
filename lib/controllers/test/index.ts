@@ -3,7 +3,6 @@ import { BaseModels, BaseUtils } from '@voiceflow/base-types';
 import VError from '@voiceflow/verror';
 import _merge from 'lodash/merge';
 
-import { FeatureFlag } from '@/lib/feature-flags';
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
 import { fetchFaq, fetchKnowledgeBase, getKBSettings } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
 import { SegmentEventType } from '@/lib/services/runtime/types';
@@ -219,10 +218,8 @@ class TestController extends AbstractController {
       search: { limit: chunkLimit },
     });
 
-    if (this.services.unleash.client.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(project.teamID) })) {
-      const faq = await fetchFaq(project._id, project.teamID, question, project?.knowledgeBase?.faqSets, settings);
-      if (faq?.answer) return { output: faq.answer, faqSet: faq.faqSet };
-    }
+    const faq = await fetchFaq(project._id, project.teamID, question, project?.knowledgeBase?.faqSets, settings);
+    if (faq?.answer) return { output: faq.answer, faqSet: faq.faqSet };
 
     const data = await fetchKnowledgeBase(project._id, project.teamID, question, settings, tagsFilter);
     if (!data) return { output: null, chunks: [] };

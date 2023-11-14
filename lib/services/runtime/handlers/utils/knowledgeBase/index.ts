@@ -59,7 +59,7 @@ const { KL_RETRIEVER_SERVICE_HOST: host, KL_RETRIEVER_SERVICE_PORT: port } = Con
 const scheme = process.env.NODE_ENV === 'e2e' ? 'https' : 'http';
 const baseApiUrl = host && port ? `${scheme}://${host}:${port}` : null;
 export const RETRIEVE_ENDPOINT = baseApiUrl ? new URL(`${baseApiUrl}/retrieve`).href : null;
-export const FAQ_RETRIEVAL_ENDPOINT = baseApiUrl ? new URL(`${baseApiUrl}/poc/retrieve/faq`).href : null;
+export const FAQ_RETRIEVAL_ENDPOINT = baseApiUrl ? new URL(`${baseApiUrl}/api/v1/retrieve/faq`).href : null;
 export const { KNOWLEDGE_BASE_LAMBDA_ENDPOINT } = Config;
 
 export const getAnswerEndpoint = (cloudEnv: string, workspaceID: string): string | null => {
@@ -189,26 +189,22 @@ export const knowledgeBaseNoMatch = async (
     });
     if (!question?.output) return null;
 
-    if (
-      runtime.services.unleash.client.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(runtime.project.teamID) })
-    ) {
-      // before checking KB, check if it is an FAQ
-      const faq = await fetchFaq(
-        runtime.project._id,
-        runtime.project.teamID,
-        question.output,
-        runtime.project?.knowledgeBase?.faqSets,
-        kbSettings
-      );
-      if (faq?.answer) {
-        addFaqTrace(runtime, faq.question || '', faq.answer, question.output);
-        return {
-          output: generateOutput(faq.answer, runtime.project),
-          tokens: question.queryTokens + question.answerTokens,
-          queryTokens: question.queryTokens,
-          answerTokens: question.answerTokens,
-        };
-      }
+    // before checking KB, check if it is an FAQ
+    const faq = await fetchFaq(
+      runtime.project._id,
+      runtime.project.teamID,
+      question.output,
+      runtime.project?.knowledgeBase?.faqSets,
+      kbSettings
+    );
+    if (faq?.answer) {
+      addFaqTrace(runtime, faq.question || '', faq.answer, question.output);
+      return {
+        output: generateOutput(faq.answer, runtime.project),
+        tokens: question.queryTokens + question.answerTokens,
+        queryTokens: question.queryTokens,
+        answerTokens: question.answerTokens,
+      };
     }
 
     const data = await fetchKnowledgeBase(runtime.project._id, runtime.project.teamID, question.output, kbSettings);

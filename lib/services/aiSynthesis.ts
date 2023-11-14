@@ -20,7 +20,6 @@ import {
 import log from '@/logger';
 import { Runtime } from '@/runtime';
 
-import { FeatureFlag } from '../feature-flags';
 import { AbstractManager } from './utils';
 
 class AISynthesis extends AbstractManager {
@@ -291,28 +290,25 @@ class AISynthesis extends AbstractManager {
       });
       if (!query?.output) return null;
 
-      if (this.services.unleash.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(workspaceID) })) {
-        // check if question is an faq before searching all chunks.
-        const faq = await fetchFaq(
-          projectID,
-          workspaceID,
-          query.output,
-          runtime?.project?.knowledgeBase?.faqSets,
-          kbSettings
-        );
-        if (faq?.answer) {
-          // eslint-disable-next-line max-depth
-          if (runtime) {
-            addFaqTrace(runtime, faq?.question || '', faq.answer, query.output);
-          }
-
-          return {
-            output: faq.answer,
-            tokens: query.queryTokens + query.answerTokens,
-            queryTokens: query.queryTokens,
-            answerTokens: query.answerTokens,
-          };
+      // check if question is an faq before searching all chunks.
+      const faq = await fetchFaq(
+        projectID,
+        workspaceID,
+        query.output,
+        runtime?.project?.knowledgeBase?.faqSets,
+        kbSettings
+      );
+      if (faq?.answer) {
+        if (runtime) {
+          addFaqTrace(runtime, faq?.question || '', faq.answer, query.output);
         }
+
+        return {
+          output: faq.answer,
+          tokens: query.queryTokens + query.answerTokens,
+          queryTokens: query.queryTokens,
+          answerTokens: query.answerTokens,
+        };
       }
 
       const data = await fetchKnowledgeBase(projectID, workspaceID, query.output);
