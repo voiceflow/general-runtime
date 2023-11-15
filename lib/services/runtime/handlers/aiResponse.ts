@@ -1,34 +1,29 @@
+/* eslint-disable max-depth */
+/* eslint-disable sonarjs/cognitive-complexity */
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
+import { deepVariableSubstitution } from '@voiceflow/common';
 import { VoiceNode } from '@voiceflow/voice-types';
+import _cloneDeep from 'lodash/cloneDeep';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import { ContentModerationError } from '@/lib/clients/ai/contentModeration/utils';
 import { HandlerFactory } from '@/runtime';
 
-import { FrameType, Output } from '../types';
+import { FrameType, GeneralRuntime, Output } from '../types';
 import { addOutputTrace, getOutputTrace } from '../utils';
-import { AIResponse, checkTokens, consumeResources, fetchPrompt } from './utils/ai';
+import { AIResponse, checkTokens, consumeResources, EMPTY_AI_RESPONSE, fetchPrompt } from './utils/ai';
 import { getKBSettings } from './utils/knowledgeBase';
 import { generateOutput } from './utils/output';
 import { getVersionDefaultVoice } from './utils/version';
 
-const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
+const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, GeneralRuntime> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_RESPONSE,
   handle: async (node, runtime, variables) => {
     const nextID = node.nextId ?? null;
+    const elseID = node.elseId ?? null;
     const projectID = runtime.project?._id;
     const workspaceID = runtime.project?.teamID;
     const generativeModel = runtime.services.ai.get(node.model);
-    const kbSettings = getKBSettings(
-      runtime?.services.unleash,
-      workspaceID,
-      runtime?.version?.knowledgeBase?.settings,
-      runtime?.project?.knowledgeBase?.settings
-    );
-    const kbModel = runtime.services.ai.get(kbSettings?.summarization.model, {
-      projectID,
-      workspaceID,
-    });
 
     if (!(await checkTokens(runtime, node.type))) {
       addOutputTrace(
@@ -44,15 +39,56 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node> = () => ({
 
     try {
       if (node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE) {
-        const { prompt, mode } = node;
-
-        const answer = await runtime.services.aiSynthesis.promptSynthesis(
-          runtime.version!.projectID,
+        const kbSettings = getKBSettings(
+          runtime?.services.unleash,
           workspaceID,
-          { ...kbSettings?.summarization, prompt, mode },
-          variables.getState(),
-          runtime
+          runtime?.version?.knowledgeBase?.settings,
+          runtime?.project?.knowledgeBase?.settings
         );
+        const kbModel = runtime.services.ai.get(kbSettings?.summarization.model);
+
+        // TODO: REMOVE AFTER MIGRATION OFF LEGACY AI RESPONSE STEPS
+        let answer: AIResponse | null = EMPTY_AI_RESPONSE;
+        const isDeprecated = node.overrideParams === undefined;
+        if (isDeprecated) {
+          const { prompt, mode } = node;
+          answer = await runtime.services.aiSynthesis.DEPRECATEDpromptSynthesis(
+            runtime.version!.projectID,
+            workspaceID,
+            { ...kbSettings?.summarization, prompt, mode },
+            variables.getState(),
+            runtime
+          );
+        } else {
+          const settings = deepVariableSubstitution(_cloneDeep(node), variables.getState());
+          const queryAnswer = await runtime.services.aiSynthesis.knowledgeBaseQuery({
+            project: runtime.project!,
+            version: runtime.version!,
+            question: settings.prompt,
+            instruction: settings.instruction,
+            options: settings.overrideParams ? { summarization: settings } : {},
+          });
+          // just for typescript typing purposes (AIResponse) doesn't contain "chunks"
+          // remove after isDeprecated is gone
+          answer = queryAnswer;
+
+          if (!answer.output && settings.notFoundPath) return elseID;
+
+          runtime.trace.addTrace({
+            type: 'knowledgeBase',
+            payload: {
+              chunks: queryAnswer.chunks?.map(({ score, documentID }) => ({
+                score,
+                documentID,
+                documentData: runtime.project?.knowledgeBase?.documents[documentID]?.data,
+              })),
+              query: {
+                messages: answer.messages,
+                output: answer.output,
+              },
+            },
+          } as any);
+        }
 
         await consumeResources('AI Response KB', runtime, kbModel, answer);
 

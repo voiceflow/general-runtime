@@ -1,13 +1,16 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
+import { deepVariableSubstitution } from '@voiceflow/common';
+import _cloneDeep from 'lodash/cloneDeep';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import { ContentModerationError } from '@/lib/clients/ai/contentModeration/utils';
 import { HandlerFactory } from '@/runtime';
 
-import { checkTokens, consumeResources, fetchPrompt } from './utils/ai';
+import { GeneralRuntime } from '../types';
+import { AIResponse, checkTokens, consumeResources, EMPTY_AI_RESPONSE, fetchPrompt } from './utils/ai';
 import { getKBSettings } from './utils/knowledgeBase';
 
-const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
+const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_SET,
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: async (node, runtime, variables) => {
@@ -21,10 +24,7 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
       runtime?.version?.knowledgeBase?.settings,
       runtime?.project?.knowledgeBase?.settings
     );
-    const kbModel = runtime.services.ai.get(kbSettings?.summarization.model, {
-      projectID,
-      workspaceID,
-    });
+    const kbModel = runtime.services.ai.get(kbSettings?.summarization.model);
 
     if (!node.sets?.length) return nextID;
 
@@ -44,17 +44,35 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node> = () => ({
               if (!variable) return emptyResult;
 
               if (node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE) {
-                const response = await runtime.services.aiSynthesis.promptSynthesis(
-                  runtime.version!.projectID,
-                  workspaceID,
-                  {
-                    ...kbSettings?.summarization,
-                    mode,
-                    prompt,
-                  },
-                  variables.getState(),
-                  runtime
-                );
+                const isDeprecated = node.overrideParams === undefined;
+
+                let response: AIResponse | null = EMPTY_AI_RESPONSE;
+                if (isDeprecated) {
+                  response = await runtime.services.aiSynthesis.DEPRECATEDpromptSynthesis(
+                    runtime.version!.projectID,
+                    workspaceID,
+                    {
+                      ...kbSettings?.summarization,
+                      mode,
+                      prompt,
+                    },
+                    variables.getState(),
+                    runtime
+                  );
+                } else {
+                  const settings = deepVariableSubstitution(
+                    _cloneDeep({ ...node, mode, prompt, sets: undefined }),
+                    variables.getState()
+                  );
+                  response = await runtime.services.aiSynthesis.knowledgeBaseQuery({
+                    version: runtime.version!,
+                    project: runtime.project!,
+                    question: settings.prompt,
+                    options: node.overrideParams ? { summarization: settings } : {},
+                  });
+
+                  if (response.output === null) response.output = BaseUtils.ai.KNOWLEDGE_BASE_NOT_FOUND;
+                }
 
                 variables.set(variable, response?.output);
                 const tokens = response?.tokens ?? 0;

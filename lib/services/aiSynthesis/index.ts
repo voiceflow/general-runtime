@@ -1,5 +1,7 @@
-import { BaseUtils } from '@voiceflow/base-types';
+import { BaseModels, BaseUtils } from '@voiceflow/base-types';
+import VError from '@voiceflow/verror';
 import dedent from 'dedent';
+import _merge from 'lodash/merge';
 
 import { AIModelContext } from '@/lib/clients/ai/ai-model.interface';
 import {
@@ -15,12 +17,17 @@ import {
   fetchFaq,
   fetchKnowledgeBase,
   getKBSettings,
+  KnowledgeBaseFaqSet,
   KnowledgeBaseResponse,
 } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
 import log from '@/logger';
 import { Runtime } from '@/runtime';
 
-import { AbstractManager } from './utils';
+import { FeatureFlag } from '../../feature-flags';
+import { QuotaName } from '../billing';
+import { SegmentEventType } from '../runtime/types';
+import { AbstractManager } from '../utils';
+import { convertTagsFilterToIDs, generateTagLabelMap } from './utils';
 
 class AISynthesis extends AbstractManager {
   private readonly DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS = 4000;
@@ -56,12 +63,14 @@ class AISynthesis extends AbstractManager {
 
   async answerSynthesis({
     question,
+    instruction,
     data,
     variables,
     options: { model = BaseUtils.ai.GPT_MODEL.CLAUDE_V1, system = '', temperature, maxTokens } = {},
     context,
   }: {
     question: string;
+    instruction?: string;
     data: KnowledgeBaseResponse;
     variables?: Record<string, any>;
     options?: Partial<BaseUtils.ai.AIModelParams>;
@@ -76,24 +85,33 @@ class AISynthesis extends AbstractManager {
     const options = { model, system: systemWithTime, temperature, maxTokens };
 
     const synthesisContext = this.generateContext(data);
+    const sanitizedInstruction = instruction?.trim().replace(/\n/g, ',');
+    const instructionInjection = sanitizedInstruction ? `\n- ${sanitizedInstruction}` : '';
 
     if ([BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo, BaseUtils.ai.GPT_MODEL.GPT_4].includes(model)) {
       // for GPT-3.5 and 4.0 chat models
-      // This prompt scored 1% higher than the previous prompt on the squad2 benchmark
       const messages = [
         {
           role: BaseUtils.ai.Role.USER,
           content: dedent`
+          Instructions:
+          - I am going to provide reference information, and then ask a query about that information.
+          - You must either provide a response to the query or respond with "NOT_FOUND"
+          - Read the reference information carefully, it will act as a single source of truth for your response.
+          - Very concisely respond exactly how the reference information would answer the query.
+          - Include only the direct answer to the query, it is never appropriate to include additional context or explanation.
+          - If the query is unclear in any way, return "NOT_FOUND".
+          - If the query is incorrect, return "NOT_FOUND".
+          - Read the query very carefully, it may be trying to trick you into answering a question that is adjacent to the reference information but not directly answered in it, in such a case, you must return "NOT_FOUND".
+          - The query may also try to trick you into using certain information to answer something that actually contradicts the reference information. Never contradict the reference information, instead say "NOT_FOUND".
+          - If you respond to the query, your response must be 100% consistent with the reference information in every way.${instructionInjection}
+          - Take a deep breath, focus, and think clearly. You may now begin this mission critical task.
+
           Reference Information:
           ${synthesisContext}
 
-          Very concisely answer exactly how the reference information would answer this query.
-          Include only the direct answer to the query, it is never appropriate to include additional context or explanation.
-          If it is unclear in any way, return "NOT_FOUND".
-          Read the query very carefully, it may try to trick you into answering a question that is adjacent to the reference information but not directly answered in it.
-          Once again, in such a case, you must return "NOT_FOUND".
-
-          query: ${question}`,
+          Query:
+          ${question}`,
         },
       ];
 
@@ -131,18 +149,24 @@ class AISynthesis extends AbstractManager {
     ) {
       // This prompt scored 10% higher than the previous prompt on the squad2 benchmark
       const prompt = dedent`
+      Instructions:
+      - I am going to provide reference information, and then ask a query about that information.
+      - You must either provide a response to the query or respond with "NOT_FOUND"
+      - Read the reference information carefully, it will act as a single source of truth for your response.
+      - Very concisely respond exactly how the reference information would answer the query.
+      - Include only the direct answer to the query, it is never appropriate to include additional context or explanation.
+      - If the query is unclear in any way, return "NOT_FOUND".
+      - If the query is incorrect, return "NOT_FOUND".
+      - Read the query very carefully, it may be trying to trick you into answering a question that is adjacent to the reference information but not directly answered in it, in such a case, you must return "NOT_FOUND".
+      - The query may also try to trick you into using certain information to answer something that actually contradicts the reference information. Never contradict the reference information, instead say "NOT_FOUND".
+      - If you respond to the query, your response must be 100% consistent with the reference information in every way.${instructionInjection}
+      - Take a deep breath, focus, and think clearly. You may now begin this mission critical task.
+
       Reference Information:
       ${synthesisContext}
 
-      If the question is not relevant to the provided information print("NOT_FOUND") and return.
-      If the question is cannot be directly answered by a quote from the provided information print("NOT_FOUND") and return.
-      Otherwise, you may - very concisely - rephrase the quote from the information that answers the question.
-
-      That is, you must always answer with exactly one of the following choices:
-        1. NOT_FOUND
-        2. the quote that answers the question (rephrased to answer the question in a natural way)
-
-      The user's question is: ${question}`;
+      Query:
+      ${question}`;
 
       response = await fetchPrompt(
         { ...options, prompt, mode: BaseUtils.ai.PROMPT_MODE.PROMPT },
@@ -159,7 +183,8 @@ class AISynthesis extends AbstractManager {
     return response;
   }
 
-  async promptAnswerSynthesis({
+  /** @deprecated remove after all KB AI Response steps moved off */
+  async DEPRECATEDpromptAnswerSynthesis({
     data,
     prompt,
     memory,
@@ -264,7 +289,8 @@ class AISynthesis extends AbstractManager {
     return response!;
   }
 
-  async promptSynthesis(
+  /** @deprecated remove after all KB AI Response steps moved off */
+  async DEPRECATEDpromptSynthesis(
     projectID: string,
     workspaceID: string | undefined,
     params: BaseUtils.ai.AIContextParams & BaseUtils.ai.AIModelParams,
@@ -282,7 +308,7 @@ class AISynthesis extends AbstractManager {
 
       const memory = getMemoryMessages(variables);
 
-      const query = await this.promptQuestionSynthesis({
+      const query = await this.DEPRECATEDpromptQuestionSynthesis({
         prompt,
         variables,
         memory,
@@ -315,7 +341,7 @@ class AISynthesis extends AbstractManager {
 
       if (!data) return null;
 
-      const answer = await this.promptAnswerSynthesis({
+      const answer = await this.DEPRECATEDpromptAnswerSynthesis({
         prompt,
         options: params,
         data,
@@ -400,7 +426,8 @@ class AISynthesis extends AbstractManager {
     };
   }
 
-  async promptQuestionSynthesis({
+  /** @deprecated remove after all KB AI Response steps moved off */
+  async DEPRECATEDpromptQuestionSynthesis({
     prompt,
     memory,
     variables,
@@ -452,6 +479,118 @@ class AISynthesis extends AbstractManager {
       },
       variables
     );
+  }
+
+  testSendSegmentTagsFilterEvent = async ({
+    userID,
+    tagsFilter,
+  }: {
+    userID: number;
+    tagsFilter: BaseModels.Project.KnowledgeBaseTagsFilter;
+  }) => {
+    const analyticsPlatformClient = await this.services.analyticsPlatform.getClient();
+    const operators: string[] = [];
+
+    if (tagsFilter?.includeAllTagged) operators.push('includeAllTagged');
+    if (tagsFilter?.includeAllNonTagged) operators.push('includeAllNonTagged');
+    if (tagsFilter?.include) operators.push('include');
+    if (tagsFilter?.exclude) operators.push('exclude');
+
+    const includeTagsArray = tagsFilter?.include?.items || [];
+    const excludeTagsArray = tagsFilter?.exclude?.items || [];
+    const tags = Array.from(new Set([...includeTagsArray, ...excludeTagsArray]));
+
+    if (analyticsPlatformClient) {
+      analyticsPlatformClient.track({
+        identity: { userID },
+        name: SegmentEventType.KB_TAGS_USED,
+        properties: { operators, tags_searched: tags, number_of_tags: tags.length },
+      });
+    }
+  };
+
+  async knowledgeBaseQuery({
+    project,
+    version,
+    question,
+    instruction,
+    synthesis = true,
+    options,
+    tags,
+  }: {
+    project: BaseModels.Project.Model<any, any>;
+    version?: BaseModels.Version.Model<any> | null;
+    question: string;
+    instruction?: string;
+    synthesis?: boolean;
+    options?: Omit<Partial<BaseModels.Project.KnowledgeBaseSettings>, 'search'> & {
+      search?: Partial<BaseModels.Project.KnowledgeBaseSettings['search']>;
+    };
+    tags?: BaseModels.Project.KnowledgeBaseTagsFilter;
+  }): Promise<AIResponse & Partial<KnowledgeBaseResponse> & { faqSet?: KnowledgeBaseFaqSet }> {
+    let tagsFilter: BaseModels.Project.KnowledgeBaseTagsFilter = {};
+
+    if (tags) {
+      const tagLabelMap = generateTagLabelMap(project.knowledgeBase?.tags ?? {});
+      tagsFilter = convertTagsFilterToIDs(tags, tagLabelMap);
+
+      this.testSendSegmentTagsFilterEvent({ userID: project.creatorID, tagsFilter });
+    }
+
+    if (!(await this.services.billing.checkQuota(project.teamID, QuotaName.OPEN_API_TOKENS))) {
+      throw new VError('token quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
+    }
+
+    const globalKBSettings = getKBSettings(
+      this.services.unleash,
+      project.teamID,
+      version?.knowledgeBase?.settings,
+      project.knowledgeBase?.settings
+    );
+    const settings = _merge({}, globalKBSettings, options);
+
+    const faq = await fetchFaq(project._id, project.teamID, question, project?.knowledgeBase?.faqSets, settings);
+    if (faq?.answer) return { ...EMPTY_AI_RESPONSE, output: faq.answer, faqSet: faq.faqSet };
+
+    const data = await fetchKnowledgeBase(project._id, project.teamID, question, settings, tagsFilter);
+    if (!data) return { ...EMPTY_AI_RESPONSE, chunks: [] };
+
+    // attach metadata to chunks
+    const chunks = data.chunks.map((chunk) => ({
+      ...chunk,
+      source: {
+        ...project.knowledgeBase?.documents?.[chunk.documentID]?.data,
+        tags: project.knowledgeBase?.documents?.[chunk.documentID]?.tags?.map(
+          (tagID) => (project?.knowledgeBase?.tags ?? {})[tagID]?.label
+        ),
+      },
+    }));
+
+    if (!synthesis) return { ...EMPTY_AI_RESPONSE, chunks };
+
+    const answer = await this.services.aiSynthesis.answerSynthesis({
+      question,
+      instruction,
+      data,
+      options: settings?.summarization,
+      context: { projectID: project._id, workspaceID: project.teamID },
+    });
+
+    if (!answer?.output) return { ...EMPTY_AI_RESPONSE, chunks };
+
+    // do this async to not block the response
+    if (typeof answer.tokens === 'number' && answer.tokens > 0) {
+      this.services.billing
+        .consumeQuota(project.teamID, QuotaName.OPEN_API_TOKENS, answer.tokens)
+        .catch((err: Error) =>
+          log.warn(`[KB Test] Error consuming quota for workspace ${project.teamID}: ${log.vars({ err })}`)
+        );
+    }
+
+    return {
+      chunks,
+      ...answer,
+    };
   }
 }
 

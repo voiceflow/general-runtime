@@ -4,8 +4,7 @@ import VError from '@voiceflow/verror';
 import _merge from 'lodash/merge';
 
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
-import { fetchFaq, fetchKnowledgeBase, getKBSettings } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
-import { SegmentEventType } from '@/lib/services/runtime/types';
+import { getKBSettings } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
 import log from '@/logger';
 import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
@@ -55,84 +54,6 @@ class TestController extends AbstractController {
     }
   }
 
-  static generateTagLabelMap(existingTags: Record<string, BaseModels.Project.KBTag>): Record<string, string> {
-    const result: Record<string, string> = {};
-
-    Object.entries(existingTags).forEach(([tagID, tag]) => {
-      result[tag.label] = tagID;
-    });
-
-    return result;
-  }
-
-  static checkKBTagLabelsExists(tagLabelMap: Record<string, string>, tagLabels: string[]) {
-    // check that KB tag labels exists, this is not atomic but it prevents a class of bugs
-    const nonExistingTags = tagLabels.filter((label) => !tagLabelMap[label]);
-
-    if (nonExistingTags.length > 0) {
-      const formattedTags = nonExistingTags.map((tag) => `\`${tag}\``).join(', ');
-      throw new VError(`tags with the following labels do not exist: ${formattedTags}`, VError.HTTP_STATUS.NOT_FOUND);
-    }
-  }
-
-  static convertTagsFilterToIDs(
-    tags: BaseModels.Project.KnowledgeBaseTagsFilter,
-    tagLabelMap: Record<string, string>
-  ): BaseModels.Project.KnowledgeBaseTagsFilter {
-    const result = tags;
-    const includeTagsArray = result?.include?.items ?? [];
-    const excludeTagsArray = result?.exclude?.items ?? [];
-
-    if (includeTagsArray.length > 0 || excludeTagsArray.length > 0) {
-      TestController.checkKBTagLabelsExists(
-        tagLabelMap,
-        Array.from(new Set([...includeTagsArray, ...excludeTagsArray]))
-      );
-    }
-
-    if (result?.include?.items) {
-      result.include.items = result.include.items
-        .filter((label) => tagLabelMap[label] !== undefined)
-        .map((label) => tagLabelMap[label]);
-    }
-
-    if (result?.exclude?.items) {
-      result.exclude.items = result.exclude.items
-        .filter((label) => tagLabelMap[label] !== undefined)
-        .map((label) => tagLabelMap[label]);
-    }
-
-    return result;
-  }
-
-  testSendSegmentTagsFilterEvent = async ({
-    userID,
-    tagsFilter,
-  }: {
-    userID: number;
-    tagsFilter: BaseModels.Project.KnowledgeBaseTagsFilter;
-  }) => {
-    const analyticsPlatformClient = await this.services.analyticsPlatform.getClient();
-    const operators: string[] = [];
-
-    if (tagsFilter?.includeAllTagged) operators.push('includeAllTagged');
-    if (tagsFilter?.includeAllNonTagged) operators.push('includeAllNonTagged');
-    if (tagsFilter?.include) operators.push('include');
-    if (tagsFilter?.exclude) operators.push('exclude');
-
-    const includeTagsArray = tagsFilter?.include?.items || [];
-    const excludeTagsArray = tagsFilter?.exclude?.items || [];
-    const tags = Array.from(new Set([...includeTagsArray, ...excludeTagsArray]));
-
-    if (analyticsPlatformClient) {
-      analyticsPlatformClient.track({
-        identity: { userID },
-        name: SegmentEventType.KB_TAGS_USED,
-        properties: { operators, tags_searched: tags, number_of_tags: tags.length },
-      });
-    }
-  };
-
   async testKnowledgeBasePrompt(req: Request) {
     const api = await this.services.dataAPI.get();
 
@@ -150,7 +71,7 @@ class TestController extends AbstractController {
 
     const { prompt } = req.body;
 
-    const answer = await this.services.aiSynthesis.promptSynthesis(
+    const answer = await this.services.aiSynthesis.DEPRECATEDpromptSynthesis(
       project._id,
       project.teamID,
       { ...settings.summarization, prompt },
@@ -190,78 +111,21 @@ class TestController extends AbstractController {
       }
     >
   ) {
-    const { question, synthesis = true, chunkLimit, tags } = req.body;
-    let tagsFilter: BaseModels.Project.KnowledgeBaseTagsFilter = {};
+    const { question, synthesis, chunkLimit, tags } = req.body;
 
     const api = await this.services.dataAPI.get();
     // if DM API key infer project from header
     const project = await api.getProject(req.headers.authorization || req.body.projectID!);
     const version = req.body.versionID ? await api.getVersion(req.body.versionID) : null;
-    if (tags) {
-      const tagLabelMap = TestController.generateTagLabelMap(project.knowledgeBase?.tags ?? {});
-      tagsFilter = TestController.convertTagsFilterToIDs(tags, tagLabelMap);
 
-      this.testSendSegmentTagsFilterEvent({ userID: project.creatorID, tagsFilter });
-    }
-
-    if (!(await this.services.billing.checkQuota(project.teamID, QuotaName.OPEN_API_TOKENS))) {
-      throw new VError('token quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
-    }
-
-    const globalKBSettings = getKBSettings(
-      this.services.unleash,
-      project.teamID,
-      version?.knowledgeBase?.settings,
-      project.knowledgeBase?.settings
-    );
-    const settings = _merge({}, globalKBSettings, {
-      search: { limit: chunkLimit },
-    });
-
-    const faq = await fetchFaq(project._id, project.teamID, question, project?.knowledgeBase?.faqSets, settings);
-    if (faq?.answer) return { output: faq.answer, faqSet: faq.faqSet };
-
-    const data = await fetchKnowledgeBase(project._id, project.teamID, question, settings, tagsFilter);
-    if (!data) return { output: null, chunks: [] };
-
-    // attach metadata to chunks
-    const chunks = data.chunks.map((chunk) => ({
-      ...chunk,
-      source: {
-        ...project.knowledgeBase?.documents?.[chunk.documentID]?.data,
-        tags: project.knowledgeBase?.documents?.[chunk.documentID]?.tags?.map(
-          (tagID) => (project?.knowledgeBase?.tags ?? {})[tagID]?.label
-        ),
-      },
-    }));
-
-    if (!synthesis) return { output: null, chunks };
-
-    const answer = await this.services.aiSynthesis.answerSynthesis({
+    return this.services.aiSynthesis.knowledgeBaseQuery({
+      project,
+      version,
       question,
-      data,
-      options: settings?.summarization,
-      context: { projectID: project._id, workspaceID: project.teamID },
+      synthesis,
+      options: { search: { limit: chunkLimit } },
+      tags,
     });
-
-    if (!answer?.output) return { output: null, chunks };
-
-    // do this async to not block the response
-    if (typeof answer.tokens === 'number' && answer.tokens > 0) {
-      this.services.billing
-        .consumeQuota(project.teamID, QuotaName.OPEN_API_TOKENS, answer.tokens)
-        .catch((err: Error) =>
-          log.warn(`[KB Test] Error consuming quota for workspace ${project.teamID}: ${log.vars({ err })}`)
-        );
-    }
-
-    return {
-      output: answer.output,
-      chunks,
-      queryTokens: answer.queryTokens,
-      answerTokens: answer.answerTokens,
-      totalTokens: answer.tokens,
-    };
   }
 
   async testCompletion(

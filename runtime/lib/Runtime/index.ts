@@ -58,7 +58,7 @@ export enum Action {
 class Runtime<
   Request = any,
   DataAPI extends AnyDataAPI = AnyDataAPI,
-  Services extends BaseTypes.AnyRecord = BaseTypes.AnyRecord,
+  Services extends BaseTypes.AnyRecord = any,
   Version extends BaseTypes.BaseVersion.Version = BaseTypes.BaseVersion.Version,
   Project extends BaseTypes.BaseProject.Project = BaseTypes.BaseProject.Project
 > extends AbstractLifecycle {
