@@ -105,13 +105,14 @@ class TestController extends AbstractController {
         versionID?: string;
         projectID?: string;
         question: string;
+        instruction?: string;
         synthesis?: boolean;
         chunkLimit?: number;
         tags?: BaseModels.Project.KnowledgeBaseTagsFilter;
       }
     >
   ) {
-    const { question, synthesis, chunkLimit, tags } = req.body;
+    const { question, instruction, synthesis, chunkLimit, tags } = req.body;
 
     const api = await this.services.dataAPI.get();
     // if DM API key infer project from header
@@ -123,6 +124,7 @@ class TestController extends AbstractController {
       version,
       question,
       synthesis,
+      instruction,
       options: { search: { limit: chunkLimit } },
       tags,
     });
