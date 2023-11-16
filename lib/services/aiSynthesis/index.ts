@@ -23,7 +23,6 @@ import {
 import log from '@/logger';
 import { Runtime } from '@/runtime';
 
-import { FeatureFlag } from '../../feature-flags';
 import { QuotaName } from '../billing';
 import { SegmentEventType } from '../runtime/types';
 import { AbstractManager } from '../utils';
