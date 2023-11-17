@@ -69,8 +69,11 @@ export const generateAnswerSynthesisPrompt = ({
   const instructionInjection = sanitizedInstruction ? `\n${sanitizedInstruction}\n` : '';
 
   return dedent`
+  ##Reference Information:
+  ${stringifyChunks(data)}
+
   ##Instructions:
-  I am going to provide reference information, and then ask a query about that information. You must either provide a response to the query or respond with "NOT_FOUND"
+  I have provided reference information, and I will ask query about that information. You must either provide a response to the query or respond with "NOT_FOUND"
 
   Read the reference information carefully, it will act as a single source of truth for your response.Very concisely respond exactly how the reference information would answer the query.
 
@@ -81,11 +84,6 @@ export const generateAnswerSynthesisPrompt = ({
   If you respond to the query, your response must be 100% consistent with the reference information in every way.
   ${instructionInjection}
   Take a deep breath, focus, and think clearly. You may now begin this mission critical task.
-
-
-  ##Reference Information:
-  ${stringifyChunks(data)}
-
 
   ##Query:
   ${query}`;
