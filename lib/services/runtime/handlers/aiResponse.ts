@@ -4,6 +4,7 @@ import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { deepVariableSubstitution } from '@voiceflow/common';
 import { VoiceNode } from '@voiceflow/voice-types';
 import _cloneDeep from 'lodash/cloneDeep';
+import _merge from 'lodash/merge';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import { ContentModerationError } from '@/lib/clients/ai/contentModeration/utils';
@@ -45,7 +46,6 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           runtime?.version?.knowledgeBase?.settings,
           runtime?.project?.knowledgeBase?.settings
         );
-        const kbModel = runtime.services.ai.get(kbSettings?.summarization.model);
 
         // TODO: REMOVE AFTER MIGRATION OFF LEGACY AI RESPONSE STEPS
         let answer: AIResponse | null = EMPTY_AI_RESPONSE;
@@ -59,18 +59,26 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
             variables.getState(),
             runtime
           );
+
+          const kbModel = runtime.services.ai.get(kbSettings?.summarization.model);
+          await consumeResources('AI Response KB', runtime, kbModel, answer);
         } else {
           const settings = deepVariableSubstitution(_cloneDeep(node), variables.getState());
+          const summarization = _merge(kbSettings?.summarization, settings.overrideParams ? settings : {});
+
           const queryAnswer = await runtime.services.aiSynthesis.knowledgeBaseQuery({
             project: runtime.project!,
             version: runtime.version!,
             question: settings.prompt,
             instruction: settings.instruction,
-            options: settings.overrideParams ? { summarization: settings } : {},
+            options: { summarization },
           });
           // just for typescript typing purposes (AIResponse) doesn't contain "chunks"
           // remove after isDeprecated is gone
           answer = queryAnswer;
+
+          const kbModel = runtime.services.ai.get(summarization.model);
+          await consumeResources('AI Response KB', runtime, kbModel, answer);
 
           if (!answer.output && settings.notFoundPath) return elseID;
 
@@ -89,8 +97,6 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
             },
           } as any);
         }
-
-        await consumeResources('AI Response KB', runtime, kbModel, answer);
 
         const output = generateOutput(
           answer?.output || 'Unable to find relevant answer.',
