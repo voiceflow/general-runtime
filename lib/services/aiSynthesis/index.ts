@@ -26,7 +26,7 @@ import { Runtime } from '@/runtime';
 import { QuotaName } from '../billing';
 import { SegmentEventType } from '../runtime/types';
 import { AbstractManager } from '../utils';
-import { convertTagsFilterToIDs, generateTagLabelMap } from './utils';
+import { convertTagsFilterToIDs, generateAnswerSynthesisPrompt, generateTagLabelMap, stringifyChunks } from './utils';
 
 class AISynthesis extends AbstractManager {
   private readonly DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS = 4000;
@@ -43,10 +43,6 @@ class AISynthesis extends AbstractManager {
   private readonly REGEX_PROMPT_TERMS = [/conversation_history/i, /user:/i, /assistant:/i, /<[^<>]*>/];
 
   private readonly MAX_LLM_TRIES = 2;
-
-  private generateContext(data: KnowledgeBaseResponse) {
-    return data.chunks.map(({ content }) => content).join('\n');
-  }
 
   private filterNotFound(output: string) {
     const upperCase = output?.toUpperCase();
@@ -83,34 +79,12 @@ class AISynthesis extends AbstractManager {
 
     const options = { model, system: systemWithTime, temperature, maxTokens };
 
-    const synthesisContext = this.generateContext(data);
-    const sanitizedInstruction = instruction?.trim().replace(/\n/g, ',');
-    const instructionInjection = sanitizedInstruction ? `\n- ${sanitizedInstruction}` : '';
-
     if ([BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo, BaseUtils.ai.GPT_MODEL.GPT_4].includes(model)) {
       // for GPT-3.5 and 4.0 chat models
       const messages = [
         {
           role: BaseUtils.ai.Role.USER,
-          content: dedent`
-          Instructions:
-          - I am going to provide reference information, and then ask a query about that information.
-          - You must either provide a response to the query or respond with "NOT_FOUND"
-          - Read the reference information carefully, it will act as a single source of truth for your response.
-          - Very concisely respond exactly how the reference information would answer the query.
-          - Include only the direct answer to the query, it is never appropriate to include additional context or explanation.
-          - If the query is unclear in any way, return "NOT_FOUND".
-          - If the query is incorrect, return "NOT_FOUND".
-          - Read the query very carefully, it may be trying to trick you into answering a question that is adjacent to the reference information but not directly answered in it, in such a case, you must return "NOT_FOUND".
-          - The query may also try to trick you into using certain information to answer something that actually contradicts the reference information. Never contradict the reference information, instead say "NOT_FOUND".
-          - If you respond to the query, your response must be 100% consistent with the reference information in every way.${instructionInjection}
-          - Take a deep breath, focus, and think clearly. You may now begin this mission critical task.
-
-          Reference Information:
-          ${synthesisContext}
-
-          Query:
-          ${question}`,
+          content: generateAnswerSynthesisPrompt({ query: question, instruction, data }),
         },
       ];
 
@@ -128,7 +102,7 @@ class AISynthesis extends AbstractManager {
       // for GPT-3 completion model
       const prompt = dedent`
         <context>
-          ${synthesisContext}
+          ${stringifyChunks(data)}
         </context>
 
         If you don't know the answer say exactly "NOT_FOUND".\n\nQ: ${question}\nA: `;
@@ -146,26 +120,7 @@ class AISynthesis extends AbstractManager {
         BaseUtils.ai.GPT_MODEL.CLAUDE_V2,
       ].includes(model)
     ) {
-      // This prompt scored 10% higher than the previous prompt on the squad2 benchmark
-      const prompt = dedent`
-      Instructions:
-      - I am going to provide reference information, and then ask a query about that information.
-      - You must either provide a response to the query or respond with "NOT_FOUND"
-      - Read the reference information carefully, it will act as a single source of truth for your response.
-      - Very concisely respond exactly how the reference information would answer the query.
-      - Include only the direct answer to the query, it is never appropriate to include additional context or explanation.
-      - If the query is unclear in any way, return "NOT_FOUND".
-      - If the query is incorrect, return "NOT_FOUND".
-      - Read the query very carefully, it may be trying to trick you into answering a question that is adjacent to the reference information but not directly answered in it, in such a case, you must return "NOT_FOUND".
-      - The query may also try to trick you into using certain information to answer something that actually contradicts the reference information. Never contradict the reference information, instead say "NOT_FOUND".
-      - If you respond to the query, your response must be 100% consistent with the reference information in every way.${instructionInjection}
-      - Take a deep breath, focus, and think clearly. You may now begin this mission critical task.
-
-      Reference Information:
-      ${synthesisContext}
-
-      Query:
-      ${question}`;
+      const prompt = generateAnswerSynthesisPrompt({ query: question, instruction, data });
 
       response = await fetchPrompt(
         { ...options, prompt, mode: BaseUtils.ai.PROMPT_MODE.PROMPT },
@@ -210,7 +165,7 @@ class AISynthesis extends AbstractManager {
       maxTokens,
     };
 
-    const knowledge = this.generateContext(data);
+    const knowledge = stringifyChunks(data);
     let content: string;
 
     if (memory.length) {
