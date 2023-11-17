@@ -522,8 +522,9 @@ class AISynthesis extends AbstractManager {
     question: string;
     instruction?: string;
     synthesis?: boolean;
-    options?: Omit<Partial<BaseModels.Project.KnowledgeBaseSettings>, 'search'> & {
+    options?: {
       search?: Partial<BaseModels.Project.KnowledgeBaseSettings['search']>;
+      summarization?: Partial<BaseModels.Project.KnowledgeBaseSettings['summarization']>;
     };
     tags?: BaseModels.Project.KnowledgeBaseTagsFilter;
   }): Promise<AIResponse & Partial<KnowledgeBaseResponse> & { faqSet?: KnowledgeBaseFaqSet }> {
