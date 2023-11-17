@@ -578,15 +578,6 @@ class AISynthesis extends AbstractManager {
 
     if (!answer?.output) return { ...EMPTY_AI_RESPONSE, chunks };
 
-    // do this async to not block the response
-    if (typeof answer.tokens === 'number' && answer.tokens > 0) {
-      this.services.billing
-        .consumeQuota(project.teamID, QuotaName.OPEN_API_TOKENS, answer.tokens)
-        .catch((err: Error) =>
-          log.warn(`[KB Test] Error consuming quota for workspace ${project.teamID}: ${log.vars({ err })}`)
-        );
-    }
-
     return {
       chunks,
       ...answer,

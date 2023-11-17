@@ -120,7 +120,7 @@ class TestController extends AbstractController {
     const project = await api.getProject(req.headers.authorization || req.body.projectID!);
     const version = req.body.versionID ? await api.getVersion(req.body.versionID) : null;
 
-    return this.services.aiSynthesis.knowledgeBaseQuery({
+    const answer = await this.services.aiSynthesis.knowledgeBaseQuery({
       project,
       version,
       question,
@@ -129,6 +129,17 @@ class TestController extends AbstractController {
       options: { search: { limit: chunkLimit }, summarization: settings },
       tags,
     });
+
+    // do this async to not block the response
+    if (typeof answer.tokens === 'number' && answer.tokens > 0) {
+      this.services.billing
+        .consumeQuota(project.teamID, QuotaName.OPEN_API_TOKENS, answer.tokens)
+        .catch((err: Error) =>
+          log.warn(`[KB Test] Error consuming quota for workspace ${project.teamID}: ${log.vars({ err })}`)
+        );
+    }
+
+    return answer;
   }
 
   async testCompletion(
