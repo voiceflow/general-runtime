@@ -576,7 +576,7 @@ class AISynthesis extends AbstractManager {
       context: { projectID: project._id, workspaceID: project.teamID },
     });
 
-    if (!answer?.output) return { ...EMPTY_AI_RESPONSE, chunks };
+    if (!answer) return { ...EMPTY_AI_RESPONSE, chunks };
 
     return {
       chunks,
