@@ -2607,6 +2607,11 @@
     shallowequal "^1.1.0"
     typescript-fsa "3.0.0"
 
+"@voiceflow/dtos@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/dtos/-/dtos-1.7.0.tgz#afc20c8631eb58417f2d0476a78ca04c1bfdc827"
+  integrity sha512-GJA5dc4Rs2MWCEE7b7J/9FPmisfdARNFWpb7l8deEQpkwHEGTli5vpRUgnN2yt61BRy0zJkCQJifQ+efS6SMTw==
+
 "@voiceflow/eslint-config@6.1.0":
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/@voiceflow/eslint-config/-/eslint-config-6.1.0.tgz#1f48f65f7a55aa9169f0538abc70937f5fa6c1ff"
@@ -2667,6 +2672,11 @@
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@voiceflow/exception/-/exception-1.4.0.tgz#4c6dd6c7536e038581998dde1b43149da9622541"
   integrity sha512-G8zyssXIcL/bFnuuYkVBNbflu+Ut0cJulwfnOkdn5rvFmwEZ0xOFbxhcHAoTi18kCg49SkQ2PTWY9rDa2NZGsw==
+
+"@voiceflow/exception@^1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/exception/-/exception-1.5.0.tgz#15a719095dac295302fac0759fa73c5c287a5f37"
+  integrity sha512-aV7/rVn9CQAr0ZFJhHWkOP9yjoGstCWrrX8oCNVbDdhkJYZqpjRtm/sAwNwIZUUH/L6bOOsbSlFbpmE2L2CVQQ==
 
 "@voiceflow/fetch@1.5.2":
   version "1.5.2"
@@ -12645,3 +12655,8 @@ zod@^3.11.6:
   version "3.16.0"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.16.0.tgz#edfdbf77fcc9a5af13a2630a44bdda5b90e759b7"
   integrity sha512-szrIkryADbTM+xBt2a1KoS2CJQXec4f9xG78bj5MJeEH/XqmmHpnO+fG3IE115AKBJak+2HrbxLZkc9mhdbDKA==
+
+zod@^3.22.4:
+  version "3.22.4"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.22.4.tgz#f31c3a9386f61b1f228af56faa9255e845cf3fff"
+  integrity sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==

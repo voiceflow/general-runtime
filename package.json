@@ -22,8 +22,10 @@
     "@voiceflow/body-parser": "^1.21.1",
     "@voiceflow/chat-types": "2.13.85",
     "@voiceflow/common": "8.2.3",
+    "@voiceflow/dtos": "^1.7.0",
     "@voiceflow/event-ingestion-service": "1.5.1",
     "@voiceflow/google-types": "2.20.36",
+    "@voiceflow/exception": "^1.5.0",
     "@voiceflow/internal": "3.2.3",
     "@voiceflow/logger": "^1.6.1",
     "@voiceflow/metrics": "1.4.1",
@@ -68,7 +70,8 @@
     "validator": "^13.7.0",
     "vm2": "^3.9.17",
     "words-to-numbers": "^1.5.1",
-    "workerpool": "^5.0.4"
+    "workerpool": "^5.0.4",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",
