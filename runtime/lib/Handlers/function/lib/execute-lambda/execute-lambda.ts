@@ -3,13 +3,13 @@ import axios from 'axios';
 
 import Config from '@/config';
 
-import { RuntimeCommand } from '../runtime-command/runtime-command.dto';
+import { RuntimeCommand } from '../../runtime-command/runtime-command.dto';
 import {
   FunctionLambdaErrorDataDTO,
   FunctionLambdaRequest,
   FunctionLambdaResponse,
   FunctionLambdaSuccessResponseDTO,
-} from './lambda.types';
+} from './execute-lambda.types';
 
 export async function executeLambda(
   code: string,

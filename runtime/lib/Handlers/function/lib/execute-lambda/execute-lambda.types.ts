@@ -1,7 +1,7 @@
 import { HTTP_STATUS } from '@voiceflow/verror';
 import { z } from 'zod';
 
-import { RuntimeCommandDTO } from '../runtime-command/runtime-command.dto';
+import { RuntimeCommandDTO } from '../../runtime-command/runtime-command.dto';
 
 export interface FunctionLambdaRequest {
   code: string;

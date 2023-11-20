@@ -1,27 +1,28 @@
 import { BaseNode, BaseTrace } from '@voiceflow/base-types';
-import { FunctionCompiledData, FunctionCompiledNode, NodeType } from '@voiceflow/dtos';
+import { FunctionCompiledData, FunctionCompiledNode, FunctionVariableKind, NodeType } from '@voiceflow/dtos';
+import { match } from 'ts-pattern';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
 import Runtime from '../../Runtime';
-import { NextCommand } from '../runtime-command/next-command/next-command.dto';
-import { OutputVarsCommand } from '../runtime-command/output-vars-command/output-vars-command.dto';
-import { TraceCommand } from '../runtime-command/trace-command/trace-command.dto';
-import { adaptTrace } from './adapt-trace';
-import { executeLambda } from './lambda';
-import { validateVariableTypes } from './type-validator';
+import { adaptTrace } from './lib/adapt-trace/adapt-trace';
+import { ExecuteFunctionException } from './lib/execute-function/exceptions/execute-function.exception';
+import { isFunctionPathException } from './lib/execute-function/exceptions/function-path.exception';
+import { isFunctionTypeException } from './lib/execute-function/exceptions/function-type.exception';
+import { executeFunction } from './lib/execute-function/execute-function';
+import { NextCommand } from './runtime-command/next-command/next-command.dto';
+import { OutputVarsCommand } from './runtime-command/output-vars-command/output-vars-command.dto';
+import { TraceCommand } from './runtime-command/trace-command/trace-command.dto';
 
 const utilsObj = {};
 
 function applyOutputCommand(
   command: OutputVarsCommand,
   runtime: Runtime,
-  outputVarDeclr: FunctionCompiledData['outputVars'],
+  outputVarDeclrs: FunctionCompiledData['outputVars'],
   outputMapping: FunctionCompiledNode['data']['outputMapping']
 ): void {
-  // !TODO! - Output variable validation
-
-  Object.keys(outputVarDeclr).forEach((outVarName) => {
+  Object.keys(outputVarDeclrs).forEach((outVarName) => {
     const voiceflowVarName = outputMapping[outVarName];
     if (!voiceflowVarName) return;
     runtime.variables.set(voiceflowVarName, command[outVarName]);
@@ -42,45 +43,65 @@ function applyNextCommand(command: NextCommand, paths: FunctionCompiledNode['dat
   return null;
 }
 
+function reportRuntimeException(err: ExecuteFunctionException, runtime: Runtime) {
+  const debugMessage = match(err)
+    .when(isFunctionTypeException, ({ varName, expectedType, actualType, kind }) => {
+      const [verbedToken, nounToken, kindToken] =
+        kind === FunctionVariableKind.INPUT ? ['received', 'argument', 'input'] : ['produced', 'value', 'output'];
+      return `Function step ${verbedToken} an invalid ${nounToken} with type '${actualType}' for ${kindToken} variable '${varName}' with expected type '${expectedType}'`;
+    })
+    .when(
+      isFunctionPathException,
+      ({ actualPath, expectedPaths }) =>
+        `Function step returned an invalid path '${actualPath}' which is not one of the expected paths '${JSON.stringify(
+          expectedPaths
+        )}`
+    )
+    .otherwise((err) => `Received an unknown error: ${err.message.slice(0, 300)}`);
+
+  runtime.trace.addTrace<BaseTrace.DebugTrace>({
+    type: BaseNode.Utils.TraceType.DEBUG,
+    payload: {
+      message: `[ERROR]: ${debugMessage}`,
+    },
+  });
+}
+
 export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsObj> = (_) => ({
   canHandle: (node) => node.type === NodeType.FUNCTION,
 
   handle: async (node, runtime): Promise<string | null> => {
     const {
-      functionDefn: { code, inputVars: inputVarDeclr, outputVars: outputVarDeclr },
-      inputMapping,
+      functionDefn: { outputVars: outputVarDeclrs },
       outputMapping,
       paths,
     } = node.data;
 
-    const validationResult = await validateVariableTypes(inputMapping, inputVarDeclr);
-    if (!validationResult.success) {
-      const { variable, expectedType } = validationResult;
-      runtime.trace.addTrace<BaseTrace.DebugTrace>({
-        type: BaseNode.Utils.TraceType.DEBUG,
-        payload: {
-          message: `Function step received an invalid argument for input variable ${variable} with expected type ${expectedType} but received ${typeof inputMapping[
-            variable
-          ]} instead.`,
-        },
-      });
+    try {
+      const { next, outputVars, trace } = await executeFunction(node.data);
+
+      if (outputVars) {
+        applyOutputCommand(outputVars, runtime, outputVarDeclrs, outputMapping);
+      }
+
+      if (trace) {
+        applyTraceCommand(trace, runtime);
+      }
+
+      if (next) {
+        return applyNextCommand(next, paths);
+      }
+
+      return null;
+    } catch (err) {
+      if (!(err instanceof ExecuteFunctionException)) {
+        throw err;
+      }
+
+      reportRuntimeException(err, runtime);
+
+      return null;
     }
-
-    const { next, outputVars, trace } = await executeLambda(code, inputMapping);
-
-    if (outputVars) {
-      applyOutputCommand(outputVars, runtime, outputVarDeclr, outputMapping);
-    }
-
-    if (trace) {
-      applyTraceCommand(trace, runtime);
-    }
-
-    if (next) {
-      return applyNextCommand(next, paths);
-    }
-
-    return null;
   },
 });
 

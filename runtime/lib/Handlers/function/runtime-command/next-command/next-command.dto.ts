@@ -6,7 +6,7 @@ export const NextPathDTO = z
   })
   .strict();
 
-export type NextPort = z.infer<typeof NextPathDTO>;
+export type NextPath = z.infer<typeof NextPathDTO>;
 
 export const NextStageDTO = z
   .object({
@@ -15,8 +15,12 @@ export const NextStageDTO = z
   })
   .strict();
 
-export type NextEvent = z.infer<typeof NextStageDTO>;
+export type NextStage = z.infer<typeof NextStageDTO>;
 
 export const NextCommandDTO = z.union([NextPathDTO, NextStageDTO]);
 
 export type NextCommand = z.infer<typeof NextCommandDTO>;
+
+export const isNextPath = (val: unknown): val is NextPath => NextPathDTO.safeParse(val).success;
+
+export const isNextStage = (val: unknown): val is NextStage => NextStageDTO.safeParse(val).success;

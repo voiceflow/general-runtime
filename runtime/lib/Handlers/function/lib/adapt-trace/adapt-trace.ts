@@ -1,7 +1,7 @@
 import { BaseTrace } from '@voiceflow/base-types';
 
-import { Trace } from '../runtime-command/trace-command/trace/trace.dto';
-import { TraceType } from '../runtime-command/trace-command/trace/trace-type.enum';
+import { Trace } from '../../runtime-command/trace-command/trace/trace.dto';
+import { TraceType } from '../../runtime-command/trace-command/trace/trace-type.enum';
 
 export function adaptTrace(inTrace: Trace): BaseTrace.BaseTraceFrame {
   switch (inTrace.type) {
