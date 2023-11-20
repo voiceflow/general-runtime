@@ -14,7 +14,15 @@ import { QuotaName } from '../../services/billing';
 import { fetchPrompt } from '../../services/runtime/handlers/utils/ai';
 import { validate } from '../../utils';
 import { AbstractController } from '../utils';
-import { TestFunctionBody, TestFunctionParams, TestFunctionResponse, TestFunctionStatus } from './interface';
+import {
+  TestFunctionBody,
+  TestFunctionBodyDTO,
+  TestFunctionParams,
+  TestFunctionParamsDTO,
+  TestFunctionResponse,
+  TestFunctionResponseDTO,
+  TestFunctionStatus,
+} from './interface';
 
 const { body } = Validator;
 
@@ -177,34 +185,21 @@ class TestController extends AbstractController {
   }
 
   async testFunction(req: Request<TestFunctionParams, TestFunctionBody>): Promise<TestFunctionResponse> {
+    await TestFunctionParamsDTO.parseAsync(req.params);
+    await TestFunctionBodyDTO.parseAsync(req.body);
+
     const {
       params: { functionID },
       body: inputMapping,
     } = req;
 
-    await this.services.test.testFunction(functionID, inputMapping);
+    const { success, latencyMS, runtimeCommands } = await this.services.test.testFunction(functionID, inputMapping);
 
-    return {
-      status: TestFunctionStatus.Success,
-      latencyMS: 483,
-      outputMapping: {
-        str_value: 'hello, world!',
-        num_value: 123456.789,
-        bool_value: true,
-        arr_value: ['a', 'b', 'c', ['1', '2', '3'], { a: '1', b: 2, c: false }],
-        obj_value: {
-          x: 1,
-          y: 'string',
-          z: true,
-          w: [1, '2', false, [1, 2, 3], { a: 1 }],
-          v: {
-            '1': 1,
-            2: 2,
-            '3': false,
-          },
-        },
-      },
-    };
+    return TestFunctionResponseDTO.parse({
+      status: success ? TestFunctionStatus.Success : TestFunctionStatus.Failure,
+      latencyMS,
+      runtimeCommands,
+    });
   }
 }
 
