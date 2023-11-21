@@ -1,38 +1,53 @@
-import { Function as FunctionDefinition, FunctionCompiledNode } from '@voiceflow/dtos';
-import { NotImplementedException } from '@voiceflow/exception';
+import { FunctionCompiledNode } from '@voiceflow/dtos';
 import { performance } from 'perf_hooks';
 
 import { executeFunction } from '@/runtime/lib/Handlers/function/lib/execute-function/execute-function';
 
 import { AbstractManager } from '../utils';
-import { TestFunctionResponse } from './interface';
+import { SimplifiedFunctionDefinition, TestFunctionResponse } from './interface';
 
 export class TestService extends AbstractManager {
-  private pullFunctionDefinition(functionID: string): Promise<FunctionDefinition> {
-    throw new NotImplementedException(`not implemented, ${functionID}`);
-  }
-
-  private mockCompileFunctionData(
-    func: FunctionDefinition,
-    inputMapping: Record<string, unknown>
+  private async mockCompileFunctionData(
+    functionDefn: SimplifiedFunctionDefinition,
+    inputMapping: Record<string, string>
   ): Promise<FunctionCompiledNode['data']> {
-    throw new NotImplementedException(`not implemented, ${func} ${inputMapping}`);
-  }
-
-  public async testFunction(functionID: string, inputMapping: Record<string, unknown>): Promise<TestFunctionResponse> {
-    const functionDefinition = await this.pullFunctionDefinition(functionID);
-    const compiledFunctionData = await this.mockCompileFunctionData(functionDefinition, inputMapping);
-
-    const startTime = performance.now();
-    const runtimeCommands = await executeFunction(compiledFunctionData);
-    const endTime = performance.now();
-
-    const executionTime = endTime - startTime;
+    // $TODO$ - Need to incorporate paths into type definition here.
+    const { paths: _, code, inputVars, outputVars } = functionDefn;
 
     return {
-      success: true,
-      latencyMS: executionTime,
-      runtimeCommands,
+      functionDefn: {
+        code,
+        inputVars,
+        outputVars,
+      },
+      inputMapping,
+      outputMapping: {},
+      paths: {},
     };
+  }
+
+  public async testFunction(
+    functionDefn: SimplifiedFunctionDefinition,
+    inputMapping: Record<string, string>
+  ): Promise<TestFunctionResponse> {
+    try {
+      const compiledFunctionData = await this.mockCompileFunctionData(functionDefn, inputMapping);
+
+      const startTime = performance.now();
+      const runtimeCommands = await executeFunction(compiledFunctionData);
+      const endTime = performance.now();
+
+      const executionTime = endTime - startTime;
+
+      return {
+        success: true,
+        latencyMS: executionTime,
+        runtimeCommands,
+      };
+    } catch (err) {
+      return {
+        success: false,
+      };
+    }
   }
 }

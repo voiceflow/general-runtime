@@ -1,25 +1,44 @@
+import { FunctionVariableType } from '@voiceflow/dtos';
 import { z } from 'zod';
 
 import { RuntimeCommandDTO } from '@/runtime/lib/Handlers/function/runtime-command/runtime-command.dto';
-import { Enum } from '@/runtime/typings/enum';
 
-export const TestFunctionBodyDTO = z.record(z.unknown());
+export const TestFunctionBodyDTO = z.object({
+  functionDefn: z.object({
+    code: z.string(),
+    paths: z.array(
+      z.object({
+        name: z.string(),
+      })
+    ),
+    inputVars: z.record(
+      z.object({
+        type: z.literal(FunctionVariableType.STRING),
+      })
+    ),
+    outputVars: z.record(
+      z.object({
+        type: z.literal(FunctionVariableType.STRING),
+      })
+    ),
+  }),
+  inputMapping: z.record(z.string()),
+});
 export type TestFunctionBody = z.infer<typeof TestFunctionBodyDTO>;
 
-export const TestFunctionParamsDTO = z.object({
-  functionID: z.string(),
-});
-export type TestFunctionParams = z.infer<typeof TestFunctionParamsDTO>;
-
-export const TestFunctionStatus = {
-  Success: 'success',
-  Failure: 'failure',
-};
-export type TestFunctionStatus = Enum<typeof TestFunctionStatus>;
-
-export const TestFunctionResponseDTO = z.object({
-  status: z.nativeEnum(TestFunctionStatus),
+export const TestFunctionSuccessResponseDTO = z.object({
+  success: z.literal(true),
   latencyMS: z.number(),
   runtimeCommands: RuntimeCommandDTO,
 });
+
+export const TestFunctionFailureResponseDTO = z.object({
+  success: z.literal(false),
+});
+
+export const TestFunctionResponseDTO = z.discriminatedUnion('success', [
+  TestFunctionSuccessResponseDTO,
+  TestFunctionFailureResponseDTO,
+]);
+
 export type TestFunctionResponse = z.infer<typeof TestFunctionResponseDTO>;

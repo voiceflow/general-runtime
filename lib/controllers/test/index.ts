@@ -1,5 +1,6 @@
 import { Validator } from '@voiceflow/backend-utils';
 import { BaseModels, BaseUtils } from '@voiceflow/base-types';
+import { BadRequestException } from '@voiceflow/exception';
 import VError from '@voiceflow/verror';
 import _merge from 'lodash/merge';
 
@@ -14,15 +15,7 @@ import { QuotaName } from '../../services/billing';
 import { fetchPrompt } from '../../services/runtime/handlers/utils/ai';
 import { validate } from '../../utils';
 import { AbstractController } from '../utils';
-import {
-  TestFunctionBody,
-  TestFunctionBodyDTO,
-  TestFunctionParams,
-  TestFunctionParamsDTO,
-  TestFunctionResponse,
-  TestFunctionResponseDTO,
-  TestFunctionStatus,
-} from './interface';
+import { TestFunctionBody, TestFunctionBodyDTO, TestFunctionResponse, TestFunctionResponseDTO } from './interface';
 
 const { body } = Validator;
 
@@ -184,22 +177,18 @@ class TestController extends AbstractController {
     return { output };
   }
 
-  async testFunction(req: Request<TestFunctionParams, TestFunctionBody>): Promise<TestFunctionResponse> {
-    await TestFunctionParamsDTO.parseAsync(req.params);
-    await TestFunctionBodyDTO.parseAsync(req.body);
+  async testFunction(req: Request<Record<string, unknown>, TestFunctionBody>): Promise<TestFunctionResponse> {
+    try {
+      await TestFunctionBodyDTO.parseAsync(req.body);
+    } catch (err) {
+      throw new BadRequestException('Request body given to Test Function endpoint was malformed');
+    }
 
-    const {
-      params: { functionID },
-      body: inputMapping,
-    } = req;
+    const { functionDefn, inputMapping } = req.body;
 
-    const { success, latencyMS, runtimeCommands } = await this.services.test.testFunction(functionID, inputMapping);
+    const result = await this.services.test.testFunction(functionDefn, inputMapping);
 
-    return TestFunctionResponseDTO.parse({
-      status: success ? TestFunctionStatus.Success : TestFunctionStatus.Failure,
-      latencyMS,
-      runtimeCommands,
-    });
+    return TestFunctionResponseDTO.parse(result);
   }
 }
 
