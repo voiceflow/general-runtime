@@ -13,8 +13,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.use(middlewares.rateLimit.verify);
 
   router.post(
-    '/workspaces/:workspaceID/functions',
-    middlewares.auth.authorize(['workspace:READ']),
+    '/functions',
     middlewares.rateLimit.consumeResource((req) => req.headers.authorization ?? req.cookies.auth_vf, 'function'),
     controllers.test.testFunction
   );

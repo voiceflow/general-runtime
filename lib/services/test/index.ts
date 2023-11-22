@@ -1,6 +1,7 @@
 import { FunctionCompiledNode } from '@voiceflow/dtos';
 import { performance } from 'perf_hooks';
 
+import { ExecuteFunctionException } from '@/runtime/lib/Handlers/function/lib/execute-function/exceptions/execute-function.exception';
 import { executeFunction } from '@/runtime/lib/Handlers/function/lib/execute-function/execute-function';
 
 import { AbstractManager } from '../utils';
@@ -26,6 +27,14 @@ export class TestService extends AbstractManager {
     };
   }
 
+  private getErrorMessage(err: unknown) {
+    if (!(err instanceof ExecuteFunctionException)) {
+      return `Encountered an unexpected error, payload = ${JSON.stringify(err, null, 2).slice(0, 200)}`;
+    }
+
+    return err.toCanonicalError();
+  }
+
   public async testFunction(
     functionDefn: SimplifiedFunctionDefinition,
     inputMapping: Record<string, string>
@@ -47,6 +56,7 @@ export class TestService extends AbstractManager {
     } catch (err) {
       return {
         success: false,
+        errorMessage: this.getErrorMessage(err),
       };
     }
   }

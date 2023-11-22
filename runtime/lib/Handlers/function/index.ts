@@ -45,17 +45,9 @@ function applyNextCommand(command: NextCommand, paths: FunctionCompiledNode['dat
 
 function reportRuntimeException(err: ExecuteFunctionException, runtime: Runtime) {
   const debugMessage = match(err)
-    .when(isFunctionTypeException, ({ varName, expectedType, actualType, kind }) => {
-      const [verbedToken, nounToken, kindToken] =
-        kind === FunctionVariableKind.INPUT ? ['received', 'argument', 'input'] : ['produced', 'value', 'output'];
-      return `Function step ${verbedToken} an invalid ${nounToken} with type '${actualType}' for ${kindToken} variable '${varName}' with expected type '${expectedType}'`;
-    })
     .when(
-      isFunctionPathException,
-      ({ actualPath, expectedPaths }) =>
-        `Function step returned an invalid path '${actualPath}' which is not one of the expected paths '${JSON.stringify(
-          expectedPaths
-        )}`
+      (val) => val instanceof ExecuteFunctionException,
+      (err) => err.toCanonicalError()
     )
     .otherwise((err) => `Received an unknown error: ${err.message.slice(0, 300)}`);
 

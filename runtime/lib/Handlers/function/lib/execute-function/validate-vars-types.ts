@@ -27,7 +27,7 @@ export function validateVariableTypes(
 ) {
   const firstInvalid = Object.entries(typeDeclarations).find(([varName, declare]) => {
     const validator = getZodValidator(declare.type);
-    return validator.safeParse(variables[varName]).success;
+    return !validator.safeParse(variables[varName]).success;
   });
 
   if (firstInvalid) {

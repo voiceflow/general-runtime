@@ -34,6 +34,7 @@ export const TestFunctionSuccessResponseDTO = z.object({
 
 export const TestFunctionFailureResponseDTO = z.object({
   success: z.literal(false),
+  errorMessage: z.string(),
 });
 
 export const TestFunctionResponseDTO = z.discriminatedUnion('success', [

@@ -22,6 +22,7 @@ export interface TestFunctionSuccessResponse {
 
 export interface TestFunctionFailureResponse {
   success: false;
+  errorMessage: string;
 }
 
 export type TestFunctionResponse = TestFunctionSuccessResponse | TestFunctionFailureResponse;
