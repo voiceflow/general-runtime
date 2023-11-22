@@ -95,6 +95,13 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
       return null;
     } catch (err) {
       if (!(err instanceof ExecuteFunctionException)) {
+        runtime.trace.addTrace<BaseTrace.DebugTrace>({
+          type: BaseNode.Utils.TraceType.DEBUG,
+          payload: {
+            message: `[ERROR]: Unknown error, payload=${JSON.stringify(err, null, 2).slice(0, 200)}`,
+          },
+        });
+
         throw err;
       }
 
