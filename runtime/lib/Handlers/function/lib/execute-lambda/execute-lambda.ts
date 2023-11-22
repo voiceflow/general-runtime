@@ -5,7 +5,7 @@ import Config from '@/config';
 
 import { RuntimeCommand } from '../../runtime-command/runtime-command.dto';
 import {
-  FunctionLambdaErrorDataDTO,
+  FunctionLambdaErrorResponseDTO,
   FunctionLambdaRequest,
   FunctionLambdaResponse,
   FunctionLambdaSuccessResponseDTO,
@@ -27,10 +27,10 @@ export async function executeLambda(
 
   const runtimeCommand = FunctionLambdaSuccessResponseDTO.safeParse(data);
   if (runtimeCommand.success) {
-    return runtimeCommand.data.body;
+    return runtimeCommand.data;
   }
 
-  const errorResponse = FunctionLambdaErrorDataDTO.safeParse(data);
+  const errorResponse = FunctionLambdaErrorResponseDTO.safeParse(data);
   if (errorResponse.success) {
     const { errorCode, reason, message } = errorResponse.data;
     throw new InternalServerErrorException({

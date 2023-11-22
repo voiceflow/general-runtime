@@ -1,4 +1,3 @@
-import { HTTP_STATUS } from '@voiceflow/verror';
 import { z } from 'zod';
 
 import { RuntimeCommandDTO } from '../../runtime-command/runtime-command.dto';
@@ -9,24 +8,14 @@ export interface FunctionLambdaRequest {
   enableLog?: boolean;
 }
 
-export const FunctionLambdaErrorDataDTO = z.object({
-  errorCode: z.string(),
-  reason: z.string(),
-  message: z.string().optional(),
-});
-
-export type FunctionLambdaErrorData = z.infer<typeof FunctionLambdaErrorDataDTO>;
-
-export const FunctionLambdaSuccessResponseDTO = z.object({
-  status: z.literal(HTTP_STATUS.OK),
-  body: RuntimeCommandDTO,
-});
+export const FunctionLambdaSuccessResponseDTO = RuntimeCommandDTO;
 
 export type FunctionLambdaSuccessResponse = z.infer<typeof FunctionLambdaSuccessResponseDTO>;
 
 export const FunctionLambdaErrorResponseDTO = z.object({
-  status: z.literal(HTTP_STATUS.OK),
-  body: RuntimeCommandDTO,
+  errorCode: z.string(),
+  reason: z.string(),
+  message: z.string().optional(),
 });
 
 export type FunctionLambdaErrorResponse = z.infer<typeof FunctionLambdaErrorResponseDTO>;
