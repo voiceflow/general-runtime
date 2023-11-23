@@ -1,9 +1,8 @@
-import { BaseNode, BaseTrace } from '@voiceflow/base-types';
+import { BaseTrace } from '@voiceflow/base-types';
 import { FunctionCompiledNode } from '@voiceflow/dtos';
 import { performance } from 'perf_hooks';
 
 import { createFunctionExceptionDebugTrace } from '@/runtime/lib/Handlers/function/lib/execute-function/exceptions/createFunctionExceptionDebugTrace';
-import { ExecuteFunctionException } from '@/runtime/lib/Handlers/function/lib/execute-function/exceptions/execute-function.exception';
 import { executeFunction } from '@/runtime/lib/Handlers/function/lib/execute-function/execute-function';
 
 import { AbstractManager } from '../utils';
@@ -64,15 +63,7 @@ export class TestService extends AbstractManager {
 
       const executionTime = endTime - startTime;
 
-      const debugTrace: BaseTrace.DebugTrace =
-        err instanceof ExecuteFunctionException
-          ? createFunctionExceptionDebugTrace(err)
-          : {
-              type: BaseNode.Utils.TraceType.DEBUG,
-              payload: {
-                message: `[ERROR]: Unknown error, payload=${JSON.stringify(err, null, 2).slice(0, 200)}`,
-              },
-            };
+      const debugTrace: BaseTrace.DebugTrace = createFunctionExceptionDebugTrace(err);
 
       return {
         success: false,

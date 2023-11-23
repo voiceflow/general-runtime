@@ -1,4 +1,4 @@
-import { BaseNode, BaseTrace } from '@voiceflow/base-types';
+import { BaseTrace } from '@voiceflow/base-types';
 import { FunctionCompiledData, FunctionCompiledNode, NodeType } from '@voiceflow/dtos';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
@@ -6,7 +6,6 @@ import { HandlerFactory } from '@/runtime/lib/Handler';
 import Runtime from '../../Runtime';
 import { adaptTrace } from './lib/adapt-trace/adapt-trace';
 import { createFunctionExceptionDebugTrace } from './lib/execute-function/exceptions/createFunctionExceptionDebugTrace';
-import { ExecuteFunctionException } from './lib/execute-function/exceptions/execute-function.exception';
 import { executeFunction } from './lib/execute-function/execute-function';
 import { NextCommand } from './runtime-command/next-command/next-command.dto';
 import { OutputVarsCommand } from './runtime-command/output-vars-command/output-vars-command.dto';
@@ -68,17 +67,6 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
 
       return null;
     } catch (err) {
-      if (!(err instanceof ExecuteFunctionException)) {
-        runtime.trace.addTrace<BaseTrace.DebugTrace>({
-          type: BaseNode.Utils.TraceType.DEBUG,
-          payload: {
-            message: `[ERROR]: Unknown error, payload=${JSON.stringify(err, null, 2).slice(0, 200)}`,
-          },
-        });
-
-        throw err;
-      }
-
       runtime.trace.addTrace<BaseTrace.DebugTrace>(createFunctionExceptionDebugTrace(err));
 
       return null;
