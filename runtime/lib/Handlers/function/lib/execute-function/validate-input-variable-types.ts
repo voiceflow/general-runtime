@@ -1,7 +1,8 @@
 import { FunctionCompiledVariableConfig, FunctionVariableType } from '@voiceflow/dtos';
 import { z } from 'zod';
 
-import { FunctionInputTypeException } from './exceptions/function-type.exception';
+import { FunctionInputTypeException } from './exceptions/function-input-type.exception';
+import { FunctionRequiredVarException } from './exceptions/function-required-var.exception';
 
 function getZodValidator(type: FunctionVariableType) {
   switch (type) {
@@ -32,6 +33,13 @@ export function validateInputVariableTypes(
   if (firstInvalid) {
     const [varName, declare] = firstInvalid;
 
-    throw new FunctionInputTypeException(varName, declare.type, typeof variables[varName]);
+    if (typeof variables[varName] === 'undefined') {
+      // !TODO! - If functions receives full type system, then we must ignore `undefined` if
+      // input variable is optional according to the type declaration.
+
+      throw new FunctionRequiredVarException(varName);
+    } else {
+      throw new FunctionInputTypeException(varName, declare.type, typeof variables[varName]);
+    }
   }
 }

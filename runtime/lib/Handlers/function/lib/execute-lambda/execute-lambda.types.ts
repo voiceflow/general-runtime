@@ -13,9 +13,8 @@ export const FunctionLambdaSuccessResponseDTO = RuntimeCommandDTO;
 export type FunctionLambdaSuccessResponse = z.infer<typeof FunctionLambdaSuccessResponseDTO>;
 
 export const FunctionLambdaErrorResponseDTO = z.object({
-  errorCode: z.string(),
   reason: z.string(),
-  message: z.string().optional(),
+  message: z.string(),
 });
 
 export type FunctionLambdaErrorResponse = z.infer<typeof FunctionLambdaErrorResponseDTO>;

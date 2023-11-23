@@ -7,8 +7,15 @@ import { TraceType } from './trace-type.enum';
 export const TextTraceDTO = z.object({
   type: z.literal(TraceType.TEXT),
   payload: z.object({
-    message: z.string(),
-    delay: z.number().optional(),
+    message: z.string({
+      invalid_type_error: `Property 'payload.message' of a text trace must be a 'string'`,
+      required_error: `A text trace must have a 'payload.message' property`,
+    }),
+    delay: z
+      .number({
+        invalid_type_error: `Property 'payload.delay' of a text trace must be a 'number'`,
+      })
+      .optional(),
   }),
 });
 
@@ -17,7 +24,10 @@ export type TextTrace = z.infer<typeof TextTraceDTO>;
 export const DebugTraceDTO = z.object({
   type: z.literal(TraceType.DEBUG),
   payload: z.object({
-    message: z.string(),
+    message: z.string({
+      invalid_type_error: `Property 'payload.message' of a debug trace must be a 'string'`,
+      required_error: `A debug trace must have a 'payload.message' property`,
+    }),
   }),
 });
 

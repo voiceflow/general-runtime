@@ -71,7 +71,8 @@
     "vm2": "^3.9.17",
     "words-to-numbers": "^1.5.1",
     "workerpool": "^5.0.4",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "zod-validation-error": "^2.1.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",

@@ -2,8 +2,8 @@ import { BaseTrace } from '@voiceflow/base-types';
 import { FunctionCompiledData, FunctionCompiledNode } from '@voiceflow/dtos';
 import { performance } from 'perf_hooks';
 
-import { createFunctionExceptionDebugTrace } from '@/runtime/lib/Handlers/function/lib/execute-function/exceptions/createFunctionExceptionDebugTrace';
 import { executeFunction } from '@/runtime/lib/Handlers/function/lib/execute-function/execute-function';
+import { createFunctionExceptionDebugTrace } from '@/runtime/lib/Handlers/function/lib/function-exception/function.exception';
 
 import { AbstractManager } from '../utils';
 import { TestFunctionResponse } from './interface';

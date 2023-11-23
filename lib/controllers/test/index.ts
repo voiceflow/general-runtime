@@ -3,6 +3,8 @@ import { BaseModels, BaseUtils } from '@voiceflow/base-types';
 import { BadRequestException } from '@voiceflow/exception';
 import VError from '@voiceflow/verror';
 import _merge from 'lodash/merge';
+import { z } from 'zod';
+import { fromZodError } from 'zod-validation-error';
 
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
 import { getKBSettings } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
@@ -181,7 +183,9 @@ class TestController extends AbstractController {
     try {
       await TestFunctionBodyDTO.parseAsync(req.body);
     } catch (err) {
-      throw new BadRequestException('Request body given to Test Function endpoint was malformed');
+      throw new BadRequestException(
+        err instanceof z.ZodError ? fromZodError(err).message : 'Unknown error occurred when parsing request'
+      );
     }
 
     const { functionDefinition, inputMapping } = req.body;

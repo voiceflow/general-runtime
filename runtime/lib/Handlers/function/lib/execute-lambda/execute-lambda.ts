@@ -1,9 +1,11 @@
 import { InternalServerErrorException } from '@voiceflow/exception';
 import axios from 'axios';
+import { z } from 'zod';
 
 import Config from '@/config';
 
 import { RuntimeCommand } from '../../runtime-command/runtime-command.dto';
+import { InvalidRuntimeCommandException } from './exceptions/invalid-runtime-command.exception';
 import {
   FunctionLambdaErrorResponseDTO,
   FunctionLambdaRequest,
@@ -22,24 +24,27 @@ export async function executeLambda(
     variables,
     enableLog,
   };
-  const { data } = await axios.post<FunctionLambdaResponse>(functionLambdaEndpoint, request);
 
-  const runtimeCommand = FunctionLambdaSuccessResponseDTO.safeParse(data);
-  if (runtimeCommand.success) {
-    return runtimeCommand.data;
-  }
+  return axios
+    .post<FunctionLambdaResponse>(functionLambdaEndpoint, request)
+    .then(({ data }) => FunctionLambdaSuccessResponseDTO.parse(data))
+    .catch((err) => {
+      if (err instanceof z.ZodError) {
+        throw new InvalidRuntimeCommandException(err);
+      }
 
-  const errorResponse = FunctionLambdaErrorResponseDTO.safeParse(data);
-  if (errorResponse.success) {
-    const { errorCode, reason, message } = errorResponse.data;
-    throw new InternalServerErrorException({
-      message: `${reason} - ${message}`,
-      cause: errorCode,
+      const errorResponse = FunctionLambdaErrorResponseDTO.safeParse(err?.response?.data);
+      if (errorResponse.success) {
+        const { reason, message } = errorResponse.data;
+        throw new InternalServerErrorException({
+          message,
+          cause: reason,
+        });
+      }
+
+      throw new InternalServerErrorException({
+        message: 'Unknown error occurred when executing the function',
+        cause: JSON.stringify(err).slice(0, 100),
+      });
     });
-  }
-
-  throw new InternalServerErrorException({
-    message: 'Unknown error occurred at the function lambda',
-    cause: JSON.stringify(data).slice(0, 100),
-  });
 }

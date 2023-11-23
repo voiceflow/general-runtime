@@ -2,25 +2,17 @@ import { z } from 'zod';
 
 export const NextPathDTO = z
   .object({
-    path: z.string(),
+    path: z.string({
+      required_error: `A next command must include a 'path' property`,
+      invalid_type_error: `Expected value of type 'string' for 'path' property of a next command`,
+    }),
   })
   .strict();
 
 export type NextPath = z.infer<typeof NextPathDTO>;
 
-export const NextStageDTO = z
-  .object({
-    listen: z.boolean(),
-    stage: z.string(),
-  })
-  .strict();
-
-export type NextStage = z.infer<typeof NextStageDTO>;
-
-export const NextCommandDTO = z.union([NextPathDTO, NextStageDTO]);
+export const NextCommandDTO = NextPathDTO;
 
 export type NextCommand = z.infer<typeof NextCommandDTO>;
 
 export const isNextPath = (val: unknown): val is NextPath => NextPathDTO.safeParse(val).success;
-
-export const isNextStage = (val: unknown): val is NextStage => NextStageDTO.safeParse(val).success;
