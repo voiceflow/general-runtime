@@ -1,11 +1,11 @@
 import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { FunctionCompiledData, FunctionCompiledNode, NodeType } from '@voiceflow/dtos';
-import { match } from 'ts-pattern';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
 import Runtime from '../../Runtime';
 import { adaptTrace } from './lib/adapt-trace/adapt-trace';
+import { createFunctionExceptionDebugTrace } from './lib/execute-function/exceptions/createFunctionExceptionDebugTrace';
 import { ExecuteFunctionException } from './lib/execute-function/exceptions/execute-function.exception';
 import { executeFunction } from './lib/execute-function/execute-function';
 import { NextCommand } from './runtime-command/next-command/next-command.dto';
@@ -39,22 +39,6 @@ function applyNextCommand(command: NextCommand, paths: FunctionCompiledNode['dat
     return nextStepId ?? null;
   }
   return null;
-}
-
-function reportRuntimeException(err: ExecuteFunctionException, runtime: Runtime) {
-  const debugMessage = match(err)
-    .when(
-      (val) => val instanceof ExecuteFunctionException,
-      (err) => err.toCanonicalError()
-    )
-    .otherwise((err) => `Received an unknown error: ${err.message.slice(0, 300)}`);
-
-  runtime.trace.addTrace<BaseTrace.DebugTrace>({
-    type: BaseNode.Utils.TraceType.DEBUG,
-    payload: {
-      message: `[ERROR]: ${debugMessage}`,
-    },
-  });
 }
 
 export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsObj> = (_) => ({
@@ -95,7 +79,7 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
         throw err;
       }
 
-      reportRuntimeException(err, runtime);
+      runtime.trace.addTrace<BaseTrace.DebugTrace>(createFunctionExceptionDebugTrace(err));
 
       return null;
     }

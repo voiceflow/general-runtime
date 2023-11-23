@@ -1,6 +1,8 @@
+import { BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { FunctionCompiledNode } from '@voiceflow/dtos';
 import { performance } from 'perf_hooks';
 
+import { createFunctionExceptionDebugTrace } from '@/runtime/lib/Handlers/function/lib/execute-function/exceptions/createFunctionExceptionDebugTrace';
 import { ExecuteFunctionException } from '@/runtime/lib/Handlers/function/lib/execute-function/exceptions/execute-function.exception';
 import { executeFunction } from '@/runtime/lib/Handlers/function/lib/execute-function/execute-function';
 
@@ -22,29 +24,28 @@ export class TestService extends AbstractManager {
         pathCodes,
       },
       inputMapping,
+      /**
+       * Output variables are not mapped and ports are not followed. Instead, testing
+       * a function directly returns the produced runtime commands for debugging.
+       */
       outputMapping: {},
       paths: {},
     };
-  }
-
-  private getErrorMessage(err: unknown) {
-    if (!(err instanceof ExecuteFunctionException)) {
-      return `Encountered an unexpected error, payload = ${JSON.stringify(err, null, 2).slice(0, 200)}`;
-    }
-
-    return err.toCanonicalError();
   }
 
   public async testFunction(
     functionDefinition: SimplifiedFunctionDefinition,
     inputMapping: Record<string, string>
   ): Promise<TestFunctionResponse> {
+    let startTime = null;
+    let endTime = null;
+
     try {
       const compiledFunctionData = await this.mockCompileFunctionData(functionDefinition, inputMapping);
 
-      const startTime = performance.now();
+      startTime = performance.now();
       const runtimeCommands = await executeFunction(compiledFunctionData);
-      const endTime = performance.now();
+      endTime = performance.now();
 
       const executionTime = endTime - startTime;
 
@@ -54,9 +55,31 @@ export class TestService extends AbstractManager {
         runtimeCommands,
       };
     } catch (err) {
+      if (startTime === null) {
+        startTime = 0;
+        endTime = 0;
+      } else if (endTime === null) {
+        endTime = performance.now();
+      }
+
+      const executionTime = endTime - startTime;
+
+      const debugTrace: BaseTrace.DebugTrace =
+        err instanceof ExecuteFunctionException
+          ? createFunctionExceptionDebugTrace(err)
+          : {
+              type: BaseNode.Utils.TraceType.DEBUG,
+              payload: {
+                message: `[ERROR]: Unknown error, payload=${JSON.stringify(err, null, 2).slice(0, 200)}`,
+              },
+            };
+
       return {
         success: false,
-        errorMessage: this.getErrorMessage(err),
+        latencyMS: executionTime,
+        runtimeCommands: {
+          trace: [debugTrace],
+        },
       };
     }
   }

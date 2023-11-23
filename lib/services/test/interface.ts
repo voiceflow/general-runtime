@@ -12,15 +12,8 @@ export interface SimplifiedFunctionDefinition {
   outputVars: Record<string, VariableConfig>;
 }
 
-export interface TestFunctionSuccessResponse {
-  success: true;
+export interface TestFunctionResponse {
+  success: boolean;
   latencyMS: number;
   runtimeCommands: RuntimeCommand;
 }
-
-export interface TestFunctionFailureResponse {
-  success: false;
-  errorMessage: string;
-}
-
-export type TestFunctionResponse = TestFunctionSuccessResponse | TestFunctionFailureResponse;
