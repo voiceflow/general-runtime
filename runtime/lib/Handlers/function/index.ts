@@ -62,7 +62,7 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
 
   handle: async (node, runtime): Promise<string | null> => {
     const {
-      functionDefn: { outputVars: outputVarDeclrs },
+      functionDefinition: { outputVars: outputVarDeclrs },
       outputMapping,
       paths,
     } = node.data;

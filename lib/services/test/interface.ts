@@ -7,9 +7,7 @@ export interface VariableConfig {
 }
 export interface SimplifiedFunctionDefinition {
   code: string;
-  paths: Array<{
-    name: string;
-  }>;
+  pathCodes: Array<string>;
   inputVars: Record<string, VariableConfig>;
   outputVars: Record<string, VariableConfig>;
 }

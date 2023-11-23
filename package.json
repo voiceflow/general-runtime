@@ -22,7 +22,7 @@
     "@voiceflow/body-parser": "^1.21.1",
     "@voiceflow/chat-types": "2.13.85",
     "@voiceflow/common": "8.2.3",
-    "@voiceflow/dtos": "^1.7.0",
+    "@voiceflow/dtos": "1.10.0",
     "@voiceflow/event-ingestion-service": "1.5.1",
     "@voiceflow/google-types": "2.20.36",
     "@voiceflow/exception": "^1.5.0",

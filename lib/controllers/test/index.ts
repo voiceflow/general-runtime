@@ -184,9 +184,9 @@ class TestController extends AbstractController {
       throw new BadRequestException('Request body given to Test Function endpoint was malformed');
     }
 
-    const { functionDefn, inputMapping } = req.body;
+    const { functionDefinition, inputMapping } = req.body;
 
-    const result = await this.services.test.testFunction(functionDefn, inputMapping);
+    const result = await this.services.test.testFunction(functionDefinition, inputMapping);
 
     return TestFunctionResponseDTO.parse(result);
   }

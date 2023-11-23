@@ -9,17 +9,17 @@ import { SimplifiedFunctionDefinition, TestFunctionResponse } from './interface'
 
 export class TestService extends AbstractManager {
   private async mockCompileFunctionData(
-    functionDefn: SimplifiedFunctionDefinition,
+    functionDefinition: SimplifiedFunctionDefinition,
     inputMapping: Record<string, string>
   ): Promise<FunctionCompiledNode['data']> {
-    // $TODO$ - Need to incorporate paths into type definition here.
-    const { paths: _, code, inputVars, outputVars } = functionDefn;
+    const { pathCodes, code, inputVars, outputVars } = functionDefinition;
 
     return {
-      functionDefn: {
+      functionDefinition: {
         code,
         inputVars,
         outputVars,
+        pathCodes,
       },
       inputMapping,
       outputMapping: {},
@@ -36,11 +36,11 @@ export class TestService extends AbstractManager {
   }
 
   public async testFunction(
-    functionDefn: SimplifiedFunctionDefinition,
+    functionDefinition: SimplifiedFunctionDefinition,
     inputMapping: Record<string, string>
   ): Promise<TestFunctionResponse> {
     try {
-      const compiledFunctionData = await this.mockCompileFunctionData(functionDefn, inputMapping);
+      const compiledFunctionData = await this.mockCompileFunctionData(functionDefinition, inputMapping);
 
       const startTime = performance.now();
       const runtimeCommands = await executeFunction(compiledFunctionData);

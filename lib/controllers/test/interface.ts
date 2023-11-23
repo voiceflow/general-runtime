@@ -4,13 +4,9 @@ import { z } from 'zod';
 import { RuntimeCommandDTO } from '@/runtime/lib/Handlers/function/runtime-command/runtime-command.dto';
 
 export const TestFunctionBodyDTO = z.object({
-  functionDefn: z.object({
+  functionDefinition: z.object({
     code: z.string(),
-    paths: z.array(
-      z.object({
-        name: z.string(),
-      })
-    ),
+    pathCodes: z.array(z.string()),
     inputVars: z.record(
       z.object({
         type: z.literal(FunctionVariableType.STRING),
