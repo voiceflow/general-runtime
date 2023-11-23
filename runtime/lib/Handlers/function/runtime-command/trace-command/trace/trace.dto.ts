@@ -2,13 +2,7 @@ import { z } from 'zod';
 
 import { TraceType } from './trace-type.enum';
 
-/**
- * Definitions for traces producible by the Functions code. This is a
- * separate set of type definitions that our internal type definitions
- * for the various traces, because we want to provide a stable, clean
- * interface to the user. Our existing trace types have legacy features and
- * unnecessary complications that we do not want to expose to the user.
- */
+// !TODO! - Replace with trace types from `@voiceflow/dtos'`
 
 export const TextTraceDTO = z.object({
   type: z.literal(TraceType.TEXT),
