@@ -41,6 +41,16 @@ export const stringToNumIfNumeric = (str: string): string | number => {
   return str;
 };
 
+export const ensureProperlyEncoded = (url: string) => {
+  // First, decode the URI. This will have no effect if the URI is not encoded.
+  const decoded = decodeURI(url);
+
+  // Compare the decoded URI with the original. If they are different, the original was encoded.
+  // In that case, return the original URI as it is already properly encoded.
+  // Otherwise, encode and return the decoded URI.
+  return decoded === url ? encodeURI(decoded) : url;
+};
+
 type Variable = string | number;
 
 // eslint-disable-next-line sonarjs/cognitive-complexity

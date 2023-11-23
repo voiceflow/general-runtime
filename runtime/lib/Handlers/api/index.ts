@@ -7,7 +7,7 @@ import Handler from '@/runtime/lib/Handler';
 
 import DebugLogging, { SimpleStepMessage } from '../../Runtime/DebugLogging';
 import { APIHandlerConfig } from './types';
-import { APICallResult, APINodeData, makeAPICall } from './utils';
+import { APICallResult, APINodeData, ensureProperlyEncoded, makeAPICall } from './utils';
 
 const createLogEntry = async (
   apiCallResult: APICallResult,
@@ -81,6 +81,7 @@ const APIHandler = (config: Partial<APIHandlerConfig>): Handler<BaseNode.Integra
     let nextId: string | null = null;
 
     const actionBodyData = deepVariableSubstitution(_cloneDeep(node.action_data), variables.getState()) as APINodeData;
+    actionBodyData.url = ensureProperlyEncoded(actionBodyData.url);
 
     // override user agent
     const headers = actionBodyData.headers || [];
