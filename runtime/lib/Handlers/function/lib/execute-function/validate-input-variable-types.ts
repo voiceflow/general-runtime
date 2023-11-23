@@ -1,7 +1,7 @@
-import { FunctionCompiledVariableConfig, FunctionVariableKind, FunctionVariableType } from '@voiceflow/dtos';
+import { FunctionCompiledVariableConfig, FunctionVariableType } from '@voiceflow/dtos';
 import { z } from 'zod';
 
-import { FunctionTypeException } from './exceptions/function-type.exception';
+import { FunctionInputTypeException } from './exceptions/function-type.exception';
 
 function getZodValidator(type: FunctionVariableType) {
   switch (type) {
@@ -20,10 +20,9 @@ function getZodValidator(type: FunctionVariableType) {
   }
 }
 
-export function validateVariableTypes(
+export function validateInputVariableTypes(
   variables: Record<string, unknown>,
-  typeDeclarations: Record<string, FunctionCompiledVariableConfig>,
-  variableKind: FunctionVariableKind
+  typeDeclarations: Record<string, FunctionCompiledVariableConfig>
 ) {
   const firstInvalid = Object.entries(typeDeclarations).find(([varName, declare]) => {
     const validator = getZodValidator(declare.type);
@@ -33,6 +32,6 @@ export function validateVariableTypes(
   if (firstInvalid) {
     const [varName, declare] = firstInvalid;
 
-    throw new FunctionTypeException(varName, declare.type, typeof variables[varName], variableKind);
+    throw new FunctionInputTypeException(varName, declare.type, typeof variables[varName]);
   }
 }

@@ -16,13 +16,12 @@ export async function executeLambda(
   variables: Record<string, any>,
   enableLog = false
 ): Promise<RuntimeCommand> {
+  const functionLambdaEndpoint = Config.FUNCTION_LAMBDA_ENDPOINT;
   const request: FunctionLambdaRequest = {
     code,
     variables,
     enableLog,
   };
-
-  const functionLambdaEndpoint = Config.FUNCTION_LAMBDA_ENDPOINT;
   const { data } = await axios.post<FunctionLambdaResponse>(functionLambdaEndpoint, request);
 
   const runtimeCommand = FunctionLambdaSuccessResponseDTO.safeParse(data);

@@ -1,27 +1,20 @@
 import { BaseTrace } from '@voiceflow/base-types';
-import { FunctionCompiledNode } from '@voiceflow/dtos';
+import { FunctionCompiledData, FunctionCompiledNode } from '@voiceflow/dtos';
 import { performance } from 'perf_hooks';
 
 import { createFunctionExceptionDebugTrace } from '@/runtime/lib/Handlers/function/lib/execute-function/exceptions/createFunctionExceptionDebugTrace';
 import { executeFunction } from '@/runtime/lib/Handlers/function/lib/execute-function/execute-function';
 
 import { AbstractManager } from '../utils';
-import { SimplifiedFunctionDefinition, TestFunctionResponse } from './interface';
+import { TestFunctionResponse } from './interface';
 
 export class TestService extends AbstractManager {
   private async mockCompileFunctionData(
-    functionDefinition: SimplifiedFunctionDefinition,
+    functionDefinition: FunctionCompiledData,
     inputMapping: Record<string, string>
   ): Promise<FunctionCompiledNode['data']> {
-    const { pathCodes, code, inputVars, outputVars } = functionDefinition;
-
     return {
-      functionDefinition: {
-        code,
-        inputVars,
-        outputVars,
-        pathCodes,
-      },
+      functionDefinition,
       inputMapping,
       /**
        * Output variables are not mapped and ports are not followed. Instead, testing
@@ -33,7 +26,7 @@ export class TestService extends AbstractManager {
   }
 
   public async testFunction(
-    functionDefinition: SimplifiedFunctionDefinition,
+    functionDefinition: FunctionCompiledData,
     inputMapping: Record<string, string>
   ): Promise<TestFunctionResponse> {
     let startTime = null;
