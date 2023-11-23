@@ -1,5 +1,5 @@
 import { BaseNode, BaseTrace } from '@voiceflow/base-types';
-import { FunctionCompiledData, FunctionCompiledNode, FunctionVariableKind, NodeType } from '@voiceflow/dtos';
+import { FunctionCompiledData, FunctionCompiledNode, NodeType } from '@voiceflow/dtos';
 import { match } from 'ts-pattern';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
@@ -7,8 +7,6 @@ import { HandlerFactory } from '@/runtime/lib/Handler';
 import Runtime from '../../Runtime';
 import { adaptTrace } from './lib/adapt-trace/adapt-trace';
 import { ExecuteFunctionException } from './lib/execute-function/exceptions/execute-function.exception';
-import { isFunctionPathException } from './lib/execute-function/exceptions/function-path.exception';
-import { isFunctionTypeException } from './lib/execute-function/exceptions/function-type.exception';
 import { executeFunction } from './lib/execute-function/execute-function';
 import { NextCommand } from './runtime-command/next-command/next-command.dto';
 import { OutputVarsCommand } from './runtime-command/output-vars-command/output-vars-command.dto';
