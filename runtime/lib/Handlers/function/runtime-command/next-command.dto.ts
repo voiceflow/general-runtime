@@ -11,6 +11,7 @@ export const NextPathDTO = z
 
 export type NextPath = z.infer<typeof NextPathDTO>;
 
+// !TODO! - Add `NextStageDTO` to `NextCommandDTO`
 export const NextCommandDTO = NextPathDTO;
 
 export type NextCommand = z.infer<typeof NextCommandDTO>;

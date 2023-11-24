@@ -1,15 +1,15 @@
 import { BaseTrace } from '@voiceflow/base-types';
+import { BaseTraceFrame } from '@voiceflow/base-types/build/cjs/trace';
 import { FunctionCompiledData, FunctionCompiledNode, NodeType } from '@voiceflow/dtos';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
 import Runtime from '../../Runtime';
-import { adaptTrace } from './lib/adapt-trace/adapt-trace';
 import { executeFunction } from './lib/execute-function/execute-function';
 import { createFunctionExceptionDebugTrace } from './lib/function-exception/function.exception';
-import { NextCommand } from './runtime-command/next-command/next-command.dto';
-import { OutputVarsCommand } from './runtime-command/output-vars-command/output-vars-command.dto';
-import { TraceCommand } from './runtime-command/trace-command/trace-command.dto';
+import { NextCommand } from './runtime-command/next-command.dto';
+import { OutputVarsCommand } from './runtime-command/output-vars-command.dto';
+import { TraceCommand } from './runtime-command/trace-command.dto';
 
 const utilsObj = {};
 
@@ -28,7 +28,7 @@ function applyOutputCommand(
 
 function applyTraceCommand(command: TraceCommand, runtime: Runtime): void {
   command.forEach((trace) => {
-    runtime.trace.addTrace(adaptTrace(trace));
+    runtime.trace.addTrace(trace as BaseTraceFrame);
   });
 }
 

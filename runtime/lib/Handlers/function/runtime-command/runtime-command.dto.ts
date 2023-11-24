@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-import { NextCommandDTO } from './next-command/next-command.dto';
-import { OutputVarsCommandDTO } from './output-vars-command/output-vars-command.dto';
-import { TraceCommandDTO } from './trace-command/trace-command.dto';
+import { NextCommandDTO } from './next-command.dto';
+import { OutputVarsCommandDTO } from './output-vars-command.dto';
+import { TraceCommandDTO } from './trace-command.dto';
 
 export const RuntimeCommandDTO = z
   .object({
