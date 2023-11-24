@@ -5,13 +5,17 @@ import { z } from 'zod';
 import Config from '@/config';
 
 import { RuntimeCommand } from '../../runtime-command/runtime-command.dto';
+import { ExecuteLambdaException } from './exceptions/execute-lambda.exception';
 import { InvalidRuntimeCommandException } from './exceptions/invalid-runtime-command.exception';
+import { ModuleResolutionException } from './exceptions/module-resolution.exception';
+import { RuntimeErrorException } from './exceptions/runtime-error.exception';
 import {
   FunctionLambdaErrorResponseDTO,
   FunctionLambdaRequest,
   FunctionLambdaResponse,
   FunctionLambdaSuccessResponseDTO,
 } from './execute-lambda.types';
+import { LambdaErrorCode } from './lambda-error-code.enum';
 
 export async function executeLambda(
   code: string,
@@ -27,19 +31,29 @@ export async function executeLambda(
 
   return axios
     .post<FunctionLambdaResponse>(functionLambdaEndpoint, request)
-    .then(({ data }) => FunctionLambdaSuccessResponseDTO.parse(data))
-    .catch((err) => {
-      if (err instanceof z.ZodError) {
-        throw new InvalidRuntimeCommandException(err);
+    .then(({ data }) => {
+      try {
+        return FunctionLambdaSuccessResponseDTO.parse(data);
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          throw new InvalidRuntimeCommandException(err);
+        }
+        throw err;
       }
-
+    })
+    .catch((err) => {
       const errorResponse = FunctionLambdaErrorResponseDTO.safeParse(err?.response?.data);
       if (errorResponse.success) {
-        const { reason, message } = errorResponse.data;
-        throw new InternalServerErrorException({
-          message,
-          cause: reason,
-        });
+        const { errorCode, message } = errorResponse.data;
+
+        switch (errorCode) {
+          case LambdaErrorCode.SandboxRuntimeError:
+            throw new RuntimeErrorException(message);
+          case LambdaErrorCode.SandboxModuleResolution:
+            throw new ModuleResolutionException(message);
+          default:
+            throw new ExecuteLambdaException(message);
+        }
       }
 
       throw new InternalServerErrorException({

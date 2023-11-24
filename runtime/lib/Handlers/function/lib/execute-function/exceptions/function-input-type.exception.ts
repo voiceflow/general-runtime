@@ -13,6 +13,3 @@ export class FunctionInputTypeException extends ExecuteFunctionException {
     return `Function step received an invalid value with type '${this.actualType}' for input variable '${this.varName}' with expected type '${this.expectedType}'`;
   }
 }
-
-export const isFunctionInputTypeException = (val: unknown): val is FunctionInputTypeException =>
-  val instanceof FunctionInputTypeException;

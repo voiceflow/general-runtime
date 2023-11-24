@@ -11,6 +11,3 @@ export class FunctionPathException extends ExecuteFunctionException {
     }' which is not one of the expected paths '${JSON.stringify(this.expectedPaths)}`;
   }
 }
-
-export const isFunctionPathException = (val: unknown): val is FunctionPathException =>
-  val instanceof FunctionPathException;

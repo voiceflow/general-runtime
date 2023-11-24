@@ -1,4 +1,5 @@
 import { BaseNode, BaseTrace } from '@voiceflow/base-types';
+import { HTTPException } from '@voiceflow/exception';
 import { match } from 'ts-pattern';
 
 export abstract class FunctionException extends Error {
@@ -10,6 +11,10 @@ export function createFunctionExceptionDebugTrace(err: unknown): BaseTrace.Debug
     .when(
       (val): val is FunctionException => val instanceof FunctionException,
       (err) => err.toCanonicalError()
+    )
+    .when(
+      (val): val is HTTPException => HTTPException.instanceOf(err),
+      (err) => `${err.statusCode} - ${err.statusText} - ${err.message}`
     )
     .otherwise((err) => `Received an unknown error: payload=${JSON.stringify(err).slice(0, 300)}`);
 

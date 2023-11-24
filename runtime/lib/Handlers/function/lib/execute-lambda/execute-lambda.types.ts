@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { RuntimeCommandDTO } from '../../runtime-command/runtime-command.dto';
+import { LambdaErrorCode } from './lambda-error-code.enum';
 
 export interface FunctionLambdaRequest {
   code: string;
@@ -13,7 +14,7 @@ export const FunctionLambdaSuccessResponseDTO = RuntimeCommandDTO;
 export type FunctionLambdaSuccessResponse = z.infer<typeof FunctionLambdaSuccessResponseDTO>;
 
 export const FunctionLambdaErrorResponseDTO = z.object({
-  reason: z.string(),
+  errorCode: z.nativeEnum(LambdaErrorCode),
   message: z.string(),
 });
 

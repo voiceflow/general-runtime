@@ -12,6 +12,3 @@ export class InvalidRuntimeCommandException extends ExecuteLambdaException {
     return fromZodError(this.zodParsingError).message;
   }
 }
-
-export const isInvalidRuntimeCommandException = (val: unknown): val is InvalidRuntimeCommandException =>
-  val instanceof InvalidRuntimeCommandException;

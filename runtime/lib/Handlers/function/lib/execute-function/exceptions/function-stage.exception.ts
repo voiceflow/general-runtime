@@ -11,6 +11,3 @@ export class FunctionStageException extends ExecuteFunctionException {
     }' which is not one of the expected stages '${JSON.stringify(this.expectedStages)}`;
   }
 }
-
-export const isFunctionStageException = (val: unknown): val is FunctionStageException =>
-  val instanceof FunctionStageException;
