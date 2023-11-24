@@ -19,7 +19,7 @@ import { LambdaErrorCode } from './lambda-error-code.enum';
 
 export async function executeLambda(
   code: string,
-  variables: Record<string, any>,
+  variables: Record<string, unknown>,
   enableLog = false
 ): Promise<RuntimeCommand> {
   const functionLambdaEndpoint = Config.FUNCTION_LAMBDA_ENDPOINT;

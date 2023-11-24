@@ -5,7 +5,7 @@ import { LambdaErrorCode } from './lambda-error-code.enum';
 
 export interface FunctionLambdaRequest {
   code: string;
-  variables: Record<string, any>;
+  variables: Record<string, unknown>;
   enableLog?: boolean;
 }
 

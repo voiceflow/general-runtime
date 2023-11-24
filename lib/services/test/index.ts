@@ -9,7 +9,7 @@ import { AbstractManager } from '../utils';
 import { TestFunctionResponse } from './interface';
 
 export class TestService extends AbstractManager {
-  private async mockCompileFunctionData(
+  private async mockCompileFunctionNodeData(
     functionDefinition: FunctionCompiledData,
     inputMapping: Record<string, string>
   ): Promise<FunctionCompiledNode['data']> {
@@ -33,10 +33,10 @@ export class TestService extends AbstractManager {
     let endTime = null;
 
     try {
-      const compiledFunctionData = await this.mockCompileFunctionData(functionDefinition, inputMapping);
+      const mockFunctionNodeData = await this.mockCompileFunctionNodeData(functionDefinition, inputMapping);
 
       startTime = performance.now();
-      const runtimeCommands = await executeFunction(compiledFunctionData);
+      const runtimeCommands = await executeFunction(mockFunctionNodeData);
       endTime = performance.now();
 
       const executionTime = endTime - startTime;

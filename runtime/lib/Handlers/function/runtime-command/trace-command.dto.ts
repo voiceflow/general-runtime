@@ -1,8 +1,9 @@
-import { BaseTrace } from '@voiceflow/base-types';
 import { z } from 'zod';
 
 export const TraceDTO = z.object({
-  type: z.nativeEnum(BaseTrace.TraceType),
+  type: z.string({
+    required_error: `A Voiceflow trace must define a 'type' property`,
+  }),
 });
 
 export type Trace = z.infer<typeof TraceDTO>;
