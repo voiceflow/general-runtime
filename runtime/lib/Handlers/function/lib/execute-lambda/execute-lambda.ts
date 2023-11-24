@@ -31,17 +31,12 @@ export async function executeLambda(
 
   return axios
     .post<FunctionLambdaResponse>(functionLambdaEndpoint, request)
-    .then(({ data }) => {
-      try {
-        return FunctionLambdaSuccessResponseDTO.parse(data);
-      } catch (err) {
-        if (err instanceof z.ZodError) {
-          throw new InvalidRuntimeCommandException(err);
-        }
-        throw err;
-      }
-    })
+    .then(({ data }) => FunctionLambdaSuccessResponseDTO.parse(data))
     .catch((err) => {
+      if (err instanceof z.ZodError) {
+        throw new InvalidRuntimeCommandException(err);
+      }
+
       const errorResponse = FunctionLambdaErrorResponseDTO.safeParse(err?.response?.data);
       if (errorResponse.success) {
         const { errorCode, message } = errorResponse.data;
