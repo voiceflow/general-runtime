@@ -29,31 +29,31 @@ export async function executeLambda(
     enableLog,
   };
 
-  return axios
-    .post<FunctionLambdaResponse>(functionLambdaEndpoint, request)
-    .then(({ data }) => FunctionLambdaSuccessResponseDTO.parse(data))
-    .catch((err) => {
-      if (err instanceof z.ZodError) {
-        throw new InvalidRuntimeCommandException(err);
+  try {
+    const { data } = await axios.post<FunctionLambdaResponse>(functionLambdaEndpoint, request);
+    return FunctionLambdaSuccessResponseDTO.parse(data);
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      throw new InvalidRuntimeCommandException(err);
+    }
+
+    const lambdaError = FunctionLambdaErrorResponseDTO.safeParse(err?.response?.data);
+    if (lambdaError.success) {
+      const { errorCode, message } = lambdaError.data;
+
+      switch (errorCode) {
+        case LambdaErrorCode.SandboxRuntimeError:
+          throw new RuntimeErrorException(message);
+        case LambdaErrorCode.SandboxModuleResolution:
+          throw new ModuleResolutionException(message);
+        default:
+          throw new ExecuteLambdaException(message);
       }
+    }
 
-      const errorResponse = FunctionLambdaErrorResponseDTO.safeParse(err?.response?.data);
-      if (errorResponse.success) {
-        const { errorCode, message } = errorResponse.data;
-
-        switch (errorCode) {
-          case LambdaErrorCode.SandboxRuntimeError:
-            throw new RuntimeErrorException(message);
-          case LambdaErrorCode.SandboxModuleResolution:
-            throw new ModuleResolutionException(message);
-          default:
-            throw new ExecuteLambdaException(message);
-        }
-      }
-
-      throw new InternalServerErrorException({
-        message: 'Unknown error occurred when executing the function',
-        cause: JSON.stringify(err).slice(0, 100),
-      });
+    throw new InternalServerErrorException({
+      message: 'Unknown error occurred when executing the function',
+      cause: JSON.stringify(err).slice(0, 100),
     });
+  }
 }

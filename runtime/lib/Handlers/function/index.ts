@@ -19,15 +19,17 @@ function applyOutputCommand(
   outputVarDeclrs: FunctionCompiledData['outputVars'],
   outputMapping: FunctionCompiledNode['data']['outputMapping']
 ): void {
-  Object.keys(outputVarDeclrs).forEach((outVarName) => {
-    const voiceflowVarName = outputMapping[outVarName];
+  Object.keys(outputVarDeclrs).forEach((functionVarName) => {
+    const voiceflowVarName = outputMapping[functionVarName];
     if (!voiceflowVarName) return;
-    runtime.variables.set(voiceflowVarName, command[outVarName]);
+    runtime.variables.set(voiceflowVarName, command[functionVarName]);
   });
 }
 
 function applyTraceCommand(command: TraceCommand, runtime: Runtime): void {
   command.forEach((trace) => {
+    // !TODO! - Revamp `general-runtime` types to allow users to modify the built-in
+    //          trace types and avoid this `as` cast.
     runtime.trace.addTrace(trace as BaseTraceFrame);
   });
 }

@@ -39,7 +39,7 @@ export function validateInputVariableTypes(
 
       throw new FunctionRequiredVarException(varName);
     } else {
-      throw new FunctionInputTypeException(varName, declare.type, typeof variables[varName]);
+      throw new FunctionInputTypeException(varName, declare.type, variables[varName]);
     }
   }
 }

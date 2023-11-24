@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { RuntimeCommandDTO } from '@/runtime/lib/Handlers/function/runtime-command/runtime-command.dto';
 
-export const TestFunctionBodyDTO = z.object({
+export const TestFunctionRequestBodyDTO = z.object({
   functionDefinition: z.object({
     code: z.string(),
     pathCodes: z.array(z.string()),
@@ -20,7 +20,7 @@ export const TestFunctionBodyDTO = z.object({
   }),
   inputMapping: z.record(z.string()),
 });
-export type TestFunctionBody = z.infer<typeof TestFunctionBodyDTO>;
+export type TestFunctionRequestBody = z.infer<typeof TestFunctionRequestBodyDTO>;
 
 export const TestFunctionResponseDTO = z.object({
   success: z.boolean(),

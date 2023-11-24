@@ -17,7 +17,12 @@ import { QuotaName } from '../../services/billing';
 import { fetchPrompt } from '../../services/runtime/handlers/utils/ai';
 import { validate } from '../../utils';
 import { AbstractController } from '../utils';
-import { TestFunctionBody, TestFunctionBodyDTO, TestFunctionResponse, TestFunctionResponseDTO } from './interface';
+import {
+  TestFunctionRequestBody,
+  TestFunctionRequestBodyDTO,
+  TestFunctionResponse,
+  TestFunctionResponseDTO,
+} from './interface';
 
 const { body } = Validator;
 
@@ -179,9 +184,9 @@ class TestController extends AbstractController {
     return { output };
   }
 
-  async testFunction(req: Request<Record<string, unknown>, TestFunctionBody>): Promise<TestFunctionResponse> {
+  async testFunction(req: Request<Record<string, never>, TestFunctionRequestBody>): Promise<TestFunctionResponse> {
     try {
-      await TestFunctionBodyDTO.parseAsync(req.body);
+      await TestFunctionRequestBodyDTO.parseAsync(req.body);
     } catch (err) {
       throw new BadRequestException(
         err instanceof z.ZodError ? fromZodError(err).message : 'Unknown error occurred when parsing request'
