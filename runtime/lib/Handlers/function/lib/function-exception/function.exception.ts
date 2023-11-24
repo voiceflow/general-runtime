@@ -13,7 +13,7 @@ export function createFunctionExceptionDebugTrace(err: unknown): BaseTrace.Debug
       (err) => err.toCanonicalError()
     )
     .when(
-      (val): val is HTTPException => HTTPException.instanceOf(err),
+      (val): val is HTTPException => HTTPException.instanceOf(val),
       (err) => `${err.statusCode} - ${err.statusText} - ${err.message}`
     )
     .otherwise((err) => `Received an unknown error: payload=${JSON.stringify(err).slice(0, 300)}`);
