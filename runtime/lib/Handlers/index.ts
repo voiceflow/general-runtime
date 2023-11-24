@@ -5,6 +5,7 @@ export { default as CodeHandler } from './code';
 export { ivmExecute, vmExecute } from './code/utils';
 export { default as EndHandler } from './end';
 export { default as FlowHandler } from './flow';
+export { default as FunctionHandler } from './function';
 export { default as GoToNodeHandler } from './gotoNode';
 export { default as IfHandler } from './if';
 export { default as IfV2Handler } from './ifV2';
