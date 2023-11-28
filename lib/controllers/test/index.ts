@@ -118,7 +118,13 @@ class TestController extends AbstractController {
     const api = await this.services.dataAPI.get();
     // if DM API key infer project from header
     const project = await api.getProject(req.headers.authorization || req.body.projectID!);
-    const version = req.body.versionID ? await api.getVersion(req.body.versionID) : null;
+
+    let version = null;
+    if (req.body.versionID) {
+      version = await api.getVersion(req.body.versionID);
+    } else if (project.devVersion) {
+      version = await api.getVersion(project.devVersion);
+    }
 
     const answer = await this.services.aiSynthesis.knowledgeBaseQuery({
       project,
