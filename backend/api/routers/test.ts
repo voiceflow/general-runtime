@@ -44,7 +44,8 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
     middlewares.billing.authorize({
       resourceType: ResourceType.WORKSPACE,
       resourceID: (req) => req.params.workspaceID,
-      itemName: ItemName.AITokens,
+      item: ItemName.AITokens,
+      value: 0,
     }),
     middlewares.llmLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'knowledge-base'),
     controllers.test.testKnowledgeBase
@@ -62,7 +63,8 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
     middlewares.billing.authorize({
       resourceType: ResourceType.WORKSPACE,
       resourceID: (req) => req.params.workspaceID,
-      itemName: ItemName.AITokens,
+      item: ItemName.AITokens,
+      value: 0,
     }),
     middlewares.llmLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'knowledge-base'),
     controllers.test.testKnowledgeBasePrompt
@@ -73,7 +75,8 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
     middlewares.billing.authorize({
       resourceType: ResourceType.WORKSPACE,
       resourceID: (req) => req.params.workspaceID,
-      itemName: ItemName.AITokens,
+      item: ItemName.AITokens,
+      value: 0,
     }),
     middlewares.llmLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'completion'),
     controllers.test.testCompletion

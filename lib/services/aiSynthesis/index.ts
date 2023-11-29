@@ -23,7 +23,7 @@ import {
 import log from '@/logger';
 import { Runtime } from '@/runtime';
 
-import { QuotaName } from '../billing';
+import { ItemName, ResourceType } from '../billing';
 import { SegmentEventType } from '../runtime/types';
 import { AbstractManager } from '../utils';
 import {
@@ -475,7 +475,7 @@ class AISynthesis extends AbstractManager {
       this.testSendSegmentTagsFilterEvent({ userID: project.creatorID, tagsFilter });
     }
 
-    if (!(await this.services.billing.checkQuota(project.teamID, QuotaName.OPEN_API_TOKENS))) {
+    if (!(await this.services.billing.authorize(ResourceType.WORKSPACE, project.teamID, ItemName.AITokens, 0))) {
       throw new VError('token quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
     }
 

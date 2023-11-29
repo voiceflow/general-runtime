@@ -48,7 +48,8 @@ export class BillingService extends AbstractManager {
     return client.private.trackUsage({
       resourceType,
       resourceID,
-      items: [{ value: itemValue, item: itemName }],
+      item: itemName,
+      value: itemValue,
     });
   }
 
@@ -56,11 +57,12 @@ export class BillingService extends AbstractManager {
     const client = await this.getClient();
     if (!client) return null;
 
+    // TODO: fix types here
     return client.private.authorize({
       resourceType,
       resourceID,
-      item: itemName,
-      ...(itemValue !== null && itemValue !== undefined ? { value: itemValue } : {}),
+      item: itemName as any,
+      value: itemValue,
     });
   }
 }
