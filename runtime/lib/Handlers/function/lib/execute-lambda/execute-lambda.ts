@@ -23,6 +23,13 @@ export async function executeLambda(
   enableLog = false
 ): Promise<RuntimeCommand> {
   const functionLambdaEndpoint = Config.FUNCTION_LAMBDA_ENDPOINT;
+
+  if (!functionLambdaEndpoint) {
+    throw new InternalServerErrorException({
+      message: 'Function step lambda endpoint URL `FUNCTION_LAMBDA_ENDPOINT` was not configured',
+    });
+  }
+
   const request: FunctionLambdaRequest = {
     code,
     variables,

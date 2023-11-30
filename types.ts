@@ -45,7 +45,7 @@ export interface Config extends RateLimitConfig {
 
   GENERAL_SERVICE_ENDPOINT: string | null;
   KNOWLEDGE_BASE_LAMBDA_ENDPOINT: string | null;
-  FUNCTION_LAMBDA_ENDPOINT: string;
+  FUNCTION_LAMBDA_ENDPOINT: string | null;
 
   KL_RETRIEVER_SERVICE_HOST: string | null;
   KL_RETRIEVER_SERVICE_PORT: string | null;
