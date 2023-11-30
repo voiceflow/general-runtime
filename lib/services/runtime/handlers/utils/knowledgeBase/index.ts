@@ -53,6 +53,8 @@ const FLAGGED_WORKSPACES_MAP = new Map<string, string[]>([
   [CloudEnv.VFTEST76, []],
   [CloudEnv.CISCO, []],
   [CloudEnv.JPMC, []],
+  [CloudEnv.VFTESTBR, []],
+  [CloudEnv.vftest82, []],
 ]);
 
 const { KL_RETRIEVER_SERVICE_HOST: host, KL_RETRIEVER_SERVICE_PORT: port } = Config;
