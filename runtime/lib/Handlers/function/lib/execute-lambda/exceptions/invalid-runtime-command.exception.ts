@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { fromZodError } from 'zod-validation-error';
 
 import { ExecuteLambdaException } from './execute-lambda.exception';
 
@@ -9,6 +8,15 @@ export class InvalidRuntimeCommandException extends ExecuteLambdaException {
   }
 
   toCanonicalError(): string {
-    return fromZodError(this.zodParsingError).message;
+    const zodParsingErrors = this.zodParsingError.flatten();
+
+    if (zodParsingErrors.formErrors.length > 0) {
+      return zodParsingErrors.formErrors.join('. ');
+    }
+
+    return Object.values(this.zodParsingError.flatten().fieldErrors)
+      .map((errorArray) => (errorArray ?? []).join('. '))
+      .filter((message) => message.length > 0)
+      .join('. ');
   }
 }

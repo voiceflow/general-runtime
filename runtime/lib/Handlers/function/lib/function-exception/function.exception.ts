@@ -21,7 +21,7 @@ export function createFunctionExceptionDebugTrace(err: unknown): BaseTrace.Debug
   return {
     type: BaseNode.Utils.TraceType.DEBUG,
     payload: {
-      message: `[ERROR]: ${debugMessage}`,
+      message: `[ERROR]: Encountered an error in a Function step. ${debugMessage}`,
     },
   };
 }
