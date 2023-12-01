@@ -134,7 +134,7 @@ workflows:
       - vfcommon/build-e2e-tests:
           context: dev-test
           filters: *bors_branches_filters
-          
+
       - vfcommon/run-e2e-tests:
           context: dev-test
           env-name: {{ .values.e2e_env_name }}
@@ -209,20 +209,3 @@ workflows:
             branches:
               only:
                 - production
-
-
-  # Old E2E tests (Remove once new E2E tests are stable)
-  old-e2e-tests:
-    jobs:
-      - vfcommon/test_e2e:
-          <<: *slack-fail-post-step
-          name: old_e2e_tests
-          github_username: GITHUB_USERNAME
-          github_token: GITHUB_TOKEN
-          creator_app_commit: master
-          vf_service_commit: << pipeline.git.revision >>
-          vf_service_name: "general-runtime"
-          vf_service_port: "8005"
-          context: dev-test
-          filters: *bors_branches_filters
-
