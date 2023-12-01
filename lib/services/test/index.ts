@@ -1,9 +1,9 @@
-import { BaseTrace } from '@voiceflow/base-types';
 import { FunctionCompiledData, FunctionCompiledNode } from '@voiceflow/dtos';
 import { performance } from 'perf_hooks';
 
 import { executeFunction } from '@/runtime/lib/Handlers/function/lib/execute-function/execute-function';
 import { createFunctionExceptionDebugTrace } from '@/runtime/lib/Handlers/function/lib/function-exception/function.exception';
+import { Trace } from '@/runtime/lib/Handlers/function/runtime-command/trace-command.dto';
 
 import { AbstractManager } from '../utils';
 import { TestFunctionResponse } from './interface';
@@ -56,7 +56,7 @@ export class TestService extends AbstractManager {
 
       const executionTime = endTime - startTime;
 
-      const debugTrace: BaseTrace.DebugTrace = createFunctionExceptionDebugTrace(err);
+      const debugTrace: Trace = createFunctionExceptionDebugTrace(err);
 
       return {
         success: false,

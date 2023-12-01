@@ -69,7 +69,9 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
 
       return null;
     } catch (err) {
-      runtime.trace.addTrace<BaseTrace.DebugTrace>(createFunctionExceptionDebugTrace(err));
+      // !TODO! - Revamp `general-runtime` types to allow users to modify the built-in
+      //          trace types and avoid this `as` cast.
+      runtime.trace.addTrace(createFunctionExceptionDebugTrace(err) as BaseTrace.DebugTrace);
 
       return null;
     }

@@ -6,6 +6,7 @@ export const TraceDTO = z
       required_error: `A Voiceflow trace must define a 'type' property`,
       invalid_type_error: `Property 'type' of a Voiceflow trace must be a string`,
     }),
+    payload: z.unknown().optional(),
   })
   .passthrough();
 

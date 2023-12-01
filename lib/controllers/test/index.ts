@@ -3,7 +3,6 @@ import { BaseModels, BaseUtils } from '@voiceflow/base-types';
 import { BadRequestException } from '@voiceflow/exception';
 import VError from '@voiceflow/verror';
 import _merge from 'lodash/merge';
-import { z } from 'zod';
 
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
 import { getKBSettings } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
