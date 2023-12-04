@@ -26,7 +26,13 @@ import { Runtime } from '@/runtime';
 import { QuotaName } from '../billing';
 import { SegmentEventType } from '../runtime/types';
 import { AbstractManager } from '../utils';
-import { convertTagsFilterToIDs, generateAnswerSynthesisPrompt, generateTagLabelMap, stringifyChunks } from './utils';
+import {
+  convertTagsFilterToIDs,
+  generateAnswerSynthesisPrompt,
+  generateTagLabelMap,
+  removePromptLeak,
+  stringifyChunks,
+} from './utils';
 
 class AISynthesis extends AbstractManager {
   private readonly DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS = 4000;
@@ -40,20 +46,12 @@ class AISynthesis extends AbstractManager {
 
   private readonly DEFAULT_QUESTION_SYNTHESIS_RETRIES = 2;
 
-  private readonly REGEX_PROMPT_LEAK = /\s*#+\s?(query|instructions|reference)/i;
-
   private filterNotFound(output: string) {
     const upperCase = output?.toUpperCase();
     if (upperCase?.includes('NOT_FOUND') || upperCase?.startsWith("I'M SORRY,") || upperCase?.includes('AS AN AI')) {
       return null;
     }
     return output;
-  }
-
-  private removePromptLeak(output: string | null) {
-    // remove prompt leak and anything after it
-    const segments = output?.split(this.REGEX_PROMPT_LEAK);
-    return (segments?.length && segments[0]) || null;
   }
 
   async answerSynthesis({
@@ -135,8 +133,9 @@ class AISynthesis extends AbstractManager {
     }
 
     if (response.output) {
-      response.output = this.filterNotFound(response.output.trim());
-      response.output = this.removePromptLeak(response.output);
+      response.output = response.output.trim();
+      response.output = this.filterNotFound(response.output);
+      response.output = removePromptLeak(response.output);
     }
 
     return response;
