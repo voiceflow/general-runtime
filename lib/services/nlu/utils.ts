@@ -10,6 +10,21 @@ import { Context } from '@/types';
 
 import { isIntentInInteraction, isIntentScopeInNode, isInteractionsInNode } from '../dialog/utils';
 import RuntimeManager from '../runtime';
+import { NLUGatewayPredictResponse } from './types';
+
+export const adaptNLUPrediction = (prediction: NLUGatewayPredictResponse): BaseRequest.IntentRequest => {
+  return {
+    type: BaseRequest.RequestType.INTENT,
+    payload: {
+      query: prediction.utterance,
+      intent: {
+        name: prediction.predictedIntent,
+      },
+      entities: prediction.predictedSlots,
+      confidence: prediction.confidence,
+    },
+  };
+};
 
 export const getNoneIntentRequest = ({
   query = '',

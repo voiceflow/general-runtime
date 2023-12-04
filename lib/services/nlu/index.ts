@@ -13,37 +13,13 @@ import { Context, ContextHandler, VersionTag } from '@/types';
 import { isConfidenceScoreAbove } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
 import { handleNLCCommand } from './nlc';
-import { getAvailableIntentsAndEntities, getNoneIntentRequest, mapChannelData } from './utils';
+import { NLUGatewayPredictResponse } from './types';
+import { adaptNLUPrediction, getAvailableIntentsAndEntities, getNoneIntentRequest, mapChannelData } from './utils';
 
 export const utils = {};
 
-interface PredictedSlot {
-  name: string;
-  value: string;
-}
-export interface NLUGatewayPredictResponse {
-  utterance: string;
-  predictedIntent: string;
-  predictedSlots: PredictedSlot[];
-  confidence: number;
-}
-
 @injectServices({ utils })
 class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  private adaptNLUPrediction(prediction: NLUGatewayPredictResponse): BaseRequest.IntentRequest {
-    return {
-      type: BaseRequest.RequestType.INTENT,
-      payload: {
-        query: prediction.utterance,
-        intent: {
-          name: prediction.predictedIntent,
-        },
-        entities: prediction.predictedSlots,
-        confidence: prediction.confidence,
-      },
-    };
-  }
-
   private getNluGatewayEndpoint() {
     const protocol = this.config.CLOUD_ENV === 'e2e' ? 'https' : 'http';
     return `${protocol}://${this.config.NLU_GATEWAY_SERVICE_HOST}:${this.config.NLU_GATEWAY_SERVICE_PORT_APP}`;
@@ -108,7 +84,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
         .catch(() => ({ data: null }));
 
       if (data) {
-        let intentRequest = this.adaptNLUPrediction(data);
+        let intentRequest = adaptNLUPrediction(data);
 
         const { confidence } = intentRequest.payload;
         if (typeof confidence === 'number' && !isConfidenceScoreAbove(intentConfidence, confidence)) {

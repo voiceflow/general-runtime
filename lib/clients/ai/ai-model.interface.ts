@@ -18,6 +18,7 @@ export interface AIModelContext {
 }
 export interface CompletionOptions {
   context: AIModelContext;
+  timeout?: number;
   retries?: number;
   retryDelay?: number;
 }

@@ -42,7 +42,7 @@ export class GPT3 extends GPTAIModel {
           temperature: params.temperature,
           prompt,
         },
-        { timeout: this.TIMEOUT }
+        { timeout: options.timeout ?? this.TIMEOUT }
       )
       .catch((error) => {
         log.warn(`GPT3 completion ${log.vars({ error, prompt, params, data: error?.response?.data?.error })})}`);

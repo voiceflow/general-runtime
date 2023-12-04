@@ -33,7 +33,7 @@ export class GPT3_5 extends GPTAIChatModel {
           temperature: params.temperature,
           messages: messages.map(({ role, content }) => ({ role: GPTAIChatModel.RoleMapping[role], content })),
         },
-        { timeout: this.TIMEOUT }
+        { timeout: options.timeout ?? this.TIMEOUT }
       );
 
     try {
