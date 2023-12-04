@@ -12,18 +12,14 @@ export const TestFunctionRequestBodyDTO = z
         inputVars: z.record(
           z
             .object({
-              type: z.nativeEnum(FunctionVariableType).refine((val) => val === FunctionVariableType.STRING, {
-                message: `Function input variables currently support 'string' variables only`,
-              }),
+              type: z.literal(FunctionVariableType.STRING),
             })
             .strict()
         ),
         outputVars: z.record(
           z
             .object({
-              type: z.nativeEnum(FunctionVariableType).refine((val) => val === FunctionVariableType.STRING, {
-                message: `Function output variables currently support 'string' variables only`,
-              }),
+              type: z.literal(FunctionVariableType.STRING),
             })
             .strict()
         ),
