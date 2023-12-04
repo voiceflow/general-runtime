@@ -9,12 +9,12 @@ import { ContentModerationClient } from '../contentModeration';
 import { OpenAIClient } from './api-client';
 import { GPTAIChatModel } from './gpt';
 
-export class GPT4 extends GPTAIChatModel {
-  TOKEN_MULTIPLIER = 25;
+export class GPT4Turbo extends GPTAIChatModel {
+  TOKEN_MULTIPLIER = 12;
 
-  public modelRef = BaseUtils.ai.GPT_MODEL.GPT_4;
+  public modelRef = BaseUtils.ai.GPT_MODEL.GPT_4_turbo;
 
-  protected gptModelName = 'gpt-4';
+  protected gptModelName = 'gpt-4-1106-preview';
 
   protected readonly client: OpenAIClient;
 
@@ -30,11 +30,12 @@ export class GPT4 extends GPTAIChatModel {
       options.context
     );
 
-    // we dont have access to GPT 4 on Azure yet, use OpenAI API instead
+    // we dont have access to GPT 4 Turbo on Azure yet, use OpenAI API instead
     if (!this.client.openAIClient) {
-      log.warn('Cant use GPT4 completion as no valid openAI configuration is set');
+      log.warn('Cant use GPT4Turbo completion as no valid openAI configuration is set');
       return null;
     }
+
     const result = await this.client.openAIClient
       .createChatCompletion(
         {
@@ -43,10 +44,10 @@ export class GPT4 extends GPTAIChatModel {
           temperature: params.temperature,
           messages: messages.map(({ role, content }) => ({ role: GPTAIChatModel.RoleMapping[role], content })),
         },
-        { timeout: this.TIMEOUT }
+        { timeout: options.timeout ?? this.TIMEOUT }
       )
       .catch((error) => {
-        log.warn(`GPT4 completion ${log.vars({ error, messages, params, data: error?.response?.data?.error })})}`);
+        log.warn(`GPT4Turbo completion ${log.vars({ error, messages, params, data: error?.response?.data?.error })})}`);
         return null;
       });
 

@@ -5,21 +5,14 @@ import log from '@/logger';
 
 import { CompletionOptions, CompletionOutput } from '../ai-model.interface';
 import { delayedPromiseRace } from '../utils';
-import { GPTAIModel } from './gpt';
+import { GPTAIChatModel } from './gpt';
 
-export class GPT3_5 extends GPTAIModel {
+export class GPT3_5 extends GPTAIChatModel {
   TOKEN_MULTIPLIER = 0.75;
 
   public modelRef = BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo;
 
   protected gptModelName = 'gpt-3.5-turbo';
-
-  async generateCompletion(prompt: string, params: AIModelParams, options: CompletionOptions) {
-    const messages: BaseUtils.ai.Message[] = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
-    if (params.system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: params.system });
-
-    return this.generateChatCompletion(messages, params, options);
-  }
 
   async generateChatCompletion(
     messages: BaseUtils.ai.Message[],
@@ -38,7 +31,7 @@ export class GPT3_5 extends GPTAIModel {
           model: this.gptModelName,
           max_tokens: params.maxTokens,
           temperature: params.temperature,
-          messages: messages.map(({ role, content }) => ({ role: GPTAIModel.RoleMapping[role], content })),
+          messages: messages.map(({ role, content }) => ({ role: GPTAIChatModel.RoleMapping[role], content })),
         },
         { timeout: this.TIMEOUT }
       );
