@@ -14,6 +14,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
 
   router.post(
     '/functions',
+    middlewares.auth.verifyIdentity,
     middlewares.rateLimit.consumeResource((req) => req.headers.authorization ?? req.cookies.auth_vf, 'function'),
     controllers.test.testFunction
   );
