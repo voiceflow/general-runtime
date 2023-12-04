@@ -132,7 +132,7 @@ class AISynthesis extends AbstractManager {
       );
     }
 
-    response.output = response?.output?.trim() || null;
+    response.output = response.output?.trim() || null;
     if (response.output) {
       response.output = this.filterNotFound(response.output);
       response.output = removePromptLeak(response.output);
