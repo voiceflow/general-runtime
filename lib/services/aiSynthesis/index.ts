@@ -40,9 +40,7 @@ class AISynthesis extends AbstractManager {
 
   private readonly DEFAULT_QUESTION_SYNTHESIS_RETRIES = 2;
 
-  private readonly REGEX_PROMPT_TERMS = [/conversation_history/i, /user:/i, /assistant:/i, /<[^<>]*>/];
-
-  private readonly MAX_LLM_TRIES = 2;
+  private readonly REGEX_PROMPT_LEAK = /\s*#+\s?(query|instructions|reference)/i;
 
   private filterNotFound(output: string) {
     const upperCase = output?.toUpperCase();
@@ -52,8 +50,10 @@ class AISynthesis extends AbstractManager {
     return output;
   }
 
-  private detectPromptLeak(output: string) {
-    return this.REGEX_PROMPT_TERMS.some((regex) => regex.test(output));
+  private removePromptLeak(output: string | null) {
+    // remove prompt leak and anything after it
+    const segments = output?.split(this.REGEX_PROMPT_LEAK);
+    return (segments?.length && segments[0]) || null;
   }
 
   async answerSynthesis({
@@ -136,6 +136,7 @@ class AISynthesis extends AbstractManager {
 
     if (response.output) {
       response.output = this.filterNotFound(response.output.trim());
+      response.output = this.removePromptLeak(response.output);
     }
 
     return response;
@@ -218,33 +219,12 @@ class AISynthesis extends AbstractManager {
         variables
       );
 
-    // log & retry the LLM call if we detect prompt leak
-    let response: AIResponse;
-    let leak: boolean;
-    for (let i = 0; i < this.MAX_LLM_TRIES; i++) {
-      // eslint-disable-next-line no-await-in-loop
-      response = await fetchChatTask();
-      leak = false;
-
-      if (response.output) {
-        response.output = this.filterNotFound(response.output.trim());
-      }
-
-      if (response.output && this.detectPromptLeak(response.output)) {
-        leak = true;
-        log.warn(
-          `prompt leak detected\nLLM response: ${response.output}\nAttempt: ${i + 1}
-          \nPrompt: ${content}\nLLM Settings: ${JSON.stringify(options)}`
-        );
-      }
-
-      if (!leak || options.temperature === 0) {
-        break;
-      }
+    const response = await fetchChatTask();
+    if (response.output) {
+      response.output = this.filterNotFound(response.output.trim());
     }
 
-    // will always be defined as long as MAX_LLM_TRIES is greater than 0
-    return response!;
+    return response;
   }
 
   /** @deprecated remove after all KB AI Response steps moved off */
