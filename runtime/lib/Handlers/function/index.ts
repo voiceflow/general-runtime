@@ -16,10 +16,10 @@ const utilsObj = {};
 function applyOutputCommand(
   command: OutputVarsCommand,
   runtime: Runtime,
-  outputVarDeclrs: FunctionCompiledData['outputVars'],
+  outputVarDeclarations: FunctionCompiledData['outputVars'],
   outputMapping: FunctionCompiledNode['data']['outputMapping']
 ): void {
-  Object.keys(outputVarDeclrs).forEach((functionVarName) => {
+  Object.keys(outputVarDeclarations).forEach((functionVarName) => {
     const voiceflowVarName = outputMapping[functionVarName];
     if (!voiceflowVarName) return;
     runtime.variables.set(voiceflowVarName, command[functionVarName]);
@@ -36,8 +36,7 @@ function applyTraceCommand(command: TraceCommand, runtime: Runtime): void {
 
 function applyNextCommand(command: NextCommand, paths: FunctionCompiledNode['data']['paths']): string | null {
   if ('path' in command) {
-    const nextStepId = paths[command.path];
-    return nextStepId ?? null;
+    return paths[command.path] ?? null;
   }
   return null;
 }
@@ -47,7 +46,7 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
 
   handle: async (node, runtime): Promise<string | null> => {
     const {
-      functionDefinition: { outputVars: outputVarDeclrs },
+      functionDefinition: { outputVars: outputVarDeclarations },
       outputMapping,
       paths,
     } = node.data;
@@ -56,7 +55,7 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
       const { next, outputVars, trace } = await executeFunction(node.data);
 
       if (outputVars) {
-        applyOutputCommand(outputVars, runtime, outputVarDeclrs, outputMapping);
+        applyOutputCommand(outputVars, runtime, outputVarDeclarations, outputMapping);
       }
 
       if (trace) {
