@@ -8,13 +8,13 @@ export class InvalidRuntimeCommandException extends ExecuteLambdaException {
   }
 
   get message(): string {
-    const zodParsingErrors = this.zodParsingError.flatten();
+    const errors = this.zodParsingError.flatten();
 
-    if (zodParsingErrors.formErrors.length > 0) {
-      return zodParsingErrors.formErrors.join('. ');
+    if (errors.formErrors.length > 0) {
+      return errors.formErrors.join('. ');
     }
 
-    return Object.values(this.zodParsingError.flatten().fieldErrors)
+    return Object.entries(errors.fieldErrors)
       .map((errorArray) => (errorArray ?? []).join('. '))
       .filter((message) => message.length > 0)
       .join('. ');
