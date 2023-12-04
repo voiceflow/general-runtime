@@ -34,9 +34,6 @@ export function validateInputVariableTypes(
     const [varName, declare] = firstInvalid;
 
     if (typeof variables[varName] === 'undefined') {
-      // !TODO! - If functions receives full type system, then we must ignore `undefined` if
-      // input variable is optional according to the type declaration.
-
       throw new FunctionRequiredVarException(varName);
     } else {
       throw new FunctionInputTypeException(varName, declare.type, variables[varName]);
