@@ -3,6 +3,7 @@ import { BaseModels, BaseUtils } from '@voiceflow/base-types';
 import { BadRequestException } from '@voiceflow/exception';
 import VError from '@voiceflow/verror';
 import _merge from 'lodash/merge';
+import { z } from 'zod';
 
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
 import { getKBSettings } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
@@ -10,6 +11,7 @@ import log from '@/logger';
 import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
 import { Request, Response } from '@/types';
+import { formatZodError } from '@/utils/zod-error/formatZodError';
 
 import { QuotaName } from '../../services/billing';
 import { fetchPrompt } from '../../services/runtime/handlers/utils/ai';
@@ -186,7 +188,9 @@ class TestController extends AbstractController {
     try {
       await TestFunctionRequestBodyDTO.parseAsync(req.body);
     } catch (err) {
-      throw new BadRequestException();
+      throw new BadRequestException({
+        message: err instanceof z.ZodError ? formatZodError(err) : err.message,
+      });
     }
 
     const { functionDefinition, inputMapping } = req.body;

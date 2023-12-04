@@ -34,6 +34,6 @@
     "skipLibCheck": true
   },
   "compileOnSave": false,
-  "include": ["backend", "lib", "runtime", "tests", "typings", "./*.ts"],
+  "include": ["backend", "lib", "runtime", "utils", "tests", "typings", "./*.ts"],
   "exclude": ["node_modules", "build"]
 }

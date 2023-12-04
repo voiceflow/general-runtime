@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { formatZodError } from '@/utils/zod-error/formatZodError';
+
 import { ExecuteLambdaException } from './execute-lambda.exception';
 
 export class InvalidRuntimeCommandException extends ExecuteLambdaException {
@@ -8,15 +10,6 @@ export class InvalidRuntimeCommandException extends ExecuteLambdaException {
   }
 
   get message(): string {
-    const errors = this.zodParsingError.flatten();
-
-    if (errors.formErrors.length > 0) {
-      return errors.formErrors.join('. ');
-    }
-
-    return Object.entries(errors.fieldErrors)
-      .map((errorArray) => (errorArray ?? []).join('. '))
-      .filter((message) => message.length > 0)
-      .join('. ');
+    return formatZodError(this.zodParsingError);
   }
 }
