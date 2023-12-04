@@ -7,7 +7,7 @@ export class InvalidRuntimeCommandException extends ExecuteLambdaException {
     super();
   }
 
-  toCanonicalError(): string {
+  get message(): string {
     const zodParsingErrors = this.zodParsingError.flatten();
 
     if (zodParsingErrors.formErrors.length > 0) {

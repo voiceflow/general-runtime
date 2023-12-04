@@ -5,14 +5,14 @@ import { match } from 'ts-pattern';
 import { Trace } from '../../runtime-command/trace-command.dto';
 
 export abstract class FunctionException extends Error {
-  abstract toCanonicalError(): string;
+  abstract get message(): string;
 }
 
 export function createFunctionExceptionDebugTrace(err: unknown): Trace {
   const debugMessage = match(err)
     .when(
       (val): val is FunctionException => val instanceof FunctionException,
-      (err) => err.toCanonicalError()
+      (err) => err.message
     )
     .when(
       (val): val is HTTPException => HTTPException.instanceOf(val),

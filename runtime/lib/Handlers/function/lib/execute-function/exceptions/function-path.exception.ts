@@ -5,7 +5,7 @@ export class FunctionPathException extends ExecuteFunctionException {
     super();
   }
 
-  toCanonicalError(): string {
+  get message(): string {
     return `Function step returned an invalid path '${
       this.actualPath
     }' which is not one of the expected paths '${JSON.stringify(this.expectedPaths)}`;

@@ -5,7 +5,7 @@ export class FunctionRequiredVarException extends ExecuteFunctionException {
     super();
   }
 
-  toCanonicalError(): string {
+  get message(): string {
     return `Function is missing input value for required variable '${this.varName}'`;
   }
 }

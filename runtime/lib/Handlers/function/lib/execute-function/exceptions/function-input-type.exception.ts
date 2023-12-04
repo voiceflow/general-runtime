@@ -11,7 +11,7 @@ export class FunctionInputTypeException extends ExecuteFunctionException {
     super();
   }
 
-  toCanonicalError(): string {
+  get message(): string {
     return `Function step received an invalid value with type '${typeof this.actualValue}' for input variable '${
       this.varName
     }' with expected type '${this.expectedType}'`;

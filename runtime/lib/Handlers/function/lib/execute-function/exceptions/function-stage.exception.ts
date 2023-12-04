@@ -5,7 +5,7 @@ export class FunctionStageException extends ExecuteFunctionException {
     super();
   }
 
-  toCanonicalError(): string {
+  get message(): string {
     return `Function step jumped to an invalid stage '${
       this.actualStage
     }' which is not one of the expected stages '${JSON.stringify(this.expectedStages)}`;
