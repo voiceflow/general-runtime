@@ -36,7 +36,7 @@ class NLUController extends AbstractController {
         .collection('versions')
         .findOne(
           { _id: new ObjectId(versionID) },
-          { projection: { projectID: 1, 'version.platformData.settings.intentConfidence': 1 } }
+          { projection: { projectID: 1, 'prototype.model': 1, 'platformData.settings.intentConfidence': 1 } }
         );
 
       if (!version) throw new Error(`Version not found: ${versionID}`);
@@ -45,12 +45,18 @@ class NLUController extends AbstractController {
     };
 
     const getProject = async (projectID: string) => {
-      const project = await this.services.mongo?.db
-        .collection('projects')
-        .findOne(
-          { _id: new ObjectId(projectID) },
-          { projection: { _id: 1, liveVersion: 1, 'prototype.nlp': 1, 'version.platformData.hasChannelIntents': 1 } }
-        );
+      const project = await this.services.mongo?.db.collection('projects').findOne(
+        { _id: new ObjectId(projectID) },
+        {
+          projection: {
+            _id: 1,
+            liveVersion: 1,
+            nluSettings: 1,
+            'prototype.nlp': 1,
+            'platformData.hasChannelIntents': 1,
+          },
+        }
+      );
 
       if (!project) throw new Error(`Project not found: ${projectID}`);
 
@@ -71,6 +77,7 @@ class NLUController extends AbstractController {
       hasChannelIntents: (project as VoiceflowProject.Project)?.platformData?.hasChannelIntents,
       workspaceID: project.teamID,
       intentConfidence: version?.platformData?.settings?.intentConfidence,
+      nluSettings: project.nluSettings,
     });
   }
 }

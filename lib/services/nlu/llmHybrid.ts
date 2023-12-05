@@ -33,7 +33,7 @@ export const hybridPredict = async ({
   const gpt = ai.get(BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo);
 
   const promptIntents = matchedIntents
-    .filter((intent) => intent.name === VoiceflowConstants.IntentName.NONE)
+    .filter((intent) => intent.name !== VoiceflowConstants.IntentName.NONE)
     // use description or first utterance
     .map((intent) => `d:${intent.description ?? intent.inputs[0].text} i:${intent.name}`)
     .join('\n');
@@ -45,7 +45,7 @@ export const hybridPredict = async ({
     u:${utterance} i:
   `;
 
-  const result = await gpt?.generateCompletion(prompt, {}, { context: {}, timeout: 1000 });
+  const result = await gpt?.generateCompletion(prompt, {}, { context: {}, timeout: 1500 });
   if (!result?.output) return defaultNLUResponse;
 
   const sanitizedResultIntentName = result.output.trim().replace(/i:|d:|u:|/g, '');

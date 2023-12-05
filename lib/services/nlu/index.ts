@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/cognitive-complexity */
 /**
  * [[include:nlu.md]]
  * @packageDocumentation
@@ -26,7 +27,6 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     return `${protocol}://${this.config.NLU_GATEWAY_SERVICE_HOST}:${this.config.NLU_GATEWAY_SERVICE_PORT_APP}`;
   }
 
-  // eslint-disable-next-line sonarjs/cognitive-complexity
   async predict({
     query,
     model,
@@ -75,6 +75,8 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
 
     // 2. next try to determine the intent of an utterance with an NLU
     if (nlp) {
+      const useHybridStrategy = nluSettings?.classifyStrategy === BaseModels.Project.ClassifyStrategy.VF_NLU_LLM_HYBRID;
+
       const { data } = await this.services.axios
         .post<NLUGatewayPredictResponse>(`${this.getNluGatewayEndpoint()}/v1/predict/${versionID}`, {
           utterance: query,
@@ -84,11 +86,12 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
           filteredEntities: filteredEntitiesArray,
           excludeFilteredIntents,
           excludeFilteredEntities,
+          ...(useHybridStrategy && { limit: 5 }),
         })
         .catch(() => ({ data: null }));
 
       if (data) {
-        if (nluSettings?.classifyStrategy === BaseModels.Project.ClassifyStrategy.VF_NLU_LLM_HYBRID && model) {
+        if (useHybridStrategy && model) {
           return hybridPredict({ utterance: query, nluResults: data, nluModel: model, ai: this.services.ai });
         }
 
@@ -152,6 +155,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       filteredEntities: availableEntities,
       excludeFilteredIntents: false,
       excludeFilteredEntities: false,
+      nluSettings: project.nluSettings,
     });
 
     return { ...context, request };

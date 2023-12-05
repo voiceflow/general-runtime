@@ -154,6 +154,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               dmRequest: dmStateStore.intentRequest.payload,
               workspaceID: project.teamID,
               intentConfidence: version?.platformData?.settings?.intentConfidence,
+              nluSettings: project.nluSettings,
             })
           : incomingRequest;
 
