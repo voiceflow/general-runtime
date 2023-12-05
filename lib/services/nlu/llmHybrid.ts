@@ -26,14 +26,17 @@ export const hybridPredict = async ({
     acc[intent.name] = intent;
     return acc;
   }, {});
-  const matchedIntents = nluResults.intents.map((intent) => intentMap[intent.name]).filter(Utils.array.isNotNullish);
-  if (matchedIntents.length < 2) return defaultNLUResponse;
+  const matchedIntents = nluResults.intents
+    .filter((intent) => intent.name !== VoiceflowConstants.IntentName.NONE)
+    .map((intent) => intentMap[intent.name])
+    .filter(Utils.array.isNotNullish);
+
+  if (!matchedIntents.length) return defaultNLUResponse;
 
   // STEP 2: match NLU prediction slots to NLU model
   const gpt = ai.get(BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo);
 
   const promptIntents = matchedIntents
-    .filter((intent) => intent.name !== VoiceflowConstants.IntentName.NONE)
     // use description or first utterance
     .map((intent) => `d:${intent.description ?? intent.inputs[0].text} i:${intent.name}`)
     .join('\n');
@@ -45,7 +48,14 @@ export const hybridPredict = async ({
     u:${utterance} i:
   `;
 
-  const result = await gpt?.generateCompletion(prompt, {}, { context: {}, timeout: 1500 });
+  const result = await gpt?.generateCompletion(
+    prompt,
+    {
+      temperature: 0.1,
+      maxTokens: 32,
+    },
+    { context: {}, timeout: 1000 }
+  );
   if (!result?.output) return defaultNLUResponse;
 
   const sanitizedResultIntentName = result.output.trim().replace(/i:|d:|u:|/g, '');

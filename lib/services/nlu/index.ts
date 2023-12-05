@@ -92,7 +92,12 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
 
       if (data) {
         if (useHybridStrategy && model) {
-          return hybridPredict({ utterance: query, nluResults: data, nluModel: model, ai: this.services.ai });
+          return hybridPredict({
+            utterance: query,
+            nluResults: data,
+            nluModel: model,
+            ai: this.services.ai,
+          });
         }
 
         let intentRequest = adaptNLUPrediction(data);
