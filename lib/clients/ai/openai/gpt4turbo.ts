@@ -44,7 +44,7 @@ export class GPT4Turbo extends GPTAIChatModel {
           temperature: params.temperature,
           messages: messages.map(({ role, content }) => ({ role: GPTAIChatModel.RoleMapping[role], content })),
         },
-        { timeout: this.TIMEOUT }
+        { timeout: options.timeout ?? this.TIMEOUT }
       )
       .catch((error) => {
         log.warn(`GPT4Turbo completion ${log.vars({ error, messages, params, data: error?.response?.data?.error })})}`);

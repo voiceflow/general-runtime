@@ -12,6 +12,7 @@ import { Context, ContextHandler, VersionTag } from '@/types';
 
 import { isConfidenceScoreAbove } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
+import { hybridPredict } from './llmHybrid';
 import { handleNLCCommand } from './nlc';
 import { NLUGatewayPredictResponse } from './types';
 import { adaptNLUPrediction, getAvailableIntentsAndEntities, getNoneIntentRequest, mapChannelData } from './utils';
@@ -25,6 +26,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     return `${protocol}://${this.config.NLU_GATEWAY_SERVICE_HOST}:${this.config.NLU_GATEWAY_SERVICE_PORT_APP}`;
   }
 
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   async predict({
     query,
     model,
@@ -41,6 +43,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     filteredEntities,
     excludeFilteredIntents,
     excludeFilteredEntities,
+    nluSettings,
   }: {
     query: string;
     model?: BaseModels.PrototypeModel;
@@ -57,6 +60,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     filteredEntities?: Set<string>;
     excludeFilteredIntents?: boolean;
     excludeFilteredEntities?: boolean;
+    nluSettings?: BaseModels.Project.NLUSettings;
   }): Promise<BaseRequest.IntentRequest> {
     // 1. first try restricted regex (no open slots) - exact string match
     if (model && locale) {
@@ -84,6 +88,10 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
         .catch(() => ({ data: null }));
 
       if (data) {
+        if (nluSettings?.classifyStrategy === BaseModels.Project.ClassifyStrategy.VF_NLU_LLM_HYBRID && model) {
+          return hybridPredict({ utterance: query, nluResults: data, nluModel: model, ai: this.services.ai });
+        }
+
         let intentRequest = adaptNLUPrediction(data);
 
         const { confidence } = intentRequest.payload;

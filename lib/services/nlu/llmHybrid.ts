@@ -8,7 +8,7 @@ import AIClient from '@/lib/clients/ai';
 import { NLUGatewayPredictResponse } from './types';
 import { adaptNLUPrediction } from './utils';
 
-export const finalizeIntent = async ({
+export const hybridPredict = async ({
   utterance,
   nluResults,
   nluModel,
@@ -34,7 +34,8 @@ export const finalizeIntent = async ({
 
   const promptIntents = matchedIntents
     .filter((intent) => intent.name === VoiceflowConstants.IntentName.NONE)
-    .map((intent) => `i:${intent.name} d:${intent.description}`)
+    // use description or first utterance
+    .map((intent) => `d:${intent.description ?? intent.inputs[0].text} i:${intent.name}`)
     .join('\n');
 
   const prompt = dedent`
