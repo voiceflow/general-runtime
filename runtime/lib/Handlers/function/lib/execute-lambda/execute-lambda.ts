@@ -1,20 +1,15 @@
 import { InternalServerErrorException } from '@voiceflow/exception';
-import axios from 'axios';
 import { z } from 'zod';
 
 import Config from '@/config';
+import { FunctionLambdaClient } from '@/runtime/lib/HTTPClient/function-lambda';
 
 import { RuntimeCommand } from '../../runtime-command/runtime-command.dto';
 import { ExecuteLambdaException } from './exceptions/execute-lambda.exception';
 import { InvalidRuntimeCommandException } from './exceptions/invalid-runtime-command.exception';
 import { ModuleResolutionException } from './exceptions/module-resolution.exception';
 import { RuntimeErrorException } from './exceptions/runtime-error.exception';
-import {
-  FunctionLambdaErrorResponseDTO,
-  FunctionLambdaRequest,
-  FunctionLambdaResponse,
-  FunctionLambdaSuccessResponseDTO,
-} from './execute-lambda.types';
+import { FunctionLambdaErrorResponseDTO, FunctionLambdaSuccessResponseDTO } from './execute-lambda.types';
 import { LambdaErrorCode } from './lambda-error-code.enum';
 
 export async function executeLambda(
@@ -30,14 +25,14 @@ export async function executeLambda(
     });
   }
 
-  const request: FunctionLambdaRequest = {
-    code,
-    variables,
-    enableLog,
-  };
-
   try {
-    const { data } = await axios.post<FunctionLambdaResponse>(functionLambdaEndpoint, request);
+    const lambdaClient = new FunctionLambdaClient(functionLambdaEndpoint);
+    const { data } = await lambdaClient.executeLambda({
+      code,
+      variables,
+      enableLog,
+    });
+
     return FunctionLambdaSuccessResponseDTO.parse(data);
   } catch (err) {
     if (err instanceof z.ZodError) {

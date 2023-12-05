@@ -3,12 +3,6 @@ import { z } from 'zod';
 import { RuntimeCommandDTO } from '../../runtime-command/runtime-command.dto';
 import { LambdaErrorCode } from './lambda-error-code.enum';
 
-export interface FunctionLambdaRequest {
-  code: string;
-  variables: Record<string, unknown>;
-  enableLog?: boolean;
-}
-
 export const FunctionLambdaSuccessResponseDTO = RuntimeCommandDTO;
 
 export type FunctionLambdaSuccessResponse = z.infer<typeof FunctionLambdaSuccessResponseDTO>;

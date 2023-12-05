@@ -13,7 +13,7 @@ import validator from 'validator';
 
 import Runtime from '@/runtime/lib/Runtime';
 
-import { createS3Client, readFileFromS3 } from '../../AWSClient';
+import { createS3Client, readFileFromS3 } from '../../HTTPClient/AWSClient';
 import { APIHandlerConfig, DEFAULT_API_HANDLER_CONFIG } from './types';
 
 export type APINodeData = BaseNode.Api.NodeData['action_data'];

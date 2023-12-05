@@ -1,4 +1,4 @@
-export * from './lib/AWSClient';
+export * from './lib/HTTPClient/AWSClient';
 // eslint-disable-next-line no-restricted-exports
 export { default } from './lib/Client';
 export * from './lib/Constants';
