@@ -8,6 +8,8 @@ import NLUManager, { NLUGatewayPredictResponse, utils as defaultUtils } from '@/
 import * as NLC from '@/lib/services/nlu/nlc';
 import { VersionTag } from '@/types';
 
+import { getMockRuntime } from './fixture';
+
 chai.use(chaiAsPromised);
 const { expect } = chai;
 
@@ -95,9 +97,15 @@ describe('nlu manager unit tests', () => {
         type: BaseRequest.RequestType.TEXT,
         payload: 'query',
       };
+      const runtimeClient = {
+        createRuntime: sinon.stub().returns(getMockRuntime()),
+      };
       const services = {
         axios: {
           post: sinon.stub().resolves({ data: nluGatewayPrediction }),
+        },
+        runtime: {
+          createClient: sinon.stub().returns(runtimeClient),
         },
       };
       const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
@@ -123,9 +131,15 @@ describe('nlu manager unit tests', () => {
         type: BaseRequest.RequestType.TEXT,
         payload: query,
       };
+      const runtimeClient = {
+        createRuntime: sinon.stub().returns(getMockRuntime()),
+      };
       const services = {
         axios: {
           post: sinon.stub().resolves({ data: nluGatewayPrediction }),
+        },
+        runtime: {
+          createClient: sinon.stub().returns(runtimeClient),
         },
       };
       const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
@@ -149,6 +163,8 @@ describe('nlu manager unit tests', () => {
 
       expect(result).to.eql({ ...context, request: intentResponse });
       expect(services.axios.post.args[0][1]).to.eql({
+        availableEntities: [],
+        availableIntents: [],
         utterance: query,
         tag: VersionTag.PRODUCTION,
         workspaceID: teamID,

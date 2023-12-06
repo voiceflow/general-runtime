@@ -1,5 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import { BaseModels, BaseNode, BaseRequest } from '@voiceflow/base-types';
+import { EventType } from '@voiceflow/base-types/build/cjs/node/utils';
 import { SLOT_REGEXP, VF_DM_PREFIX } from '@voiceflow/common';
 import * as crypto from 'crypto';
 
@@ -72,6 +73,15 @@ export const isInteractionsInNode = (
   node: BaseModels.BaseNode & { interactions?: BaseNode.Interaction.NodeInteraction[] }
 ): node is BaseModels.BaseNode & { interactions: BaseNode.Interaction.NodeInteraction[] } =>
   Array.isArray(node.interactions);
+
+export const isIntentInInteraction = (
+  interaction: BaseNode.Interaction.NodeInteraction
+): interaction is BaseNode.Interaction.NodeInteraction<BaseNode.Utils.IntentEvent> =>
+  interaction.event.type === EventType.INTENT;
+
+export const isIntentScopeInNode = (
+  node: BaseModels.BaseNode & { intentScope?: BaseNode.Utils.IntentScope }
+): node is BaseModels.BaseNode & { intentScope?: BaseNode.Utils.IntentScope } => !!node.intentScope;
 
 export const isIntentInNode = (
   node: BaseModels.BaseNode & { intent?: { name?: string } }

@@ -1,3 +1,5 @@
+import sinon from 'sinon';
+
 export const regexMatcherSlots = [
   {
     key: 'slot1',
@@ -53,3 +55,26 @@ export const customTypeSlots = [
     color: 'custom-color3',
   },
 ];
+
+export const getMockRuntime = (mockCommands: Array<any> = [], mockNode: any = {}) => {
+  const mockProgram = {
+    getNode: sinon.stub().returns(mockNode),
+  };
+
+  const mockFrames = [
+    {
+      getCommands: sinon.stub().returns(mockCommands),
+      getDiagramID: sinon.stub(),
+      getNodeID: sinon.stub(),
+    },
+  ];
+
+  return {
+    getProgram: sinon.stub().resolves(mockProgram),
+    getVersionID: sinon.stub(),
+    stack: {
+      getFrames: sinon.stub().returns(mockFrames),
+      top: sinon.stub().returns(mockFrames[0]),
+    },
+  };
+};

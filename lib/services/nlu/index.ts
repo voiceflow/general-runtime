@@ -13,7 +13,7 @@ import { Context, ContextHandler, VersionTag } from '@/types';
 import { isConfidenceScoreAbove } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
 import { handleNLCCommand } from './nlc';
-import { getNoneIntentRequest, mapChannelData } from './utils';
+import { getNLUScope, getNoneIntentRequest, mapChannelData } from './utils';
 
 export const utils = {};
 
@@ -61,6 +61,8 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     dmRequest,
     workspaceID,
     intentConfidence = 0.6,
+    availableIntents,
+    availableEntities,
   }: {
     query: string;
     model?: BaseModels.PrototypeModel;
@@ -73,6 +75,8 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     dmRequest?: BaseRequest.IntentRequestPayload;
     workspaceID: string;
     intentConfidence?: number;
+    availableIntents?: string[];
+    availableEntities?: string[];
   }): Promise<BaseRequest.IntentRequest> {
     // 1. first try restricted regex (no open slots) - exact string match
     if (model && locale) {
@@ -89,6 +93,8 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
           utterance: query,
           tag,
           workspaceID,
+          availableIntents,
+          availableEntities,
         })
         .catch(() => ({ data: null }));
 
@@ -129,6 +135,19 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       };
     }
 
+    const client = this.services.runtime.createClient(context.data.api);
+
+    const runtime = client.createRuntime({
+      versionID: context.versionID,
+      state: context.state,
+      request: context.request,
+      version: context.version,
+      project: context.project,
+      timeout: 0,
+    });
+
+    const { availableIntents, availableEntities } = await getNLUScope(runtime);
+
     const version = await context.data.api.getVersion(context.versionID);
 
     const project = await context.data.api.getProject(version.projectID);
@@ -144,6 +163,8 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
       workspaceID: project.teamID,
       intentConfidence: version?.platformData?.settings?.intentConfidence,
+      availableIntents,
+      availableEntities,
     });
 
     return { ...context, request };
