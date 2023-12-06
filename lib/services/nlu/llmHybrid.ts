@@ -26,7 +26,9 @@ export const hybridPredict = async ({
     acc[intent.name] = intent;
     return acc;
   }, {});
+
   const matchedIntents = nluResults.intents
+    // filter out none intent
     .filter((intent) => intent.name !== VoiceflowConstants.IntentName.NONE)
     .map((intent) => intentMap[intent.name])
     .filter(Utils.array.isNotNullish);
@@ -58,7 +60,7 @@ export const hybridPredict = async ({
   );
   if (!result?.output) return defaultNLUResponse;
 
-  const sanitizedResultIntentName = result.output.trim().replace(/i:|d:|u:|/g, '');
+  const sanitizedResultIntentName = result.output.replace(/i:|d:|u:|/g, '').trim();
   const intent = intentMap[sanitizedResultIntentName];
 
   if (!intent) return defaultNLUResponse;
