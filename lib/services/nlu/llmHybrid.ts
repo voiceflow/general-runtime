@@ -1,4 +1,4 @@
-import { BaseModels, BaseRequest, BaseUtils } from '@voiceflow/base-types';
+import { BaseModels, BaseNode, BaseRequest, BaseTrace, BaseUtils } from '@voiceflow/base-types';
 import { Utils } from '@voiceflow/common';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import dedent from 'dedent';
@@ -6,18 +6,20 @@ import dedent from 'dedent';
 import AIClient from '@/lib/clients/ai';
 
 import { NLUGatewayPredictResponse } from './types';
-import { adaptNLUPrediction } from './utils';
+import { adaptNLUPrediction, getNoneIntentRequest } from './utils';
 
 export const hybridPredict = async ({
   utterance,
   nluResults,
   nluModel,
   ai,
+  trace,
 }: {
   utterance: string;
   nluResults: NLUGatewayPredictResponse;
   nluModel: BaseModels.PrototypeModel;
   ai: AIClient;
+  trace?: BaseTrace.AnyTrace[];
 }): Promise<BaseRequest.IntentRequest> => {
   const defaultNLUResponse = adaptNLUPrediction(nluResults);
 
@@ -47,8 +49,18 @@ export const hybridPredict = async ({
     Here are the intents and their descriptions:
     ${promptIntents}
     d:Everything else that doesn’t match any of the above categories i:None
+
+    Given the user request, choose from the intents above:
     u:${utterance} i:
   `;
+
+  const resultDebug = nluResults.intents.map(({ name, confidence }) => `${name}: ${confidence}`).join('\n');
+  trace?.push({
+    type: BaseNode.Utils.TraceType.DEBUG,
+    payload: {
+      message: `NLU Results:<pre>${resultDebug}</pre>`,
+    },
+  });
 
   const result = await gpt?.generateCompletion(
     prompt,
@@ -58,9 +70,23 @@ export const hybridPredict = async ({
     },
     { context: {}, timeout: 1000 }
   );
-  if (!result?.output) return defaultNLUResponse;
+  if (!result?.output) {
+    trace?.push({
+      type: BaseNode.Utils.TraceType.DEBUG,
+      payload: { message: `unable to get LLM result, potential timeout` },
+    });
+    return defaultNLUResponse;
+  }
 
   const sanitizedResultIntentName = result.output.replace(/i:|d:|u:|/g, '').trim();
+
+  trace?.push({
+    type: BaseNode.Utils.TraceType.DEBUG,
+    payload: { message: `LLM Result: \`${sanitizedResultIntentName}\`` },
+  });
+
+  if (sanitizedResultIntentName === VoiceflowConstants.IntentName.NONE) return getNoneIntentRequest();
+
   const intent = intentMap[sanitizedResultIntentName];
 
   if (!intent) return defaultNLUResponse;

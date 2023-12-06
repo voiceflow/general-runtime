@@ -4,7 +4,7 @@
  * @packageDocumentation
  */
 
-import { BaseModels, BaseRequest } from '@voiceflow/base-types';
+import { BaseModels, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 import VError, { HTTP_STATUS } from '@voiceflow/verror';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
@@ -44,6 +44,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     excludeFilteredIntents,
     excludeFilteredEntities,
     nluSettings,
+    trace,
   }: {
     query: string;
     model?: BaseModels.PrototypeModel;
@@ -61,6 +62,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     excludeFilteredIntents?: boolean;
     excludeFilteredEntities?: boolean;
     nluSettings?: BaseModels.Project.NLUSettings;
+    trace?: BaseTrace.AnyTrace[];
   }): Promise<BaseRequest.IntentRequest> {
     // 1. first try restricted regex (no open slots) - exact string match
     if (model && locale) {
@@ -97,6 +99,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
             nluResults: data,
             nluModel: model,
             ai: this.services.ai,
+            trace,
           });
         }
 
@@ -161,6 +164,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       excludeFilteredIntents: false,
       excludeFilteredEntities: false,
       nluSettings: project.nluSettings,
+      trace: context.trace,
     });
 
     return { ...context, request };
