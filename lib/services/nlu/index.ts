@@ -88,7 +88,7 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
           filteredEntities: filteredEntitiesArray,
           excludeFilteredIntents,
           excludeFilteredEntities,
-          ...(useHybridStrategy && { limit: 5 }),
+          ...(useHybridStrategy && { limit: 10 }),
         })
         .catch(() => ({ data: null }));
 
