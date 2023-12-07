@@ -11,7 +11,7 @@ export abstract class FunctionException extends Error {
 export function createFunctionExceptionDebugTrace(err: unknown): Trace {
   const debugMessage = match(err)
     .when(
-      (val): val is FunctionException => val instanceof FunctionException,
+      (val): val is Error => val instanceof Error,
       (err) => err.message
     )
     .when(
