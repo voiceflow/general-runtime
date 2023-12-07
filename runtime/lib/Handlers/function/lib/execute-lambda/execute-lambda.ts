@@ -5,8 +5,8 @@ import Config from '@/config';
 import { FunctionLambdaClient } from '@/runtime/lib/HTTPClient/function-lambda';
 
 import { RuntimeCommand } from '../../runtime-command/runtime-command.dto';
-import { ExecuteLambdaException } from './exceptions/execute-lambda.exception';
 import { InvalidRuntimeCommandException } from './exceptions/invalid-runtime-command.exception';
+import { LambdaException } from './exceptions/lambda.exception';
 import { ModuleResolutionException } from './exceptions/module-resolution.exception';
 import { RuntimeErrorException } from './exceptions/runtime-error.exception';
 import { FunctionLambdaErrorResponseDTO, FunctionLambdaSuccessResponseDTO } from './execute-lambda.types';
@@ -69,7 +69,7 @@ export async function executeLambda(
         case LambdaErrorCode.SandboxModuleResolution:
           throw new ModuleResolutionException(message);
         default:
-          throw new ExecuteLambdaException(message);
+          throw new LambdaException(message);
       }
     }
 

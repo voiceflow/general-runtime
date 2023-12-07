@@ -1,6 +1,11 @@
 import { BaseTrace } from '@voiceflow/base-types';
 import { BaseTraceFrame } from '@voiceflow/base-types/build/cjs/trace';
-import { FunctionCompiledData, FunctionCompiledNode, NodeType } from '@voiceflow/dtos';
+import {
+  FunctionCompiledDefinition,
+  FunctionCompiledInvocation,
+  FunctionCompiledNode,
+  NodeType,
+} from '@voiceflow/dtos';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
@@ -16,11 +21,11 @@ const utilsObj = {};
 function applyOutputCommand(
   command: OutputVarsCommand,
   runtime: Runtime,
-  outputVarDeclarations: FunctionCompiledData['outputVars'],
-  outputMapping: FunctionCompiledNode['data']['outputMapping']
+  outputVarDeclarations: FunctionCompiledDefinition['outputVars'],
+  outputVarMappings: FunctionCompiledInvocation['outputVars']
 ): void {
   Object.keys(outputVarDeclarations).forEach((functionVarName) => {
-    const voiceflowVarName = outputMapping[functionVarName];
+    const voiceflowVarName = outputVarMappings[functionVarName];
     if (!voiceflowVarName) return;
     runtime.variables.set(voiceflowVarName, command[functionVarName]);
   });
@@ -34,7 +39,7 @@ function applyTraceCommand(command: TraceCommand, runtime: Runtime): void {
   });
 }
 
-function applyNextCommand(command: NextCommand, paths: FunctionCompiledNode['data']['paths']): string | null {
+function applyNextCommand(command: NextCommand, paths: FunctionCompiledInvocation['paths']): string | null {
   if ('path' in command) {
     return paths[command.path] ?? null;
   }
@@ -46,13 +51,17 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
 
   handle: async (node, runtime): Promise<string | null> => {
     const {
-      functionDefinition: { outputVars: outputVarDeclarations },
-      outputMapping,
-      paths,
+      definition: { codeId, outputVars: outputVarDeclarations },
+      invocation: { outputVars: outputMapping, paths },
     } = node.data;
 
     try {
-      const { next, outputVars, trace } = await executeFunction(node.data);
+      const { next, outputVars, trace } = await executeFunction({
+        source: {
+          codeId,
+        },
+        ...node.data,
+      });
 
       if (outputVars) {
         applyOutputCommand(outputVars, runtime, outputVarDeclarations, outputMapping);
