@@ -12,35 +12,26 @@ import { TestFunctionResponse } from './interface';
 export class TestService extends AbstractManager {
   private async createExecuteFunctionArgs(
     code: string,
-    functionDefinition: Pick<FunctionCompiledDefinition, 'inputVars' | 'pathCodes'>,
-    inputMapping: FunctionCompiledInvocation['inputVars']
+    definition: Pick<FunctionCompiledDefinition, 'inputVars' | 'pathCodes'>,
+    invocation: Pick<FunctionCompiledInvocation, 'inputVars'>
   ): Promise<ExecuteFunctionArgs> {
-    const { inputVars: inputVarDeclarations, pathCodes } = functionDefinition;
-
     return {
-      source: {
-        code,
-      },
-      definition: {
-        inputVars: inputVarDeclarations,
-        pathCodes,
-      },
-      invocation: {
-        inputVars: inputMapping,
-      },
+      source: { code },
+      definition,
+      invocation,
     };
   }
 
   public async testFunction(
     code: string,
-    functionDefinition: Pick<FunctionCompiledDefinition, 'inputVars' | 'pathCodes'>,
-    inputMapping: FunctionCompiledInvocation['inputVars']
+    definition: Pick<FunctionCompiledDefinition, 'inputVars' | 'pathCodes'>,
+    invocation: Pick<FunctionCompiledInvocation, 'inputVars'>
   ): Promise<TestFunctionResponse> {
     let startTime = null;
     let endTime = null;
 
     try {
-      const executeFunctionArgs = await this.createExecuteFunctionArgs(code, functionDefinition, inputMapping);
+      const executeFunctionArgs = await this.createExecuteFunctionArgs(code, definition, invocation);
 
       startTime = performance.now();
       const runtimeCommands = await executeFunction(executeFunctionArgs);

@@ -1,7 +1,22 @@
 import { z } from 'zod';
 
-import { RuntimeCommandDTO } from '../../runtime-command/runtime-command.dto';
+import { RuntimeCommandDTO } from '../../Handlers/function/runtime-command/runtime-command.dto';
 import { LambdaErrorCode } from './lambda-error-code.enum';
+
+interface BaseFunctionLambdaRequest {
+  variables: Record<string, unknown>;
+  enableLog?: boolean;
+}
+
+interface FunctionLambdaRequestWithReference extends BaseFunctionLambdaRequest {
+  codeId: string;
+}
+
+interface FunctionLambdaRequestWithCode extends BaseFunctionLambdaRequest {
+  code: string;
+}
+
+export type FunctionLambdaRequest = FunctionLambdaRequestWithReference | FunctionLambdaRequestWithCode;
 
 export const FunctionLambdaSuccessResponseDTO = RuntimeCommandDTO;
 

@@ -57,9 +57,7 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
 
     try {
       const { next, outputVars, trace } = await executeFunction({
-        source: {
-          codeId,
-        },
+        source: { codeId },
         ...node.data,
       });
 

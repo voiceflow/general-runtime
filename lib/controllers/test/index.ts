@@ -204,7 +204,9 @@ class TestController extends AbstractController {
         inputVars,
         pathCodes,
       },
-      inputMapping
+      {
+        inputVars: inputMapping,
+      }
     );
 
     return TestFunctionResponseDTO.parse(result);
