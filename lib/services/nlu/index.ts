@@ -13,7 +13,7 @@ import { Context, ContextHandler, VersionTag } from '@/types';
 import { isConfidenceScoreAbove } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
 import { handleNLCCommand } from './nlc';
-import { getNLUScope, getNoneIntentRequest, mapChannelData } from './utils';
+import { getAvailableIntentsAndEntities, getNoneIntentRequest, mapChannelData } from './utils';
 
 export const utils = {};
 
@@ -77,8 +77,8 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     dmRequest?: BaseRequest.IntentRequestPayload;
     workspaceID: string;
     intentConfidence?: number;
-    filteredIntents?: string[];
-    filteredEntities?: string[];
+    filteredIntents?: Set<string>;
+    filteredEntities?: Set<string>;
     excludeFilteredIntents?: boolean;
     excludeFilteredEntities?: boolean;
   }): Promise<BaseRequest.IntentRequest> {
@@ -90,6 +90,9 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       }
     }
 
+    const filteredIntentsArray = filteredIntents ? Array.from(filteredIntents) : undefined;
+    const filteredEntitiesArray = filteredEntities ? Array.from(filteredEntities) : undefined;
+
     // 2. next try to determine the intent of an utterance with an NLU
     if (nlp) {
       const { data } = await this.services.axios
@@ -97,8 +100,8 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
           utterance: query,
           tag,
           workspaceID,
-          filteredIntents,
-          filteredEntities,
+          filteredIntents: filteredIntentsArray,
+          filteredEntities: filteredEntitiesArray,
           excludeFilteredIntents,
           excludeFilteredEntities,
         })
@@ -141,18 +144,10 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       };
     }
 
-    const client = this.services.runtime.createClient(context.data.api);
-
-    const runtime = client.createRuntime({
-      versionID: context.versionID,
-      state: context.state,
-      request: context.request,
-      version: context.version,
-      project: context.project,
-      timeout: 0,
-    });
-
-    const { availableIntents, availableEntities } = await getNLUScope(runtime);
+    const { availableIntents, availableEntities } = await getAvailableIntentsAndEntities(
+      this.services.runtime,
+      context
+    );
 
     const version = await context.data.api.getVersion(context.versionID);
 

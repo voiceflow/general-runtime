@@ -6,7 +6,7 @@ import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import chai from 'chai';
 import sinon from 'sinon';
 
-import { getNLUScope, mapChannelData } from '@/lib/services/nlu/utils';
+import { getAvailableIntentsAndEntities, mapChannelData } from '@/lib/services/nlu/utils';
 
 import { getMockRuntime } from './fixture';
 
@@ -52,7 +52,8 @@ describe('nlu manager utils unit tests', () => {
     });
   });
 
-  describe('getNLUScope', () => {
+  describe('getAvailableIntentsAndEntities', () => {
+    const mockContext = { data: { api: sinon.stub() } };
     const mockPizzaIntent = { type: EventType.INTENT, intent: 'Pizza', mappings: [{ slot: 'foo' }, { slot: 'bar' }] };
     const mockYesIntent = { type: EventType.INTENT, intent: 'VF.YES', mappings: [{ slot: 'baz' }] };
     const mockNoIntent = { type: EventType.INTENT, intent: 'VF.NO', mappings: [{ slot: 'qux' }] };
@@ -76,12 +77,21 @@ describe('nlu manager utils unit tests', () => {
         },
       ];
 
-      const mockRuntime = getMockRuntime(mockCommands, mockNode);
+      const runtimeClient = {
+        createRuntime: sinon.stub().returns(getMockRuntime(mockCommands, mockNode)),
+      };
 
-      const { availableIntents, availableEntities } = await getNLUScope(mockRuntime as any);
+      const mockRuntimeManager = {
+        createClient: sinon.stub().returns(runtimeClient),
+      };
 
-      expect(availableIntents).to.eql(['VF.YES', 'Pizza']);
-      expect(availableEntities).to.eql(['baz', 'foo', 'bar']);
+      const { availableIntents, availableEntities } = await getAvailableIntentsAndEntities(
+        mockRuntimeManager as any,
+        mockContext as any
+      );
+
+      expect(availableIntents).to.eql(new Set(['VF.YES', 'Pizza']));
+      expect(availableEntities).to.eql(new Set(['baz', 'foo', 'bar']));
     });
 
     it('ignores node level when intentScope is global', async () => {
@@ -103,21 +113,39 @@ describe('nlu manager utils unit tests', () => {
         },
       ];
 
-      const mockRuntime = getMockRuntime(mockCommands, mockNode);
+      const runtimeClient = {
+        createRuntime: sinon.stub().returns(getMockRuntime(mockCommands, mockNode)),
+      };
 
-      const { availableIntents, availableEntities } = await getNLUScope(mockRuntime as any);
+      const mockRuntimeManager = {
+        createClient: sinon.stub().returns(runtimeClient),
+      };
 
-      expect(availableIntents).to.eql(['VF.NO']);
-      expect(availableEntities).to.eql(['qux']);
+      const { availableIntents, availableEntities } = await getAvailableIntentsAndEntities(
+        mockRuntimeManager as any,
+        mockContext as any
+      );
+
+      expect(availableIntents).to.eql(new Set(['VF.NO']));
+      expect(availableEntities).to.eql(new Set(['qux']));
     });
 
     it('works with empty params', async () => {
-      const mockRuntime = getMockRuntime();
+      const runtimeClient = {
+        createRuntime: sinon.stub().returns(getMockRuntime()),
+      };
 
-      const { availableIntents, availableEntities } = await getNLUScope(mockRuntime as any);
+      const mockRuntimeManager = {
+        createClient: sinon.stub().returns(runtimeClient),
+      };
 
-      expect(availableIntents).to.eql([]);
-      expect(availableEntities).to.eql([]);
+      const { availableIntents, availableEntities } = await getAvailableIntentsAndEntities(
+        mockRuntimeManager as any,
+        mockContext as any
+      );
+
+      expect(availableIntents).to.eql(new Set([]));
+      expect(availableEntities).to.eql(new Set([]));
     });
   });
 });

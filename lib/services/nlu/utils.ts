@@ -5,9 +5,11 @@ import { GoogleConstants } from '@voiceflow/google-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { match } from 'ts-pattern';
 
-import Runtime from '@/runtime/lib/Runtime';
+import { Stack } from '@/runtime';
+import { Context } from '@/types';
 
 import { isIntentInInteraction, isIntentScopeInNode, isInteractionsInNode } from '../dialog/utils';
+import RuntimeManager from '../runtime';
 
 export const getNoneIntentRequest = ({
   query = '',
@@ -58,13 +60,12 @@ export const mapChannelData = (data: any, platform?: VoiceflowConstants.Platform
   };
 };
 
-export const setIntersect = (set1: Set<any>, set2: Set<any>) => new Set([...set1].filter((i) => set2.has(i)));
+const setIntersect = (set1: Set<any>, set2: Set<any>) => new Set([...set1].filter((i) => set2.has(i)));
 
-export const getNLUScope = async (
-  runtime: Runtime
-): Promise<{ availableIntents: string[]; availableEntities: string[] }> => {
-  // get command-level scope
-  const intentCommands = runtime.stack
+const getCommandLevelIntentsAndEntities = (
+  stack: Stack
+): { commandIntentNames: Set<string>; commandEntityNames: Set<string> } => {
+  const intentCommands = stack
     .getFrames()
     .flatMap((frame) => frame.getCommands<BaseNode.Utils.AnyCommand<BaseNode.Utils.IntentEvent>>())
     .filter((command) => command.type === CommandType.JUMP && command.event.type === EventType.INTENT);
@@ -72,36 +73,63 @@ export const getNLUScope = async (
   const commandIntentNames = new Set(intentCommands.map((command) => command.event.intent));
 
   const commandEntityNames = new Set(
-    intentCommands.flatMap((command) => command.event?.mappings).flatMap((mapping) => mapping?.slot || [])
+    intentCommands.flatMap((command) => command.event?.mappings ?? []).flatMap((mapping) => mapping.slot ?? [])
   );
 
-  // get node-level scope
+  return { commandIntentNames, commandEntityNames };
+};
+
+const getNodeLevelIntentsAndEntities = (
+  node: BaseNode.Utils.BaseNode | null
+): { nodeInteractionIntentNames: Set<string>; nodeInteractionEntityNames: Set<string> } => {
+  const nodeInteractionIntentNames: Set<string> = new Set();
+  const nodeInteractionEntityNames: Set<string> = new Set();
+  if (node && isInteractionsInNode(node)) {
+    const intentInteractions = node.interactions.filter(isIntentInInteraction);
+
+    intentInteractions
+      .flatMap((interaction) => interaction.event.intent)
+      .forEach((intent) => nodeInteractionIntentNames.add(intent));
+
+    intentInteractions
+      .flatMap((interaction) => interaction.event.mappings)
+      .flatMap((mapping) => mapping?.slot || [])
+      .forEach((entity) => nodeInteractionEntityNames.add(entity));
+  }
+
+  return { nodeInteractionIntentNames, nodeInteractionEntityNames };
+};
+
+export const getAvailableIntentsAndEntities = async (
+  runtimeManager: RuntimeManager,
+  context: Context
+): Promise<{ availableIntents: Set<string>; availableEntities: Set<string> }> => {
+  const runtime = runtimeManager.createClient(context.data.api).createRuntime({
+    versionID: context.versionID,
+    state: context.state,
+    request: context.request,
+    version: context.version,
+    project: context.project,
+    timeout: 0,
+  });
+
+  // get command-level scope
+  const { commandIntentNames, commandEntityNames } = getCommandLevelIntentsAndEntities(runtime.stack);
+
   const currentFrame = runtime.stack.top();
   const program = await runtime.getProgram(runtime.getVersionID(), currentFrame.getDiagramID());
   const node = program.getNode(currentFrame.getNodeID());
 
-  let nodeInteractionIntentNames: Set<string> = new Set();
-  let nodeInteractionEntityNames: Set<string> = new Set();
-  if (node && isInteractionsInNode(node)) {
-    const intentInteractions = node.interactions.filter(isIntentInInteraction);
-
-    nodeInteractionIntentNames = new Set(intentInteractions.flatMap((interaction) => interaction.event.intent));
-
-    nodeInteractionEntityNames = new Set(
-      intentInteractions.flatMap((interaction) => interaction.event.mappings).flatMap((mapping) => mapping?.slot || [])
-    );
-  }
+  // get node-level scope
+  const { nodeInteractionIntentNames, nodeInteractionEntityNames } = getNodeLevelIntentsAndEntities(node);
 
   // intersect scopes if necessary
-  let availableIntentsSet = commandIntentNames;
-  let availableEntitiesSet = commandEntityNames;
   if (node && isIntentScopeInNode(node) && node.intentScope === BaseNode.Utils.IntentScope.NODE) {
-    availableIntentsSet = setIntersect(commandIntentNames, nodeInteractionIntentNames);
-    availableEntitiesSet = setIntersect(commandEntityNames, nodeInteractionEntityNames);
+    return {
+      availableIntents: setIntersect(commandIntentNames, nodeInteractionIntentNames),
+      availableEntities: setIntersect(commandEntityNames, nodeInteractionEntityNames),
+    };
   }
 
-  const availableIntents = Array.from(availableIntentsSet);
-  const availableEntities = Array.from(availableEntitiesSet);
-
-  return { availableIntents, availableEntities };
+  return { availableIntents: commandIntentNames, availableEntities: commandEntityNames };
 };
