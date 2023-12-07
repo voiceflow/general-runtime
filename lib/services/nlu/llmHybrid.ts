@@ -45,12 +45,13 @@ export const hybridPredict = async ({
     .map((intent) => `d:${intent.description ?? intent.inputs[0].text} i:${intent.name}`)
     .join('\n');
 
+  const intentNames = matchedIntents.map((intent) => intent.name).join(',');
+
   const prompt = dedent`
+    You are a NLU classification system. You are given an utterance and you have to classify it into one of the following intents which have their intent names: ${intentNames}. Only respond with the intent name. If the intent does not match any of intents, output None. Lean to None if its unclear.
     Here are the intents and their descriptions:
     ${promptIntents}
     d:Everything else that doesn’t match any of the above categories i:None
-
-    Given the user request, choose from the intents above:
     u:${utterance} i:
   `;
 
