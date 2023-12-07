@@ -1,8 +1,10 @@
 import { FunctionCompiledVariableDeclaration, FunctionVariableType } from '@voiceflow/dtos';
 import { z } from 'zod';
 
+import Config from '@/config';
+import { FunctionLambdaClient } from '@/runtime/lib/HTTPClient/function-lambda/function-lambda-client';
+
 import { isNextPath, NextCommand } from '../../runtime-command/next-command.dto';
-import { executeLambda } from '../execute-lambda/execute-lambda';
 import { FunctionInputTypeException } from './exceptions/function-input-type.exception';
 import { FunctionPathException } from './exceptions/function-path.exception';
 import { FunctionRequiredVarException } from './exceptions/function-required-var.exception';
@@ -14,56 +16,62 @@ function validateNext(next: NextCommand, expectedPathCodes: Array<string>) {
   }
 }
 
+const variableTypeValidators = new Map<FunctionVariableType, z.ZodType>([
+  [FunctionVariableType.STRING, z.string()],
+  [FunctionVariableType.NUMBER, z.number()],
+  [FunctionVariableType.BOOLEAN, z.boolean()],
+  [FunctionVariableType.OBJECT, z.record(z.any())],
+  [FunctionVariableType.ARRAY, z.array(z.any())],
+]);
+
 function getZodValidator(type: FunctionVariableType) {
-  switch (type) {
-    case FunctionVariableType.STRING:
-      return z.string();
-    case FunctionVariableType.NUMBER:
-      return z.number();
-    case FunctionVariableType.BOOLEAN:
-      return z.boolean();
-    case FunctionVariableType.OBJECT:
-      return z.record(z.any());
-    case FunctionVariableType.ARRAY:
-      return z.array(z.any());
-    default:
-      throw new Error('Unexpected function variable type');
+  const validator = variableTypeValidators.get(type)!;
+
+  if (!validator) {
+    throw new Error(`Unexpected function variable type '${type}'`);
   }
+
+  return validator;
 }
 
-function validateInputVariableTypes(
+function validateVariableTypes(
   variables: Record<string, unknown>,
   typeDeclarations: Record<string, FunctionCompiledVariableDeclaration>
 ) {
-  const firstInvalid = Object.entries(typeDeclarations).find(([varName, declare]) => {
-    const validator = getZodValidator(declare.type);
+  const firstInvalid = Object.entries(typeDeclarations).find(([varName, declaration]) => {
+    const validator = getZodValidator(declaration.type);
     return !validator.safeParse(variables[varName]).success;
   });
 
   if (firstInvalid) {
-    const [varName, declare] = firstInvalid;
+    const [varName, declaration] = firstInvalid;
 
     if (typeof variables[varName] === 'undefined') {
       throw new FunctionRequiredVarException(varName);
     } else {
-      throw new FunctionInputTypeException(varName, declare.type, variables[varName]);
+      throw new FunctionInputTypeException(varName, declaration.type, variables[varName]);
     }
   }
 }
 
 export async function executeFunction(funcData: ExecuteFunctionArgs) {
   const {
+    source,
     definition: { inputVars: inputVarDeclarations, pathCodes },
     invocation: { inputVars: inputMapping },
-    source
   } = funcData;
 
-  const functionCode = 'code' in source ? { code: source.code } : { codeId: source.codeId };
+  validateVariableTypes(inputMapping, inputVarDeclarations);
 
-  validateInputVariableTypes(inputMapping, inputVarDeclarations);
+  const functionLambdaClient = new FunctionLambdaClient({
+    functionLambdaARN: Config.FUNCTION_LAMBDA_ARN,
+    accessKeyId: Config.FUNCTION_LAMBDA_ACCESS_KEY_ID,
+    secretAccessKey: Config.FUNCTION_LAMBDA_SECRET_ACCESS_KEY,
+    region: Config.AWS_REGION
+  });
 
-  const { next, outputVars, trace } = await executeLambda({
-    ...functionCode,
+  const { next, outputVars, trace } = await functionLambdaClient.executeLambda({
+    ...source,
     variables: inputMapping,
   });
 
