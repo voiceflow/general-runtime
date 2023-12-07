@@ -1,7 +1,8 @@
-import { FunctionCompiledData, FunctionCompiledNode } from '@voiceflow/dtos';
+import { FunctionCompiledDefinition, FunctionCompiledInvocation } from '@voiceflow/dtos';
 import { performance } from 'perf_hooks';
 
 import { executeFunction } from '@/runtime/lib/Handlers/function/lib/execute-function/execute-function';
+import { ExecuteFunctionArgs } from '@/runtime/lib/Handlers/function/lib/execute-function/execute-function.interface';
 import { createFunctionExceptionDebugTrace } from '@/runtime/lib/Handlers/function/lib/function-exception/function.exception';
 import { Trace } from '@/runtime/lib/Handlers/function/runtime-command/trace-command.dto';
 
@@ -9,34 +10,40 @@ import { AbstractManager } from '../utils';
 import { TestFunctionResponse } from './interface';
 
 export class TestService extends AbstractManager {
-  private async mockCompileFunctionNodeData(
-    functionDefinition: FunctionCompiledData,
-    inputMapping: Record<string, string>
-  ): Promise<FunctionCompiledNode['data']> {
+  private async createExecuteFunctionArgs(
+    code: string,
+    functionDefinition: Pick<FunctionCompiledDefinition, 'inputVars' | 'pathCodes'>,
+    inputMapping: FunctionCompiledInvocation['inputVars']
+  ): Promise<ExecuteFunctionArgs> {
+    const { inputVars: inputVarDeclarations, pathCodes } = functionDefinition;
+
     return {
-      functionDefinition,
-      inputMapping,
-      /**
-       * Output variables are not mapped and ports are not followed. Instead, testing
-       * a function directly returns the produced runtime commands for debugging.
-       */
-      outputMapping: {},
-      paths: {},
+      source: {
+        code,
+      },
+      definition: {
+        inputVars: inputVarDeclarations,
+        pathCodes,
+      },
+      invocation: {
+        inputVars: inputMapping,
+      },
     };
   }
 
   public async testFunction(
-    functionDefinition: FunctionCompiledData,
-    inputMapping: Record<string, string>
+    code: string,
+    functionDefinition: Pick<FunctionCompiledDefinition, 'inputVars' | 'pathCodes'>,
+    inputMapping: FunctionCompiledInvocation['inputVars']
   ): Promise<TestFunctionResponse> {
     let startTime = null;
     let endTime = null;
 
     try {
-      const mockFunctionNodeData = await this.mockCompileFunctionNodeData(functionDefinition, inputMapping);
+      const executeFunctionArgs = await this.createExecuteFunctionArgs(code, functionDefinition, inputMapping);
 
       startTime = performance.now();
-      const runtimeCommands = await executeFunction(mockFunctionNodeData);
+      const runtimeCommands = await executeFunction(executeFunctionArgs);
       endTime = performance.now();
 
       const executionTime = endTime - startTime;

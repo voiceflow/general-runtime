@@ -2,9 +2,9 @@ import { z } from 'zod';
 
 import { formatZodError } from '@/utils/zod-error/formatZodError';
 
-import { ExecuteLambdaException } from './execute-lambda.exception';
+import { LambdaException } from './lambda.exception';
 
-export class InvalidRuntimeCommandException extends ExecuteLambdaException {
+export class InvalidRuntimeCommandException extends LambdaException {
   constructor(private readonly zodParsingError: z.ZodError) {
     super();
   }

@@ -1,6 +1,6 @@
-import { ExecuteLambdaException } from './execute-lambda.exception';
+import { LambdaException } from './lambda.exception';
 
-export class ModuleResolutionException extends ExecuteLambdaException {
+export class ModuleResolutionException extends LambdaException {
   get message(): string {
     return `Function step failed to resolve module: ${this.message}`;
   }
