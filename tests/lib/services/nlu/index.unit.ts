@@ -163,8 +163,10 @@ describe('nlu manager unit tests', () => {
 
       expect(result).to.eql({ ...context, request: intentResponse });
       expect(services.axios.post.args[0][1]).to.eql({
-        availableEntities: [],
-        availableIntents: [],
+        filteredEntities: [],
+        filteredIntents: [],
+        excludeFilteredEntities: false,
+        excludeFilteredIntents: false,
         utterance: query,
         tag: VersionTag.PRODUCTION,
         workspaceID: teamID,

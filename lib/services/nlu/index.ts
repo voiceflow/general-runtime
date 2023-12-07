@@ -61,8 +61,10 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     dmRequest,
     workspaceID,
     intentConfidence = 0.6,
-    availableIntents,
-    availableEntities,
+    filteredIntents,
+    filteredEntities,
+    excludeFilteredIntents,
+    excludeFilteredEntities,
   }: {
     query: string;
     model?: BaseModels.PrototypeModel;
@@ -75,8 +77,10 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
     dmRequest?: BaseRequest.IntentRequestPayload;
     workspaceID: string;
     intentConfidence?: number;
-    availableIntents?: string[];
-    availableEntities?: string[];
+    filteredIntents?: string[];
+    filteredEntities?: string[];
+    excludeFilteredIntents?: boolean;
+    excludeFilteredEntities?: boolean;
   }): Promise<BaseRequest.IntentRequest> {
     // 1. first try restricted regex (no open slots) - exact string match
     if (model && locale) {
@@ -93,8 +97,10 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
           utterance: query,
           tag,
           workspaceID,
-          availableIntents,
-          availableEntities,
+          filteredIntents,
+          filteredEntities,
+          excludeFilteredIntents,
+          excludeFilteredEntities,
         })
         .catch(() => ({ data: null }));
 
@@ -163,8 +169,10 @@ class NLU extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
       workspaceID: project.teamID,
       intentConfidence: version?.platformData?.settings?.intentConfidence,
-      availableIntents,
-      availableEntities,
+      filteredIntents: availableIntents,
+      filteredEntities: availableEntities,
+      excludeFilteredIntents: false,
+      excludeFilteredEntities: false,
     });
 
     return { ...context, request };
