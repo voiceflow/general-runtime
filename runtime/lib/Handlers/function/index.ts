@@ -1,7 +1,12 @@
 import { BaseTrace } from '@voiceflow/base-types';
 import { BaseTraceFrame } from '@voiceflow/base-types/build/cjs/trace';
 import { replaceVariables } from '@voiceflow/common';
-import { FunctionCompiledData, FunctionCompiledNode, NodeType } from '@voiceflow/dtos';
+import {
+  FunctionCompiledDefinition,
+  FunctionCompiledInvocation,
+  FunctionCompiledNode,
+  NodeType,
+} from '@voiceflow/dtos';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
@@ -23,11 +28,11 @@ function applyOutputCommand(
   command: OutputVarsCommand,
   runtime: Runtime,
   variables: Store,
-  outputVarDeclarations: FunctionCompiledData['outputVars'],
-  outputMapping: FunctionCompiledNode['data']['outputMapping']
+  outputVarDeclarations: FunctionCompiledDefinition['outputVars'],
+  outputVarMappings: FunctionCompiledInvocation['outputVars']
 ): void {
   Object.keys(outputVarDeclarations).forEach((functionVarName) => {
-    const diagramVariableToken = outputMapping[functionVarName];
+    const diagramVariableToken = outputVarMappings[functionVarName];
 
     if (!diagramVariableToken) return;
 
@@ -53,7 +58,7 @@ function applyTraceCommand(command: TraceCommand, runtime: Runtime): void {
   });
 }
 
-function applyNextCommand(command: NextCommand, paths: FunctionCompiledNode['data']['paths']): string | null {
+function applyNextCommand(command: NextCommand, paths: FunctionCompiledInvocation['paths']): string | null {
   if ('path' in command) {
     return paths[command.path] ?? null;
   }
@@ -65,13 +70,12 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
 
   handle: async (node, runtime, variables): Promise<string | null> => {
     const {
-      functionDefinition: { outputVars: outputVarDeclarations },
-      outputMapping,
-      paths,
+      definition: { codeId, outputVars: outputVarDeclarations },
+      invocation: { inputVars: inputMapping, outputVars: outputMapping, paths },
     } = node.data;
 
     try {
-      const resolvedInputMapping = Object.entries(node.data.inputMapping).reduce((acc, [varName, value]) => {
+      const resolvedInputMapping = Object.entries(inputMapping).reduce((acc, [varName, value]) => {
         return {
           ...acc,
           [varName]: utils.replaceVariables(value, variables.getState()),
@@ -80,7 +84,12 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
 
       const { next, outputVars, trace } = await executeFunction({
         ...node.data,
-        inputMapping: resolvedInputMapping,
+        source: {
+          codeId,
+        },
+        invocation: {
+          inputVars: resolvedInputMapping
+        }
       });
 
       if (outputVars) {

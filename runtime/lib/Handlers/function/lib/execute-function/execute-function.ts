@@ -1,4 +1,4 @@
-import { FunctionCompiledNode, FunctionCompiledVariableConfig, FunctionVariableType } from '@voiceflow/dtos';
+import { FunctionCompiledVariableDeclaration, FunctionVariableType } from '@voiceflow/dtos';
 import { z } from 'zod';
 
 import { isNextPath, NextCommand } from '../../runtime-command/next-command.dto';
@@ -6,6 +6,7 @@ import { executeLambda } from '../execute-lambda/execute-lambda';
 import { FunctionInputTypeException } from './exceptions/function-input-type.exception';
 import { FunctionPathException } from './exceptions/function-path.exception';
 import { FunctionRequiredVarException } from './exceptions/function-required-var.exception';
+import { ExecuteFunctionArgs } from './execute-function.interface';
 
 function validateNext(next: NextCommand, expectedPathCodes: Array<string>) {
   if (isNextPath(next) && !expectedPathCodes.includes(next.path)) {
@@ -32,7 +33,7 @@ function getZodValidator(type: FunctionVariableType) {
 
 function validateInputVariableTypes(
   variables: Record<string, unknown>,
-  typeDeclarations: Record<string, FunctionCompiledVariableConfig>
+  typeDeclarations: Record<string, FunctionCompiledVariableDeclaration>
 ) {
   const firstInvalid = Object.entries(typeDeclarations).find(([varName, declare]) => {
     const validator = getZodValidator(declare.type);
@@ -50,15 +51,21 @@ function validateInputVariableTypes(
   }
 }
 
-export async function executeFunction(funcData: FunctionCompiledNode['data']) {
+export async function executeFunction(funcData: ExecuteFunctionArgs) {
   const {
-    functionDefinition: { code, inputVars: inputVarDeclr, pathCodes },
-    inputMapping,
+    definition: { inputVars: inputVarDeclarations, pathCodes },
+    invocation: { inputVars: inputMapping },
+    source
   } = funcData;
 
-  validateInputVariableTypes(inputMapping, inputVarDeclr);
+  const functionCode = 'code' in source ? { code: source.code } : { codeId: source.codeId };
 
-  const { next, outputVars, trace } = await executeLambda(code, inputMapping);
+  validateInputVariableTypes(inputMapping, inputVarDeclarations);
+
+  const { next, outputVars, trace } = await executeLambda({
+    ...functionCode,
+    variables: inputMapping,
+  });
 
   if (next) {
     validateNext(next, pathCodes);
