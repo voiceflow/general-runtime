@@ -34,6 +34,7 @@ export const hybridPredict = async ({
   nluModel: BaseModels.PrototypeModel;
   ai: AIClient;
   trace?: BaseTrace.AnyTrace[];
+  // eslint-disable-next-line sonarjs/cognitive-complexity
 }): Promise<BaseRequest.IntentRequest> => {
   const defaultNLUResponse = adaptNLUPrediction(nluResults);
 
@@ -113,65 +114,74 @@ export const hybridPredict = async ({
 
   // STEP 5: entity extraction
   if (intent.slots?.length) {
-    const entitiesByID = nluModel.slots.reduce<Record<string, BaseModels.Slot>>((acc, slot) => {
-      acc[slot.key] = slot;
-      return acc;
-    }, {});
-
-    const entityNames = JSON.stringify(
-      intent.slots
-        .map((slot) => entitiesByID[slot.id])
-        .filter(Utils.array.isNotNullish)
-        .map((slot) => slot.name)
-    );
-
-    const utterancePermutations = Utils.intent.utteranceEntityPermutations({
-      utterances: intent.inputs.map((input) => input.text),
-      entitiesByID,
-    });
-
-    const utterancePermutationsWithEntityExamples = utterancePermutations
-      .reduce<string[]>((acc, permutation) => {
-        if (!permutation.entities?.length || !permutation.text) return acc;
-
-        const entities = Object.fromEntries(
-          permutation.entities.map((entity) => [
-            entity.entity,
-            permutation.text!.substring(entity.startPos, entity.endPos + 1),
-          ])
-        );
-
-        return [...acc, `u: ${permutation.text} e:${JSON.stringify(entities)}`];
-      }, [])
-      .join('\n');
-
-    const prompt = dedent`
-      Extract the entity name from the utterance. These are available entities to capture:
-      ${entityNames}
-      Here are some examples of the entities being used
-      ${utterancePermutationsWithEntityExamples}
-      u: ${utterance} e:`;
-
-    const result = await gpt?.generateCompletion(
-      prompt,
-      {
-        temperature: 0.1,
-        maxTokens: 64,
-      },
-      { context: {}, timeout: 3000 }
-    );
-
     try {
+      const entitiesByID = nluModel.slots.reduce<Record<string, BaseModels.Slot>>((acc, slot) => {
+        acc[slot.key] = slot;
+        return acc;
+      }, {});
+
+      const entityNames = JSON.stringify(
+        intent.slots
+          .map((slot) => entitiesByID[slot.id])
+          .filter(Utils.array.isNotNullish)
+          .map((slot) => slot.name)
+      );
+
+      const utterancePermutations = Utils.intent.utteranceEntityPermutations({
+        utterances: intent.inputs.map((input) => input.text),
+        entitiesByID,
+      });
+
+      const utterancePermutationsWithEntityExamples = utterancePermutations
+        .reduce<string[]>((acc, permutation) => {
+          if (!permutation.entities?.length || !permutation.text) return acc;
+
+          const entities = Object.fromEntries(
+            permutation.entities.map((entity) => [
+              entity.entity,
+              permutation.text!.substring(entity.startPos, entity.endPos + 1),
+            ])
+          );
+
+          return [...acc, `u: ${permutation.text} e:${JSON.stringify(entities)}`];
+        }, [])
+        .join('\n');
+
+      if (!utterancePermutationsWithEntityExamples) throw new Error('no utterance permutations');
+
+      const prompt = dedent`
+        Extract the entity name from the utterance. These are available entities to capture:
+        ${entityNames}
+        Here are some examples of the entities being used
+        ${utterancePermutationsWithEntityExamples}
+        u: ${utterance} e:`;
+
+      const result = await gpt?.generateCompletion(
+        prompt,
+        {
+          temperature: 0.1,
+          maxTokens: 64,
+        },
+        { context: {}, timeout: 3000 }
+      );
+
       if (result?.output) {
+        const mappings = parseObjectString<Record<string, string>>(result.output);
+        // validate mappings is typed correctly
+        // eslint-disable-next-line max-depth
+        if (!Object.values(mappings).every((value) => typeof value === 'string')) {
+          throw new Error('mappings not typed correctly');
+        }
+
         entities.push(
-          ...Object.entries(parseObjectString<Record<string, string>>(result.output)).map(([name, value]) => ({
+          ...Object.entries(mappings).map(([name, value]) => ({
             name,
             value,
           }))
         );
         trace?.push({
           type: BaseNode.Utils.TraceType.DEBUG,
-          payload: { message: `LLM entity extraction: ${JSON.stringify(entities)}` },
+          payload: { message: `${prompt}LLM entity extraction: ${JSON.stringify(entities)}` },
         });
       }
     } catch (error) {
