@@ -49,7 +49,7 @@ class NLUController extends AbstractController {
     };
 
     const getProject = async (projectID: string) => {
-      const project = await this.services.mongo?.db.collection('projects').findOne(
+      const project = await this.services.mongo?.db.collection('projects').findOne<VoiceflowProject.Project>(
         { _id: new ObjectId(projectID) },
         {
           projection: {
@@ -78,7 +78,7 @@ class NLUController extends AbstractController {
       query: req.query.query,
       tag: project.liveVersion === versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
       nlp: !!project.prototype?.nlp,
-      hasChannelIntents: (project as VoiceflowProject.Project)?.platformData?.hasChannelIntents,
+      hasChannelIntents: project?.platformData?.hasChannelIntents,
       workspaceID: project.teamID,
       intentConfidence: version?.platformData?.settings?.intentConfidence,
       nluSettings: project.nluSettings,
