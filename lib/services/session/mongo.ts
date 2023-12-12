@@ -84,7 +84,6 @@ class SessionManager extends AbstractManager implements Session {
       {
         upsert: true,
         returnDocument: 'after',
-        includeResultMetadata: false,
       }
     );
     if (!state) throw new NotFoundException(`Project not found: ${projectID}`);
