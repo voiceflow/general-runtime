@@ -8,7 +8,7 @@ class MongoDB extends AbstractClient {
   public _db: Db | undefined;
 
   async start() {
-    this.client = await MongoClient.connect(this.config.MONGO_URI!, { useUnifiedTopology: true });
+    this.client = await MongoClient.connect(this.config.MONGO_URI!);
     this._db = this.client.db(this.config.MONGO_DB!);
   }
 

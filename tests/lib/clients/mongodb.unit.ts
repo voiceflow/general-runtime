@@ -21,7 +21,7 @@ describe('mongodb client unit tests', () => {
 
     await mongoDb.start();
 
-    expect(connectStub.args).to.eql([[MONGO_URI, { useUnifiedTopology: true }]]);
+    expect(connectStub.args).to.eql([[MONGO_URI]]);
     expect(mongoDb.db).to.eql(dbObj);
   });
 
