@@ -41,7 +41,7 @@ class TranscriptManager extends AbstractManager {
       .findOneAndUpdate(
         filter,
         { $set: updateData, $setOnInsert: insertData },
-        { upsert: true, returnOriginal: false }
+        { upsert: true, returnDocument: 'after' }
       );
 
     return newTranscript;
