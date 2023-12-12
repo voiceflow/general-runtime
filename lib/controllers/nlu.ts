@@ -32,12 +32,16 @@ class NLUController extends AbstractController {
     const { versionID, projectID } = req.headers;
 
     const getVersion = async (versionID: string) => {
-      const version = await this.services.mongo?.db
-        .collection('versions')
-        .findOne(
-          { _id: new ObjectId(versionID) },
-          { projection: { projectID: 1, 'prototype.model': 1, 'platformData.settings.intentConfidence': 1 } }
-        );
+      const version = await this.services.mongo?.db.collection('versions').findOne(
+        { _id: new ObjectId(versionID) },
+        {
+          projection: {
+            projectID: 1,
+            'prototype.model': 1,
+            'platformData.settings.intentConfidence': 1,
+          },
+        }
+      );
 
       if (!version) throw new Error(`Version not found: ${versionID}`);
 
