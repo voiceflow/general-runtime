@@ -6,8 +6,7 @@
     "istanbul",
     "commitizen",
     "husky",
-    "prettier",
-    "ttypescript"
+    "prettier"
   ],
   "ignores": [
     "@commitlint/*",
