@@ -14,7 +14,7 @@ describe('mongo sessionManager unit tests', async () => {
 
   describe('saveToDb', () => {
     it('throws', async () => {
-      const updateOne = sinon.stub().resolves({ result: { ok: false } });
+      const updateOne = sinon.stub().resolves({ acknowledged: false });
       const state = new SessionManager(
         { mongo: { db: { collection: sinon.stub().returns({ updateOne }) } } } as any,
         {} as any
@@ -26,7 +26,7 @@ describe('mongo sessionManager unit tests', async () => {
     });
 
     it('works', async () => {
-      const updateOne = sinon.stub().resolves({ result: { ok: true } });
+      const updateOne = sinon.stub().resolves({ acknowledged: true });
       const state = new SessionManager(
         { mongo: { db: { collection: sinon.stub().returns({ updateOne }) } } } as any,
         {} as any
@@ -83,7 +83,7 @@ describe('mongo sessionManager unit tests', async () => {
 
   describe('deleteFromDb', () => {
     it('not ok', async () => {
-      const deleteOne = sinon.stub().resolves({ result: { ok: false } });
+      const deleteOne = sinon.stub().resolves({ acknowledged: false });
       const state = new SessionManager(
         { mongo: { db: { collection: sinon.stub().returns({ deleteOne }) } } } as any,
         {} as any
@@ -104,7 +104,7 @@ describe('mongo sessionManager unit tests', async () => {
     });
 
     it('not deleted', async () => {
-      const deleteOne = sinon.stub().resolves({ result: { ok: false }, deletedCount: 0 });
+      const deleteOne = sinon.stub().resolves({ acknowledged: false, deletedCount: 0 });
       const state = new SessionManager(
         { mongo: { db: { collection: sinon.stub().returns({ deleteOne }) } } } as any,
         {} as any
@@ -125,7 +125,7 @@ describe('mongo sessionManager unit tests', async () => {
     });
 
     it('is idempotent', async () => {
-      const deleteOne = sinon.stub().resolves({ result: { ok: true }, deletedCount: 0 });
+      const deleteOne = sinon.stub().resolves({ acknowledged: true, deletedCount: 0 });
       const state = new SessionManager(
         { mongo: { db: { collection: sinon.stub().returns({ deleteOne }) } } } as any,
         {} as any
@@ -146,7 +146,7 @@ describe('mongo sessionManager unit tests', async () => {
     });
 
     it('works', async () => {
-      const deleteOne = sinon.stub().resolves({ result: { ok: true }, deletedCount: 1 });
+      const deleteOne = sinon.stub().resolves({ acknowledged: true, deletedCount: 1 });
       const state = new SessionManager(
         { mongo: { db: { collection: sinon.stub().returns({ deleteOne }) } } } as any,
         {} as any
