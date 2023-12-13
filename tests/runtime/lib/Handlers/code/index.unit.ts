@@ -257,110 +257,13 @@ describe('codeHandler unit tests', () => {
       });
     });
 
-    describe('no endpoint - local', () => {
+    describe('ivmExecute', () => {
       afterEach(() => {
         sinon.restore();
       });
 
       it('works correctly', async () => {
         const codeHandler = CodeHandler({ endpoint: null });
-        const vmExecuteStub = sinon.stub(utils, 'vmExecute').returns({ var1: 1.1, var2: 2.2, newVar: 5 });
-
-        const node = {
-          code: 'var1(); var2(); var3();',
-          success_id: 'success-id',
-          id: 'step-id',
-          type: BaseNode.NodeType.CODE,
-        };
-        const runtime = {
-          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
-          debugLogging: null as unknown as DebugLogging,
-        };
-        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
-        const variables = {
-          merge: sinon.stub(),
-          getState: sinon.stub().returns({ var1: 1, var2: 2, var3: 3 }),
-        };
-        const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
-        expect(result).to.eql(node.success_id);
-        expect(vmExecuteStub.args).to.eql([
-          [{ code: node.code, variables: { var1: 1, var2: 2, var3: 3 } }, false, undefined],
-        ]);
-        expect(runtime.trace.addTrace.args).to.eql([
-          [
-            {
-              type: 'log',
-              payload: {
-                kind: 'step.custom_code',
-                message: {
-                  stepID: node.id,
-                  componentName: RuntimeLogs.Kinds.StepLogKind.CUSTOM_CODE,
-                  changedVariables: {
-                    var1: { before: 1, after: 1.1 },
-                    var2: { before: 2, after: 2.2 },
-                    var3: { before: 3, after: null },
-                    newVar: { before: null, after: 5 },
-                  },
-                  error: null,
-                },
-                level: RuntimeLogs.LogLevel.INFO,
-                timestamp: getISO8601Timestamp(),
-              },
-            },
-          ],
-        ]);
-        expect(runtime.trace.debug.args).to.eql([
-          [
-            [
-              'evaluating code - changes:',
-              '`{var1}`: `1` => `1.1`',
-              '`{var2}`: `2` => `2.2`',
-              '`{var3}`: `3` => `undefined`',
-              '`{newVar}`: `undefined` => `5`',
-            ].join('\n'),
-            BaseNode.NodeType.CODE,
-          ],
-        ]);
-      });
-
-      it('exes callbacks', async () => {
-        let res = 0;
-        const callbacks = {
-          setRes: (c: number) => {
-            res = c;
-          },
-          add: (a: number, b: number) => {
-            return a + b;
-          },
-        };
-        const codeHandler = CodeHandler({ endpoint: null, callbacks, testingEnv: true });
-
-        const node = {
-          code: 'const c  = add(a, b); setRes(c);',
-          success_id: 'success-id',
-        };
-        const runtime = {
-          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
-          debugLogging: null as unknown as DebugLogging,
-        };
-        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
-        const variables = {
-          merge: sinon.stub(),
-          getState: sinon.stub().returns({ a: 1, b: 4 }),
-        };
-        const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
-        expect(result).to.eql(node.success_id);
-        expect(res).to.eql(5);
-      });
-    });
-
-    describe('useStrictVM is true', () => {
-      afterEach(() => {
-        sinon.restore();
-      });
-
-      it('works correctly', async () => {
-        const codeHandler = CodeHandler({ endpoint: null, useStrictVM: true });
         const ivmExecuteStub = sinon.stub(utils, 'ivmExecute').resolves({ var1: 1.1, var2: 2.2, newVar: 5 });
 
         const node = {
@@ -427,7 +330,7 @@ describe('codeHandler unit tests', () => {
             res = c;
           },
         };
-        const codeHandler = CodeHandler({ endpoint: null, callbacks, useStrictVM: true });
+        const codeHandler = CodeHandler({ endpoint: null, callbacks });
 
         const node = {
           code: 'const c  = a + b; setRes(c);',
