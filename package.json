@@ -150,7 +150,7 @@
   "optionalDependencies": {
     "@voiceflow/sdk-analytics": "^1.26.0",
     "@voiceflow/sdk-auth": "^2.6.3",
-    "@voiceflow/sdk-billing": "^1.15.25"
+    "@voiceflow/sdk-billing": "^1.17.0"
   },
   "private": false,
   "repository": {
