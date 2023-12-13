@@ -10,7 +10,7 @@ jobs:
     - name: Get branch name
       if: ${{ github.actor != 'github-actions' }}
       id: branch-name
-      uses: tj-actions/branch-names@v6
+      uses: tj-actions/branch-names@v8
     - uses: tzkhan/pr-update-action@v2
       if: ${{ github.actor != 'github-actions' && !contains(github.event.pull_request.title, '[breakglass]') && contains(steps.branch-name.outputs.head_ref_branch, 'break-glass') }}
       with:
