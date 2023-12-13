@@ -12,13 +12,18 @@ import { getUndefinedKeys, ivmExecute } from './utils';
 export interface CodeOptions {
   endpoint?: string | null;
   callbacks?: Record<string, (...args: any) => any>;
+  useStrictVM?: boolean;
 }
 
 export const GENERATED_CODE_NODE_ID = 'PROGRAMMATICALLY-GENERATED-CODE-NODE';
 
 const RESOLVED_PATH = '__RESOLVED_PATH__';
 
-const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({ endpoint, callbacks } = {}) => ({
+const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
+  endpoint,
+  callbacks,
+  useStrictVM,
+} = {}) => ({
   canHandle: (node) => typeof node.code === 'string',
   handle: async (node, runtime, variables) => {
     try {
@@ -39,7 +44,9 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({ e
         // pass undefined keys explicitly because they are not sent via http JSON
         newVariableState = (await axios.post(endpoint, { ...reqData, keys: getUndefinedKeys(reqData.variables) })).data;
       } else {
-        newVariableState = await ivmExecute(reqData, callbacks);
+        newVariableState = await ivmExecute(reqData, callbacks, {
+          legacyRequireFromUrl: !useStrictVM,
+        });
       }
 
       // The changes (a diff) that the execution of this code made to the variables

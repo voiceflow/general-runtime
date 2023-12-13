@@ -10,7 +10,7 @@ const SetV2Handler: HandlerFactory<BaseNode.SetV2.Node, SetV2Options | void> = (
   canHandle: (node) => node.type === BaseNode.NodeType.SET_V2,
   handle: async (node, runtime, variables, program) => {
     // use isolated-vm
-    const codeHandler = CodeHandler();
+    const codeHandler = CodeHandler({ useStrictVM: true });
 
     const beforeValues: Map<string, any> = new Map();
 
