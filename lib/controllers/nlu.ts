@@ -1,6 +1,6 @@
 import { Validator } from '@voiceflow/backend-utils';
 import VError from '@voiceflow/verror';
-import { VoiceflowProject } from '@voiceflow/voiceflow-types';
+import { VoiceflowProject, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 import { ObjectId } from 'mongodb';
 
 import { shallowObjectIdToString } from '@/runtime/lib/DataAPI/mongoDataAPI';
@@ -32,7 +32,7 @@ class NLUController extends AbstractController {
     const { versionID, projectID } = req.headers;
 
     const getVersion = async (versionID: string) => {
-      const version = await this.services.mongo?.db.collection('versions').findOne(
+      const version = await this.services.mongo?.db.collection('versions').findOne<VoiceflowVersion.Version>(
         { _id: new ObjectId(versionID) },
         {
           projection: {

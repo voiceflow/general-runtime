@@ -37,7 +37,7 @@ class TranscriptManager extends AbstractManager {
     };
 
     return mongo.db
-      .collection<typeof insertData | typeof updateData>('transcripts')
+      .collection<DeepPartial<TranscriptClientInfo>>('transcripts')
       .findOneAndUpdate(
         filter,
         { $set: updateData, $setOnInsert: insertData },
