@@ -69,7 +69,10 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
       const changesSummary = Object.entries(changes)
         .map(
           ([variable, change]) =>
-            `\`{${variable}}\`: \`${JSON.stringify(change.before)}\` => \`${JSON.stringify(change.after)}\``
+            `\`{${variable}}\`: \`${_.truncate(JSON.stringify(change.before), { length: 100 })}\` => \`${_.truncate(
+              JSON.stringify(change.after),
+              { length: 100 }
+            )}\``
         )
         .join('\n');
 
