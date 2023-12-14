@@ -34,34 +34,30 @@ function getZodValidator(type: FunctionVariableType) {
   return validator;
 }
 
-function validateVariableTypes(
-  variables: Record<string, unknown>,
-  typeDeclarations: Record<string, FunctionCompiledVariableDeclaration>
+function validateVariableValueTypes(
+  declarations: Record<string, FunctionCompiledVariableDeclaration>,
+  variableValues: Record<string, unknown>
 ) {
-  const firstInvalid = Object.entries(typeDeclarations).find(([varName, declaration]) => {
-    const validator = getZodValidator(declaration.type);
-    return !validator.safeParse(variables[varName]).success;
+  const firstInvalid = Object.entries(declarations).find(([varName, declare]) => {
+    const validator = getZodValidator(declare.type);
+    return !validator.safeParse(variableValues[varName]).success;
   });
 
   if (firstInvalid) {
-    const [varName, declaration] = firstInvalid;
+    const [varName, declare] = firstInvalid;
 
-    if (typeof variables[varName] === 'undefined') {
+    if (typeof variableValues[varName] === 'undefined') {
       throw new FunctionRequiredVarException(varName);
     } else {
-      throw new FunctionInputTypeException(varName, declaration.type, variables[varName]);
+      throw new FunctionInputTypeException(varName, declare.type, variableValues[varName]);
     }
   }
 }
 
 export async function executeFunction(funcData: ExecuteFunctionArgs) {
-  const {
-    source,
-    definition: { inputVars: inputVarDeclarations, pathCodes },
-    invocation: { inputVars: inputMapping },
-  } = funcData;
+  const { source, definition, invocation } = funcData;
 
-  validateVariableTypes(inputMapping, inputVarDeclarations);
+  validateVariableValueTypes(definition.inputVars, invocation.inputVars);
 
   const functionLambdaClient = new FunctionLambdaClient({
     functionLambdaARN: Config.FUNCTION_LAMBDA_ARN,
@@ -72,11 +68,11 @@ export async function executeFunction(funcData: ExecuteFunctionArgs) {
 
   const { next, outputVars, trace } = await functionLambdaClient.executeLambda({
     ...source,
-    variables: inputMapping,
+    variables: invocation.inputVars,
   });
 
   if (next) {
-    validateNext(next, pathCodes);
+    validateNext(next, definition.pathCodes);
   }
 
   return {

@@ -105,6 +105,9 @@ export class FunctionLambdaClient {
     });
   }
 
+  /**
+   * Executes the code given in `request` using the `function-lambda` AWS Lambda service.
+   */
   public async executeLambda(request: FunctionLambdaRequest): Promise<FunctionLambdaSuccessResponse> {
     try {
       const result = await this.invokeLambda(request);
