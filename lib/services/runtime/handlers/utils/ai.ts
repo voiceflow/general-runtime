@@ -133,8 +133,11 @@ export const consumeResources = async (
 export const checkTokens = async (runtime: Runtime, nodeType?: BaseNode.NodeType) => {
   const workspaceID = runtime.project?.teamID;
 
-  if (await runtime.services.billing.authorize(ResourceType.WORKSPACE, workspaceID, ItemName.AITokens, 0)) return true;
-
-  runtime.trace.debug('token quota exceeded', nodeType);
-  return false;
+  try {
+    await runtime.services.billing.authorize(ResourceType.WORKSPACE, workspaceID, ItemName.AITokens, 0);
+    return true;
+  } catch (err) {
+    runtime.trace.debug('token quota exceeded', nodeType);
+    return false;
+  }
 };

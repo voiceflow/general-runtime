@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 
 import { AbstractManager } from './utils';
 
-// we cannot import these from the sdk-billing because its an optional dependency on the runtime
+// TODO: we cannot import these from the sdk-billing because its an optional dependency on the runtime
 // once that changes we should refactor this
 export enum ItemName {
   AITokens = 'addon-tokens',
@@ -57,7 +57,7 @@ export class BillingService extends AbstractManager {
     const client = await this.getClient();
     if (!client) return null;
 
-    // TODO: fix types here
+    // TODO: fix types here once sdk-billing is not optional
     return client.private.authorize({
       resourceType,
       resourceID,

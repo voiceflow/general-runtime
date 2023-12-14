@@ -51,7 +51,7 @@ class Auth extends AbstractMiddleware {
     return this.client as InstanceType<typeof sdk.AuthClient>;
   };
 
-  // TODO fix this any type once the sdk is not an optional dependency
+  // TODO: fix this any type once the sdk is not an optional dependency
   authorize = (actions: `${string}:${string}`[], getResource?: any) => {
     return async (req: Request, res: Response, next: Next) => {
       try {

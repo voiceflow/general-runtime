@@ -1,3 +1,4 @@
+import VError from '@voiceflow/verror';
 import { NextFunction, Response } from 'express';
 
 import { Request } from '@/types';
@@ -21,7 +22,12 @@ export class BillingMiddleware extends AbstractMiddleware {
       const sdk = await import('@voiceflow/sdk-billing/express').catch(() => null);
       if (!sdk) return next();
 
-      return sdk.createBillingAuthorizeMiddleware(client)(params)(req, res, next);
+      return sdk.createBillingAuthorizeMiddleware(client)(params)(req, res, (err: any) => {
+        if (err) {
+          return next(new VError('Quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED));
+        }
+        return next();
+      });
     };
   };
 }
