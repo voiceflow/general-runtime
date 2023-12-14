@@ -24,7 +24,7 @@ export class FunctionLambdaClient {
     functionLambdaTimeout,
   }: {
     functionLambdaEndpoint?: string | null;
-    functionLambdaTimeout: number;
+    functionLambdaTimeout?: number;
   }) {
     if (!functionLambdaEndpoint) {
       throw new InternalServerErrorException({
@@ -53,6 +53,9 @@ export class FunctionLambdaClient {
     }
   }
 
+  /**
+   * Executes the code given in `request` using the `function-lambda` AWS Lambda service.
+   */
   public async executeLambda(request: FunctionLambdaRequest): Promise<FunctionLambdaSuccessResponse> {
     try {
       const { data } = await this.axiosClient.post('/run-function', request);

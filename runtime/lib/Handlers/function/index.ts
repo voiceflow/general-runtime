@@ -22,10 +22,10 @@ function applyOutputCommand(
   command: OutputVarsCommand,
   runtime: Runtime,
   outputVarDeclarations: FunctionCompiledDefinition['outputVars'],
-  outputVarMappings: FunctionCompiledInvocation['outputVars']
+  outputVarAssignments: FunctionCompiledInvocation['outputVars']
 ): void {
   Object.keys(outputVarDeclarations).forEach((functionVarName) => {
-    const voiceflowVarName = outputVarMappings[functionVarName];
+    const voiceflowVarName = outputVarAssignments[functionVarName];
     if (!voiceflowVarName) return;
     runtime.variables.set(voiceflowVarName, command[functionVarName]);
   });
@@ -50,19 +50,16 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
   canHandle: (node) => node.type === NodeType.FUNCTION,
 
   handle: async (node, runtime): Promise<string | null> => {
-    const {
-      definition: { codeId, outputVars: outputVarDeclarations },
-      invocation: { outputVars: outputMapping, paths },
-    } = node.data;
+    const { definition, invocation } = node.data;
 
     try {
       const { next, outputVars, trace } = await executeFunction({
-        source: { codeId },
+        source: { codeId: definition.codeId },
         ...node.data,
       });
 
       if (outputVars) {
-        applyOutputCommand(outputVars, runtime, outputVarDeclarations, outputMapping);
+        applyOutputCommand(outputVars, runtime, definition.outputVars, invocation.outputVars);
       }
 
       if (trace) {
@@ -70,7 +67,7 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
       }
 
       if (next) {
-        return applyNextCommand(next, paths);
+        return applyNextCommand(next, invocation.paths);
       }
 
       return null;
