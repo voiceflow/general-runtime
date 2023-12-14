@@ -136,7 +136,7 @@
     "typescript": "4.9.3"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=20"
   },
   "homepage": "https://github.com/voiceflow/general-runtime#readme",
   "keywords": [
@@ -146,11 +146,11 @@
   ],
   "license": "ISC",
   "main": "build/start.js",
+  "packageManager": "yarn@3.2.1",
   "optionalDependencies": {
     "@voiceflow/sdk-analytics": "^1.26.0",
     "@voiceflow/sdk-auth": "^2.6.3"
   },
-  "private": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/voiceflow/general-runtime.git"
@@ -188,5 +188,9 @@
     "test:run": "NODE_ENV=test nyc ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.{unit,it}.ts'",
     "test:single": "NODE_ENV=test ts-mocha --paths --opts ./config/tests/mocha.opts",
     "test:unit": "yarn && NODE_ENV=test nyc --report-dir=nyc_coverage_unit ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.unit.ts'"
+  },
+  "volta": {
+    "node": "20.10.0",
+    "yarn": "3.2.1"
   }
 }
