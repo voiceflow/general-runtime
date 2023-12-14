@@ -59,7 +59,7 @@ export async function executeLambda(
       throw new InvalidRuntimeCommandException(err);
     }
 
-    const lambdaError = FunctionLambdaErrorResponseDTO.safeParse(err?.response?.data);
+    const lambdaError = FunctionLambdaErrorResponseDTO.safeParse(err);
     if (lambdaError.success) {
       const { errorCode, message } = lambdaError.data;
 
