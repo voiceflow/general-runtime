@@ -29,10 +29,10 @@ function applyOutputCommand(
   runtime: Runtime,
   variables: Store,
   outputVarDeclarations: FunctionCompiledDefinition['outputVars'],
-  outputVarMappings: FunctionCompiledInvocation['outputVars']
+  outputVarAssignments: FunctionCompiledInvocation['outputVars']
 ): void {
   Object.keys(outputVarDeclarations).forEach((functionVarName) => {
-    const diagramVariableToken = outputVarMappings[functionVarName];
+    const diagramVariableToken = outputVarAssignments[functionVarName];
 
     if (!diagramVariableToken) return;
 
@@ -69,13 +69,10 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
   canHandle: (node) => node.type === NodeType.FUNCTION,
 
   handle: async (node, runtime, variables): Promise<string | null> => {
-    const {
-      definition: { codeId, outputVars: outputVarDeclarations },
-      invocation: { inputVars: inputMapping, outputVars: outputMapping, paths },
-    } = node.data;
+    const { definition, invocation } = node.data;
 
     try {
-      const resolvedInputMapping = Object.entries(inputMapping).reduce((acc, [varName, value]) => {
+      const resolvedInputMapping = Object.entries(invocation.inputVars).reduce((acc, [varName, value]) => {
         return {
           ...acc,
           [varName]: utils.replaceVariables(value, variables.getState()),
@@ -85,7 +82,7 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
       const { next, outputVars, trace } = await executeFunction({
         ...node.data,
         source: {
-          codeId,
+          codeId: definition.codeId,
         },
         invocation: {
           inputVars: resolvedInputMapping
@@ -93,7 +90,7 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
       });
 
       if (outputVars) {
-        applyOutputCommand(outputVars, runtime, variables, outputVarDeclarations, outputMapping);
+        applyOutputCommand(outputVars, runtime, variables, definition.outputVars, invocation.outputVars);
       }
 
       if (trace) {
@@ -101,7 +98,7 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
       }
 
       if (next) {
-        return applyNextCommand(next, paths);
+        return applyNextCommand(next, invocation.paths);
       }
 
       return null;
