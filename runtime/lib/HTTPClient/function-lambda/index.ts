@@ -33,7 +33,7 @@ export class FunctionLambdaClient {
     const params: AWS.Lambda.InvocationRequest = {
       FunctionName: this.functionLambdaARN,
       InvocationType: 'RequestResponse',
-      Payload: JSON.stringify({ body: JSON.stringify(request) }),
+      Payload: JSON.stringify(request),
     };
 
     // Invoke the Lambda function
@@ -45,7 +45,7 @@ export class FunctionLambdaClient {
           reject(new Error('Lambda did not send back a response'));
         } else {
           const parsedPayload = JSON.parse(data.Payload as string);
-          const responseBody = JSON.parse(parsedPayload.body);
+          const responseBody = parsedPayload.body;
           resolve(responseBody);
         }
       });
