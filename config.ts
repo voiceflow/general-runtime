@@ -32,11 +32,13 @@ const CONFIG: Config = {
   S3_TLS_BUCKET: getOptionalProcessEnv('S3_TLS_BUCKET'),
   S3_ENDPOINT: getOptionalProcessEnv('S3_ENDPOINT'),
 
-  // code block
+  // code node
   CODE_HANDLER_ENDPOINT: getOptionalProcessEnv('CODE_HANDLER_ENDPOINT'),
-  // integrations block
+
+  // integrations node
   INTEGRATIONS_HANDLER_ENDPOINT: getOptionalProcessEnv('INTEGRATIONS_HANDLER_ENDPOINT') || 'none',
-  // api-block
+
+  // api node
   API_REQUEST_TIMEOUT_MS: Number(getOptionalProcessEnv('API_MAX_TIMEOUT_MS')) || null,
   API_MAX_CONTENT_LENGTH_BYTES: Number(getOptionalProcessEnv('API_MAX_CONTENT_LENGTH_BYTES')) || null,
   API_MAX_BODY_LENGTH_BYTES: Number(getOptionalProcessEnv('API_MAX_BODY_LENGTH_BYTES')) || null,
@@ -45,7 +47,11 @@ const CONFIG: Config = {
 
   GENERAL_SERVICE_ENDPOINT: getOptionalProcessEnv('GENERAL_SERVICE_ENDPOINT'), // voiceflow nlu/tts services
   KNOWLEDGE_BASE_LAMBDA_ENDPOINT: getOptionalProcessEnv('KNOWLEDGE_BASE_LAMBDA_ENDPOINT'),
-  FUNCTION_LAMBDA_ENDPOINT: getOptionalProcessEnv('FUNCTION_LAMBDA_ENDPOINT') ?? '',
+
+  // function node
+  FUNCTION_LAMBDA_ARN: getOptionalProcessEnv('FUNCTION_LAMBDA_ARN') ?? '',
+  FUNCTION_LAMBDA_ACCESS_KEY_ID: getOptionalProcessEnv('FUNCTION_LAMBDA_ACCESS_KEY_ID') ?? '',
+  FUNCTION_LAMBDA_SECRET_ACCESS_KEY: getOptionalProcessEnv('FUNCTION_LAMBDA_SECRET_ACCESS_KEY') ?? '',
 
   KL_RETRIEVER_SERVICE_HOST: getOptionalProcessEnv('KL_RETRIEVER_SERVICE_HOST'),
   KL_RETRIEVER_SERVICE_PORT: getOptionalProcessEnv('KL_RETRIEVER_SERVICE_PORT'),

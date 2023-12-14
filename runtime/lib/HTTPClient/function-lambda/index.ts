@@ -1,18 +1,52 @@
-import axios, { AxiosInstance } from 'axios';
+import AWS from 'aws-sdk';
 
 import { FunctionLambdaRequest } from './interface';
 
 export class FunctionLambdaClient {
-  private readonly axiosClient: AxiosInstance;
+  private readonly awsLambda: AWS.Lambda;
 
-  constructor(functionLambdaEndpoint: string) {
-    this.axiosClient = axios.create({
-      baseURL: functionLambdaEndpoint,
-      timeout: 3000,
+  private readonly functionLambdaARN: string;
+
+  constructor({
+    functionLambdaARN,
+    accessKeyId,
+    secretAccessKey,
+    region,
+  }: {
+    functionLambdaARN: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+    region: string;
+  }) {
+    this.functionLambdaARN = functionLambdaARN;
+
+    AWS.config.update({
+      accessKeyId,
+      secretAccessKey,
+      region,
     });
+
+    this.awsLambda = new AWS.Lambda();
   }
 
   public async executeLambda(request: FunctionLambdaRequest) {
-    return this.axiosClient.post('/run-function', request);
+    const params: AWS.Lambda.InvocationRequest = {
+      FunctionName: this.functionLambdaARN,
+      InvocationType: 'RequestResponse',
+      Payload: JSON.stringify({ body: request }),
+    };
+
+    // Invoke the Lambda function
+    return new Promise((resolve, reject) => {
+      this.awsLambda.invoke(params, (err, data) => {
+        if (err) {
+          reject(err);
+        } else if (!data.Payload) {
+          reject(new Error('Lambda did not send back a response'));
+        } else {
+          resolve(JSON.parse(data.Payload.toString()));
+        }
+      });
+    });
   }
 }

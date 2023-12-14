@@ -35,6 +35,7 @@
     "@voiceflow/voice-types": "2.9.64",
     "@voiceflow/voiceflow-types": "3.26.26",
     "ajv": "6.12.3",
+    "aws-sdk": "^2.1518.0",
     "axios": "^0.21.1",
     "compression": "^1.7.4",
     "connect-timeout": "^1.9.0",

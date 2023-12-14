@@ -17,23 +17,43 @@ export async function executeLambda(
   variables: Record<string, unknown>,
   enableLog = false
 ): Promise<RuntimeCommand> {
-  const functionLambdaEndpoint = Config.FUNCTION_LAMBDA_ENDPOINT;
+  const functionLambdaARN = Config.FUNCTION_LAMBDA_ARN;
+  const accessKeyId = Config.FUNCTION_LAMBDA_ACCESS_KEY_ID;
+  const secretAccessKey = Config.FUNCTION_LAMBDA_SECRET_ACCESS_KEY;
+  const region = Config.AWS_REGION;
 
-  if (!functionLambdaEndpoint) {
+  if (!functionLambdaARN) {
     throw new InternalServerErrorException({
-      message: 'Function step lambda endpoint URL `FUNCTION_LAMBDA_ENDPOINT` was not configured',
+      message: 'Function step lambda ARN was not configured',
+    });
+  } else if (!accessKeyId) {
+    throw new InternalServerErrorException({
+      message: 'Function step lambda access key ID was not configured',
+    });
+  } else if (!secretAccessKey) {
+    throw new InternalServerErrorException({
+      message: 'Function step lambda secret access key was not configured',
+    });
+  } else if (!region) {
+    throw new InternalServerErrorException({
+      message: 'AWS region was not configured',
     });
   }
 
   try {
-    const lambdaClient = new FunctionLambdaClient(functionLambdaEndpoint);
-    const { data } = await lambdaClient.executeLambda({
+    const lambdaClient = new FunctionLambdaClient({
+      functionLambdaARN,
+      accessKeyId,
+      secretAccessKey,
+      region,
+    });
+    const result = await lambdaClient.executeLambda({
       code,
       variables,
       enableLog,
     });
 
-    return FunctionLambdaSuccessResponseDTO.parse(data);
+    return FunctionLambdaSuccessResponseDTO.parse(result);
   } catch (err) {
     if (err instanceof z.ZodError) {
       throw new InvalidRuntimeCommandException(err);
