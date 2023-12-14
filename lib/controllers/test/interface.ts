@@ -5,7 +5,7 @@ import { RuntimeCommandDTO } from '@/runtime/lib/Handlers/function/runtime-comma
 
 export const TestFunctionRequestBodyDTO = z
   .object({
-    functionDefinition: z
+    definition: z
       .object({
         code: z.string(),
         pathCodes: z.array(z.string()),
@@ -25,7 +25,9 @@ export const TestFunctionRequestBodyDTO = z
         ),
       })
       .strict(),
-    inputMapping: z.record(z.string()),
+    invocation: z.object({
+      inputVars: z.record(z.string()),
+    }),
   })
   .strict();
 
