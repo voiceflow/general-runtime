@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:20-alpine
 
 RUN apk add --no-cache dumb-init python3 make g++
 
@@ -18,10 +18,12 @@ WORKDIR /usr/src/app
 COPY build ./
 COPY package.json ./
 COPY yarn.lock ./
-
+COPY .yarn/ ./.yarn/
+COPY .yarnrc.yml ./.yarnrc.yml
 
 RUN echo $NPM_TOKEN > .npmrc && \
-  yarn install --production && \
+  yarn config set 'npmRegistries["https://registry.yarnpkg.com"].npmAuthToken' "${NPM_TOKEN#"//registry.npmjs.org/:_authToken="}" && \
+  yarn workspaces focus --all --production  && \
   rm -f .npmrc && \
   yarn cache clean
 
