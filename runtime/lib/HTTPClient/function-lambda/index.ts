@@ -50,9 +50,9 @@ export class FunctionLambdaClient {
 
           if (parsedPayload.statusCode !== HTTP_STATUS.OK) {
             reject(responseBody);
+          } else {
+            resolve(responseBody);
           }
-
-          resolve(responseBody);
         }
       });
     });
