@@ -59,14 +59,27 @@ export async function executeFunction(funcData: ExecuteFunctionArgs) {
 
   validateVariableValueTypes(definition.inputVars, invocation.inputVars);
 
+<<<<<<< HEAD
   const functionLambdaClient = new FunctionLambdaClient({
     functionLambdaARN: Config.FUNCTION_LAMBDA_ARN,
     accessKeyId: Config.FUNCTION_LAMBDA_ACCESS_KEY_ID,
     secretAccessKey: Config.FUNCTION_LAMBDA_SECRET_ACCESS_KEY,
     region: Config.AWS_REGION
+=======
+  const functionLambdaARN = Config.FUNCTION_LAMBDA_ARN;
+  const accessKeyId = Config.FUNCTION_LAMBDA_ACCESS_KEY_ID;
+  const secretAccessKey = Config.FUNCTION_LAMBDA_SECRET_ACCESS_KEY;
+  const region = Config.AWS_REGION;
+
+  const lambdaClient = new FunctionLambdaClient({
+    functionLambdaARN,
+    accessKeyId,
+    secretAccessKey,
+    region,
+>>>>>>> d9f208cb (fix: rebase issues)
   });
 
-  const { next, outputVars, trace } = await functionLambdaClient.executeLambda({
+  const { next, outputVars, trace } = await lambdaClient.executeLambda({
     ...source,
     variables: invocation.inputVars,
   });
