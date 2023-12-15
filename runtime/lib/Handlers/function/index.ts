@@ -5,6 +5,7 @@ import { FunctionCompiledData, FunctionCompiledNode, NodeType } from '@voiceflow
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
 import Runtime from '../../Runtime';
+import Store from '../../Runtime/Store';
 import { executeFunction } from './lib/execute-function/execute-function';
 import { createFunctionExceptionDebugTrace } from './lib/function-exception/function.exception';
 import { NextCommand } from './runtime-command/next-command.dto';
@@ -16,12 +17,14 @@ const utilsObj = {};
 function applyOutputCommand(
   command: OutputVarsCommand,
   runtime: Runtime,
+  variables: Store,
   outputVarDeclarations: FunctionCompiledData['outputVars'],
   outputMapping: FunctionCompiledNode['data']['outputMapping']
 ): void {
   Object.keys(outputVarDeclarations).forEach((functionVarName) => {
     const voiceflowVarName = outputMapping[functionVarName];
     if (!voiceflowVarName) return;
+    variables.set(voiceflowVarName, command[functionVarName]);
     runtime.variables.set(voiceflowVarName, command[functionVarName]);
   });
 }
@@ -44,7 +47,7 @@ function applyNextCommand(command: NextCommand, paths: FunctionCompiledNode['dat
 export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsObj> = (_) => ({
   canHandle: (node) => node.type === NodeType.FUNCTION,
 
-  handle: async (node, runtime): Promise<string | null> => {
+  handle: async (node, runtime, variables): Promise<string | null> => {
     const {
       functionDefinition: { outputVars: outputVarDeclarations },
       outputMapping,
@@ -55,7 +58,7 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
       const { next, outputVars, trace } = await executeFunction(node.data);
 
       if (outputVars) {
-        applyOutputCommand(outputVars, runtime, outputVarDeclarations, outputMapping);
+        applyOutputCommand(outputVars, runtime, variables, outputVarDeclarations, outputMapping);
       }
 
       if (trace) {
