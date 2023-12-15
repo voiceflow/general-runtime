@@ -8,7 +8,10 @@ function formatZodIssue(zodIssue: z.ZodIssue) {
     case z.ZodIssueCode.invalid_type:
       return `Expected value of type '${zodIssue.expected}' for '${path}' but instead received '${zodIssue.received}'`;
     case z.ZodIssueCode.unrecognized_keys:
-      return `Property '${path}' contains unrecognized properties '${zodIssue.keys.join(', ')}'`;
+      if (path.length > 0) {
+        return `Property '${path}' contains unrecognized properties '${zodIssue.keys.join(', ')}'`;
+      }
+      return `Unrecognized property '${zodIssue.keys.join(', ')}'`;
     case z.ZodIssueCode.invalid_literal:
       return `Received value '${zodIssue.received}' for '${path}' when literal value '${zodIssue.expected}' was expected`;
     case z.ZodIssueCode.invalid_enum_value:
