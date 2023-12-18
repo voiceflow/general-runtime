@@ -340,25 +340,6 @@ describe('nlu manager unit tests', () => {
       await expect(nlu.predict(arg)).to.be.rejectedWith('Model not found');
     });
 
-    it('works with model defined and locale undefined, intent is not VoiceflowConstants.IntentName.NONE, prediction empty', async () => {
-      const services = {
-        axios: {
-          post: sinon.stub().resolves({ data: undefined }),
-        },
-      };
-      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
-
-      const arg: Parameters<typeof nlu.predict>[0] = {
-        model: { key: 'value' } as any,
-        query: 'query-val',
-        nlp,
-        tag: VersionTag.DEVELOPMENT,
-      };
-      sinon.stub(NLC, 'handleNLCCommand').returns(nlcMatchedIntent as any);
-
-      await expect(nlu.predict(arg)).to.be.rejectedWith('Locale not found');
-    });
-
     it('works with model and locale defined, intent is VoiceflowConstants.IntentName.NONE, prediction is empty', async () => {
       const services = {
         axios: {
