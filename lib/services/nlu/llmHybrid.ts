@@ -96,7 +96,7 @@ export const hybridPredict = async ({
     return defaultNLUResponse;
   }
 
-  const sanitizedResultIntentName = result.output.replace(/i:|d:|u:|/g, '').trim();
+  const sanitizedResultIntentName = result.output.replace(/i:|d:|u:/g, '').trim();
 
   trace?.push({
     type: BaseNode.Utils.TraceType.DEBUG,
