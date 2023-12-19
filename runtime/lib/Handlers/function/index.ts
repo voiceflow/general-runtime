@@ -1,5 +1,6 @@
 import { BaseTrace } from '@voiceflow/base-types';
 import { BaseTraceFrame } from '@voiceflow/base-types/build/cjs/trace';
+import { replaceVariables } from '@voiceflow/common';
 import { FunctionCompiledData, FunctionCompiledNode, NodeType } from '@voiceflow/dtos';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
@@ -12,7 +13,9 @@ import { NextCommand } from './runtime-command/next-command.dto';
 import { OutputVarsCommand } from './runtime-command/output-vars-command.dto';
 import { TraceCommand } from './runtime-command/trace-command.dto';
 
-const utilsObj = {};
+const utilsObj = {
+  replaceVariables,
+};
 
 function applyOutputCommand(
   command: OutputVarsCommand,
@@ -44,7 +47,7 @@ function applyNextCommand(command: NextCommand, paths: FunctionCompiledNode['dat
   return null;
 }
 
-export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsObj> = (_) => ({
+export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsObj> = (utils) => ({
   canHandle: (node) => node.type === NodeType.FUNCTION,
 
   handle: async (node, runtime, variables): Promise<string | null> => {
@@ -55,7 +58,17 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
     } = node.data;
 
     try {
-      const { next, outputVars, trace } = await executeFunction(node.data);
+      const resolvedInputMapping = Object.entries(node.data.inputMapping).reduce((acc, [varName, value]) => {
+        return {
+          ...acc,
+          [varName]: utils.replaceVariables(value, variables.getState()),
+        };
+      }, {});
+
+      const { next, outputVars, trace } = await executeFunction({
+        ...node.data,
+        inputMapping: resolvedInputMapping,
+      });
 
       if (outputVars) {
         applyOutputCommand(outputVars, runtime, variables, outputVarDeclarations, outputMapping);
