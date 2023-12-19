@@ -29,7 +29,7 @@ function applyOutputCommand(
   Object.keys(outputVarDeclarations).forEach((functionVarName) => {
     const diagramVariableToken = outputMapping[functionVarName];
 
-    if (diagramVariableToken === null) return;
+    if (!diagramVariableToken) return;
 
     const diagramVariableNameMatches = diagramVariableToken.match(DIAGRAM_VARIABLE_REGEX);
 
