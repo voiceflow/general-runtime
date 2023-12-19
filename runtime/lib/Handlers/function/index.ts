@@ -17,6 +17,8 @@ const utilsObj = {
   replaceVariables,
 };
 
+const DIAGRAM_VARIABLE_REGEX = /^{\w[\dA-Za-z]*}$/g;
+
 function applyOutputCommand(
   command: OutputVarsCommand,
   runtime: Runtime,
@@ -25,10 +27,21 @@ function applyOutputCommand(
   outputMapping: FunctionCompiledNode['data']['outputMapping']
 ): void {
   Object.keys(outputVarDeclarations).forEach((functionVarName) => {
-    const voiceflowVarName = outputMapping[functionVarName];
-    if (!voiceflowVarName) return;
-    variables.set(voiceflowVarName, command[functionVarName]);
-    runtime.variables.set(voiceflowVarName, command[functionVarName]);
+    const diagramVariableToken = outputMapping[functionVarName];
+
+    if (diagramVariableToken === null) return;
+
+    const diagramVariableNameMatches = diagramVariableToken.match(DIAGRAM_VARIABLE_REGEX);
+
+    if (diagramVariableNameMatches === null) {
+      throw new Error('Assignment target of output variable command has invalid format');
+    }
+
+    const firstMatch = diagramVariableNameMatches[0];
+    const diagramVariableName = firstMatch.substring(1, firstMatch.length - 1);
+
+    variables.set(diagramVariableName, command[functionVarName]);
+    runtime.variables.set(diagramVariableName, command[functionVarName]);
   });
 }
 
