@@ -120,11 +120,11 @@ export const hybridPredict = async ({
         return acc;
       }, {});
 
-      const entityNames = JSON.stringify(
+      const entityInfo = JSON.stringify(
         intent.slots
           .map((slot) => entitiesByID[slot.id])
           .filter(Utils.array.isNotNullish)
-          .map((slot) => slot.name)
+          .map(({ name, type, inputs }) => ({ name, type, ...(inputs?.length && { examples: inputs }) }))
       );
 
       const requiredEntities = intent.slots.filter((slot) => slot.required);
@@ -158,11 +158,11 @@ export const hybridPredict = async ({
 
       const prompt = dedent`
         Extract the entity name from the utterance. These are available entities to capture:
-        ${entityNames}
+        ${entityInfo}
         Here are some examples of the entities being used
         ${utterancePermutationsWithEntityExamples}
 
-        Respond in format { [entity name]: [entity value] }
+        Return an empty object if no matches. Respond in format { [entity name]: [entity value] }
         u: ${utterance} e:`;
 
       const result = await gpt?.generateCompletion(
