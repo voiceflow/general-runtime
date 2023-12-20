@@ -154,7 +154,6 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               dmRequest: dmStateStore.intentRequest.payload,
               workspaceID: project.teamID,
               intentConfidence: version?.platformData?.settings?.intentConfidence,
-              nluSettings: project.nluSettings,
             })
           : incomingRequest;
 
@@ -197,7 +196,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     if (unfulfilledEntity) {
       // There are unfulfilled required entities -> return dialog management prompt
       // Assemble return string by populating the inline entity values
-      const trace: BaseTrace.AnyTrace[] = context.trace ?? [];
+      const trace: BaseTrace.AnyTrace[] = context.trace ? [...context.trace] : [];
 
       const prompt = _.sample(unfulfilledEntity.dialog.prompt)! as
         | ChatModels.Prompt
