@@ -45,14 +45,15 @@ export const resolveIntentConfidence = (
 export const getNoneIntentRequest = ({
   query = '',
   confidence,
-}: { query?: string; confidence?: number } = {}): BaseRequest.IntentRequest => ({
+  entities = [],
+}: { query?: string; confidence?: number; entities?: BaseRequest.Entity[] } = {}): BaseRequest.IntentRequest => ({
   type: BaseRequest.RequestType.INTENT,
   payload: {
     query,
     intent: {
       name: VoiceflowConstants.IntentName.NONE,
     },
-    entities: [],
+    entities,
     confidence,
   },
 });

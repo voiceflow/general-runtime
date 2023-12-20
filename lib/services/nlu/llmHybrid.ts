@@ -10,7 +10,7 @@ import { NLUGatewayPredictResponse } from './types';
 import { adaptNLUPrediction, getNoneIntentRequest } from './utils';
 
 // T is the expected return object type
-const parseString = <T>(result: string, markers: [string, string]): T => {
+const parseString = async <T>(result: string, markers: [string, string]): Promise<T> => {
   if (result.indexOf(markers[0]) === -1) {
     return JSON.parse(`${markers[0]}${result}${markers[1]}`);
   }
@@ -18,22 +18,22 @@ const parseString = <T>(result: string, markers: [string, string]): T => {
   return JSON.parse(result.substring(result.indexOf(markers[0]), result.lastIndexOf(markers[1]) + 1));
 };
 
-export const parseObjectString = <T>(result: string): T => {
+export const parseObjectString = async <T>(result: string): Promise<T> => {
   return parseString<T>(result, ['{', '}']);
 };
 
 export const hybridPredict = async ({
-  utterance,
-  nluResults,
-  nluModel,
   ai,
   trace,
+  nluModel,
+  utterance,
+  nluResults,
 }: {
-  utterance: string;
-  nluResults: NLUGatewayPredictResponse;
-  nluModel: BaseModels.PrototypeModel;
   ai: AIClient;
   trace?: BaseTrace.AnyTrace[];
+  nluModel: BaseModels.PrototypeModel;
+  utterance: string;
+  nluResults: NLUGatewayPredictResponse;
   // eslint-disable-next-line sonarjs/cognitive-complexity
 }): Promise<BaseRequest.IntentRequest> => {
   const defaultNLUResponse = adaptNLUPrediction(nluResults);
@@ -57,7 +57,7 @@ export const hybridPredict = async ({
 
   const promptIntents = matchedIntents
     // use description or first utterance
-    .map((intent) => `d:${intent.description ?? intent.inputs[0].text} i:${intent.name}`)
+    .map((intent) => `d:${intent.description ?? intent.inputs[0]?.text} i:${intent.name}`)
     .join('\n');
 
   const intentNames = JSON.stringify(matchedIntents.map((intent) => intent.name));
@@ -103,7 +103,8 @@ export const hybridPredict = async ({
     payload: { message: `LLM Result: \`${sanitizedResultIntentName}\`` },
   });
 
-  if (sanitizedResultIntentName === VoiceflowConstants.IntentName.NONE) return getNoneIntentRequest();
+  if (sanitizedResultIntentName === VoiceflowConstants.IntentName.NONE)
+    return getNoneIntentRequest({ query: utterance, entities: defaultNLUResponse.payload.entities });
 
   // STEP 4: retrieve intent from intent map
   const intent = intentMap[sanitizedResultIntentName];
@@ -111,7 +112,6 @@ export const hybridPredict = async ({
   if (!intent) return defaultNLUResponse;
 
   const entities: BaseRequest.Entity[] = [];
-
   // STEP 5: entity extraction
   if (intent.slots?.length) {
     try {
@@ -127,33 +127,42 @@ export const hybridPredict = async ({
           .map((slot) => slot.name)
       );
 
+      const requiredEntities = intent.slots.filter((slot) => slot.required);
+
+      const utterances = Utils.array.unique([
+        ...requiredEntities
+          .filter((entity) => !!entitiesByID[entity.id]?.name)
+          .map((entity) => `{{[${entitiesByID[entity.id].name}].${entity.id}}}`),
+        ...intent.inputs.map((input) => input.text),
+      ]);
+
       const utterancePermutations = Utils.intent.utteranceEntityPermutations({
-        utterances: intent.inputs.map((input) => input.text),
+        utterances,
         entitiesByID,
       });
 
       const utterancePermutationsWithEntityExamples = utterancePermutations
         .reduce<string[]>((acc, permutation) => {
-          if (!permutation.entities?.length || !permutation.text) return acc;
+          if (!permutation.text) return acc;
 
           const entities = Object.fromEntries(
-            permutation.entities.map((entity) => [
+            permutation.entities?.map((entity) => [
               entity.entity,
               permutation.text!.substring(entity.startPos, entity.endPos + 1),
-            ])
+            ]) || []
           );
 
           return [...acc, `u: ${permutation.text} e:${JSON.stringify(entities)}`];
         }, [])
         .join('\n');
 
-      if (!utterancePermutationsWithEntityExamples) throw new Error('no utterance permutations');
-
       const prompt = dedent`
         Extract the entity name from the utterance. These are available entities to capture:
         ${entityNames}
         Here are some examples of the entities being used
         ${utterancePermutationsWithEntityExamples}
+
+        Respond in format { [entity name]: [entity value] }
         u: ${utterance} e:`;
 
       const result = await gpt?.generateCompletion(
@@ -166,7 +175,7 @@ export const hybridPredict = async ({
       );
 
       if (result?.output) {
-        const mappings = parseObjectString<Record<string, string>>(result.output);
+        const mappings = await parseObjectString<Record<string, string>>(result.output).catch(() => ({}));
         // validate mappings is typed correctly
         // eslint-disable-next-line max-depth
         if (!Object.values(mappings).every((value) => typeof value === 'string')) {
@@ -181,7 +190,7 @@ export const hybridPredict = async ({
         );
         trace?.push({
           type: BaseNode.Utils.TraceType.DEBUG,
-          payload: { message: `${prompt}LLM entity extraction: ${JSON.stringify(entities)}` },
+          payload: { message: `LLM entity extraction: ${JSON.stringify(entities)}` },
         });
       }
     } catch (error) {
