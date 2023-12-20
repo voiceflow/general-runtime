@@ -7,7 +7,6 @@ import { BaseRequest } from '@voiceflow/base-types';
 import VError, { HTTP_STATUS } from '@voiceflow/verror';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
-import { dmPrefix } from '@/lib/services/dialog/utils';
 import { isTextRequest } from '@/lib/services/runtime/types';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
