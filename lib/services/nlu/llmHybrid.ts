@@ -1,12 +1,13 @@
-import { BaseModels, BaseNode, BaseRequest, BaseTrace, BaseUtils } from '@voiceflow/base-types';
+import { BaseModels, BaseNode, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 import { Utils } from '@voiceflow/common';
+import { AIGPTModel } from '@voiceflow/dtos';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import dedent from 'dedent';
 
-import AIClient from '@/lib/clients/ai';
+import MLGateway from '@/lib/clients/ml-gateway';
 import log from '@/logger';
 
-import { NLUGatewayPredictResponse } from './types';
+import { NLUGatewayPredictResponse, PredictProps } from './types';
 import { adaptNLUPrediction, getNoneIntentRequest } from './utils';
 
 // T is the expected return object type
@@ -22,39 +23,33 @@ export const parseObjectString = async <T>(result: string): Promise<T> => {
   return parseString<T>(result, ['{', '}']);
 };
 
-export const hybridPredict = async ({
-  ai,
-  trace,
-  nluModel,
-  utterance,
-  nluResults,
-}: {
-  ai: AIClient;
-  trace?: BaseTrace.AnyTrace[];
-  nluModel: BaseModels.PrototypeModel;
-  utterance: string;
-  nluResults: NLUGatewayPredictResponse;
-  // eslint-disable-next-line sonarjs/cognitive-complexity
-}): Promise<BaseRequest.IntentRequest> => {
+export const hybridPredict = async (
+  {
+    trace,
+    mlGateway,
+    nluResults,
+  }: {
+    trace?: BaseTrace.AnyTrace[];
+    mlGateway: MLGateway;
+    nluResults: NLUGatewayPredictResponse;
+  },
+  { query, model, workspaceID }: PredictProps & Required<Pick<PredictProps, 'model'>>
+): // eslint-disable-next-line sonarjs/cognitive-complexity
+Promise<BaseRequest.IntentRequest> => {
   const defaultNLUResponse = adaptNLUPrediction(nluResults);
 
   // STEP 1: match NLU prediction intents to NLU model
-  const intentMap = nluModel.intents.reduce<Record<string, BaseModels.Intent | null>>((acc, intent) => {
-    acc[intent.name] = intent;
-    return acc;
-  }, {});
+  const intentNameMap = Object.fromEntries(model.intents.map((intent) => [intent.name, intent]));
 
   const matchedIntents = nluResults.intents
     // filter out none intent
     .filter((intent) => intent.name !== VoiceflowConstants.IntentName.NONE)
-    .map((intent) => intentMap[intent.name])
+    .map((intent) => intentNameMap[intent.name])
     .filter(Utils.array.isNotNullish);
 
   if (!matchedIntents.length) return defaultNLUResponse;
 
   // STEP 2: use LLM to classify the utterance
-  const gpt = ai.get(BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo);
-
   const promptIntents = matchedIntents
     // use description or first utterance
     .map((intent) => `d:${intent.description ?? intent.inputs[0]?.text} i:${intent.name}`)
@@ -69,7 +64,7 @@ export const hybridPredict = async ({
     Here are the intents and their descriptions:
     ${promptIntents}
     d:Everything else that doesn’t match any of the above categories i:None
-    u:${utterance} i:
+    u:${query} i:
   `;
 
   const resultDebug = nluResults.intents.map(({ name, confidence }) => `${name}: ${confidence}`).join('\n');
@@ -80,14 +75,24 @@ export const hybridPredict = async ({
     },
   });
 
-  const result = await gpt?.generateCompletion(
-    prompt,
-    {
-      temperature: 0.1,
-      maxTokens: 32,
-    },
-    { context: {}, timeout: 1000 }
-  );
+  const result = await mlGateway.private?.completion
+    .generateCompletion({
+      workspaceID: String(workspaceID),
+      prompt,
+      params: {
+        model: AIGPTModel.GPT_3_5_turbo,
+        temperature: 0.1,
+        maxTokens: 32,
+      },
+      options: {
+        timeout: 1000,
+      },
+    })
+    .catch((error) => {
+      log.warn(`[hybridPredict intent classification] ${log.vars(error)}`);
+      return null;
+    });
+
   if (!result?.output) {
     trace?.push({
       type: BaseNode.Utils.TraceType.DEBUG,
@@ -104,10 +109,10 @@ export const hybridPredict = async ({
   });
 
   if (sanitizedResultIntentName === VoiceflowConstants.IntentName.NONE)
-    return getNoneIntentRequest({ query: utterance, entities: defaultNLUResponse.payload.entities });
+    return getNoneIntentRequest({ query, entities: defaultNLUResponse.payload.entities });
 
   // STEP 4: retrieve intent from intent map
-  const intent = intentMap[sanitizedResultIntentName];
+  const intent = intentNameMap[sanitizedResultIntentName];
   // any hallucinated intent is not valid
   if (!intent) return defaultNLUResponse;
 
@@ -115,10 +120,7 @@ export const hybridPredict = async ({
   // STEP 5: entity extraction
   if (intent.slots?.length) {
     try {
-      const entitiesByID = nluModel.slots.reduce<Record<string, BaseModels.Slot>>((acc, slot) => {
-        acc[slot.key] = slot;
-        return acc;
-      }, {});
+      const entitiesByID = Object.fromEntries(model.slots.map((slot) => [slot.key, slot]));
 
       const entityInfo = JSON.stringify(
         intent.slots
@@ -163,16 +165,25 @@ export const hybridPredict = async ({
         ${utterancePermutationsWithEntityExamples}
 
         Return an empty object if no matches. Respond in format { [entity name]: [entity value] }
-        u: ${utterance} e:`;
+        u: ${query} e:`;
 
-      const result = await gpt?.generateCompletion(
-        prompt,
-        {
-          temperature: 0.1,
-          maxTokens: 64,
-        },
-        { context: {}, timeout: 3000 }
-      );
+      const result = await mlGateway.private?.completion
+        .generateCompletion({
+          workspaceID: String(workspaceID),
+          prompt,
+          params: {
+            model: AIGPTModel.GPT_3_5_turbo,
+            temperature: 0.1,
+            maxTokens: 64,
+          },
+          options: {
+            timeout: 3000,
+          },
+        })
+        .catch((error) => {
+          log.warn(`[hybridPredict entity extraction] ${log.vars(error)}`);
+          return null;
+        });
 
       if (result?.output) {
         const mappings = await parseObjectString<Record<string, string>>(result.output).catch(() => ({}));
@@ -205,7 +216,7 @@ export const hybridPredict = async ({
   return {
     type: BaseRequest.RequestType.INTENT,
     payload: {
-      query: utterance,
+      query,
       intent: {
         name: intent.name,
       },

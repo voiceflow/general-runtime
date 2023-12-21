@@ -2882,6 +2882,14 @@
     "@voiceflow/exception" "1.4.0"
     "@voiceflow/fetch" "1.5.2"
 
+"@voiceflow/sdk-http-ml-gateway@^2.11.4":
+  version "2.11.4"
+  resolved "https://registry.yarnpkg.com/@voiceflow/sdk-http-ml-gateway/-/sdk-http-ml-gateway-2.11.4.tgz#59550239dfa9a62cdd9a4b08d8b77417386b016e"
+  integrity sha512-tBYmS+etlKYcHebXkcQN2YMXm2NFjS7XtDqkYnOxmwhQ1DORj6NMGD5kXhWR8sgLpSqU5IkIIndMj9fN0UhZVA==
+  dependencies:
+    "@voiceflow/orval-fetch" "1.2.1"
+    "@voiceflow/sdk-common" "1.9.1"
+
 "@voiceflow/verror@1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@voiceflow/verror/-/verror-1.1.2.tgz#71738805f34657ae7f28503be38850bf2f2e5c79"

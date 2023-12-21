@@ -77,13 +77,14 @@ class NLU extends AbstractManager implements ContextHandler {
       const data = await this.getNLUPrediction(props);
 
       if (data && !dmRequest?.intent && isHybridLLMStrategy(nluSettings) && model) {
-        return hybridPredict({
-          utterance: query,
-          nluResults: data,
-          nluModel: model,
-          ai: this.services.ai,
-          trace,
-        });
+        return hybridPredict(
+          {
+            nluResults: data,
+            mlGateway: this.services.mlGateway,
+            trace,
+          },
+          { ...props, model }
+        );
       }
 
       if (data) {

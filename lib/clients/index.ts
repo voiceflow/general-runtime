@@ -8,6 +8,7 @@ import { AnalyticsClient } from './analytics-client';
 import AnalyticsIngester, { IngesterClient } from './analytics-ingester';
 import DataAPI from './dataAPI';
 import Metrics, { MetricsType } from './metrics';
+import MLGateway from './ml-gateway';
 import MongoDB from './mongodb';
 import { RedisClient } from './redis';
 import Static, { StaticType } from './static';
@@ -21,6 +22,7 @@ export interface ClientMap extends StaticType {
   mongo: MongoDB | null;
   analyticsIngester: IngesterClient | null;
   analyticsPlatform: AnalyticsClient;
+  mlGateway: MLGateway;
   unleash: Unleash;
   ai: AIClient;
 }
@@ -39,6 +41,7 @@ const buildClients = (config: Config): ClientMap => {
     mongo,
     dataAPI: new DataAPI({ config, mongo }),
     metrics: Metrics(config),
+    mlGateway: new MLGateway(config),
     rateLimitClient: RateLimitClient('general-runtime', redis, config),
     analyticsIngester: AnalyticsIngester(config),
     analyticsPlatform: new AnalyticsClient(
@@ -58,6 +61,7 @@ const buildClients = (config: Config): ClientMap => {
 export const initClients = async (clients: ClientMap) => {
   await clients.unleash?.ready();
   await clients.mongo?.start();
+  await clients.mlGateway.start();
 };
 
 export const stopClients = async (_config: Config, clients: ClientMap) => {
