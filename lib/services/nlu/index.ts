@@ -34,23 +34,16 @@ class NLU extends AbstractManager implements ContextHandler {
     versionID,
     workspaceID,
     nluSettings,
-    filteredIntents,
-    filteredEntities,
-    excludeFilteredIntents,
-    excludeFilteredEntities,
   }: PredictProps): Promise<NLUGatewayPredictResponse | null> {
-    const filteredIntentsArray = filteredIntents ? Array.from(filteredIntents) : undefined;
-    const filteredEntitiesArray = filteredEntities ? Array.from(filteredEntities) : undefined;
-
     const { data } = await this.services.axios
       .post<NLUGatewayPredictResponse>(`${this.getNluGatewayEndpoint()}/v1/predict/${versionID}`, {
         utterance: query,
         tag,
         workspaceID,
-        filteredIntents: filteredIntentsArray,
-        filteredEntities: filteredEntitiesArray,
-        excludeFilteredIntents,
-        excludeFilteredEntities,
+        filteredIntents: [],
+        filteredEntities: [],
+        excludeFilteredIntents: true,
+        excludeFilteredEntities: true,
         ...(isHybridLLMStrategy(nluSettings) && { limit: 10 }),
       })
       .catch(() => ({ data: null }));
