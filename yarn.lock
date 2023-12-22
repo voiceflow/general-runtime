@@ -2882,7 +2882,7 @@
     "@voiceflow/exception" "1.4.0"
     "@voiceflow/fetch" "1.5.2"
 
-"@voiceflow/sdk-http-ml-gateway@^2.11.4":
+"@voiceflow/sdk-http-ml-gateway@2.11.4":
   version "2.11.4"
   resolved "https://registry.yarnpkg.com/@voiceflow/sdk-http-ml-gateway/-/sdk-http-ml-gateway-2.11.4.tgz#59550239dfa9a62cdd9a4b08d8b77417386b016e"
   integrity sha512-tBYmS+etlKYcHebXkcQN2YMXm2NFjS7XtDqkYnOxmwhQ1DORj6NMGD5kXhWR8sgLpSqU5IkIIndMj9fN0UhZVA==
