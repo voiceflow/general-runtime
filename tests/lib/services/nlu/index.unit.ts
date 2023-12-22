@@ -165,8 +165,8 @@ describe('nlu manager unit tests', () => {
       expect(services.axios.post.args[0][1]).to.eql({
         filteredEntities: [],
         filteredIntents: [],
-        excludeFilteredEntities: false,
-        excludeFilteredIntents: false,
+        excludeFilteredEntities: true,
+        excludeFilteredIntents: true,
         utterance: query,
         tag: VersionTag.PRODUCTION,
         workspaceID: teamID,
