@@ -2,7 +2,7 @@ import { AlexaConstants } from '@voiceflow/alexa-types';
 import { BaseModels, BaseNode, BaseRequest } from '@voiceflow/base-types';
 import { CommandType, EventType } from '@voiceflow/base-types/build/cjs/node/utils';
 import { GoogleConstants } from '@voiceflow/google-types';
-import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
+import { VoiceflowConstants, VoiceflowUtils } from '@voiceflow/voiceflow-types';
 import { match } from 'ts-pattern';
 
 import { Stack } from '@/runtime';
@@ -135,7 +135,7 @@ const getNodeLevelIntentsAndEntities = (
 export const getAvailableIntentsAndEntities = async (
   runtimeManager: RuntimeManager,
   context: Context
-): Promise<{ availableIntents: Set<string>; availableEntities: Set<string> }> => {
+): Promise<{ availableIntents: Set<string>; availableEntities: Set<string>; bypass?: boolean }> => {
   const runtime = runtimeManager.createClient(context.data.api).createRuntime({
     versionID: context.versionID,
     state: context.state,
@@ -151,6 +151,18 @@ export const getAvailableIntentsAndEntities = async (
   const currentFrame = runtime.stack.top();
   const program = await runtime.getProgram(runtime.getVersionID(), currentFrame.getDiagramID());
   const node = program.getNode(currentFrame.getNodeID());
+
+  // TODO: temporary bypass for locally scoped capture step
+  // please remove this and properly fix the getAvailableIntentsAndEntities function/intent scoping
+  if (
+    node &&
+    VoiceflowUtils.node.isCaptureV2(node) &&
+    !node.intent?.name &&
+    node.variable &&
+    node.intentScope === BaseNode.Utils.IntentScope.NODE
+  ) {
+    return { availableIntents: new Set(), availableEntities: new Set(), bypass: true };
+  }
 
   // get node-level scope
   const { nodeInteractionIntentNames, nodeInteractionEntityNames } = getNodeLevelIntentsAndEntities(node);

@@ -113,10 +113,14 @@ class NLU extends AbstractManager implements ContextHandler {
       };
     }
 
-    const { availableIntents, availableEntities } = await getAvailableIntentsAndEntities(
+    const { availableIntents, availableEntities, bypass } = await getAvailableIntentsAndEntities(
       this.services.runtime,
       context
     );
+
+    if (bypass) {
+      return { ...context, request: getNoneIntentRequest({ query: context.request.payload }) };
+    }
 
     const version = await context.data.api.getVersion(context.versionID);
 
