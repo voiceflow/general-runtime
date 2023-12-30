@@ -61,7 +61,7 @@ const buildClients = (config: Config): ClientMap => {
 export const initClients = async (clients: ClientMap) => {
   await clients.unleash?.ready();
   await clients.mongo?.start();
-  await clients.mlGateway.start();
+  await clients.mlGateway?.start();
 };
 
 export const stopClients = async (_config: Config, clients: ClientMap) => {
