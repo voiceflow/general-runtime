@@ -1,4 +1,4 @@
-import { BaseModels, BaseNode, BaseRequest, BaseTrace } from '@voiceflow/base-types';
+import { BaseNode, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 import { Utils } from '@voiceflow/common';
 import { AIGPTModel } from '@voiceflow/dtos';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
