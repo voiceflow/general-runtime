@@ -85,8 +85,8 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
           codeId: definition.codeId,
         },
         invocation: {
-          inputVars: resolvedInputMapping
-        }
+          inputVars: resolvedInputMapping,
+        },
       });
 
       if (outputVars) {
