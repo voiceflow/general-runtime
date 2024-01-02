@@ -109,7 +109,6 @@ export class FunctionLambdaClient {
    * Executes the code given in `request` using the `function-lambda` AWS Lambda service.
    */
   public async executeLambda(request: FunctionLambdaRequest): Promise<FunctionLambdaSuccessResponse> {
-<<<<<<< HEAD
     try {
       const result = await this.invokeLambda(request);
 
@@ -118,48 +117,16 @@ export class FunctionLambdaClient {
       if (err instanceof z.ZodError) {
         throw new InvalidRuntimeCommandException(err);
       }
-  
+
       const lambdaError = FunctionLambdaErrorResponseDTO.safeParse(err);
       if (lambdaError.success) {
         throw this.createLambdaException(lambdaError.data);
       }
-  
+
       throw new InternalServerErrorException({
         message: 'Unknown error occurred when executing the function',
         cause: JSON.stringify(err).slice(0, 100),
-=======
-    const params: AWS.Lambda.InvocationRequest = {
-      FunctionName: this.functionLambdaARN,
-      InvocationType: 'RequestResponse',
-      Payload: JSON.stringify(request),
-    };
-
-    // Invoke the Lambda function
-    return new Promise((resolve, reject) => {
-      this.awsLambda.invoke(params, (err, data) => {
-        if (err) {
-          reject(err);
-        } else if (!data.Payload) {
-          reject(new Error('Lambda did not send back a response'));
-        } else {
-          const parsedPayload = JSON.parse(data.Payload as string);
-          const responseBody = parsedPayload.body;
-
-          if (parsedPayload.statusCode !== HTTP_STATUS.OK) {
-            const lambdaError = FunctionLambdaErrorResponseDTO.parse(responseBody);
-            reject(this.createLambdaException(lambdaError));
-            return;
-          }
-
-          try {
-            const result = FunctionLambdaSuccessResponseDTO.parse(responseBody);
-            resolve(result);
-          } catch (err) {
-            reject(new InvalidRuntimeCommandException(err));
-          }
-        }
->>>>>>> d9f208cb (fix: rebase issues)
       });
-    });
+    }
   }
 }
