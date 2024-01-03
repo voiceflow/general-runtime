@@ -76,22 +76,29 @@ const getOutput = async (
     }
 
     let result: AIResponse | null = null;
-    // use knowledge base if it exists OR if the user has FAQs
-    if (
-      Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0 ||
-      runtime.services.unleash.client.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(runtime.project?.teamID) })
-    ) {
-      result = await knowledgeBaseNoMatch(runtime);
-      await consumeResources('KB Fallback', runtime, result);
-    }
+    try {
+      // use knowledge base if it exists OR if the user has FAQs
+      if (
+        Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0 ||
+        runtime.services.unleash.client.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(runtime.project?.teamID) })
+      ) {
+        result = await knowledgeBaseNoMatch(runtime);
+        await consumeResources('KB Fallback', runtime, result);
+      }
 
-    // hit global no match if KB wasn't successful
-    if (!result?.output && globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE) {
-      result = await generateNoMatch(runtime, globalNoMatch.prompt);
-      await consumeResources('Generative No Match', runtime, result);
-    }
+      // hit global no match if KB wasn't successful
+      if (!result?.output && globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE) {
+        result = await generateNoMatch(runtime, globalNoMatch.prompt);
+        await consumeResources('Generative No Match', runtime, result);
+      }
 
-    if (result?.output) return { output: generateOutput(result.output), ai: true, tokens: result.tokens };
+      if (result?.output) return { output: generateOutput(result.output), ai: true, tokens: result.tokens };
+    } catch (err) {
+      if (err?.message?.includes('[moderation error]')) {
+        return { output: generateOutput(`global no match ${err.message}`, runtime.project), ai: true };
+      }
+      throw err;
+    }
   }
 
   const prompt = globalNoMatch && isPrompt(globalNoMatch?.prompt) ? globalNoMatch.prompt : null;
