@@ -174,46 +174,39 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<AIResponse
   if (!input) return null;
 
   try {
-    // expiremental module, frame the question
-    const memory = getMemoryMessages(runtime.variables.getState());
     const kbSettings = getKBSettings(
       runtime?.services.unleash,
       runtime.project?.teamID,
       runtime?.version?.knowledgeBase?.settings,
       runtime?.project?.knowledgeBase?.settings
     );
-
-    const question = await runtime.services.aiSynthesis.questionSynthesis(input, memory, {
-      projectID: runtime.project._id,
-      workspaceID: runtime.project.teamID,
-    });
-    if (!question?.output) return null;
+    const question = input;
 
     // before checking KB, check if it is an FAQ
     const faq = await fetchFaq(
       runtime.project._id,
       runtime.project.teamID,
-      question.output,
+      question,
       runtime.project?.knowledgeBase?.faqSets,
       kbSettings
     );
     if (faq?.answer) {
-      addFaqTrace(runtime, faq.question || '', faq.answer, question.output);
+      addFaqTrace(runtime, faq.question || '', faq.answer, question);
       return {
-        model: question.model,
+        model: 'faq',
         multiplier: 1,
         output: faq.answer,
-        tokens: question.queryTokens + question.answerTokens,
-        queryTokens: question.queryTokens,
-        answerTokens: question.answerTokens,
+        tokens: 0,
+        queryTokens: 0,
+        answerTokens: 0,
       };
     }
 
-    const data = await fetchKnowledgeBase(runtime.project._id, runtime.project.teamID, question.output, kbSettings);
+    const data = await fetchKnowledgeBase(runtime.project._id, runtime.project.teamID, question, kbSettings);
     if (!data) return null;
 
     const answer = await runtime.services.aiSynthesis.answerSynthesis({
-      question: question.output,
+      question,
       data,
       options: kbSettings?.summarization,
       variables: runtime.variables.getState(),
@@ -222,8 +215,8 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<AIResponse
 
     if (!answer) return null;
 
-    const queryTokens = question.queryTokens + answer.queryTokens;
-    const answerTokens = question.answerTokens + answer.answerTokens;
+    const { queryTokens } = answer;
+    const { answerTokens } = answer;
     const tokens = queryTokens + answerTokens;
 
     // KB NOT_FOUND still uses tokens
@@ -241,8 +234,8 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<AIResponse
           documentData: documents[documentID]?.data,
         })),
         query: {
-          messages: question.messages,
-          output: question.output,
+          messages: answer.messages,
+          output: answer.output,
         },
       },
     } as any);
