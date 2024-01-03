@@ -22,7 +22,7 @@ const utilsObj = {
   replaceVariables,
 };
 
-const DIAGRAM_VARIABLE_REGEX = /^{\w[\dA-Za-z]*}$/g;
+const DIAGRAM_VARIABLE_REGEX = /^{(\w)\w*}$/g;
 
 function applyOutputCommand(
   command: OutputVarsCommand,
