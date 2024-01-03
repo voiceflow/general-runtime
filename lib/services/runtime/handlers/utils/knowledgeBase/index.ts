@@ -200,7 +200,7 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<AIResponse
     if (faq?.answer) {
       addFaqTrace(runtime, faq.question || '', faq.answer, question.output);
       return {
-        model: 'faq',
+        model: question.model,
         multiplier: 1,
         output: faq.answer,
         tokens: question.queryTokens + question.answerTokens,
