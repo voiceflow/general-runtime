@@ -1,10 +1,5 @@
 import { PlanType } from '@voiceflow/internal';
 
-import { AnthropicAIClient } from './anthropic/api-client';
-import { OpenAIClient } from './openai/api-client';
-
-export type APIClient = OpenAIClient | AnthropicAIClient;
-
 export interface CompletionOutput {
   output: string | null;
   tokens: number;
@@ -13,7 +8,7 @@ export interface CompletionOutput {
 }
 
 export interface AIModelContext {
-  workspaceID?: string;
+  workspaceID: string;
   projectID?: string;
 }
 export interface CompletionOptions {

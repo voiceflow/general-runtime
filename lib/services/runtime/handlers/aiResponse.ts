@@ -7,7 +7,6 @@ import _cloneDeep from 'lodash/cloneDeep';
 import _merge from 'lodash/merge';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
-import { ContentModerationError } from '@/lib/clients/ai/contentModeration/utils';
 import { HandlerFactory } from '@/runtime';
 
 import { FrameType, GeneralRuntime, Output } from '../types';
@@ -23,8 +22,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
     const nextID = node.nextId ?? null;
     const elseID = node.elseId ?? null;
     const projectID = runtime.project?._id;
-    const workspaceID = runtime.project?.teamID;
-    const generativeModel = runtime.services.ai.get(node.model);
+    const workspaceID = runtime.project?.teamID || '';
 
     if (!(await checkTokens(runtime, node.type))) {
       addOutputTrace(
@@ -60,8 +58,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
             runtime
           );
 
-          const kbModel = runtime.services.ai.get(kbSettings?.summarization.model);
-          await consumeResources('AI Response KB', runtime, kbModel, answer);
+          await consumeResources('AI Response KB', runtime, answer);
         } else {
           const settings = deepVariableSubstitution(_cloneDeep(node), variables.getState());
           const summarization = _merge(kbSettings?.summarization, settings.overrideParams ? settings : {});
@@ -77,8 +74,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           // remove after isDeprecated is gone
           answer = queryAnswer;
 
-          const kbModel = runtime.services.ai.get(summarization.model);
-          await consumeResources('AI Response KB', runtime, kbModel, answer);
+          await consumeResources('AI Response KB', runtime, answer);
 
           if (!answer.output && settings.notFoundPath) return elseID;
 
@@ -125,11 +121,13 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           tokens: 0,
           queryTokens: 0,
           answerTokens: 0,
+          model: node.model,
+          multiplier: 1,
         };
       } else {
         response = await fetchPrompt(
           node,
-          generativeModel,
+          runtime.services.mlGateway,
           {
             context: { projectID, workspaceID },
           },
@@ -137,7 +135,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
         );
       }
 
-      await consumeResources('AI Response', runtime, generativeModel, response);
+      await consumeResources('AI Response', runtime, response);
 
       if (!response.output) return nextID;
 
@@ -163,7 +161,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
 
       return nextID;
     } catch (err) {
-      if (err instanceof ContentModerationError) {
+      if (err?.message?.includes('[moderation error]')) {
         addOutputTrace(
           runtime,
           getOutputTrace({

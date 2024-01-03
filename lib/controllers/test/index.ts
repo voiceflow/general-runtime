@@ -159,14 +159,11 @@ class TestController extends AbstractController {
   async testCompletion(
     req: Request<BaseUtils.ai.AIModelParams & BaseUtils.ai.AIContextParams & { workspaceID: string }>
   ) {
-    const model = this.services.ai.get(req.body.model);
-
-    if (!model) throw new VError('invalid model', VError.HTTP_STATUS.BAD_REQUEST);
     if (typeof req.body.prompt !== 'string') throw new VError('invalid prompt', VError.HTTP_STATUS.BAD_REQUEST);
 
     const { output, tokens } = await fetchPrompt(
       req.body,
-      model,
+      this.services.mlGateway,
       { context: { workspaceID: req.params.workspaceID } },
       {}
     );

@@ -3,7 +3,6 @@ import { deepVariableSubstitution } from '@voiceflow/common';
 import _cloneDeep from 'lodash/cloneDeep';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
-import { ContentModerationError } from '@/lib/clients/ai/contentModeration/utils';
 import { HandlerFactory } from '@/runtime';
 
 import { GeneralRuntime } from '../types';
@@ -15,9 +14,8 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = 
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: async (node, runtime, variables) => {
     const nextID = node.nextId ?? null;
-    const workspaceID = runtime.project?.teamID;
+    const workspaceID = runtime.project?.teamID || '';
     const projectID = runtime.project?._id;
-    const generativeModel = runtime.services.ai.get(node.model);
     const kbSettings = getKBSettings(
       runtime?.services.unleash,
       workspaceID,
@@ -32,76 +30,68 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = 
       const result = await Promise.all(
         node.sets
           .filter((set) => !!set.prompt && !!set.variable)
-          .map(
-            async ({
-              mode,
-              prompt,
-              variable,
-              instruction,
-            }): Promise<{ tokens: number; queryTokens: number; answerTokens: number }> => {
-              const emptyResult = { tokens: 0, queryTokens: 0, answerTokens: 0 };
-              if (!variable) return emptyResult;
+          .map(async ({ mode, prompt, variable, instruction }): Promise<AIResponse> => {
+            if (!variable) return EMPTY_AI_RESPONSE;
 
-              if (node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE) {
-                const isDeprecated = node.overrideParams === undefined;
+            if (node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE) {
+              const isDeprecated = node.overrideParams === undefined;
 
-                let response: AIResponse | null = EMPTY_AI_RESPONSE;
-                if (isDeprecated) {
-                  response = await runtime.services.aiSynthesis.DEPRECATEDpromptSynthesis(
-                    runtime.version!.projectID,
-                    workspaceID,
-                    {
-                      ...kbSettings?.summarization,
-                      mode,
-                      prompt,
-                    },
-                    variables.getState(),
-                    runtime
-                  );
-                } else {
-                  const settings = deepVariableSubstitution(
-                    _cloneDeep({ ...node, mode, instruction, prompt, sets: undefined }),
-                    variables.getState()
-                  );
-                  response = await runtime.services.aiSynthesis.knowledgeBaseQuery({
-                    version: runtime.version!,
-                    project: runtime.project!,
-                    question: settings.prompt,
-                    instruction: settings.instruction,
-                    options: node.overrideParams ? { summarization: settings } : {},
-                  });
+              let response: AIResponse | null = EMPTY_AI_RESPONSE;
+              if (isDeprecated) {
+                response = await runtime.services.aiSynthesis.DEPRECATEDpromptSynthesis(
+                  runtime.version!.projectID,
+                  workspaceID,
+                  {
+                    ...kbSettings?.summarization,
+                    mode,
+                    prompt,
+                  },
+                  variables.getState(),
+                  runtime
+                );
+              } else {
+                const settings = deepVariableSubstitution(
+                  _cloneDeep({ ...node, mode, instruction, prompt, sets: undefined }),
+                  variables.getState()
+                );
+                response = await runtime.services.aiSynthesis.knowledgeBaseQuery({
+                  version: runtime.version!,
+                  project: runtime.project!,
+                  question: settings.prompt,
+                  instruction: settings.instruction,
+                  options: node.overrideParams ? { summarization: settings } : {},
+                });
 
-                  if (response.output === null) response.output = BaseUtils.ai.KNOWLEDGE_BASE_NOT_FOUND;
-                }
-
-                variables.set(variable, response?.output);
-                const tokens = response?.tokens ?? 0;
-                const queryTokens = response?.queryTokens ?? 0;
-                const answerTokens = response?.answerTokens ?? 0;
-
-                return { tokens, queryTokens, answerTokens };
+                if (response.output === null) response.output = BaseUtils.ai.KNOWLEDGE_BASE_NOT_FOUND;
               }
 
-              if (node.model === BaseUtils.ai.GPT_MODEL.GPT_4 && runtime.plan && !GPT4_ABLE_PLAN.has(runtime.plan)) {
-                variables.set(variable, 'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.');
-                return emptyResult;
-              }
-
-              const response = await fetchPrompt(
-                { ...node, prompt, mode },
-                generativeModel,
-                { context: { projectID, workspaceID } },
-                variables.getState()
-              );
+              variables.set(variable, response?.output);
               const tokens = response?.tokens ?? 0;
               const queryTokens = response?.queryTokens ?? 0;
               const answerTokens = response?.answerTokens ?? 0;
 
-              variables.set(variable!, response.output);
-
-              return { tokens, queryTokens, answerTokens };
+              return { ...EMPTY_AI_RESPONSE, ...response, tokens, queryTokens, answerTokens };
             }
-          )
+
+            if (node.model === BaseUtils.ai.GPT_MODEL.GPT_4 && runtime.plan && !GPT4_ABLE_PLAN.has(runtime.plan)) {
+              variables.set(variable, 'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.');
+              return EMPTY_AI_RESPONSE;
+            }
+
+            const response = await fetchPrompt(
+              { ...node, prompt, mode },
+              runtime.services.mlGateway,
+              { context: { projectID, workspaceID } },
+              variables.getState()
+            );
+            const tokens = response?.tokens ?? 0;
+            const queryTokens = response?.queryTokens ?? 0;
+            const answerTokens = response?.answerTokens ?? 0;
+
+            variables.set(variable!, response.output);
+
+            return { ...response, tokens, queryTokens, answerTokens };
+          })
       );
 
       const totals = result.reduce(
@@ -115,19 +105,15 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = 
         { tokens: 0, queryTokens: 0, answerTokens: 0 }
       );
 
-      const kbModel = runtime.services.ai.get((node.overrideParams && node.model) || kbSettings?.summarization.model);
-      const model = node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE ? kbModel : generativeModel;
-
       await consumeResources(
         node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE ? 'AI Set KB' : 'AI Set',
         runtime,
-        model,
-        { ...totals }
+        { ...result[0], ...totals }
       );
 
       return nextID;
     } catch (err) {
-      if (err instanceof ContentModerationError) {
+      if (err?.message?.includes('[moderation error]')) {
         return nextID;
       }
       throw err;

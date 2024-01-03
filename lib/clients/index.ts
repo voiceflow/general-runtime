@@ -3,7 +3,6 @@ import { RateLimitClient } from '@voiceflow/backend-utils';
 import { MongoSession } from '@/lib/services/session';
 import { Config } from '@/types';
 
-import AIClient from './ai';
 import { AnalyticsClient } from './analytics-client';
 import AnalyticsIngester, { IngesterClient } from './analytics-ingester';
 import DataAPI from './dataAPI';
@@ -24,7 +23,6 @@ export interface ClientMap extends StaticType {
   analyticsPlatform: AnalyticsClient;
   mlGateway: MLGateway;
   unleash: Unleash;
-  ai: AIClient;
 }
 
 /**
@@ -54,7 +52,6 @@ const buildClients = (config: Config): ClientMap => {
         : null
     ),
     unleash,
-    ai: new AIClient(config, unleash),
   };
 };
 

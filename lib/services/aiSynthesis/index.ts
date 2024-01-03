@@ -71,8 +71,6 @@ class AISynthesis extends AbstractManager {
   }): Promise<AIResponse | null> {
     let response: AIResponse = EMPTY_AI_RESPONSE;
 
-    const generativeModel = this.services.ai.get(model);
-
     const systemWithTime = `${system}\n\n${getCurrentTime()}`.trim();
 
     const options = { model, system: systemWithTime, temperature, maxTokens };
@@ -92,7 +90,7 @@ class AISynthesis extends AbstractManager {
 
       response = await fetchChat(
         { ...options, messages },
-        generativeModel,
+        this.services.mlGateway,
         {
           retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
           retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
@@ -111,7 +109,7 @@ class AISynthesis extends AbstractManager {
 
       response = await fetchPrompt(
         { ...options, prompt, mode: BaseUtils.ai.PROMPT_MODE.PROMPT },
-        generativeModel,
+        this.services.mlGateway,
         { context },
         variables
       );
@@ -126,7 +124,7 @@ class AISynthesis extends AbstractManager {
 
       response = await fetchPrompt(
         { ...options, prompt, mode: BaseUtils.ai.PROMPT_MODE.PROMPT },
-        generativeModel,
+        this.services.mlGateway,
         { context },
         variables
       );
@@ -204,12 +202,10 @@ class AISynthesis extends AbstractManager {
       },
     ];
 
-    const generativeModel = this.services.ai.get(options.model);
-
     const fetchChatTask = () =>
       fetchChat(
         { ...options, messages: questionMessages },
-        generativeModel,
+        this.services.mlGateway,
         {
           context,
           retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
@@ -229,11 +225,11 @@ class AISynthesis extends AbstractManager {
   /** @deprecated remove after all KB AI Response steps moved off */
   async DEPRECATEDpromptSynthesis(
     projectID: string,
-    workspaceID: string | undefined,
+    workspaceID: string,
     params: BaseUtils.ai.AIContextParams & BaseUtils.ai.AIModelParams,
     variables: Record<string, any>,
     runtime?: Runtime
-  ) {
+  ): Promise<AIResponse | null> {
     const kbSettings = getKBSettings(
       runtime?.services.unleash,
       workspaceID,
@@ -271,6 +267,8 @@ class AISynthesis extends AbstractManager {
           tokens: query.queryTokens + query.answerTokens,
           queryTokens: query.queryTokens,
           answerTokens: query.answerTokens,
+          model: query.model,
+          multiplier: query.multiplier,
         };
       }
 
@@ -311,7 +309,7 @@ class AISynthesis extends AbstractManager {
       const queryTokens = query.queryTokens + answer.queryTokens;
       const answerTokens = query.answerTokens + answer.answerTokens;
 
-      return { ...answer, ...data, query, tokens, queryTokens, answerTokens };
+      return { ...answer, ...data, tokens, queryTokens, answerTokens };
     } catch (err) {
       log.error(`[knowledge-base prompt] ${log.vars({ err })}`);
       return null;
@@ -338,7 +336,6 @@ class AISynthesis extends AbstractManager {
         });
       }
 
-      const generativeModel = this.services.ai.get(BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo);
       const response = await fetchChat(
         {
           temperature: 0.1,
@@ -346,7 +343,7 @@ class AISynthesis extends AbstractManager {
           model: BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo,
           messages: contextMessages,
         },
-        generativeModel,
+        this.services.mlGateway,
         {
           context,
           retries: this.DEFAULT_QUESTION_SYNTHESIS_RETRIES,
@@ -360,6 +357,7 @@ class AISynthesis extends AbstractManager {
     return {
       ...EMPTY_AI_RESPONSE,
       output: question,
+      model: BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo,
     };
   }
 
@@ -405,10 +403,9 @@ class AISynthesis extends AbstractManager {
       },
     ];
 
-    const generativeModel = this.services.ai.get(options.model);
     return fetchChat(
       { ...options, messages: questionMessages },
-      generativeModel,
+      this.services.mlGateway,
       {
         context,
         retries: this.DEFAULT_QUESTION_SYNTHESIS_RETRIES,

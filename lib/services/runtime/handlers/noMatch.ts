@@ -2,7 +2,6 @@ import { BaseNode, BaseRequest, BaseText, BaseTrace, BaseVersion } from '@voicef
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
-import { ContentModerationError } from '@/lib/clients/ai/contentModeration/utils';
 import { FeatureFlag } from '@/lib/feature-flags';
 import { Runtime, Store } from '@/runtime';
 
@@ -17,9 +16,9 @@ import {
   removeEmptyPrompts,
 } from '../utils';
 import { addNoReplyTimeoutIfExists } from './noReply';
-import { checkTokens, consumeResources } from './utils/ai';
+import { AIResponse, checkTokens, consumeResources } from './utils/ai';
 import { generateNoMatch } from './utils/generativeNoMatch';
-import { getKBSettings, knowledgeBaseNoMatch } from './utils/knowledgeBase';
+import { knowledgeBaseNoMatch } from './utils/knowledgeBase';
 import { generateOutput } from './utils/output';
 
 export type NoMatchNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoMatchNode & { type: BaseNode.NodeType };
@@ -76,44 +75,23 @@ const getOutput = async (
       return { output: generateOutput('global no match [token quota exceeded]', runtime.project), ai: true };
     }
 
-    let result: { output?: Output; tokens: number; queryTokens: number; answerTokens: number } | null = null;
-    try {
-      // use knowledge base if it exists OR if the user has FAQs
-      if (
-        Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0 ||
-        runtime.services.unleash.client.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(runtime.project?.teamID) })
-      ) {
-        result = await knowledgeBaseNoMatch(runtime);
-        const kbSettings = getKBSettings(
-          runtime?.services.unleash,
-          runtime.project?.teamID,
-          runtime?.version?.knowledgeBase?.settings,
-          runtime?.project?.knowledgeBase?.settings
-        );
-        const model = runtime.services.ai.get(kbSettings?.summarization.model, {
-          projectID: runtime.project?._id,
-          workspaceID: runtime.project?.teamID,
-        });
-        await consumeResources('KB Fallback', runtime, model, result);
-      }
-
-      // hit global no match if KB wasn't successful
-      if (!result?.output && globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE) {
-        result = await generateNoMatch(runtime, globalNoMatch.prompt);
-        const model = runtime.services.ai.get(globalNoMatch.prompt.model, {
-          projectID: runtime.project?._id,
-          workspaceID: runtime.project?.teamID,
-        });
-        await consumeResources('Generative No Match', runtime, model, result);
-      }
-
-      if (result?.output) return { output: result.output, ai: true, tokens: result.tokens };
-    } catch (err) {
-      if (err instanceof ContentModerationError) {
-        return { output: generateOutput(`global no match ${err.message}`, runtime.project), ai: true };
-      }
-      throw err;
+    let result: AIResponse | null = null;
+    // use knowledge base if it exists OR if the user has FAQs
+    if (
+      Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0 ||
+      runtime.services.unleash.client.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(runtime.project?.teamID) })
+    ) {
+      result = await knowledgeBaseNoMatch(runtime);
+      await consumeResources('KB Fallback', runtime, result);
     }
+
+    // hit global no match if KB wasn't successful
+    if (!result?.output && globalNoMatch?.type === BaseVersion.GlobalNoMatchType.GENERATIVE) {
+      result = await generateNoMatch(runtime, globalNoMatch.prompt);
+      await consumeResources('Generative No Match', runtime, result);
+    }
+
+    if (result?.output) return { output: generateOutput(result.output), ai: true, tokens: result.tokens };
   }
 
   const prompt = globalNoMatch && isPrompt(globalNoMatch?.prompt) ? globalNoMatch.prompt : null;

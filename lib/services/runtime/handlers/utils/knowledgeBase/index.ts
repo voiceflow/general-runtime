@@ -9,9 +9,7 @@ import AIAssist from '@/lib/services/aiAssist';
 import log from '@/logger';
 import { Runtime } from '@/runtime';
 
-import { Output } from '../../../types';
-import { getMemoryMessages } from '../ai';
-import { generateOutput } from '../output';
+import { AIResponse, getMemoryMessages } from '../ai';
 import { CloudEnv } from './types';
 
 export interface KnowledegeBaseChunk {
@@ -164,9 +162,7 @@ export const fetchKnowledgeBase = async (
   }
 };
 
-export const knowledgeBaseNoMatch = async (
-  runtime: Runtime
-): Promise<{ output?: Output; tokens: number; queryTokens: number; answerTokens: number } | null> => {
+export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<AIResponse | null> => {
   if (!RETRIEVE_ENDPOINT || !KNOWLEDGE_BASE_LAMBDA_ENDPOINT) {
     log.error('[knowledgeBase] one of RETRIEVE_ENDPOINT or KNOWLEDGE_BASE_LAMBDA_ENDPOINT is null');
     return null;
@@ -204,7 +200,9 @@ export const knowledgeBaseNoMatch = async (
     if (faq?.answer) {
       addFaqTrace(runtime, faq.question || '', faq.answer, question.output);
       return {
-        output: generateOutput(faq.answer, runtime.project),
+        model: 'faq',
+        multiplier: 1,
+        output: faq.answer,
         tokens: question.queryTokens + question.answerTokens,
         queryTokens: question.queryTokens,
         answerTokens: question.answerTokens,
@@ -229,7 +227,7 @@ export const knowledgeBaseNoMatch = async (
     const tokens = queryTokens + answerTokens;
 
     // KB NOT_FOUND still uses tokens
-    if (!answer.output) return { tokens, queryTokens, answerTokens };
+    if (!answer.output) return { ...answer, tokens, queryTokens, answerTokens };
 
     // only add KB trace if result is success
     const documents = runtime.project?.knowledgeBase?.documents || {};
@@ -250,7 +248,7 @@ export const knowledgeBaseNoMatch = async (
     } as any);
 
     return {
-      output: generateOutput(answer.output, runtime.project),
+      ...answer,
       tokens,
       queryTokens,
       answerTokens,

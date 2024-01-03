@@ -1,10 +1,9 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 
-import { AIModel } from '@/lib/clients/ai/ai-model';
 import { CompletionOptions } from '@/lib/clients/ai/ai-model.interface';
+import MLGateway from '@/lib/clients/ml-gateway';
 import { ItemName, ResourceType } from '@/lib/services/billing';
-import log from '@/logger';
 import { Runtime } from '@/runtime';
 
 import AIAssist from '../../../aiAssist';
@@ -26,6 +25,8 @@ export interface AIResponse {
   tokens: number;
   queryTokens: number;
   answerTokens: number;
+  model: string;
+  multiplier: number;
 }
 
 export const EMPTY_AI_RESPONSE: AIResponse = {
@@ -33,15 +34,17 @@ export const EMPTY_AI_RESPONSE: AIResponse = {
   tokens: 0,
   queryTokens: 0,
   answerTokens: 0,
+  model: '',
+  multiplier: 1,
 };
 
 export const fetchChat = async (
   params: BaseUtils.ai.AIModelParams & { messages: BaseUtils.ai.Message[] },
-  model: AIModel | null,
+  mlGateway: MLGateway,
   options: CompletionOptions,
   variablesState: Record<string, unknown> = {}
 ): Promise<AIResponse> => {
-  if (!model) return EMPTY_AI_RESPONSE;
+  if (!mlGateway.private) return EMPTY_AI_RESPONSE;
 
   const sanitizedVars = sanitizeVariables(variablesState);
   const messages = params.messages.map((message) => ({
@@ -52,78 +55,78 @@ export const fetchChat = async (
   const system = replaceVariables(params.system, sanitizedVars);
   if (system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: system });
 
-  const { output, tokens, queryTokens, answerTokens } =
-    (await model.generateChatCompletion(messages, params, options)) ?? EMPTY_AI_RESPONSE;
+  const { output, tokens, queryTokens, answerTokens, model, multiplier } =
+    (await mlGateway.private.completion.generateChatCompletion({
+      messages,
+      params,
+      options,
+      workspaceID: options.context.workspaceID,
+      projectID: options.context.projectID,
+      moderation: true,
+      billing: true,
+    })) ?? EMPTY_AI_RESPONSE;
 
-  return { messages, output, tokens, queryTokens, answerTokens };
+  return { messages, output, tokens, queryTokens, answerTokens, model, multiplier };
 };
 
 export const fetchPrompt = async (
   params: BaseUtils.ai.AIModelParams & { mode: BaseUtils.ai.PROMPT_MODE; prompt: string },
-  model: AIModel | null,
+  mlGateway: MLGateway,
   options: CompletionOptions,
   variablesState: Record<string, unknown> = {}
 ): Promise<AIResponse> => {
-  if (!model) return EMPTY_AI_RESPONSE;
+  if (!mlGateway.private) return EMPTY_AI_RESPONSE;
 
   const sanitizedVars = sanitizeVariables(variablesState);
 
   const system = replaceVariables(params.system, sanitizedVars);
   const prompt = replaceVariables(params.prompt, sanitizedVars);
 
+  let messages: BaseUtils.ai.Message[] = [];
+
   if (params.mode === BaseUtils.ai.PROMPT_MODE.MEMORY) {
-    const messages = getMemoryMessages(variablesState);
-    if (system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: system });
-
-    const { output, tokens, queryTokens, answerTokens } =
-      (await model.generateChatCompletion(messages, params, options)) ?? EMPTY_AI_RESPONSE;
-
-    return { output, tokens, queryTokens, answerTokens };
-  }
-  if (params.mode === BaseUtils.ai.PROMPT_MODE.MEMORY_PROMPT) {
-    const messages = getMemoryMessages(variablesState);
-    if (system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: system });
+    messages = getMemoryMessages(variablesState);
+  } else if (params.mode === BaseUtils.ai.PROMPT_MODE.MEMORY_PROMPT) {
+    messages = getMemoryMessages(variablesState);
     if (prompt) messages.push({ role: BaseUtils.ai.Role.USER, content: prompt });
-
-    const { output, tokens, queryTokens, answerTokens } =
-      (await model.generateChatCompletion(messages, params, options)) ?? EMPTY_AI_RESPONSE;
-
-    return { output, tokens, queryTokens, answerTokens };
+  } else if (!prompt) {
+    return EMPTY_AI_RESPONSE;
+  } else {
+    messages = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
   }
 
-  if (!prompt) return EMPTY_AI_RESPONSE;
+  if (system) messages.unshift({ role: BaseUtils.ai.Role.SYSTEM, content: system });
 
-  const { output, tokens, queryTokens, answerTokens } =
-    (await model.generateCompletion(prompt, params, options)) ?? EMPTY_AI_RESPONSE;
+  const { output, tokens, queryTokens, answerTokens, model, multiplier } =
+    (await mlGateway.private.completion.generateChatCompletion({
+      messages,
+      params,
+      workspaceID: options.context.workspaceID,
+      projectID: options.context.projectID,
+      moderation: true,
+      billing: true,
+      options,
+    })) ?? EMPTY_AI_RESPONSE;
 
-  return { output, tokens, queryTokens, answerTokens };
+  return { output, tokens, queryTokens, answerTokens, model, multiplier };
 };
 
 export const consumeResources = async (
   reference: string,
   runtime: Runtime,
-  model: AIModel | null,
-  resources: { tokens?: number; queryTokens?: number; answerTokens?: number } | null
+  resources: { tokens?: number; queryTokens?: number; answerTokens?: number; model: string; multiplier: number } | null
 ) => {
-  const { tokens = 0, queryTokens = 0, answerTokens = 0 } = resources ?? {};
-  const multiplier = model?.tokenMultiplier ?? 1;
+  if (!resources) return;
+
+  const { tokens = 0, queryTokens = 0, answerTokens = 0, model } = resources ?? {};
+  const multiplier = resources?.multiplier ?? 1;
   const baseTokens = multiplier === 0 ? 0 : Math.ceil(tokens / multiplier);
   const baseQueryTokens = multiplier === 0 ? 0 : Math.ceil(queryTokens / multiplier);
   const baseAnswerTokens = multiplier === 0 ? 0 : Math.ceil(answerTokens / multiplier);
 
-  const workspaceID = runtime.project?.teamID;
-
-  if (typeof tokens === 'number' && tokens > 0) {
-    await runtime.services.billing
-      .trackUsage(ResourceType.WORKSPACE, workspaceID, ItemName.AITokens, tokens)
-      .catch((err: Error) =>
-        log.error(`[${reference}] Error consuming quota for workspace ${workspaceID}: ${log.vars({ err })}`)
-      );
-  }
-
   runtime.trace.debug(
     `__${reference}__
-    <br /> Model: \`${model?.modelRef}\`
+    <br /> Model: \`${model}\`
     <br /> Token Multiplier: \`${multiplier}x\`
     <br /> Token Consumption: \`{total: ${baseTokens}, query: ${baseQueryTokens}, answer: ${baseAnswerTokens}}\`
     <br /> Post-Multiplier Token Consumption: \`{total: ${tokens}, query: ${queryTokens}, answer: ${answerTokens}}\``
