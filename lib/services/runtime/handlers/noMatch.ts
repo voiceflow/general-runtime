@@ -92,7 +92,8 @@ const getOutput = async (
         await consumeResources('Generative No Match', runtime, result);
       }
 
-      if (result?.output) return { output: generateOutput(result.output), ai: true, tokens: result.tokens };
+      if (result?.output)
+        return { output: generateOutput(result.output, runtime.project), ai: true, tokens: result.tokens };
     } catch (err) {
       if (err?.message?.includes('[moderation error]')) {
         return { output: generateOutput(`global no match ${err.message}`, runtime.project), ai: true };
