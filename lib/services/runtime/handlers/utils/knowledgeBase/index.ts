@@ -9,7 +9,7 @@ import AIAssist from '@/lib/services/aiAssist';
 import log from '@/logger';
 import { Runtime } from '@/runtime';
 
-import { AIResponse, getMemoryMessages } from '../ai';
+import { AIResponse } from '../ai';
 import { CloudEnv } from './types';
 
 export interface KnowledegeBaseChunk {
