@@ -2618,10 +2618,10 @@
     shallowequal "^1.1.0"
     typescript-fsa "3.0.0"
 
-"@voiceflow/dtos@1.10.0":
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/dtos/-/dtos-1.10.0.tgz#b4c6eb3bc3ee76a1955957d36203f9798784b64f"
-  integrity sha512-j+9c+9uUagigy9E6FEo+M9agHgQzrFjevpcL64bKtTR8go6IJvji3hwmESA9IpwKBQm1X8wozWdN+M3vGID6bw==
+"@voiceflow/dtos@1.18.0":
+  version "1.18.0"
+  resolved "https://registry.yarnpkg.com/@voiceflow/dtos/-/dtos-1.18.0.tgz#a43618276ea490082d2152c58551eddff68b7330"
+  integrity sha512-YPoFKF8/K03Ca5ISDHKQ26ttpUwRiAojT+LBQRdaqUkD3EjOk+HGkCjvqdOKTH5Aqb56NPBoeprpYtRqHV+dvw==
 
 "@voiceflow/eslint-config@6.1.0":
   version "6.1.0"
