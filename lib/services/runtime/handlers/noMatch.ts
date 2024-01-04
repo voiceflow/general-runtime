@@ -16,7 +16,7 @@ import {
   removeEmptyPrompts,
 } from '../utils';
 import { addNoReplyTimeoutIfExists } from './noReply';
-import { AIResponse, checkTokens, consumeResources } from './utils/ai';
+import { AIResponse, consumeResources } from './utils/ai';
 import { generateNoMatch } from './utils/generativeNoMatch';
 import { knowledgeBaseNoMatch } from './utils/knowledgeBase';
 import { generateOutput } from './utils/output';
@@ -71,10 +71,6 @@ const getOutput = async (
   }
 
   if (runtime.project?.aiAssistSettings?.aiPlayground) {
-    if (!(await checkTokens(runtime, node.type))) {
-      return { output: generateOutput('global no match [token quota exceeded]', runtime.project), ai: true };
-    }
-
     let result: AIResponse | null = null;
     try {
       // use knowledge base if it exists OR if the user has FAQs
@@ -97,6 +93,10 @@ const getOutput = async (
     } catch (err) {
       if (err?.message?.includes('[moderation error]')) {
         return { output: generateOutput(`global no match ${err.message}`, runtime.project), ai: true };
+      }
+      if (err?.message?.includes('Quota exceeded')) {
+        runtime.trace.debug('token quota exceeded', node.type);
+        return { output: generateOutput('global no match [token quota exceeded]', runtime.project), ai: true };
       }
       throw err;
     }

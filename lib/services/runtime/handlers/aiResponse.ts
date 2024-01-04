@@ -11,7 +11,7 @@ import { HandlerFactory } from '@/runtime';
 
 import { FrameType, GeneralRuntime, Output } from '../types';
 import { addOutputTrace, getOutputTrace } from '../utils';
-import { AIResponse, checkTokens, consumeResources, EMPTY_AI_RESPONSE, fetchPrompt } from './utils/ai';
+import { AIResponse, consumeResources, EMPTY_AI_RESPONSE, fetchPrompt } from './utils/ai';
 import { getKBSettings } from './utils/knowledgeBase';
 import { generateOutput } from './utils/output';
 import { getVersionDefaultVoice } from './utils/version';
@@ -23,18 +23,6 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
     const elseID = node.elseId ?? null;
     const projectID = runtime.project?._id;
     const workspaceID = runtime.project?.teamID || '';
-
-    if (!(await checkTokens(runtime, node.type))) {
-      addOutputTrace(
-        runtime,
-        getOutputTrace({
-          output: generateOutput('[token quota exceeded]', runtime.project),
-          version: runtime.version,
-          ai: true,
-        })
-      );
-      return nextID;
-    }
 
     try {
       if (node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE) {
@@ -170,6 +158,18 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
             ai: true,
           })
         );
+        return nextID;
+      }
+      if (err?.message?.includes('Quota exceeded')) {
+        addOutputTrace(
+          runtime,
+          getOutputTrace({
+            output: generateOutput('[token quota exceeded]', runtime.project),
+            version: runtime.version,
+            ai: true,
+          })
+        );
+        runtime.trace.debug('token quota exceeded', node.type);
         return nextID;
       }
       throw err;

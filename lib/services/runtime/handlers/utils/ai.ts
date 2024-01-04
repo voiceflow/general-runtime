@@ -1,9 +1,8 @@
-import { BaseNode, BaseUtils } from '@voiceflow/base-types';
+import { BaseUtils } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 
 import { CompletionOptions } from '@/lib/clients/ai/ai-model.interface';
 import MLGateway from '@/lib/clients/ml-gateway';
-import { ItemName, ResourceType } from '@/lib/services/billing';
 import { Runtime } from '@/runtime';
 
 import AIAssist from '../../../aiAssist';
@@ -131,16 +130,4 @@ export const consumeResources = async (
     <br /> Token Consumption: \`{total: ${baseTokens}, query: ${baseQueryTokens}, answer: ${baseAnswerTokens}}\`
     <br /> Post-Multiplier Token Consumption: \`{total: ${tokens}, query: ${queryTokens}, answer: ${answerTokens}}\``
   );
-};
-
-export const checkTokens = async (runtime: Runtime, nodeType?: BaseNode.NodeType) => {
-  const workspaceID = runtime.project?.teamID;
-
-  try {
-    await runtime.services.billing.authorize(ResourceType.WORKSPACE, workspaceID, ItemName.AITokens, 0);
-    return true;
-  } catch (err) {
-    runtime.trace.debug('token quota exceeded', nodeType);
-    return false;
-  }
 };

@@ -7,13 +7,11 @@ import { z } from 'zod';
 
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
 import { getKBSettings } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
-import log from '@/logger';
 import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
 import { Request, Response } from '@/types';
 import { formatZodError } from '@/utils/zod-error/formatZodError';
 
-import { ItemName, ResourceType } from '../../services/billing';
 import { fetchPrompt } from '../../services/runtime/handlers/utils/ai';
 import { validate } from '../../utils';
 import { AbstractController } from '../utils';
@@ -79,26 +77,23 @@ class TestController extends AbstractController {
 
     const { prompt } = req.body;
 
-    const answer = await this.services.aiSynthesis.DEPRECATEDpromptSynthesis(
-      project._id,
-      project.teamID,
-      { ...settings.summarization, prompt },
-      {}
-    );
+    try {
+      const answer = await this.services.aiSynthesis.DEPRECATEDpromptSynthesis(
+        project._id,
+        project.teamID,
+        { ...settings.summarization, prompt },
+        {}
+      );
 
-    if (!answer?.output) return { output: null };
+      if (!answer?.output) return { output: null };
 
-    if (typeof answer.tokens === 'number' && answer.tokens > 0) {
-      await this.services.billing
-        .trackUsage(ResourceType.WORKSPACE, req.params.workspaceID, ItemName.AITokens, answer.tokens)
-        .catch((err: Error) =>
-          log.warn(
-            `[KB Prompt Test] Error consuming quota for workspace ${req.params.workspaceID}: ${log.vars({ err })}`
-          )
-        );
+      return { output: answer.output };
+    } catch (err) {
+      if (err?.message?.includes('Quota exceeded')) {
+        throw new VError('Quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
+      }
+      throw err;
     }
-
-    return { output: answer.output };
   }
 
   @validate({
@@ -134,26 +129,22 @@ class TestController extends AbstractController {
       version = await api.getVersion(project.devVersion);
     }
 
-    const answer = await this.services.aiSynthesis.knowledgeBaseQuery({
-      project,
-      version,
-      question,
-      synthesis,
-      instruction,
-      options: { search: { limit: chunkLimit }, summarization: settings },
-      tags,
-    });
-
-    // do this async to not block the response
-    if (typeof answer.tokens === 'number' && answer.tokens > 0) {
-      this.services.billing
-        .trackUsage(ResourceType.WORKSPACE, project.teamID, ItemName.AITokens, answer.tokens)
-        .catch((err: Error) =>
-          log.warn(`[KB Test] Error consuming quota for workspace ${project.teamID}: ${log.vars({ err })}`)
-        );
+    try {
+      return this.services.aiSynthesis.knowledgeBaseQuery({
+        project,
+        version,
+        question,
+        synthesis,
+        instruction,
+        options: { search: { limit: chunkLimit }, summarization: settings },
+        tags,
+      });
+    } catch (err) {
+      if (err?.message?.includes('Quota exceeded')) {
+        throw new VError('Quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
+      }
+      throw err;
     }
-
-    return answer;
   }
 
   async testCompletion(
@@ -161,24 +152,20 @@ class TestController extends AbstractController {
   ) {
     if (typeof req.body.prompt !== 'string') throw new VError('invalid prompt', VError.HTTP_STATUS.BAD_REQUEST);
 
-    const { output, tokens } = await fetchPrompt(
-      req.body,
-      this.services.mlGateway,
-      { context: { workspaceID: req.params.workspaceID } },
-      {}
-    );
-
-    if (typeof tokens === 'number' && tokens > 0) {
-      await this.services.billing
-        .trackUsage(ResourceType.WORKSPACE, req.params.workspaceID, ItemName.AITokens, tokens)
-        .catch((err: Error) =>
-          log.warn(
-            `[Completion Test] Error consuming quota for workspace ${req.params.workspaceID}: ${log.vars({ err })}`
-          )
-        );
+    try {
+      const { output } = await fetchPrompt(
+        req.body,
+        this.services.mlGateway,
+        { context: { workspaceID: req.params.workspaceID } },
+        {}
+      );
+      return { output };
+    } catch (err) {
+      if (err?.message?.includes('Quota exceeded')) {
+        throw new VError('Quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
+      }
+      throw err;
     }
-
-    return { output };
   }
 
   async testFunction(req: Request<Record<string, never>, TestFunctionRequestBody>): Promise<TestFunctionResponse> {

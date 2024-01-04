@@ -5,7 +5,6 @@ import AIAssist from './aiAssist';
 import AISynthesis from './aiSynthesis';
 import Analytics from './analytics';
 import ASR from './asr';
-import { BillingService } from './billing';
 import Dialog from './dialog';
 import Feedback from './feedback';
 import Filter from './filter';
@@ -41,7 +40,6 @@ export interface ServiceMap {
   test: TestService;
   transcript: Transcript;
   stateManagement: StateManagement;
-  billing: BillingService;
 }
 
 export interface FullServiceMap extends ClientMap, ServiceMap {}
@@ -55,7 +53,6 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   } as FullServiceMap;
 
   // order here matters, services defined after runtime are not available inside of it
-  services.billing = new BillingService(services, config);
   services.aiSynthesis = new AISynthesis(services, config);
   services.runtime = new Runtime(services, config);
   services.state = new State(services, config);

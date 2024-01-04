@@ -6,7 +6,7 @@ import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import { HandlerFactory } from '@/runtime';
 
 import { GeneralRuntime } from '../types';
-import { AIResponse, checkTokens, consumeResources, EMPTY_AI_RESPONSE, fetchPrompt } from './utils/ai';
+import { AIResponse, consumeResources, EMPTY_AI_RESPONSE, fetchPrompt } from './utils/ai';
 import { getKBSettings } from './utils/knowledgeBase';
 
 const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = () => ({
@@ -23,8 +23,6 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = 
       runtime?.project?.knowledgeBase?.settings
     );
     if (!node.sets?.length) return nextID;
-
-    if (!(await checkTokens(runtime, node.type))) return nextID;
 
     try {
       const result = await Promise.all(
@@ -114,6 +112,10 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = 
       return nextID;
     } catch (err) {
       if (err?.message?.includes('[moderation error]')) {
+        return nextID;
+      }
+      if (err?.message?.includes('Quota exceeded')) {
+        runtime.trace.debug('token quota exceeded', node.type);
         return nextID;
       }
       throw err;
