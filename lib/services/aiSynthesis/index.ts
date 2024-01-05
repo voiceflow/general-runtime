@@ -1,5 +1,4 @@
 import { BaseModels, BaseUtils } from '@voiceflow/base-types';
-import VError from '@voiceflow/verror';
 import dedent from 'dedent';
 import _merge from 'lodash/merge';
 
