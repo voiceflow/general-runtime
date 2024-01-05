@@ -129,8 +129,8 @@ class TestController extends AbstractController {
       version = await api.getVersion(project.devVersion);
     }
 
-    try {
-      return this.services.aiSynthesis.knowledgeBaseQuery({
+    return this.services.aiSynthesis
+      .knowledgeBaseQuery({
         project,
         version,
         question,
@@ -138,13 +138,13 @@ class TestController extends AbstractController {
         instruction,
         options: { search: { limit: chunkLimit }, summarization: settings },
         tags,
+      })
+      .catch((err) => {
+        if (err?.message?.includes('Quota exceeded')) {
+          throw new VError('Quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
+        }
+        throw err;
       });
-    } catch (err) {
-      if (err?.message?.includes('Quota exceeded')) {
-        throw new VError('Quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
-      }
-      throw err;
-    }
   }
 
   async testCompletion(
