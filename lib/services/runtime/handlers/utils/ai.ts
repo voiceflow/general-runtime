@@ -6,6 +6,7 @@ import MLGateway from '@/lib/clients/ml-gateway';
 import { Runtime } from '@/runtime';
 
 import AIAssist from '../../../aiAssist';
+import { GeneralRuntime } from '../../types';
 
 export const getMemoryMessages = (variablesState: Record<string, unknown>) => [
   ...((variablesState?.[AIAssist.StorageKey] as BaseUtils.ai.Message[]) || []),
@@ -57,6 +58,29 @@ export const fetchChat = async (
     })) ?? EMPTY_AI_RESPONSE;
 
   return { messages, output, tokens, queryTokens, answerTokens, model, multiplier };
+};
+
+export const fetchRuntimeChat = async ({
+  runtime,
+  params,
+  options,
+  resource,
+}: {
+  runtime: GeneralRuntime;
+  params: BaseUtils.ai.AIModelParams & { messages: BaseUtils.ai.Message[] };
+  options?: Partial<CompletionOptions>;
+  resource: string;
+}) => {
+  const result = await fetchChat(
+    params,
+    runtime.services.mlGateway,
+    { ...options, context: { projectID: runtime.version?.projectID, workspaceID: runtime.project!.teamID } },
+    runtime.variables.getState()
+  );
+
+  consumeResources(resource, runtime, result);
+
+  return result;
 };
 
 export const fetchPrompt = async (

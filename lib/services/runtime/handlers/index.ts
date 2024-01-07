@@ -17,6 +17,7 @@ import {
 import { Config } from '@/types';
 
 import _V1Handler from './_v1';
+import AICaptureHandler from './ai-capture/ai-capture.handler';
 import AIResponseHandler from './aiResponse';
 import AISetHandler from './aiSet';
 import APIHandler from './api';
@@ -60,6 +61,7 @@ export default (config: Config) => [
   VisualHandler(),
   TextHandler(),
   AIResponseHandler(),
+  AICaptureHandler(),
   ...CardV2Handler(),
   CarouselHandler(),
   GoToNodeHandler(),
