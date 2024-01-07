@@ -95,6 +95,8 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
 
     const utterance = AIAssist.getInput(runtime.getRequest());
 
+    const isLocalScope = node.intentScope === BaseNode.Utils.IntentScope.NODE;
+
     if (utterance) {
       if (NoReplyHandler().canHandle(runtime)) {
         return NoReplyHandler().handle(node, runtime, variables);
@@ -128,15 +130,22 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
       });
 
       if (result.output) {
+        const resultEntities = JSON.parse(result.output);
+
+        // if no new entities are captured, try to resolve an intent
+        if (!Object.values(resultEntities).some(Boolean) && !isLocalScope && CommandHandler().canHandle(runtime)) {
+          return CommandHandler().handle(runtime, variables);
+        }
+
         entityCache = {
           ...entityCache,
-          ...JSON.parse(result.output),
+          ...resultEntities,
         };
         runtime.storage.set(StorageType.AI_CAPTURE_ENTITY_CACHE, entityCache);
       }
 
       // if nothing in entity cache is null
-      if (Object.values(entityCache).every((entity) => entity !== null)) {
+      if (Object.values(entityCache).every(Boolean)) {
         variables.merge(Object.fromEntries(requiredEntities.map((entity) => [entity.name, entityCache[entity.name]])));
 
         runtime.storage.delete(StorageType.AI_CAPTURE_ENTITY_CACHE);
@@ -149,8 +158,6 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
 
       return evaluateRules();
     }
-
-    const isLocalScope = node.intentScope === BaseNode.Utils.IntentScope.NODE;
 
     // check if there is a command in the stack that fulfills request
     if (!isLocalScope && CommandHandler().canHandle(runtime)) {
