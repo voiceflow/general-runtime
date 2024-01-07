@@ -115,7 +115,6 @@ export const fetchChat = async (
       moderation: true,
       billing: true,
     })) ?? EMPTY_AI_RESPONSE;
-
   return { messages, output, tokens, queryTokens, answerTokens, model, multiplier };
 };
 
