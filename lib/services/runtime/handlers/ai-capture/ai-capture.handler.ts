@@ -90,7 +90,7 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
       runtime.storage.delete(StorageType.NO_REPLIES_COUNTER);
       runtime.storage.set(StorageType.AI_CAPTURE_ENTITY_CACHE, entityCache);
 
-      return evaluateRules();
+      return node.id;
     }
 
     const utterance = AIAssist.getInput(runtime.getRequest());
