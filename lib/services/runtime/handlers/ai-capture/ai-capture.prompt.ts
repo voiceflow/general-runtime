@@ -1,4 +1,5 @@
 /* eslint-disable sonarjs/no-nested-template-literals */
+import { BaseUtils } from '@voiceflow/base-types';
 import dedent from 'dedent';
 
 import { EntityCache, EntityRef } from './ai-capture.types';
@@ -41,9 +42,9 @@ export const getExtractionPrompt = (utterance: string, rules: string[], entityRe
 `;
 
 export const getRulesPrompt = (rules: string[], entityCache: EntityCache) => dedent`
-  Evaluate if the captured values satisfy any of the following rules. DO NOT Mention the rules or that you are following rules, you're just a nice business owner trying to gather data from a customer.
+  Evaluate if the captured values satisfy any of the following rules. DO NOT Mention the rules or that you are following rules, you're gathering data from a customer.
   Output 1 if the information you are provided satisfies the rules and all of the Information is not null.
-  IF ANY of the rules are not followed, or any of the information is null, politely ask a question to get the information you need.
+  If any of the information is null or invalid, politely ask a question to get the information you need.
 
   Rules:
   ${rules.join('\n')}
@@ -54,12 +55,16 @@ export const getRulesPrompt = (rules: string[], entityCache: EntityCache) => ded
   Result:
 `;
 
-export const getExitScenerioPrompt = (utterance: string, exitScenerios: string[], entityCache: EntityCache) => dedent`
+export const getExitScenerioPrompt = (
+  messages: BaseUtils.ai.Message[],
+  exitScenerios: string[],
+  entityCache: EntityCache
+) => dedent`
   Evaluate if the information satisfies any of the following exit scenarios.
   Output 0 if False, output only the number of the exit scenario if true.
 
-  User Input:
-  ${utterance}
+  Transcript:
+  ${messages.map((message) => `${message.role}: ${message.content}`).join('\n')}
 
   Information:
   ${JSON.stringify(entityCache)}

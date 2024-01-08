@@ -36,6 +36,8 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
           messages: [{ role: BaseUtils.ai.Role.USER, content: getRulesPrompt(node.rules, entityCache) }],
           model: node.model,
           system: node.system,
+          temperature: node.temperature,
+          maxTokens: node.maxTokens,
         },
         runtime,
       });
@@ -58,17 +60,20 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
       return node.id;
     };
 
-    const evaluateExitScenerio = async (utterance: string): Promise<boolean> => {
+    const evaluateExitScenerio = async (): Promise<boolean> => {
       if (!node.exitScenerios?.length) return false;
 
       const result = await fetchRuntimeChat({
         resource: 'AI Capture Exit Scenerio',
         params: {
           messages: [
-            ...getMemoryMessages(runtime.variables.getState()),
             {
               role: BaseUtils.ai.Role.USER,
-              content: getExitScenerioPrompt(utterance, node.exitScenerios, entityCache),
+              content: getExitScenerioPrompt(
+                getMemoryMessages(runtime.variables.getState()),
+                node.exitScenerios,
+                entityCache
+              ),
             },
           ],
           model: BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo,
@@ -152,7 +157,7 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
         return node.nextId ?? null;
       }
 
-      if (await evaluateExitScenerio(utterance)) {
+      if (await evaluateExitScenerio()) {
         return exitPath;
       }
 
