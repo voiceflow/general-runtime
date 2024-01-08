@@ -137,10 +137,10 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
           return CommandHandler().handle(runtime, variables);
         }
 
-        entityCache = {
-          ...entityCache,
-          ...resultEntities,
-        };
+        entityCache = Object.fromEntries(
+          requiredEntities.map(({ name }) => [name, resultEntities[name] || entityCache[name] || null])
+        );
+
         runtime.storage.set(StorageType.AI_CAPTURE_ENTITY_CACHE, entityCache);
       }
 
