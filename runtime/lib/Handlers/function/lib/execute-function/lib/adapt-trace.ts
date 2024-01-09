@@ -125,7 +125,7 @@ const adaptCardV2Trace = (trace: SimpleCardV2Trace): Trace => {
     type: TraceType.CARD_V2,
     payload: {
       ...trace.payload,
-      buttons: [],
+      buttons: (trace.payload.buttons ?? []).map((but) => adaptButton(but)),
     },
   } satisfies BaseTrace.CardV2;
 };
