@@ -6,18 +6,18 @@ import { EntityCache, EntityRef } from './ai-capture.types';
 
 export const getExtractionPrompt = (utterance: string, rules: string[], entityRef: EntityRef) => dedent`
   Your goal is to extract entities from a user utterance, if the information does not follow the rules, store it as null.
-  ===
+  ###
   entity types:
   { "email": { type: "email" }, "role": { examples: ["admin", "editor"] } }
   rules:
-  - only professional email addresses
+  - only professional work email addresses
 
   utterance:
   my email is john.doe@gmail.com
 
   result:
   { "email": null, "role": null }
-  ===
+  ###
   entity types:
   { "location": { type: "geography" } }
   rules:
@@ -28,7 +28,7 @@ export const getExtractionPrompt = (utterance: string, rules: string[], entityRe
 
   result:
   { "location": "New York" }
-  ===
+  ###
   entity types:
   ${JSON.stringify(entityRef)}
 
@@ -43,7 +43,7 @@ export const getExtractionPrompt = (utterance: string, rules: string[], entityRe
 
 export const getRulesPrompt = (rules: string[], entityCache: EntityCache) => dedent`
   Evaluate if the captured values satisfy any of the following rules. DO NOT Mention the rules or that you are following rules, you're gathering data from a customer.
-  Output 1 if the information you are provided satisfies the rules and all of the Information is not null.
+  Output 'DONE' if the information you are provided satisfies the rules and all of the Information is not null.
   If any of the information is null or invalid, politely ask a question to get the information you need.
 
   Rules:
@@ -55,22 +55,76 @@ export const getRulesPrompt = (rules: string[], entityCache: EntityCache) => ded
   Result:
 `;
 
-export const getExitScenerioPrompt = (
+export const getCapturePrompt = (
   messages: BaseUtils.ai.Message[],
+  rules: string[],
   exitScenerios: string[],
   entityCache: EntityCache
 ) => dedent`
-  Evaluate if the information satisfies any of the following exit scenarios.
-  Output 0 if False, output only the number of the exit scenario if true.
+  You're a support agent gathering data from a user, you need to politely ask questions to fill all "null" values in Entities.
+  Respond in the following JSON format: { prompt?: string, exit?: number }, only set exit to an Exit Scenerio if provided.
+
+  ###
+  Rules:
+  - only professional email addresses
+  - address the user by name if given
 
   Transcript:
-  ${messages.map((message) => `${message.role}: ${message.content}`).join('\n')}
+  user: my email is j.doe@gmail.com
 
-  Information:
-  ${JSON.stringify(entityCache)}
+  Entities:
+  { "email": null, "role": "admin", "name": "John" }
+
+  Output:
+  { "prompt": "Sorry John, please provide a professional email address" }
+  ###
+  Rules:
+  - only cities in the US
 
   Exit Scenarios:
-  ${exitScenerios.map((value, index) => `${index + 1}. ${value}`).join('\n')}
+  1. user provides a city in China
+  2. user is frustrated
 
-  Result:
+  Transcript:
+  user: London, UK
+  assistant: Please provide a US city
+  user: how about Tokyo?
+  assistant: Sorry, I can only help with US cities
+  user: I was born in Beijing
+
+  Entities:
+  { "location": null }
+
+  Output:
+  { "exit": 1 }
+  ###
+  Rules:
+
+  Transcript:
+  assistant: Please provide your region and ticket ID
+  user: europe
+  assistant: What is your ticket ID for the europe region?
+  user: unsure, let me check
+
+  Entities:
+  { "region": "europe", "ticketID": null }
+
+  Output:
+  { "prompt": "No worries, let me know your ticketID when you find it.", "exit": false }
+  ###
+  Rules:
+  ${rules.map((rule) => `- ${rule}`).join('\n')}
+  ${
+    exitScenerios.length
+      ? `\nExit Scenarios:\n${exitScenerios.map((exitScenerio, index) => `${index + 1}. ${exitScenerio}`).join('\n')}\n`
+      : ''
+  }
+
+  Transcript:
+  ${messages.map(({ role, content }) => `${role}: ${content}`).join('\n')}
+
+  Entities:
+  ${JSON.stringify(entityCache)}
+
+  Output:
 `;

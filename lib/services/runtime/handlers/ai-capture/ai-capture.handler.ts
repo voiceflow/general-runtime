@@ -10,7 +10,7 @@ import CommandHandler from '../command';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
 import { fetchRuntimeChat, getMemoryMessages } from '../utils/ai';
 import { generateOutput } from '../utils/output';
-import { getExitScenerioPrompt, getExtractionPrompt, getRulesPrompt } from './ai-capture.prompt';
+import { getCapturePrompt, getExtractionPrompt } from './ai-capture.prompt';
 import { EntityCache } from './ai-capture.types';
 
 const getRequiredEntities = (node: BaseNode.AICapture.Node, runtime: GeneralRuntime) => {
@@ -28,64 +28,6 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
     let entityCache: EntityCache =
       runtime.storage.get(StorageType.AI_CAPTURE_ENTITY_CACHE) ??
       Object.fromEntries(requiredEntities.map((entity) => [entity.name, null]));
-
-    const evaluateRules = async () => {
-      const result = await fetchRuntimeChat({
-        resource: 'AI Capture Rules & Response',
-        params: {
-          messages: [{ role: BaseUtils.ai.Role.USER, content: getRulesPrompt(node.rules, entityCache) }],
-          model: node.model,
-          system: node.system,
-          temperature: node.temperature,
-          maxTokens: node.maxTokens,
-        },
-        runtime,
-      });
-
-      if (result.output === '1') {
-        return node.nextId ?? null;
-      }
-
-      if (result.output) {
-        addOutputTrace(
-          runtime,
-          getOutputTrace({
-            output: generateOutput(result.output, runtime.project),
-            version: runtime.version,
-            ai: true,
-          })
-        );
-      }
-
-      return node.id;
-    };
-
-    const evaluateExitScenerio = async (): Promise<boolean> => {
-      if (!node.exitScenerios?.length) return false;
-
-      const result = await fetchRuntimeChat({
-        resource: 'AI Capture Exit Scenerio',
-        params: {
-          messages: [
-            {
-              role: BaseUtils.ai.Role.USER,
-              content: getExitScenerioPrompt(
-                getMemoryMessages(runtime.variables.getState()),
-                node.exitScenerios,
-                entityCache
-              ),
-            },
-          ],
-          model: BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo,
-        },
-        runtime,
-      });
-
-      if (result.output === '0') {
-        return true;
-      }
-      return false;
-    };
 
     if (runtime.getAction() === Action.RUNNING) {
       addNoReplyTimeoutIfExists(node, runtime);
@@ -157,11 +99,45 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
         return node.nextId ?? null;
       }
 
-      if (await evaluateExitScenerio()) {
+      const captureResult = await fetchRuntimeChat({
+        resource: 'AI Capture Rules & Response',
+        params: {
+          messages: [
+            {
+              role: BaseUtils.ai.Role.USER,
+              content: getCapturePrompt(
+                getMemoryMessages(runtime.variables.getState()),
+                node.rules,
+                node.exitScenerios,
+                entityCache
+              ),
+            },
+          ],
+          model: node.model,
+          system: node.system,
+          temperature: node.temperature,
+          maxTokens: node.maxTokens,
+        },
+        runtime,
+      });
+
+      const capture = JSON.parse(captureResult.output?.trim() || '') as { prompt?: string; exit?: number };
+      if (capture.exit) {
+        runtime.storage.delete(StorageType.AI_CAPTURE_ENTITY_CACHE);
         return exitPath;
       }
-
-      return evaluateRules();
+      if (capture.prompt) {
+        addOutputTrace(
+          runtime,
+          getOutputTrace({
+            output: generateOutput(capture.prompt, runtime.project),
+            version: runtime.version,
+            ai: true,
+          }),
+          { variables }
+        );
+      }
+      return node.id;
     }
 
     // check if there is a command in the stack that fulfills request
