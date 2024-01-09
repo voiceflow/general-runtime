@@ -50,9 +50,8 @@ const adaptAudioTrace = (trace: SimpleAudioTrace): Trace => {
     ...trace,
     type: TraceType.SPEAK,
     payload: {
-      ...trace.payload,
       type: BaseNode.Speak.TraceSpeakType.AUDIO,
-      message: '',
+      message: `<audio src='${trace.payload.src ?? ''}'/>`,
     },
   } satisfies BaseTrace.SpeakTrace;
 };
