@@ -1,5 +1,15 @@
-import { BaseNode, BaseTrace } from '@voiceflow/base-types';
+import { BaseNode, BaseRequest } from '@voiceflow/base-types';
 import { z } from 'zod';
+
+export enum SimpleTraceType {
+  Text = 'text',
+  Speak = 'speak',
+  Audio = 'audio',
+  Debug = 'debug',
+  Visual = 'visual',
+  CardV2 = 'cardV2',
+  Carousel = 'carousel',
+}
 
 export const TraceDTO = z
   .object({
@@ -20,7 +30,7 @@ export const TraceCommandDTO = z.array(TraceDTO, {
 export type TraceCommand = z.infer<typeof TraceCommandDTO>;
 
 export const SimpleTextTraceDTO = TraceDTO.extend({
-  type: z.literal(BaseTrace.TraceType.TEXT),
+  type: z.literal(SimpleTraceType.Text),
   payload: z.object({
     message: z.string(),
   }),
@@ -28,8 +38,28 @@ export const SimpleTextTraceDTO = TraceDTO.extend({
 
 export type SimpleTextTrace = z.infer<typeof SimpleTextTraceDTO>;
 
+export const SimpleSpeakTraceDTO = TraceDTO.extend({
+  type: z.literal(SimpleTraceType.Speak),
+  payload: z.object({
+    message: z.string(),
+    voice: z.string().optional(),
+    src: z.string().optional(),
+  }),
+});
+
+export type SimpleSpeakTrace = z.infer<typeof SimpleSpeakTraceDTO>;
+
+export const SimpleAudioTraceDTO = TraceDTO.extend({
+  type: z.literal(SimpleTraceType.Audio),
+  payload: z.object({
+    src: z.string().optional(),
+  }),
+});
+
+export type SimpleAudioTrace = z.infer<typeof SimpleAudioTraceDTO>;
+
 export const SimpleDebugTraceDTO = TraceDTO.extend({
-  type: z.literal(BaseTrace.TraceType.DEBUG),
+  type: z.literal(SimpleTraceType.Debug),
   payload: z.object({
     message: z.string(),
   }),
@@ -38,7 +68,7 @@ export const SimpleDebugTraceDTO = TraceDTO.extend({
 export type SimpleDebugTrace = z.infer<typeof SimpleDebugTraceDTO>;
 
 export const SimpleVisualTraceDTO = TraceDTO.extend({
-  type: z.literal(BaseTrace.TraceType.VISUAL),
+  type: z.literal(SimpleTraceType.Visual),
   payload: z.object({
     image: z.string(),
   }),
@@ -46,25 +76,46 @@ export const SimpleVisualTraceDTO = TraceDTO.extend({
 
 export type SimpleVisualTrace = z.infer<typeof SimpleVisualTraceDTO>;
 
+export const SimpleURLActionDTO = z.object({
+  type: z.literal(BaseRequest.Action.ActionType.OPEN_URL),
+  url: z.string(),
+});
+
+export type SimpleURLAction = z.infer<typeof SimpleURLActionDTO>;
+
+export const SimpleActionDTO = z.discriminatedUnion('type', [SimpleURLActionDTO]);
+
+export type SimpleAction = z.infer<typeof SimpleActionDTO>;
+
+export const SimpleButtonDTO = z.object({
+  name: z.string(),
+  payload: z.object({
+    actions: z.array(SimpleActionDTO),
+  }),
+});
+
+export type SimpleButton = z.infer<typeof SimpleButtonDTO>;
+
 export const SimpleCardDTO = z.object({
   imageUrl: z.string(),
   title: z.string(),
   description: z.object({
     text: z.string(),
   }),
+  buttons: z.array(SimpleButtonDTO).optional(),
 });
 
 export type SimpleCard = z.infer<typeof SimpleCardDTO>;
 
 export const SimpleCardV2TraceDTO = TraceDTO.extend({
-  type: z.literal(BaseTrace.TraceType.CARD_V2),
+  type: z.literal(SimpleTraceType.CardV2),
   payload: SimpleCardDTO,
 });
 
 export type SimpleCardV2Trace = z.infer<typeof SimpleCardV2TraceDTO>;
 
 export const SimpleCarouselTraceDTO = TraceDTO.extend({
-  type: z.literal(BaseTrace.TraceType.CAROUSEL),
+  type: z.literal(SimpleTraceType.Carousel),
   payload: z.object({
     layout: z.nativeEnum(BaseNode.Carousel.CarouselLayout).optional(),
     cards: z.array(SimpleCardDTO),
@@ -75,6 +126,8 @@ export type SimpleCarouselTrace = z.infer<typeof SimpleCarouselTraceDTO>;
 
 export const SimpleTraceDTO = z.discriminatedUnion('type', [
   SimpleTextTraceDTO,
+  SimpleSpeakTraceDTO,
+  SimpleAudioTraceDTO,
   SimpleDebugTraceDTO,
   SimpleVisualTraceDTO,
   SimpleCardV2TraceDTO,
