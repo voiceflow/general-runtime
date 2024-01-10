@@ -45,7 +45,15 @@ function applyTraceCommand(command: TraceCommand, runtime: Runtime): void {
   });
 }
 
-function applyNextCommand(command: NextCommand, paths: FunctionCompiledInvocation['paths']): string | null {
+function applyNextCommand(
+  command: NextCommand,
+  pathCodes: FunctionCompiledDefinition['pathCodes'],
+  paths: FunctionCompiledInvocation['paths']
+): string | null {
+  if (pathCodes.length === 0) {
+    return paths.__vf__default ?? null;
+  }
+
   if ('path' in command) {
     return paths[command.path] ?? null;
   }
@@ -85,7 +93,7 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
       }
 
       if (next) {
-        return applyNextCommand(next, invocation.paths);
+        return applyNextCommand(next, definition.pathCodes, invocation.paths);
       }
 
       return null;
