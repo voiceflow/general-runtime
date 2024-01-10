@@ -45,15 +45,7 @@ function applyTraceCommand(command: TraceCommand, runtime: Runtime): void {
   });
 }
 
-function applyNextCommand(
-  command: NextCommand,
-  pathCodes: FunctionCompiledDefinition['pathCodes'],
-  paths: FunctionCompiledInvocation['paths']
-): string | null {
-  if (pathCodes.length === 0) {
-    return paths.__vf__default ?? null;
-  }
-
+function applyNextCommand(command: NextCommand, paths: FunctionCompiledInvocation['paths']): string | null {
   if ('path' in command) {
     return paths[command.path] ?? null;
   }
@@ -92,10 +84,12 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
         applyTraceCommand(trace, runtime);
       }
 
-      if (next) {
-        return applyNextCommand(next, definition.pathCodes, invocation.paths);
+      if (definition.pathCodes.length === 0) {
+        return invocation.paths.__vf__default ?? null;
       }
-
+      if (next) {
+        return applyNextCommand(next, invocation.paths);
+      }
       return null;
     } catch (err) {
       // !TODO! - Revamp `general-runtime` types to allow users to modify the built-in
