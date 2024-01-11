@@ -53,13 +53,16 @@ class Auth extends AbstractMiddleware {
     return this.permissionGuard as ReturnType<typeof sdk.createPermissionGuard>;
   };
 
-  authorize = (actions: `${string}:${string}`[]) => {
+  authorize = (
+    actions: `${string}:${string}`[],
+    getResourceOverride?: (payload: Request) => { id: string; kind: string } | { id: string; kind: string }[]
+  ) => {
     return async (req: Request, res: Response, next: Next) => {
       try {
         const guard = await this.getPermissionGuard();
         if (!guard) return next();
 
-        return guard(actions as any[])(req, res, next);
+        return guard(actions as any[], getResourceOverride as any)(req, res, next);
       } catch (err) {
         return next(new VError('Unauthorized', VError.HTTP_STATUS.UNAUTHORIZED));
       }

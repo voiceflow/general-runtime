@@ -13,8 +13,8 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
     // - we push the resources from params to headers due to legacy middlewares
     // - the version alias works at the header level
     middlewares.auth.authorize(['project:READ'], (req: Request) => [
-      { kind: 'project', id: req.headers.projectID },
-      { kind: 'version', id: req.headers.versionID },
+      { kind: 'project', id: req.headers.projectID!.toString() },
+      { kind: 'version', id: req.headers.versionID!.toString() },
     ]),
     middlewares.inferenceLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'inference'),
     controllers.nlu.inference

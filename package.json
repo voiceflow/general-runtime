@@ -148,7 +148,7 @@
   "main": "build/start.js",
   "optionalDependencies": {
     "@voiceflow/sdk-analytics": "^1.26.0",
-    "@voiceflow/sdk-auth": "^2.6.3"
+    "@voiceflow/sdk-auth": "^2.7.5"
   },
   "private": false,
   "repository": {

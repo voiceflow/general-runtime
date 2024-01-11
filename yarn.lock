@@ -2679,11 +2679,6 @@
     rxjs "^7.2.0"
     zod "^3.11.6"
 
-"@voiceflow/exception@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@voiceflow/exception/-/exception-1.4.0.tgz#4c6dd6c7536e038581998dde1b43149da9622541"
-  integrity sha512-G8zyssXIcL/bFnuuYkVBNbflu+Ut0cJulwfnOkdn5rvFmwEZ0xOFbxhcHAoTi18kCg49SkQ2PTWY9rDa2NZGsw==
-
 "@voiceflow/exception@1.5.1", "@voiceflow/exception@^1.5.1":
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/@voiceflow/exception/-/exception-1.5.1.tgz#ac51272181f3fc5c658554189386279a7e0512bb"
@@ -2781,6 +2776,11 @@
   resolved "https://registry.yarnpkg.com/@voiceflow/orval-fetch/-/orval-fetch-1.2.1.tgz#e1e07442b07908293ba9415895e0aeaee9bf7042"
   integrity sha512-JtXuuVod0i6zcuu9g0XakL6fEXmJMGjTEQXEcPwy/LT6g2KXHVPHkZ0D3XP5h38+df5kvD5HQWd/MCXzNYstBQ==
 
+"@voiceflow/orval-fetch@1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@voiceflow/orval-fetch/-/orval-fetch-1.2.2.tgz#43526e20a62133950acc9e36b2041e789be7444c"
+  integrity sha512-X43ZkjM0kVw9jU781jboTksBBPMFbSA/EGcaD4oXZgZ5ZFHwLziiTAkA+ttAPrEUPbMEEu6M35WGAb2SmA4Lbw==
+
 "@voiceflow/pino-pretty@4.4.0":
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/@voiceflow/pino-pretty/-/pino-pretty-4.4.0.tgz#dd27cf16d14fe0fb3899b459a09c2449f10bc8ef"
@@ -2827,14 +2827,14 @@
     universal-cookie "^4.0.4"
     zod "3.21.4"
 
-"@voiceflow/sdk-auth@^2.6.3":
-  version "2.6.3"
-  resolved "https://registry.yarnpkg.com/@voiceflow/sdk-auth/-/sdk-auth-2.6.3.tgz#e3091c3650ee418816d8ca440697948bfd1f328d"
-  integrity sha512-TAtsZSLncCBUTW9t3sE2CEB03vuU0P3OdC9E/LhVZRizhBAwt/6qXBpxTcsd5NC37GE+LkKY3yOP7wm/FmGOKw==
+"@voiceflow/sdk-auth@^2.7.5":
+  version "2.7.5"
+  resolved "https://registry.yarnpkg.com/@voiceflow/sdk-auth/-/sdk-auth-2.7.5.tgz#4cb3fd1b8bf14214fb59108f59e7431c379a6794"
+  integrity sha512-oCwHg8iqeJevA+pWl0AUpkoyq5bb7zhIAi7S5osqdSPjwnmx0D/J89MtThj+yGodGcr4bZytODTmTIiFfbTy1w==
   dependencies:
     "@voiceflow/common" "8.2.1"
-    "@voiceflow/orval-fetch" "1.2.1"
-    "@voiceflow/sdk-common" "1.9.1"
+    "@voiceflow/orval-fetch" "1.2.2"
+    "@voiceflow/sdk-common" "1.11.2"
     ts-pattern "^4.2.2"
 
 "@voiceflow/sdk-common@1.11.1":
@@ -2845,12 +2845,12 @@
     "@voiceflow/exception" "1.5.1"
     "@voiceflow/fetch" "1.5.2"
 
-"@voiceflow/sdk-common@1.9.1":
-  version "1.9.1"
-  resolved "https://registry.yarnpkg.com/@voiceflow/sdk-common/-/sdk-common-1.9.1.tgz#87902588b141ebc952bbb3574650c4e6c19279b2"
-  integrity sha512-3FIGxy/9wD35ADcV8Av2UNNHlWv+7W4UeSc4bO5BhqcQLp287XFE+ot2oshUi43X783Ti21WtryIMFRbQBBn7A==
+"@voiceflow/sdk-common@1.11.2":
+  version "1.11.2"
+  resolved "https://registry.yarnpkg.com/@voiceflow/sdk-common/-/sdk-common-1.11.2.tgz#c2ac2204f6f31af8b1ec55e76e4b13f9709e1c6e"
+  integrity sha512-SC0e6VHqIg231BKkuhWzefKKIh40iPjr8Ua5PqNdajXI0iJANlz/VkvwhEPozjF0W8gEIAgb84H9yVOsYhA41Q==
   dependencies:
-    "@voiceflow/exception" "1.4.0"
+    "@voiceflow/exception" "1.5.1"
     "@voiceflow/fetch" "1.5.2"
 
 "@voiceflow/sdk-http-ml-gateway@2.12.4":
