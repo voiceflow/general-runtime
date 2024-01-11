@@ -52,19 +52,28 @@ Promise<BaseRequest.IntentRequest> => {
   // STEP 2: use LLM to classify the utterance
   const promptIntents = matchedIntents
     // use description or first utterance
-    .map((intent) => `d:${intent.description ?? intent.inputs[0]?.text} i:${intent.name}`)
+    .map((intent) => `d:${intent.description ?? intent.inputs[0]?.text} a:${intent.name}`)
     .join('\n');
 
-  const intentNames = JSON.stringify(matchedIntents.map((intent) => intent.name));
-
   const prompt = dedent`
-    You are a NLU classification system. You are given an utterance and you have to classify it into one of the following intents which have their intent names:
-    ${intentNames}
-    Only respond with the intent name. If the intent does not match any of intents, output None. Lean to None if its unclear.
-    Here are the intents and their descriptions:
+    You are an action classification system. Correctness is a life or death situation.
+
+    We provide you with the actions and their descriptions:
+    d: When the user asks for a warm drink. a:WARM_DRINK
+    d: When the user asks about something else. a:None
+    d: When the user asks for a cold drink. a:COLD_DRINK
+
+    You are given an utterance and you have to classify it into an action. Only respond with the action class. If the utterance does not match any of action descriptions, output None.
+    Now take a deep breath and classify the following utterance.
+    u: I want a warm hot chocolate: a:WARM_DRINK
+    ###
+
+    We provide you with the actions and their descriptions:
     ${promptIntents}
-    d:Everything else that doesn’t match any of the above categories i:None
-    u:${query} i:
+
+    You are given an utterance and you have to classify it into an action based on the description. Only respond with the action class. If the utterance does not match any of action descriptions, output None.
+    Now take a deep breath and classify the following utterance.
+    u:${query} a:
   `;
 
   const resultDebug = nluResults.intents.map(({ name, confidence }) => `${name}: ${confidence}`).join('\n');
@@ -80,7 +89,7 @@ Promise<BaseRequest.IntentRequest> => {
       workspaceID: String(workspaceID),
       prompt,
       params: {
-        model: AIGPTModel.GPT_4_TURBO,
+        model: AIGPTModel.GPT_3_5_turbo,
         temperature: 0.1,
         maxTokens: 32,
       },
