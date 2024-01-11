@@ -1,3 +1,4 @@
+import { NotFoundException } from '@voiceflow/exception';
 import { ObjectId } from 'mongodb';
 
 import { State } from '@/runtime';
@@ -26,13 +27,15 @@ class SessionManager extends AbstractManager implements Session {
 
     const id = this.getSessionID(_projectID, userID);
 
-    const {
-      result: { ok },
-    } = await mongo!.db
-      .collection(this.collectionName)
-      .updateOne({ projectID, id }, { $set: { id, projectID, attributes: state } }, { upsert: true });
+    const { acknowledged } = await mongo!.db.collection(this.collectionName).updateOne(
+      { projectID, id },
+      {
+        $set: { id, projectID, attributes: state },
+      },
+      { upsert: true }
+    );
 
-    if (!ok) {
+    if (!acknowledged) {
       throw Error('store runtime session error');
     }
   }
@@ -54,11 +57,9 @@ class SessionManager extends AbstractManager implements Session {
 
     const id = this.getSessionID(_projectID, userID);
 
-    const {
-      result: { ok },
-    } = await mongo!.db.collection(this.collectionName).deleteOne({ projectID, id });
+    const { acknowledged } = await mongo!.db.collection(this.collectionName).deleteOne({ projectID, id });
 
-    if (!ok) {
+    if (!acknowledged) {
       throw Error('delete runtime session error');
     }
   }
@@ -77,15 +78,16 @@ class SessionManager extends AbstractManager implements Session {
       ])
     );
 
-    const result = await mongo!.db
-      .collection(this.collectionName)
-      .findOneAndUpdate(
-        { projectID, id },
-        { $set: { id, projectID, ...variableSet } },
-        { upsert: true, returnDocument: 'after' }
-      );
-
-    return result.value;
+    const state = await mongo!.db.collection<State>(this.collectionName).findOneAndUpdate(
+      { projectID, id },
+      { $set: { id, projectID, ...variableSet } },
+      {
+        upsert: true,
+        returnDocument: 'after',
+      }
+    );
+    if (!state) throw new NotFoundException(`Project not found: ${projectID}`);
+    return state;
   }
 }
 
