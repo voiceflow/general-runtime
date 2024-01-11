@@ -9,16 +9,14 @@ import { AbstractMiddleware } from './utils';
 class InferenceLimit extends AbstractMiddleware {
   private rateLimitClient: ReturnType<typeof RateLimitClient>;
 
-  private MAX_POINTS = 25;
-
   constructor(...args: ConstructorParameters<typeof AbstractMiddleware>) {
     super(...args);
 
     this.rateLimitClient = RateLimitClient('general-runtime', args[0].redis, {
-      RATE_LIMITER_DURATION_PRIVATE: 5,
-      RATE_LIMITER_DURATION_PUBLIC: 5,
-      RATE_LIMITER_POINTS_PRIVATE: this.MAX_POINTS,
-      RATE_LIMITER_POINTS_PUBLIC: this.MAX_POINTS,
+      RATE_LIMITER_DURATION_PRIVATE: this.config.RATE_LIMITER_DURATION_INFERENCE,
+      RATE_LIMITER_DURATION_PUBLIC: this.config.RATE_LIMITER_DURATION_INFERENCE,
+      RATE_LIMITER_POINTS_PRIVATE: this.config.RATE_LIMITER_POINTS_INFERENCE,
+      RATE_LIMITER_POINTS_PUBLIC: this.config.RATE_LIMITER_POINTS_INFERENCE,
     });
   }
 
@@ -34,11 +32,11 @@ class InferenceLimit extends AbstractMiddleware {
       try {
         const rateLimiterRes = await this.rateLimitClient.private.consume(prefix ? `${prefix}:${resource}` : resource);
 
-        RateLimitMiddleware.setHeaders(res, rateLimiterRes, this.MAX_POINTS);
+        RateLimitMiddleware.setHeaders(res, rateLimiterRes, this.config.RATE_LIMITER_POINTS_INFERENCE);
       } catch (rateLimiterRes) {
         res.setHeader('Retry-After', Math.floor(rateLimiterRes.msBeforeNext / 1000));
 
-        RateLimitMiddleware.setHeaders(res, rateLimiterRes, this.MAX_POINTS);
+        RateLimitMiddleware.setHeaders(res, rateLimiterRes, this.config.RATE_LIMITER_POINTS_INFERENCE);
 
         res.status(VError.HTTP_STATUS.TOO_MANY_REQUESTS).send('Too Many Requests');
       }
