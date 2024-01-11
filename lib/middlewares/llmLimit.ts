@@ -9,16 +9,14 @@ import { AbstractMiddleware } from './utils';
 class LLMLimit extends AbstractMiddleware {
   private rateLimitClient: ReturnType<typeof RateLimitClient>;
 
-  private MAX_POINTS = 5;
-
   constructor(...args: ConstructorParameters<typeof AbstractMiddleware>) {
     super(...args);
 
     this.rateLimitClient = RateLimitClient('general-runtime', args[0].redis, {
-      RATE_LIMITER_DURATION_PRIVATE: 60,
-      RATE_LIMITER_DURATION_PUBLIC: 60,
-      RATE_LIMITER_POINTS_PRIVATE: this.MAX_POINTS,
-      RATE_LIMITER_POINTS_PUBLIC: this.MAX_POINTS,
+      RATE_LIMITER_DURATION_PRIVATE: this.config.RATE_LIMITER_DURATION_LLM_PRIVATE,
+      RATE_LIMITER_DURATION_PUBLIC: this.config.RATE_LIMITER_DURATION_LLM_PUBLIC,
+      RATE_LIMITER_POINTS_PRIVATE: this.config.RATE_LIMITER_POINTS_LLM_PRIVATE,
+      RATE_LIMITER_POINTS_PUBLIC: this.config.RATE_LIMITER_POINTS_LLM_PUBLIC,
     });
   }
 

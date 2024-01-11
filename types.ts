@@ -110,6 +110,11 @@ export interface Config extends RateLimitConfig {
   UNLEASH_API_KEY: string | null;
 
   ALLOWED_PUBLIC_ORIGINS: string | null;
+
+  RATE_LIMITER_DURATION_LLM_PRIVATE: number;
+  RATE_LIMITER_DURATION_LLM_PUBLIC: number;
+  RATE_LIMITER_POINTS_LLM_PRIVATE: number;
+  RATE_LIMITER_POINTS_LLM_PUBLIC: number;
 }
 
 export interface Request<
