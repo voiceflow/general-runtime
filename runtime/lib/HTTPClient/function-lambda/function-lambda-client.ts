@@ -99,28 +99,32 @@ export class FunctionLambdaClient {
       statusCode,
       time,
     } = error;
-    return {
-      cause,
-      cfId,
-      code,
-      extendedRequestId,
-      hostname,
-      message,
-      name,
-      originalError: {
-        cause: originalError?.cause,
-        message: originalError?.message,
-        name: originalError?.name,
-        stack: originalError?.stack?.substring(0, 1000),
+    return JSON.stringify(
+      {
+        cause,
+        cfId,
+        code,
+        extendedRequestId,
+        hostname,
+        message,
+        name,
+        originalError: {
+          cause: originalError?.cause,
+          message: originalError?.message,
+          name: originalError?.name,
+          stack: originalError?.stack?.substring(0, 1000),
+        },
+        region,
+        requestId,
+        retryDelay,
+        retryable,
+        stack: stack?.substring(0, 1000),
+        statusCode,
+        time,
       },
-      region,
-      requestId,
-      retryDelay,
-      retryable,
-      stack: stack?.substring(0, 1000),
-      statusCode,
-      time,
-    };
+      null,
+      2
+    );
   }
 
   private invokeLambda(request: FunctionLambdaRequest): Promise<FunctionLambdaSuccessResponse> {
@@ -135,9 +139,9 @@ export class FunctionLambdaClient {
       this.awsLambda.invoke(params, (err, data) => {
         if (err) {
           log.error(
-            `[${this.errorLabel}]: \`function-lambda\` invocation return error object, error=${this.serializeAWSError(
-              err
-            )}`
+            `[${
+              this.errorLabel
+            }]: \`function-lambda\` invocation returned an error object, error=${this.serializeAWSError(err)}`
           );
 
           reject(err);
