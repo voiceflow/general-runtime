@@ -140,18 +140,22 @@ export class FunctionLambdaClient {
       const startTime = performance.now();
 
       this.awsLambda.invoke(params, (err, data) => {
-        log.info(`Function lambda invocation was resolved, latency=${performance.now() - startTime} millis`);
+        const timeElapsed = performance.now() - startTime;
 
         if (err) {
           log.error(
             `[${
               this.errorLabel
-            }]: \`function-lambda\` invocation returned an error object, error=${this.serializeAWSError(err)}`
+            }]: \`function-lambda\` invocation returned an error object, latency=${timeElapsed} ms, error=${this.serializeAWSError(
+              err
+            )}`
           );
 
           reject(err);
         } else if (!data.Payload) {
-          log.error(`[${this.errorLabel}]: \`function-lambda\` did not send back a \`data.Payload\` property`);
+          log.error(
+            `[${this.errorLabel}]: \`function-lambda\` did not send back a \`data.Payload\` property, latency=${timeElapsed} ms`
+          );
 
           reject(new Error('Lambda did not send back a response'));
         } else {
@@ -160,7 +164,9 @@ export class FunctionLambdaClient {
 
           if (parsedPayload.statusCode !== HTTP_STATUS.OK) {
             log.error(
-              `[${this.errorLabel}]: Received non-200 status from \`function-lambda\`, responseBody=${JSON.stringify(
+              `[${
+                this.errorLabel
+              }]: Received non-200 status from \`function-lambda\`, latency=${timeElapsed} ms, responseBody=${JSON.stringify(
                 responseBody,
                 null,
                 2
@@ -169,6 +175,8 @@ export class FunctionLambdaClient {
 
             reject(responseBody);
           } else {
+            log.info(`Function lambda invocation was resolved, latency=${timeElapsed} ms`);
+
             resolve(responseBody);
           }
         }
