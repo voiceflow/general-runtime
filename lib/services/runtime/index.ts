@@ -14,7 +14,7 @@ import CacheDataAPI from '../state/cacheDataAPI';
 import { AbstractManager, injectServices } from '../utils';
 import Handlers from './handlers';
 import init from './init';
-import { isActionRequest, isIntentRequest, isRuntimeRequest, TurnType } from './types';
+import { isActionRequest, isIntentRequest, isPathRequest, isRuntimeRequest, TurnType } from './types';
 import { getReadableConfidence } from './utils';
 
 export const utils = {
@@ -62,6 +62,11 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
         runtime.variables.set(VoiceflowConstants.BuiltInVariable.LAST_UTTERANCE, request.payload.query);
       }
     }
+
+    if (isPathRequest(request) && request.payload.label) {
+      runtime.variables.set(VoiceflowConstants.BuiltInVariable.LAST_UTTERANCE, request.payload.label);
+    }
+
     runtime.variables.set(VoiceflowConstants.BuiltInVariable.LAST_EVENT, request);
 
     if (context.data.config?.stopTypes) {
