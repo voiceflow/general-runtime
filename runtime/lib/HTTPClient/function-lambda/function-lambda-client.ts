@@ -1,6 +1,7 @@
 import { InternalServerErrorException } from '@voiceflow/exception';
 import { HTTP_STATUS } from '@voiceflow/verror';
 import AWS from 'aws-sdk';
+import { performance } from 'perf_hooks';
 import { z } from 'zod';
 
 import log from '@/logger';
@@ -136,7 +137,11 @@ export class FunctionLambdaClient {
 
     // Invoke the Lambda function
     return new Promise((resolve, reject) => {
+      const startTime = performance.now();
+
       this.awsLambda.invoke(params, (err, data) => {
+        log.info(`Function lambda invocation was resolved, latency=${performance.now() - startTime} millis`);
+
         if (err) {
           log.error(
             `[${
