@@ -7,7 +7,7 @@ parameters:
     default: "61:71:13:8f:00:5f:da:63:a8:0c:6d:f3:b4:b1:17:b3"
 
 orbs:
-  vfcommon: voiceflow/common@0.38.10
+  vfcommon: voiceflow/common@0.48.0
   gomplate: xavientois/gomplate@0.2.0
 
 workflows:
@@ -20,7 +20,7 @@ workflows:
     jobs:
       - gomplate/render-config:
           context: dev-test
-          executor: vfcommon/node-executor
+          executor: vfcommon/node-executor-node-20
           pre-steps:
             - checkout
             - vfcommon/set-env-name: # On bors branches, we will be running the e2e tests in a dev environment

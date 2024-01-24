@@ -1,9 +1,14 @@
 .git
 .gitignore
 
-node_modules
+node_modules/
 log/
 tests/
 certs/
 coverage/
 tests/
+build/
+
+.yarn/
+!.yarn/releases/
+!.yarn/plugins/

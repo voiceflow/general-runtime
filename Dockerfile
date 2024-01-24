@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:20.10-alpine as base
 
 RUN apk add --no-cache dumb-init python3 make g++
 
@@ -15,15 +15,28 @@ ENV GIT_SHA=${build_GIT_SHA}
 ENV BUILD_URL=${build_BUILD_URL}
 
 WORKDIR /usr/src/app
-COPY build ./
-COPY package.json ./
-COPY yarn.lock ./
 
+FROM base as builder
+ARG NPM_TOKEN
 
-RUN echo $NPM_TOKEN > .npmrc && \
-  yarn install --production && \
-  rm -f .npmrc && \
+COPY . .
+
+RUN yarn config set -H 'npmRegistries["https://registry.yarnpkg.com"].npmAuthToken' "${NPM_TOKEN#"//registry.npmjs.org/:_authToken="}" && \
+  yarn install --immutable && \
+  yarn build && \
+  yarn config unset -H npmRegistries
+
+FROM base as prod
+ARG NPM_TOKEN
+
+COPY --from=builder /usr/src/app/build .
+COPY --from=builder /usr/src/app/.yarn ./.yarn
+COPY --from=builder /usr/src/app/.yarnrc.yml .
+
+RUN yarn config set -H 'npmRegistries["https://registry.yarnpkg.com"].npmAuthToken' "${NPM_TOKEN#"//registry.npmjs.org/:_authToken="}" && \
+  yarn workspaces focus -A --production && \
+  yarn config unset -H npmRegistries && \
   yarn cache clean
 
 ENTRYPOINT [ "dumb-init" ]
-CMD ["node", "start.js"]
+CMD ["node", "--no-node-snapshot", "start.js"]

@@ -47,7 +47,7 @@ orbs:
 
 jobs:
   test:
-    executor: vfcommon/code-test-executor
+    executor: vfcommon/code-test-executor-node-20
     steps:
       - checkout
       - vfcommon/install_node_modules:
@@ -80,6 +80,7 @@ workflows:
       - vfcommon/install_and_build:
           <<: *slack-fail-post-step
           context: dev-test
+          executor: vfcommon/node-executor-node-20
           avoid_post_install_scripts: false
 
       - test:
@@ -95,6 +96,7 @@ workflows:
 
       - vfcommon/release:
           <<: *slack-fail-post-step
+          executor: vfcommon/node-executor-node-20
           context: dev-test
           requires:
             - vfcommon/install_and_build
