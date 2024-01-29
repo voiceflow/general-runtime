@@ -45,6 +45,11 @@ orbs:
   vfcommon: voiceflow/common@{{ .values.common_orb_version }}
   sonarcloud: sonarsource/sonarcloud@2.0.0
 
+executors:
+  node-16-20-executor:
+    docker:
+      - image: cimg/node:16.20
+
 jobs:
   test:
     executor: vfcommon/code-test-executor
@@ -81,6 +86,10 @@ workflows:
           <<: *slack-fail-post-step
           context: dev-test
           avoid_post_install_scripts: false
+          executor: node-16-20-executor
+          request_remote_docker: false
+          run_in_container: false
+          ## container_image_to_build: cimg/node:16.20
 
       - test:
           <<: *slack-fail-post-step
