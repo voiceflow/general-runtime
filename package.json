@@ -58,7 +58,7 @@
     "json-stringify-safe": "^5.0.1",
     "lodash": "^4.17.21",
     "mathjs": "^10.6.1",
-    "mongodb": "^3.6.5",
+    "mongodb": "^4.0.0",
     "nestjs-zod": "2.1.0",
     "node-fetch": "^2.6.7",
     "regenerator-runtime": "^0.13.3",
@@ -92,7 +92,6 @@
     "@types/jsonwebtoken": "^8.3.5",
     "@types/lodash": "^4.14.149",
     "@types/mocha": "^5.2.7",
-    "@types/mongodb": "^3.6.10",
     "@types/node": "16.11.36",
     "@types/node-fetch": "^2.6.2",
     "@types/pino": "^6.3.0",
@@ -150,7 +149,6 @@
     "@voiceflow/sdk-analytics": "^1.26.0",
     "@voiceflow/sdk-auth": "^2.7.5"
   },
-  "private": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/voiceflow/general-runtime.git"
@@ -188,5 +186,10 @@
     "test:run": "NODE_ENV=test nyc ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.{unit,it}.ts'",
     "test:single": "NODE_ENV=test ts-mocha --paths --opts ./config/tests/mocha.opts",
     "test:unit": "yarn && NODE_ENV=test nyc --report-dir=nyc_coverage_unit ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.unit.ts'"
-  }
+  },
+  "volta": {
+    "node": "16.20.2",
+    "yarn": "3.2.1"
+  },
+  "packageManager": "yarn@3.2.1"
 }
