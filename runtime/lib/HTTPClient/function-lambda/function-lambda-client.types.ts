@@ -1,6 +1,10 @@
-import { FunctionLambdaSuccessResponse } from './function-lambda-client.interface';
+import { z } from 'zod';
 
-export interface AWSResponsePayload {
-  statusCode: number;
-  body: FunctionLambdaSuccessResponse;
-}
+import { FunctionLambdaResponseDTO } from './function-lambda-client.interface';
+
+export const AWSSuccessResponsePayloadDTO = z.object({
+  statusCode: z.number(),
+  body: FunctionLambdaResponseDTO,
+});
+
+export type AWSSuccessResponsePayload = z.infer<typeof AWSSuccessResponsePayloadDTO>;
