@@ -18,6 +18,7 @@ import {
   FunctionLambdaSuccessResponse,
   FunctionLambdaSuccessResponseDTO,
 } from './function-lambda-client.interface';
+import { AWSResponsePayload } from './function-lambda-client.types';
 import { LambdaErrorCode } from './lambda-error-code.enum';
 
 export class FunctionLambdaClient {
@@ -159,7 +160,16 @@ export class FunctionLambdaClient {
 
           reject(new Error('Lambda did not send back a response'));
         } else {
-          const parsedPayload = JSON.parse(data.Payload as string);
+          const parsedPayload: null | AWSResponsePayload = JSON.parse(data.Payload as string);
+
+          if (parsedPayload === null) {
+            log.error(`Received null payload from function lambda, data.Payload=${data.Payload.toString()}`);
+
+            reject(new Error('Unknown error, `function-lambda` sent back `data.Payload === null`'));
+
+            return;
+          }
+
           const responseBody = parsedPayload.body;
 
           if (parsedPayload.statusCode !== HTTP_STATUS.OK) {
