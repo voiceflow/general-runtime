@@ -163,7 +163,7 @@ export class FunctionLambdaClient {
 
           reject(new Error('Lambda did not send back a response'));
         } else {
-          const rawPayload = null;
+          const rawPayload = JSON.parse(data.Payload.toString());
           const zodParseResult = AWSSuccessResponsePayloadDTO.safeParse(rawPayload);
 
           if (!zodParseResult.success) {
