@@ -8,4 +8,5 @@ export enum CloudEnv {
   VFTEST82 = 'vftest-82',
   GM = 'gm',
   VODAFONE = 'vodafone',
+  SUPERLOOP = 'superloop',
 }
