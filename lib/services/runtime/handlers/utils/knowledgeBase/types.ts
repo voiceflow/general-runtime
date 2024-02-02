@@ -9,4 +9,5 @@ export enum CloudEnv {
   GM = 'gm',
   VODAFONE = 'vodafone',
   SUPERLOOP = 'superloop',
+  AMAZON = 'amazon',
 }
