@@ -4,6 +4,7 @@ import { RuntimeCommandDTO } from '../../Handlers/function/runtime-command/runti
 import { LambdaErrorCode } from './lambda-error-code.enum';
 
 interface BaseFunctionLambdaRequest {
+  requestId: string;
   variables: Record<string, unknown>;
   enableLog?: boolean;
 }

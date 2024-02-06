@@ -1,3 +1,5 @@
+import cuid from 'cuid';
+
 import Config from '@/config';
 import { FunctionLambdaClient } from '@/runtime/lib/HTTPClient/function-lambda/function-lambda-client';
 
@@ -21,6 +23,7 @@ export async function executeFunction(funcData: ExecuteFunctionArgs) {
   const { next, outputVars, trace } = await functionLambdaClient.executeLambda({
     ...source,
     variables: invocation.inputVars,
+    requestId: cuid.slug(),
   });
 
   if (next) {
