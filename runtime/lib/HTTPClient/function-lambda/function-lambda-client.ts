@@ -163,8 +163,14 @@ export class FunctionLambdaClient {
     const result = await this.invokeLambda(request);
 
     if (!this.isAWSSuccessResponsePayload(result)) {
+      const errMessage = `Received unexpected payload from function-lambda, payload=${JSON.stringify(
+        result,
+        null,
+        2
+      ).substring(0, 32767)}`;
+      this.logError(errMessage);
       throw new InternalServerErrorException({
-        message: 'Received unexpected payload from function-lambda',
+        message: errMessage,
         cause: {
           unexpectedPayload: JSON.stringify(result),
         },
