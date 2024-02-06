@@ -12,6 +12,7 @@
     }
   },
   "dependencies": {
+    "@aws-sdk/client-lambda": "^3.507.0",
     "@aws-sdk/client-s3": "^3.179.0",
     "@opentelemetry/api-metrics": "0.26.0",
     "@types/workerpool": "^5.0.1",
@@ -149,6 +150,7 @@
     "@voiceflow/sdk-analytics": "^1.26.0",
     "@voiceflow/sdk-auth": "^2.7.5"
   },
+  "packageManager": "yarn@3.2.1",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/voiceflow/general-runtime.git"
@@ -190,6 +192,5 @@
   "volta": {
     "node": "16.20.2",
     "yarn": "3.2.1"
-  },
-  "packageManager": "yarn@3.2.1"
+  }
 }

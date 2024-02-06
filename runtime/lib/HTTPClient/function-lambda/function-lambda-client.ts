@@ -1,5 +1,5 @@
+import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { InternalServerErrorException } from '@voiceflow/exception';
-import AWS from 'aws-sdk';
 import { performance } from 'perf_hooks';
 import { z } from 'zod';
 
@@ -17,13 +17,15 @@ import {
   FunctionLambdaSuccessResponse,
   FunctionLambdaSuccessResponseDTO,
 } from './function-lambda-client.interface';
-import { AWSSuccessResponsePayloadDTO } from './function-lambda-client.types';
+import { AWSSuccessResponsePayload, AWSSuccessResponsePayloadDTO } from './function-lambda-client.types';
 import { LambdaErrorCode } from './lambda-error-code.enum';
 
 export class FunctionLambdaClient {
   private readonly errorLabel: string = 'FUNCTION-LAMBDA-ERROR';
 
-  private readonly awsLambda: AWS.Lambda;
+  private readonly infoLabel: string = 'FUNCTION-LAMBDA-INFO';
+
+  private readonly awsLambda: LambdaClient;
 
   private readonly functionLambdaARN: string;
 
@@ -58,13 +60,13 @@ export class FunctionLambdaClient {
 
     this.functionLambdaARN = functionLambdaARN;
 
-    AWS.config.update({
-      accessKeyId,
-      secretAccessKey,
+    this.awsLambda = new LambdaClient({
       region,
+      credentials: {
+        accessKeyId,
+        secretAccessKey,
+      },
     });
-
-    this.awsLambda = new AWS.Lambda();
   }
 
   private createLambdaException(lambdaError: FunctionLambdaErrorResponse): LambdaException {
@@ -82,150 +84,111 @@ export class FunctionLambdaClient {
     }
   }
 
-  private serializeAWSError(error: AWS.AWSError) {
-    const {
-      cause,
-      cfId,
-      code,
-      extendedRequestId,
-      hostname,
-      message,
-      name,
-      originalError,
-      region,
-      requestId,
-      retryDelay,
-      retryable,
-      stack,
-      statusCode,
-      time,
-    } = error;
-    return JSON.stringify(
-      {
-        cause,
-        cfId,
-        code,
-        extendedRequestId,
-        hostname,
-        message,
-        name,
-        originalError: {
-          cause: originalError?.cause,
-          message: originalError?.message,
-          name: originalError?.name,
-          stack: originalError?.stack?.substring(0, 1000),
-        },
-        region,
-        requestId,
-        retryDelay,
-        retryable,
-        stack: stack?.substring(0, 1000),
-        statusCode,
-        time,
-      },
-      null,
-      2
-    );
-  }
-
   private isLambdaErrorResponse(data: unknown): data is FunctionLambdaErrorResponse {
     return FunctionLambdaErrorResponseDTO.safeParse(data).success;
   }
 
-  private invokeLambda(request: FunctionLambdaRequest): Promise<FunctionLambdaSuccessResponse> {
-    const params: AWS.Lambda.InvocationRequest = {
-      FunctionName: this.functionLambdaARN,
-      InvocationType: 'RequestResponse',
-      Payload: JSON.stringify(request),
-    };
+  private isLambdaSuccessResponse(data: unknown): data is FunctionLambdaSuccessResponse {
+    return FunctionLambdaSuccessResponseDTO.safeParse(data).success;
+  }
 
-    // Invoke the Lambda function
-    return new Promise((resolve, reject) => {
-      const startTime = performance.now();
+  private getRuntimeCommandErrorDetails(data: unknown): z.ZodError {
+    try {
+      FunctionLambdaSuccessResponseDTO.parse(data);
+      return new z.ZodError([]);
+    } catch (err) {
+      return err;
+    }
+  }
 
-      this.awsLambda.invoke(params, (err, data) => {
-        const timeElapsed = performance.now() - startTime;
+  private isAWSSuccessResponsePayload(data: unknown): data is AWSSuccessResponsePayload {
+    return AWSSuccessResponsePayloadDTO.safeParse(data).success;
+  }
 
-        if (err) {
-          log.error(
-            `[${
-              this.errorLabel
-            }]: \`function-lambda\` invocation returned an error object, latency=${timeElapsed} ms, error=${this.serializeAWSError(
-              err
-            )}`
-          );
+  private logError(errorMessage: string) {
+    log.error(`[${this.errorLabel}]: ${errorMessage}`);
+  }
 
-          reject(err);
-        } else if (!data.Payload) {
-          log.error(
-            `[${this.errorLabel}]: \`function-lambda\` did not send back a \`data.Payload\` property, latency=${timeElapsed} ms`
-          );
+  private logInfo(errorMessage: string) {
+    log.info(`[${this.infoLabel}]: ${errorMessage}`);
+  }
 
-          reject(new Error('Lambda did not send back a response'));
-        } else {
-          const rawPayload = JSON.parse(data.Payload.toString());
-          const zodParseResult = AWSSuccessResponsePayloadDTO.safeParse(rawPayload);
+  private async sendInvokeLambdaCommand(request: FunctionLambdaRequest) {
+    let startTime = null;
+    try {
+      startTime = performance.now();
 
-          if (!zodParseResult.success) {
-            log.error(`Received unexpected payload from function lambda, data.Payload=${data.Payload.toString()}`);
-
-            reject(
-              new Error(`\`function-lambda\` sent back unexpected data, data.Payload= ${data.Payload.toString()}`)
-            );
-
-            return;
-          }
-
-          const parsedPayload = zodParseResult.data;
-
-          if (this.isLambdaErrorResponse(parsedPayload.body)) {
-            log.error(
-              `[${this.errorLabel}]: Received ${
-                parsedPayload.statusCode
-              } status from \`function-lambda\`, latency=${timeElapsed} ms, responseBody=${JSON.stringify(
-                parsedPayload.body,
-                null,
-                2
-              )}`
-            );
-
-            reject(parsedPayload.body);
-          } else {
-            log.info(`Function lambda invocation was resolved, latency=${timeElapsed} ms`);
-
-            resolve(parsedPayload.body);
-          }
-        }
+      const command = new InvokeCommand({
+        FunctionName: this.functionLambdaARN,
+        InvocationType: 'RequestResponse',
+        Payload: JSON.stringify(request),
       });
-    });
+
+      const { Payload } = await this.awsLambda.send(command);
+      return Payload;
+    } finally {
+      if (startTime !== null) {
+        const timeElapsed = performance.now() - startTime;
+        this.logInfo(`Function lambda complete execution, latency = ${timeElapsed} ms`);
+      } else {
+        this.logInfo(`Unable to report function lambda latency, startTime = ${startTime}`);
+      }
+    }
+  }
+
+  private async invokeLambda(request: FunctionLambdaRequest) {
+    const payload = await this.sendInvokeLambdaCommand(request);
+
+    if (!payload) {
+      const errMessage = `Expected truthy response payload but instead received payload = ${payload}`;
+      this.logError(errMessage);
+      throw new Error(errMessage);
+    }
+
+    const stringResult = Buffer.from(payload).toString();
+
+    try {
+      return JSON.parse(stringResult);
+    } catch (err) {
+      const errMessage = `Function lambda responded with invalid JSON, data = ${stringResult}`;
+      this.logError(errMessage);
+      throw new Error(errMessage);
+    }
   }
 
   /**
    * Executes the code given in `request` using the `function-lambda` AWS Lambda service.
    */
   public async executeLambda(request: FunctionLambdaRequest): Promise<FunctionLambdaSuccessResponse> {
-    try {
-      const result = await this.invokeLambda(request);
+    const result = await this.invokeLambda(request);
 
-      return FunctionLambdaSuccessResponseDTO.parse(result);
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        throw new InvalidRuntimeCommandException(err);
-      }
-
-      const lambdaError = FunctionLambdaErrorResponseDTO.safeParse(err);
-      if (lambdaError.success) {
-        throw this.createLambdaException(lambdaError.data);
-      }
-
-      const errorBody = (err.message ?? JSON.stringify(err, null, 2)).slice(0, 2048);
-
-      log.error(`[${this.errorLabel}]: An unknown internal server error occurred, errorBody=${errorBody}`);
-
+    if (!this.isAWSSuccessResponsePayload(result)) {
       throw new InternalServerErrorException({
-        message: 'Unknown error occurred when executing the function',
-        cause: errorBody,
+        message: 'Received unexpected payload from function-lambda',
+        cause: {
+          unexpectedPayload: JSON.stringify(result),
+        },
       });
     }
+
+    const { body } = result;
+
+    if (this.isLambdaErrorResponse(body)) {
+      this.logError(
+        `\`function-lambda\` returned statusCode=${result.statusCode}, payload=${JSON.stringify(
+          body,
+          null,
+          2
+        ).substring(0, 32767)}`
+      );
+      throw this.createLambdaException(body);
+    }
+
+    if (this.isLambdaSuccessResponse(body)) {
+      return body;
+    }
+
+    const zodErrors = this.getRuntimeCommandErrorDetails(body);
+    throw new InvalidRuntimeCommandException(zodErrors);
   }
 }
