@@ -159,7 +159,7 @@ export const fetchKnowledgeBase = async (
 
     return data;
   } catch (err) {
-    log.error(`[fetchKnowledgeBase] ${log.vars({ err })}`);
+    log.error(`[fetchKnowledgeBase] %o`, { err });
     return null;
   }
 };
@@ -249,7 +249,7 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<AIResponse
       answerTokens,
     };
   } catch (err) {
-    log.error(`[knowledge-base no match] ${log.vars({ err })}`);
+    log.error(`[knowledge-base no match] %o`, { err });
     return null;
   }
 };

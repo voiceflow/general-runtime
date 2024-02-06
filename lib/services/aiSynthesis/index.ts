@@ -309,7 +309,7 @@ class AISynthesis extends AbstractManager {
 
       return { ...answer, ...data, tokens, queryTokens, answerTokens };
     } catch (err) {
-      log.error(`[knowledge-base prompt] ${log.vars({ err })}`);
+      log.error(`[knowledge-base prompt] %o`, { err });
       return null;
     }
   }

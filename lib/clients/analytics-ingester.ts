@@ -86,7 +86,7 @@ export class IngesterClient extends AbstractClient {
     metadata: Context;
     timestamp: Date;
   }): Promise<void> {
-    log.trace(`[analytics] process trace ${log.vars({ versionID })}`);
+    log.trace(`[analytics] process trace %o`, { versionID });
     switch (event) {
       case Event.TURN: {
         const interactionBody = this.createInteractionBody({ projectID, versionID, metadata, timestamp });

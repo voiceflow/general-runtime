@@ -54,7 +54,7 @@ class Server {
     this.server.listen(this.config.PORT);
     await once(this.server, 'listening');
 
-    log.info(`[http] ${name} listening ${log.vars({ port: this.config.PORT })}`);
+    log.info(`[http] ${name} listening %o`, { port: this.config.PORT });
   }
 
   /**

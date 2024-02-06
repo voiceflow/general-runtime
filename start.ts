@@ -24,12 +24,12 @@ import Server from './server';
   });
 
   process.on('unhandledRejection', (rejection, promise) => {
-    log.error(`[app] unhandled rejection ${log.vars({ rejection, promise })}`);
+    log.error(`[app] unhandled rejection %o`, { rejection, promise });
   });
 
   try {
     await server.start();
   } catch (error) {
-    log.error(`[app] [http] failed to start server ${log.vars({ error })}`);
+    log.error(`[app] [http] failed to start server %o`, { error });
   }
 })();

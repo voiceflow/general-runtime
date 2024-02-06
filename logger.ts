@@ -1,11 +1,16 @@
-import Logger, { LogLevel, MiddlewareVerbosity } from '@voiceflow/logger';
+import { createHTTPLogger, createLogger, LogFormat, LogLevel } from '@voiceflow/logger';
 
 import config from './config';
 
-const log = new Logger({
+export const log = createLogger({
+  format: LogFormat.INLINE,
   level: config.LOG_LEVEL as LogLevel,
-  pretty: ['local', 'test'].includes(process.env.NODE_ENV || ''),
-  middlewareVerbosity: config.MIDDLEWARE_VERBOSITY as MiddlewareVerbosity,
 });
+
+export const createLogMiddleware = (): ReturnType<typeof createHTTPLogger> =>
+  createHTTPLogger({
+    format: LogFormat.INLINE,
+    level: config.LOG_LEVEL as LogLevel,
+  });
 
 export default log;

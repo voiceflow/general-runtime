@@ -98,7 +98,7 @@ Promise<BaseRequest.IntentRequest> => {
       },
     })
     .catch((error) => {
-      log.warn(`[hybridPredict intent classification] ${log.vars(error)}`);
+      log.warn(`[hybridPredict intent classification] %o`, error);
       return null;
     });
 
@@ -190,7 +190,7 @@ Promise<BaseRequest.IntentRequest> => {
           },
         })
         .catch((error) => {
-          log.warn(`[hybridPredict entity extraction] ${log.vars(error)}`);
+          log.warn(`[hybridPredict entity extraction] %o`, error);
           return null;
         });
 
@@ -214,10 +214,10 @@ Promise<BaseRequest.IntentRequest> => {
         });
       }
     } catch (error) {
-      log.warn(`[hybridPredict] ${log.vars(error)}`);
+      log.warn(`[hybridPredict] %o`, error);
       trace?.push({
         type: BaseNode.Utils.TraceType.DEBUG,
-        payload: { message: `unable to parse LLM entity result: ${log.vars(error)}` },
+        payload: { message: `unable to parse LLM entity result: ${error.message}` },
       });
     }
   }

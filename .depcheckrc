@@ -23,5 +23,8 @@
     "nestjs-zod",
     "supertest",
     "eslint-import-resolver-typescript"
+  ],
+  "ignorePatterns": [
+    ".yarn"
   ]
 }

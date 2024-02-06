@@ -25,7 +25,7 @@ export const registerSlots = (nlc: NLC, { slots }: BaseModels.PrototypeModel, op
         nlc.addSlotType({ type: slot.name, matcher });
       }
     } catch (error) {
-      log.debug(`[app] [runtime] [nlc] unable to register slot ${log.vars({ error, slot })}`);
+      log.debug(`[app] [runtime] [nlc] unable to register slot %o`, { error, slot });
     }
   });
 };
@@ -87,7 +87,7 @@ export const registerIntents = (
         utterances: samples.map((value) => value.trim()).filter(Boolean),
       });
     } catch (error) {
-      log.debug(`[app] [runtime] [nlc] unable to register custom intent ${log.vars({ error, intent: intent.name })}`);
+      log.debug(`[app] [runtime] [nlc] unable to register custom intent %o`, { error, intent: intent.name });
     }
   });
 };
@@ -102,7 +102,7 @@ export const registerBuiltInIntents = (nlc: NLC, locale = VoiceflowConstants.Loc
     try {
       nlc.registerIntent({ intent: name, utterances: samples });
     } catch (error) {
-      log.debug(`[app] [runtime] [nlc] unable to register built-in intent ${log.vars({ intent: name, error })}`);
+      log.debug(`[app] [runtime] [nlc] unable to register built-in intent %o`, { intent: name, error });
     }
   });
 };

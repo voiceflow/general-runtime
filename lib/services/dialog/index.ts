@@ -59,7 +59,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     const incomingRequestName = incomingRequest.payload.intent.name;
     const expectedIntentName = dmStateStore.intentRequest!.payload.intent.name;
 
-    log.trace(`[app] [runtime] [dm] DM-Prefixed inference result ${log.vars({ resultName: dmPrefixedResultName })}`);
+    log.trace(`[app] [runtime] [dm] DM-Prefixed inference result %o`, { resultName: dmPrefixedResultName });
 
     if (dmPrefixedResultName.startsWith(VF_DM_PREFIX) || dmPrefixedResultName === expectedIntentName) {
       // Remove hash prefix entity from the DM-prefixed result

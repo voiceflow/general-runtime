@@ -18,7 +18,7 @@ class Analytics extends AbstractManager implements ContextHandler {
         timestamp: new Date(),
       })
       .catch((error) => {
-        log.error(`[analytics] failed to track ${log.vars({ versionID, error })}`);
+        log.error(`[analytics] failed to track %o`, { versionID, error });
       });
 
     return context;

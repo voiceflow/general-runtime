@@ -33,7 +33,7 @@ export const TextHandler: HandlerFactory<BaseNode.Text.Node, typeof handlerUtils
           runtime.stack.top().storage.set<Output>(FrameType.OUTPUT, trace.payload.slate.content);
         }
       } catch (error) {
-        log.error(`[app] [runtime] [${TextHandler.name}] failed to add Slate trace ${log.vars({ error })}`);
+        log.error(`[app] [runtime] [${TextHandler.name}] failed to add Slate trace %o`, { error });
       }
     }
 

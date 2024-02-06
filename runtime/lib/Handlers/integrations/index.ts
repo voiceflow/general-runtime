@@ -41,14 +41,12 @@ const IntegrationsHandler: HandlerFactory<BaseNode.Integration.Node, Integration
         actionBodyData
       );
 
-      log.warn(
-        log.vars({
-          integration: selectedIntegration,
-          action: selectedAction,
-          versionID: runtime.getVersionID(),
-          projectID: runtime.project?._id,
-        })
-      );
+      log.warn('%o', {
+        integration: selectedIntegration,
+        action: selectedAction,
+        versionID: runtime.getVersionID(),
+        projectID: runtime.project?._id,
+      });
 
       // map result data to variables
       const mappedVariables = resultMappings(node, data);

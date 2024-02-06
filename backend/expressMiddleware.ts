@@ -1,4 +1,3 @@
-import { ExceptionMiddleware } from '@voiceflow/backend-utils';
 import VError from '@voiceflow/verror';
 import compression from 'compression';
 import timeout from 'connect-timeout';
@@ -10,7 +9,7 @@ import _isObject from 'lodash/isObject';
 
 import CONFIG from '@/config';
 import { ControllerMap, MiddlewareMap } from '@/lib';
-import log from '@/logger';
+import log, { createLogMiddleware } from '@/logger';
 
 import api from './api';
 
@@ -40,12 +39,10 @@ class ExpressMiddleware {
     app.enable('trust proxy');
     app.disable('x-powered-by');
 
-    app.use(log.logMiddleware());
-
     app.use(timeout(String(CONFIG.ERROR_RESPONSE_MS), { respond: false }));
     app.use((req, res, next) => {
       req.on('timeout', () => {
-        log.warn(`[http] response timeout ${log.vars({ requestID: req.id })}`);
+        log.warn('[http] response timeout %o', { requestID: req.id });
         res.status(VError.HTTP_STATUS.REQUEST_TIMEOUT).send('response timeout');
       });
 
@@ -65,10 +62,10 @@ class ExpressMiddleware {
       next();
     });
 
+    app.use(createLogMiddleware());
+
     // All valid routes handled here
     app.use(api(middlewares, controllers));
-
-    app.use(new ExceptionMiddleware().handleError);
   }
 }
 

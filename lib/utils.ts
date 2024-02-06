@@ -23,7 +23,7 @@ export const customAJV = (schema: Record<string, any>) => (value: any) => {
   const valid = ajv.validate(schema, value);
   if (!valid) {
     const error = new Error(ajv.errorsText());
-    log.error(`[http] [${customAJV.name}] validation error ${log.vars({ value, error })}`);
+    log.error(`[http] [${customAJV.name}] validation error %o`, { value, error });
 
     throw error;
   }

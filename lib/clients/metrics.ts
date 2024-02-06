@@ -18,7 +18,7 @@ export class Metrics extends VFMetrics.Client.Metrics {
     super({ ...config, SERVICE_NAME: 'general-runtime' });
 
     super.once('ready', ({ port, path }: VFMetrics.Client.Events['ready']) => {
-      log.info(`[metrics] exporter ready ${log.vars({ port, path })}`);
+      log.info(`[metrics] exporter ready %o`, { port, path });
     });
 
     this.counters = {
