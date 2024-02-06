@@ -168,7 +168,9 @@ export class FunctionLambdaClient {
         null,
         2
       ).substring(0, 32767)}`;
+
       this.logError(errMessage);
+
       throw new InternalServerErrorException({
         message: errMessage,
         cause: {
@@ -187,6 +189,7 @@ export class FunctionLambdaClient {
           2
         ).substring(0, 32767)}`
       );
+
       throw this.createLambdaException(body);
     }
 
