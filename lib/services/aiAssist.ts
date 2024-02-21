@@ -1,7 +1,7 @@
 import { BaseTrace, BaseUtils, Trace } from '@voiceflow/base-types';
 
 import { sanitizeSSML } from '@/lib/services/filter/utils';
-import { isIntentRequest, isTextRequest, RuntimeRequest } from '@/lib/services/runtime/types';
+import { isIntentRequest, isPathRequest, isTextRequest, RuntimeRequest } from '@/lib/services/runtime/types';
 import { Store } from '@/runtime';
 import { Context, ContextHandler } from '@/types';
 
@@ -13,8 +13,26 @@ const MAX_TURNS = 10;
 class AIAssist extends AbstractManager implements ContextHandler {
   static StorageKey = '_memory_';
 
+  static StringStorageKey = 'vf_memory';
+
   static getInput(request: RuntimeRequest) {
-    return (isIntentRequest(request) && request.payload.query) || (isTextRequest(request) && request.payload) || null;
+    if (isIntentRequest(request)) {
+      return request.payload.query;
+    }
+
+    if (isTextRequest(request)) {
+      return request.payload;
+    }
+
+    if (isPathRequest(request)) {
+      return request.payload.label ?? null;
+    }
+
+    return null;
+  }
+
+  static stringifyTranscript(messages: BaseUtils.ai.Message[]) {
+    return messages.map(({ role, content }) => `${role}: ${content.replaceAll('\n', ' ')}`).join('\n');
   }
 
   static injectOutput(variables: Store, trace: BaseTrace.TextTrace | BaseTrace.SpeakTrace) {
@@ -32,6 +50,7 @@ class AIAssist extends AbstractManager implements ContextHandler {
     }
 
     variables.set(AIAssist.StorageKey, transcript);
+    variables.set(AIAssist.StringStorageKey, AIAssist.stringifyTranscript(transcript));
   }
 
   handle = async (context: Context) => {
@@ -56,6 +75,7 @@ class AIAssist extends AbstractManager implements ContextHandler {
         variables: {
           ...context.state.variables,
           [AIAssist.StorageKey]: transcript,
+          [AIAssist.StringStorageKey]: AIAssist.stringifyTranscript(transcript),
         },
       },
     };
