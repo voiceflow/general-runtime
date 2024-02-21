@@ -32,7 +32,7 @@ class AIAssist extends AbstractManager implements ContextHandler {
   }
 
   static stringifyTranscript(messages: BaseUtils.ai.Message[]) {
-    return messages.map(({ role, content }) => `${role}: ${content.replaceAll('\n', ' ')}`).join('\n');
+    return messages.map(({ role, content }) => `${role}: ${content}`).join('\n');
   }
 
   static injectOutput(variables: Store, trace: BaseTrace.TextTrace | BaseTrace.SpeakTrace) {
