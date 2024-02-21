@@ -36,7 +36,7 @@
     "@voiceflow/voice-types": "2.9.70",
     "@voiceflow/voiceflow-types": "3.26.32",
     "ajv": "6.12.3",
-    "axios": "^0.21.1",
+    "axios": "^0.28.0",
     "compression": "^1.7.4",
     "connect-timeout": "^1.9.0",
     "cookie-parser": "^1.4.4",
