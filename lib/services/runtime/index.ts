@@ -63,7 +63,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
       }
     }
 
-    if (isPathRequest(request) && typeof request.payload?.label === 'string') {
+    if (isPathRequest(request)) {
       runtime.variables.set(VoiceflowConstants.BuiltInVariable.LAST_UTTERANCE, request.payload.label);
     }
 

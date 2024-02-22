@@ -38,7 +38,10 @@ export const isActionRequest = (request?: RuntimeRequest | null): request is Bas
   !!request && BaseRequest.isActionRequest(request);
 
 export const isPathRequest = (request?: RuntimeRequest | null): request is BaseRequest.GeneralRequest =>
-  !!request && BaseRequest.isGeneralRequest(request) && request.type.startsWith('path-');
+  !!request &&
+  BaseRequest.isGeneralRequest(request) &&
+  request.type.startsWith('path-') &&
+  typeof request.payload?.label === 'string';
 
 export const isRuntimeRequest = (request: any): request is RuntimeRequest => {
   return request === null || !!(typeof request.type === 'string' && !!request.type);
