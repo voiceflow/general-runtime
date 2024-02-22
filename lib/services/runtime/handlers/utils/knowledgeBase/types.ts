@@ -11,4 +11,5 @@ export enum CloudEnv {
   SUPERLOOP = 'superloop',
   AMAZON = 'amazon',
   KP = 'kp',
+  KEYBANK = 'keybank',
 }
