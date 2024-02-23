@@ -12,4 +12,5 @@ export enum CloudEnv {
   AMAZON = 'amazon',
   KP = 'kp',
   KEYBANK = 'keybank',
+  USAA = 'usaa',
 }
