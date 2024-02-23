@@ -1,4 +1,4 @@
-/* eslint-disable sonarjs/cognitive-complexity */
+/* eslint-disable sonarjs/cognitive-complexity, max-depth */
 import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 import axios from 'axios';
 import safeJSONStringify from 'json-stringify-safe';
@@ -8,7 +8,7 @@ import { isDeepStrictEqual } from 'util';
 import log from '@/logger';
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
-import { getUndefinedKeys, ivmExecute, vmExecute } from './utils';
+import { getUndefinedKeys, ivmExecute, objectDiff, vmExecute } from './utils';
 
 export interface CodeOptions {
   endpoint?: string | null;
@@ -50,17 +50,42 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
         // pass undefined keys explicitly because they are not sent via http JSON
         newVariableState = (await axios.post(endpoint, { ...reqData, keys: getUndefinedKeys(reqData.variables) })).data;
       } else {
-        log.warn(
-          `[CodeHandler.handle] [vm2 execution] ${log.vars({
-            workspaceID: runtime?.project?.teamID,
-            projectID: runtime?.project?._id,
-            versionID: runtime?.versionID,
-            programID: runtime?.stack?.top()?.getDiagramID(),
-            nodeID: node?.id,
-          })}`
-        );
-        // execute locally
-        newVariableState = vmExecute(reqData, testingEnv, callbacks);
+        const [vmResult, ivmResult] = await Promise.allSettled([
+          vmExecute(reqData, testingEnv, callbacks),
+          ivmExecute(reqData, callbacks, { legacyRequireFromUrl: true }),
+        ]);
+
+        if (vmResult.status === 'rejected') {
+          if (ivmResult.status === 'fulfilled') {
+            log.warn(
+              `Legacy vm2 code execution rejected when isolated-vm succeeded ${log.vars({
+                versionID: runtime.getVersionID(),
+              })}`
+            );
+          }
+
+          throw vmResult.reason;
+        }
+
+        newVariableState = vmResult.value;
+
+        if (ivmResult.status === 'rejected') {
+          log.warn(
+            `Legacy vm2 code execution succeeded when isolated-vm rejected ${log.vars({
+              versionID: runtime.getVersionID(),
+            })}`
+          );
+        } else if (!isDeepStrictEqual(vmResult.value, ivmResult.value)) {
+          const diff = objectDiff(vmResult.value, ivmResult.value);
+          log.warn(
+            `Legacy vm2 and isolated-vm code execution results are different ${log.vars({
+              versionID: runtime.getVersionID(),
+              vmResult: vmResult.value,
+              ivmResult: ivmResult.value,
+              diff,
+            })}`
+          );
+        }
       }
 
       // The changes (a diff) that the execution of this code made to the variables
