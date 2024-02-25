@@ -1,5 +1,8 @@
+import Logger from '@voiceflow/logger';
+import axios from 'axios';
 import ivm from 'isolated-vm';
 import _ from 'lodash';
+import { isDeepStrictEqual } from 'node:util';
 import requireFromUrl from 'require-from-url/sync';
 import { VM } from 'vm2';
 
@@ -117,6 +120,14 @@ export const vmExecute = (
   }, {});
 };
 
+export const remoteVMExecute = async (endpoint: string, reqData: { code: string; variables: Record<string, any> }) => {
+  const response = await axios.post<Record<string, any>>(endpoint, {
+    ...reqData,
+    keys: getUndefinedKeys(reqData.variables),
+  });
+  return response.data;
+};
+
 export const getUndefinedKeys = (variables: Record<string, unknown>) =>
   Object.keys(variables).filter((key) => variables[key] === undefined);
 
@@ -135,3 +146,27 @@ export const objectDiff = (object: Record<string, any>, base: Record<string, any
 
   return changes(object, base);
 };
+
+export const createExecutionResultLogger =
+  (log: Logger, context: Record<string, any>) =>
+  (
+    resultA: { name: string; result: PromiseSettledResult<any> },
+    resultB: { name: string; result: PromiseSettledResult<any> }
+  ) => {
+    if (resultA.result.status === 'rejected') {
+      if (resultB.result.status === 'fulfilled') {
+        log.warn(`Legacy vm2 code execution rejected when isolated-vm succeeded ${log.vars(context)}`);
+      }
+    } else if (resultB.result.status === 'rejected') {
+      log.warn(`Legacy vm2 code execution succeeded when isolated-vm rejected ${log.vars(context)}`);
+    } else if (!isDeepStrictEqual(resultA.result.value, resultB.result.value)) {
+      const diff = objectDiff(resultA.result.value, resultB.result.value);
+      log.warn(
+        `Legacy vm2 and isolated-vm code execution results are different ${log.vars({
+          ...context,
+          ...{ [resultA.name]: resultA.result.value, [resultB.name]: resultB.result.value },
+          diff,
+        })}`
+      );
+    }
+  };

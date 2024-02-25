@@ -1,6 +1,5 @@
 /* eslint-disable sonarjs/cognitive-complexity, max-depth */
 import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
-import axios from 'axios';
 import safeJSONStringify from 'json-stringify-safe';
 import _ from 'lodash';
 import { isDeepStrictEqual } from 'util';
@@ -8,7 +7,7 @@ import { isDeepStrictEqual } from 'util';
 import log from '@/logger';
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
-import { getUndefinedKeys, ivmExecute, objectDiff, vmExecute } from './utils';
+import { createExecutionResultLogger, ivmExecute, remoteVMExecute, vmExecute } from './utils';
 
 export interface CodeOptions {
   endpoint?: string | null;
@@ -46,45 +45,59 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
       // useStrictVM used for IfV2 and SetV2 to use isolated-vm
       if (useStrictVM) {
         newVariableState = await ivmExecute(reqData, callbacks);
-      } else if (endpoint) {
-        // pass undefined keys explicitly because they are not sent via http JSON
-        newVariableState = (await axios.post(endpoint, { ...reqData, keys: getUndefinedKeys(reqData.variables) })).data;
       } else {
-        const [vmResult, ivmResult] = await Promise.allSettled([
-          vmExecute(reqData, testingEnv, callbacks),
-          ivmExecute(reqData, callbacks, { legacyRequireFromUrl: true }),
-        ]);
+        // Execute code in each environment and compare results
+        // Goal is to ensure that the code execution is consistent across environments
+        //  so the remote and vm2 executors can be removed, leaving only isolated-vm
 
-        if (vmResult.status === 'rejected') {
-          if (ivmResult.status === 'fulfilled') {
-            log.warn(
-              `Legacy vm2 code execution rejected when isolated-vm succeeded ${log.vars({
-                versionID: runtime.getVersionID(),
-              })}`
-            );
+        const logExecutionResult = createExecutionResultLogger(log, { versionID: runtime.getVersionID() });
+
+        if (endpoint) {
+          const [endpointResult, ivmResult] = await Promise.allSettled([
+            remoteVMExecute(endpoint, reqData),
+            ivmExecute(reqData, callbacks, { legacyRequireFromUrl: true }),
+          ]);
+
+          // Compare remote execution result with isolated-vm execution result
+          logExecutionResult(
+            {
+              name: 'remote',
+              result: endpointResult,
+            },
+            {
+              name: 'isolated-vm',
+              result: ivmResult,
+            }
+          );
+
+          // Remote execution result is the source of truth
+          if (endpointResult.status === 'rejected') {
+            throw endpointResult.reason;
           }
+          newVariableState = endpointResult.value;
+        } else {
+          const [vmResult, ivmResult] = await Promise.allSettled([
+            vmExecute(reqData, testingEnv, callbacks),
+            ivmExecute(reqData, callbacks, { legacyRequireFromUrl: true }),
+          ]);
 
-          throw vmResult.reason;
-        }
-
-        newVariableState = vmResult.value;
-
-        if (ivmResult.status === 'rejected') {
-          log.warn(
-            `Legacy vm2 code execution succeeded when isolated-vm rejected ${log.vars({
-              versionID: runtime.getVersionID(),
-            })}`
+          // Compare vm2 result with isolated-vm execution result
+          logExecutionResult(
+            {
+              name: 'vm2',
+              result: vmResult,
+            },
+            {
+              name: 'isolated-vm',
+              result: ivmResult,
+            }
           );
-        } else if (!isDeepStrictEqual(vmResult.value, ivmResult.value)) {
-          const diff = objectDiff(vmResult.value, ivmResult.value);
-          log.warn(
-            `Legacy vm2 and isolated-vm code execution results are different ${log.vars({
-              versionID: runtime.getVersionID(),
-              vmResult: vmResult.value,
-              ivmResult: ivmResult.value,
-              diff,
-            })}`
-          );
+
+          // vm2 result is the source of truth
+          if (vmResult.status === 'rejected') {
+            throw vmResult.reason;
+          }
+          newVariableState = vmResult.value;
         }
       }
 
