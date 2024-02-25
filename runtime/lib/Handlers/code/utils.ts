@@ -139,16 +139,30 @@ export const createExecutionResultLogger =
   ) => {
     if (resultA.result.status === 'rejected') {
       if (resultB.result.status === 'fulfilled') {
-        log.warn(`Legacy vm2 code execution rejected when isolated-vm succeeded ${log.vars(context)}`);
+        log.warn(
+          `Code execution ${resultA.name} rejected when ${resultB.name} succeeded ${log.vars(context)} (${log.vars({
+            [resultA.name]: resultA.result.reason,
+          })})`
+        );
+      } else {
+        log.error(
+          `Code execution ${resultA.name} and ${resultB.name} both rejected ${log.vars(context)} (${log.vars({
+            [resultA.name]: resultA.result.reason,
+            [resultB.name]: resultB.result.reason,
+          })})`
+        );
       }
     } else if (resultB.result.status === 'rejected') {
-      log.warn(`Legacy vm2 code execution succeeded when isolated-vm rejected ${log.vars(context)}`);
+      log.warn(
+        `Code execution ${resultA.name} succeeded when ${resultB.name} rejected ${log.vars(context)} (${log.vars({
+          [resultB.name]: resultB.result.reason,
+        })})`
+      );
     } else if (!isDeepStrictEqual(resultA.result.value, resultB.result.value)) {
       log.warn(
-        `Legacy vm2 and isolated-vm code execution results are different ${log.vars({
-          ...context,
-          ...{ [resultA.name]: resultA.result.value, [resultB.name]: resultB.result.value },
-        })}`
+        `Code execution results between ${resultA.name} and ${resultB.name} are different ${log.vars(
+          context
+        )} (${log.vars({ [resultA.name]: resultA.result.value, [resultB.name]: resultB.result.value })})`
       );
     }
   };
