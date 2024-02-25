@@ -27,7 +27,27 @@
       "sourceMaps": true,
       "pauseForSourceMap": true,
       "smartStep": true,
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "killBehavior": "polite"
+    },
+
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "test:file",
+      "skipFiles": ["<node_internals>/**"],
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": [
+        "test:single",
+        "${relativeFile}",
+        "--watch",
+        "--jobs 1"
+      ],
+      "sourceMaps": true,
+      "pauseForSourceMap": true,
+      "smartStep": true,
+      "console": "integratedTerminal",
+      "killBehavior": "polite"
     },
     {
       "type": "node",
