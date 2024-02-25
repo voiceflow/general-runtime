@@ -49,7 +49,7 @@ export const ivmExecute = async (
       await Promise.all(
         Object.keys(callbacks).map(async (callbackName) => {
           await jail.set(callbackName, (...args: any[]) => {
-            callbacks[callbackName](...args);
+            return callbacks[callbackName](...args);
           });
         })
       );
@@ -131,22 +131,6 @@ export const remoteVMExecute = async (endpoint: string, reqData: { code: string;
 export const getUndefinedKeys = (variables: Record<string, unknown>) =>
   Object.keys(variables).filter((key) => variables[key] === undefined);
 
-export const objectDiff = (object: Record<string, any>, base: Record<string, any>) => {
-  const changes = (object: Record<string, any>, base: Record<string, any>) => {
-    return _.transform(
-      object,
-      (result, value, key) => {
-        if (!_.isEqual(value, base[key])) {
-          result[key] = _.isObject(value) && _.isObject(base[key]) ? changes(value, base[key]) : value;
-        }
-      },
-      {} as Record<string, any>
-    );
-  };
-
-  return changes(object, base);
-};
-
 export const createExecutionResultLogger =
   (log: Logger, context: Record<string, any>) =>
   (
@@ -160,12 +144,10 @@ export const createExecutionResultLogger =
     } else if (resultB.result.status === 'rejected') {
       log.warn(`Legacy vm2 code execution succeeded when isolated-vm rejected ${log.vars(context)}`);
     } else if (!isDeepStrictEqual(resultA.result.value, resultB.result.value)) {
-      const diff = objectDiff(resultA.result.value, resultB.result.value);
       log.warn(
         `Legacy vm2 and isolated-vm code execution results are different ${log.vars({
           ...context,
           ...{ [resultA.name]: resultA.result.value, [resultB.name]: resultB.result.value },
-          diff,
         })}`
       );
     }

@@ -41,6 +41,7 @@ describe('codeHandler unit tests', () => {
         const runtime = {
           trace: { debug: sinon.stub(), addTrace: sinon.stub() },
           debugLogging: null as unknown as DebugLogging,
+          getVersionID: () => 'version-id',
         };
         runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
         const variables = { keys: sinon.stub().returns([]), getState: sinon.stub().returns({}) };
@@ -79,6 +80,7 @@ describe('codeHandler unit tests', () => {
         const runtime = {
           trace: { debug: sinon.stub(), addTrace: sinon.stub() },
           debugLogging: null as unknown as DebugLogging,
+          getVersionID: () => 'version-id',
         };
         runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
         const variables = { keys: sinon.stub().returns([]), getState: sinon.stub().returns({}) };
@@ -109,6 +111,7 @@ describe('codeHandler unit tests', () => {
         const runtime = {
           trace: { debug: sinon.stub(), addTrace: sinon.stub() },
           debugLogging: null as unknown as DebugLogging,
+          getVersionID: () => 'version-id',
         };
         runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
         const variables = {
@@ -170,6 +173,7 @@ describe('codeHandler unit tests', () => {
         const runtime = {
           trace: { debug: sinon.stub(), addTrace: sinon.stub() },
           debugLogging: null as unknown as DebugLogging,
+          getVersionID: () => 'version-id',
         };
         runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
         const variables = {
@@ -229,6 +233,7 @@ describe('codeHandler unit tests', () => {
         const runtime = {
           trace: { debug: sinon.stub(), addTrace: sinon.stub() },
           debugLogging: null as unknown as DebugLogging,
+          getVersionID: () => 'version-id',
         };
         runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
         const variables = { merge: sinon.stub(), getState: sinon.stub().returns({ var1: 1 }) };
@@ -275,6 +280,7 @@ describe('codeHandler unit tests', () => {
         const runtime = {
           trace: { debug: sinon.stub(), addTrace: sinon.stub() },
           debugLogging: null as unknown as DebugLogging,
+          getVersionID: () => 'version-id',
         };
         runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
         const variables = {
@@ -342,6 +348,7 @@ describe('codeHandler unit tests', () => {
         const runtime = {
           trace: { debug: sinon.stub(), addTrace: sinon.stub() },
           debugLogging: null as unknown as DebugLogging,
+          getVersionID: () => 'version-id',
         };
         runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
         const variables = {
@@ -372,6 +379,7 @@ describe('codeHandler unit tests', () => {
         const runtime = {
           trace: { debug: sinon.stub(), addTrace: sinon.stub() },
           debugLogging: null as unknown as DebugLogging,
+          getVersionID: () => 'version-id',
         };
         runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
         const variables = {
@@ -436,6 +444,7 @@ describe('codeHandler unit tests', () => {
         const runtime = {
           trace: { debug: sinon.stub(), addTrace: sinon.stub() },
           debugLogging: null as unknown as DebugLogging,
+          getVersionID: () => 'version-id',
         };
         runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
         const variables = {
