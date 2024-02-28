@@ -102,6 +102,7 @@
     "@voiceflow/eslint-config": "6.1.0",
     "@voiceflow/git-branch-check": "1.4.1",
     "@voiceflow/prettier-config": "1.2.1",
+    "@voiceflow/test-common": "^1.8.1",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "commitizen": "^4.2.3",

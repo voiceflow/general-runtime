@@ -7,7 +7,7 @@ import { isDeepStrictEqual } from 'util';
 import log from '@/logger';
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
-import { createExecutionResultLogger, ivmExecute, remoteVMExecute, vmExecute } from './utils';
+import * as utils from './utils';
 
 export interface CodeOptions {
   endpoint?: string | null;
@@ -44,18 +44,21 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
       let newVariableState: Record<string, any>;
       // useStrictVM used for IfV2 and SetV2 to use isolated-vm
       if (useStrictVM) {
-        newVariableState = await ivmExecute(reqData, callbacks);
+        newVariableState = await utils.ivmExecute(reqData, callbacks);
       } else {
         // Execute code in each environment and compare results
         // Goal is to ensure that the code execution is consistent across environments
         //  so the remote and vm2 executors can be removed, leaving only isolated-vm
 
-        const logExecutionResult = createExecutionResultLogger(log, { versionID: runtime.getVersionID() });
+        const logExecutionResult = utils.createExecutionResultLogger(log, {
+          projectID: runtime.project?._id,
+          versionID: runtime.getVersionID(),
+        });
 
         if (endpoint) {
           const [endpointResult, ivmResult] = await Promise.allSettled([
-            remoteVMExecute(endpoint, reqData),
-            ivmExecute(reqData, callbacks, { legacyRequireFromUrl: true }),
+            utils.remoteVMExecute(endpoint, reqData),
+            utils.ivmExecute(reqData, callbacks, { legacyRequireFromUrl: true }),
           ]);
 
           // Compare remote execution result with isolated-vm execution result
@@ -77,8 +80,8 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
           newVariableState = endpointResult.value;
         } else {
           const [vmResult, ivmResult] = await Promise.allSettled([
-            vmExecute(reqData, testingEnv, callbacks),
-            ivmExecute(reqData, callbacks, { legacyRequireFromUrl: true }),
+            utils.vmExecute(reqData, testingEnv, callbacks),
+            utils.ivmExecute(reqData, callbacks, { legacyRequireFromUrl: true }),
           ]);
 
           // Compare vm2 result with isolated-vm execution result

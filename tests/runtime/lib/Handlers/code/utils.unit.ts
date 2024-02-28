@@ -9,7 +9,7 @@ describe('codeHandler utils unit tests', () => {
       sinon.restore();
     });
 
-    it('works correctly', () => {
+    it('works correctly', async () => {
       const data = {
         code: `
         res = 15 + 18;
@@ -17,7 +17,7 @@ describe('codeHandler utils unit tests', () => {
         `,
         variables: { res: 0, res2: 0 },
       };
-      expect(vmExecute(data, true)).to.eql({ res: 33, res2: 12 });
+      expect(await vmExecute(data, true)).to.eql({ res: 33, res2: 12 });
     });
   });
   describe('ivmExecute', () => {

@@ -1,460 +1,201 @@
-import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
+import { BaseNode, BaseProject } from '@voiceflow/base-types';
+import { DeepPartial } from '@voiceflow/common';
+import { createMockFactory, DeepMocked } from '@voiceflow/test-common';
 import axios from 'axios';
 import { expect } from 'chai';
-import safeJSONStringify from 'json-stringify-safe';
 import sinon from 'sinon';
 
+import log from '@/logger';
+import { Runtime, Store } from '@/runtime';
 import CodeHandler from '@/runtime/lib/Handlers/code';
-import * as utils from '@/runtime/lib/Handlers/code/utils';
+import * as codeHandlerUtils from '@/runtime/lib/Handlers/code/utils';
+import ProgramModel from '@/runtime/lib/Program';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
-import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
+import Trace from '@/runtime/lib/Runtime/Trace';
 
-describe('codeHandler unit tests', () => {
+describe('CodeHandler', () => {
+  const sandbox = sinon.createSandbox();
+
+  const createMock = createMockFactory({ fn: sandbox.stub });
+
+  let mockLog: sinon.SinonMock;
+  let mockRuntime: DeepMocked<Runtime>;
+  let mockNode: DeepMocked<BaseNode.Code.Node>;
+  let mockProgram: DeepMocked<ProgramModel>;
+
+  beforeEach(() => {
+    mockLog = sandbox.mock(log);
+
+    mockRuntime = createMock<Runtime>({
+      getVersionID: () => 'version-id',
+      project: createMock<DeepPartial<BaseProject.Project>>({ _id: 'project-id' }) as any,
+      trace: createMock<Trace>(),
+      debugLogging: createMock<DebugLogging>(),
+    });
+    mockNode = createMock<BaseNode.Code.Node>({
+      id: 'node-id',
+      success_id: 'success-id',
+      fail_id: 'fail-id',
+      code: 'a = 1',
+    });
+    mockProgram = createMock<ProgramModel>();
+  });
+
   afterEach(() => {
-    sinon.restore();
+    sandbox.reset();
+    sandbox.restore();
   });
 
-  describe('canHandle', () => {
-    it('false', () => {
-      const codeHandler = CodeHandler();
-      expect(codeHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
+  describe('remote executor', () => {
+    const handler = CodeHandler({ endpoint: 'http://localhost:3000' });
+
+    it('remote succeeds, ivm succeeds', async () => {
+      const variables = { a: 0 };
+      const store = new Store(variables);
+
+      mockLog.expects('warn').never();
+      sandbox.stub(axios, 'post').resolves({ data: { a: 1 } });
+
+      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
+      expect(result).to.eql(mockNode.success_id);
+      expect(store.get('a')).to.eq(1);
+      mockLog.verify();
     });
 
-    it('true', () => {
-      const codeHandler = CodeHandler({ endpoint: '' });
-      expect(codeHandler.canHandle({ code: 'foo()' } as any, null as any, null as any, null as any)).to.eql(true);
+    it('remote succeeds, ivm succeeds, differing results', async () => {
+      const variables = { a: 0 };
+      const store = new Store(variables);
+
+      mockLog.expects('warn').calledWithMatch('Code execution results between remote and isolated-vm are different');
+      sandbox.stub(axios, 'post').resolves({ data: { a: 1 } });
+      sandbox.stub(mockNode, 'code').get(() => 'a = 2');
+
+      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
+      expect(result).to.eql(mockNode.success_id);
+      expect(store.get('a')).to.eq(1);
+      mockLog.verify();
+    });
+
+    it('remote succeeds, ivm fails', async () => {
+      const variables = { a: 0 };
+      const store = new Store(variables);
+
+      mockLog.expects('warn').calledWithMatch('Code execution remote succeeded when isolated-vm rejected');
+      sandbox.stub(axios, 'post').resolves({ data: { a: 1 } });
+      sandbox.stub(mockNode, 'code').get(() => 'throw new Error("error")');
+
+      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
+      expect(result).to.eql(mockNode.success_id);
+      expect(store.get('a')).to.eq(1);
+      mockLog.verify();
+    });
+
+    it('remote fails, ivm succeeds', async () => {
+      const variables = { a: 0 };
+      const store = new Store(variables);
+
+      mockLog.expects('warn').calledWithMatch('Code execution remote rejected when isolated-vm succeeded');
+      sandbox.stub(axios, 'post').rejects(new Error('error'));
+
+      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
+      expect(result).to.eql(mockNode.fail_id);
+      mockLog.verify();
+    });
+
+    it('remote fails, ivm fails', async () => {
+      const variables = { a: 0 };
+      const store = new Store(variables);
+
+      mockLog.expects('error').calledWithMatch('Code execution remote and isolated-vm both rejected');
+      sandbox.stub(axios, 'post').rejects(new Error('error'));
+      sandbox.stub(mockNode, 'code').get(() => 'throw new Error("error")');
+
+      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
+      expect(result).to.eql(mockNode.fail_id);
+      mockLog.verify();
     });
   });
 
-  describe('handle', () => {
-    describe('catch', () => {
-      afterEach(() => {
-        sinon.restore();
-      });
+  describe('vm2 executor', () => {
+    const cb = (value: any) => value + 1;
+    const handler = CodeHandler({ callbacks: { cb } });
 
-      it('no fail_id', async () => {
-        const codeHandler = CodeHandler({ endpoint: 'foo' });
-        const err = { response: { data: { foo: 'bar' } } };
-        const axiosPost = sinon.stub(axios, 'post').throws(err);
-
-        const node = { code: 'foo()', id: 'step-id', type: BaseNode.NodeType.CODE };
-        const runtime = {
-          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
-          debugLogging: null as unknown as DebugLogging,
-          getVersionID: () => 'version-id',
-        };
-        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
-        const variables = { keys: sinon.stub().returns([]), getState: sinon.stub().returns({}) };
-        const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
-        expect(result).to.eql(null);
-        expect(axiosPost.args).to.eql([['foo', { code: node.code, variables: {}, keys: [] }]]);
-        expect(runtime.trace.debug.args).to.eql([
-          [`unable to resolve code  \n\`${safeJSONStringify(err.response.data)}\``, BaseNode.NodeType.CODE],
-        ]);
-        expect(runtime.trace.addTrace.args).to.eql([
-          [
-            {
-              type: 'log',
-              payload: {
-                kind: 'step.custom_code',
-                message: {
-                  stepID: 'step-id',
-                  componentName: RuntimeLogs.Kinds.StepLogKind.CUSTOM_CODE,
-                  changedVariables: null,
-                  error: err.response.data,
-                },
-                level: RuntimeLogs.LogLevel.ERROR,
-                timestamp: getISO8601Timestamp(),
-              },
-            },
-          ],
-        ]);
-      });
-
-      it('with fail_id', async () => {
-        const codeHandler = CodeHandler({ endpoint: 'foo' });
-        const error = {};
-        const axiosPost = sinon.stub(axios, 'post').throws(error);
-
-        const node = { code: 'foo()', fail_id: 'fail-id' };
-        const runtime = {
-          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
-          debugLogging: null as unknown as DebugLogging,
-          getVersionID: () => 'version-id',
-        };
-        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
-        const variables = { keys: sinon.stub().returns([]), getState: sinon.stub().returns({}) };
-        const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
-        expect(result).to.eql(node.fail_id);
-        expect(axiosPost.args).to.eql([['foo', { code: node.code, variables: {}, keys: [] }]]);
-        expect(runtime.trace.debug.args).to.eql([
-          [`unable to resolve code  \n\`"${error.toString()}"\``, BaseNode.NodeType.CODE],
-        ]);
-      });
+    beforeEach(() => {
+      mockNode.code = 'a = cb(a)';
     });
 
-    describe('success', () => {
-      afterEach(() => {
-        sinon.restore();
-      });
+    it('vm2 succeeds, ivm succeeds', async () => {
+      const variables = { a: 0 };
+      const store = new Store(variables);
 
-      it('with variables changes', async () => {
-        const codeHandler = CodeHandler({ endpoint: 'foo' });
-        const axiosPost = sinon.stub(axios, 'post').resolves({ data: { var1: 1.1, var2: 2.2, newVar: 5 } });
+      mockLog.expects('warn').never();
 
-        const node = {
-          code: 'var1(); var2(); var3();',
-          success_id: 'success-id',
-          id: 'step-id',
-          type: BaseNode.NodeType.CODE,
-        };
-        const runtime = {
-          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
-          debugLogging: null as unknown as DebugLogging,
-          getVersionID: () => 'version-id',
-        };
-        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
-        const variables = {
-          merge: sinon.stub(),
-          getState: sinon.stub().returns({ var1: 1, var2: 2, var3: 3 }),
-        };
-        const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
-        expect(result).to.eql(node.success_id);
-        expect(axiosPost.args).to.eql([
-          ['foo', { code: node.code, variables: { var1: 1, var2: 2, var3: 3 }, keys: [] }],
-        ]);
-        expect(runtime.trace.addTrace.args).to.eql([
-          [
-            {
-              type: 'log',
-              payload: {
-                kind: 'step.custom_code',
-                message: {
-                  stepID: node.id,
-                  componentName: RuntimeLogs.Kinds.StepLogKind.CUSTOM_CODE,
-                  changedVariables: {
-                    var1: { before: 1, after: 1.1 },
-                    var2: { before: 2, after: 2.2 },
-                    var3: { before: 3, after: null },
-                    newVar: { before: null, after: 5 },
-                  },
-                  error: null,
-                },
-                level: RuntimeLogs.LogLevel.INFO,
-                timestamp: getISO8601Timestamp(),
-              },
-            },
-          ],
-        ]);
-        expect(runtime.trace.debug.args).to.eql([
-          [
-            [
-              'evaluating code - changes:',
-              '`{var1}`: `1` => `1.1`',
-              '`{var2}`: `2` => `2.2`',
-              '`{var3}`: `3` => `undefined`',
-              '`{newVar}`: `undefined` => `5`',
-            ].join('\n'),
-            BaseNode.NodeType.CODE,
-          ],
-        ]);
-      });
-
-      it('with undefined keys', async () => {
-        const codeHandler = CodeHandler({ endpoint: 'foo' });
-        const axiosPost = sinon.stub(axios, 'post').resolves({ data: { var1: 1.1, var2: 2.2, newVar: 5 } });
-
-        const node = {
-          code: 'var1(); var2(); var3();',
-          success_id: 'success-id',
-          id: 'step-id',
-          type: BaseNode.NodeType.CODE,
-        };
-        const runtime = {
-          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
-          debugLogging: null as unknown as DebugLogging,
-          getVersionID: () => 'version-id',
-        };
-        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
-        const variables = {
-          merge: sinon.stub(),
-          getState: sinon.stub().returns({ var1: undefined, var2: undefined, var3: 3 }),
-        };
-        const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
-        expect(result).to.eql(node.success_id);
-        expect(axiosPost.args).to.eql([
-          [
-            'foo',
-            { code: node.code, variables: { var1: undefined, var2: undefined, var3: 3 }, keys: ['var1', 'var2'] },
-          ],
-        ]);
-        expect(runtime.trace.addTrace.args).to.eql([
-          [
-            {
-              type: 'log',
-              payload: {
-                kind: 'step.custom_code',
-                message: {
-                  stepID: node.id,
-                  componentName: RuntimeLogs.Kinds.StepLogKind.CUSTOM_CODE,
-                  changedVariables: {
-                    var1: { before: null, after: 1.1 },
-                    var2: { before: null, after: 2.2 },
-                    var3: { before: 3, after: null },
-                    newVar: { before: null, after: 5 },
-                  },
-                  error: null,
-                },
-                level: RuntimeLogs.LogLevel.INFO,
-                timestamp: getISO8601Timestamp(),
-              },
-            },
-          ],
-        ]);
-        expect(runtime.trace.debug.args).to.eql([
-          [
-            [
-              'evaluating code - changes:',
-              '`{var1}`: `undefined` => `1.1`',
-              '`{var2}`: `undefined` => `2.2`',
-              '`{var3}`: `3` => `undefined`',
-              '`{newVar}`: `undefined` => `5`',
-            ].join('\n'),
-            BaseNode.NodeType.CODE,
-          ],
-        ]);
-      });
-
-      it('no variables changes', async () => {
-        const codeHandler = CodeHandler({ endpoint: 'foo' });
-        const axiosPost = sinon.stub(axios, 'post').resolves({ data: { var1: 1 } });
-
-        const node = { code: 'var1();', id: 'step-id', type: BaseNode.NodeType.CODE };
-        const runtime = {
-          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
-          debugLogging: null as unknown as DebugLogging,
-          getVersionID: () => 'version-id',
-        };
-        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
-        const variables = { merge: sinon.stub(), getState: sinon.stub().returns({ var1: 1 }) };
-        const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
-        expect(result).to.eql(null);
-        expect(axiosPost.args).to.eql([['foo', { code: node.code, variables: { var1: 1 }, keys: [] }]]);
-        expect(runtime.trace.addTrace.args).to.eql([
-          [
-            {
-              type: 'log',
-              payload: {
-                kind: 'step.custom_code',
-                message: {
-                  stepID: node.id,
-                  componentName: RuntimeLogs.Kinds.StepLogKind.CUSTOM_CODE,
-                  changedVariables: {},
-                  error: null,
-                },
-                level: RuntimeLogs.LogLevel.INFO,
-                timestamp: getISO8601Timestamp(),
-              },
-            },
-          ],
-        ]);
-        expect(runtime.trace.debug.args).to.eql([['evaluating code - no variable changes', BaseNode.NodeType.CODE]]);
-      });
+      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
+      expect(result).to.eql(mockNode.success_id);
+      expect(store.get('a')).to.eq(1);
+      mockLog.verify();
     });
 
-    describe('no endpoint - local', () => {
-      afterEach(() => {
-        sinon.restore();
-      });
+    it('vm2 succeeds, ivm succeeds, differing results', async () => {
+      const variables = { a: 0 };
+      const store = new Store(variables);
 
-      it('works correctly', async () => {
-        const codeHandler = CodeHandler({ endpoint: null });
-        const vmExecuteStub = sinon.stub(utils, 'vmExecute').returns({ var1: 1.1, var2: 2.2, newVar: 5 });
+      mockLog.expects('warn').calledWithMatch('Code execution results between vm2 and isolated-vm are different');
+      sandbox.stub(codeHandlerUtils, 'ivmExecute').resolves({ a: 2 });
 
-        const node = {
-          code: 'var1(); var2(); var3();',
-          success_id: 'success-id',
-          id: 'step-id',
-          type: BaseNode.NodeType.CODE,
-        };
-        const runtime = {
-          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
-          debugLogging: null as unknown as DebugLogging,
-          getVersionID: () => 'version-id',
-        };
-        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
-        const variables = {
-          merge: sinon.stub(),
-          getState: sinon.stub().returns({ var1: 1, var2: 2, var3: 3 }),
-        };
-        const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
-        expect(result).to.eql(node.success_id);
-        expect(vmExecuteStub.args).to.eql([
-          [{ code: node.code, variables: { var1: 1, var2: 2, var3: 3 } }, false, undefined],
-        ]);
-        expect(runtime.trace.addTrace.args).to.eql([
-          [
-            {
-              type: 'log',
-              payload: {
-                kind: 'step.custom_code',
-                message: {
-                  stepID: node.id,
-                  componentName: RuntimeLogs.Kinds.StepLogKind.CUSTOM_CODE,
-                  changedVariables: {
-                    var1: { before: 1, after: 1.1 },
-                    var2: { before: 2, after: 2.2 },
-                    var3: { before: 3, after: null },
-                    newVar: { before: null, after: 5 },
-                  },
-                  error: null,
-                },
-                level: RuntimeLogs.LogLevel.INFO,
-                timestamp: getISO8601Timestamp(),
-              },
-            },
-          ],
-        ]);
-        expect(runtime.trace.debug.args).to.eql([
-          [
-            [
-              'evaluating code - changes:',
-              '`{var1}`: `1` => `1.1`',
-              '`{var2}`: `2` => `2.2`',
-              '`{var3}`: `3` => `undefined`',
-              '`{newVar}`: `undefined` => `5`',
-            ].join('\n'),
-            BaseNode.NodeType.CODE,
-          ],
-        ]);
-      });
-
-      it('exes callbacks', async () => {
-        let res = 0;
-        const callbacks = {
-          setRes: (c: number) => {
-            res = c;
-          },
-          add: (a: number, b: number) => {
-            return a + b;
-          },
-        };
-        const codeHandler = CodeHandler({ endpoint: null, callbacks, testingEnv: true });
-
-        const node = {
-          code: 'const c  = add(a, b); setRes(c);',
-          success_id: 'success-id',
-        };
-        const runtime = {
-          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
-          debugLogging: null as unknown as DebugLogging,
-          getVersionID: () => 'version-id',
-        };
-        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
-        const variables = {
-          merge: sinon.stub(),
-          getState: sinon.stub().returns({ a: 1, b: 4 }),
-        };
-        const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
-        expect(result).to.eql(node.success_id);
-        expect(res).to.eql(5);
-      });
+      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
+      expect(result).to.eql(mockNode.success_id);
+      expect(store.get('a')).to.eq(1);
+      mockLog.verify();
     });
 
-    describe('useStrictVM is true', () => {
-      afterEach(() => {
-        sinon.restore();
-      });
+    it('vm2 succeeds, ivm fails', async () => {
+      const variables = { a: 0 };
+      const store = new Store(variables);
 
-      it('works correctly', async () => {
-        const codeHandler = CodeHandler({ endpoint: null, useStrictVM: true });
-        const ivmExecuteStub = sinon.stub(utils, 'ivmExecute').resolves({ var1: 1.1, var2: 2.2, newVar: 5 });
+      mockLog.expects('warn').calledWithMatch('Code execution vm2 succeeded when isolated-vm rejected');
+      sandbox.stub(codeHandlerUtils, 'ivmExecute').rejects(new Error('error'));
 
-        const node = {
-          code: 'var1(); var2(); var3();',
-          success_id: 'success-id',
-          id: 'step-id',
-          type: BaseNode.NodeType.CODE,
-        };
-        const runtime = {
-          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
-          debugLogging: null as unknown as DebugLogging,
-          getVersionID: () => 'version-id',
-        };
-        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
-        const variables = {
-          merge: sinon.stub(),
-          getState: sinon.stub().returns({ var1: 1, var2: 2, var3: 3 }),
-        };
-        const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
-        expect(result).to.eql(node.success_id);
-        expect(ivmExecuteStub.args).to.eql([
-          [{ code: node.code, variables: { var1: 1, var2: 2, var3: 3 } }, undefined],
-        ]);
-        expect(runtime.trace.addTrace.args).to.eql([
-          [
-            {
-              type: 'log',
-              payload: {
-                kind: 'step.custom_code',
-                message: {
-                  stepID: node.id,
-                  componentName: RuntimeLogs.Kinds.StepLogKind.CUSTOM_CODE,
-                  changedVariables: {
-                    var1: { before: 1, after: 1.1 },
-                    var2: { before: 2, after: 2.2 },
-                    var3: { before: 3, after: null },
-                    newVar: { before: null, after: 5 },
-                  },
-                  error: null,
-                },
-                level: RuntimeLogs.LogLevel.INFO,
-                timestamp: getISO8601Timestamp(),
-              },
-            },
-          ],
-        ]);
-        expect(runtime.trace.debug.args).to.eql([
-          [
-            [
-              'evaluating code - changes:',
-              '`{var1}`: `1` => `1.1`',
-              '`{var2}`: `2` => `2.2`',
-              '`{var3}`: `3` => `undefined`',
-              '`{newVar}`: `undefined` => `5`',
-            ].join('\n'),
-            BaseNode.NodeType.CODE,
-          ],
-        ]);
-      });
+      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
+      expect(result).to.eql(mockNode.success_id);
+      expect(store.get('a')).to.eq(1);
+      mockLog.verify();
+    });
 
-      it('exes callbacks', async () => {
-        let res = 0;
-        const callbacks = {
-          setRes: (c: number) => {
-            res = c;
-          },
-        };
-        const codeHandler = CodeHandler({ endpoint: null, callbacks, useStrictVM: true });
+    it('vm2 fails, ivm succeeds', async () => {
+      const variables = { a: 0 };
+      const store = new Store(variables);
 
-        const node = {
-          code: 'const c  = a + b; setRes(c);',
-          success_id: 'success-id',
-        };
-        const runtime = {
-          trace: { debug: sinon.stub(), addTrace: sinon.stub() },
-          debugLogging: null as unknown as DebugLogging,
-          getVersionID: () => 'version-id',
-        };
-        runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
-        const variables = {
-          merge: sinon.stub(),
-          getState: sinon.stub().returns({ a: 1, b: 4 }),
-        };
-        const result = await codeHandler.handle(node as any, runtime as any, variables as any, null as any);
-        expect(result).to.eql(node.success_id);
-        expect(res).to.eql(5);
-      });
+      mockLog.expects('warn').calledWithMatch('Code execution vm2 rejected when isolated-vm succeeded');
+      sandbox.stub(codeHandlerUtils, 'vmExecute').rejects(new Error('error'));
+
+      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
+      expect(result).to.eql(mockNode.fail_id);
+      mockLog.verify();
+    });
+
+    it('vm2 fails, ivm fails', async () => {
+      const variables = { a: 0 };
+      const store = new Store(variables);
+
+      mockLog.expects('error').calledWithMatch('Code execution vm2 and isolated-vm both rejected');
+      sandbox.stub(mockNode, 'code').get(() => 'throw new Error("error")');
+
+      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
+      expect(result).to.eql(mockNode.fail_id);
+      mockLog.verify();
+    });
+
+    it('handles infinite loops', async () => {
+      const variables = { a: 0 };
+      const store = new Store(variables);
+
+      mockLog.expects('error').calledWithMatch('Error: Script execution timed out');
+      sandbox.stub(mockNode, 'code').get(() => 'while (true) {}');
+
+      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
+      expect(result).to.eql(mockNode.fail_id);
+      mockLog.verify();
     });
   });
 });

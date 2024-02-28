@@ -4,7 +4,7 @@ import ivm from 'isolated-vm';
 import _ from 'lodash';
 import { isDeepStrictEqual } from 'node:util';
 import requireFromUrl from 'require-from-url/sync';
-import { VM } from 'vm2';
+import vm2 from 'vm2';
 
 import Store from '@/runtime/lib/Runtime/Store';
 
@@ -82,13 +82,13 @@ export const ivmExecute = async (
   }
 };
 
-export const vmExecute = (
+export const vmExecute = async (
   data: { code: string; variables: Record<string, any> },
   testingEnv?: boolean | undefined /* set to true when running in testing env */,
   callbacks?: Record<string, (...args: any) => any>
 ) => {
   const testingEnvValue = testingEnv ?? false;
-  const vm = new VM({
+  const vm = new vm2.VM({
     timeout: 1000,
     sandbox: {
       Promise: null,
@@ -99,15 +99,18 @@ export const vmExecute = (
   });
 
   const clearContext = `
-          (function() {
-            Function = undefined;
-            const keys = Object.getOwnPropertyNames(this).concat(['constructor']);
-            keys.forEach((key) => {
-              const item = this[key];
-              if (!item || typeof item.constructor !== 'function') return;
-              this[key].constructor = undefined;
-            });
-          })();`;
+    (function() {
+      Function = undefined;
+      if (this != null) {
+        const keys = Object.getOwnPropertyNames(this).concat(['constructor']);
+        keys.forEach((key) => {
+          const item = this[key];
+          if (!item || typeof item.constructor !== 'function') return;
+          this[key].constructor = undefined;
+        });
+      }
+    })();
+  `;
 
   vm.run(`${testingEnvValue ? '' : clearContext} ${data.code}`);
 
