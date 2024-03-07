@@ -13,4 +13,6 @@ export enum CloudEnv {
   KP = 'kp',
   KEYBANK = 'keybank',
   USAA = 'usaa',
+  MATTEL = 'mattel',
+  REDVENTURES = 'redventures',
 }
