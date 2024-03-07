@@ -32,6 +32,8 @@ class LocalDataAPI<
 
   public getProject = async () => this.project;
 
+  public getVersionPublishing = async () => this.version.platformData?.publishing || {};
+
   public getKBDocuments = async () => this.project.knowledgeBase?.documents || {};
 
   public hasKBDocuments = async () => Object.keys(this.project.knowledgeBase?.documents || {}).length > 0;

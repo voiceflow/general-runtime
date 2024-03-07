@@ -70,6 +70,21 @@ class MongoDataAPI<
     return shallowObjectIdToString(version);
   };
 
+  public getVersionPublishing = async (versionID: string): Promise<V['platformData']['publishing']> => {
+    const version = await this.client.db.collection(this.versionsCollection).findOne(
+      { _id: new ObjectId(versionID) },
+      {
+        projection: {
+          'platformData.publishing': 1,
+        },
+      }
+    );
+
+    if (!version) throw new Error(`Version not found: ${versionID}`);
+
+    return version.platformData?.publishing ?? {};
+  };
+
   public getKBDocuments = async (
     projectID: string,
     documentIDs: string[]

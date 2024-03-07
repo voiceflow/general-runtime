@@ -15,6 +15,8 @@ export interface DataAPI<
 
   getProject(projectID: string): Promise<PJ>;
 
+  getVersionPublishing(versionID: string): Promise<V['platformData']['publishing']>;
+
   getKBDocuments(
     projectID: string,
     documentIDs: string[]

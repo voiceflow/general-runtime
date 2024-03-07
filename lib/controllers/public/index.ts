@@ -50,9 +50,7 @@ class PublicController extends AbstractController {
   async getPublishing(req: Request<{ userID: string }, never, { versionID: string }>) {
     const api = await this.services.dataAPI.get();
 
-    const version = await api.getVersion(req.headers.versionID);
-
-    return version.platformData.publishing || {};
+    return api.getVersionPublishing(req.headers.versionID);
   }
 }
 
