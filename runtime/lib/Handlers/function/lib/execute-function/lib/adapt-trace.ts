@@ -86,11 +86,11 @@ const adaptAction = (action: SimpleAction): BaseRequest.Action.BaseAction => {
   };
 };
 
-const adaptButton = (button: SimpleButton): BaseRequest.GeneralRequestButton => {
+const adaptButton = (button: SimpleButton): BaseRequest.ActionRequestButton => {
   return {
     name: button.name,
     request: {
-      type: 'action',
+      type: BaseRequest.RequestType.ACTION,
       payload: {
         label: button.name,
         actions: button.payload.actions.map((act) => adaptAction(act)),
