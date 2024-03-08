@@ -90,7 +90,7 @@ const adaptButton = (button: SimpleButton): BaseRequest.GeneralRequestButton => 
   return {
     name: button.name,
     request: {
-      type: `function-request-${button.name}`,
+      type: 'action',
       payload: {
         label: button.name,
         actions: button.payload.actions.map((act) => adaptAction(act)),
