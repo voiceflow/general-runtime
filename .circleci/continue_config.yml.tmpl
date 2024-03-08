@@ -42,7 +42,7 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@dev:f875c70d3038b1c22eada6318695c4abbd7c6e3d
+  vfcommon: voiceflow/common@dev:ce132e71306600a02150d85646e60ce5001d26a9
   sonarcloud: sonarsource/sonarcloud@2.0.0
 
 executors:
@@ -69,13 +69,12 @@ jobs:
           image_tag: build
           target: build
           builder: tmp-genrun
+          enable_cache_to: true
           pre_steps:
             - run: |
                 BRANCH="${CIRCLE_BRANCH//\//-}"
                 NODE_VERSION=$(cat package.json | jq -r .volta.node | sed -E "s/^([0-9]+)(\.[0-9]+)?.*$/\1\2/g")
                 cat - \<<EOF >/tmp/vf-staged_buildx-cache_from_to.env_var
-                  EXTRA_BUILD_ARGS+=(--cache-from=type=registry,ref=<< pipeline.parameters.container-image-url >>:test-ci-cache-build)
-                  EXTRA_BUILD_ARGS+=(--cache-from=type=registry,ref=<< pipeline.parameters.container-image-url >>:"test-ci-cache-build-${BRANCH-}")
                   EXTRA_BUILD_ARGS+=(--build-arg NODE_VERSION="${NODE_VERSION:-}")
                 EOF
       - run:
@@ -106,30 +105,26 @@ jobs:
           image_repo: << pipeline.parameters.container-image-url >>
           target: "deps"
           builder: tmp-genrun
-          pre_steps:
-            - run: |
-                BRANCH="${CIRCLE_BRANCH//\//-}"
-                cat - \<<EOF >/tmp/vf-staged_buildx-cache_from_to.env_var
-                EXTRA_BUILD_ARGS+=(--cache-from=type=registry,ref=<< pipeline.parameters.container-image-url >>:test-ci-cache-deps)
-                EXTRA_BUILD_ARGS+=(--cache-from=type=registry,ref=<< pipeline.parameters.container-image-url >>:"test-ci-cache-deps-${BRANCH-}")
-                EXTRA_BUILD_ARGS+=(--cache-to=mode=max,image-manifest=true,oci-mediatypes=true,compression=zstd,compression-level=22,type=registry,ref=<< pipeline.parameters.container-image-url >>:"test-ci-cache-deps-${BRANCH-}")
-                EOF
-          post_steps:
-            - run: rm /tmp/vf-staged_buildx-cache_from_to.env_var
+          enable_cache_to: true
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
-          image_tag: "build"
           target: "build"
           builder: tmp-genrun
+          enable_cache_to: true
           pre_steps:
-            - run: |
-                BRANCH="${CIRCLE_BRANCH//\//-}"
-                cat - \<<EOF >/tmp/vf-staged_buildx-cache_from_to.env_var
-                EXTRA_BUILD_ARGS+=(--cache-from=type=registry,ref=<< pipeline.parameters.container-image-url >>:"test-ci-cache-deps-${BRANCH-}")
-                EXTRA_BUILD_ARGS+=(--cache-from=type=registry,ref=<< pipeline.parameters.container-image-url >>:test-ci-cache-build)
-                EXTRA_BUILD_ARGS+=(--cache-from=type=registry,ref=<< pipeline.parameters.container-image-url >>:"test-ci-cache-build-${BRANCH-}")
-                EXTRA_BUILD_ARGS+=(--cache-to=image-manifest=true,oci-mediatypes=true,compression=zstd,compression-level=22,type=registry,ref=<< pipeline.parameters.container-image-url >>:"test-ci-cache-build-${BRANCH-}")
-                EOF
+            - run:
+                name: Add extra build args for buildx
+                command: |
+                  # TODO: single location for naming conventions
+                  if [[ -z "$CIRCLE_BRANCH" && -n "$CIRCLE_TAG" ]]; then
+                      BRANCH_NAME="master"
+                  else
+                      BRANCH_NAME="${CIRCLE_BRANCH//[^[:alnum:]]/-}" # Change all non alphanumeric characters to -
+                  fi
+                  IMAGE_CACHE_TAG_BASE="<< pipeline.parameters.container-image-url >>:cache-${BRANCH_NAME-}"
+                  cat - \<<EOF >/tmp/vf-staged_buildx-cache_from_to.env_var
+                    EXTRA_BUILD_ARGS+=(--cache-from=type=registry,ref="${IMAGE_CACHE_TAG_BASE-}-deps")
+                  EOF
           post_steps:
             - run: rm /tmp/vf-staged_buildx-cache_from_to.env_var
 
