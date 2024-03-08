@@ -18,10 +18,6 @@ import { NextCommand } from './runtime-command/next-command.dto';
 import { OutputVarsCommand } from './runtime-command/output-vars-command.dto';
 import { TraceCommand } from './runtime-command/trace-command.dto';
 
-const utilsObj = {
-  replaceVariables,
-};
-
 function applyOutputCommand(
   command: OutputVarsCommand,
   runtime: Runtime,
@@ -52,7 +48,17 @@ function applyNextCommand(command: NextCommand, paths: FunctionCompiledInvocatio
   return null;
 }
 
-export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsObj> = (utils) => ({
+function resolveVariable(value: string, variables: Record<string, unknown>) {
+  const trimmedValue = value.trim();
+  const onlyVariableRegex = /^{[A-Z_a-z]\w*}$/;
+  if (onlyVariableRegex.test(trimmedValue)) {
+    const variableName = trimmedValue.substring(1, trimmedValue.length - 1);
+    return variables[variableName];
+  }
+  return replaceVariables(value, variables);
+}
+
+export const FunctionHandler: HandlerFactory<FunctionCompiledNode> = () => ({
   canHandle: (node) => node.type === NodeType.FUNCTION,
 
   handle: async (node, runtime, variables): Promise<string | null> => {
@@ -62,7 +68,7 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
       const resolvedInputMapping = Object.entries(invocation.inputVars).reduce((acc, [varName, value]) => {
         return {
           ...acc,
-          [varName]: utils.replaceVariables(value, variables.getState()),
+          [varName]: resolveVariable(value, variables.getState()),
         };
       }, {});
 
@@ -101,4 +107,4 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
   },
 });
 
-export default () => FunctionHandler(utilsObj);
+export default () => FunctionHandler();
