@@ -42,7 +42,7 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@{{ .values.common_orb_version }}
+  vfcommon: voiceflow/common@dev:f875c70d3038b1c22eada6318695c4abbd7c6e3d
   sonarcloud: sonarsource/sonarcloud@2.0.0
 
 executors:
@@ -52,25 +52,86 @@ executors:
 
 jobs:
   test:
-    executor: vfcommon/code-test-executor
+    executor: vfcommon/code-test-executor-node-20
     steps:
       - checkout
-      - vfcommon/install_node_modules:
-          avoid_post_install_scripts: false
-      - attach_workspace:
-          at: ~/voiceflow
       - vfcommon/setup_dynamodb
-      - vfcommon/lint_report:
-          run_in_background: true
-      - vfcommon/lint_dockerfile:
-          run_in_background: true
-      - vfcommon/dependency_tests:
-          run_in_background: true
-      - vfcommon/unit_tests:
-          run_in_background: true
-      - vfcommon/integration_tests:
-          wait: true
-      - sonarcloud/scan
+      - vfcommon/docker_login
+      - setup_remote_docker:
+          version: default
+      - run:
+          name: Lint Dockerfile
+          # hadolint comes from the executor image and is outdated
+          command: hadolint ./Dockerfile
+          background: true
+      - vfcommon/staged_buildx:
+          image_repo: << pipeline.parameters.container-image-url >>
+          image_tag: build
+          target: build
+          builder: tmp-genrun
+          pre_steps:
+            - run: |
+                BRANCH="${CIRCLE_BRANCH//\//-}"
+                NODE_VERSION=$(cat package.json | jq -r .volta.node | sed -E "s/^([0-9]+)(\.[0-9]+)?.*$/\1\2/g")
+                cat - \<<EOF >/tmp/vf-staged_buildx-cache_from_to.env_var
+                  EXTRA_BUILD_ARGS+=(--cache-from=type=registry,ref=<< pipeline.parameters.container-image-url >>:test-ci-cache-build)
+                  EXTRA_BUILD_ARGS+=(--cache-from=type=registry,ref=<< pipeline.parameters.container-image-url >>:"test-ci-cache-build-${BRANCH-}")
+                  EXTRA_BUILD_ARGS+=(--build-arg NODE_VERSION="${NODE_VERSION:-}")
+                EOF
+      - run:
+          name: Integration tests
+          command: |
+            # Get the container id for kubernetes/pause, which is used as the shared network with secondary container services
+            K8S_ID="$(docker container ls --format '{{`{{ .Image }} | {{ .ID }}`}}' | grep 'pause' | sed -E 's/^.* | (.*)$/\1/g' )"
+            docker run \
+              --rm -i \
+              --network="container:${K8S_ID-}" \
+              --entrypoint /bin/sh \
+              << pipeline.parameters.container-image-url >>:build \<<EOF
+              echo '127.0.0.1 creator-app.test.e2e postgres.test.e2e redis.test.e2e localstack.test.e2e mongodb.test.e2e server-data-api.test.e2e creator-api.test.e2e admin-api.test.e2e auth-api.test.e2e analytics-api.test.e2e billing-api.test.e2e identity-api.test.e2e luis-authoring-service.test.e2e integrations.test.e2e custom-api.test.e2e canvas-export.test.e2e alexa-runtime.test.e2e alexa-service.test.e2e general-runtime.test.e2e general-service.test.e2e google-runtime.test.e2e google-service.test.e2e realtime.test.e2e ingest.test.e2e event-ingestion-service.test.e2e billing-api.test.e2e identity-api.test.e2e auth-api.test.e2e runtime-api.test.e2e analytics-api.test.e2e admin-api.test.e2e test-api.test.e2e' >> /etc/hosts
+              # Passthrough secrets
+              export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+              export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+              yarn test:integration
+            EOF
+  install_and_buildx:
+    executor: vfcommon/node-executor-node-20
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - vfcommon/docker_login
+      - vfcommon/authenticate_npm
+      - vfcommon/staged_buildx:
+          image_repo: << pipeline.parameters.container-image-url >>
+          target: "deps"
+          builder: tmp-genrun
+          pre_steps:
+            - run: |
+                BRANCH="${CIRCLE_BRANCH//\//-}"
+                cat - \<<EOF >/tmp/vf-staged_buildx-cache_from_to.env_var
+                EXTRA_BUILD_ARGS+=(--cache-from=type=registry,ref=<< pipeline.parameters.container-image-url >>:test-ci-cache-deps)
+                EXTRA_BUILD_ARGS+=(--cache-from=type=registry,ref=<< pipeline.parameters.container-image-url >>:"test-ci-cache-deps-${BRANCH-}")
+                EXTRA_BUILD_ARGS+=(--cache-to=mode=max,image-manifest=true,oci-mediatypes=true,compression=zstd,compression-level=22,type=registry,ref=<< pipeline.parameters.container-image-url >>:"test-ci-cache-deps-${BRANCH-}")
+                EOF
+          post_steps:
+            - run: rm /tmp/vf-staged_buildx-cache_from_to.env_var
+      - vfcommon/staged_buildx:
+          image_repo: << pipeline.parameters.container-image-url >>
+          image_tag: "build"
+          target: "build"
+          builder: tmp-genrun
+          pre_steps:
+            - run: |
+                BRANCH="${CIRCLE_BRANCH//\//-}"
+                cat - \<<EOF >/tmp/vf-staged_buildx-cache_from_to.env_var
+                EXTRA_BUILD_ARGS+=(--cache-from=type=registry,ref=<< pipeline.parameters.container-image-url >>:"test-ci-cache-deps-${BRANCH-}")
+                EXTRA_BUILD_ARGS+=(--cache-from=type=registry,ref=<< pipeline.parameters.container-image-url >>:test-ci-cache-build)
+                EXTRA_BUILD_ARGS+=(--cache-from=type=registry,ref=<< pipeline.parameters.container-image-url >>:"test-ci-cache-build-${BRANCH-}")
+                EXTRA_BUILD_ARGS+=(--cache-to=image-manifest=true,oci-mediatypes=true,compression=zstd,compression-level=22,type=registry,ref=<< pipeline.parameters.container-image-url >>:"test-ci-cache-build-${BRANCH-}")
+                EOF
+          post_steps:
+            - run: rm /tmp/vf-staged_buildx-cache_from_to.env_var
 
 
 workflows:
@@ -82,20 +143,15 @@ workflows:
   test:
   {{- end }}
     jobs:
-      - vfcommon/install_and_build:
+      - install_and_buildx:
           <<: *slack-fail-post-step
           context: dev-test
-          avoid_post_install_scripts: false
-          executor: node-16-20-executor
-          request_remote_docker: false
-          run_in_container: false
-          ## container_image_to_build: cimg/node:16.20
 
       - test:
           <<: *slack-fail-post-step
           context: dev-test
           requires:
-            - vfcommon/install_and_build
+            - install_and_buildx
           filters:
             branches:
               ignore:
@@ -106,7 +162,7 @@ workflows:
           <<: *slack-fail-post-step
           context: dev-test
           requires:
-            - vfcommon/install_and_build
+            - install_and_buildx
             - test
           filters:
             branches:
@@ -116,11 +172,14 @@ workflows:
           context: dev-test
           image_repo: << pipeline.parameters.container-image-url >>
           component: << pipeline.parameters.track-component >>
+          use_buildkit: true
+          builder_name: tmp-genrun
+          remote_docker_version: default
           requires:
             {{- if eq .values.branch "master" }}
             - test
             {{- end }}
-            - vfcommon/install_and_build
+            - install_and_buildx
             - vfcommon/release
           filters:
             branches:
@@ -173,7 +232,7 @@ workflows:
           context: dev-test
           name: sync-branches-bugfix
           requires:
-            - vfcommon/install_and_build
+            - install_and_buildx
             - test
             - vfcommon/release
           filters:
@@ -187,7 +246,7 @@ workflows:
           context: dev-test
           name: sync-branches-break-glass
           requires:
-            - vfcommon/install_and_build
+            - install_and_buildx
           filters:
             branches:
               only: master
