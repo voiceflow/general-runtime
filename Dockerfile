@@ -1,4 +1,4 @@
-ARG NODE_VERSION=16.20
+ARG NODE_VERSION=20.10
 FROM node:${NODE_VERSION}-alpine as base
 WORKDIR /src
 
@@ -56,4 +56,4 @@ COPY --link --from=prune /src/build/ ./
 COPY --link --from=prune /src/node_modules ./node_modules/
 
 ENTRYPOINT [ "dumb-init" ]
-CMD ["node", "start.js"]
+CMD ["node", "--no-node-snapshot", "start.js"]
