@@ -45,10 +45,6 @@ orbs:
   vfcommon: voiceflow/common@dev:ce132e71306600a02150d85646e60ce5001d26a9
   sonarcloud: sonarsource/sonarcloud@2.0.0
 
-executors:
-  node-16-20-executor:
-    docker:
-      - image: cimg/node:16.20
 
 jobs:
   test:
@@ -64,6 +60,15 @@ jobs:
           # hadolint comes from the executor image and is outdated
           command: hadolint ./Dockerfile
           background: true
+      - vfcommon/staged_buildx:
+          image_repo: << pipeline.parameters.container-image-url >>
+          target: checks
+          no_cache_filter: checks
+          builder: tmp-genrun
+          output: type=local,dest=ci-reports
+          post_steps:
+            - store_test_results:
+                path: ci-reports
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
           image_tag: build
