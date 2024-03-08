@@ -258,19 +258,6 @@ class Runtime<
     };
   }
 
-  public async hydrateStack(): Promise<void> {
-    await this.injectBaseProgram();
-
-    await Promise.all(
-      this.stack.getFrames().map(async (frame) => {
-        if (frame.isHydrated()) return;
-
-        const program = await this.getProgram(this.getVersionID(), frame.getDiagramID());
-        frame.hydrate(program);
-      })
-    );
-  }
-
   public getHandlers<T extends Handler = Handler>(): T[] {
     return this.handlers as T[];
   }
