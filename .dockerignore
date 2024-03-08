@@ -1,9 +1,20 @@
-.git
-.gitignore
+/.git
+/.gitignore
 
-node_modules
-log/
-tests/
-certs/
-coverage/
-tests/
+/node_modules
+/log
+/certs
+
+/build
+
+# dev files
+/tags*
+
+# Yarn
+/.pnp.*
+/.yarn
+!/.yarn/patches
+!/.yarn/plugins
+!/.yarn/releases
+!/.yarn/sdks
+!/.yarn/versions
