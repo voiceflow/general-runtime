@@ -1,10 +1,12 @@
-import { BaseModels, BaseRequest, Version } from '@voiceflow/base-types';
+import { BaseRequest } from '@voiceflow/base-types';
+import { PrototypeModel, Version } from '@voiceflow/dtos';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 
-import NLUManager, { NLUGatewayPredictResponse, utils as defaultUtils } from '@/lib/services/nlu';
+import { NLUIntentPrediction } from '@/lib/services/classification/interfaces/nlu.interface';
+import NLUManager from '@/lib/services/nlu';
 import * as NLC from '@/lib/services/nlu/nlc';
 import { VersionTag } from '@/types';
 
@@ -23,27 +25,23 @@ describe('nlu manager unit tests', () => {
     sinon.restore();
   });
 
-  const model: BaseModels.PrototypeModel = {
+  const model: PrototypeModel = {
     slots: [],
     intents: [],
   };
+  const orderPizzaIntent = { name: 'Order Pizza', confidence: 1 };
   const tag = VersionTag.PRODUCTION;
   const locale = VoiceflowConstants.Locale.DE_DE;
   const query = 'I would like a large sofa pizza with extra chair';
-  const nlp: BaseModels.Project.PrototypeNLP = {
-    type: BaseModels.ProjectNLP.LUIS,
-    appID: 'nlp-app-id',
-    resourceID: 'nlp-resource-id',
-  };
-  const version: Pick<Version.Version, '_id' | 'projectID'> = {
+  const version: Pick<Version, '_id' | 'projectID' | 'prototype'> = {
     _id: 'version-id',
     projectID: 'project-id',
+    prototype: {
+      model,
+    } as Version['prototype'],
   };
   const teamID = 10;
   const project = {
-    prototype: {
-      nlp,
-    },
     liveVersion: '1',
     devVersion: '2',
     teamID,
@@ -78,17 +76,18 @@ describe('nlu manager unit tests', () => {
       confidence: 1,
       query,
       intent: {
-        name: 'Order Pizza',
+        name: orderPizzaIntent.name,
       },
       entities: [],
     },
   };
 
-  const nluGatewayPrediction: NLUGatewayPredictResponse = {
+  const nluGatewayPrediction: NLUIntentPrediction = {
     utterance: query,
-    predictedIntent: 'Order Pizza',
+    predictedIntent: orderPizzaIntent.name,
     predictedSlots: [],
     confidence: 1,
+    intents: [orderPizzaIntent],
   };
 
   describe('handle', () => {
@@ -108,7 +107,7 @@ describe('nlu manager unit tests', () => {
           createClient: sinon.stub().returns(runtimeClient),
         },
       };
-      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
+      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
 
       const context = {
         request: oldRequest,
@@ -142,7 +141,7 @@ describe('nlu manager unit tests', () => {
           createClient: sinon.stub().returns(runtimeClient),
         },
       };
-      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
+      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
 
       const context = {
         request: oldRequest,
@@ -183,7 +182,7 @@ describe('nlu manager unit tests', () => {
           post: sinon.stub(),
         },
       };
-      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
+      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
 
       const context = {
         request: oldRequest,
@@ -207,9 +206,13 @@ describe('nlu manager unit tests', () => {
           post: sinon.stub(),
         },
       };
-      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
+      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
 
-      const context = { request: oldRequest, state: { foo: 'bar' }, versionID: 'version-id' };
+      const context = {
+        request: oldRequest,
+        state: { foo: 'bar' },
+        versionID: 'version-id',
+      };
       expect(await nlu.handle(context as any)).to.eql(context);
     });
 
@@ -219,7 +222,7 @@ describe('nlu manager unit tests', () => {
         payload: '',
       };
 
-      const nlu = new NLUManager({ utils: { ...defaultUtils } } as any, config as any);
+      const nlu = new NLUManager({ utils: {} } as any, config as any);
 
       const context = { request: oldRequest };
 
@@ -244,7 +247,7 @@ describe('nlu manager unit tests', () => {
         payload: query,
       };
 
-      const nlu = new NLUManager({ utils: { ...defaultUtils } } as any, config as any);
+      const nlu = new NLUManager({ utils: {} } as any, config as any);
 
       const context = {
         request: oldRequest,
@@ -269,8 +272,13 @@ describe('nlu manager unit tests', () => {
           post: sinon.stub().resolves({ data: {} }),
         },
       };
-      const arg = { model: 'model-val', locale: 'locale-val', query: 'query-val', projectID: 'projectID' } as any;
-      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
+      const arg = {
+        model: 'model-val',
+        locale: 'locale-val',
+        query: 'query-val',
+        projectID: 'projectID',
+      } as any;
+      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
       sinon.stub(NLC, 'handleNLCCommand').returns(nlcMatchedIntent as any);
 
       const result = await nlu.predict(arg);
@@ -284,13 +292,12 @@ describe('nlu manager unit tests', () => {
           post: sinon.stub().resolves({ data: nluGatewayPrediction }),
         },
       };
-      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
+      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
 
       const arg: Parameters<typeof nlu.predict>[0] = {
         model: { key: 'value' } as any,
         locale: VoiceflowConstants.Locale.EN_US,
         query: 'query-val',
-        nlp,
         tag: VersionTag.DEVELOPMENT,
       };
 
@@ -307,11 +314,10 @@ describe('nlu manager unit tests', () => {
           post: sinon.stub().resolves({ data: nluGatewayPrediction }),
         },
       };
-      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
+      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
 
       const arg: Parameters<typeof nlu.predict>[0] = {
         query: 'query-val',
-        nlp,
         tag: VersionTag.DEVELOPMENT,
       };
 
@@ -328,11 +334,10 @@ describe('nlu manager unit tests', () => {
           post: sinon.stub().resolves({ data: undefined }),
         },
       };
-      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
+      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
 
       const arg: Parameters<typeof nlu.predict>[0] = {
         query: 'query-val',
-        nlp,
         tag: VersionTag.DEVELOPMENT,
       };
       sinon.stub(NLC, 'handleNLCCommand').returns(nlcMatchedIntent as any);
@@ -346,12 +351,11 @@ describe('nlu manager unit tests', () => {
           post: sinon.stub().resolves({ data: undefined }),
         },
       };
-      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
+      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
       const arg: Parameters<typeof nlu.predict>[0] = {
         model: { key: 'value' } as any,
         locale: VoiceflowConstants.Locale.EN_US,
         query: 'query-val',
-        nlp,
         tag: VersionTag.DEVELOPMENT,
       };
       const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand').returns(noneIntent as any);
@@ -367,11 +371,10 @@ describe('nlu manager unit tests', () => {
         },
       };
 
-      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
+      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
 
       const arg: Parameters<typeof nlu.predict>[0] = {
         query: 'query-val',
-        nlp,
         tag: VersionTag.DEVELOPMENT,
       };
 
@@ -389,11 +392,10 @@ describe('nlu manager unit tests', () => {
         },
       };
 
-      const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
+      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
 
       const arg: Parameters<typeof nlu.predict>[0] = {
         query,
-        nlp: undefined,
         tag,
         model,
         locale,

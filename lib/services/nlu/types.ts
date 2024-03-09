@@ -33,4 +33,5 @@ export interface PredictProps {
   excludeFilteredEntities?: boolean;
   nluSettings?: BaseModels.Project.NLUSettings;
   trace?: BaseTrace.AnyTrace[];
+  intents: { name: string; description?: string }[];
 }
