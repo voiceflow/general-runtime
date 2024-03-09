@@ -1,7 +1,8 @@
 import 'core-js';
 import 'regenerator-runtime/runtime';
-import './tracer';
 
+// temporarily remove tracer to test memory leak
+// import './tracer';
 import { ServiceManager } from './backend';
 import config from './config';
 import log from './logger';
