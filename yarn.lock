@@ -4505,12 +4505,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/dtos@npm:1.30.0":
-  version: 1.30.0
-  resolution: "@voiceflow/dtos@npm:1.30.0"
+"@voiceflow/default-prompt-wrappers@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@voiceflow/default-prompt-wrappers@npm:1.1.0"
+  checksum: 246b62757cc5e073bc00cc7b73072c3deeab66ef139328d64ffd963b47dbc5a2b1f3529e25a48707faa90695bd07024329363a990900f3eb0f2b8f4aaed50dd2
+  languageName: node
+  linkType: hard
+
+"@voiceflow/dtos@file:.yalc/@voiceflow/dtos::locator=%40voiceflow%2Fgeneral-runtime%40workspace%3A.":
+  version: 1.47.0
+  resolution: "@voiceflow/dtos@file:.yalc/@voiceflow/dtos#.yalc/@voiceflow/dtos::hash=8e25af&locator=%40voiceflow%2Fgeneral-runtime%40workspace%3A."
+  dependencies:
+    "@voiceflow/internal": 3.2.3
   peerDependencies:
     zod: ^3.20.0
-  checksum: f1260a067a13391941029d7b4585a6816122c97f822e5a6c359e4dcb63fc8048ea7f4a073275d812386123fe77ef76021a39096e5bfde67c2047caab463c80fa
+  checksum: 616706a5364045c38636a707a4acdf70aaae21f7450a4e781954687628e2cb9609d8728ec0f9cdb80109655e00a04b8626aa542934a0384c72cc02fbdc2d0204
   languageName: node
   linkType: hard
 
@@ -4640,7 +4649,8 @@ __metadata:
     "@voiceflow/chat-types": 2.13.104
     "@voiceflow/commitlint-config": 2.0.0
     "@voiceflow/common": 8.2.8
-    "@voiceflow/dtos": 1.30.0
+    "@voiceflow/default-prompt-wrappers": ^1.1.0
+    "@voiceflow/dtos": "file:.yalc/@voiceflow/dtos"
     "@voiceflow/eslint-config": 6.1.0
     "@voiceflow/event-ingestion-service": 1.5.1
     "@voiceflow/exception": ^1.5.1
@@ -6439,9 +6449,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001267, caniuse-lite@npm:^1.0.30001332":
-  version: 1.0.30001442
-  resolution: "caniuse-lite@npm:1.0.30001442"
-  checksum: c1bff65bd4f53da2d288e7f55be40706ee0119b983eae5a9dcc884046990476891630aef72d708f7989f8f1964200c44e4c37ea40deecaa2fb4a480df23e6317
+  version: 1.0.30001600
+  resolution: "caniuse-lite@npm:1.0.30001600"
+  checksum: 1aae03be0e9f96163e88b9305531ef8db0e01f224aff545c61a32ce0b0ca323e22531bf680bacac3e34f98e23f71ac31a21b328fa0fcbbecea65a2c2638c70c4
   languageName: node
   linkType: hard
 
