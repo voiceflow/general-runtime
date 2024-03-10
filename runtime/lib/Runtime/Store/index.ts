@@ -1,5 +1,6 @@
 import { AnyRecord } from '@voiceflow/base-types';
-import produce, { Draft } from 'immer';
+import type { Draft } from 'immer';
+import { produce } from 'immer';
 
 export type State = Readonly<AnyRecord>;
 

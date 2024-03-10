@@ -4511,7 +4511,7 @@ __metadata:
     html-parse-stringify: 3.0.1
     http-status: ^1.4.2
     husky: ^4.3.8
-    immer: ^9.0.6
+    immer: 10.0.4
     ioredis: ^4.22.0
     ip-range-check: ^0.2.0
     isolated-vm: ^4.5.0
@@ -10211,6 +10211,13 @@ __metadata:
   version: 3.0.6
   resolution: "immediate@npm:3.0.6"
   checksum: f9b3486477555997657f70318cc8d3416159f208bec4cca3ff3442fd266bc23f50f0c9bd8547e1371a6b5e82b821ec9a7044a4f7b944798b25aa3cc6d5e63e62
+  languageName: node
+  linkType: hard
+
+"immer@npm:10.0.4":
+  version: 10.0.4
+  resolution: "immer@npm:10.0.4"
+  checksum: 8c69cad9adde7296b6857aadc0837b792840d46d5b5759002cfc168abe58815bd5b944a9533a03df4738d6ce3dc918cc0a88437324fd71e1fcbd2e77273c39f0
   languageName: node
   linkType: hard
 

@@ -51,7 +51,7 @@
     "form-data": "3.0.0",
     "helmet": "^4.6.0",
     "html-parse-stringify": "3.0.1",
-    "immer": "^9.0.6",
+    "immer": "10.0.4",
     "ioredis": "^4.22.0",
     "ip-range-check": "^0.2.0",
     "isolated-vm": "^4.5.0",
