@@ -7,7 +7,7 @@ parameters:
     default: "SHA256:7FhWIIg1mYzFjcATPWZB3H9VVpUQihp2rQh1HFhPdks"
 
 orbs:
-  vfcommon: voiceflow/common@0.38.10
+  vfcommon: voiceflow/common@0.56.2
   gomplate: xavientois/gomplate@0.2.0
 
 workflows:
