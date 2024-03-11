@@ -180,17 +180,6 @@ workflows:
           requires:
             - vfcommon/provision-env
             - vfcommon/update_track
-      # - vfcommon/build-e2e-tests:
-      #     context: dev-test
-      #     filters: *bors_branches_filters
-
-      # - vfcommon/run-e2e-tests:
-      #     context: dev-test
-      #     env-name: {{ .values.e2e_env_name }}
-      #     requires:
-      #       - vfcommon/build-e2e-tests
-      #       - vfcommon/prepare-env
-      #     filters: *bors_branches_filters
       - vfcommon/run-smoke-tests:
           context: dev-test
           e2e-env-name: {{ .values.e2e_env_name }}
@@ -203,7 +192,6 @@ workflows:
           context: dev-test
           env-name: {{ .values.e2e_env_name }}
           requires:
-            # - vfcommon/run-e2e-tests
             - vfcommon/run-smoke-tests
           filters: *bors_branches_filters
 
