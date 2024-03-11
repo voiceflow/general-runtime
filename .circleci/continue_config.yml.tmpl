@@ -64,7 +64,7 @@ jobs:
           image_repo: << pipeline.parameters.container-image-url >>
           target: checks
           no_cache_filter: checks
-          builder: tmp-genrun
+          # OR output: ci-reports
           output: type=local,dest=ci-reports
           post_steps:
             - store_test_results:
@@ -73,10 +73,10 @@ jobs:
           image_repo: << pipeline.parameters.container-image-url >>
           image_tag: build
           target: build
-          builder: tmp-genrun
           enable_cache_to: true
           pre_steps:
             - run: |
+                # TODO: move this into dynamic var from generate-config job
                 BRANCH="${CIRCLE_BRANCH//\//-}"
                 NODE_VERSION=$(cat package.json | jq -r .volta.node | sed -E "s/^([0-9]+)(\.[0-9]+)?.*$/\1\2/g")
                 cat - \<<EOF >/tmp/vf-staged_buildx-cache_from_to.env_var
@@ -109,29 +109,11 @@ jobs:
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
           target: "deps"
-          builder: tmp-genrun
           enable_cache_to: true
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
           target: "build"
-          builder: tmp-genrun
           enable_cache_to: true
-          pre_steps:
-            - run:
-                name: Add extra build args for buildx
-                command: |
-                  # TODO: single location for naming conventions
-                  if [[ -z "$CIRCLE_BRANCH" && -n "$CIRCLE_TAG" ]]; then
-                      BRANCH_NAME="master"
-                  else
-                      BRANCH_NAME="${CIRCLE_BRANCH//[^[:alnum:]]/-}" # Change all non alphanumeric characters to -
-                  fi
-                  IMAGE_CACHE_TAG_BASE="<< pipeline.parameters.container-image-url >>:cache-${BRANCH_NAME-}"
-                  cat - \<<EOF >/tmp/vf-staged_buildx-cache_from_to.env_var
-                    EXTRA_BUILD_ARGS+=(--cache-from=type=registry,ref="${IMAGE_CACHE_TAG_BASE-}-deps")
-                  EOF
-          post_steps:
-            - run: rm /tmp/vf-staged_buildx-cache_from_to.env_var
 
 
 workflows:
@@ -173,7 +155,6 @@ workflows:
           image_repo: << pipeline.parameters.container-image-url >>
           component: << pipeline.parameters.track-component >>
           use_buildkit: true
-          builder_name: tmp-genrun
           remote_docker_version: default
           requires:
             {{- if eq .values.branch "master" }}
