@@ -5,9 +5,10 @@ import Client, { EventType } from '@/runtime';
 
 import { FrameType, Output, TurnType } from './types';
 import { addOutputTrace, getOutputTrace } from './utils';
+import { HandleContextEvent } from '@/runtime/lib/Context/types';
 
 // initialize event behaviors for client
-const init = (client: Client) => {
+const init = (client: Client, event: HandleContextEvent) => {
   client.setEvent(EventType.stackDidChange, ({ runtime }) => {
     const top = runtime.stack.top();
 
@@ -63,6 +64,14 @@ const init = (client: Client) => {
 
   client.setEvent(EventType.timeout, ({ runtime }) => {
     runtime.trace.debug('ERROR: turn timeout - check for infinite loops');
+  });
+
+  client.setEvent(EventType.traceWillAdd, ({ frame }) => {
+    console.log('traceWillAdd', frame.type);
+    event({
+      type: 'trace',
+      trace: frame
+    });
   });
 };
 

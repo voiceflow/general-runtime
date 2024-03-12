@@ -16,6 +16,7 @@ import Handlers from './handlers';
 import init from './init';
 import { isActionRequest, isIntentRequest, isPathRequest, isRuntimeRequest, TurnType } from './types';
 import { getReadableConfidence } from './utils';
+import { HandleContextEvent } from '@/runtime/lib/Context/types';
 
 export const utils = {
   Client,
@@ -31,22 +32,22 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     this.handlers = this.services.utils.Handlers(config);
   }
 
-  createClient(api: CacheDataAPI) {
+  createClient(api: CacheDataAPI, event: HandleContextEvent) {
     const client = new this.services.utils.Client({
       api,
       services: this.services,
       handlers: this.handlers,
     });
 
-    init(client);
+    init(client, event);
 
     return client;
   }
 
-  public async handle({ versionID, userID, state, request, ...context }: Context): Promise<Context> {
+  public async handle({ versionID, userID, state, request, ...context }: Context, event: HandleContextEvent): Promise<Context> {
     if (!isRuntimeRequest(request)) throw new Error(`invalid runtime request type: ${JSON.stringify(request)}`);
 
-    const runtime = this.getRuntimeForContext({ versionID, userID, state, request, ...context });
+    const runtime = this.getRuntimeForContext({ versionID, userID, state, request, ...context }, event);
 
     if (isIntentRequest(request)) {
       const confidence = getReadableConfidence(request.payload.confidence);
@@ -101,12 +102,12 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     };
   }
 
-  private getRuntimeForContext(context: Context): Runtime {
+  private getRuntimeForContext(context: Context, event: HandleContextEvent): Runtime {
     if (context.request && BaseRequest.isLaunchRequest(context.request)) {
       context.request = null;
     }
 
-    const runtime = this.createClient(context.data.api).createRuntime({
+    const runtime = this.createClient(context.data.api, event).createRuntime({
       versionID: context.versionID,
       state: context.state,
       request: context.request,
