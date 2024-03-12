@@ -1,6 +1,7 @@
 import { BaseNode, BaseProject, BaseVersion, RuntimeLogs } from '@voiceflow/base-types';
 
 import { State } from '@/runtime/lib/Runtime';
+import Trace from '../Runtime/Trace';
 
 export interface Context<
   Request = Record<string, unknown>,
@@ -24,7 +25,7 @@ export interface Context<
   maxLogLevel: RuntimeLogs.LogLevel;
 }
 
-export type ContextHandle<C extends Context<any, any, any, any, any>> = (request: C) => C | Promise<C>;
+export type ContextHandle<C extends Context<any, any, any, any, any>> = (request: C, event: HandleContextEvent) => C | Promise<C>;
 
 export interface ContextHandler<C extends Context<any, any, any, any, any>> {
   handle: ContextHandle<C>;
@@ -47,3 +48,11 @@ export type InitContextHandle<C extends Context<any, any, any, any, any>> = (
 export interface InitContextHandler<C extends Context<any, any, any, any, any>> {
   handle: InitContextHandle<C>;
 }
+
+export type ContextEvent =
+| {
+    type: 'trace',
+    trace: BaseNode.Utils.BaseTraceFrame
+  }
+
+export type HandleContextEvent = (event: ContextEvent) => any;
