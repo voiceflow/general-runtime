@@ -15,7 +15,7 @@ const handlerUtils = {
 
 export const TextHandler: HandlerFactory<BaseNode.Text.Node, typeof handlerUtils> = (utils) => ({
   canHandle: (node) => node.type === BaseNode.NodeType.TEXT,
-  handle: (node, runtime, variables) => {
+  handle: async (node, runtime, variables) => {
     const slate = utils._sample(node.texts);
 
     if (slate) {
@@ -36,6 +36,8 @@ export const TextHandler: HandlerFactory<BaseNode.Text.Node, typeof handlerUtils
         log.error(`[app] [runtime] [${TextHandler.name}] failed to add Slate trace ${log.vars({ error })}`);
       }
     }
+
+    await new Promise((resolve) => setTimeout(resolve, 5000));
 
     return node.nextId ?? null;
   },

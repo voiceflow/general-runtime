@@ -6,6 +6,7 @@ import { Context } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
 import autoDelegate from './autoDelegate';
+import { HandleContextEvent } from '@/runtime/lib/Context/types';
 
 export interface ResponseContext {
   request: RuntimeRequest;
@@ -37,7 +38,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       versionID: string;
       platform?: string;
     };
-  }): Promise<ResponseContext> {
+  }, event: HandleContextEvent): Promise<ResponseContext> {
     const {
       analytics,
       runtime,
@@ -90,10 +91,10 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
     turn.addHandlers(speak, filter);
 
     if (config.selfDelegate) {
-      return turn.resolve(turn.handle(context));
+      return turn.resolve(turn.handle(context, event));
     }
 
-    return turn.resolve(this.services.utils.autoDelegate(turn, context));
+    return turn.resolve(this.services.utils.autoDelegate(turn, context, event));
   }
 }
 
