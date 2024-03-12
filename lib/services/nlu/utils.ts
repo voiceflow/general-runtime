@@ -148,7 +148,7 @@ export const getAvailableIntentsAndEntities = async (
   availableEntities: Set<string>;
   bypass?: boolean;
 }> => {
-  const runtime = runtimeManager.createClient(context.data.api).createRuntime({
+  const runtime = runtimeManager.createClient(context.data.api, () => undefined).createRuntime({
     versionID: context.versionID,
     state: context.state,
     request: context.request,
