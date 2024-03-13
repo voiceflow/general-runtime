@@ -1,12 +1,14 @@
 import { BaseRequest, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
+import { isEmpty, merge } from "lodash";
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
+import { HandleContextEvent } from '@/runtime/lib/Context/types';
 import { PartialContext, State, TurnBuilder } from '@/runtime';
 import { Context } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
 import autoDelegate from './autoDelegate';
-import { HandleContextEvent } from '@/runtime/lib/Context/types';
+import { InteractRequest } from './interfaces/interact.interface';
 
 export interface ResponseContext {
   request: RuntimeRequest;
@@ -25,6 +27,62 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
     const api = await this.services.dataAPI.get();
     const version = await api.getVersion(versionID);
     return this.services.state.generate(version);
+  }
+
+  async interact(request: InteractRequest, event: HandleContextEvent): Promise<ResponseContext> {
+    const {
+      analytics,
+      runtime,
+      nlu,
+      dialog,
+      asr,
+      speak,
+      slots,
+      state: stateManager,
+      filter,
+      aiAssist,
+    } = this.services;
+
+    const stateID = request.userID + request.sessionID;
+    let storedState = await this.services.session.getFromDb<State>(request.projectID, stateID);
+    if (isEmpty(storedState)) {
+      storedState = await this.state(request.versionID);
+    }
+
+    const state = merge(storedState, request.state);
+
+    const context: PartialContext<Context> = {
+      data: {
+        // locale,
+        // config,
+      },
+      state,
+      userID: request.userID,
+      request: request.action,
+      versionID: request.versionID,
+      maxLogLevel: RuntimeLogs.LogLevel.OFF,
+    };
+
+    const turn = new this.services.utils.TurnBuilder<Context>(stateManager);
+
+    turn.addHandlers(asr, nlu, aiAssist, slots, dialog, runtime);
+    turn.addHandlers(analytics);
+
+    // if (config.tts) {
+    //   turn.addHandlers(tts);
+    // }
+
+    turn.addHandlers(speak, filter);
+
+    // if (config.selfDelegate) {
+    //   return turn.resolve(turn.handle(context, event));
+    // }
+
+    const result = await turn.resolve(this.services.utils.autoDelegate(turn, context, event));
+
+    await this.services.session.saveToDb(request.projectID, stateID, result.state);
+
+    return result;
   }
 
   async handler(req: {

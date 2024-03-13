@@ -11,9 +11,11 @@ export interface DataAPI<
 > {
   getProgram(versionID: string, diagramID: string): Promise<P>;
 
-  getVersion(versionID: string): Promise<V>;
+  getVersion(versionID: string, projection?: any): Promise<V>;
 
   getProject(projectID: string): Promise<PJ>;
+
+  getProjectVersionIDByTag(projectID: string, tag: string): Promise<string | undefined>;
 
   getKBDocuments(
     projectID: string,
