@@ -1,4 +1,5 @@
-import { VariableDatatype } from '@voiceflow/dtos';
+import { VariableDatatype, IntentClassificationSettingsDTO } from '@voiceflow/dtos';
+import { ObjectId } from 'mongodb';
 import { z } from 'zod';
 
 import { RuntimeCommandDTO } from '@/runtime/lib/Handlers/function/runtime-command/runtime-command.dto';
@@ -42,3 +43,14 @@ export const TestFunctionResponseDTO = z
   .strict();
 
 export type TestFunctionResponse = z.infer<typeof TestFunctionResponseDTO>;
+
+export const TestClassificationRequestBodyDTO = z
+  .object({
+    projectID: z.string().refine((id) => ObjectId.isValid(id), { message: 'projectID must be a valid ObjectId' }),
+    versionID: z.string().refine((id) => ObjectId.isValid(id), { message: 'versionID must be a valid ObjectId' }),
+    utterance: z.string(),
+    intentClassificationSettings: IntentClassificationSettingsDTO,
+  })
+  .strict();
+
+export type TestClassificationRequestBodyDTO = z.infer<typeof TestClassificationRequestBodyDTO>;

@@ -15,6 +15,7 @@ import { fetchPrompt } from '../../services/runtime/handlers/utils/ai';
 import { validate } from '../../utils';
 import { AbstractController } from '../utils';
 import {
+  TestClassificationRequestBodyDTO,
   TestFunctionRequestBody,
   TestFunctionRequestBodyDTO,
   TestFunctionResponse,
@@ -129,6 +130,11 @@ class TestController extends AbstractController {
       }
       throw err;
     }
+  }
+
+  async testClassification(req: Request) {
+    const data = await TestClassificationRequestBodyDTO.parse(req.body);
+    throw new Error('NYI');
   }
 
   async testFunction(req: Request<Record<string, never>, TestFunctionRequestBody>): Promise<TestFunctionResponse> {
