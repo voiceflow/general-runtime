@@ -3,6 +3,7 @@ import { AnyRecord } from 'dns';
 import { Db, ObjectId } from 'mongodb';
 
 import { DataAPI } from './types';
+import { VersionTag } from '@/types';
 
 // shallow objectId to string
 export const shallowObjectIdToString = <T extends Record<string, any>>(obj: T): T => {
@@ -58,12 +59,12 @@ class MongoDataAPI<
     return shallowObjectIdToString(program);
   };
 
-  public getVersion = async (versionID: string): Promise<V> => {
+  public getVersion = async (versionID: string, projection?: any): Promise<V> => {
     if (!isValidObjectID(versionID)) return this.getLegacyVersion(versionID);
 
     const version = await this.client.db
       .collection(this.versionsCollection)
-      .findOne<(V & { _id: ObjectId; projectID: ObjectId }) | null>({ _id: new ObjectId(versionID) });
+      .findOne<(V & { _id: ObjectId; projectID: ObjectId }) | null>({ _id: new ObjectId(versionID) }, { projection });
 
     if (!version) throw new Error(`Version not found: ${versionID}`);
 
@@ -155,6 +156,32 @@ class MongoDataAPI<
 
     return shallowObjectIdToString(project);
   };
+
+  public getProjectVersionIDByTag = async (projectID: string, tag: VersionTag) => {
+    const project = await this.client.db
+      .collection(this.projectsCollection)
+      .findOne<{ _id: ObjectId; devVersion: ObjectId; liveVersion: ObjectId } | null>(
+        {
+          _id: new ObjectId(projectID),
+        },
+        {
+          projection: {
+            liveVersion: 1,
+            devVersion: 1
+          },
+        }
+      );
+
+    if (!project) return undefined;
+
+    switch (tag) {
+      case VersionTag.PRODUCTION:
+        return project.liveVersion.toHexString();
+      case VersionTag.DEVELOPMENT:
+      default:
+        return project.devVersion.toHexString();
+    }
+  }
 
   public getProjectByAPIKey = async (auth: string) => {
     const [apiKeyID, apiKeyKey] = MongoDataAPI.isolateAPIKey(auth).replace('VF.', '').replace('DM.', '').split('.');

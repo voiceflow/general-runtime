@@ -7,6 +7,7 @@ import { isVersionTag, Request, VersionTag } from '@/types';
 
 import { validate } from '../utils';
 import { AbstractMiddleware } from './utils';
+import { isValidObjectID } from '@/runtime/lib/DataAPI/mongoDataAPI';
 
 const VALIDATIONS = {
   HEADERS: {
@@ -46,6 +47,35 @@ class Project extends AbstractMiddleware {
       req.params.versionID ?? (typeof req.headers.versionID === 'string' ? req.headers.versionID : undefined);
     if (!req.headers.versionID) {
       throw new VError('Missing versionID in request', VError.HTTP_STATUS.BAD_REQUEST);
+    }
+
+    next();
+  }
+
+  async getProjectEnvironment(req: Request, _res: Response, next: NextFunction) {
+    const api = await this.services.dataAPI.get().catch(() => {
+      throw new VError('Error setting up data API', VError.HTTP_STATUS.UNAUTHORIZED);
+    });
+
+    const tag = req.params.tag;
+    if (isVersionTag(tag)) {
+
+      const versionID = await api.getProjectVersionIDByTag(req.params.projectID, tag);
+      if (!versionID) {
+        throw new VError('Cannot resolve project version', VError.HTTP_STATUS.BAD_REQUEST);
+      }
+
+      req.params.versionID = versionID;
+    } else if (isValidObjectID(tag)) {
+
+      const version = await api.getVersion(tag, { projectID: 1 });
+      if (!version || version.projectID !== req.params.projectID) {
+        throw new VError('Invalid project version tag', VError.HTTP_STATUS.BAD_REQUEST);
+      }
+
+      req.params.versionID = tag;
+    } else {
+      throw new VError('Invalid project version tag', VError.HTTP_STATUS.BAD_REQUEST);
     }
 
     next();

@@ -3,6 +3,7 @@ import * as FS from 'fs';
 import * as Path from 'path';
 
 import { DataAPI } from './types';
+import { VersionTag } from '@/types';
 
 class LocalDataAPI<
   P extends BaseModels.Program.Model<any, any> = BaseModels.Program.Model<any, any>,
@@ -39,6 +40,16 @@ class LocalDataAPI<
   public getProgram = async (_versionID: string, diagramID: string) => this.programs[diagramID] ?? null;
 
   public getProject = async () => this.project;
+
+  public getProjectVersionIDByTag = async (_projectID: string, tag: VersionTag) => {
+    switch (tag) {
+      case VersionTag.PRODUCTION:
+        return this.project?.liveVersion?.toString();
+      case VersionTag.DEVELOPMENT:
+      default:
+        return this.project?.devVersion?.toString();
+    }
+  }
 
   public getVersionPublishing = async () => this.version.platformData?.publishing || {};
 
