@@ -37,8 +37,6 @@ export const TextHandler: HandlerFactory<BaseNode.Text.Node, typeof handlerUtils
       }
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-
     return node.nextId ?? null;
   },
 });
