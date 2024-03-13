@@ -54,5 +54,16 @@ export type ContextEvent =
     type: 'trace',
     trace: BaseNode.Utils.BaseTraceFrame
   }
+| {
+    type: 'trace-begin',
+    trace: Pick<BaseNode.Utils.BaseTraceFrame, 'type'> & Partial<Omit<BaseNode.Utils.BaseTraceFrame, 'type'>>
+  }
+| {
+    type: 'trace-completion',
+    trace: { payload: Partial<BaseNode.Utils.BaseTraceFrame['payload']> }
+  }
+| {
+    type: 'trace-end'
+  }
 
 export type HandleContextEvent = (event: ContextEvent) => any;

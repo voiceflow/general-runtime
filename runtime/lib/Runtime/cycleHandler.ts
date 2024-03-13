@@ -5,11 +5,12 @@ import { EventType } from '@/runtime/lib/Lifecycle';
 import ProgramModel from '@/runtime/lib/Program';
 import Runtime from '@/runtime/lib/Runtime';
 import Storage from '@/runtime/lib/Runtime/Store';
+import { HandleContextEvent } from '../Context/types';
 
 export const HANDLER_OVERFLOW = 400;
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-const cycleHandler = async (runtime: Runtime, program: ProgramModel, variableState: Storage): Promise<void> => {
+const cycleHandler = async (runtime: Runtime, program: ProgramModel, variableState: Storage, event: HandleContextEvent): Promise<void> => {
   const referenceFrame = runtime.stack.top();
   const currentFrames = runtime.stack.getFrames();
 
@@ -40,7 +41,7 @@ const cycleHandler = async (runtime: Runtime, program: ProgramModel, variableSta
         if (handler) {
           await runtime.callEvent(EventType.handlerWillHandle, { node, variables: variableState });
 
-          nextID = await handler.handle(_node, runtime, variableState, program);
+          nextID = await handler.handle(_node, runtime, variableState, program, event);
 
           await runtime.callEvent(EventType.handlerDidHandle, { node, variables: variableState });
         }
