@@ -53,6 +53,11 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   } as FullServiceMap;
 
   // order here matters, services defined after runtime are not available inside of it
+  if (config.SESSIONS_SOURCE === Source.LOCAL) {
+    services.session = new LocalSession(services, config);
+  } else if (config.SESSIONS_SOURCE === Source.MONGO) {
+    services.session = new MongoSession(services, config);
+  }
   services.aiSynthesis = new AISynthesis(services, config);
   services.runtime = new Runtime(services, config);
   services.state = new State(services, config);
@@ -70,12 +75,6 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.aiAssist = new AIAssist(services, config);
   services.interact = new Interact(services, config);
   services.feedback = new Feedback(services, config);
-
-  if (config.SESSIONS_SOURCE === Source.LOCAL) {
-    services.session = new LocalSession(services, config);
-  } else if (config.SESSIONS_SOURCE === Source.MONGO) {
-    services.session = new MongoSession(services, config);
-  }
 
   return services;
 };

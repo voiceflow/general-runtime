@@ -4690,6 +4690,7 @@ __metadata:
     "@voiceflow/voiceflow-types": 3.28.3
     ajv: 6.12.3
     axios: ^0.21.1
+    better-sse: ^0.11.0
     chai: ^4.2.0
     chai-as-promised: ^7.1.1
     commitizen: ^4.2.3
@@ -6002,6 +6003,13 @@ __metadata:
     mixin-deep: ^1.2.0
     pascalcase: ^0.1.1
   checksum: a4a146b912e27eea8f66d09cb0c9eab666f32ce27859a7dfd50f38cd069a2557b39f16dba1bc2aecb3b44bf096738dd207b7970d99b0318423285ab1b1994edd
+  languageName: node
+  linkType: hard
+
+"better-sse@npm:^0.11.0":
+  version: 0.11.0
+  resolution: "better-sse@npm:0.11.0"
+  checksum: f42221ad808fedb7d544abdb46d47dd3c4b90628e8520fc5afb8dd2f07b8657bb410813e6cdc01c3442dbf2758052050bd2a26edea077ade16d626e66fe06851
   languageName: node
   linkType: hard
 
