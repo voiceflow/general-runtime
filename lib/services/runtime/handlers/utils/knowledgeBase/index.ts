@@ -9,6 +9,7 @@ import AIAssist from '@/lib/services/aiAssist';
 import log from '@/logger';
 import { Runtime } from '@/runtime';
 
+import { VF_CHUNKS_VARIABLE } from '../../../types';
 import { AIResponse } from '../ai';
 import { CloudEnv } from './types';
 
@@ -17,6 +18,7 @@ export interface KnowledegeBaseChunk {
   chunkID: string;
   documentID: string;
   content: string;
+  metadata: object;
 }
 
 export interface KnowledgeBaseResponse {
@@ -220,6 +222,10 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<AIResponse
       variables: runtime.variables.getState(),
       context: { projectID: runtime.project._id, workspaceID: runtime.project.teamID },
     });
+
+    const chunks = data?.chunks?.map((chunk) => JSON.stringify(chunk)) ?? [];
+
+    runtime.variables.set(VF_CHUNKS_VARIABLE, chunks);
 
     if (!answer) return null;
 

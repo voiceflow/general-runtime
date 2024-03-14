@@ -6,7 +6,7 @@ import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import log from '@/logger';
 import { HandlerFactory } from '@/runtime';
 
-import { GeneralRuntime } from '../types';
+import { GeneralRuntime, VF_CHUNKS_VARIABLE } from '../types';
 import { AIResponse, consumeResources, EMPTY_AI_RESPONSE, fetchPrompt } from './utils/ai';
 import { getKBSettings } from './utils/knowledgeBase';
 
@@ -63,13 +63,21 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = 
                   _cloneDeep({ ...node, mode, instruction, prompt, sets: undefined }),
                   variables.getState()
                 );
-                response = await runtime.services.aiSynthesis.knowledgeBaseQuery({
+                const queryAnswer = await runtime.services.aiSynthesis.knowledgeBaseQuery({
                   version: runtime.version!,
                   project: runtime.project!,
                   question: settings.prompt,
                   instruction: settings.instruction,
                   options: node.overrideParams ? { summarization: settings } : {},
                 });
+
+                // just for typescript typing purposes (AIResponse) doesn't contain "chunks"
+                // remove after isDeprecated is gone
+                response = queryAnswer;
+
+                const chunks = queryAnswer?.chunks?.map((chunk) => JSON.stringify(chunk)) ?? [];
+
+                variables.set(VF_CHUNKS_VARIABLE, chunks);
 
                 if (response.output === null) response.output = BaseUtils.ai.KNOWLEDGE_BASE_NOT_FOUND;
               }
