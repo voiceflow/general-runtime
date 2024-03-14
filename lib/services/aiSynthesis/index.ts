@@ -3,13 +3,7 @@ import dedent from 'dedent';
 import _merge from 'lodash/merge';
 
 import { AIModelContext } from '@/lib/clients/ai/ai-model.interface';
-import {
-  AIResponse,
-  EMPTY_AI_RESPONSE,
-  fetchChat,
-  fetchPrompt,
-  getMemoryMessages,
-} from '@/lib/services/runtime/handlers/utils/ai';
+import { AIResponse, EMPTY_AI_RESPONSE, fetchChat, getMemoryMessages } from '@/lib/services/runtime/handlers/utils/ai';
 import { getCurrentTime } from '@/lib/services/runtime/handlers/utils/generativeNoMatch';
 import {
   addFaqTrace,
@@ -73,60 +67,24 @@ class AISynthesis extends AbstractManager {
 
     const options = { model, system: systemWithTime, temperature, maxTokens };
 
-    if (
-      [BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo, BaseUtils.ai.GPT_MODEL.GPT_4, BaseUtils.ai.GPT_MODEL.GPT_4_turbo].includes(
-        model
-      )
-    ) {
-      // for GPT-3.5 and 4.0 chat models
-      const messages = [
-        {
-          role: BaseUtils.ai.Role.USER,
-          content: generateAnswerSynthesisPrompt({ query: question, instruction, data }),
-        },
-      ];
+    // for GPT-3.5 and 4.0 chat models
+    const messages = [
+      {
+        role: BaseUtils.ai.Role.USER,
+        content: generateAnswerSynthesisPrompt({ query: question, instruction, data }),
+      },
+    ];
 
-      response = await fetchChat(
-        { ...options, messages },
-        this.services.mlGateway,
-        {
-          retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
-          retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
-          context,
-        },
-        variables
-      );
-    } else if ([BaseUtils.ai.GPT_MODEL.DaVinci_003].includes(model)) {
-      // for GPT-3 completion model
-      const prompt = dedent`
-        <context>
-          ${stringifyChunks(data)}
-        </context>
-
-        If you don't know the answer say exactly "NOT_FOUND".\n\nQ: ${question}\nA: `;
-
-      response = await fetchPrompt(
-        { ...options, prompt, mode: BaseUtils.ai.PROMPT_MODE.PROMPT },
-        this.services.mlGateway,
-        { context },
-        variables
-      );
-    } else if (
-      [
-        BaseUtils.ai.GPT_MODEL.CLAUDE_INSTANT_V1,
-        BaseUtils.ai.GPT_MODEL.CLAUDE_V1,
-        BaseUtils.ai.GPT_MODEL.CLAUDE_V2,
-      ].includes(model)
-    ) {
-      const prompt = generateAnswerSynthesisPrompt({ query: question, instruction, data });
-
-      response = await fetchPrompt(
-        { ...options, prompt, mode: BaseUtils.ai.PROMPT_MODE.PROMPT },
-        this.services.mlGateway,
-        { context },
-        variables
-      );
-    }
+    response = await fetchChat(
+      { ...options, messages },
+      this.services.mlGateway,
+      {
+        retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
+        retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
+        context,
+      },
+      variables
+    );
 
     response.output = response.output?.trim() || null;
     if (response.output) {
