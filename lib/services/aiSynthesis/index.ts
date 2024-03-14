@@ -67,7 +67,6 @@ class AISynthesis extends AbstractManager {
 
     const options = { model, system: systemWithTime, temperature, maxTokens };
 
-    // for GPT-3.5 and 4.0 chat models
     const messages = [
       {
         role: BaseUtils.ai.Role.USER,
