@@ -154,7 +154,6 @@ workflows:
       - vfcommon/run-smoke-tests:
           context: dev-test
           e2e-env-name: {{ .values.e2e_env_name }}
-          branch-or-commit: ci
           requires:
             # - vfcommon/build-e2e-tests
             - vfcommon/prepare-env
