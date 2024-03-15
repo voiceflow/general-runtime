@@ -1,12 +1,13 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { deepVariableSubstitution } from '@voiceflow/common';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import _cloneDeep from 'lodash/cloneDeep';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import log from '@/logger';
 import { HandlerFactory } from '@/runtime';
 
-import { GeneralRuntime, VF_CHUNKS_VARIABLE } from '../types';
+import { GeneralRuntime } from '../types';
 import { AIResponse, consumeResources, EMPTY_AI_RESPONSE, fetchPrompt } from './utils/ai';
 import { getKBSettings } from './utils/knowledgeBase';
 
@@ -77,7 +78,7 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = 
 
                 const chunks = queryAnswer?.chunks?.map((chunk) => JSON.stringify(chunk)) ?? [];
 
-                variables.set(VF_CHUNKS_VARIABLE, chunks);
+                variables.set(VoiceflowConstants.BuiltInVariable.VF_CHUNKS, chunks);
 
                 if (response.output === null) response.output = BaseUtils.ai.KNOWLEDGE_BASE_NOT_FOUND;
               }

@@ -143,10 +143,3 @@ export enum FrameType {
 export type FrameData = Partial<{
   [FrameType.OUTPUT]: Output;
 }>;
-
-/**
- * Need to use here voiceflow-types/VoiceflowConstants/BuiltInVariable,
- * but updating the version breaks other type annotations,
- * remove it after fixing the dependencies
- */
-export const VF_CHUNKS_VARIABLE = 'vf_chunks';

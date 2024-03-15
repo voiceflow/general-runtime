@@ -1,5 +1,5 @@
 import { BaseModels, BaseRequest, BaseTrace } from '@voiceflow/base-types';
-import { Variable } from '@voiceflow/dtos';
+import { CompiledCMSVariable } from '@voiceflow/base-types/build/cjs/cms/variables';
 import { parseCMSVariableDefaultValue } from '@voiceflow/utils-designer';
 import axios from 'axios';
 import _ from 'lodash';
@@ -65,7 +65,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
   // initialize all entities and variables to 0, it is important that they are defined
   initializeVariables(version: BaseModels.Version.Model<any>, state: State) {
     const entities = version.prototype?.model.slots.map(({ name }) => name) || [];
-    const variables: Record<string, Variable> = version.prototype?.surveyorContext.cmsVariables ?? {};
+    const variables: Record<string, CompiledCMSVariable> = version.prototype?.surveyorContext.cmsVariables ?? {};
 
     return {
       ...state,

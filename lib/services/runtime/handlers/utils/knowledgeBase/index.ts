@@ -1,5 +1,6 @@
 import { BaseModels, BaseNode, BaseTrace } from '@voiceflow/base-types';
 import { KnowledgeBaseCtxType } from '@voiceflow/base-types/build/cjs/node/knowledgeBase';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import axios from 'axios';
 
 import Config from '@/config';
@@ -9,7 +10,6 @@ import AIAssist from '@/lib/services/aiAssist';
 import log from '@/logger';
 import { Runtime } from '@/runtime';
 
-import { VF_CHUNKS_VARIABLE } from '../../../types';
 import { AIResponse } from '../ai';
 import { CloudEnv } from './types';
 
@@ -225,7 +225,7 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<AIResponse
 
     const chunks = data?.chunks?.map((chunk) => JSON.stringify(chunk)) ?? [];
 
-    runtime.variables.set(VF_CHUNKS_VARIABLE, chunks);
+    runtime.variables.set(VoiceflowConstants.BuiltInVariable.VF_CHUNKS, chunks);
 
     if (!answer) return null;
 

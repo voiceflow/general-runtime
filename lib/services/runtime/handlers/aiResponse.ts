@@ -3,6 +3,7 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { deepVariableSubstitution } from '@voiceflow/common';
 import { VoiceNode } from '@voiceflow/voice-types';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import _cloneDeep from 'lodash/cloneDeep';
 import _merge from 'lodash/merge';
 
@@ -10,7 +11,7 @@ import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import log from '@/logger';
 import { HandlerFactory } from '@/runtime';
 
-import { FrameType, GeneralRuntime, Output, VF_CHUNKS_VARIABLE } from '../types';
+import { FrameType, GeneralRuntime, Output } from '../types';
 import { addOutputTrace, getOutputTrace } from '../utils';
 import { AIResponse, consumeResources, EMPTY_AI_RESPONSE, fetchPrompt } from './utils/ai';
 import { getKBSettings } from './utils/knowledgeBase';
@@ -75,7 +76,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
 
           const chunks = queryAnswer?.chunks?.map((chunk) => JSON.stringify(chunk)) ?? [];
 
-          variables.set(VF_CHUNKS_VARIABLE, chunks);
+          variables.set(VoiceflowConstants.BuiltInVariable.VF_CHUNKS, chunks);
 
           await consumeResources('AI Response KB', runtime, answer);
 
