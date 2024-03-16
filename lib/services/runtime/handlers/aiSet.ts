@@ -4,11 +4,7 @@ import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import _cloneDeep from 'lodash/cloneDeep';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
-<<<<<<< HEAD
 import { FeatureFlag } from '@/lib/feature-flags';
-import log from '@/logger';
-=======
->>>>>>> 7f383e1b (fix: remove deprecated kb flows (COR-1680))
 import { HandlerFactory } from '@/runtime';
 
 import { GeneralRuntime } from '../types';
