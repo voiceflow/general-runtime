@@ -6,7 +6,6 @@ import _merge from 'lodash/merge';
 import { z } from 'zod';
 
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
-import { getKBSettings } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
 import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
 import { Request, Response } from '@/types';
@@ -57,42 +56,6 @@ class TestController extends AbstractController {
       res.send({ variables, time: performance.now() - startTime });
     } catch (error) {
       res.status(400).send({ error: error.message });
-    }
-  }
-
-  async testKnowledgeBasePrompt(req: Request) {
-    const api = await this.services.dataAPI.get();
-
-    // if DM API key infer project from header
-    const project = await api.getProject(req.headers.authorization || req.body.projectID);
-    const version = req.body.versionID ? await api.getVersion(req.body.versionID) : null;
-
-    const globalKBSettings = getKBSettings(
-      this.services.unleash,
-      project.teamID,
-      version?.knowledgeBase?.settings,
-      project.knowledgeBase?.settings
-    );
-    const settings = _merge({}, globalKBSettings, req.body.settings);
-
-    const { prompt } = req.body;
-
-    try {
-      const answer = await this.services.aiSynthesis.DEPRECATEDpromptSynthesis(
-        project._id,
-        project.teamID,
-        { ...settings.summarization, prompt },
-        {}
-      );
-
-      if (!answer?.output) return { output: null };
-
-      return { output: answer.output };
-    } catch (err) {
-      if (err?.message?.includes('Quota exceeded')) {
-        throw new VError('Quota exceeded', VError.HTTP_STATUS.PAYMENT_REQUIRED);
-      }
-      throw err;
     }
   }
 

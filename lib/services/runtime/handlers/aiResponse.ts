@@ -1,4 +1,3 @@
-/* eslint-disable max-depth */
 /* eslint-disable sonarjs/cognitive-complexity */
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { deepVariableSubstitution } from '@voiceflow/common';
@@ -8,14 +7,16 @@ import _cloneDeep from 'lodash/cloneDeep';
 import _merge from 'lodash/merge';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
+<<<<<<< HEAD
 import { FeatureFlag } from '@/lib/feature-flags';
 import log from '@/logger';
+=======
+>>>>>>> 7f383e1b (fix: remove deprecated kb flows (COR-1680))
 import { HandlerFactory } from '@/runtime';
 
 import { FrameType, GeneralRuntime, Output } from '../types';
 import { addOutputTrace, getOutputTrace } from '../utils';
-import { AIResponse, consumeResources, EMPTY_AI_RESPONSE, fetchPrompt } from './utils/ai';
-import { getKBSettings } from './utils/knowledgeBase';
+import { AIResponse, consumeResources, fetchPrompt } from './utils/ai';
 import { generateOutput } from './utils/output';
 import { getVersionDefaultVoice } from './utils/version';
 
@@ -29,83 +30,47 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
 
     try {
       if (node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE) {
-        const kbSettings = getKBSettings(
-          runtime?.services.unleash,
-          workspaceID,
-          runtime?.version?.knowledgeBase?.settings,
-          runtime?.project?.knowledgeBase?.settings
+        const settings = deepVariableSubstitution(_cloneDeep(node), variables.getState());
+        const summarization = settings.overrideParams ? settings : {};
+
+        const answer = await runtime.services.aiSynthesis.knowledgeBaseQuery({
+          project: runtime.project!,
+          version: runtime.version!,
+          question: settings.prompt,
+          instruction: settings.instruction,
+          options: { summarization },
+        });
+
+        const chunks = answer?.chunks?.map((chunk) => JSON.stringify(chunk)) ?? [];
+        const workspaceID = Number(runtime.project?.teamID);
+
+        if (runtime.services.unleash.client.isEnabled(FeatureFlag.VF_CHUNKS_VARIABLE, { workspaceID })) {
+          variables.set(VoiceflowConstants.BuiltInVariable.VF_CHUNKS, chunks);
+        }
+
+        await consumeResources('AI Response KB', runtime, answer);
+
+        if (!answer.output && settings.notFoundPath) return elseID;
+
+        const documents = await runtime.api.getKBDocuments(
+          runtime.version!.projectID,
+          answer.chunks?.map(({ documentID }) => documentID) || []
         );
 
-        // TODO: REMOVE AFTER MIGRATION OFF LEGACY AI RESPONSE STEPS
-        let answer: AIResponse | null = EMPTY_AI_RESPONSE;
-        const isDeprecated = node.overrideParams === undefined;
-        if (isDeprecated) {
-          log.warn(
-            `[AIResponseHandler] [DEPRECATEDpromptSynthesis] ${log.vars({
-              workspaceID,
-              projectID,
-              versionID: runtime.versionID,
-              programID: runtime.stack.top()?.getDiagramID(),
-              nodeID: node.id,
-            })}`
-          );
-
-          const { prompt, mode } = node;
-          answer = await runtime.services.aiSynthesis.DEPRECATEDpromptSynthesis(
-            runtime.version!.projectID,
-            workspaceID,
-            { ...kbSettings?.summarization, prompt, mode },
-            variables.getState(),
-            runtime
-          );
-
-          await consumeResources('AI Response KB', runtime, answer);
-        } else {
-          const settings = deepVariableSubstitution(_cloneDeep(node), variables.getState());
-          const summarization = _merge(kbSettings?.summarization, settings.overrideParams ? settings : {});
-
-          const queryAnswer = await runtime.services.aiSynthesis.knowledgeBaseQuery({
-            project: runtime.project!,
-            version: runtime.version!,
-            question: settings.prompt,
-            instruction: settings.instruction,
-            options: { summarization },
-          });
-          // just for typescript typing purposes (AIResponse) doesn't contain "chunks"
-          // remove after isDeprecated is gone
-          answer = queryAnswer;
-
-          const chunks = queryAnswer?.chunks?.map((chunk) => JSON.stringify(chunk)) ?? [];
-          const workspaceID = Number(runtime.project?.teamID);
-
-          if (runtime.services.unleash.client.isEnabled(FeatureFlag.VF_CHUNKS_VARIABLE, { workspaceID })) {
-            variables.set(VoiceflowConstants.BuiltInVariable.VF_CHUNKS, chunks);
-          }
-
-          await consumeResources('AI Response KB', runtime, answer);
-
-          if (!answer.output && settings.notFoundPath) return elseID;
-
-          const documents = await runtime.api.getKBDocuments(
-            runtime.version!.projectID,
-            queryAnswer.chunks?.map(({ documentID }) => documentID) || []
-          );
-
-          runtime.trace.addTrace({
-            type: 'knowledgeBase',
-            payload: {
-              chunks: queryAnswer.chunks?.map(({ score, documentID }) => ({
-                score,
-                documentID,
-                documentData: documents[documentID]?.data,
-              })),
-              query: {
-                messages: answer.messages,
-                output: answer.output,
-              },
+        runtime.trace.addTrace({
+          type: 'knowledgeBase',
+          payload: {
+            chunks: answer.chunks?.map(({ score, documentID }) => ({
+              score,
+              documentID,
+              documentData: documents[documentID]?.data,
+            })),
+            query: {
+              messages: answer.messages,
+              output: answer.output,
             },
-          } as any);
-        }
+          },
+        } as any);
 
         const output = generateOutput(
           answer?.output || 'Unable to find relevant answer.',
