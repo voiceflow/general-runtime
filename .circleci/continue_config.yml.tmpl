@@ -42,58 +42,32 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@dev:ae143f9f9dd57b8b7edb0306cface15b50d4a352
+  vfcommon: voiceflow/common@dev:1bcd9478fa3fd5c37ae79e27f883662966660d4d
   sonarcloud: sonarsource/sonarcloud@2.0.0
 
-commands:
-  docker_run_networked:
-    parameters:
-      image_repo:
-        description: The container image repository
-        type: string
-      image_tag:
-        description: The container image tag
-        type: string
-        default: ""
-      command:
-        description: Command to run in docker container
-        type: string
-        default: yarn test:integration
-      platforms:
-        description: Platform to build against
-        type: string
-        default: "linux/amd64"
-      pre_steps:
-        description: pre steps
-        type: steps
-        default: []
-      post_steps:
-        description: post steps
-        type: steps
-        default: []
-    steps:
-      - steps: << parameters.pre_steps >>
-      - run:
-          name: Running command in networked docker container
-          command: |
-            # Get the container id for kubernetes/pause, which is used as the shared network with secondary container services
-            K8S_ID="$(docker container ls --format '{{`{{ .Image }} | {{ .ID }}`}}' | grep 'pause' | sed -E 's/^.* | (.*)$/\1/g' )"
-            COMMAND=(<< parameters.command >>)
-            docker run \
-              --rm -i \
-              --network="container:${K8S_ID-}" \
-              --entrypoint /bin/sh \
-              << parameters.image_repo >>:<< parameters.image_tag >> \<<EOF
-              echo '127.0.0.1 creator-app.test.e2e postgres.test.e2e redis.test.e2e localstack.test.e2e mongodb.test.e2e server-data-api.test.e2e creator-api.test.e2e admin-api.test.e2e auth-api.test.e2e analytics-api.test.e2e billing-api.test.e2e identity-api.test.e2e luis-authoring-service.test.e2e integrations.test.e2e custom-api.test.e2e canvas-export.test.e2e alexa-runtime.test.e2e alexa-service.test.e2e general-runtime.test.e2e general-service.test.e2e google-runtime.test.e2e google-service.test.e2e realtime.test.e2e ingest.test.e2e event-ingestion-service.test.e2e billing-api.test.e2e identity-api.test.e2e auth-api.test.e2e runtime-api.test.e2e analytics-api.test.e2e admin-api.test.e2e test-api.test.e2e' >> /etc/hosts
-              # Passthrough secrets
-              export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-              export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-              << parameters.command >>
-              echo "----"
-              ${COMMAND[@]}
-            EOF
-      - steps: << parameters.post_steps >>
 
+arbitrary:
+  staged_docker_setup: &node_setup_cleanup
+    pre_steps:
+      - set_node_version_env
+    post_steps:
+      - cleanup_node_version_env
+
+
+commands:
+  set_node_version_env:
+    steps:
+      - run:
+          name: Set node version build arg for docker
+          command: |
+            cat - \<<EOF >/tmp/vf-staged_buildx-cache_from_to.env_var
+              EXTRA_BUILD_ARGS+=(--build-arg NODE_VERSION="{{ .values.node_version }}")
+            EOF
+  cleanup_node_version_env:
+    steps:
+      - run:
+          name: Cleanup docker env var for node version
+          command: rm -f /tmp/vf-staged_buildx-cache_from_to.env_var
 
 jobs:
   test:
@@ -105,33 +79,26 @@ jobs:
       - setup_remote_docker:
           version: default
           docker_layer_caching: true
-      ## - run:
-      ##     name: Lint Dockerfile
-      ##     # hadolint comes from the executor image and is outdated
-      ##     command: hadolint ./Dockerfile
-      ##     background: true
-      ## - vfcommon/staged_buildx:
-      ##     image_repo: << pipeline.parameters.container-image-url >>
-      ##     target: checks
-      ##     no_cache_filter: checks
-      ##     # OR output: ci-reports
-      ##     output: type=local,dest=ci-reports
-      ##     post_steps:
-      ##       - store_test_results:
-      ##           path: ci-reports
+      - run:
+          name: Lint Dockerfile
+          # hadolint comes from the executor image and is outdated
+          command: hadolint ./Dockerfile
+          background: true
       - vfcommon/staged_buildx:
+          image_repo: << pipeline.parameters.container-image-url >>
+          target: checks
+          no_cache_filter: checks
+          # OR output: ci-reports
+          output: type=local,dest=ci-reports
+          post_steps:
+            - store_test_results:
+                path: ci-reports
+      - vfcommon/staged_buildx:
+          <<: *node_setup_cleanup
           image_repo: << pipeline.parameters.container-image-url >>
           image_tag: build
           target: build
           enable_cache_to: true
-          pre_steps:
-            - run: |
-                # TODO: move this into dynamic var from generate-config job
-                BRANCH="${CIRCLE_BRANCH//\//-}"
-                NODE_VERSION=$(cat package.json | jq -r .volta.node | sed -E "s/^([0-9]+)(\.[0-9]+)?.*$/\1\2/g")
-                cat - \<<EOF >/tmp/vf-staged_buildx-cache_from_to.env_var
-                  EXTRA_BUILD_ARGS+=(--build-arg NODE_VERSION="${NODE_VERSION:-}")
-                EOF
       - vfcommon/docker_run_networked:
           image_repo: << pipeline.parameters.container-image-url >>
           image_tag: build
@@ -149,29 +116,15 @@ jobs:
       - vfcommon/docker_login
       - vfcommon/authenticate_npm
       - vfcommon/staged_buildx:
+          <<: *node_setup_cleanup
           image_repo: << pipeline.parameters.container-image-url >>
           target: "deps"
-          enable_cache_to: true
-          pre_steps:
-            - run: |
-                # TODO: move this into dynamic var from generate-config job
-                BRANCH="${CIRCLE_BRANCH//\//-}"
-                NODE_VERSION=$(cat package.json | jq -r .volta.node | sed -E "s/^([0-9]+)(\.[0-9]+)?.*$/\1\2/g")
-                cat - \<<EOF >/tmp/vf-staged_buildx-cache_from_to.env_var
-                  EXTRA_BUILD_ARGS+=(--build-arg NODE_VERSION="${NODE_VERSION:-}")
-                EOF
+          enable_cache_to: false
       - vfcommon/staged_buildx:
+          <<: *node_setup_cleanup
           image_repo: << pipeline.parameters.container-image-url >>
           target: "build"
           enable_cache_to: true
-          pre_steps:
-            - run: |
-                # TODO: move this into dynamic var from generate-config job
-                BRANCH="${CIRCLE_BRANCH//\//-}"
-                NODE_VERSION=$(cat package.json | jq -r .volta.node | sed -E "s/^([0-9]+)(\.[0-9]+)?.*$/\1\2/g")
-                cat - \<<EOF >/tmp/vf-staged_buildx-cache_from_to.env_var
-                  EXTRA_BUILD_ARGS+=(--build-arg NODE_VERSION="${NODE_VERSION:-}")
-                EOF
 
 
 workflows:
