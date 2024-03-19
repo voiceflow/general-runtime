@@ -1,5 +1,6 @@
 /.git
 /.gitignore
+/.circleci
 
 /node_modules
 /log
