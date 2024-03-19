@@ -8,6 +8,11 @@
       "name": "json",
       "output": "file",
       "path": "sonar/report.json"
+    },
+    {
+      "name": "junit",
+      "output": "file",
+      "path": "linting/lint.xml"
     }
   ]
 }
