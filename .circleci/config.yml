@@ -33,6 +33,15 @@ workflows:
                 # HACK: this cannot be empty, so we pass both branch and tag (only one of them will be non-empty)
                 # TODO: Fix this once https://discuss.circleci.com/t/empty-string-for-parameter-breaks-config/47695 has a solution
                 value: "<< pipeline.git.branch >><< pipeline.git.tag >>"
+            - run:
+                name: Set node version from volta
+                command: |
+                  VF_NODE_VERSION=$(jq --raw-output '.volta.node // ""' package.json | sed -E "s/^([0-9]+)(\.[0-9]+)?.*$/\1\2/g")
+                  echo "export VF_NODE_VERSION=\"${VF_NODE_VERSION-}\"" >> "$BASH_ENV"
+                  echo "VF_NODE_VERSION: ${VF_NODE_VERSION-}"
+            - vfcommon/set-json-string-from-env:
+                field: node_version
+                value-env-var: VF_NODE_VERSION
             - vfcommon/set-json-string-from-env:
                 field: common_orb_version
                 value-env-var: COMMON_ORB_VERSION
