@@ -8,6 +8,7 @@ import _cloneDeep from 'lodash/cloneDeep';
 import _merge from 'lodash/merge';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
+import { FeatureFlag } from '@/lib/feature-flags';
 import log from '@/logger';
 import { HandlerFactory } from '@/runtime';
 
@@ -75,8 +76,11 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           answer = queryAnswer;
 
           const chunks = queryAnswer?.chunks?.map((chunk) => JSON.stringify(chunk)) ?? [];
+          const workspaceID = Number(runtime.project?.teamID);
 
-          variables.set(VoiceflowConstants.BuiltInVariable.VF_CHUNKS, chunks);
+          if (runtime.services.unleash.client.isEnabled(FeatureFlag.VF_CHUNKS_VARIABLE, { workspaceID })) {
+            variables.set(VoiceflowConstants.BuiltInVariable.VF_CHUNKS, chunks);
+          }
 
           await consumeResources('AI Response KB', runtime, answer);
 
