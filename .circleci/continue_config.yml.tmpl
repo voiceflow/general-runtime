@@ -42,32 +42,15 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@dev:8460d5097091c81fc98a4ba7cb09bc61f9760261
+  vfcommon: voiceflow/common@dev:b8e6e4a6e950646816b5b8c70600112d787a8317
   sonarcloud: sonarsource/sonarcloud@2.0.0
 
 
 arbitrary:
-  staged_docker_setup: &node_setup_cleanup
-    pre_steps:
-      - set_node_version_env
-    post_steps:
-      - cleanup_node_version_env
+  build_arg_node_version: &build_arg_node_version
+    extra_build_args: >-
+      --build-arg NODE_VERSION="{{ .values.node_version }}"
 
-
-commands:
-  set_node_version_env:
-    steps:
-      - run:
-          name: Set node version build arg for docker
-          command: |
-            cat - \<<EOF >/tmp/vf-staged_buildx-cache_from_to.env_var
-              EXTRA_BUILD_ARGS+=(--build-arg NODE_VERSION="{{ .values.node_version }}")
-            EOF
-  cleanup_node_version_env:
-    steps:
-      - run:
-          name: Cleanup docker env var for node version
-          command: rm -f /tmp/vf-staged_buildx-cache_from_to.env_var
 
 jobs:
   test:
@@ -85,19 +68,17 @@ jobs:
           command: hadolint ./Dockerfile
           background: true
       - vfcommon/staged_buildx:
+          <<: *build_arg_node_version
           image_repo: << pipeline.parameters.container-image-url >>
           target: checks
           no_cache_filter: checks
           # OR output: ci-reports
           output: type=local,dest=ci-reports
-          extra_build_args: |-
-            --build-arg NODE_VERSION="{{ .values.node_version }}"
           post_steps:
             - store_test_results:
                 path: ci-reports
       - vfcommon/staged_buildx:
-          extra_build_args: |-
-            --build-arg NODE_VERSION="{{ .values.node_version }}"
+          <<: *build_arg_node_version
           image_repo: << pipeline.parameters.container-image-url >>
           image_tag: build
           target: build
@@ -119,15 +100,12 @@ jobs:
       - vfcommon/docker_login
       - vfcommon/authenticate_npm
       - vfcommon/staged_buildx:
-          extra_build_args: >-
-            --build-arg NODE_VERSION="{{ .values.node_version }}"
-            --no-cache
+          <<: *build_arg_node_version
           image_repo: << pipeline.parameters.container-image-url >>
           target: "deps"
           enable_cache_to: false
       - vfcommon/staged_buildx:
-          extra_build_args: |-
-            --build-arg NODE_VERSION="{{ .values.node_version }}"
+          <<: *build_arg_node_version
           image_repo: << pipeline.parameters.container-image-url >>
           target: "build"
           enable_cache_to: true
