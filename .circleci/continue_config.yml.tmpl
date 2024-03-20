@@ -42,7 +42,7 @@ defaults:
           branch_pattern: master
 
 orbs:
-  vfcommon: voiceflow/common@dev:2558209ade595868deef5f7430a6c14aafd0c9c4
+  vfcommon: voiceflow/common@dev:8cb28619a795a8ea109a89b408c844e939549572
   sonarcloud: sonarsource/sonarcloud@2.0.0
 
 
@@ -145,6 +145,7 @@ workflows:
           component: << pipeline.parameters.track-component >>
           use_buildkit: true
           remote_docker_version: default
+          extra_build_args: *node_version_arg
           requires:
             {{- if eq .values.branch "master" }}
             - test
