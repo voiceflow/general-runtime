@@ -119,8 +119,9 @@ jobs:
       - vfcommon/docker_login
       - vfcommon/authenticate_npm
       - vfcommon/staged_buildx:
-          extra_build_args: |-
+          extra_build_args: >-
             --build-arg NODE_VERSION="{{ .values.node_version }}"
+            --no-cache
           image_repo: << pipeline.parameters.container-image-url >>
           target: "deps"
           enable_cache_to: false
