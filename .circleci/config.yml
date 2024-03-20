@@ -7,7 +7,7 @@ parameters:
     default: "SHA256:7FhWIIg1mYzFjcATPWZB3H9VVpUQihp2rQh1HFhPdks"
 
 orbs:
-  vfcommon: voiceflow/common@dev:2558209ade595868deef5f7430a6c14aafd0c9c4
+  vfcommon: voiceflow/common@0.60.0
   gomplate: xavientois/gomplate@0.2.0
 
 workflows:
@@ -36,9 +36,9 @@ workflows:
             - vfcommon/set-json-command:
                 field: node_version
                 command: jq --raw-output '.volta.node // ""' package.json | sed -E "s/^([0-9]+)(\.[0-9]+)?.*$/\1\2/g"
-            - vfcommon/set-json-string-from-env:
+            - vfcommon/set-json-string:
                 field: common_orb_version
-                value-env-var: COMMON_ORB_VERSION
+                value: "0.60.0"
             - run: cat values.json
           contexts: values.json
 
