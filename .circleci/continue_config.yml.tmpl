@@ -83,6 +83,7 @@ jobs:
           command: yarn test:integration
           ## pre_steps: setup volume
           ## post_steps: copy out artifacts
+      - sonarcloud/scan
 
   install_and_buildx:
     executor: vfcommon/node-executor-node-20
