@@ -90,12 +90,14 @@ jobs:
           no_cache_filter: checks
           # OR output: ci-reports
           output: type=local,dest=ci-reports
-          extra_build_args: --build-arg NODE_VERSION="{{ .values.node_version }}"
+          extra_build_args: |-
+            --build-arg NODE_VERSION="{{ .values.node_version }}"
           post_steps:
             - store_test_results:
                 path: ci-reports
       - vfcommon/staged_buildx:
-          extra_build_args: --build-arg NODE_VERSION="{{ .values.node_version }}"
+          extra_build_args: |-
+            --build-arg NODE_VERSION="{{ .values.node_version }}"
           image_repo: << pipeline.parameters.container-image-url >>
           image_tag: build
           target: build
@@ -117,12 +119,14 @@ jobs:
       - vfcommon/docker_login
       - vfcommon/authenticate_npm
       - vfcommon/staged_buildx:
-          extra_build_args: --build-arg NODE_VERSION="{{ .values.node_version }}"
+          extra_build_args: |-
+            --build-arg NODE_VERSION="{{ .values.node_version }}"
           image_repo: << pipeline.parameters.container-image-url >>
           target: "deps"
           enable_cache_to: false
       - vfcommon/staged_buildx:
-          extra_build_args: --build-arg NODE_VERSION="{{ .values.node_version }}"
+          extra_build_args: |-
+            --build-arg NODE_VERSION="{{ .values.node_version }}"
           image_repo: << pipeline.parameters.container-image-url >>
           target: "build"
           enable_cache_to: true
