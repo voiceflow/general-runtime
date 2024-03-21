@@ -190,7 +190,7 @@
     "test:unit": "NODE_ENV=test nyc --report-dir=nyc_coverage_unit ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.unit.ts'"
   },
   "volta": {
-    "node": "20.10.0",
+    "node": "20.11.1",
     "yarn": "3.2.1"
   }
 }
