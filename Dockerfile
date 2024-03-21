@@ -1,4 +1,4 @@
-FROM node:16.20-alpine
+FROM node:20.11-alpine
 
 RUN apk add --no-cache dumb-init python3 make g++
 
