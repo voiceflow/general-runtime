@@ -39,6 +39,8 @@ class ExpressMiddleware {
     app.enable('trust proxy');
     app.disable('x-powered-by');
 
+    app.use(createLogMiddleware());
+
     app.use(timeout(String(CONFIG.ERROR_RESPONSE_MS), { respond: false }));
     app.use((req, res, next) => {
       req.on('timeout', () => {
@@ -61,8 +63,6 @@ class ExpressMiddleware {
       });
       next();
     });
-
-    app.use(createLogMiddleware());
 
     // All valid routes handled here
     app.use(api(middlewares, controllers));

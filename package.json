@@ -190,5 +190,8 @@
   "volta": {
     "node": "16.20.2",
     "yarn": "3.2.1"
+  },
+  "resolutions": {
+    "@voiceflow/logger": "link:/Users/tyler/Voiceflow/logger"
   }
 }
