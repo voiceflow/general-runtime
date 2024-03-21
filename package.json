@@ -136,7 +136,7 @@
     "typescript": "4.9.3"
   },
   "engines": {
-    "node": ">=16"
+    "node": "20.10"
   },
   "homepage": "https://github.com/voiceflow/general-runtime#readme",
   "keywords": [
@@ -179,7 +179,7 @@
     "mesh:pre": "exit 0",
     "redoc": "redoc-cli serve backend/docs/openapi.yaml --ssr --watch",
     "start": "cross-env NODE_ENV=production yarn start:base",
-    "start:base": "node --max-old-space-size=8192 build/start.js",
+    "start:base": "node --no-node-snapshot --max-old-space-size=8192 build/start.js",
     "start:local": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 IS_MESHED=true NODE_ENV=local yarn dev",
     "start:meshed": "yarn start:local",
     "test": "yarn test:run",
@@ -190,7 +190,7 @@
     "test:unit": "yarn && NODE_ENV=test nyc --report-dir=nyc_coverage_unit ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.unit.ts'"
   },
   "volta": {
-    "node": "16.20.2",
+    "node": "20.10.0",
     "yarn": "3.2.1"
   }
 }
