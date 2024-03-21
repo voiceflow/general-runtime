@@ -5,6 +5,7 @@ import safeJSONStringify from 'json-stringify-safe';
 import _ from 'lodash';
 import { isDeepStrictEqual } from 'util';
 
+import log from '@/logger';
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
 import { getUndefinedKeys, ivmExecute, vmExecute } from './utils';
@@ -49,6 +50,15 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
         // pass undefined keys explicitly because they are not sent via http JSON
         newVariableState = (await axios.post(endpoint, { ...reqData, keys: getUndefinedKeys(reqData.variables) })).data;
       } else {
+        log.warn(
+          `[CodeHandler.handle] [vm2 execution] ${log.vars({
+            workspaceID: runtime?.project?.teamID,
+            projectID: runtime?.project?._id,
+            versionID: runtime?.versionID,
+            programID: runtime?.stack?.top()?.getDiagramID(),
+            nodeID: node?.id,
+          })}`
+        );
         // execute locally
         newVariableState = vmExecute(reqData, testingEnv, callbacks);
       }
