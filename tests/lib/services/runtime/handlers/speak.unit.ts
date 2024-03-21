@@ -3,7 +3,7 @@ import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import SpeakHandler from '@/lib/services/runtime/handlers/speak';
+import { SpeakHandler } from '@/lib/services/runtime/handlers/speak';
 import { FrameType } from '@/lib/services/runtime/types';
 import { addOutputTrace, speakOutputTrace } from '@/lib/services/runtime/utils';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';

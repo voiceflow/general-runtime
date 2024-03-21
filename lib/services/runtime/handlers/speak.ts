@@ -12,7 +12,7 @@ const handlerUtils = {
   speakOutputTrace,
 };
 
-const SpeakHandler: HandlerFactory<VoiceflowNode.Speak.Node, typeof handlerUtils> = (utils) => ({
+export const SpeakHandler: HandlerFactory<VoiceflowNode.Speak.Node, typeof handlerUtils> = (utils) => ({
   canHandle: (node) => ('random_speak' in node ? !!node.random_speak : !!node.speak),
   handle: (node, runtime, variables) => {
     let speak = '';
@@ -38,4 +38,4 @@ const SpeakHandler: HandlerFactory<VoiceflowNode.Speak.Node, typeof handlerUtils
   },
 });
 
-export default SpeakHandler;
+export default () => SpeakHandler(handlerUtils);
