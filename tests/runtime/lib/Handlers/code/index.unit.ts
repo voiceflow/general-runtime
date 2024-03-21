@@ -8,7 +8,6 @@ import sinon from 'sinon';
 import log from '@/logger';
 import { Runtime, Store } from '@/runtime';
 import CodeHandler from '@/runtime/lib/Handlers/code';
-import * as codeHandlerUtils from '@/runtime/lib/Handlers/code/utils';
 import ProgramModel from '@/runtime/lib/Program';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import Trace from '@/runtime/lib/Runtime/Trace';
@@ -109,89 +108,6 @@ describe('CodeHandler', () => {
       mockLog.expects('error').calledWithMatch('Code execution remote and isolated-vm both rejected');
       sandbox.stub(axios, 'post').rejects(new Error('error'));
       sandbox.stub(mockNode, 'code').get(() => 'throw new Error("error")');
-
-      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
-      expect(result).to.eql(mockNode.fail_id);
-      mockLog.verify();
-    });
-  });
-
-  describe('vm2 executor', () => {
-    const cb = (value: any) => value + 1;
-    const handler = CodeHandler({ callbacks: { cb } });
-
-    beforeEach(() => {
-      mockNode.code = 'a = cb(a)';
-    });
-
-    it('vm2 succeeds, ivm succeeds', async () => {
-      const variables = { a: 0 };
-      const store = new Store(variables);
-
-      mockLog.expects('warn').never();
-
-      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
-      expect(result).to.eql(mockNode.success_id);
-      expect(store.get('a')).to.eq(1);
-      mockLog.verify();
-    });
-
-    it('vm2 succeeds, ivm succeeds, differing results', async () => {
-      const variables = { a: 0 };
-      const store = new Store(variables);
-
-      mockLog.expects('warn').calledWithMatch('Code execution results between vm2 and isolated-vm are different');
-      sandbox.stub(codeHandlerUtils, 'ivmExecute').resolves({ a: 2 });
-
-      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
-      expect(result).to.eql(mockNode.success_id);
-      expect(store.get('a')).to.eq(1);
-      mockLog.verify();
-    });
-
-    it('vm2 succeeds, ivm fails', async () => {
-      const variables = { a: 0 };
-      const store = new Store(variables);
-
-      mockLog.expects('warn').calledWithMatch('Code execution vm2 succeeded when isolated-vm rejected');
-      sandbox.stub(codeHandlerUtils, 'ivmExecute').rejects(new Error('error'));
-
-      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
-      expect(result).to.eql(mockNode.success_id);
-      expect(store.get('a')).to.eq(1);
-      mockLog.verify();
-    });
-
-    it('vm2 fails, ivm succeeds', async () => {
-      const variables = { a: 0 };
-      const store = new Store(variables);
-
-      mockLog.expects('warn').calledWithMatch('Code execution vm2 rejected when isolated-vm succeeded');
-      sandbox.stub(codeHandlerUtils, 'vmExecute').rejects(new Error('error'));
-
-      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
-      expect(result).to.eql(mockNode.fail_id);
-      mockLog.verify();
-    });
-
-    it('vm2 fails, ivm fails', async () => {
-      const variables = { a: 0 };
-      const store = new Store(variables);
-
-      mockLog.expects('error').calledWithMatch('Code execution vm2 and isolated-vm both rejected');
-      sandbox.stub(mockNode, 'code').get(() => 'throw new Error("error")');
-
-      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
-      expect(result).to.eql(mockNode.fail_id);
-      mockLog.verify();
-    });
-
-    it('handles infinite loops', async () => {
-      const variables = { a: 0 };
-      const store = new Store(variables);
-
-      mockLog.expects('error').calledWithMatch('Error: Script execution timed out');
-      sandbox.stub(mockNode, 'code').get(() => 'while (true) {}');
 
       const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
       expect(result).to.eql(mockNode.fail_id);

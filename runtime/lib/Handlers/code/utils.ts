@@ -1,10 +1,9 @@
-import Logger from '@voiceflow/logger';
+import type { Logger } from '@voiceflow/logger';
 import axios from 'axios';
 import ivm from 'isolated-vm';
 import _ from 'lodash';
 import { isDeepStrictEqual } from 'node:util';
 import requireFromUrl from 'require-from-url/sync';
-import vm2 from 'vm2';
 
 import Store from '@/runtime/lib/Runtime/Store';
 
@@ -82,47 +81,6 @@ export const ivmExecute = async (
   }
 };
 
-export const vmExecute = async (
-  data: { code: string; variables: Record<string, any> },
-  testingEnv?: boolean | undefined /* set to true when running in testing env */,
-  callbacks?: Record<string, (...args: any) => any>
-) => {
-  const testingEnvValue = testingEnv ?? false;
-  const vm = new vm2.VM({
-    timeout: 1000,
-    sandbox: {
-      Promise: null,
-      ..._.cloneDeep(data.variables),
-      requireFromUrl,
-      ...callbacks,
-    },
-  });
-
-  const clearContext = `
-    (function() {
-      Function = undefined;
-      if (this != null) {
-        const keys = Object.getOwnPropertyNames(this).concat(['constructor']);
-        keys.forEach((key) => {
-          const item = this[key];
-          if (!item || typeof item.constructor !== 'function') return;
-          this[key].constructor = undefined;
-        });
-      }
-    })();
-  `;
-
-  vm.run(`${testingEnvValue ? '' : clearContext} ${data.code}`);
-
-  return Object.keys(data.variables).reduce<Record<string, any>>((acc, key) => {
-    const newValue = vm.getGlobal(key);
-
-    acc[key] = Store.formatPayloadValue(newValue);
-
-    return acc;
-  }, {});
-};
-
 export const remoteVMExecute = async (endpoint: string, reqData: { code: string; variables: Record<string, any> }) => {
   const response = await axios.post<Record<string, any>>(endpoint, {
     ...reqData,
@@ -142,30 +100,23 @@ export const createExecutionResultLogger =
   ) => {
     if (resultA.result.status === 'rejected') {
       if (resultB.result.status === 'fulfilled') {
-        log.warn(
-          `Code execution ${resultA.name} rejected when ${resultB.name} succeeded ${log.vars(context)} (${log.vars({
-            [resultA.name]: resultA.result.reason,
-          })})`
-        );
+        log.warn(`Code execution ${resultA.name} rejected when ${resultB.name} succeeded %o (%o)`, context, {
+          [resultA.name]: resultA.result.reason,
+        });
       } else {
-        log.error(
-          `Code execution ${resultA.name} and ${resultB.name} both rejected ${log.vars(context)} (${log.vars({
-            [resultA.name]: resultA.result.reason,
-            [resultB.name]: resultB.result.reason,
-          })})`
-        );
+        log.error(`Code execution ${resultA.name} and ${resultB.name} both rejected %o (%o)`, context, {
+          [resultA.name]: resultA.result.reason,
+          [resultB.name]: resultB.result.reason,
+        });
       }
     } else if (resultB.result.status === 'rejected') {
-      log.warn(
-        `Code execution ${resultA.name} succeeded when ${resultB.name} rejected ${log.vars(context)} (${log.vars({
-          [resultB.name]: resultB.result.reason,
-        })})`
-      );
+      log.warn(`Code execution ${resultA.name} succeeded when ${resultB.name} rejected  %o (%o)`, context, {
+        [resultB.name]: resultB.result.reason,
+      });
     } else if (!isDeepStrictEqual(resultA.result.value, resultB.result.value)) {
-      log.warn(
-        `Code execution results between ${resultA.name} and ${resultB.name} are different ${log.vars(
-          context
-        )} (${log.vars({ [resultA.name]: resultA.result.value, [resultB.name]: resultB.result.value })})`
-      );
+      log.warn(`Code execution results between ${resultA.name} and ${resultB.name} are different %o (%o)`, context, {
+        [resultA.name]: resultA.result.value,
+        [resultB.name]: resultB.result.value,
+      });
     }
   };

@@ -2,7 +2,7 @@
 export { default as APIHandler } from './api';
 export * from './api/types';
 export { default as CodeHandler } from './code';
-export { ivmExecute, vmExecute } from './code/utils';
+export { ivmExecute } from './code/utils';
 export { default as EndHandler } from './end';
 export { default as FlowHandler } from './flow';
 export { default as FunctionHandler } from './function';

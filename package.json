@@ -69,7 +69,6 @@
     "ts-pattern": "^4.0.5",
     "unleash-client": "5.0.0",
     "validator": "^13.7.0",
-    "vm2": "^3.9.19",
     "words-to-numbers": "^1.5.1",
     "workerpool": "^5.0.4",
     "zod": "^3.22.4"

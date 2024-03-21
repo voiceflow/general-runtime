@@ -1,4 +1,4 @@
-/* eslint-disable sonarjs/cognitive-complexity, max-depth */
+/* eslint-disable sonarjs/cognitive-complexity */
 import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 import safeJSONStringify from 'json-stringify-safe';
 import _ from 'lodash';
@@ -13,19 +13,17 @@ export interface CodeOptions {
   endpoint?: string | null;
   callbacks?: Record<string, (...args: any) => any>;
   useStrictVM?: boolean;
-  testingEnv?: boolean;
 }
 
 export const GENERATED_CODE_NODE_ID = 'PROGRAMMATICALLY-GENERATED-CODE-NODE';
 
 const RESOLVED_PATH = '__RESOLVED_PATH__';
 
-const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
+const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions> = ({
   endpoint,
   callbacks,
   useStrictVM = false,
-  testingEnv = false,
-} = {}) => ({
+}) => ({
   canHandle: (node) => typeof node.code === 'string',
   handle: async (node, runtime, variables) => {
     try {
@@ -45,63 +43,39 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
       // useStrictVM used for IfV2 and SetV2 to use isolated-vm
       if (useStrictVM) {
         newVariableState = await utils.ivmExecute(reqData, callbacks);
-      } else {
+      } else if (endpoint) {
         // Execute code in each environment and compare results
         // Goal is to ensure that the code execution is consistent across environments
-        //  so the remote and vm2 executors can be removed, leaving only isolated-vm
+        //  so the remote executor can be removed, leaving only isolated-vm
+        const [endpointResult, ivmResult] = await Promise.allSettled([
+          utils.remoteVMExecute(endpoint, reqData),
+          utils.ivmExecute(reqData, callbacks, { legacyRequireFromUrl: true }),
+        ]);
 
         const logExecutionResult = utils.createExecutionResultLogger(log, {
           projectID: runtime.project?._id,
           versionID: runtime.getVersionID(),
         });
 
-        if (endpoint) {
-          const [endpointResult, ivmResult] = await Promise.allSettled([
-            utils.remoteVMExecute(endpoint, reqData),
-            utils.ivmExecute(reqData, callbacks, { legacyRequireFromUrl: true }),
-          ]);
-
-          // Compare remote execution result with isolated-vm execution result
-          logExecutionResult(
-            {
-              name: 'remote',
-              result: endpointResult,
-            },
-            {
-              name: 'isolated-vm',
-              result: ivmResult,
-            }
-          );
-
-          // Remote execution result is the source of truth
-          if (endpointResult.status === 'rejected') {
-            throw endpointResult.reason;
+        // Compare remote execution result with isolated-vm execution result
+        logExecutionResult(
+          {
+            name: 'remote',
+            result: endpointResult,
+          },
+          {
+            name: 'isolated-vm',
+            result: ivmResult,
           }
-          newVariableState = endpointResult.value;
-        } else {
-          const [vmResult, ivmResult] = await Promise.allSettled([
-            utils.vmExecute(reqData, testingEnv, callbacks),
-            utils.ivmExecute(reqData, callbacks, { legacyRequireFromUrl: true }),
-          ]);
+        );
 
-          // Compare vm2 result with isolated-vm execution result
-          logExecutionResult(
-            {
-              name: 'vm2',
-              result: vmResult,
-            },
-            {
-              name: 'isolated-vm',
-              result: ivmResult,
-            }
-          );
-
-          // vm2 result is the source of truth
-          if (vmResult.status === 'rejected') {
-            throw vmResult.reason;
-          }
-          newVariableState = vmResult.value;
+        // Remote execution result is the source of truth
+        if (endpointResult.status === 'rejected') {
+          throw endpointResult.reason;
         }
+        newVariableState = endpointResult.value;
+      } else {
+        newVariableState = await utils.ivmExecute(reqData, callbacks);
       }
 
       // The changes (a diff) that the execution of this code made to the variables
