@@ -52,6 +52,33 @@ function applyNextCommand(command: NextCommand, paths: FunctionCompiledInvocatio
   return null;
 }
 
+function buildContext(projectID: string, variables: Store) {
+  const {
+    intent_confidence,
+    last_event,
+    last_response,
+    last_utterance,
+    locale,
+    platform,
+    sessions,
+    timestamp,
+    user_id,
+  } = variables.getState();
+
+  return {
+    projectID,
+    intent_confidence,
+    last_event,
+    last_response,
+    last_utterance,
+    locale,
+    platform,
+    sessions,
+    timestamp,
+    user_id,
+  };
+}
+
 export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsObj> = (utils) => ({
   canHandle: (node) => node.type === NodeType.FUNCTION,
 
@@ -66,15 +93,18 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
         };
       }, {});
 
-      const { next, outputVars, trace } = await executeFunction({
-        ...node.data,
-        source: {
-          codeId: definition.codeId,
+      const { next, outputVars, trace } = await executeFunction(
+        {
+          ...node.data,
+          source: {
+            codeId: definition.codeId,
+          },
+          invocation: {
+            inputVars: resolvedInputMapping,
+          },
         },
-        invocation: {
-          inputVars: resolvedInputMapping,
-        },
-      });
+        buildContext(runtime.project?._id ?? 'unknown project', variables)
+      );
 
       if (outputVars) {
         applyOutputCommand(outputVars, runtime, variables, definition.outputVars, invocation.outputVars);

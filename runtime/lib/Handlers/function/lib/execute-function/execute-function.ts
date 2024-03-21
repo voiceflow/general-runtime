@@ -8,7 +8,7 @@ import { adaptTrace } from './lib/adapt-trace';
 import { validateNext } from './lib/validate-next';
 import { validateVariableValueTypes } from './lib/validate-variable-value-types';
 
-export async function executeFunction(funcData: ExecuteFunctionArgs) {
+export async function executeFunction(funcData: ExecuteFunctionArgs, context: Record<string, unknown>) {
   const { source, definition, invocation } = funcData;
 
   validateVariableValueTypes(definition.inputVars, invocation.inputVars);
@@ -22,6 +22,7 @@ export async function executeFunction(funcData: ExecuteFunctionArgs) {
 
   const { next, outputVars, trace } = await functionLambdaClient.executeLambda({
     ...source,
+    context,
     variables: invocation.inputVars,
     requestId: cuid.slug(),
   });

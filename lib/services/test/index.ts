@@ -17,13 +17,29 @@ export class TestService extends AbstractManager {
     let startTime = null;
     let endTime = null;
 
+    const defaultContext = {
+      intent_confidence: 0,
+      last_event: 0,
+      last_response: '',
+      last_utterance: '',
+      locale: 0,
+      platform: 'webchat',
+      sessions: 1,
+      timestamp: 0,
+      user_id: 'TEST_USER',
+      projectID: 'dummy',
+    };
+
     try {
       startTime = performance.now();
-      const runtimeCommands = await executeFunction({
-        source: { code },
-        definition,
-        invocation,
-      });
+      const runtimeCommands = await executeFunction(
+        {
+          source: { code },
+          definition,
+          invocation,
+        },
+        defaultContext
+      );
       endTime = performance.now();
 
       const executionTime = endTime - startTime;
