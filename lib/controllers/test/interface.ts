@@ -1,4 +1,4 @@
-import { FunctionVariableType } from '@voiceflow/dtos';
+import { VariableDatatype } from '@voiceflow/dtos';
 import { z } from 'zod';
 
 import { RuntimeCommandDTO } from '@/runtime/lib/Handlers/function/runtime-command/runtime-command.dto';
@@ -12,14 +12,14 @@ export const TestFunctionRequestBodyDTO = z
         inputVars: z.record(
           z
             .object({
-              type: z.literal(FunctionVariableType.STRING),
+              type: z.literal(VariableDatatype.TEXT),
             })
             .strict()
         ),
         outputVars: z.record(
           z
             .object({
-              type: z.literal(FunctionVariableType.STRING),
+              type: z.literal(VariableDatatype.TEXT),
             })
             .strict()
         ),
