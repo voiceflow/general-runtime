@@ -179,7 +179,7 @@
     "mesh:pre": "exit 0",
     "redoc": "redoc-cli serve backend/docs/openapi.yaml --ssr --watch",
     "start": "cross-env NODE_ENV=production yarn start:base",
-    "start:base": "node --no-node-snapshot --max-old-space-size=8192 build/start.js",
+    "start:base": "node --no-node-snapshot --max-old-space-size=4096 build/start.js",
     "start:local": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 IS_MESHED=true NODE_ENV=local yarn dev",
     "start:meshed": "yarn start:local",
     "test": "yarn test:run",
