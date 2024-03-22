@@ -59,7 +59,7 @@
     "json-stringify-safe": "^5.0.1",
     "lodash": "^4.17.21",
     "mathjs": "^10.6.1",
-    "mongodb": "^6.4.0",
+    "mongodb": "6.5.0",
     "nestjs-zod": "2.3.3",
     "node-fetch": "^2.7.0",
     "regenerator-runtime": "^0.13.3",

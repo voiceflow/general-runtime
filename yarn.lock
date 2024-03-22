@@ -2513,12 +2513,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mongodb-js/saslprep@npm:^1.1.0":
-  version: 1.1.4
-  resolution: "@mongodb-js/saslprep@npm:1.1.4"
+"@mongodb-js/saslprep@npm:^1.1.5":
+  version: 1.1.5
+  resolution: "@mongodb-js/saslprep@npm:1.1.5"
   dependencies:
     sparse-bitfield: ^3.0.3
-  checksum: 208fd6f82136fd4332d0a6c667f8090b08f365dd7aa5880b8c485501caed7b058a99c231085c51ad7fa25f4a590d96c87af9a5b3fc0aea4de8c527657e33e548
+  checksum: 8e38bc604707933959f34576ea3db667b14ef6ca604e42ae4a825d3dab00149fc1b78cb83a542c01016f3c9072872210e78610005565e1fd25d8df78415a159b
   languageName: node
   linkType: hard
 
@@ -4689,7 +4689,7 @@ __metadata:
     lodash: ^4.17.21
     mathjs: ^10.6.1
     mocha: ^6.2.3
-    mongodb: ^6.4.0
+    mongodb: 6.5.0
     nestjs-zod: 2.3.3
     node-fetch: ^2.7.0
     nyc: ^15.1.0
@@ -12747,27 +12747,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb@npm:^4.6.0":
-  version: 4.6.0
-  resolution: "mongodb@npm:4.6.0"
+"mongodb@npm:6.5.0":
+  version: 6.5.0
+  resolution: "mongodb@npm:6.5.0"
   dependencies:
-    bson: ^4.6.3
-    denque: ^2.0.1
-    mongodb-connection-string-url: ^2.5.2
-    saslprep: ^1.0.3
-    socks: ^2.6.2
-  dependenciesMeta:
-    saslprep:
-      optional: true
-  checksum: aa2a584fdb4e7f73b73b5f4019916e4f9cdba6e0aa81448eade44a5ff4e5d771ad62cd252f012b7a211eb80f6f88fba446c6ad8f0eb898ba56cf447719161540
-  languageName: node
-  linkType: hard
-
-"mongodb@npm:^6.4.0":
-  version: 6.4.0
-  resolution: "mongodb@npm:6.4.0"
-  dependencies:
-    "@mongodb-js/saslprep": ^1.1.0
+    "@mongodb-js/saslprep": ^1.1.5
     bson: ^6.4.0
     mongodb-connection-string-url: ^3.0.0
   peerDependencies:
@@ -12793,7 +12777,23 @@ __metadata:
       optional: true
     socks:
       optional: true
-  checksum: 06f600fefeea1ad70c971d6e6b4677ab14432b1d69a2973f43e263dde3856a67036ab46b8c6bbdcbe7c7951e90685233c8a2e4e53cb76fdeafc369856d09480d
+  checksum: 5774dfdd02d8d8e6bb70bf870f19bfad332da612fa6685d182b2e09da4f1306995ddf54f13ae0f6c3936e74444741689c04e7c009e7a847473f08f522ad16542
+  languageName: node
+  linkType: hard
+
+"mongodb@npm:^4.6.0":
+  version: 4.6.0
+  resolution: "mongodb@npm:4.6.0"
+  dependencies:
+    bson: ^4.6.3
+    denque: ^2.0.1
+    mongodb-connection-string-url: ^2.5.2
+    saslprep: ^1.0.3
+    socks: ^2.6.2
+  dependenciesMeta:
+    saslprep:
+      optional: true
+  checksum: aa2a584fdb4e7f73b73b5f4019916e4f9cdba6e0aa81448eade44a5ff4e5d771ad62cd252f012b7a211eb80f6f88fba446c6ad8f0eb898ba56cf447719161540
   languageName: node
   linkType: hard
 
