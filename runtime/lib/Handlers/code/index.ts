@@ -55,6 +55,9 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions> = ({
         const logExecutionResult = utils.createExecutionResultLogger(log, {
           projectID: runtime.project?._id,
           versionID: runtime.getVersionID(),
+          diagramID: runtime.stack.top()?.getDiagramID(),
+          nodeID: node.id,
+          code: node.code,
         });
 
         // Compare remote execution result with isolated-vm execution result

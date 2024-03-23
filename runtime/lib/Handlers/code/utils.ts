@@ -1,3 +1,4 @@
+import { Utils } from '@voiceflow/common';
 import type { Logger } from '@voiceflow/logger';
 import axios from 'axios';
 import ivm from 'isolated-vm';
@@ -92,31 +93,59 @@ export const remoteVMExecute = async (endpoint: string, reqData: { code: string;
 export const getUndefinedKeys = (variables: Record<string, unknown>) =>
   Object.keys(variables).filter((key) => variables[key] === undefined);
 
+const isFulfilled = <T>(input: PromiseSettledResult<T>): input is PromiseFulfilledResult<T> =>
+  input.status === 'fulfilled';
+
+const isRejected = (input: PromiseSettledResult<unknown>): input is PromiseRejectedResult =>
+  input.status === 'rejected';
+
 export const createExecutionResultLogger =
   (log: Logger, context: Record<string, any>) =>
   (
-    resultA: { name: string; result: PromiseSettledResult<any> },
-    resultB: { name: string; result: PromiseSettledResult<any> }
+    methodA: { name: string; result: PromiseSettledResult<any> },
+    methodB: { name: string; result: PromiseSettledResult<any> }
   ) => {
-    if (resultA.result.status === 'rejected') {
-      if (resultB.result.status === 'fulfilled') {
-        log.warn(`Code execution ${resultA.name} rejected when ${resultB.name} succeeded %o (%o)`, context, {
-          [resultA.name]: resultA.result.reason,
-        });
+    // for typescript
+    const resultA = methodA.result;
+    const resultB = methodB.result;
+
+    if (isRejected(resultA)) {
+      if (isFulfilled(resultB)) {
+        log.warn(
+          { ...context, [methodA.name]: resultA.reason },
+          `Code execution ${methodA.name} rejected when ${methodB.name} succeeded`
+        );
       } else {
-        log.error(`Code execution ${resultA.name} and ${resultB.name} both rejected %o (%o)`, context, {
-          [resultA.name]: resultA.result.reason,
-          [resultB.name]: resultB.result.reason,
-        });
+        log.error(
+          { ...context, [methodA.name]: resultA.reason, [methodB.name]: resultB.reason },
+          `Code execution ${methodA.name} and ${methodB.name} both rejected`
+        );
       }
-    } else if (resultB.result.status === 'rejected') {
-      log.warn(`Code execution ${resultA.name} succeeded when ${resultB.name} rejected  %o (%o)`, context, {
-        [resultB.name]: resultB.result.reason,
+    } else if (isRejected(resultB)) {
+      log.warn(
+        { ...context, [methodB.name]: resultB.reason },
+        `Code execution ${methodA.name} succeeded when ${methodB.name} rejected`
+      );
+    } else if (Utils.object.isObject(resultA.value) && Utils.object.isObject(resultB.value)) {
+      const differentProperties = new Set<string>();
+      Utils.array.unique([...Object.keys(resultA.value), ...Object.keys(resultB.value)]).forEach((key) => {
+        if (!isDeepStrictEqual(resultA.value[key], resultB.value[key])) {
+          differentProperties.add(key);
+        }
       });
-    } else if (!isDeepStrictEqual(resultA.result.value, resultB.result.value)) {
-      log.warn(`Code execution results between ${resultA.name} and ${resultB.name} are different %o (%o)`, context, {
-        [resultA.name]: resultA.result.value,
-        [resultB.name]: resultB.result.value,
-      });
+
+      log.warn(
+        {
+          ...context,
+          [methodA.name]: _.pick(resultA.value, [...differentProperties]),
+          [methodB.name]: _.pick(resultB.value, [...differentProperties]),
+        },
+        `Code execution results between ${methodA.name} and ${methodB.name} are different`
+      );
+    } else {
+      log.warn(
+        { ...context, [methodA.name]: resultA.value, [methodB.name]: resultB.value },
+        `Code execution results between ${methodA.name} and ${methodB.name} are different`
+      );
     }
   };
