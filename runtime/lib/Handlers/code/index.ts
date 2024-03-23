@@ -49,7 +49,7 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions> = ({
         //  so the remote executor can be removed, leaving only isolated-vm
         const [endpointResult, ivmResult] = await Promise.allSettled([
           utils.remoteVMExecute(endpoint, reqData),
-          utils.ivmExecute(reqData, callbacks, { legacyRequireFromUrl: true }),
+          utils.ivmExecute(reqData, callbacks),
         ]);
 
         const logExecutionResult = utils.createExecutionResultLogger(log, {
