@@ -6,6 +6,7 @@ import { FunctionLambdaClient } from '@/runtime/lib/HTTPClient/function-lambda/f
 import { ExecuteFunctionArgs } from './execute-function.interface';
 import { adaptTrace } from './lib/adapt-trace';
 import { validateNext } from './lib/validate-next';
+import { validateTrace } from './lib/validate-trace';
 import { validateVariableValueTypes } from './lib/validate-variable-value-types';
 
 export async function executeFunction(funcData: ExecuteFunctionArgs) {
@@ -33,6 +34,9 @@ export async function executeFunction(funcData: ExecuteFunctionArgs) {
   return {
     next,
     outputVars,
-    trace: trace?.map((tr) => adaptTrace(tr)),
+    trace: trace?.map((tr) => {
+      validateTrace(tr);
+      return adaptTrace(tr);
+    }),
   };
 }

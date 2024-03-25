@@ -10,12 +10,11 @@ import {
   SimpleCarouselTrace,
   SimpleSpeakTrace,
   SimpleTextTrace,
-  SimpleTrace,
-  SimpleTraceDTO,
   SimpleTraceType,
   SimpleVisualTrace,
   Trace,
 } from '../../../runtime-command/trace-command.dto';
+import { isSimpleTrace } from './is-simple-trace';
 
 const { cuid } = Utils.id;
 const { TraceType } = BaseTrace;
@@ -129,8 +128,6 @@ const adaptCardV2Trace = (trace: SimpleCardV2Trace): Trace => {
     },
   } satisfies BaseTrace.CardV2;
 };
-
-const isSimpleTrace = (trace: Trace): trace is SimpleTrace => SimpleTraceDTO.safeParse(trace).success;
 
 export function adaptTrace(trace: Trace): Trace {
   if (!isSimpleTrace(trace)) return trace;
