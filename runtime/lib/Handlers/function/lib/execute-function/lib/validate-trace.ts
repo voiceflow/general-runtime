@@ -3,7 +3,7 @@ import { InvalidRuntimeCommandException } from '@/runtime/lib/HTTPClient/functio
 import { SimpleTraceDTO, Trace } from '../../../runtime-command/trace-command.dto';
 import { isSimpleTraceType } from './is-simple-trace';
 
-export function validateTrace(trace: Trace): Trace {
+export function parseTrace(trace: Trace): Trace {
   if (isSimpleTraceType(trace.type)) {
     try {
       return SimpleTraceDTO.parse(trace);
