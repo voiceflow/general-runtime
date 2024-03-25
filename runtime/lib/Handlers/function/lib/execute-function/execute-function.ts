@@ -34,9 +34,6 @@ export async function executeFunction(funcData: ExecuteFunctionArgs) {
   return {
     next,
     outputVars,
-    trace: trace?.map((tr) => {
-      validateTrace(tr);
-      return adaptTrace(tr);
-    }),
+    trace: trace?.map((tr) => adaptTrace(validateTrace(tr))),
   };
 }
