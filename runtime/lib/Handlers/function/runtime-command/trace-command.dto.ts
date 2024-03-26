@@ -9,7 +9,12 @@ export enum SimpleTraceType {
   Visual = 'visual',
   CardV2 = 'cardV2',
   Carousel = 'carousel',
+  Choice = 'choice',
 }
+
+const constraints = {
+  MAX_SMALL_STRING_LENGTH: 128,
+} as const;
 
 export const TraceDTO = z
   .object({
@@ -87,14 +92,27 @@ export const SimpleActionDTO = z.discriminatedUnion('type', [SimpleURLActionDTO]
 
 export type SimpleAction = z.infer<typeof SimpleActionDTO>;
 
-export const SimpleButtonDTO = z.object({
-  name: z.string(),
+export const SimpleActionButtonDTO = z.object({
+  name: z.string().describe('Text for the button UI'),
   payload: z.object({
+    type: z
+      .literal('action')
+      .optional()
+      .describe('Type of the button. Optional due to backwards compatibility reasons'),
     actions: z.array(SimpleActionDTO),
   }),
 });
 
-export type SimpleButton = z.infer<typeof SimpleButtonDTO>;
+export type SimpleActionButton = z.infer<typeof SimpleActionButtonDTO>;
+
+export const SimpleGeneralButtonDTO = z.object({
+  name: z.string().describe('Text for the button UI'),
+  payload: z.object({
+    code: z.string().max(constraints.MAX_SMALL_STRING_LENGTH).describe('Defines the custom button request type'),
+  }),
+});
+
+export type SimpleGeneralButton = z.infer<typeof SimpleGeneralButtonDTO>;
 
 export const SimpleCardDTO = z.object({
   imageUrl: z.string(),
@@ -102,7 +120,7 @@ export const SimpleCardDTO = z.object({
   description: z.object({
     text: z.string(),
   }),
-  buttons: z.array(SimpleButtonDTO).optional(),
+  buttons: z.array(SimpleActionButtonDTO).optional(),
 });
 
 export type SimpleCard = z.infer<typeof SimpleCardDTO>;
@@ -124,6 +142,15 @@ export const SimpleCarouselTraceDTO = TraceDTO.extend({
 
 export type SimpleCarouselTrace = z.infer<typeof SimpleCarouselTraceDTO>;
 
+export const SimpleChoiceTraceDTO = TraceDTO.extend({
+  type: z.literal(SimpleTraceType.Choice),
+  payload: z.object({
+    buttons: z.array(SimpleGeneralButtonDTO),
+  }),
+}).passthrough();
+
+export type SimpleChoiceTrace = z.infer<typeof SimpleChoiceTraceDTO>;
+
 export const SimpleTraceDTO = z.discriminatedUnion('type', [
   SimpleTextTraceDTO,
   SimpleSpeakTraceDTO,
@@ -132,6 +159,7 @@ export const SimpleTraceDTO = z.discriminatedUnion('type', [
   SimpleVisualTraceDTO,
   SimpleCardV2TraceDTO,
   SimpleCarouselTraceDTO,
+  SimpleChoiceTraceDTO,
 ]);
 
 export type SimpleTrace = z.infer<typeof SimpleTraceDTO>;
