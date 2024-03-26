@@ -3,11 +3,13 @@ import { Utils } from '@voiceflow/common';
 
 import {
   SimpleAction,
+  SimpleActionButton,
   SimpleAudioTrace,
-  SimpleButton,
   SimpleCard,
   SimpleCardV2Trace,
   SimpleCarouselTrace,
+  SimpleChoiceTrace,
+  SimpleGeneralButton,
   SimpleSpeakTrace,
   SimpleTextTrace,
   SimpleTrace,
@@ -86,7 +88,7 @@ const adaptAction = (action: SimpleAction): BaseRequest.Action.BaseAction => {
   };
 };
 
-const adaptButton = (button: SimpleButton): BaseRequest.ActionRequestButton => {
+const adaptActionButton = (button: SimpleActionButton): BaseRequest.ActionRequestButton => {
   return {
     name: button.name,
     request: {
@@ -99,11 +101,33 @@ const adaptButton = (button: SimpleButton): BaseRequest.ActionRequestButton => {
   };
 };
 
+const toFunctionGeneralButtonName = (name: string) => {
+  const buttonName = `function-button:${name}`;
+  if (!isFunctionGeneralButtonName(buttonName)) {
+    throw new Error('invalud button name');
+  }
+  return buttonName;
+};
+
+const isFunctionGeneralButtonName = (name: string) => /^function-button:[A-Z_a-z][\dA-Za-z]*$/.test(name);
+
+const adaptGeneralButton = (button: SimpleGeneralButton): BaseRequest.GeneralRequestButton => {
+  return {
+    name: button.name,
+    request: {
+      type: toFunctionGeneralButtonName(button.payload.code),
+      payload: {
+        label: button.name,
+      },
+    },
+  };
+};
+
 const adaptCard = (card: SimpleCard): BaseNode.Carousel.TraceCarouselCard => {
   return {
     ...card,
     id: cuid.slug(),
-    buttons: (card.buttons ?? []).map((but) => adaptButton(but)),
+    buttons: (card.buttons ?? []).map((but) => adaptActionButton(but)),
   };
 };
 
@@ -125,9 +149,20 @@ const adaptCardV2Trace = (trace: SimpleCardV2Trace): Trace => {
     type: TraceType.CARD_V2,
     payload: {
       ...trace.payload,
-      buttons: (trace.payload.buttons ?? []).map((but) => adaptButton(but)),
+      buttons: (trace.payload.buttons ?? []).map((but) => adaptActionButton(but)),
     },
   } satisfies BaseTrace.CardV2;
+};
+
+const adaptChoiceTrace = (trace: SimpleChoiceTrace): Trace => {
+  return {
+    ...trace,
+    type: TraceType.CHOICE,
+    payload: {
+      ...trace.payload,
+      buttons: (trace.payload.buttons ?? []).map((but) => adaptGeneralButton(but)),
+    },
+  } satisfies BaseTrace.Choice;
 };
 
 const isSimpleTrace = (trace: Trace): trace is SimpleTrace => SimpleTraceDTO.safeParse(trace).success;
@@ -148,6 +183,8 @@ export function adaptTrace(trace: Trace): Trace {
       return adaptCarouselTrace(trace);
     case SimpleTraceType.CardV2:
       return adaptCardV2Trace(trace);
+    case SimpleTraceType.Choice:
+      return adaptChoiceTrace(trace);
     default:
       return trace;
   }
