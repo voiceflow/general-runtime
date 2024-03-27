@@ -1,4 +1,6 @@
-import { SimpleTrace, SimpleTraceDTO, SimpleTraceType, Trace } from '../../../runtime-command/trace-command.dto';
+import { Trace } from '../../../runtime-command/trace/base.dto';
+import { SimpleTraceType } from '../../../runtime-command/trace/simple-trace-type.enum';
+import { SimpleTrace, SimpleTraceDTO } from '../../../runtime-command/trace-command.dto';
 
 export const isSimpleTrace = (trace: Trace): trace is SimpleTrace => SimpleTraceDTO.safeParse(trace).success;
 
