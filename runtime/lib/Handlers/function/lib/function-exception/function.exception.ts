@@ -2,7 +2,7 @@ import { BaseNode } from '@voiceflow/base-types';
 import { HTTPException } from '@voiceflow/exception';
 import { match } from 'ts-pattern';
 
-import { Trace } from '../../runtime-command/trace-command.dto';
+import { Trace } from '../../runtime-command/trace/base.dto';
 
 export abstract class FunctionException extends Error {
   abstract get message(): string;

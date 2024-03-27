@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+import { MatchedTransferDTO } from './transfer/matched-transfer.dto';
+import { TransferDTO } from './transfer/transfer.dto';
+
 export const NextPathDTO = z
   .object({
     path: z.string({
@@ -11,9 +14,12 @@ export const NextPathDTO = z
 
 export type NextPath = z.infer<typeof NextPathDTO>;
 
-// !TODO! - Add `NextStageDTO` to `NextCommandDTO`
+export const NextManyCommandDTO = z.object({
+  listen: z.literal(true),
+  defaultTo: TransferDTO,
+  to: z.array(MatchedTransferDTO),
+});
+
 export const NextCommandDTO = NextPathDTO;
 
 export type NextCommand = z.infer<typeof NextCommandDTO>;
-
-export const isNextPath = (val: unknown): val is NextPath => NextPathDTO.safeParse(val).success;

@@ -1,21 +1,18 @@
 import { BaseNode, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 import { Utils } from '@voiceflow/common';
 
-import {
-  SimpleAction,
-  SimpleActionButton,
-  SimpleAudioTrace,
-  SimpleCard,
-  SimpleCardV2Trace,
-  SimpleCarouselTrace,
-  SimpleChoiceTrace,
-  SimpleGeneralButton,
-  SimpleSpeakTrace,
-  SimpleTextTrace,
-  SimpleTraceType,
-  SimpleVisualTrace,
-  Trace,
-} from '../../../runtime-command/trace-command.dto';
+import { SimpleAction, SimpleActionButton } from '../../../runtime-command/button/action-button.dto';
+import { SimpleGeneralButton } from '../../../runtime-command/button/general-button.dto';
+import { SimpleCard } from '../../../runtime-command/card/card.dto';
+import { SimpleAudioTrace } from '../../../runtime-command/trace/audio.dto';
+import { Trace } from '../../../runtime-command/trace/base.dto';
+import { SimpleCardV2Trace } from '../../../runtime-command/trace/cardv2.dto';
+import { SimpleCarouselTrace } from '../../../runtime-command/trace/carousel.dto';
+import { SimpleChoiceTrace } from '../../../runtime-command/trace/choice.dto';
+import { SimpleTraceType } from '../../../runtime-command/trace/simple-trace-type.enum';
+import { SimpleSpeakTrace } from '../../../runtime-command/trace/speak.dto';
+import { SimpleTextTrace } from '../../../runtime-command/trace/text.dto';
+import { SimpleVisualTrace } from '../../../runtime-command/trace/visual.dto';
 import { isSimpleTrace } from './is-simple-trace';
 
 const { cuid } = Utils.id;
@@ -101,14 +98,8 @@ const adaptActionButton = (button: SimpleActionButton): BaseRequest.ActionReques
 };
 
 const toFunctionGeneralButtonName = (name: string) => {
-  const buttonName = `function-button:${name}`;
-  if (!isFunctionGeneralButtonName(buttonName)) {
-    throw new Error('invalud button name');
-  }
-  return buttonName;
+  return `function-button:${name}`;
 };
-
-const isFunctionGeneralButtonName = (name: string) => /^function-button:[A-Z_a-z][\dA-Za-z]*$/.test(name);
 
 const adaptGeneralButton = (button: SimpleGeneralButton): BaseRequest.GeneralRequestButton => {
   return {
