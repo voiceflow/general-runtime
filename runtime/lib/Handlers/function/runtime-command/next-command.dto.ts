@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { MatchedTransferDTO } from './transfer/matched-transfer.dto';
+import { ConditionalTransferDTO } from './transfer/conditional-transfer.dto';
 import { TransferDTO } from './transfer/transfer.dto';
 
 export const NextPathDTO = z
@@ -14,12 +14,17 @@ export const NextPathDTO = z
 
 export type NextPath = z.infer<typeof NextPathDTO>;
 
-export const NextManyCommandDTO = z.object({
-  listen: z.literal(true),
+export const NextBranchesDTO = z.object({
   defaultTo: TransferDTO,
-  to: z.array(MatchedTransferDTO),
+  to: z.array(ConditionalTransferDTO),
 });
 
-export const NextCommandDTO = NextPathDTO;
+export type NextBranches = z.infer<typeof NextBranchesDTO>;
+
+export const NextManyCommandDTO = NextBranchesDTO.extend({
+  listen: z.literal(true),
+});
+
+export const NextCommandDTO = z.union([NextPathDTO, NextManyCommandDTO]);
 
 export type NextCommand = z.infer<typeof NextCommandDTO>;

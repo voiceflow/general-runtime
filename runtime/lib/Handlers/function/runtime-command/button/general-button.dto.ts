@@ -1,8 +1,6 @@
 import { z } from 'zod';
 
-export const FUNCTION_BUTTON_NAME_REGEX = /^[A-Z_a-z][\dA-Za-z]*$/;
-
-export const isFunctionButtonName = (name: string) => FUNCTION_BUTTON_NAME_REGEX.test(name);
+const FUNCTION_BUTTON_NAME_REGEX = /^[A-Z_a-z][\dA-Za-z]*$/;
 
 export const SimpleGeneralButtonDTO = z.object({
   name: z.string().describe('Text for the button UI'),

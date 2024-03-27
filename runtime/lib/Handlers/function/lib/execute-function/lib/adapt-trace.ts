@@ -97,8 +97,18 @@ const adaptActionButton = (button: SimpleActionButton): BaseRequest.ActionReques
   };
 };
 
+const functionButtonPrefix = `function-button:`;
+
 const toFunctionGeneralButtonName = (name: string) => {
-  return `function-button:${name}`;
+  return `${functionButtonPrefix}${name}`;
+};
+
+export const fromFunctionGeneralButtonName = (name: string) => {
+  if (!name.startsWith('function-button:')) {
+    throw new Error("failed to parse button name because it does not match the function's general button format");
+  }
+
+  return name.replace(functionButtonPrefix, '');
 };
 
 const adaptGeneralButton = (button: SimpleGeneralButton): BaseRequest.GeneralRequestButton => {
