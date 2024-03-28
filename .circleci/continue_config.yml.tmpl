@@ -147,6 +147,7 @@ workflows:
           use_buildkit: true
           remote_docker_version: default
           extra_build_args: *node_version_arg
+          enable_cache_to: {{ eq .values.branch "master" }}
           requires:
             {{- if eq .values.branch "master" }}
             - test
