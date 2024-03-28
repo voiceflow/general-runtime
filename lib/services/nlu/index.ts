@@ -4,15 +4,15 @@
  */
 
 import { BaseNode, BaseRequest, BaseTrace } from '@voiceflow/base-types';
+import { AnyTrace } from '@voiceflow/base-types/build/cjs/trace';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { isTextRequest } from '@/lib/services/runtime/types';
-import logger from '@/logger';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
+import { Predictor } from '../classification';
 import { massageVersion } from '../classification/classification.utils';
 import { PredictedSlot } from '../classification/interfaces/nlu.interface';
-import { Predictor } from '../classification/predictor.class';
 import { AbstractManager } from '../utils';
 import { getNoneIntentRequest } from './utils';
 
@@ -55,14 +55,11 @@ class NLU extends AbstractManager implements ContextHandler {
       };
     }
 
-    logger.info('starting nlu handle');
-
     const version = await context.data.api.getVersion(context.versionID);
     const { settings, intents, slots } = massageVersion(version);
     const project = await context.data.api.getProject(version.projectID);
 
     if (!settings) {
-      logger.info('no settings');
       return context;
     }
 
@@ -92,24 +89,46 @@ class NLU extends AbstractManager implements ContextHandler {
     const prediction = await predictor.predict(context.request.payload);
 
     if (context.trace) {
-      const { llm, ...predictions } = predictor.predictions;
-      logger.info({ predictions });
-      if (llm?.errors) {
-        context.trace.push(debugTrace(llm.errors.message));
-      } else {
-        logger.info({ llm });
-        context.trace = context.trace.concat([
-          debugTrace(`LLM model: ${llm.model}`),
-          debugTrace(`LLM multiplier: ${llm.multiplier}`),
-          debugTrace(`LLM tokens: ${llm.tokens}`),
-        ]);
-      }
+      context.trace = this.addDebugTraces(context.trace, predictor);
     }
 
     const request = getIntentRequest(prediction);
 
     return { ...context, prediction, request };
   };
+
+  private addDebugTraces(trace: AnyTrace[], predictor: Predictor): AnyTrace[] {
+    const { predictions } = predictor;
+    if (!predictions.result) {
+      return trace;
+    }
+    const newTraces: typeof trace = [];
+    switch (predictions.result) {
+      case 'llm': {
+        const { llm } = predictions;
+        if (llm?.error) {
+          newTraces.push(debugTrace(llm.error.message));
+        } else {
+          newTraces.concat([
+            debugTrace(`LLM model: ${llm?.model}`),
+            debugTrace(`LLM multiplier: ${llm?.multiplier}`),
+            debugTrace(`LLM tokens: ${llm?.tokens}`),
+          ]);
+        }
+        break;
+      }
+      case 'nlu': {
+        break;
+      }
+      case 'nlc': {
+        break;
+      }
+      default: {
+        break;
+      }
+    }
+    return trace.concat(newTraces);
+  }
 }
 
 const debugTrace = (message: string): BaseTrace.DebugTrace => ({
