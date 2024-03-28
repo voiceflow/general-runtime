@@ -2,6 +2,7 @@ import ivm, { Reference } from 'isolated-vm';
 
 import logger from '@/logger';
 
+// @ts-expect-error temporarily unsueed
 const isStringReference = (arg: Reference<unknown>): arg is Reference<string> => arg.typeof === 'string';
 
 export async function executePromptWrapper(wrapperCode: string, args: any): Promise<string> {
@@ -11,6 +12,7 @@ export async function executePromptWrapper(wrapperCode: string, args: any): Prom
   const context = await isolate.createContext();
 
   // TODO: this is the same type as the return from mainModule and not a Reference
+  // eslint-disable-next-line no-async-promise-executor
   const result = await new Promise<Reference<unknown>>(async (resolve, reject) => {
     try {
       await context.evalClosure(
