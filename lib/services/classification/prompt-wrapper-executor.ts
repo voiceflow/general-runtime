@@ -60,6 +60,7 @@ export async function executePromptWrapper(wrapperCode: string, args: any): Prom
   });
 
   if (!isStringReference(result)) {
+    console.debug({result, type: result.typeof });
     throw new Error('bad result');
   }
 

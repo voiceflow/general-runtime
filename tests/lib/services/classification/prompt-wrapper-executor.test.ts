@@ -7,7 +7,7 @@ describe('exec', () => {
     const result = await executePromptWrapper(
       `
       export default function (args) {
-        return args.a + 1
+        return String(args.a + 1)
       }
       `,
       {
@@ -16,5 +16,22 @@ describe('exec', () => {
     );
 
     expect(result).to.equal(3);
+  });
+
+  describe('fails', () => {
+    it('on non string return type', async () => {
+      const result = await executePromptWrapper(
+        `
+      export default function (args) {
+        return args.a + 1
+      }
+      `,
+        {
+          a: 2,
+        }
+      );
+
+      expect(result).to.equal(3);
+    });
   });
 });
