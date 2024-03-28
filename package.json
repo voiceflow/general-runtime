@@ -23,7 +23,7 @@
     "@voiceflow/chat-types": "2.13.104",
     "@voiceflow/common": "8.2.8",
     "@voiceflow/default-prompt-wrappers": "^1.1.1",
-    "@voiceflow/dtos": "file:.yalc/@voiceflow/dtos",
+    "@voiceflow/dtos": "^1.49.0",
     "@voiceflow/event-ingestion-service": "1.5.1",
     "@voiceflow/exception": "^1.5.1",
     "@voiceflow/google-types": "2.20.57",

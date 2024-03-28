@@ -4512,23 +4512,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/dtos@file:.yalc/@voiceflow/dtos::locator=%40voiceflow%2Fgeneral-runtime%40workspace%3A.":
-  version: 1.47.0
-  resolution: "@voiceflow/dtos@file:.yalc/@voiceflow/dtos#.yalc/@voiceflow/dtos::hash=8e25af&locator=%40voiceflow%2Fgeneral-runtime%40workspace%3A."
-  dependencies:
-    "@voiceflow/internal": 3.2.3
-  peerDependencies:
-    zod: ^3.20.0
-  checksum: 616706a5364045c38636a707a4acdf70aaae21f7450a4e781954687628e2cb9609d8728ec0f9cdb80109655e00a04b8626aa542934a0384c72cc02fbdc2d0204
-  languageName: node
-  linkType: hard
-
 "@voiceflow/dtos@npm:1.33.2":
   version: 1.33.2
   resolution: "@voiceflow/dtos@npm:1.33.2"
   peerDependencies:
     zod: ^3.20.0
   checksum: 7b47dcab653066e79671f6904fcafbce31e823ee41b7f28a3bb13bc9a74e25eba6d95de51e3d4cfbdd5c00cff38d9ead5f071844f93914cac8941edd14167f07
+  languageName: node
+  linkType: hard
+
+"@voiceflow/dtos@npm:^1.49.0":
+  version: 1.49.0
+  resolution: "@voiceflow/dtos@npm:1.49.0"
+  dependencies:
+    "@voiceflow/internal": 3.2.3
+  peerDependencies:
+    zod: ^3.20.0
+  checksum: 0d98e920ca2fece419df7df056f511d5d74fdd44a1bb80b0540fb7835a9bd44b06371e92824feaf4dbd8d4d45e13341404c5fd8147f2ca8f67bfdaa3cf24fa09
   languageName: node
   linkType: hard
 
@@ -4650,7 +4650,7 @@ __metadata:
     "@voiceflow/commitlint-config": 2.0.0
     "@voiceflow/common": 8.2.8
     "@voiceflow/default-prompt-wrappers": ^1.1.1
-    "@voiceflow/dtos": "file:.yalc/@voiceflow/dtos"
+    "@voiceflow/dtos": ^1.49.0
     "@voiceflow/eslint-config": 6.1.0
     "@voiceflow/event-ingestion-service": 1.5.1
     "@voiceflow/exception": ^1.5.1
