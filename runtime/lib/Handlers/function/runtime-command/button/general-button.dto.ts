@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { constraints } from '../constants';
 import { ButtonType } from './button-type.enum';
 
-const FUNCTION_BUTTON_NAME_REGEX = /^[A-Z_a-z][\dA-Za-z]*$/;
+const FUNCTION_BUTTON_NAME_REGEX = /^[A-Z_a-z]\w*$/;
 
 export const SimpleGeneralButtonDTO = z.object({
   name: z.string().describe('Text for the button UI'),

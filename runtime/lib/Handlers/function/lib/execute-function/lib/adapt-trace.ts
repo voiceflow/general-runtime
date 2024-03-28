@@ -6,7 +6,7 @@ import { SimpleGeneralButton } from '../../../runtime-command/button/general-but
 import { SimpleCard } from '../../../runtime-command/card/card.dto';
 import { SimpleAudioTrace } from '../../../runtime-command/trace/audio.dto';
 import { Trace } from '../../../runtime-command/trace/base.dto';
-import { SimpleCardV2Trace } from '../../../runtime-command/trace/cardv2.dto';
+import { SimpleCardV2Trace } from '../../../runtime-command/trace/cardV2.dto';
 import { SimpleCarouselTrace } from '../../../runtime-command/trace/carousel.dto';
 import { SimpleChoiceTrace } from '../../../runtime-command/trace/choice.dto';
 import { SimpleTraceType } from '../../../runtime-command/trace/simple-trace-type.enum';

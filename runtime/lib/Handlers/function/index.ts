@@ -67,9 +67,12 @@ function applyNextCommand(
   runtime: Runtime,
   { nodeId, paths }: { nodeId: string; paths: FunctionCompiledInvocation['paths'] }
 ): string | null {
-  if ('listen' in command && command.listen) {
+  if ('listen' in command) {
+    if (!command.listen) return null;
+
     const { defaultTo, to } = command;
     runtime.variables.set(VoiceflowConstants.BuiltInVariable.FUNCTION_CONDITIONAL_TRANSFERS, { defaultTo, to });
+
     return nodeId;
   }
   if ('path' in command) {

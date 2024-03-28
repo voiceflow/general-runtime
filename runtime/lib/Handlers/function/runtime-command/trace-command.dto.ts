@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { SimpleAudioTraceDTO } from './trace/audio.dto';
 import { TraceDTO } from './trace/base.dto';
-import { SimpleCardV2TraceDTO } from './trace/cardv2.dto';
+import { SimpleCardV2TraceDTO } from './trace/cardV2.dto';
 import { SimpleCarouselTraceDTO } from './trace/carousel.dto';
 import { SimpleChoiceTraceDTO } from './trace/choice.dto';
 import { SimpleDebugTraceDTO } from './trace/debug.dto';
