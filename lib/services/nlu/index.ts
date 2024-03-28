@@ -12,18 +12,11 @@ import { Context, ContextHandler, VersionTag } from '@/types';
 
 import { Predictor } from '../classification';
 import { massageVersion } from '../classification/classification.utils';
-import { PredictedSlot } from '../classification/interfaces/nlu.interface';
+import { Prediction } from '../classification/interfaces/nlu.interface';
 import { AbstractManager } from '../utils';
 import { getNoneIntentRequest } from './utils';
 
-export const getIntentRequest = (
-  prediction: {
-    utterance: string;
-    predictedIntent: string;
-    predictedSlots: PredictedSlot[];
-    confidence?: number;
-  } | null
-): BaseRequest.IntentRequest => {
+export const getIntentRequest = (prediction: Prediction | null): BaseRequest.IntentRequest => {
   if (!prediction) {
     return getNoneIntentRequest();
   }
@@ -94,7 +87,7 @@ class NLU extends AbstractManager implements ContextHandler {
 
     const request = getIntentRequest(prediction);
 
-    return { ...context, prediction, request };
+    return { ...context, request };
   };
 
   private addDebugTraces(trace: AnyTrace[], predictor: Predictor): AnyTrace[] {

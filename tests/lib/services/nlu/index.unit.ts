@@ -30,15 +30,25 @@ describe('nlu manager unit tests', () => {
     intents: [],
   };
   const orderPizzaIntent = { name: 'Order Pizza', confidence: 1 };
-  const tag = VersionTag.PRODUCTION;
-  const locale = VoiceflowConstants.Locale.DE_DE;
   const query = 'I would like a large sofa pizza with extra chair';
-  const version: Pick<Version, '_id' | 'projectID' | 'prototype'> = {
+  const version: Pick<Version, '_id' | 'projectID' | 'prototype' | 'settings'> = {
     _id: 'version-id',
     projectID: 'project-id',
     prototype: {
       model,
+      data: {
+        locales: [VoiceflowConstants.Locale.EN_US],
+      },
+      platform: VoiceflowConstants.PlatformType.VOICEFLOW,
     } as Version['prototype'],
+    settings: {
+      intentClassification: {
+        type: 'nlu',
+        params: {
+          confidence: 0.6,
+        },
+      },
+    },
   };
   const teamID = 10;
   const project = {
@@ -164,10 +174,11 @@ describe('nlu manager unit tests', () => {
       expect(services.axios.post.args[0][1]).to.eql({
         filteredEntities: [],
         filteredIntents: [],
-        excludeFilteredEntities: true,
-        excludeFilteredIntents: true,
+        excludeFilteredEntities: false,
+        excludeFilteredIntents: false,
         utterance: query,
         tag: VersionTag.PRODUCTION,
+        limit: 10,
         workspaceID: teamID,
       });
     });
@@ -262,150 +273,6 @@ describe('nlu manager unit tests', () => {
       const result = nlu.handle(context as any);
 
       await expect(result).to.be.eventually.rejectedWith();
-    });
-  });
-
-  describe('predict', () => {
-    it('works with model and locale defined and intent is not VoiceflowConstants.IntentName.NONE', async () => {
-      const services = {
-        axios: {
-          post: sinon.stub().resolves({ data: {} }),
-        },
-      };
-      const arg = {
-        model: 'model-val',
-        locale: 'locale-val',
-        query: 'query-val',
-        projectID: 'projectID',
-      } as any;
-      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
-      sinon.stub(NLC, 'handleNLCCommand').returns(nlcMatchedIntent as any);
-
-      const result = await nlu.predict(arg);
-
-      expect(result).to.eql(nlcMatchedIntent);
-    });
-
-    it('works with model and locale defined and intent is VoiceflowConstants.IntentName.NONE, prediction is not empty', async () => {
-      const services = {
-        axios: {
-          post: sinon.stub().resolves({ data: nluGatewayPrediction }),
-        },
-      };
-      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
-
-      const arg: Parameters<typeof nlu.predict>[0] = {
-        model: { key: 'value' } as any,
-        locale: VoiceflowConstants.Locale.EN_US,
-        query: 'query-val',
-        tag: VersionTag.DEVELOPMENT,
-      };
-
-      sinon.stub(NLC, 'handleNLCCommand').returns(noneIntent as any);
-
-      const result = await nlu.predict(arg);
-
-      expect(result).to.eql(intentResponse);
-    });
-
-    it('works with model and locale undefined, intent is not VoiceflowConstants.IntentName.NONE, prediction is not empty', async () => {
-      const services = {
-        axios: {
-          post: sinon.stub().resolves({ data: nluGatewayPrediction }),
-        },
-      };
-      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
-
-      const arg: Parameters<typeof nlu.predict>[0] = {
-        query: 'query-val',
-        tag: VersionTag.DEVELOPMENT,
-      };
-
-      sinon.stub(NLC, 'handleNLCCommand').returns(nlcMatchedIntent as any);
-
-      const result = await nlu.predict(arg);
-
-      expect(result).to.eql(intentResponse);
-    });
-
-    it('works with model and locale undefined, intent is not VoiceflowConstants.IntentName.NONE, prediction empty', async () => {
-      const services = {
-        axios: {
-          post: sinon.stub().resolves({ data: undefined }),
-        },
-      };
-      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
-
-      const arg: Parameters<typeof nlu.predict>[0] = {
-        query: 'query-val',
-        tag: VersionTag.DEVELOPMENT,
-      };
-      sinon.stub(NLC, 'handleNLCCommand').returns(nlcMatchedIntent as any);
-
-      await expect(nlu.predict(arg)).to.be.rejectedWith('Model not found');
-    });
-
-    it('works with model and locale defined, intent is VoiceflowConstants.IntentName.NONE, prediction is empty', async () => {
-      const services = {
-        axios: {
-          post: sinon.stub().resolves({ data: undefined }),
-        },
-      };
-      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
-      const arg: Parameters<typeof nlu.predict>[0] = {
-        model: { key: 'value' } as any,
-        locale: VoiceflowConstants.Locale.EN_US,
-        query: 'query-val',
-        tag: VersionTag.DEVELOPMENT,
-      };
-      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand').returns(noneIntent as any);
-
-      expect(await nlu.predict(arg)).to.eql(noneIntent);
-      expect(handleNLCCommandStub.callCount).to.eql(2);
-    });
-
-    it('falls back to open regex slot matching if LUIS throws', async () => {
-      const services = {
-        axios: {
-          post: sinon.stub().rejects('some-error'),
-        },
-      };
-
-      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
-
-      const arg: Parameters<typeof nlu.predict>[0] = {
-        query: 'query-val',
-        tag: VersionTag.DEVELOPMENT,
-      };
-
-      sinon.stub(NLC, 'handleNLCCommand').returns(nlcMatchedIntent as any);
-
-      const result = nlu.predict(arg);
-
-      await expect(result).to.be.rejectedWith('Model not found');
-    });
-
-    it('skip NLU prediction if not defined', async () => {
-      const services = {
-        axios: {
-          post: sinon.stub().rejects('some-error'),
-        },
-      };
-
-      const nlu = new NLUManager({ ...services, utils: {} } as any, config as any);
-
-      const arg: Parameters<typeof nlu.predict>[0] = {
-        query,
-        tag,
-        model,
-        locale,
-      };
-
-      sinon.stub(NLC, 'handleNLCCommand').onCall(0).returns(noneIntent).onCall(1).returns(nlcMatchedIntent);
-
-      const result = await nlu.predict(arg);
-
-      expect(result).to.eql(nlcMatchedIntent);
     });
   });
 });
