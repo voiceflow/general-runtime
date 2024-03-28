@@ -1,6 +1,6 @@
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 
-import { Action, Handler, HandlerFactory, IfV2Handler } from '@/runtime';
+import { Action, FunctionHandler, Handler, HandlerFactory, IfV2Handler } from '@/runtime';
 
 import { isAlexaEventIntentRequest } from '../../../types';
 import _V1Handler from '../../_v1';
@@ -14,6 +14,7 @@ import InteractionHandler from '../../interaction';
 
 const _v1Handler = _V1Handler();
 export const eventHandlers = [
+  FunctionHandler(),
   ...GoToHandler(),
   CaptureHandler(),
   ...CaptureV2Handler(),
