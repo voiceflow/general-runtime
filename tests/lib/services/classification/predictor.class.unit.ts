@@ -6,7 +6,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 
-import { Predictor } from '@/lib/services/classification';
+import { Predictor, PredictorConfig } from '@/lib/services/classification';
 import {
   NLUIntentPrediction,
   PredictOptions,
@@ -19,7 +19,7 @@ chai.use(chaiAsPromised);
 const { expect } = chai;
 
 const GENERAL_SERVICE_ENDPOINT = 'http://localhost:6970';
-const config = {
+const defaultConfig = {
   GENERAL_SERVICE_ENDPOINT,
   CLOUD_ENV: '',
   NLU_GATEWAY_SERVICE_HOST: '',
@@ -69,6 +69,12 @@ describe('predictor unit tests', () => {
     },
   };
 
+  const nlcPrediction: IIntentFullfilment & { confidence: number } = {
+    intent: 'abcedfg',
+    slots: [],
+    confidence: 0.56,
+  };
+
   const nluGatewayPrediction: NLUIntentPrediction = {
     utterance: query,
     predictedIntent: orderPizzaIntent.name,
@@ -77,231 +83,131 @@ describe('predictor unit tests', () => {
     intents: [orderPizzaIntentPrediction],
   };
 
-  const defaultProps: PredictRequest;
-  const defaultSettings: IntentClassificationSettings;
-  const defaultOptions: PredictOptions;
-  const defaultConfig: PredictorConfig = {
-    axios: {
-      post: sinon.stub().resolves({ data: nluGatewayPrediction }),
-    },
-    mlGateway: {
-      private: {
-        completion: {
-          generateCompletion: sinon.stub().resolves({} as CompletionPrivateHTTPControllerGenerateCompletion200),
-        },
-      },
+  const defaultProps: PredictRequest = {
+    ...model,
+    versionID: version._id,
+    workspaceID: String(project.teamID),
+    tag: VersionTag.DEVELOPMENT,
+  };
+  const defaultSettings: IntentClassificationSettings = {
+    type: 'nlu',
+    params: {
+      confidence: 0.5,
     },
   };
+  const defaultOptions: PredictOptions = {
+    locale: VoiceflowConstants.Locale.EN_US,
+    hasChannelIntents: false,
+    platform: VoiceflowConstants.PlatformType.VOICEFLOW,
+  };
+
+  const mlGatewayPrediction = {
+    output: orderPizzaIntent.name,
+    tokens: 1205,
+    queryTokens: 12,
+    answerTokens: 21,
+    multiplier: 0.3,
+    model: 'gpt-4-turbo',
+  };
+
+  const setup = ({ axios, mlGateway, props, settings, options }: any) => ({
+    config: {
+      ...defaultConfig,
+      axios: {
+        post: sinon.stub().resolves(axios ?? { data: nluGatewayPrediction }),
+      },
+      mlGateway: {
+        private: {
+          completion: {
+            generateCompletion: sinon
+              .stub()
+              .resolves((mlGateway ?? mlGatewayPrediction) as CompletionPrivateHTTPControllerGenerateCompletion200),
+          },
+        },
+      },
+    } as unknown as PredictorConfig,
+    props: {
+      ...defaultProps,
+      ...props,
+    } as unknown as PredictRequest,
+    settings: {
+      intentClassification: {
+        ...defaultSettings,
+        ...settings,
+      } as IntentClassificationSettings,
+    },
+    options: {
+      ...defaultOptions,
+      ...options,
+    } as PredictOptions,
+  });
 
   describe('nlc', () => {
-    it('works with openSlot false', () => { });
-    it('works with openSlot true', () => { });
+    it('works with openSlot false', async () => {
+      const utterance = 'query-val';
+      const { config, props, settings, options } = setup({});
+      const predictor = new Predictor(config, props, settings.intentClassification, options);
+      sinon.stub(NLC, 'handleNLCCommand').returns(nlcPrediction as any);
+
+      const prediction = await predictor.predict(utterance);
+      const { result } = predictor.predictions;
+
+      expect(prediction?.predictedIntent).to.eql(nlcPrediction.intent);
+      expect(result).to.eql('nlc');
+    });
   });
-  describe('nlu', () => { });
-  describe('llm', () => { });
 
-  describe('predict', () => {
-    it('works with model and locale defined and intent is not VoiceflowConstants.IntentName.NONE', () => {
-      const services = {
-        axios: {
-          post: sinon.stub().resolves({ data: {} }),
-        },
-      };
+  describe('nlu', () => {
+    it('works', () => {
+      const utterance = 'query-val';
+      const { config, props, settings, options } = setup({});
+      const predictor = new Predictor(config, props, settings.intentClassification, options);
+      sinon.stub(NLC, 'handleNLCCommand').returns(null);
 
-      const query = 'query-val';
-      const props = {
-        ...model,
-        versionID: version._id,
-        workspaceID: String(project.teamID),
-        tag: VersionTag.DEVELOPMENT,
-      };
-      const settings: IntentClassificationSettings = {
-        type: 'nlu',
-        params: {
-          confidence: 0.5,
-        },
-      };
+      const prediction = predictor.predict(utterance);
 
-      const classification = new ClassificationService({ ...services, utils: {} } as any, config as any);
-      sinon.stub(NLC, 'handleNLCCommand').returns(nlcMatchedIntent as any);
-
-      const result = classification.predict(props, settings, query);
-
-      expect(result).to.eventually.eql(nlcMatchedIntent);
+      expect(prediction).to.eventually.eql(nluGatewayPrediction);
     });
 
-    it('works with model and locale defined and intent is VoiceflowConstants.IntentName.NONE, prediction is not empty', async () => {
-      const services = {
-        axios: {
-          post: sinon.stub().resolves({ data: nluGatewayPrediction }),
-        },
-      };
-      const classification = new ClassificationService({ ...services, utils: {} } as any, config as any);
+    it('nlc fallback - openSlot: false', async () => {
+      const utterance = 'query-val';
+      const { config, props, settings, options } = setup({
+        axios: { data: null },
+      });
+      const predictor = new Predictor(config, props, settings.intentClassification, options);
+      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand');
+      handleNLCCommandStub.onCall(0).returns(null);
+      handleNLCCommandStub.onCall(1).returns(nlcPrediction as any);
 
-      const query = 'query-val';
-      const props: Parameters<typeof classification.predict>[0] = {
-        ...model,
-        versionID: version._id,
-        workspaceID: String(project.teamID),
-        tag: VersionTag.DEVELOPMENT,
-        locale: VoiceflowConstants.Locale.EN_US,
-      };
-      const settings: Parameters<typeof classification.predict>[1] = {
-        type: 'nlu',
-        params: {
-          confidence: 0.5,
-        },
-      };
+      const prediction = await predictor.predict(utterance);
+      const { result } = predictor.predictions;
 
-      sinon.stub(NLC, 'handleNLCCommand').returns(noneIntent as any);
-
-      const result = await classification.predict(props, settings, query);
-
-      expect(result).to.eql(intentResponse);
-    });
-
-    it('works with model and locale undefined, intent is not VoiceflowConstants.IntentName.NONE, prediction is not empty', async () => {
-      const services = {
-        axios: {
-          post: sinon.stub().resolves({ data: nluGatewayPrediction }),
-        },
-      };
-      const classification = new ClassificationService({ ...services, utils: {} } as any, config as any);
-
-      const query = 'query-val';
-      const props: Parameters<typeof classification.predict>[0] = {
-        ...model,
-        versionID: version._id,
-        workspaceID: String(project.teamID),
-        tag: VersionTag.DEVELOPMENT,
-      };
-      const settings: Parameters<typeof classification.predict>[1] = {
-        type: 'nlu',
-        params: {
-          confidence: 0.5,
-        },
-      };
-
-      sinon.stub(NLC, 'handleNLCCommand').returns(nlcMatchedIntent as any);
-
-      const result = await classification.predict(props, settings, query);
-
-      expect(result).to.eql(intentResponse);
-    });
-
-    it('works with model and locale undefined, intent is not VoiceflowConstants.IntentName.NONE, prediction empty', async () => {
-      const services = {
-        axios: {
-          post: sinon.stub().resolves({ data: undefined }),
-        },
-      };
-      const classification = new ClassificationService({ ...services, utils: {} } as any, config as any);
-
-      const query = 'query-val';
-      const props: Parameters<typeof classification.predict>[0] = {
-        ...model,
-        versionID: version._id,
-        workspaceID: String(project.teamID),
-        tag: VersionTag.DEVELOPMENT,
-      };
-      const settings: Parameters<typeof classification.predict>[1] = {
-        type: 'nlu',
-        params: {
-          confidence: 0.5,
-        },
-      };
-
-      sinon.stub(NLC, 'handleNLCCommand').returns(nlcMatchedIntent as any);
-
-      await expect(classification.predict(props, settings, query)).to.be.rejectedWith('Model not found');
-    });
-
-    it('works with model and locale defined, intent is VoiceflowConstants.IntentName.NONE, prediction is empty', async () => {
-      const services = {
-        axios: {
-          post: sinon.stub().resolves({ data: undefined }),
-        },
-      };
-      const classification = new ClassificationService({ ...services, utils: {} } as any, config as any);
-      const query = 'query-val';
-      const props: Parameters<typeof classification.predict>[0] = {
-        ...model,
-        versionID: version._id,
-        workspaceID: String(project.teamID),
-        tag: VersionTag.DEVELOPMENT,
-        locale: VoiceflowConstants.Locale.EN_US,
-      };
-      const settings: Parameters<typeof classification.predict>[1] = {
-        type: 'nlu',
-        params: {
-          confidence: 0.5,
-        },
-      };
-
-      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand').returns(noneIntent as any);
-
-      expect(await classification.predict(props, settings, query)).to.eql(noneIntent);
+      sinon.assert.called(config.axios.post);
       expect(handleNLCCommandStub.callCount).to.eql(2);
+      expect(prediction?.predictedIntent).to.eql(nlcPrediction.intent);
+      expect(result).to.eql('nlc');
     });
+  });
 
-    it('falls back to open regex slot matching if LUIS throws', async () => {
-      const services = {
-        axios: {
-          post: sinon.stub().rejects('some-error'),
+  describe('llm', () => {
+    it('works', async () => {
+      const utterance = 'query-val';
+      const { config, props, settings, options } = setup({
+        settings: {
+          type: 'llm',
+          params: { model: 'gpt-4-turbo', temperature: 0.7 },
         },
-      };
+      });
 
-      const classification = new ClassificationService({ ...services, utils: {} } as any, config as any);
+      const predictor = new Predictor(config, props, settings.intentClassification, options);
+      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand');
+      handleNLCCommandStub.returns(null);
 
-      const query = 'query-val';
-      const props: Parameters<typeof classification.predict>[0] = {
-        ...model,
-        versionID: version._id,
-        workspaceID: String(project.teamID),
-        tag: VersionTag.DEVELOPMENT,
-      };
-      const settings: Parameters<typeof classification.predict>[1] = {
-        type: 'nlu',
-        params: {
-          confidence: 0.5,
-        },
-      };
+      const prediction = await predictor.predict(utterance);
+      const { result } = predictor.predictions;
 
-      sinon.stub(NLC, 'handleNLCCommand').returns(nlcMatchedIntent as any);
-
-      const result = await classification.predict(props, settings, query);
-
-      await expect(result).to.be.rejectedWith('Model not found');
-    });
-
-    it('skip NLU prediction if not defined', async () => {
-      const services = {
-        axios: {
-          post: sinon.stub().rejects('some-error'),
-        },
-      };
-
-      const classification = new ClassificationService({ ...services, utils: {} } as any, config as any);
-
-      const props: Parameters<typeof classification.predict>[0] = {
-        ...model,
-        versionID: version._id,
-        workspaceID: String(project.teamID),
-        tag,
-        locale,
-      };
-      const settings: Parameters<typeof classification.predict>[1] = {
-        type: 'nlu',
-        params: {
-          confidence: 0.5,
-        },
-      };
-
-      sinon.stub(NLC, 'handleNLCCommand').onCall(0).returns(noneIntent).onCall(1).returns(nlcMatchedIntent);
-
-      const result = await classification.predict(props, settings, query);
-
-      expect(result).to.eql(nlcMatchedIntent);
+      expect(result).to.eql('llm');
+      expect(prediction?.predictedIntent).to.eql(mlGatewayPrediction.output);
     });
   });
 });

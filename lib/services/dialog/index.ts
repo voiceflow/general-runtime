@@ -244,9 +244,9 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
         const output = VoiceflowUtils.prompt.isIntentVoicePrompt(prompt)
           ? fillStringEntities(
-            dmStateStore!.intentRequest,
-            inputToString(prompt, (version as VoiceflowVersion.VoiceVersion).platformData.settings.defaultVoice)
-          )
+              dmStateStore!.intentRequest,
+              inputToString(prompt, (version as VoiceflowVersion.VoiceVersion).platformData.settings.defaultVoice)
+            )
           : prompt.content;
 
         const variableStore = new Store(context.state.variables);
