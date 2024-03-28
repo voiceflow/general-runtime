@@ -22,7 +22,8 @@
     "@voiceflow/body-parser": "^1.21.1",
     "@voiceflow/chat-types": "2.13.104",
     "@voiceflow/common": "8.2.8",
-    "@voiceflow/dtos": "1.30.0",
+    "@voiceflow/default-prompt-wrappers": "^1.1.1",
+    "@voiceflow/dtos": "file:.yalc/@voiceflow/dtos",
     "@voiceflow/event-ingestion-service": "1.5.1",
     "@voiceflow/exception": "^1.5.1",
     "@voiceflow/google-types": "2.20.57",
@@ -186,7 +187,8 @@
     "test:integration": "NODE_ENV=test nyc --report-dir=nyc_coverage_integration ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.it.ts'",
     "test:run": "NODE_ENV=test nyc ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.{unit,it}.ts'",
     "test:single": "NODE_ENV=test ts-mocha --paths --opts ./config/tests/mocha.opts",
-    "test:unit": "NODE_ENV=test nyc --report-dir=nyc_coverage_unit ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.unit.ts'"
+    "test:unit": "NODE_ENV=test nyc --report-dir=nyc_coverage_unit ts-mocha --paths --opts ./config/tests/mocha.opts 'tests/**/*.unit.ts'",
+    "test:greg": "NODE_ENV=test ts-mocha --paths --opts ./config/tests/mocha.opts --watch"
   },
   "volta": {
     "node": "20.10.0",
