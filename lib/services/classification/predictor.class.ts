@@ -1,6 +1,8 @@
+import { Utils } from '@voiceflow/common';
 import { DEFAULT_INTENT_CLASSIFICATION_PROMPT_WRAPPER_CODE } from '@voiceflow/default-prompt-wrappers';
 import { IntentClassificationSettings } from '@voiceflow/dtos';
 import { ISlotFullfilment } from '@voiceflow/natural-language-commander';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import type { AxiosStatic } from 'axios';
 
 import MLGateway from '@/lib/clients/ml-gateway';
@@ -193,24 +195,17 @@ export class Predictor {
 
     const promptContent = this._settings.promptWrapper?.content ?? DEFAULT_INTENT_CLASSIFICATION_PROMPT_WRAPPER_CODE;
 
-    const intents = nluPrediction.intents.map((predictedIntent) => {
-      const intent = this._props.intents.find((intent) => intent.name === predictedIntent.name);
-      if (!intent) {
-        logger.info(
-          {
-            predictedIntents: nluPrediction.intents,
-            propsIntents: this._props.intents,
-          },
-          `Missing predicted intent: ${predictedIntent.name}`
-        );
-        throw new Error(`Missing predicted intent: ${predictedIntent.name}`);
-      }
+    // match NLU prediction intents to NLU model
+    const intentNameMap = Object.fromEntries(this._props.intents.map((intent) => [intent.name, intent]));
 
-      return {
-        name: predictedIntent.name,
-        description: intent.description,
-      };
-    });
+    const intents = nluPrediction.intents
+      // filter out none intent
+      .filter((intent) => intent.name !== VoiceflowConstants.IntentName.NONE)
+      .map((intent) => intentNameMap[intent.name])
+      // TODO: PL-897
+      .filter(Utils.array.isNotNullish);
+
+    if (!intents.length) return nluPrediction;
 
     const promptArgs = {
       intents,
