@@ -138,13 +138,10 @@ export class Predictor {
     return prediction.predictedSlots;
   }
 
-  public async nlu(
-    utterance: string,
-    { axios, nluGatewayURL }: { axios: AxiosStatic; nluGatewayURL: string },
-    options?: NLUPredictOptions
-  ): Promise<NLUIntentPrediction | null> {
-    const { data: prediction } = await axios
-      .post<NLUIntentPrediction | null>(`${nluGatewayURL}/v1/predict/${this._props.versionID}`, {
+  public async nlu(utterance: string, options?: NLUPredictOptions): Promise<NLUIntentPrediction | null> {
+    logger.info({ nluGatewayURL: this.nluGatewayURL });
+    const { data: prediction } = await this._config.axios
+      .post<NLUIntentPrediction | null>(`${this.nluGatewayURL}/v1/predict/${this._props.versionID}`, {
         utterance,
         tag: this._props.tag,
         workspaceID: this._props.workspaceID,
@@ -291,19 +288,12 @@ export class Predictor {
 
   public async predict(utterance: string): Promise<Prediction | null> {
     // 1. first try restricted regex (no open slots) - exact string match
-    const nlcPrediction = this.nlc(utterance, false);
+    const nlcPrediction = await this.nlc(utterance, false);
     if (nlcPrediction) {
       return nlcPrediction;
     }
 
-    const nluPrediction = await this.nlu(
-      utterance,
-      {
-        axios: this._config.axios,
-        nluGatewayURL: this.nluGatewayURL,
-      },
-      this._options
-    );
+    const nluPrediction = await this.nlu(utterance, this._options);
 
     if (!nluPrediction) {
       // try open regex slot matching
