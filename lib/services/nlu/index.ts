@@ -7,6 +7,7 @@ import { BaseNode, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { isTextRequest } from '@/lib/services/runtime/types';
+import logger from '@/logger';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
 import { massageVersion } from '../classification/classification.utils';
@@ -54,11 +55,14 @@ class NLU extends AbstractManager implements ContextHandler {
       };
     }
 
+    logger.info('starting nlu handle');
+
     const version = await context.data.api.getVersion(context.versionID);
     const { settings, intents, slots } = massageVersion(version);
     const project = await context.data.api.getProject(version.projectID);
 
     if (!settings) {
+      logger.info('no settings');
       return context;
     }
 
