@@ -116,12 +116,12 @@ export class Predictor {
         workspaceID: this._props.workspaceID,
         filteredIntents: options?.filteredIntents ?? [],
         filteredEntities: options?.filteredEntities ?? [],
-        excludeFilteredIntents: true,
-        excludeFilteredEntities: true,
+        excludeFilteredIntents: false,
+        excludeFilteredEntities: false,
         limit: 10,
       })
       .catch((err: Error) => {
-        logger.error('Something went wrong filling slots: %o', err);
+        logger.error(err, 'Something went wrong filling slots');
         return { data: null };
       });
 
@@ -148,12 +148,12 @@ export class Predictor {
         workspaceID: this._props.workspaceID,
         filteredIntents: options?.filteredIntents ?? [],
         filteredEntities: options?.filteredEntities ?? [],
-        excludeFilteredIntents: true,
-        excludeFilteredEntities: true,
+        excludeFilteredIntents: false,
+        excludeFilteredEntities: false,
         limit: 10,
       })
       .catch((err: Error) => {
-        logger.error(err, 'Something went wrong with NLU prediction: %o');
+        logger.error(err, 'Something went wrong with NLU prediction');
         return { data: null };
       });
 
