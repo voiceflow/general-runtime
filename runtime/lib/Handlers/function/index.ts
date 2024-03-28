@@ -100,7 +100,6 @@ function handleListenResponse(
   requestContext: FunctionRequestContext,
   paths: FunctionCompiledInvocation['paths']
 ): string {
-  // !TODO! - Remove the `any` cast here
   const firstMatchingTransfer = conditionalTransfers.to.find((item) => _.query([requestContext], item.on).length > 0);
 
   if (!firstMatchingTransfer) {
