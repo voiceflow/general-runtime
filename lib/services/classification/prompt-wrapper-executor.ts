@@ -1,5 +1,7 @@
 import ivm, { Reference } from 'isolated-vm';
 
+import logger from '@/logger';
+
 const isStringReference = (arg: Reference<unknown>): arg is Reference<string> => arg.typeof === 'string';
 
 export async function executePromptWrapper(wrapperCode: string, args: any): Promise<string> {
@@ -8,6 +10,7 @@ export async function executePromptWrapper(wrapperCode: string, args: any): Prom
   });
   const context = await isolate.createContext();
 
+  // TODO: this is the same type as the return from mainModule and not a Reference
   const result = await new Promise<Reference<unknown>>(async (resolve, reject) => {
     try {
       await context.evalClosure(
@@ -36,7 +39,7 @@ export async function executePromptWrapper(wrapperCode: string, args: any): Prom
           (async function () {
             try {
                 const result = await promptWrapper(args);
-                resolve(result);
+                resolve(result.prompt);
             } catch (err) {
                 reject(err);
             }
@@ -59,10 +62,12 @@ export async function executePromptWrapper(wrapperCode: string, args: any): Prom
     }
   });
 
-  if (!isStringReference(result)) {
-    console.debug({result, type: result.typeof });
+  // if (!isStringReference(result)) {
+  if (typeof result !== 'string') {
+    logger.info({ result: JSON.stringify(result, null, 2) });
     throw new Error('bad result');
   }
 
-  return result.copy();
+  // return result.copy();
+  return result;
 }
