@@ -92,10 +92,12 @@ class NLU extends AbstractManager implements ContextHandler {
     const prediction = await predictor.predict(context.request.payload);
 
     if (context.trace) {
-      const { llm } = predictor.predictions;
+      const { llm, ...predictions } = predictor.predictions;
+      logger.info({ predictions });
       if (llm?.errors) {
         context.trace.push(debugTrace(llm.errors.message));
       } else {
+        logger.info({ llm });
         context.trace = context.trace.concat([
           debugTrace(`LLM model: ${llm.model}`),
           debugTrace(`LLM multiplier: ${llm.multiplier}`),

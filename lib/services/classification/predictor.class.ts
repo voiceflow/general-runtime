@@ -151,9 +151,11 @@ export class Predictor {
         excludeFilteredEntities: true,
       })
       .catch((err: Error) => {
-        logger.error('Something went wrong with NLU prediction: %o', err);
+        logger.error(err, 'Something went wrong with NLU prediction: %o');
         return { data: null };
       });
+
+    logger.info({ prediction });
 
     if (!prediction) {
       this._predictions.nlu = {
@@ -296,14 +298,20 @@ export class Predictor {
     const nluPrediction = await this.nlu(utterance, this._options);
 
     if (!nluPrediction) {
+      logger.info('nothing found for nlu');
       // try open regex slot matching
       return this.nlc(utterance, true);
     }
 
+    logger.info('beep nlu');
     if (isIntentClassificationNLUSettings(this._settings)) {
+      logger.info('nlu and succes');
       return nluPrediction;
     }
 
+    logger.info('trying llm');
+    logger.info({ settings: this._settings });
+    logger.info({ nluPrediction });
     if (isIntentClassificationLLMSettings(this._settings)) {
       const llmPrediction = await this.llm(nluPrediction, {
         mlGateway: this._config.mlGateway,
@@ -311,13 +319,17 @@ export class Predictor {
 
       if (!llmPrediction) {
         // fallback to NLU prediction
+        logger.info('falling back');
         return nluPrediction;
       }
 
+      logger.info('filling slots');
       // slot filling
       const slots = await this.fillSlots(utterance, {
         filteredIntents: [llmPrediction.predictedIntent],
       });
+
+      logger.info('got it');
 
       return {
         ...llmPrediction,
@@ -325,6 +337,7 @@ export class Predictor {
       };
     }
 
+    logger.info('last nlc');
     // finally try open regex slot matching
     return this.nlc(utterance, true);
   }
