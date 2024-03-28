@@ -33,7 +33,3 @@ export interface TextEvent extends BaseEvent {
 }
 
 export type Event = GeneralEvent | IntentEvent | TextEvent;
-
-export interface FunctionRequestContext {
-  event?: Event;
-}

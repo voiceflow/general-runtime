@@ -1,5 +1,4 @@
 import { BaseTrace } from '@voiceflow/base-types';
-import { isGeneralRequest } from '@voiceflow/base-types/build/cjs/request';
 import { BaseTraceFrame } from '@voiceflow/base-types/build/cjs/trace';
 import { replaceVariables } from '@voiceflow/common';
 import {
@@ -8,26 +7,20 @@ import {
   FunctionCompiledNode,
   NodeType,
 } from '@voiceflow/dtos';
-import { NotImplementedException } from '@voiceflow/exception';
-import { isIntentRequest, isTextRequest } from '@voiceflow/utils-designer';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
-import _ from 'lodash';
-import lodashModifier from 'underscore-query';
+import _query from 'utils/underscore-query';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
 import Runtime from '../../Runtime';
 import Store from '../../Runtime/Store';
-import { EventType, FunctionRequestContext } from './lib/event/event.types';
 import { executeFunction } from './lib/execute-function/execute-function';
-import { fromFunctionGeneralButtonName } from './lib/execute-function/lib/adapt-trace';
 import { createFunctionExceptionDebugTrace } from './lib/function-exception/function.exception';
+import { createFunctionRequestContext, FunctionRequestContext } from './lib/request-context/request-context';
 import { NextBranches, NextBranchesDTO, NextCommand } from './runtime-command/next-command.dto';
 import { OutputVarsCommand } from './runtime-command/output-vars-command.dto';
 import { TraceCommand } from './runtime-command/trace-command.dto';
 import { Transfer, TransferType } from './runtime-command/transfer/transfer.dto';
-
-lodashModifier(_);
 
 const utilsObj = {
   replaceVariables,
@@ -100,56 +93,13 @@ function handleListenResponse(
   requestContext: FunctionRequestContext,
   paths: FunctionCompiledInvocation['paths']
 ): string {
-  const firstMatchingTransfer = conditionalTransfers.to.find((item) => _.query([requestContext], item.on).length > 0);
+  const firstMatchingTransfer = conditionalTransfers.to.find((item) => _query([requestContext], item.on).length > 0);
 
   if (!firstMatchingTransfer) {
     return applyTransfer(conditionalTransfers.defaultTo, paths);
   }
 
   return applyTransfer(firstMatchingTransfer.dest, paths);
-}
-
-function createFunctionRequestContext(runtime: Runtime): FunctionRequestContext {
-  const request = runtime.getRequest();
-
-  if (isIntentRequest(request)) {
-    const {
-      intent: { name },
-      confidence,
-      entities = [],
-      query,
-    } = request.payload;
-
-    return {
-      event: {
-        type: EventType.INTENT,
-        name,
-        confidence,
-        entities: Object.fromEntries(entities.map((ent) => [ent.name, { name: ent.name, value: ent.value }])),
-        utterance: query,
-      },
-    };
-  }
-
-  if (isGeneralRequest(request)) {
-    return {
-      event: {
-        type: EventType.GENERAL,
-        name: fromFunctionGeneralButtonName(request.type),
-      },
-    };
-  }
-
-  if (isTextRequest(request)) {
-    return {
-      event: {
-        type: EventType.TEXT,
-        value: request.payload,
-      },
-    };
-  }
-
-  throw new NotImplementedException('Function received an unexpected request type');
 }
 
 export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsObj> = (utils) => ({
