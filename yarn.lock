@@ -4505,10 +4505,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/default-prompt-wrappers@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@voiceflow/default-prompt-wrappers@npm:1.1.0"
-  checksum: 246b62757cc5e073bc00cc7b73072c3deeab66ef139328d64ffd963b47dbc5a2b1f3529e25a48707faa90695bd07024329363a990900f3eb0f2b8f4aaed50dd2
+"@voiceflow/default-prompt-wrappers@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@voiceflow/default-prompt-wrappers@npm:1.1.1"
+  checksum: be67b3af5bddd1f00120f898151ab0a98ff996c750c4056254ca9eb9dc76f47c4a376bf5b4238ce80b2ab35360e9000c875349221761559a3b4ceef6612171cf
   languageName: node
   linkType: hard
 
@@ -4649,7 +4649,7 @@ __metadata:
     "@voiceflow/chat-types": 2.13.104
     "@voiceflow/commitlint-config": 2.0.0
     "@voiceflow/common": 8.2.8
-    "@voiceflow/default-prompt-wrappers": ^1.1.0
+    "@voiceflow/default-prompt-wrappers": ^1.1.1
     "@voiceflow/dtos": "file:.yalc/@voiceflow/dtos"
     "@voiceflow/eslint-config": 6.1.0
     "@voiceflow/event-ingestion-service": 1.5.1
