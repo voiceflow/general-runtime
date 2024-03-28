@@ -35,7 +35,7 @@ export interface PredictorConfig {
 }
 
 export class Predictor {
-  private _predictions: any = {};
+  private _predictions: Partial<ClassificationResult> = {};
 
   private _props: PredictRequest;
 
@@ -176,7 +176,7 @@ export class Predictor {
     ) {
       this._predictions.nlu = {
         ...prediction,
-        errors: {
+        error: {
           message: 'NLU predicted confidence below settings threshold',
         },
       };
@@ -220,7 +220,7 @@ export class Predictor {
     } catch (err) {
       // TODO: Error types for matching
       this._predictions.llm = {
-        errors: {
+        error: {
           message: 'PromptWrapperError: went real bad',
         },
       };
@@ -244,7 +244,7 @@ export class Predictor {
       .catch((error: Error) => {
         logger.error(error, '[hybridPredict intent classification]');
         this._predictions.llm = {
-          errors: {
+          error: {
             message: `Falling back to NLU`,
           },
         };
@@ -253,7 +253,7 @@ export class Predictor {
 
     if (!completionResponse?.output) {
       this._predictions.llm = {
-        errors: {
+        error: {
           message: `unable to get LLM result, potential timeout`,
         },
       };
@@ -263,12 +263,12 @@ export class Predictor {
     // validate llm output as a valid intent
     const matchedIntent = this._props.intents.find((intent) => intent.name === completionResponse.output);
 
-    this._predictions.llm = { completionResponse };
+    this._predictions.llm = completionResponse;
 
     if (!matchedIntent) {
       this._predictions.llm = {
         ...this._predictions.llm,
-        errors: {
+        error: {
           message: "LLM prediction didn't match any intents, falling back to NLU",
         },
       };
@@ -294,6 +294,7 @@ export class Predictor {
     // 1. first try restricted regex (no open slots) - exact string match
     const nlcPrediction = await this.nlc(utterance, false);
     if (nlcPrediction) {
+      this._predictions.result = 'nlc';
       return nlcPrediction;
     }
 
@@ -302,12 +303,14 @@ export class Predictor {
     if (!nluPrediction) {
       logger.info('nothing found for nlu');
       // try open regex slot matching
+      this._predictions.result = 'nlc';
       return this.nlc(utterance, true);
     }
 
     logger.info('beep nlu');
     if (isIntentClassificationNLUSettings(this._settings)) {
       logger.info('nlu and succes');
+      this._predictions.result = 'nlu';
       return nluPrediction;
     }
 
@@ -322,6 +325,7 @@ export class Predictor {
       if (!llmPrediction) {
         // fallback to NLU prediction
         logger.info('falling back');
+        this._predictions.result = 'nlu';
         return nluPrediction;
       }
 
@@ -332,6 +336,7 @@ export class Predictor {
       });
 
       logger.info('got it');
+      this._predictions.result = 'llm';
 
       return {
         ...llmPrediction,
@@ -341,14 +346,15 @@ export class Predictor {
 
     logger.info('last nlc');
     // finally try open regex slot matching
+    this._predictions.result = 'nlc';
     return this.nlc(utterance, true);
   }
 
   public hasErrors() {
-    return this._predictions.nlc.errors || this._predictions.nlu.errors || this._predictions.llm.errors;
+    return this._predictions.nlc?.error || this._predictions.nlu?.error || this._predictions.llm?.error;
   }
 
-  public get predictions(): ClassificationResult {
+  public get predictions(): Partial<ClassificationResult> {
     return this._predictions;
   }
 }
