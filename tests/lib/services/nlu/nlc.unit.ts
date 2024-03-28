@@ -49,18 +49,24 @@ describe('nlu nlc service unit tests', () => {
       const nlcObj = { handleCommand: sinon.stub().returns(commandRes) };
       const createNLCStub = sinon.stub(nlc, 'createNLC').returns(nlcObj as any);
 
-      const output = 'output';
-      const nlcToIntentStub = sinon.stub(nlc, 'nlcToIntent').returns(output as any);
-
       const query = 'query';
       const model = 'model';
       const locale = 'locale';
       const dmRequest = 'dmRequest';
+      const output = { ...commandRes, confidence: 0.5 };
 
       expect(handleNLCCommand({ query, model, locale, dmRequest } as any)).to.eql(output);
-      expect(createNLCStub.args).to.eql([[{ model, locale, openSlot: true, dmRequest }]]);
+      expect(createNLCStub.args).to.eql([
+        [
+          {
+            model,
+            locale,
+            openSlot: true,
+            dmRequest,
+          },
+        ],
+      ]);
       expect(nlcObj.handleCommand.args).to.eql([[query]]);
-      expect(nlcToIntentStub.args).to.eql([[commandRes, query, 0.5]]);
     });
 
     it('openSlot false', () => {
@@ -68,18 +74,25 @@ describe('nlu nlc service unit tests', () => {
       const nlcObj = { handleCommand: sinon.stub().returns(commandRes) };
       const createNLCStub = sinon.stub(nlc, 'createNLC').returns(nlcObj as any);
 
-      const output = 'output';
-      const nlcToIntentStub = sinon.stub(nlc, 'nlcToIntent').returns(output as any);
-
       const query = 'query';
       const model = 'model';
       const locale = 'locale';
       const dmRequest = 'dmRequest';
 
+      const output = { ...commandRes, confidence: 1 };
+
       expect(handleNLCCommand({ query, model, locale, openSlot: false, dmRequest } as any)).to.eql(output);
-      expect(createNLCStub.args).to.eql([[{ model, locale, openSlot: false, dmRequest }]]);
+      expect(createNLCStub.args).to.eql([
+        [
+          {
+            model,
+            locale,
+            openSlot: false,
+            dmRequest,
+          },
+        ],
+      ]);
       expect(nlcObj.handleCommand.args).to.eql([[query]]);
-      expect(nlcToIntentStub.args).to.eql([[commandRes, query, 1]]);
     });
   });
 
@@ -198,7 +211,12 @@ describe('nlu nlc service unit tests', () => {
 
       expect(nlcObj.addSlotType.args).to.eql([
         [{ type: slots[0].name, matcher: ['custom-input1'] }],
-        [{ type: slots[1].name, matcher: ['abc', 'def', 'geh', 'x', 'y', 'z'] }],
+        [
+          {
+            type: slots[1].name,
+            matcher: ['abc', 'def', 'geh', 'x', 'y', 'z'],
+          },
+        ],
         [{ type: slots[2].name, matcher: ['a', 'b'] }],
       ]);
     });
@@ -213,7 +231,12 @@ describe('nlu nlc service unit tests', () => {
 
       expect(nlcObj.addSlotType.args).to.eql([
         [{ type: slots[0].name, matcher: ['custom-input1'] }],
-        [{ type: slots[1].name, matcher: ['abc', 'def', 'geh', 'x', 'y', 'z'] }],
+        [
+          {
+            type: slots[1].name,
+            matcher: ['abc', 'def', 'geh', 'x', 'y', 'z'],
+          },
+        ],
         [{ type: slots[2].name, matcher: ['a', 'b'] }],
       ]);
     });
@@ -239,7 +262,12 @@ describe('nlu nlc service unit tests', () => {
 
       expect(nlcObj.addSlotType.args).to.eql([
         [{ type: slots[0].name, matcher: ['custom-input1'] }],
-        [{ type: slots[1].name, matcher: ['abc', 'def', 'geh', 'x', 'y', 'z'] }],
+        [
+          {
+            type: slots[1].name,
+            matcher: ['abc', 'def', 'geh', 'x', 'y', 'z'],
+          },
+        ],
         [{ type: slots[2].name, matcher: ['a', 'b'] }],
         [{ type: slots[3].name, matcher: matcherRegex }],
         [{ type: slots[4].name, matcher: matcherRegex }],
@@ -278,7 +306,13 @@ describe('nlu nlc service unit tests', () => {
       registerIntents(nlcObj as any, { intents, slots } as any);
 
       expect(nlcObj.registerIntent.args).to.eql([
-        [{ intent: intents[0].name, utterances: ['input1'], slots: intents[0].slots }],
+        [
+          {
+            intent: intents[0].name,
+            utterances: ['input1'],
+            slots: intents[0].slots,
+          },
+        ],
         [
           {
             intent: intents[1].name,
