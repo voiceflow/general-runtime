@@ -118,6 +118,7 @@ export class Predictor {
         filteredEntities: options?.filteredEntities ?? [],
         excludeFilteredIntents: true,
         excludeFilteredEntities: true,
+        limit: 10,
       })
       .catch((err: Error) => {
         logger.error('Something went wrong filling slots: %o', err);
@@ -149,6 +150,7 @@ export class Predictor {
         filteredEntities: options?.filteredEntities ?? [],
         excludeFilteredIntents: true,
         excludeFilteredEntities: true,
+        limit: 10,
       })
       .catch((err: Error) => {
         logger.error(err, 'Something went wrong with NLU prediction: %o');
