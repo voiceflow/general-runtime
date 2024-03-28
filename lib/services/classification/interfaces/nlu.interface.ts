@@ -23,26 +23,27 @@ export interface PredictError {
 export interface ClassificationResult {
   result: 'llm' | 'nlu' | 'nlc';
   utterance: string;
-  nlc: {
+  nlc: Partial<{
     predictedIntent: string;
     predictedSlots: PredictedSlot[];
-    openSlot: boolean;
     confidence: number;
-  } & { errors?: PredictError };
-  nlu: {
+    openSlot: boolean;
+  }> & { error?: PredictError };
+  nlu: Partial<{
     predictedIntent: string;
     predictedSlots: PredictedSlot[];
     confidence: number;
     intents: PredictedIntent[];
-  } & { errors?: PredictError };
-  llm: {
+  }> & { error?: PredictError };
+  llm: Partial<{
     predictedIntent: string;
     predictedSlots: PredictedSlot[];
     confidence: number;
     model: string;
     multiplier: number;
     tokens: number;
-  } & { errors?: PredictError };
+  }> & { error?: PredictError };
+  fillSlots: PredictedSlot[] | { error: PredictError };
 }
 
 export interface PredictedIntent {
