@@ -9,7 +9,7 @@ import {
   NodeType,
 } from '@voiceflow/dtos';
 import { NotImplementedException } from '@voiceflow/exception';
-import { isIntentRequest } from '@voiceflow/utils-designer';
+import { isIntentRequest, isTextRequest } from '@voiceflow/utils-designer';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 import lodashModifier from 'underscore-query';
@@ -18,6 +18,7 @@ import { HandlerFactory } from '@/runtime/lib/Handler';
 
 import Runtime from '../../Runtime';
 import Store from '../../Runtime/Store';
+import { EventType, FunctionRequestContext } from './lib/event/event.types';
 import { executeFunction } from './lib/execute-function/execute-function';
 import { fromFunctionGeneralButtonName } from './lib/execute-function/lib/adapt-trace';
 import { createFunctionExceptionDebugTrace } from './lib/function-exception/function.exception';
@@ -91,24 +92,6 @@ function applyTransfer(transfer: string | Transfer, paths: FunctionCompiledInvoc
   throw new Error(`Function produced a transfer object with an unexpected type '${transfer.type}'`);
 }
 
-interface FunctionRequestContext {
-  event?: {
-    code: string; // user-defined button type
-  };
-  intent?: {
-    name: string;
-    confidence?: number;
-    entities: Record<
-      string,
-      {
-        name: string;
-        value: string;
-      }
-    >;
-    utterance?: string;
-  };
-}
-
 function handleListenResponse(
   conditionalTransfers: NextBranches,
   requestContext: FunctionRequestContext,
@@ -138,7 +121,8 @@ function createFunctionRequestContext(runtime: Runtime): FunctionRequestContext 
     } = request.payload;
 
     return {
-      intent: {
+      event: {
+        type: EventType.INTENT,
         name,
         confidence,
         entities: Object.fromEntries(entities.map((ent) => [ent.name, { name: ent.name, value: ent.value }])),
@@ -150,7 +134,17 @@ function createFunctionRequestContext(runtime: Runtime): FunctionRequestContext 
   if (isGeneralRequest(request)) {
     return {
       event: {
-        code: fromFunctionGeneralButtonName(request.type),
+        type: EventType.GENERAL,
+        name: fromFunctionGeneralButtonName(request.type),
+      },
+    };
+  }
+
+  if (isTextRequest(request)) {
+    return {
+      event: {
+        type: EventType.TEXT,
+        value: request.payload,
       },
     };
   }
