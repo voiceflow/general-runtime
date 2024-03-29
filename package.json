@@ -173,6 +173,7 @@
     "lint:output": "yarn run eslint-output --quiet \"**/*.{js,ts}\"",
     "lint:quiet": "yarn lint --quiet",
     "lint:report": "yarn lint:output",
+    "lint:ci": "yarn lint --format junit --output-file ./reports/eslint.xml",
     "local": "rm -f .env.local && vfcli mesh connect general-runtime",
     "local:e2e": "yarn kill:e2e && NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_ENV=e2e yarn dev",
     "mesh:post": "exit 0",
