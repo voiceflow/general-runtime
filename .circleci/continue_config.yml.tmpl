@@ -73,9 +73,7 @@ jobs:
                 path: ci-reports
             - run:
                 name: Depcheck check
-                command: |
-                  cat ./ci-reports/dep-check.log
-                  echo Can add failure check here
+                command: grep -q "No depcheck issue" ./ci-reports/dep-check.log
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
           image_tag: build

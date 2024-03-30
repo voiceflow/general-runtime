@@ -13,15 +13,16 @@
     "@types/*",
     "@voiceflow/commitlint-config",
     "@voiceflow/git-branch-check",
-    "typedoc-plugin-sourcefile-url",
-    "prettier-eslint-cli",
-    "source-map-support",
+    "eslint-import-resolver-typescript",
     "fixpack",
+    "http-status",
     "husky",
     "lint-staged",
-    "http-status",
+    "mocha-junit-reporter",
     "nestjs-zod",
+    "prettier-eslint-cli",
+    "source-map-support",
     "supertest",
-    "eslint-import-resolver-typescript"
+    "typedoc-plugin-sourcefile-url"
   ]
 }
