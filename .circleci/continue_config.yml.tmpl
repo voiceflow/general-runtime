@@ -75,8 +75,8 @@ jobs:
                 name: Depcheck check
                 when: always
                 command: |
-                cat ./ci-reports/dep-check.log
-                grep -q "No depcheck issue" ./ci-reports/dep-check.log
+                  cat ./ci-reports/dep-check.log
+                  grep -q "No depcheck issue" ./ci-reports/dep-check.log
             - run:
                 name: Unit test check
                 when: always
