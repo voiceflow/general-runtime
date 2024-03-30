@@ -73,7 +73,12 @@ jobs:
                 path: ci-reports
             - run:
                 name: Depcheck check
+                when: always
                 command: grep -q "No depcheck issue" ./ci-reports/dep-check.log
+            - run:
+                name: Unit test check
+                when: always
+                command: cat ./ci-reports/test-results.xml | grep "failures=" | grep -qv 'failures="0"'
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
           image_tag: build
