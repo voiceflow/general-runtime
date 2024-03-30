@@ -82,7 +82,7 @@ jobs:
                 when: always
                 command: |
                   cat ./ci-reports/test-results.xml
-                  cat ./ci-reports/test-results.xml | grep "failures=" | grep -qv 'failures="0"'
+                  cat ./ci-reports/test-results.xml | grep 'failures="[0-9]\+"' | grep -qv 'failures="0"'
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
           image_tag: build
