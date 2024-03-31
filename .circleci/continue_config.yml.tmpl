@@ -72,17 +72,25 @@ jobs:
             - store_test_results:
                 path: ci-reports
             - run:
-                name: Depcheck check
+                name: ESLint
+                when: always
+                command: |
+                  cat ./ci-reports/report.json
+                  cat ./ci-reports/eslint.log
+                  cat ./ci-reports/eslint.xml | grep 'failures="' | grep -qv 'failures="0"'
+
+            - run:
+                name: Depcheck
                 when: always
                 command: |
                   cat ./ci-reports/dep-check.log
                   grep -q "No depcheck issue" ./ci-reports/dep-check.log
             - run:
-                name: Unit test check
+                name: Unit Tests
                 when: always
                 command: |
-                  cat ./ci-reports/test-results.xml
-                  cat ./ci-reports/test-results.xml | grep 'failures="[0-9]\+"' | grep -qv 'failures="0"'
+                  cat ./ci-reports/unit-tests.log
+                  cat ./ci-reports/unit-tests.xml | grep 'failures="[0-9]\+"' | grep -qv 'failures="0"'
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
           image_tag: build
