@@ -75,6 +75,8 @@ jobs:
                 name: ESLint
                 when: always
                 command: |
+                  set +o pipefail
+                  ls -lah ./ci-reports/
                   cat ./ci-reports/report.json
                   cat ./ci-reports/eslint.log
                   cat ./ci-reports/eslint.xml | grep 'failures="' | ( ! grep -qE 'failures="[1-9]+' )
@@ -83,14 +85,17 @@ jobs:
                 name: Depcheck
                 when: always
                 command: |
+                  set +o pipefail
                   cat ./ci-reports/dep-check.log
                   grep -q "No depcheck issue" ./ci-reports/dep-check.log
             - run:
                 name: Unit Tests
                 when: always
                 command: |
+                  set +o pipefail
                   cat ./ci-reports/unit-tests.log
                   cat ./ci-reports/unit-tests.xml | grep 'failures="' | ( ! grep -qE 'failures="[1-9]+' )
+                  set -o pipefail
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
           image_tag: build
