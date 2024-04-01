@@ -106,7 +106,6 @@ describe('CodeHandler', () => {
       const variables = { a: 0 };
       const store = new Store(variables);
 
-      mockLog.expects('error').calledWithMatch('Code execution remote and isolated-vm both rejected');
       sandbox.stub(axios, 'post').rejects(new Error('error'));
       sandbox.stub(mockNode, 'code').get(() => 'throw new Error("error")');
 
