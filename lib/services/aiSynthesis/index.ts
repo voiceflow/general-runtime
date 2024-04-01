@@ -1,38 +1,25 @@
 import { BaseModels, BaseUtils } from '@voiceflow/base-types';
-import dedent from 'dedent';
 import _merge from 'lodash/merge';
 
 import { AIModelContext } from '@/lib/clients/ai/ai-model.interface';
-import { AIResponse, EMPTY_AI_RESPONSE, fetchChat, getMemoryMessages } from '@/lib/services/runtime/handlers/utils/ai';
+import { AIResponse, EMPTY_AI_RESPONSE, fetchChat } from '@/lib/services/runtime/handlers/utils/ai';
 import { getCurrentTime } from '@/lib/services/runtime/handlers/utils/generativeNoMatch';
 import {
-  addFaqTrace,
   fetchFaq,
   fetchKnowledgeBase,
   getKBSettings,
   KnowledgeBaseFaqSet,
   KnowledgeBaseResponse,
 } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
-import log from '@/logger';
-import { Runtime } from '@/runtime';
 
 import { SegmentEventType } from '../runtime/types';
 import { AbstractManager } from '../utils';
-import {
-  convertTagsFilterToIDs,
-  generateAnswerSynthesisPrompt,
-  generateTagLabelMap,
-  removePromptLeak,
-  stringifyChunks,
-} from './utils';
+import { convertTagsFilterToIDs, generateAnswerSynthesisPrompt, generateTagLabelMap, removePromptLeak } from './utils';
 
 class AISynthesis extends AbstractManager {
   private readonly DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS = 4000;
 
   private readonly DEFAULT_ANSWER_SYNTHESIS_RETRIES = 2;
-
-  private readonly DEFAULT_SYNTHESIS_SYSTEM =
-    'Always summarize your response to be as brief as possible and be extremely concise. Your responses should be fewer than a couple of sentences.';
 
   private readonly DEFAULT_QUESTION_SYNTHESIS_RETRY_DELAY_MS = 1500;
 
@@ -94,188 +81,6 @@ class AISynthesis extends AbstractManager {
     return response;
   }
 
-  /** @deprecated remove after all KB AI Response steps moved off */
-  async DEPRECATEDpromptAnswerSynthesis({
-    data,
-    prompt,
-    memory,
-    variables,
-    options: {
-      model = BaseUtils.ai.GPT_MODEL.CLAUDE_V1,
-      system = this.DEFAULT_SYNTHESIS_SYSTEM,
-      temperature,
-      maxTokens,
-    } = {},
-    context,
-  }: {
-    data: KnowledgeBaseResponse;
-    prompt: string;
-    memory: BaseUtils.ai.Message[];
-    variables?: Record<string, any>;
-    options?: Partial<BaseUtils.ai.AIModelParams>;
-    context: AIModelContext;
-  }): Promise<AIResponse | null> {
-    const options = {
-      model,
-      system,
-      temperature,
-      maxTokens,
-    };
-
-    const knowledge = stringifyChunks(data);
-    let content: string;
-
-    if (memory.length) {
-      const history = memory.map((turn) => `${turn.role}: ${turn.content}`).join('\n');
-      content = dedent`
-      <Conversation_History>
-        ${history}
-      </Conversation_History>
-
-      <Knowledge>
-        ${knowledge}
-      </Knowledge>
-
-      <Instructions>${prompt}</Instructions>
-
-      Using <Conversation_History> as context, fulfill <Instructions> ONLY using information found in <Knowledge>.`;
-    } else {
-      content = dedent`
-      <Knowledge>
-        ${knowledge}
-      </Knowledge>
-
-      <Instructions>${prompt}</Instructions>
-
-      Fulfill <Instructions> ONLY using information found in <Knowledge>.`;
-    }
-
-    const questionMessages: BaseUtils.ai.Message[] = [
-      {
-        role: BaseUtils.ai.Role.USER,
-        content,
-      },
-    ];
-
-    const fetchChatTask = () =>
-      fetchChat(
-        { ...options, messages: questionMessages },
-        this.services.mlGateway,
-        {
-          context,
-          retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
-          retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
-        },
-        variables
-      );
-
-    const response = await fetchChatTask();
-    if (response.output) {
-      response.output = this.filterNotFound(response.output.trim());
-    }
-
-    return response;
-  }
-
-  /** @deprecated remove after all KB AI Response steps moved off */
-  async DEPRECATEDpromptSynthesis(
-    projectID: string,
-    workspaceID: string,
-    params: BaseUtils.ai.AIContextParams & BaseUtils.ai.AIModelParams,
-    variables: Record<string, any>,
-    runtime?: Runtime
-  ): Promise<AIResponse | null> {
-    const kbSettings = getKBSettings(
-      runtime?.services.unleash,
-      workspaceID,
-      runtime?.version?.knowledgeBase?.settings,
-      runtime?.project?.knowledgeBase?.settings
-    );
-    try {
-      const { prompt } = params;
-
-      const memory = getMemoryMessages(variables);
-
-      const query = await this.DEPRECATEDpromptQuestionSynthesis({
-        prompt,
-        variables,
-        memory,
-        context: { projectID, workspaceID },
-      });
-      if (!query?.output) return null;
-
-      // check if question is an faq before searching all chunks.
-      const faq = await fetchFaq(
-        projectID,
-        workspaceID,
-        query.output,
-        runtime?.project?.knowledgeBase?.faqSets,
-        kbSettings
-      );
-      if (faq?.answer) {
-        if (runtime) {
-          addFaqTrace(runtime, faq?.question || '', faq.answer, query.output);
-        }
-
-        return {
-          output: faq.answer,
-          tokens: query.queryTokens + query.answerTokens,
-          queryTokens: query.queryTokens,
-          answerTokens: query.answerTokens,
-          model: query.model,
-          multiplier: query.multiplier,
-        };
-      }
-
-      const data = await fetchKnowledgeBase(projectID, workspaceID, query.output);
-
-      if (!data) return null;
-
-      const answer = await this.DEPRECATEDpromptAnswerSynthesis({
-        prompt,
-        options: params,
-        data,
-        memory,
-        variables,
-        context: { projectID, workspaceID },
-      });
-
-      if (!answer?.output) return null;
-
-      if (runtime) {
-        const documents = await runtime.api.getKBDocuments(
-          projectID,
-          data.chunks.map((chunk) => chunk.documentID)
-        );
-
-        runtime.trace.addTrace({
-          type: 'knowledgeBase',
-          payload: {
-            chunks: data.chunks.map(({ score, documentID }) => ({
-              score,
-              documentID,
-              documentData: documents?.[documentID]?.data,
-            })),
-            query: {
-              messages: query.messages,
-              output: query.output,
-            },
-          },
-        } as any);
-      }
-
-      const tokens = (query.tokens ?? 0) + (answer.tokens ?? 0);
-
-      const queryTokens = query.queryTokens + answer.queryTokens;
-      const answerTokens = query.answerTokens + answer.answerTokens;
-
-      return { ...answer, ...data, tokens, queryTokens, answerTokens };
-    } catch (err) {
-      log.error(`[knowledge-base prompt] ${log.vars({ err })}`);
-      return null;
-    }
-  }
-
   async questionSynthesis(
     question: string,
     memory: BaseUtils.ai.Message[],
@@ -319,60 +124,6 @@ class AISynthesis extends AbstractManager {
       output: question,
       model: BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo,
     };
-  }
-
-  /** @deprecated remove after all KB AI Response steps moved off */
-  async DEPRECATEDpromptQuestionSynthesis({
-    prompt,
-    memory,
-    variables,
-    options: { model = BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo, system = '', temperature, maxTokens } = {},
-    context,
-  }: {
-    prompt: string;
-    memory: BaseUtils.ai.Message[];
-    variables?: Record<string, any>;
-    options?: Partial<BaseUtils.ai.AIModelParams>;
-    context: AIModelContext;
-  }): Promise<AIResponse> {
-    const options = { model, system, temperature, maxTokens };
-
-    let content: string;
-
-    if (memory.length) {
-      const history = memory.map((turn) => `${turn.role}: ${turn.content}`).join('\n');
-      content = dedent`
-      <Conversation_History>
-        ${history}
-      </Conversation_History>
-
-      <Instructions>${prompt}</Instructions>
-
-      Using <Conversation_History> as context, you are searching a text knowledge base to fulfill <Instructions>. Write a sentence to search against.`;
-    } else {
-      content = dedent`
-      <Instructions>${prompt}</Instructions>
-
-      You can search a text knowledge base to fulfill <Instructions>. Write a sentence to search against.`;
-    }
-
-    const questionMessages: BaseUtils.ai.Message[] = [
-      {
-        role: BaseUtils.ai.Role.USER,
-        content,
-      },
-    ];
-
-    return fetchChat(
-      { ...options, messages: questionMessages },
-      this.services.mlGateway,
-      {
-        context,
-        retries: this.DEFAULT_QUESTION_SYNTHESIS_RETRIES,
-        retryDelay: this.DEFAULT_QUESTION_SYNTHESIS_RETRY_DELAY_MS,
-      },
-      variables
-    );
   }
 
   testSendSegmentTagsFilterEvent = async ({

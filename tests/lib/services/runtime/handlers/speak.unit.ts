@@ -3,13 +3,18 @@ import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import SpeakHandler from '@/lib/services/runtime/handlers/speak';
+import { SpeakHandler } from '@/lib/services/runtime/handlers/speak';
 import { FrameType } from '@/lib/services/runtime/types';
+import { addOutputTrace, speakOutputTrace } from '@/lib/services/runtime/utils';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
 describe('speak handler unit tests', async () => {
-  const speakHandler = SpeakHandler();
+  const speakHandler = SpeakHandler({
+    _sample: sinon.stub().callsFake((arr: any[]) => arr[0]),
+    addOutputTrace,
+    speakOutputTrace,
+  });
 
   afterEach(() => sinon.restore());
 
@@ -47,7 +52,7 @@ describe('speak handler unit tests', async () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
-      const variables = { getState: sinon.stub().returns({}), set: sinon.stub() };
+      const variables = { getState: sinon.stub().returns({}), set: sinon.stub(), get: sinon.stub() };
 
       expect(speakHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
       expect(topFrame.storage.set.args[0][0]).to.eql(FrameType.OUTPUT);
@@ -80,7 +85,11 @@ describe('speak handler unit tests', async () => {
           },
         ],
       ]);
-      expect(variables.set.args).to.eql([[VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, spokenPhrase]]);
+      expect(variables.set.args).to.eql([
+        [VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, spokenPhrase],
+        ['_memory_', [{ content: 'one', role: 'assistant' }]],
+        ['vf_memory', 'assistant: one'],
+      ]);
     });
 
     it('speak', () => {
@@ -102,7 +111,7 @@ describe('speak handler unit tests', async () => {
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
       const varState = { var: 1.234, var1: 'here' };
-      const variables = { getState: sinon.stub().returns(varState), set: sinon.stub() };
+      const variables = { getState: sinon.stub().returns(varState), set: sinon.stub(), get: sinon.stub() };
 
       expect(speakHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
       // output has vars replaced and numbers turned to 2digits floats
@@ -125,7 +134,11 @@ describe('speak handler unit tests', async () => {
           },
         ],
       ]);
-      expect(variables.set.args).to.eql([[VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, 'random 1.23 or here']]);
+      expect(variables.set.args).to.eql([
+        [VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, 'random 1.23 or here'],
+        ['_memory_', [{ content: 'random 1.23 or here', role: 'assistant' }]],
+        ['vf_memory', 'assistant: random 1.23 or here'],
+      ]);
     });
 
     it('speak is not string', () => {

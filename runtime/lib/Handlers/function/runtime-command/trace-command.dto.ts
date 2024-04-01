@@ -34,7 +34,7 @@ export const SimpleTextTraceDTO = TraceDTO.extend({
   payload: z.object({
     message: z.string(),
   }),
-});
+}).passthrough();
 
 export type SimpleTextTrace = z.infer<typeof SimpleTextTraceDTO>;
 
@@ -45,7 +45,7 @@ export const SimpleSpeakTraceDTO = TraceDTO.extend({
     voice: z.string().optional(),
     src: z.string().optional(),
   }),
-});
+}).passthrough();
 
 export type SimpleSpeakTrace = z.infer<typeof SimpleSpeakTraceDTO>;
 
@@ -54,7 +54,7 @@ export const SimpleAudioTraceDTO = TraceDTO.extend({
   payload: z.object({
     src: z.string().optional(),
   }),
-});
+}).passthrough();
 
 export type SimpleAudioTrace = z.infer<typeof SimpleAudioTraceDTO>;
 
@@ -63,7 +63,7 @@ export const SimpleDebugTraceDTO = TraceDTO.extend({
   payload: z.object({
     message: z.string(),
   }),
-});
+}).passthrough();
 
 export type SimpleDebugTrace = z.infer<typeof SimpleDebugTraceDTO>;
 
@@ -72,7 +72,7 @@ export const SimpleVisualTraceDTO = TraceDTO.extend({
   payload: z.object({
     image: z.string(),
   }),
-});
+}).passthrough();
 
 export type SimpleVisualTrace = z.infer<typeof SimpleVisualTraceDTO>;
 
@@ -110,7 +110,7 @@ export type SimpleCard = z.infer<typeof SimpleCardDTO>;
 export const SimpleCardV2TraceDTO = TraceDTO.extend({
   type: z.literal(SimpleTraceType.CardV2),
   payload: SimpleCardDTO,
-});
+}).passthrough();
 
 export type SimpleCardV2Trace = z.infer<typeof SimpleCardV2TraceDTO>;
 
@@ -120,7 +120,7 @@ export const SimpleCarouselTraceDTO = TraceDTO.extend({
     layout: z.nativeEnum(BaseNode.Carousel.CarouselLayout).optional(),
     cards: z.array(SimpleCardDTO),
   }),
-});
+}).passthrough();
 
 export type SimpleCarouselTrace = z.infer<typeof SimpleCarouselTraceDTO>;
 

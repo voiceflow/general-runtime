@@ -4708,7 +4708,6 @@ __metadata:
     prettier-eslint-cli: ^5.0.0
     redoc-cli: ^0.12.3
     regenerator-runtime: ^0.13.3
-    require-from-url: ^3.1.3
     sinon: ^7.5.0
     slate: 0.72.3
     source-map-support: ^0.5.19
@@ -15184,13 +15183,6 @@ __metadata:
   version: 2.0.2
   resolution: "require-from-string@npm:2.0.2"
   checksum: a03ef6895445f33a4015300c426699bc66b2b044ba7b670aa238610381b56d3f07c686251740d575e22f4c87531ba662d06937508f0f3c0f1ddc04db3130560b
-  languageName: node
-  linkType: hard
-
-"require-from-url@npm:^3.1.3":
-  version: 3.1.3
-  resolution: "require-from-url@npm:3.1.3"
-  checksum: 9897f054a888346dbfb2609e69615cb97cb8c7ae5245cdf2376db613ef2060e28e318e4b8f3e83657fdb862df31d86c0116b12d6c86dcee14a2d22cb723a4f42
   languageName: node
   linkType: hard
 

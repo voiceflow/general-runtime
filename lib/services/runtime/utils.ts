@@ -287,7 +287,8 @@ export function textOutputTrace({
 
 export function speakOutputTrace({ variables, output, isPrompt }: OutputParams<string>) {
   const sanitizedVars = sanitizeVariables(variables?.getState() ?? {});
-  const message = replaceVariables(output || '', sanitizedVars);
+  // in case a variable's value is a text containing another variable (i.e text2="say {text}")
+  const message = replaceVariables(replaceVariables(output || '', sanitizedVars), sanitizedVars);
 
   const trace: BaseTrace.Speak = {
     type: BaseNode.Utils.TraceType.SPEAK,

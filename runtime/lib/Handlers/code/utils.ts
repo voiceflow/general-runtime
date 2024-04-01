@@ -4,7 +4,6 @@ import type { Logger } from '@voiceflow/logger';
 import axios from 'axios';
 import ivm from 'isolated-vm';
 import { isDeepStrictEqual } from 'node:util';
-import requireFromUrl from 'require-from-url/sync';
 
 import Store from '@/runtime/lib/Runtime/Store';
 
@@ -14,14 +13,9 @@ const ISOLATED_VM_LIMITS = {
   maxExecutionTimeMs: 1 * 1000,
 };
 
-export interface IvmExecuteOptions {
-  legacyRequireFromUrl?: boolean;
-}
-
 export const ivmExecute = async (
   data: { code: string; variables: Record<string, any> },
-  callbacks?: Record<string, (...args: any) => any>,
-  options: IvmExecuteOptions = {}
+  callbacks?: Record<string, (...args: any) => any>
 ) => {
   // Create isolate with 8mb max memory
   const isolate = new ivm.Isolate({ memoryLimit: ISOLATED_VM_LIMITS.maxMemoryMB });
@@ -38,11 +32,6 @@ export const ivmExecute = async (
       // set Promise to not do anything in code because it has complex functionality inside the vm
       jail.set('Promise', null),
     ]);
-
-    if (options.legacyRequireFromUrl) {
-      // support legacy `requireFromUrl` functionality
-      await jail.set('requireFromUrl', (url: string) => requireFromUrl(url));
-    }
 
     // add callbacks if exists
     if (callbacks) {

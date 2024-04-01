@@ -5,12 +5,10 @@ import _cloneDeep from 'lodash/cloneDeep';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import { FeatureFlag } from '@/lib/feature-flags';
-import log from '@/logger';
 import { HandlerFactory } from '@/runtime';
 
 import { GeneralRuntime } from '../types';
 import { AIResponse, consumeResources, EMPTY_AI_RESPONSE, fetchPrompt } from './utils/ai';
-import { getKBSettings } from './utils/knowledgeBase';
 
 const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_SET,
@@ -19,12 +17,6 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = 
     const nextID = node.nextId ?? null;
     const workspaceID = runtime.project?.teamID || '';
     const projectID = runtime.project?._id;
-    const kbSettings = getKBSettings(
-      runtime?.services.unleash,
-      workspaceID,
-      runtime?.version?.knowledgeBase?.settings,
-      runtime?.project?.knowledgeBase?.settings
-    );
     if (!node.sets?.length) return nextID;
 
     try {
@@ -35,57 +27,27 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = 
             if (!variable) return EMPTY_AI_RESPONSE;
 
             if (node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE) {
-              const isDeprecated = node.overrideParams === undefined;
+              const settings = deepVariableSubstitution(
+                _cloneDeep({ ...node, mode, instruction, prompt, sets: undefined }),
+                variables.getState()
+              );
 
-              let response: AIResponse | null = EMPTY_AI_RESPONSE;
-              if (isDeprecated) {
-                log.warn(
-                  `[AISetHandler] [DEPRECATEDpromptSynthesis] ${log.vars({
-                    workspaceID,
-                    projectID,
-                    versionID: runtime.versionID,
-                    programID: runtime.stack.top()?.getDiagramID(),
-                    nodeID: node.id,
-                  })}`
-                );
+              const response = await runtime.services.aiSynthesis.knowledgeBaseQuery({
+                version: runtime.version!,
+                project: runtime.project!,
+                question: settings.prompt,
+                instruction: settings.instruction,
+                options: node.overrideParams ? { summarization: settings } : {},
+              });
 
-                response = await runtime.services.aiSynthesis.DEPRECATEDpromptSynthesis(
-                  runtime.version!.projectID,
-                  workspaceID,
-                  {
-                    ...kbSettings?.summarization,
-                    mode,
-                    prompt,
-                  },
-                  variables.getState(),
-                  runtime
-                );
-              } else {
-                const settings = deepVariableSubstitution(
-                  _cloneDeep({ ...node, mode, instruction, prompt, sets: undefined }),
-                  variables.getState()
-                );
-                const queryAnswer = await runtime.services.aiSynthesis.knowledgeBaseQuery({
-                  version: runtime.version!,
-                  project: runtime.project!,
-                  question: settings.prompt,
-                  instruction: settings.instruction,
-                  options: node.overrideParams ? { summarization: settings } : {},
-                });
+              const chunks = response?.chunks?.map((chunk) => JSON.stringify(chunk)) ?? [];
+              const workspaceID = Number(runtime.project?.teamID);
 
-                // just for typescript typing purposes (AIResponse) doesn't contain "chunks"
-                // remove after isDeprecated is gone
-                response = queryAnswer;
-
-                const chunks = queryAnswer?.chunks?.map((chunk) => JSON.stringify(chunk)) ?? [];
-                const workspaceID = Number(runtime.project?.teamID);
-
-                if (runtime.services.unleash.client.isEnabled(FeatureFlag.VF_CHUNKS_VARIABLE, { workspaceID })) {
-                  variables.set(VoiceflowConstants.BuiltInVariable.VF_CHUNKS, chunks);
-                }
-
-                if (response.output === null) response.output = BaseUtils.ai.KNOWLEDGE_BASE_NOT_FOUND;
+              if (runtime.services.unleash.client.isEnabled(FeatureFlag.VF_CHUNKS_VARIABLE, { workspaceID })) {
+                variables.set(VoiceflowConstants.BuiltInVariable.VF_CHUNKS, chunks);
               }
+
+              if (response.output === null) response.output = BaseUtils.ai.KNOWLEDGE_BASE_NOT_FOUND;
 
               variables.set(variable, response?.output);
               const tokens = response?.tokens ?? 0;
