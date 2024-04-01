@@ -281,7 +281,7 @@ export class Predictor {
       utterance: nluPrediction.utterance,
       predictedIntent: matchedIntent.name,
       predictedSlots: [],
-      confidence: 100,
+      confidence: 1,
       model: completionResponse.model,
       multiplier: completionResponse.multiplier,
       tokens: completionResponse.tokens,
