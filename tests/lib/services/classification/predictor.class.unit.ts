@@ -30,6 +30,12 @@ describe('predictor unit tests', () => {
   afterEach(() => {
     sinon.restore();
   });
+  const pizzaAmountSlot = {
+    key: '123xyz',
+    name: 'pizzaAmount',
+    type: { value: 'VF.NUMBER' },
+    inputs: [],
+  };
   const orderPizzaIntentPrediction = { name: 'Order Pizza', confidence: 1 };
   const orderPizzaIntent = {
     name: 'Order Pizza',
@@ -37,12 +43,22 @@ describe('predictor unit tests', () => {
     inputs: [],
     key: 'pizzaKey',
   };
+  const orderPizzaIntentWithSlots = {
+    name: 'Order Many Pizzas',
+    description: 'order many pizzas',
+    inputs: [],
+    slots: [
+      {
+        id: pizzaAmountSlot.key,
+        required: true,
+      },
+    ],
+    key: 'pizzaAmountKey',
+  };
   const model: PrototypeModel = {
     slots: [],
     intents: [orderPizzaIntent],
   };
-  const tag = VersionTag.PRODUCTION;
-  const locale = VoiceflowConstants.Locale.DE_DE;
   const query = 'I would like a large sofa pizza with extra chair';
   const version: Pick<Version, '_id' | 'projectID' | 'prototype'> = {
     _id: 'version-id',
@@ -208,6 +224,82 @@ describe('predictor unit tests', () => {
 
       expect(result).to.eql('llm');
       expect(prediction?.predictedIntent).to.eql(mlGatewayPrediction.output);
+    });
+
+    it('skips if NLU fails', async () => {
+      const utterance = 'query-val';
+      const { config, props, settings, options } = setup({
+        axios: { data: null },
+        settings: {
+          type: 'llm',
+          params: { model: 'gpt-4-turbo', temperature: 0.7 },
+        },
+      });
+      const predictor = new Predictor(config, props, settings.intentClassification, options);
+      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand');
+      handleNLCCommandStub.onCall(0).returns(null);
+      handleNLCCommandStub.onCall(1).returns(nlcPrediction as any);
+
+      const prediction = await predictor.predict(utterance);
+      const { result } = predictor.predictions;
+
+      sinon.assert.called(config.axios.post);
+      sinon.assert.notCalled(config.mlGateway.private?.completion.generateCompletion);
+      expect(handleNLCCommandStub.callCount).to.eql(2);
+      expect(prediction?.predictedIntent).to.eql(nlcPrediction.intent);
+      expect(result).to.eql('nlc');
+    });
+
+    it('uses slots from NLU if same prediction', async () => {
+      const utterance = 'query-val';
+      const { config, props, settings, options } = setup({
+        settings: {
+          type: 'llm',
+          params: { model: 'gpt-4-turbo', temperature: 0.7 },
+        },
+      });
+
+      const predictor = new Predictor(config, props, settings.intentClassification, options);
+      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand');
+      handleNLCCommandStub.returns(null);
+
+      const prediction = await predictor.predict(utterance);
+      const { result } = predictor.predictions;
+
+      expect(result).to.eql('llm');
+      expect(config.axios.post.callCount).to.eql(1);
+      expect(prediction?.predictedIntent).to.eql(mlGatewayPrediction.output);
+    });
+
+    it('fills slots if prediction different than NLU', async () => {
+      const utterance = 'query-val';
+      const predictionWithSlots = {
+        ...mlGatewayPrediction,
+        output: orderPizzaIntentWithSlots.name,
+      };
+      const { config, props, settings, options } = setup({
+        props: {
+          intents: [orderPizzaIntent, orderPizzaIntentWithSlots],
+          slots: [pizzaAmountSlot],
+        },
+        axios: { data: { ...nluGatewayPrediction, predictionIntent: 'womp' } },
+        mlGateway: predictionWithSlots,
+        settings: {
+          type: 'llm',
+          params: { model: 'gpt-4-turbo', temperature: 0.7 },
+        },
+      });
+
+      const predictor = new Predictor(config, props, settings.intentClassification, options);
+      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand');
+      handleNLCCommandStub.returns(null);
+
+      const prediction = await predictor.predict(utterance);
+      const { result } = predictor.predictions;
+
+      expect(result).to.eql('llm');
+      expect(config.axios.post.callCount).to.eql(2);
+      expect(prediction?.predictedIntent).to.eql(predictionWithSlots.output);
     });
   });
 });

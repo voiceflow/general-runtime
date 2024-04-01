@@ -4,6 +4,7 @@ import { IntentClassificationSettings } from '@voiceflow/dtos';
 import { ISlotFullfilment } from '@voiceflow/natural-language-commander';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import type { AxiosStatic } from 'axios';
+import { match } from 'ts-pattern';
 
 import MLGateway from '@/lib/clients/ml-gateway';
 import logger from '@/logger';
@@ -47,6 +48,8 @@ export class Predictor {
 
   private _config: PredictorConfig;
 
+  private _intentNameMap: any = {};
+
   constructor(
     config: PredictorConfig,
     props: PredictRequest,
@@ -57,6 +60,8 @@ export class Predictor {
     this._props = props;
     this._settings = settings;
     this._options = options;
+    // match NLU prediction intents to NLU model
+    this._intentNameMap = Object.fromEntries(this._props.intents.map((intent) => [intent.name, intent]));
   }
 
   private get nluGatewayURL() {
@@ -195,13 +200,10 @@ export class Predictor {
 
     const promptContent = this._settings.promptWrapper?.content ?? DEFAULT_INTENT_CLASSIFICATION_PROMPT_WRAPPER_CODE;
 
-    // match NLU prediction intents to NLU model
-    const intentNameMap = Object.fromEntries(this._props.intents.map((intent) => [intent.name, intent]));
-
     const intents = nluPrediction.intents
       // filter out none intent
       .filter((intent) => intent.name !== VoiceflowConstants.IntentName.NONE)
-      .map((intent) => intentNameMap[intent.name])
+      .map((intent) => this._intentNameMap[intent.name])
       // TODO: PL-897
       .filter(Utils.array.isNotNullish);
 
@@ -322,12 +324,23 @@ export class Predictor {
         return nluPrediction;
       }
 
-      // slot filling
-      const slots = await this.fillSlots(utterance, {
-        filteredIntents: [llmPrediction.predictedIntent],
-      });
-
       this._predictions.result = 'llm';
+
+      // STEP 4: retrieve intent from intent map
+      const intent = this._intentNameMap[llmPrediction.predictedIntent];
+
+      // slot filling
+      const slots = await match({
+        predicted: llmPrediction.predictedIntent === nluPrediction.predictedIntent,
+        hasSlots: !!intent.slots?.length,
+      })
+        .with({ predicted: true }, () => nluPrediction.predictedSlots)
+        .with({ predicted: false, hasSlots: true }, () =>
+          this.fillSlots(utterance, {
+            filteredIntents: [llmPrediction.predictedIntent],
+          })
+        )
+        .otherwise(() => []);
 
       return {
         ...llmPrediction,
