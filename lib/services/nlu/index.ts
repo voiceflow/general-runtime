@@ -95,31 +95,36 @@ class NLU extends AbstractManager implements ContextHandler {
     if (!predictions.result) {
       return trace;
     }
-    const newTraces: typeof trace = [];
-    switch (predictions.result) {
-      case 'llm': {
-        const { llm } = predictions;
-        if (llm?.error) {
-          newTraces.push(debugTrace(llm.error.message));
-        } else {
-          newTraces.concat([
-            debugTrace(`LLM model: ${llm?.model}`),
-            debugTrace(`LLM multiplier: ${llm?.multiplier}`),
-            debugTrace(`LLM tokens: ${llm?.tokens}`),
-          ]);
-        }
-        break;
-      }
-      case 'nlu': {
-        break;
-      }
-      case 'nlc': {
-        break;
-      }
-      default: {
-        break;
+    let newTraces: typeof trace = [];
+
+    if (predictions.llm) {
+      if (predictions.llm.error) {
+        newTraces.push(debugTrace(predictions.llm.error.message));
+      } else {
+        newTraces = newTraces.concat([
+          debugTrace(`LLM model: ${predictions.llm.model}`),
+          debugTrace(`LLM multiplier: ${predictions.llm.multiplier}`),
+          debugTrace(`LLM tokens: ${predictions.llm.tokens}`),
+        ]);
       }
     }
+
+    if (predictions.nlu) {
+      if (predictions.nlu.error) {
+        newTraces.push(debugTrace(predictions.nlu.error.message));
+      } else {
+        newTraces.push(debugTrace(`NLU confidence: ${predictions.nlu.confidence}`));
+      }
+    }
+
+    if (predictions.nlc) {
+      if (predictions.nlc.error) {
+        newTraces.push(debugTrace(predictions.nlc.error.message));
+      } else {
+        newTraces.push(debugTrace(`NLC open slot: ${predictions.nlc.openSlot}`));
+      }
+    }
+
     return trace.concat(newTraces);
   }
 }

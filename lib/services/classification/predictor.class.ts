@@ -347,4 +347,8 @@ export class Predictor {
   public get predictions(): Partial<ClassificationResult> {
     return this._predictions;
   }
+
+  public get classificationType() {
+    return this._settings.type;
+  }
 }
