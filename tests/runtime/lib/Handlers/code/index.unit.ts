@@ -6,7 +6,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import log from '@/logger';
-import { Runtime, Store } from '@/runtime';
+import { Runtime, Stack, Store } from '@/runtime';
 import CodeHandler from '@/runtime/lib/Handlers/code';
 import ProgramModel from '@/runtime/lib/Program';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
@@ -30,6 +30,7 @@ describe('CodeHandler', () => {
       project: createMock<DeepPartial<BaseProject.Project>>({ _id: 'project-id' }) as any,
       trace: createMock<Trace>(),
       debugLogging: createMock<DebugLogging>(),
+      stack: createMock<Stack>(),
     });
     mockNode = createMock<BaseNode.Code.Node>({
       id: 'node-id',
