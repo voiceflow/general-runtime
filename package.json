@@ -63,6 +63,7 @@
     "mongodb": "6.5.0",
     "nestjs-zod": "2.3.3",
     "node-fetch": "^2.7.0",
+    "promise.withresolvers": "^1.0.3",
     "regenerator-runtime": "^0.13.3",
     "slate": "0.72.3",
     "talisman": "^1.1.3",
