@@ -58,8 +58,7 @@ function resolveFunctionDefinition(
   version: BaseVersion.Version
 ): FunctionCompiledDefinition {
   if ('functionId' in definition) {
-    // !TODO! - Must remove `as any` here
-    const resolvedDefinition = version.prototype?.surveyorContext.functionDefinitions[definition.functionId as any];
+    const resolvedDefinition = version.prototype?.surveyorContext.functionDefinitions[definition.functionId];
     if (!resolvedDefinition) {
       throw new Error(`unable to resolve function definition`);
     }
