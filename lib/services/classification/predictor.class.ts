@@ -216,8 +216,8 @@ export class Predictor {
 
     let prompt;
     try {
-      // TODO: await in Promise constructor won't catch
-      prompt = await executePromptWrapper(promptContent, promptArgs);
+      const result = await executePromptWrapper(promptContent, promptArgs);
+      prompt = result.prompt;
     } catch (err) {
       // TODO: Error types for matching
       logger.error(err, 'PromptWrapperError: went real bad');
