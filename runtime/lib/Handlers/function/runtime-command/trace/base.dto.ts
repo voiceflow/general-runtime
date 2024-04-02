@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const TraceDTO = z
+export const UnknownTraceDTO = z
   .object({
     type: z.string({
       required_error: `A Voiceflow trace must define a 'type' property`,
@@ -10,4 +10,4 @@ export const TraceDTO = z
   })
   .passthrough();
 
-export type Trace = z.infer<typeof TraceDTO>;
+export type UnknownTrace = z.infer<typeof UnknownTraceDTO>;

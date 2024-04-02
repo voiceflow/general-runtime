@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { SimpleAudioTraceDTO } from './trace/audio.dto';
-import { TraceDTO } from './trace/base.dto';
+import { UnknownTraceDTO } from './trace/base.dto';
 import { SimpleCardV2TraceDTO } from './trace/cardV2.dto';
 import { SimpleCarouselTraceDTO } from './trace/carousel.dto';
 import { SimpleChoiceTraceDTO } from './trace/choice.dto';
@@ -10,7 +10,7 @@ import { SimpleSpeakTraceDTO } from './trace/speak.dto';
 import { SimpleTextTraceDTO } from './trace/text.dto';
 import { SimpleVisualTraceDTO } from './trace/visual.dto';
 
-export const TraceCommandDTO = z.array(TraceDTO, {
+export const TraceCommandDTO = z.array(UnknownTraceDTO, {
   invalid_type_error: 'A trace command must be a list of valid Voiceflow trace types',
 });
 

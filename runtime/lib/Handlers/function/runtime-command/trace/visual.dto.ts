@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
-import { TraceDTO } from './base.dto';
+import { UnknownTraceDTO } from './base.dto';
 import { SimpleTraceType } from './simple-trace-type.enum';
 
-export const SimpleVisualTraceDTO = TraceDTO.extend({
+export const SimpleVisualTraceDTO = UnknownTraceDTO.extend({
   type: z.literal(SimpleTraceType.Visual),
   payload: z.object({
     image: z.string(),

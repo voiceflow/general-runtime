@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
-import { TraceDTO } from './base.dto';
+import { UnknownTraceDTO } from './base.dto';
 import { SimpleTraceType } from './simple-trace-type.enum';
 
-export const SimpleAudioTraceDTO = TraceDTO.extend({
+export const SimpleAudioTraceDTO = UnknownTraceDTO.extend({
   type: z.literal(SimpleTraceType.Audio),
   payload: z.object({
     src: z.string().optional(),

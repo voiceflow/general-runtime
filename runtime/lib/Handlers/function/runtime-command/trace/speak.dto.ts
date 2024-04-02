@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
-import { TraceDTO } from './base.dto';
+import { UnknownTraceDTO } from './base.dto';
 import { SimpleTraceType } from './simple-trace-type.enum';
 
-export const SimpleSpeakTraceDTO = TraceDTO.extend({
+export const SimpleSpeakTraceDTO = UnknownTraceDTO.extend({
   type: z.literal(SimpleTraceType.Speak),
   payload: z.object({
     message: z.string(),

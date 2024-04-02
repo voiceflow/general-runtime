@@ -5,7 +5,7 @@ import { SimpleAction, SimpleActionButton } from '../../../runtime-command/butto
 import { SimpleGeneralButton } from '../../../runtime-command/button/general-button.dto';
 import { SimpleCard } from '../../../runtime-command/card/card.dto';
 import { SimpleAudioTrace } from '../../../runtime-command/trace/audio.dto';
-import { Trace } from '../../../runtime-command/trace/base.dto';
+import { UnknownTrace } from '../../../runtime-command/trace/base.dto';
 import { SimpleCardV2Trace } from '../../../runtime-command/trace/cardV2.dto';
 import { SimpleCarouselTrace } from '../../../runtime-command/trace/carousel.dto';
 import { SimpleChoiceTrace } from '../../../runtime-command/trace/choice.dto';
@@ -18,7 +18,7 @@ import { isSimpleTrace } from './is-simple-trace';
 const { cuid } = Utils.id;
 const { TraceType } = BaseTrace;
 
-const adaptTextTrace = (trace: SimpleTextTrace): Trace => {
+const adaptTextTrace = (trace: SimpleTextTrace): UnknownTrace => {
   return {
     ...trace,
     type: TraceType.TEXT,
@@ -32,7 +32,7 @@ const adaptTextTrace = (trace: SimpleTextTrace): Trace => {
   } satisfies BaseTrace.TextTrace;
 };
 
-const adaptSpeakTrace = (trace: SimpleSpeakTrace): Trace => {
+const adaptSpeakTrace = (trace: SimpleSpeakTrace): UnknownTrace => {
   return {
     ...trace,
     type: TraceType.SPEAK,
@@ -43,7 +43,7 @@ const adaptSpeakTrace = (trace: SimpleSpeakTrace): Trace => {
   } satisfies BaseTrace.SpeakTrace;
 };
 
-const adaptAudioTrace = (trace: SimpleAudioTrace): Trace => {
+const adaptAudioTrace = (trace: SimpleAudioTrace): UnknownTrace => {
   return {
     ...trace,
     type: TraceType.SPEAK,
@@ -54,7 +54,7 @@ const adaptAudioTrace = (trace: SimpleAudioTrace): Trace => {
   } satisfies BaseTrace.SpeakTrace;
 };
 
-const adaptVisualTrace = (trace: SimpleVisualTrace): Trace => {
+const adaptVisualTrace = (trace: SimpleVisualTrace): UnknownTrace => {
   return {
     ...trace,
     type: TraceType.VISUAL,
@@ -131,7 +131,7 @@ const adaptCard = (card: SimpleCard): BaseNode.Carousel.TraceCarouselCard => {
   };
 };
 
-const adaptCarouselTrace = (trace: SimpleCarouselTrace): Trace => {
+const adaptCarouselTrace = (trace: SimpleCarouselTrace): UnknownTrace => {
   return {
     ...trace,
     type: TraceType.CAROUSEL,
@@ -143,7 +143,7 @@ const adaptCarouselTrace = (trace: SimpleCarouselTrace): Trace => {
   } satisfies BaseTrace.CarouselTrace;
 };
 
-const adaptCardV2Trace = (trace: SimpleCardV2Trace): Trace => {
+const adaptCardV2Trace = (trace: SimpleCardV2Trace): UnknownTrace => {
   return {
     ...trace,
     type: TraceType.CARD_V2,
@@ -154,7 +154,7 @@ const adaptCardV2Trace = (trace: SimpleCardV2Trace): Trace => {
   } satisfies BaseTrace.CardV2;
 };
 
-const adaptChoiceTrace = (trace: SimpleChoiceTrace): Trace => {
+const adaptChoiceTrace = (trace: SimpleChoiceTrace): UnknownTrace => {
   return {
     ...trace,
     type: TraceType.CHOICE,
@@ -165,7 +165,7 @@ const adaptChoiceTrace = (trace: SimpleChoiceTrace): Trace => {
   } satisfies BaseTrace.Choice;
 };
 
-export function adaptTrace(trace: Trace): Trace {
+export function adaptTrace(trace: UnknownTrace): UnknownTrace {
   if (!isSimpleTrace(trace)) return trace;
 
   switch (trace.type) {
