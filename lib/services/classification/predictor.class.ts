@@ -217,7 +217,7 @@ export class Predictor {
         prompt,
         params: {
           // TODO: models are different between ml gateway sdk and dtos package
-          model: this.settings.params.model as any,
+          model: this.settings.params.model,
           temperature: this.settings.params.temperature,
         },
         options: {
@@ -245,8 +245,12 @@ export class Predictor {
 
     // validate llm output as a valid intent
     const matchedIntent = this.props.intents.find((intent) => intent.name === completionResponse.output);
+    const { error } = completionResponse;
 
-    this.predictions.llm = completionResponse;
+    this.predictions.llm = {
+      ...completionResponse,
+      error: !error ? undefined : { message: error },
+    };
 
     if (!matchedIntent) {
       this.predictions.llm = {
