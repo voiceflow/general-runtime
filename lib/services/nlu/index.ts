@@ -11,7 +11,7 @@ import { isTextRequest } from '@/lib/services/runtime/types';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
 import { Predictor } from '../classification';
-import { massageVersion } from '../classification/classification.utils';
+import { castToDTO } from '../classification/classification.utils';
 import { Prediction } from '../classification/interfaces/nlu.interface';
 import { AbstractManager } from '../utils';
 import { getNoneIntentRequest } from './utils';
@@ -49,7 +49,7 @@ class NLU extends AbstractManager implements ContextHandler {
     }
 
     const version = await context.data.api.getVersion(context.versionID);
-    const { settings, intents, slots } = massageVersion(version);
+    const { settings, intents, slots } = castToDTO(version);
     const project = await context.data.api.getProject(version.projectID);
 
     if (!settings) {

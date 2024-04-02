@@ -7,7 +7,7 @@ import { shallowObjectIdToString } from '@/runtime/lib/DataAPI/mongoDataAPI';
 import { Request, VersionTag } from '@/types';
 
 import { Predictor } from '../services/classification';
-import { massageVersion } from '../services/classification/classification.utils';
+import { castToDTO } from '../services/classification/classification.utils';
 import { validate } from '../utils';
 import { AbstractController } from './utils';
 
@@ -75,7 +75,7 @@ class NLUController extends AbstractController {
       throw new VError('Missmatch in projectID/versionID', VError.HTTP_STATUS.BAD_REQUEST);
     }
 
-    const { settings, intents, slots } = massageVersion(version);
+    const { settings, intents, slots } = castToDTO(version);
 
     if (!settings?.intentClassification) {
       throw new Error('');

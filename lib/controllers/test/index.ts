@@ -6,7 +6,7 @@ import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { z } from 'zod';
 
 import { Predictor } from '@/lib/services/classification';
-import { massageVersion } from '@/lib/services/classification/classification.utils';
+import { castToDTO } from '@/lib/services/classification/classification.utils';
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
 import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
@@ -151,7 +151,7 @@ class TestController extends AbstractController {
     const api = await this.services.dataAPI.get();
 
     const version = await api.getVersion(data.versionID);
-    const { intents, slots } = massageVersion(version);
+    const { intents, slots } = castToDTO(version);
     const project = await api.getProject(version.projectID);
     const predictor = new Predictor(
       {

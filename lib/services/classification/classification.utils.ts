@@ -19,7 +19,7 @@ export const isIntentClassificationLLMSettings = (
   return settings.type === 'llm';
 };
 
-export const massageVersion = (
+export const castToDTO = (
   version: VoiceflowVersion.Version
 ): {
   settings: Version['settings'];

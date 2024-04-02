@@ -19,7 +19,7 @@ import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
 import { Predictor } from '../classification';
-import { massageVersion } from '../classification/classification.utils';
+import { castToDTO } from '../classification/classification.utils';
 import { getIntentRequest } from '../nlu';
 import { getNoneIntentRequest } from '../nlu/utils';
 import { isIntentRequest, StorageType } from '../runtime/types';
@@ -155,7 +155,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
       try {
         const prefix = dmPrefix(dmStateStore.intentRequest.payload.intent.name);
-        const { settings, intents, slots } = massageVersion(version);
+        const { settings, intents, slots } = castToDTO(version);
 
         let dmPrefixedResult = incomingRequest;
 
