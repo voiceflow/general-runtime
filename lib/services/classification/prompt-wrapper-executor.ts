@@ -2,11 +2,12 @@ import { randomUUID } from 'crypto';
 import ivm from 'isolated-vm';
 import withResolvers from 'promise.withresolvers';
 
+import { EXECUTION_TIMEOUT_MS, MEMORY_LIMIT_MB } from './promot-wrapper.const';
 import { PromptWrapperResult } from './prompt-wrapper.dto';
 
 export async function executePromptWrapper(wrapperCode: string, args: any): Promise<PromptWrapperResult> {
   const isolate = new ivm.Isolate({
-    memoryLimit: 100,
+    memoryLimit: MEMORY_LIMIT_MB,
   });
   const context = await isolate.createContext();
 
@@ -62,7 +63,7 @@ export async function executePromptWrapper(wrapperCode: string, args: any): Prom
 
     await mainModule.evaluate({
       promise: true,
-      timeout: 1000,
+      timeout: EXECUTION_TIMEOUT_MS,
     });
   } catch (err) {
     resolver.reject(err);
