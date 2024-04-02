@@ -23,6 +23,8 @@ import {
 } from './interfaces/nlu.interface';
 import { executePromptWrapper } from './prompt-wrapper-executor';
 
+const ML_GATEWAY_TIMEOUT = 5000;
+
 const nonePrediction: Omit<Prediction, 'utterance'> = {
   predictedIntent: VoiceflowConstants.IntentName.NONE,
   predictedSlots: [],
@@ -200,7 +202,6 @@ export class Predictor {
       const result = await executePromptWrapper(promptContent, promptArgs);
       prompt = result.prompt;
     } catch (err) {
-      // TODO: Error types for matching
       logger.error(err, 'PromptWrapperError: went real bad');
       this.predictions.llm = {
         error: {
@@ -220,8 +221,7 @@ export class Predictor {
           temperature: this.settings.params.temperature,
         },
         options: {
-          // TODO: remove magic number
-          timeout: 5000,
+          timeout: ML_GATEWAY_TIMEOUT,
         },
       })
       .catch((error: Error) => {
