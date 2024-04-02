@@ -171,18 +171,35 @@ describe('predictor unit tests', () => {
       expect(prediction?.predictedIntent).to.eql(nlcPrediction.intent);
       expect(result).to.eql('nlc');
     });
+
+    it('none intent when no intents', async () => {
+      const utterance = 'query-val';
+      const { config, props, settings, options } = setup({
+        props: {
+          intents: [],
+          slots: [],
+        },
+        axios: { data: null },
+      });
+      const predictor = new Predictor(config, props, settings.intentClassification, options);
+      sinon.stub(NLC, 'handleNLCCommand').returns(nlcPrediction as any);
+
+      const prediction = await predictor.predict(utterance);
+
+      expect(prediction?.predictedIntent).to.eql(VoiceflowConstants.IntentName.NONE);
+    });
   });
 
   describe('nlu', () => {
-    it('works', () => {
+    it('works', async () => {
       const utterance = 'query-val';
       const { config, props, settings, options } = setup({});
       const predictor = new Predictor(config, props, settings.intentClassification, options);
       sinon.stub(NLC, 'handleNLCCommand').returns(null);
 
-      const prediction = predictor.predict(utterance);
+      const prediction = await predictor.predict(utterance);
 
-      expect(prediction).to.eventually.eql(nluGatewayPrediction);
+      expect(prediction).to.eql(nluGatewayPrediction);
     });
 
     it('nlc fallback - openSlot: false', async () => {

@@ -23,6 +23,12 @@ import {
 } from './interfaces/nlu.interface';
 import { executePromptWrapper } from './prompt-wrapper-executor';
 
+const nonePrediction: Omit<Prediction, 'utterance'> = {
+  predictedIntent: VoiceflowConstants.IntentName.NONE,
+  predictedSlots: [],
+  confidence: 100,
+};
+
 const hasValueReducer = (slots?: ISlotFullfilment[]) =>
   (slots ?? []).reduce<{ name: string; value: string }[]>(
     (acc, { name, value }) => (value ? [...acc, { name, value }] : acc),
@@ -290,7 +296,13 @@ export class Predictor {
     if (!nluPrediction) {
       // try open regex slot matching
       this.predictions.result = 'nlc';
-      return this.nlc(utterance, true);
+      const openPrediction = await this.nlc(utterance, true);
+      return (
+        openPrediction ?? {
+          ...nonePrediction,
+          utterance,
+        }
+      );
     }
 
     if (isIntentClassificationNLUSettings(this.settings)) {
@@ -335,7 +347,13 @@ export class Predictor {
 
     // finally try open regex slot matching
     this.predictions.result = 'nlc';
-    return this.nlc(utterance, true);
+    const openPrediction = await this.nlc(utterance, true);
+    return (
+      openPrediction ?? {
+        ...nonePrediction,
+        utterance,
+      }
+    );
   }
 
   public hasErrors() {
