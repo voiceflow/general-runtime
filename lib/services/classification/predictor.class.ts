@@ -106,6 +106,7 @@ export class Predictor {
     this.predictions.nlc = {
       ...this.predictions.nlc,
       ...response,
+      openSlot,
     };
 
     return response;
