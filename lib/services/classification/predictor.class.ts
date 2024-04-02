@@ -110,21 +110,7 @@ export class Predictor {
   }
 
   public async fillSlots(utterance: string, options?: NLUPredictOptions): Promise<PredictedSlot[] | null> {
-    const { data: prediction } = await this.config.axios
-      .post<NLUIntentPrediction | null>(`${this.nluGatewayURL}/v1/predict/${this.props.versionID}`, {
-        utterance,
-        tag: this.props.tag,
-        workspaceID: this.props.workspaceID,
-        filteredIntents: options?.filteredIntents ?? [],
-        filteredEntities: options?.filteredEntities ?? [],
-        excludeFilteredIntents: false,
-        excludeFilteredEntities: false,
-        limit: 10,
-      })
-      .catch((err: Error) => {
-        logger.error(err, 'Something went wrong filling slots');
-        return { data: null };
-      });
+    const prediction = await this.nluGatewayPrediction(utterance, options);
 
     if (!prediction) {
       this.predictions.fillSlots = {
@@ -140,7 +126,7 @@ export class Predictor {
     return prediction.predictedSlots;
   }
 
-  public async nlu(utterance: string, options?: NLUPredictOptions): Promise<NLUIntentPrediction | null> {
+  private async nluGatewayPrediction(utterance: string, options?: NLUPredictOptions) {
     const { data: prediction } = await this.config.axios
       .post<NLUIntentPrediction | null>(`${this.nluGatewayURL}/v1/predict/${this.props.versionID}`, {
         utterance,
@@ -156,7 +142,11 @@ export class Predictor {
         logger.error(err, 'Something went wrong with NLU prediction');
         return { data: null };
       });
+    return prediction;
+  }
 
+  public async nlu(utterance: string, options?: NLUPredictOptions): Promise<NLUIntentPrediction | null> {
+    const prediction = await this.nluGatewayPrediction(utterance, options);
     if (!prediction) {
       this.predictions.nlu = {
         error: {
