@@ -171,10 +171,3 @@ export const handleNLCCommand = ({
     confidence,
   };
 };
-
-/** @deprecated */
-export const LEGACY_handleNLCCommand = (args: Parameters<typeof handleNLCCommand>[0]) => {
-  const result = handleNLCCommand(args);
-
-  return nlcToIntent(result, args.query, result?.confidence);
-};
