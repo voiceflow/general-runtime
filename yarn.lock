@@ -4505,21 +4505,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/dtos@npm:1.30.0":
-  version: 1.30.0
-  resolution: "@voiceflow/dtos@npm:1.30.0"
-  peerDependencies:
-    zod: ^3.20.0
-  checksum: f1260a067a13391941029d7b4585a6816122c97f822e5a6c359e4dcb63fc8048ea7f4a073275d812386123fe77ef76021a39096e5bfde67c2047caab463c80fa
-  languageName: node
-  linkType: hard
-
 "@voiceflow/dtos@npm:1.33.2":
   version: 1.33.2
   resolution: "@voiceflow/dtos@npm:1.33.2"
   peerDependencies:
     zod: ^3.20.0
   checksum: 7b47dcab653066e79671f6904fcafbce31e823ee41b7f28a3bb13bc9a74e25eba6d95de51e3d4cfbdd5c00cff38d9ead5f071844f93914cac8941edd14167f07
+  languageName: node
+  linkType: hard
+
+"@voiceflow/dtos@npm:1.51.1":
+  version: 1.51.1
+  resolution: "@voiceflow/dtos@npm:1.51.1"
+  dependencies:
+    "@voiceflow/internal": 3.2.3
+  peerDependencies:
+    zod: ^3.20.0
+  checksum: e13a906e6e504ec62c28284e5dcbc160cc0a75fd8b0939f9a5c93644ab4fe61f3854669867c4f429a6073eee1bcbffe1864403a4d7eb5808a447e3bb37f9c5b2
   languageName: node
   linkType: hard
 
@@ -4640,7 +4642,7 @@ __metadata:
     "@voiceflow/chat-types": 2.13.104
     "@voiceflow/commitlint-config": 2.0.0
     "@voiceflow/common": 8.2.8
-    "@voiceflow/dtos": 1.30.0
+    "@voiceflow/dtos": 1.51.1
     "@voiceflow/eslint-config": 6.1.0
     "@voiceflow/event-ingestion-service": 1.5.1
     "@voiceflow/exception": ^1.5.1

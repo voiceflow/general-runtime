@@ -1,18 +1,16 @@
-import { FunctionCompiledVariableDeclaration, FunctionVariableType } from '@voiceflow/dtos';
+import { FunctionCompiledVariableDeclaration, VariableDatatype } from '@voiceflow/dtos';
 import { z } from 'zod';
 
 import { FunctionInputTypeException } from '../exceptions/function-input-type.exception';
 import { FunctionRequiredVarException } from '../exceptions/function-required-var.exception';
 
-const variableTypeValidators = new Map<FunctionVariableType, z.ZodType>([
-  [FunctionVariableType.STRING, z.string()],
-  [FunctionVariableType.NUMBER, z.number()],
-  [FunctionVariableType.BOOLEAN, z.boolean()],
-  [FunctionVariableType.OBJECT, z.record(z.any())],
-  [FunctionVariableType.ARRAY, z.array(z.any())],
+const variableTypeValidators = new Map<VariableDatatype, z.ZodType>([
+  [VariableDatatype.TEXT, z.string()],
+  [VariableDatatype.NUMBER, z.number()],
+  [VariableDatatype.BOOLEAN, z.boolean()],
 ]);
 
-function getZodValidator(type: FunctionVariableType) {
+function getZodValidator(type: VariableDatatype) {
   const validator = variableTypeValidators.get(type)!;
 
   if (!validator) {
