@@ -160,7 +160,6 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
       if (trace) {
         applyTraceCommand(trace, runtime);
       }
-
       if (definition.pathCodes.length === 0) {
         return invocation.paths.__vf__default ?? null;
       }
