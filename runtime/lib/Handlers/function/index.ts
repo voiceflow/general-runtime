@@ -58,9 +58,15 @@ function resolveFunctionDefinition(
   version: BaseVersion.Version
 ): FunctionCompiledDefinition {
   if ('functionId' in definition) {
-    const resolvedDefinition = version.prototype?.surveyorContext.functionDefinitions[definition.functionId];
+    const functionDefinition = version.prototype?.surveyorContext.functionDefinitions;
+
+    if (!functionDefinition) {
+      throw new Error('prototype is missing function definitions');
+    }
+
+    const resolvedDefinition = functionDefinition[definition.functionId];
     if (!resolvedDefinition) {
-      throw new Error(`unable to resolve function definition`);
+      throw new Error(`unable to resolve function definition, the definition was not found`);
     }
     return resolvedDefinition;
   }
