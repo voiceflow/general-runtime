@@ -4505,6 +4505,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@voiceflow/default-prompt-wrappers@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@voiceflow/default-prompt-wrappers@npm:1.1.1"
+  checksum: be67b3af5bddd1f00120f898151ab0a98ff996c750c4056254ca9eb9dc76f47c4a376bf5b4238ce80b2ab35360e9000c875349221761559a3b4ceef6612171cf
+  languageName: node
+  linkType: hard
+
 "@voiceflow/dtos@npm:1.33.2":
   version: 1.33.2
   resolution: "@voiceflow/dtos@npm:1.33.2"
@@ -4642,6 +4649,7 @@ __metadata:
     "@voiceflow/chat-types": 2.13.104
     "@voiceflow/commitlint-config": 2.0.0
     "@voiceflow/common": 8.2.8
+    "@voiceflow/default-prompt-wrappers": ^1.1.1
     "@voiceflow/dtos": 1.51.1
     "@voiceflow/eslint-config": 6.1.0
     "@voiceflow/event-ingestion-service": 1.5.1
@@ -4655,7 +4663,7 @@ __metadata:
     "@voiceflow/prettier-config": 1.2.1
     "@voiceflow/sdk-analytics": ^1.26.0
     "@voiceflow/sdk-auth": ^2.7.5
-    "@voiceflow/sdk-http-ml-gateway": 2.12.4
+    "@voiceflow/sdk-http-ml-gateway": 2.13.31
     "@voiceflow/test-common": ^1.8.1
     "@voiceflow/utils-designer": 1.9.3
     "@voiceflow/verror": ^1.1.3
@@ -4867,18 +4875,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/orval-fetch@npm:1.2.1":
-  version: 1.2.1
-  resolution: "@voiceflow/orval-fetch@npm:1.2.1"
-  peerDependencies:
-    "@orval/core": ^6
-  peerDependenciesMeta:
-    "@orval/core":
-      optional: true
-  checksum: b74a60fe054a74057b6712153e01411056564bf786318c9cf83020fa8837846c4bbcf4b920ef9c187297a0e7b331d00a8b6af88dd9c7d022c5cc5ec1defefad2
-  languageName: node
-  linkType: hard
-
 "@voiceflow/orval-fetch@npm:1.2.2":
   version: 1.2.2
   resolution: "@voiceflow/orval-fetch@npm:1.2.2"
@@ -4888,6 +4884,18 @@ __metadata:
     "@orval/core":
       optional: true
   checksum: cb0ff63ecb20bc8eb93ac734b19c6b285c003268f7401d53f649ce0825d8618127987b8f83eb154d9aca1d1aabdac10abe480901bb0bf8df3a8309a271bb188b
+  languageName: node
+  linkType: hard
+
+"@voiceflow/orval-fetch@npm:1.3.0":
+  version: 1.3.0
+  resolution: "@voiceflow/orval-fetch@npm:1.3.0"
+  peerDependencies:
+    "@orval/core": ^6
+  peerDependenciesMeta:
+    "@orval/core":
+      optional: true
+  checksum: d33928c837290616d455afec9edf83ea9fafd702e25c5dc802d82ea9534e6544be3b53b12085b777030ec3c1b7cebe967043ab5d34a85e0e9ec405b864e3b076
   languageName: node
   linkType: hard
 
@@ -4996,27 +5004,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/sdk-common@npm:1.11.1":
-  version: 1.11.1
-  resolution: "@voiceflow/sdk-common@npm:1.11.1"
-  dependencies:
-    "@voiceflow/exception": 1.5.1
-    "@voiceflow/fetch": 1.5.2
-  peerDependencies:
-    "@nestjs/common": ^9
-    "@nestjs/core": ^9
-    undici: ^5
-  peerDependenciesMeta:
-    "@nestjs/common":
-      optional: true
-    "@nestjs/core":
-      optional: true
-    undici:
-      optional: true
-  checksum: 71527af9d114bf438cdd08531473a6fd50b12edbf0e27a90ec30aa7ad6fe1ca293ac66ab230d3bc474d75696f0a4ac6af107ca264dda6353303bce6fc1ccb11f
-  languageName: node
-  linkType: hard
-
 "@voiceflow/sdk-common@npm:1.11.2":
   version: 1.11.2
   resolution: "@voiceflow/sdk-common@npm:1.11.2"
@@ -5038,12 +5025,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/sdk-http-ml-gateway@npm:2.12.4":
-  version: 2.12.4
-  resolution: "@voiceflow/sdk-http-ml-gateway@npm:2.12.4"
+"@voiceflow/sdk-common@npm:1.11.3":
+  version: 1.11.3
+  resolution: "@voiceflow/sdk-common@npm:1.11.3"
   dependencies:
-    "@voiceflow/orval-fetch": 1.2.1
-    "@voiceflow/sdk-common": 1.11.1
+    "@voiceflow/exception": 1.5.1
+    "@voiceflow/fetch": 1.5.2
+  peerDependencies:
+    "@nestjs/common": ^9
+    "@nestjs/core": ^9
+    undici: ^5
+  peerDependenciesMeta:
+    "@nestjs/common":
+      optional: true
+    "@nestjs/core":
+      optional: true
+    undici:
+      optional: true
+  checksum: 4ec77419e82dc576796c21005c88953ffb97c037855054ccfea142dcd2468e6cd007c482feb851259fa9bd4fc12c9f71a580da405f21a15793410226fe62de73
+  languageName: node
+  linkType: hard
+
+"@voiceflow/sdk-http-ml-gateway@npm:2.13.31":
+  version: 2.13.31
+  resolution: "@voiceflow/sdk-http-ml-gateway@npm:2.13.31"
+  dependencies:
+    "@voiceflow/orval-fetch": 1.3.0
+    "@voiceflow/sdk-common": 1.11.3
   peerDependencies:
     "@nestjs/common": ^9
     nestjs-zod: ^2
@@ -5055,7 +5063,7 @@ __metadata:
       optional: true
     undici:
       optional: true
-  checksum: d9c7d3f96ce32a557e4a4d7927828c371301bd03214b9e3cfebcd256aaa93cb0e1e5eb6e9823767cd69fdb7455ccc6cf7e34cbc39113a2f9959c160aeb3a73a0
+  checksum: 489d3cc6c26895bdc426ebd298f618e01fd66a624cd06088d34ec107a7ec3507242c4279aadb9bc836315a7080aca161d0b4e58e10dcb3615f662e00040a308d
   languageName: node
   linkType: hard
 
