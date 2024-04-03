@@ -112,8 +112,11 @@ export class Predictor {
     return response;
   }
 
-  public async fillSlots(utterance: string, options?: NLUPredictOptions): Promise<PredictedSlot[] | null> {
-    const prediction = await this.nluGatewayPrediction(utterance, options);
+  public async fillSlots(utterance: string, options: Partial<NLUPredictOptions>): Promise<PredictedSlot[] | null> {
+    const prediction = await this.nluGatewayPrediction(utterance, {
+      excludeFilteredIntents: false,
+      ...options,
+    });
 
     if (!prediction) {
       this.predictions.fillSlots = {
@@ -129,16 +132,23 @@ export class Predictor {
     return prediction.predictedSlots;
   }
 
-  private async nluGatewayPrediction(utterance: string, options?: NLUPredictOptions) {
+  private async nluGatewayPrediction(utterance: string, options: Partial<NLUPredictOptions>) {
+    const {
+      filteredIntents = [],
+      filteredEntities = [],
+      excludeFilteredIntents = true,
+      excludeFilteredEntities = true,
+    } = options;
+
     const { data: prediction } = await this.config.axios
       .post<NLUIntentPrediction | null>(`${this.nluGatewayURL}/v1/predict/${this.props.versionID}`, {
         utterance,
         tag: this.props.tag,
         workspaceID: this.props.workspaceID,
-        filteredIntents: options?.filteredIntents ?? [],
-        filteredEntities: options?.filteredEntities ?? [],
-        excludeFilteredIntents: false,
-        excludeFilteredEntities: false,
+        filteredIntents,
+        filteredEntities,
+        excludeFilteredIntents,
+        excludeFilteredEntities,
         limit: 10,
       })
       .catch((err: Error) => {
@@ -148,7 +158,7 @@ export class Predictor {
     return prediction;
   }
 
-  public async nlu(utterance: string, options?: NLUPredictOptions): Promise<NLUIntentPrediction | null> {
+  public async nlu(utterance: string, options: Partial<NLUPredictOptions>): Promise<NLUIntentPrediction | null> {
     const prediction = await this.nluGatewayPrediction(utterance, options);
     if (!prediction) {
       this.predictions.nlu = {
