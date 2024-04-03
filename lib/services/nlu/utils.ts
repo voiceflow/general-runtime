@@ -62,7 +62,11 @@ const googleIntentMap = GoogleConstants.VOICEFLOW_TO_GOOGLE_INTENT_MAP;
 // we dont want to map NONE into Fallback otherwise we might introduce issues on the dialog handler
 const { None, ...alexaIntentMap } = AlexaConstants.VoiceflowToAmazonIntentMap;
 
-export const mapChannelData = (data: any, platform?: VoiceflowConstants.PlatformType, hasChannelIntents?: boolean) => {
+export const mapChannelIntent = (
+  intent: string,
+  platform?: VoiceflowConstants.PlatformType,
+  hasChannelIntents?: boolean
+) => {
   // FIXME: PROJ - Adapters
   // google/dfes intents were never given meaningful examples untill https://github.com/voiceflow/general-service/pull/379 was merged
   // this means that sometimes we might predict a VF intent when it should be a google one
@@ -77,16 +81,17 @@ export const mapChannelData = (data: any, platform?: VoiceflowConstants.Platform
     })
     .otherwise(() => ({}));
 
+  return mapToUse[intent as Exclude<VoiceflowConstants.IntentName, VoiceflowConstants.IntentName.NONE>] ?? intent;
+};
+
+export const mapChannelData = (data: any, platform?: VoiceflowConstants.PlatformType, hasChannelIntents?: boolean) => {
   return {
     ...data,
     payload: {
       ...data.payload,
       intent: {
         ...data.payload.intent,
-        name:
-          mapToUse[
-            data.payload.intent.name as Exclude<VoiceflowConstants.IntentName, VoiceflowConstants.IntentName.NONE>
-          ] ?? data.payload.intent.name,
+        name: mapChannelIntent(data.payload.intent.name, platform, hasChannelIntents),
       },
     },
   };
@@ -113,7 +118,10 @@ const getCommandLevelIntentsAndEntities = (
 
 const getNodeLevelIntentsAndEntities = (
   node: BaseNode.Utils.BaseNode | null
-): { nodeInteractionIntentNames: Set<string>; nodeInteractionEntityNames: Set<string> } => {
+): {
+  nodeInteractionIntentNames: Set<string>;
+  nodeInteractionEntityNames: Set<string>;
+} => {
   const nodeInteractionIntentNames: Set<string> = new Set();
   const nodeInteractionEntityNames: Set<string> = new Set();
   if (node && isInteractionsInNode(node)) {
@@ -135,7 +143,11 @@ const getNodeLevelIntentsAndEntities = (
 export const getAvailableIntentsAndEntities = async (
   runtimeManager: RuntimeManager,
   context: Context
-): Promise<{ availableIntents: Set<string>; availableEntities: Set<string>; bypass?: boolean }> => {
+): Promise<{
+  availableIntents: Set<string>;
+  availableEntities: Set<string>;
+  bypass?: boolean;
+}> => {
   const runtime = runtimeManager.createClient(context.data.api).createRuntime({
     versionID: context.versionID,
     state: context.state,
@@ -161,7 +173,11 @@ export const getAvailableIntentsAndEntities = async (
     node.variable &&
     node.intentScope === BaseNode.Utils.IntentScope.NODE
   ) {
-    return { availableIntents: new Set(), availableEntities: new Set(), bypass: true };
+    return {
+      availableIntents: new Set(),
+      availableEntities: new Set(),
+      bypass: true,
+    };
   }
 
   // get node-level scope
@@ -175,7 +191,10 @@ export const getAvailableIntentsAndEntities = async (
     };
   }
 
-  return { availableIntents: commandIntentNames, availableEntities: commandEntityNames };
+  return {
+    availableIntents: commandIntentNames,
+    availableEntities: commandEntityNames,
+  };
 };
 
 export const isHybridLLMStrategy = (nluSettings?: BaseModels.Project.NLUSettings) =>
