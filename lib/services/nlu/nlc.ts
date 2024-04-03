@@ -36,7 +36,10 @@ export const registerIntents = (
   dmRequest?: BaseRequest.IntentRequestPayload
 ) => {
   intents.forEach((intent) => {
-    const samples = getUtterancesWithSlotNames({ slots, utterances: intent.inputs });
+    const samples = getUtterancesWithSlotNames({
+      slots,
+      utterances: intent.inputs,
+    });
 
     let intentSlots: IIntentSlot[] = [];
 
@@ -155,10 +158,23 @@ export const handleNLCCommand = ({
   locale: VoiceflowConstants.Locale;
   openSlot: boolean;
   dmRequest?: BaseRequest.IntentRequestPayload;
-}): BaseRequest.IntentRequest => {
+}): (IIntentFullfilment & { confidence: number }) | null => {
   const nlc = createNLC({ model, locale, openSlot, dmRequest });
 
   // ensure open slot is lower than the capture step threshold
   const confidence = openSlot ? 0.5 : 1;
-  return nlcToIntent(nlc.handleCommand(query), query, confidence);
+  const result = nlc.handleCommand(query);
+
+  if (!result) return null;
+  return {
+    ...result,
+    confidence,
+  };
+};
+
+/** @deprecated */
+export const LEGACY_handleNLCCommand = (args: Parameters<typeof handleNLCCommand>[0]) => {
+  const result = handleNLCCommand(args);
+
+  return nlcToIntent(result, args.query, result?.confidence);
 };

@@ -271,7 +271,7 @@ describe('nlu manager unit tests', () => {
       };
       const arg = { model: 'model-val', locale: 'locale-val', query: 'query-val', projectID: 'projectID' } as any;
       const nlu = new NLUManager({ ...services, utils: { ...defaultUtils } } as any, config as any);
-      sinon.stub(NLC, 'handleNLCCommand').returns(nlcMatchedIntent as any);
+      sinon.stub(NLC, 'LEGACY_handleNLCCommand').returns(nlcMatchedIntent as any);
 
       const result = await nlu.predict(arg);
 
@@ -294,7 +294,7 @@ describe('nlu manager unit tests', () => {
         tag: VersionTag.DEVELOPMENT,
       };
 
-      sinon.stub(NLC, 'handleNLCCommand').returns(noneIntent as any);
+      sinon.stub(NLC, 'LEGACY_handleNLCCommand').returns(noneIntent as any);
 
       const result = await nlu.predict(arg);
 
@@ -315,7 +315,7 @@ describe('nlu manager unit tests', () => {
         tag: VersionTag.DEVELOPMENT,
       };
 
-      sinon.stub(NLC, 'handleNLCCommand').returns(nlcMatchedIntent as any);
+      sinon.stub(NLC, 'LEGACY_handleNLCCommand').returns(nlcMatchedIntent as any);
 
       const result = await nlu.predict(arg);
 
@@ -335,7 +335,7 @@ describe('nlu manager unit tests', () => {
         nlp,
         tag: VersionTag.DEVELOPMENT,
       };
-      sinon.stub(NLC, 'handleNLCCommand').returns(nlcMatchedIntent as any);
+      sinon.stub(NLC, 'LEGACY_handleNLCCommand').returns(nlcMatchedIntent as any);
 
       await expect(nlu.predict(arg)).to.be.rejectedWith('Model not found');
     });
@@ -354,7 +354,7 @@ describe('nlu manager unit tests', () => {
         nlp,
         tag: VersionTag.DEVELOPMENT,
       };
-      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand').returns(noneIntent as any);
+      const handleNLCCommandStub = sinon.stub(NLC, 'LEGACY_handleNLCCommand').returns(noneIntent as any);
 
       expect(await nlu.predict(arg)).to.eql(noneIntent);
       expect(handleNLCCommandStub.callCount).to.eql(2);
@@ -375,7 +375,7 @@ describe('nlu manager unit tests', () => {
         tag: VersionTag.DEVELOPMENT,
       };
 
-      sinon.stub(NLC, 'handleNLCCommand').returns(nlcMatchedIntent as any);
+      sinon.stub(NLC, 'LEGACY_handleNLCCommand').returns(nlcMatchedIntent as any);
 
       const result = nlu.predict(arg);
 
@@ -399,7 +399,7 @@ describe('nlu manager unit tests', () => {
         locale,
       };
 
-      sinon.stub(NLC, 'handleNLCCommand').onCall(0).returns(noneIntent).onCall(1).returns(nlcMatchedIntent);
+      sinon.stub(NLC, 'LEGACY_handleNLCCommand').onCall(0).returns(noneIntent).onCall(1).returns(nlcMatchedIntent);
 
       const result = await nlu.predict(arg);
 

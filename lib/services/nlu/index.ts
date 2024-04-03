@@ -12,7 +12,7 @@ import { Context, ContextHandler, VersionTag } from '@/types';
 
 import { AbstractManager } from '../utils';
 import { hybridPredict } from './llmHybrid';
-import { handleNLCCommand } from './nlc';
+import { LEGACY_handleNLCCommand } from './nlc';
 import { NLUGatewayPredictResponse, PredictProps } from './types';
 import {
   getAvailableIntentsAndEntities,
@@ -66,7 +66,7 @@ class NLU extends AbstractManager implements ContextHandler {
 
     // 1. first try restricted regex (no open slots) - exact string match
     if (model) {
-      const data = handleNLCCommand({ query, model, locale, openSlot: false, dmRequest });
+      const data = LEGACY_handleNLCCommand({ query, model, locale, openSlot: false, dmRequest });
       if (data.payload.intent.name !== VoiceflowConstants.IntentName.NONE) {
         return mapChannelData(data, platform, hasChannelIntents);
       }
@@ -97,7 +97,7 @@ class NLU extends AbstractManager implements ContextHandler {
       throw new VError('Model not found. Ensure project is properly rendered.', HTTP_STATUS.NOT_FOUND);
     }
 
-    const data = handleNLCCommand({ query, model, locale, openSlot: true, dmRequest });
+    const data = LEGACY_handleNLCCommand({ query, model, locale, openSlot: true, dmRequest });
     return mapChannelData(data, platform, hasChannelIntents);
   }
 
