@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import ivm from 'isolated-vm';
 import withResolvers from 'promise.withresolvers';
 
-import { EXECUTION_TIMEOUT_MS, MEMORY_LIMIT_MB } from './promot-wrapper.const';
+import { EXECUTION_TIMEOUT_MS, MEMORY_LIMIT_MB } from './prompt-wrapper.const';
 import { PromptWrapperResult } from './prompt-wrapper.dto';
 
 export async function executePromptWrapper(wrapperCode: string, args: any): Promise<PromptWrapperResult> {
