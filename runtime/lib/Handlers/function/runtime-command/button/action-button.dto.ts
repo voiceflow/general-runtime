@@ -1,8 +1,6 @@
 import { BaseRequest } from '@voiceflow/base-types';
 import { z } from 'zod';
 
-import { ButtonType } from './button-type.enum';
-
 export const SimpleURLActionDTO = z.object({
   type: z.literal(BaseRequest.Action.ActionType.OPEN_URL),
   url: z.string(),
@@ -17,10 +15,6 @@ export type SimpleAction = z.infer<typeof SimpleActionDTO>;
 export const SimpleActionButtonDTO = z.object({
   name: z.string().describe('Text for the button UI'),
   payload: z.object({
-    type: z
-      .literal(ButtonType.ACTION)
-      .optional()
-      .describe('Type of the button. Optional due to backwards compatibility reasons'),
     actions: z.array(SimpleActionDTO),
   }),
 });
