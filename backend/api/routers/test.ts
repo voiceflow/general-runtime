@@ -50,5 +50,12 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
     controllers.test.testCompletion
   );
 
+  router.post(
+    '/:workspaceID/classification',
+    middlewares.auth.authorize(['workspace:READ']),
+    middlewares.llmLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'classification'),
+    controllers.test.testClassification
+  );
+
   return router;
 };
