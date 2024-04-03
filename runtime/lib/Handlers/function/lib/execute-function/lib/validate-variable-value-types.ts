@@ -6,6 +6,7 @@ import { FunctionRequiredVarException } from '../exceptions/function-required-va
 
 const variableTypeValidators = new Map<VariableDatatype, z.ZodType>([
   [VariableDatatype.TEXT, z.string()],
+  [VariableDatatype.STRING, z.string()],
   [VariableDatatype.NUMBER, z.number()],
   [VariableDatatype.BOOLEAN, z.boolean()],
 ]);
