@@ -141,3 +141,4 @@ const CONFIG: Config = {
 };
 
 export default CONFIG;
+export const APP_NAME = 'general-runtime';

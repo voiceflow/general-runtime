@@ -1,7 +1,10 @@
 // tracer.ts
 import tracer from 'dd-trace';
 
+import { APP_NAME } from './config';
+
 tracer.init({
+  service: APP_NAME,
   runtimeMetrics: true,
   profiling: true,
   logInjection: true,
