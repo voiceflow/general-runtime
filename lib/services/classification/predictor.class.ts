@@ -133,12 +133,7 @@ export class Predictor {
   }
 
   private async nluGatewayPrediction(utterance: string, options: Partial<NLUPredictOptions>) {
-    const {
-      filteredIntents = [],
-      filteredEntities = [],
-      excludeFilteredIntents = true,
-      excludeFilteredEntities = true,
-    } = options;
+    const { filteredIntents = [], excludeFilteredIntents = true } = options;
 
     const { data: prediction } = await this.config.axios
       .post<NLUIntentPrediction | null>(`${this.nluGatewayURL}/v1/predict/${this.props.versionID}`, {
@@ -146,9 +141,7 @@ export class Predictor {
         tag: this.props.tag,
         workspaceID: this.props.workspaceID,
         filteredIntents,
-        filteredEntities,
         excludeFilteredIntents,
-        excludeFilteredEntities,
         limit: 10,
       })
       .catch((err: Error) => {
@@ -336,8 +329,7 @@ export class Predictor {
         predicted: llmPrediction.predictedIntent === nluPrediction.predictedIntent,
         hasSlots: !!intent.slots?.length,
       })
-        .with({ predicted: true }, () => nluPrediction.predictedSlots)
-        .with({ predicted: false, hasSlots: true }, () =>
+        .with({ hasSlots: true }, () =>
           this.fillSlots(utterance, {
             filteredIntents: [llmPrediction.predictedIntent],
           })
