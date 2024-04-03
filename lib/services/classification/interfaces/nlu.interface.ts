@@ -20,29 +20,33 @@ export interface PredictError {
   message: string;
 }
 
+export interface PredictionResult {
+  predictedIntent: string;
+  predictedSlots: PredictedSlot[];
+  confidence: number;
+  error?: PredictError;
+}
+
+export interface NLCPredictionResult extends PredictionResult {
+  openSlot: boolean;
+}
+
+export interface NLUPredictionResult extends PredictionResult {
+  intents: PredictedIntent[];
+}
+
+export interface LLMPredictionResult extends PredictionResult {
+  model: string;
+  multiplier: number;
+  tokens: number;
+}
+
 export interface ClassificationResult {
   result: 'llm' | 'nlu' | 'nlc';
   utterance: string;
-  nlc: Partial<{
-    predictedIntent: string;
-    predictedSlots: PredictedSlot[];
-    confidence: number;
-    openSlot: boolean;
-  }> & { error?: PredictError };
-  nlu: Partial<{
-    predictedIntent: string;
-    predictedSlots: PredictedSlot[];
-    confidence: number;
-    intents: PredictedIntent[];
-  }> & { error?: PredictError };
-  llm: Partial<{
-    predictedIntent: string;
-    predictedSlots: PredictedSlot[];
-    confidence: number;
-    model: string;
-    multiplier: number;
-    tokens: number;
-  }> & { error?: PredictError };
+  nlc: Partial<NLCPredictionResult>;
+  nlu: Partial<NLUPredictionResult>;
+  llm: Partial<LLMPredictionResult>;
   fillSlots: PredictedSlot[] | { error: PredictError };
 }
 
