@@ -1,9 +1,9 @@
 import { BaseRequest, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
-import { isEmpty, merge } from "lodash";
+import { isEmpty, merge } from 'lodash';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
-import { HandleContextEvent } from '@/runtime/lib/Context/types';
 import { PartialContext, State, TurnBuilder } from '@/runtime';
+import { HandleContextEventHandler } from '@/runtime/lib/Context/types';
 import { Context } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
@@ -29,19 +29,8 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
     return this.services.state.generate(version);
   }
 
-  async interact(request: InteractRequest, event: HandleContextEvent): Promise<ResponseContext> {
-    const {
-      analytics,
-      runtime,
-      nlu,
-      dialog,
-      asr,
-      speak,
-      slots,
-      state: stateManager,
-      filter,
-      aiAssist,
-    } = this.services;
+  async interact(request: InteractRequest, eventHandler: HandleContextEventHandler): Promise<ResponseContext> {
+    const { analytics, runtime, nlu, dialog, asr, speak, slots, state: stateManager, filter, aiAssist } = this.services;
 
     const stateID = request.userID + request.sessionID;
     let storedState = await this.services.session.getFromDb<State>(request.projectID, stateID);
@@ -78,25 +67,28 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
     //   return turn.resolve(turn.handle(context, event));
     // }
 
-    const result = await turn.resolve(this.services.utils.autoDelegate(turn, context, event));
+    const result = await turn.resolve(this.services.utils.autoDelegate(turn, context, eventHandler));
 
     await this.services.session.saveToDb(request.projectID, stateID, result.state);
 
     return result;
   }
 
-  async handler(req: {
-    params: { userID?: string };
-    body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
-    query: { locale?: string; logs?: RuntimeLogs.LogLevel };
-    headers: {
-      authorization?: string;
-      origin?: string;
-      sessionid?: string;
-      versionID: string;
-      platform?: string;
-    };
-  }, event: HandleContextEvent): Promise<ResponseContext> {
+  async handler(
+    req: {
+      params: { userID?: string };
+      body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
+      query: { locale?: string; logs?: RuntimeLogs.LogLevel };
+      headers: {
+        authorization?: string;
+        origin?: string;
+        sessionid?: string;
+        versionID: string;
+        platform?: string;
+      };
+    },
+    eventHandler: HandleContextEventHandler
+  ): Promise<ResponseContext> {
     const {
       analytics,
       runtime,
@@ -149,10 +141,10 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
     turn.addHandlers(speak, filter);
 
     if (config.selfDelegate) {
-      return turn.resolve(turn.handle(context, event));
+      return turn.resolve(turn.handle(context, eventHandler));
     }
 
-    return turn.resolve(this.services.utils.autoDelegate(turn, context, event));
+    return turn.resolve(this.services.utils.autoDelegate(turn, context, eventHandler));
   }
 }
 
