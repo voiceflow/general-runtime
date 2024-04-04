@@ -174,6 +174,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
               intents: intents ?? [],
               slots: slots ?? [],
+              dmRequest: dmStateStore.intentRequest.payload,
             },
             settings.intentClassification,
             {
