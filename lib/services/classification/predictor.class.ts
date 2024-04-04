@@ -78,8 +78,8 @@ export class Predictor extends EventEmitter {
     return `${protocol}://${this.config.NLU_GATEWAY_SERVICE_HOST}:${this.config.NLU_GATEWAY_SERVICE_PORT_APP}`;
   }
 
-  private debug(type: DebugType, event: any) {
-    this.emit('debug', { type, event });
+  private debug(type: DebugType, message?: string) {
+    this.emit('debug', { type, message });
   }
 
   // return all the same prediction shape?
