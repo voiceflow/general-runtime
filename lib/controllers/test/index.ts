@@ -180,9 +180,21 @@ class TestController extends AbstractController {
 
     const { predictions } = predictor;
 
+    const nluIntents = (() => {
+      if (predictions.nlu?.intents) {
+        return predictions.nlu.intents;
+      }
+
+      if (predictions.nlc?.predictedIntent) {
+        return [{ name: predictions.nlc.predictedIntent, confidence: predictions.nlc.confidence ?? 1 }];
+      }
+
+      return [];
+    })();
+
     return {
       utterance: predictions.utterance ?? data.utterance,
-      nlu: { intents: predictions.nlu?.intents ?? [] },
+      nlu: { intents: nluIntents },
       llm: {
         intents:
           predictions.llm && predictions.llm.predictedIntent && predictions.llm.confidence
