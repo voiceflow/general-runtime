@@ -346,10 +346,10 @@ export class Predictor extends EventEmitter {
       return nluPrediction;
     }
 
-    this.debug(
-      DebugType.NLU,
-      `intents: <pre style="text-align: left">${JSON.stringify(nluPrediction.intents, null, 2)}</pre>`
-    );
+    const intentDebugMessage = nluPrediction.intents
+      .map((intent) => `${intent.name} (${Math.round(intent.confidence * 100)}%)`)
+      .join('<br />');
+    this.debug(DebugType.NLU, `<pre>Top ${nluPrediction.intents.length}:<br/>${intentDebugMessage}</pre>`);
 
     if (isIntentClassificationLLMSettings(this.settings) && !this.props.dmRequest?.intent) {
       const llmPrediction = await this.llm(nluPrediction, {
