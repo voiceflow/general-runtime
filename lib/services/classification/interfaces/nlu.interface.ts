@@ -1,3 +1,4 @@
+import { BaseRequest } from '@voiceflow/base-types';
 import { PrototypeIntent, PrototypeSlot } from '@voiceflow/dtos';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
@@ -66,6 +67,9 @@ export interface PredictRequest {
   tag: string;
   versionID: string;
   workspaceID: string;
+
+  // legacy
+  dmRequest?: BaseRequest.IntentRequestPayload;
 }
 
 export interface PredictOptions {
