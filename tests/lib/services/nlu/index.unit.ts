@@ -7,7 +7,6 @@ import sinon from 'sinon';
 
 import { NLUIntentPrediction } from '@/lib/services/classification/interfaces/nlu.interface';
 import NLUManager from '@/lib/services/nlu';
-import * as NLC from '@/lib/services/nlu/nlc';
 import { VersionTag } from '@/types';
 
 import { getMockRuntime } from './fixture';
@@ -172,9 +171,7 @@ describe('nlu manager unit tests', () => {
 
       expect(result).to.eql({ ...context, request: intentResponse });
       expect(services.axios.post.args[0][1]).to.eql({
-        filteredEntities: [],
         filteredIntents: [],
-        excludeFilteredEntities: true,
         excludeFilteredIntents: true,
         utterance: query,
         tag: VersionTag.PRODUCTION,
