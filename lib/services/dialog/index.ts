@@ -155,11 +155,11 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
       try {
         const prefix = dmPrefix(dmStateStore.intentRequest.payload.intent.name);
-        const { settings, intents, slots } = castToDTO(version);
+        const { intentClassificationSettings, intents, slots } = castToDTO(version, project);
 
         let dmPrefixedResult = incomingRequest;
 
-        if (settings && this.isNluGatwayEndpointConfigured()) {
+        if (this.isNluGatwayEndpointConfigured()) {
           const predictor = new Predictor(
             {
               axios: this.services.axios,
@@ -176,7 +176,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               slots: slots ?? [],
               dmRequest: dmStateStore.intentRequest.payload,
             },
-            settings.intentClassification,
+            intentClassificationSettings,
             {
               locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
               hasChannelIntents: project?.platformData?.hasChannelIntents,
