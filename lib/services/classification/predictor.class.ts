@@ -1,6 +1,6 @@
 import { Utils } from '@voiceflow/common';
 import { DEFAULT_INTENT_CLASSIFICATION_PROMPT_WRAPPER_CODE } from '@voiceflow/default-prompt-wrappers';
-import { IntentClassificationSettings } from '@voiceflow/dtos';
+import { DebugTraceDTO, IntentClassificationSettings } from '@voiceflow/dtos';
 import { ISlotFullfilment } from '@voiceflow/natural-language-commander';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import type { AxiosStatic } from 'axios';
@@ -23,6 +23,17 @@ import {
   PredictRequest,
 } from './interfaces/nlu.interface';
 import { executePromptWrapper } from './prompt-wrapper-executor';
+
+enum DebugType {
+  LLM = 'llm',
+  NLU = 'nlu',
+  NLC = 'nlc',
+}
+
+export interface DebugEvent {
+  message: string;
+  type: DebugType;
+}
 
 const ML_GATEWAY_TIMEOUT = 5000;
 
@@ -67,6 +78,10 @@ export class Predictor extends EventEmitter {
     return `${protocol}://${this.config.NLU_GATEWAY_SERVICE_HOST}:${this.config.NLU_GATEWAY_SERVICE_PORT_APP}`;
   }
 
+  private debug(type: DebugType, event: any) {
+    this.emit('debug', { type, event });
+  }
+
   // return all the same prediction shape?
   public async nlc(utterance: string, openSlot = false): Promise<Prediction | null> {
     if (!this.props.intents.length) {
@@ -76,7 +91,7 @@ export class Predictor extends EventEmitter {
           message: 'No intents to match against',
         },
       };
-      this.emit('debug', this.predictions.nlc.error, 'nlc');
+      this.debug(DebugType.NLC, this.predictions.nlc.error?.message);
       return null;
     }
     const data = handleNLCCommand({
@@ -97,7 +112,7 @@ export class Predictor extends EventEmitter {
           message: 'No matches found',
         },
       };
-      this.emit('debug', this.predictions.nlc.error, 'nlc');
+      this.debug(DebugType.NLC, this.predictions.nlc.error?.message);
       return null;
     }
 
@@ -129,7 +144,6 @@ export class Predictor extends EventEmitter {
           message: 'Something went wrong filling slots',
         },
       };
-      this.emit('debug', this.predictions.fillSlots.error, 'fillSlots');
       return null;
     }
 
@@ -165,7 +179,7 @@ export class Predictor extends EventEmitter {
           message: 'Something went wrong with NLU prediction',
         },
       };
-      this.emit('debug', this.predictions.nlu.error, 'nlu');
+      this.debug(DebugType.NLU, this.predictions.nlu.error?.message);
       return null;
     }
 
@@ -178,7 +192,7 @@ export class Predictor extends EventEmitter {
           message: 'NLU predicted confidence below settings threshold',
         },
       };
-      this.emit('debug', this.predictions.nlu.error, 'nlu');
+      this.debug(DebugType.NLU, this.predictions.nlu.error?.message);
       return null;
     }
 
@@ -220,7 +234,7 @@ export class Predictor extends EventEmitter {
           message: 'PromptWrapperError: went real bad',
         },
       };
-      this.emit('debug', this.predictions.llm.error, 'llm');
+      this.debug(DebugType.LLM, this.predictions.llm.error?.message);
       return null;
     }
 
@@ -244,7 +258,7 @@ export class Predictor extends EventEmitter {
             message: `Falling back to NLU`,
           },
         };
-        this.emit('debug', this.predictions.llm.error, 'llm');
+        this.debug(DebugType.LLM, this.predictions.llm.error?.message);
         return null;
       });
 
@@ -254,7 +268,7 @@ export class Predictor extends EventEmitter {
           message: `unable to get LLM result, potential timeout`,
         },
       };
-      this.emit('debug', this.predictions.llm.error, 'llm');
+      this.debug(DebugType.LLM, this.predictions.llm.error?.message);
       return null;
     }
 
@@ -274,7 +288,7 @@ export class Predictor extends EventEmitter {
           message: "LLM prediction didn't match any intents, falling back to NLU",
         },
       };
-      this.emit('debug', this.predictions.llm.error, 'llm');
+      this.debug(DebugType.LLM, this.predictions.llm.error?.message);
       return null;
     }
 
@@ -290,17 +304,14 @@ export class Predictor extends EventEmitter {
 
     this.predictions.llm = response;
 
-    this.emit(
-      'debug',
-      {
-        message: `<pre>
-              intent: ${response.predictedIntent}
-              model: ${response.model}
-              multiplier: ${response.multiplier}
-              tokens: ${response.tokens}
-            </pre>`,
-      },
-      'llm'
+    this.debug(
+      DebugType.LLM,
+      `<pre>
+         intent: ${response.predictedIntent}
+         model: ${response.model}
+         multiplier: ${response.multiplier}
+         tokens: ${response.tokens}
+       </pre>`
     );
 
     return response;
@@ -318,13 +329,7 @@ export class Predictor extends EventEmitter {
 
     if (!nluPrediction) {
       // try open regex slot matching
-      this.emit(
-        'debug',
-        {
-          message: `No matching intents. Falling back to NLC openSlots: true`,
-        },
-        'nlu'
-      );
+      this.debug(DebugType.NLU, `No matching intents. Falling back to NLC openSlots: true`);
       this.predictions.result = 'nlc';
       const openPrediction = await this.nlc(utterance, true);
       return (
@@ -337,16 +342,13 @@ export class Predictor extends EventEmitter {
 
     if (isIntentClassificationNLUSettings(this.settings)) {
       this.predictions.result = 'nlu';
-      this.emit('debug', { message: `confidence: ${nluPrediction.confidence}` }, 'nlu');
+      this.debug(DebugType.NLU, `confidence: ${nluPrediction.confidence}`);
       return nluPrediction;
     }
 
-    this.emit(
-      'debug',
-      {
-        message: `intents: <pre style="text-align: left">${JSON.stringify(nluPrediction.intents, null, 2)}</pre>`,
-      },
-      'nlu'
+    this.debug(
+      DebugType.NLU,
+      `intents: <pre style="text-align: left">${JSON.stringify(nluPrediction.intents, null, 2)}</pre>`
     );
 
     if (isIntentClassificationLLMSettings(this.settings) && !this.props.dmRequest?.intent) {
@@ -357,7 +359,7 @@ export class Predictor extends EventEmitter {
       if (!llmPrediction) {
         // fallback to NLU prediction
         this.predictions.result = 'nlu';
-        this.emit('debug', { message: `Falling back to NLU` }, 'llm');
+        this.debug(DebugType.LLM, `Falling back to NLU`);
         return nluPrediction;
       }
 
@@ -371,13 +373,11 @@ export class Predictor extends EventEmitter {
         predicted: llmPrediction.predictedIntent === nluPrediction.predictedIntent,
         hasSlots: !!intent.slots?.length,
       })
-        .with({ hasSlots: true }, () => {
-          const slots = this.fillSlots(utterance, {
+        .with({ hasSlots: true }, () =>
+          this.fillSlots(utterance, {
             filteredIntents: [llmPrediction.predictedIntent],
-          });
-          this.emit('debug', { message: `filled slots` }, 'fillSlots');
-          return slots;
-        })
+          })
+        )
         .otherwise(() => []);
 
       return {
@@ -389,7 +389,7 @@ export class Predictor extends EventEmitter {
     // finally try open regex slot matching
     this.predictions.result = 'nlc';
     const openPrediction = await this.nlc(utterance, true);
-    this.emit('debug', { message: `Last ditch wth NLC openSlots true` }, 'nlc');
+    this.debug(DebugType.NLC, `Last ditch wth NLC openSlots true`);
     return (
       openPrediction ?? {
         ...nonePrediction,

@@ -9,7 +9,7 @@ import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { isTextRequest } from '@/lib/services/runtime/types';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
-import { Predictor } from '../classification';
+import { DebugEvent, Predictor } from '../classification';
 import { castToDTO } from '../classification/classification.utils';
 import { ClassificationResult, PredictError, Prediction } from '../classification/interfaces/nlu.interface';
 import { AbstractManager } from '../utils';
@@ -78,9 +78,9 @@ class NLU extends AbstractManager implements ContextHandler {
       }
     );
 
-    const addDebug = (error: PredictError, type?: ClassificationResult['result']) => {
-      const prefix = type && `${type.toUpperCase()}: `;
-      return context.trace?.push(debugTrace(`${prefix}${error.message}`));
+    const addDebug = (event: DebugEvent) => {
+      const prefix = `${event.type.toUpperCase()}: `;
+      return context.trace?.push(debugTrace(`${prefix}${event.message}`));
     };
 
     if (context.trace) {
