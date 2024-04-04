@@ -20,9 +20,9 @@ const IfV2Handler: HandlerFactory<BaseNode.IfV2.Node, IfV2Options> = ({ _v1 }) =
   canHandle: (node) => {
     return node.type === BaseNode.NodeType.IF_V2;
   },
-  handle: async (node, runtime, variables, program) => {
+  handle: async (node, runtime, variables, program, eventHandler) => {
     if (runtime.turn.get<string[]>(TurnType.STOP_TYPES)?.includes(BaseNode.NodeType.IF_V2)) {
-      return _v1.handle(node as BaseNode._v1.Node, runtime, variables, program);
+      return _v1.handle(node as BaseNode._v1.Node, runtime, variables, program, eventHandler);
     }
 
     let outputPortIndex = -1;
@@ -63,7 +63,8 @@ const IfV2Handler: HandlerFactory<BaseNode.IfV2.Node, IfV2Options> = ({ _v1 }) =
       { code: codeTemplate, id: GENERATED_CODE_NODE_ID, type: BaseNode.NodeType.CODE },
       runtime,
       variables,
-      program
+      program,
+      eventHandler
     );
 
     debugErrors.forEach((err) =>
