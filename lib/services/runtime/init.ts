@@ -2,13 +2,13 @@ import { BaseNode, BaseTrace, BaseUtils } from '@voiceflow/base-types';
 
 import log from '@/logger';
 import Client, { EventType } from '@/runtime';
+import { HandleContextEventHandler } from '@/runtime/lib/Context/types';
 
 import { FrameType, Output, TurnType } from './types';
 import { addOutputTrace, getOutputTrace } from './utils';
-import { HandleContextEvent } from '@/runtime/lib/Context/types';
 
 // initialize event behaviors for client
-const init = (client: Client, event: HandleContextEvent) => {
+const init = (client: Client, eventHandler: HandleContextEventHandler) => {
   client.setEvent(EventType.stackDidChange, ({ runtime }) => {
     const top = runtime.stack.top();
 
@@ -67,10 +67,9 @@ const init = (client: Client, event: HandleContextEvent) => {
   });
 
   client.setEvent(EventType.traceWillAdd, ({ frame }) => {
-    console.log('traceWillAdd', frame.type);
-    event({
+    eventHandler({
       type: 'trace',
-      trace: frame
+      trace: frame,
     });
   });
 };

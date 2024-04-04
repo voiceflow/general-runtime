@@ -4,84 +4,73 @@
  */
 
 import { BaseRequest, RuntimeLogs } from '@voiceflow/base-types';
-import { createSession } from "better-sse";
-import { isEmpty, merge } from "lodash";
+import { createSession } from 'better-sse';
+import { match } from 'ts-pattern';
 
+// import { isEmpty, merge } from "lodash";
 import { RuntimeRequest } from '@/lib/services/runtime/types';
 import { State } from '@/runtime';
 import { Request, Response } from '@/types';
 
-import { InteractRequestBody, InteractRequestHeaders, InteractRequestParams, InteractRequestQuery } from './dtos/interact.request';
+import { ResponseContext } from '../../services/interact';
 import { validate } from '../../utils';
 import { SharedValidations } from '../../validations';
 import { AbstractController } from '../utils';
-import { ResponseContext } from '../../services/interact';
+import {
+  InteractRequestBody,
+  InteractRequestHeaders,
+  InteractRequestParams,
+  InteractRequestQuery,
+} from './dtos/interact.request';
 
 class InteractController extends AbstractController {
-  async interact(
-    req: Request<
-      InteractRequestParams,
-      InteractRequestBody,
-      InteractRequestHeaders,
-      InteractRequestQuery
-    >,
+  async stream(
+    req: Request<InteractRequestParams, InteractRequestBody, InteractRequestHeaders, InteractRequestQuery>,
     res: Response
   ) {
-
     const params = await InteractRequestParams.parseAsync(req.params);
     const body = await InteractRequestBody.parseAsync(req.body);
-    const _headers = await InteractRequestHeaders.parseAsync(req.headers);
-    const _query = await InteractRequestQuery.parseAsync(req.query);
+    // const _headers = await InteractRequestHeaders.parseAsync(req.headers);
+    // const _query = await InteractRequestQuery.parseAsync(req.query);
 
-    const projectID = params.projectID;
-    const versionID = params.versionID;
-    const sessionID = body.session.sessionID;
-    const userID = body.session.userID;
-    const action = body.action;
-    const state = body.state;
+    const { projectID } = params;
+    const { versionID } = params;
+    const { sessionID } = body.session;
+    const { userID } = body.session;
+    const { action } = body;
+    const { state } = body;
 
-    if (req.accepts('text/event-stream')) {
-      try {
-        const session = await createSession(req, res, {
-          keepAlive: 30000,
-          retry: 2000,
-        });
+    try {
+      const session = await createSession(req, res, {
+        keepAlive: 30000,
+        retry: 2000,
+      });
 
-        const result = await this.services.interact.interact({
+      const result = await this.services.interact.interact(
+        {
           projectID,
           versionID,
           userID,
           sessionID,
           action,
           state,
-        }, (event) => {
-          switch (event.type) {
-            case 'trace': {
-              session.push({ type: 'trace', trace: event.trace }, 'trace');
-              break;
+        },
+        (event) =>
+          match(event).when(
+            (e) => e.type === 'trace',
+            () => {
+              session.push({ type: 'trace', trace: (event as any).trace }, 'trace');
             }
-          }
-        });
+          )
+      );
 
-        session.push({ type: 'state', state: result.state }, 'state');
+      session.push({ type: 'state', state: result.state }, 'state');
 
-        session.push({ type: 'end' }, 'end');
-      } finally {
-        await new Promise<void>((resolve) => res.end('', () => resolve()));
-      }
-    } else {
-      res.setHeader('Content-Type', 'application/json');
-
-      const result = await this.services.interact.interact({
-        projectID,
-        versionID,
-        userID,
-        sessionID,
-        action,
-        state,
-      }, () => void 0);
-
-      res.end(JSON.stringify(result));
+      session.push({ type: 'end' }, 'end');
+    } finally {
+      await new Promise<void>((resolve) => {
+        res.end('', () => resolve());
+      });
     }
   }
 
@@ -101,7 +90,7 @@ class InteractController extends AbstractController {
       { locale?: string; logs: RuntimeLogs.LogLevel }
     >
   ): Promise<ResponseContext> {
-    return this.services.interact.handler(req, () => void 0);
+    return this.services.interact.handler(req, () => undefined);
   }
 }
 
