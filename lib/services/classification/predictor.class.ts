@@ -24,7 +24,7 @@ import {
 } from './interfaces/nlu.interface';
 import { executePromptWrapper } from './prompt-wrapper-executor';
 
-enum DebugType {
+export enum DebugType {
   LLM = 'llm',
   NLU = 'nlu',
   NLC = 'nlc',
