@@ -151,8 +151,9 @@ class TestController extends AbstractController {
     const api = await this.services.dataAPI.get();
 
     const version = await api.getVersion(data.versionID);
-    const { intents, slots } = castToDTO(version);
     const project = await api.getProject(version.projectID);
+    const { intents, slots } = castToDTO(version, project);
+
     const predictor = new Predictor(
       {
         axios: this.services.axios,
