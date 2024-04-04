@@ -1,4 +1,4 @@
-import { VoiceflowProgram, VoiceflowVersion } from '@voiceflow/voiceflow-types';
+import { VoiceflowProgram, VoiceflowProject, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 
 import { LocalDataApi } from '@/runtime';
 import { Config } from '@/types';
@@ -11,7 +11,7 @@ import Static from './static';
  * Build all clients
  */
 class DataAPI {
-  localDataApi?: LocalDataApi<VoiceflowProgram.Program, VoiceflowVersion.Version>;
+  localDataApi?: LocalDataApi<VoiceflowProgram.Program, VoiceflowVersion.Version, VoiceflowProject.Project>;
 
   prototypeDataApi?: PrototypeDataAPI;
 
