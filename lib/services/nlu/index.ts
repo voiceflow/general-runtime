@@ -4,13 +4,12 @@
  */
 
 import { BaseNode, BaseRequest, BaseTrace } from '@voiceflow/base-types';
-import { AnyTrace } from '@voiceflow/base-types/build/cjs/trace';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { isTextRequest } from '@/lib/services/runtime/types';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
-import { Predictor } from '../classification';
+import { DebugEvent, Predictor } from '../classification';
 import { castToDTO } from '../classification/classification.utils';
 import { Prediction } from '../classification/interfaces/nlu.interface';
 import { AbstractManager } from '../utils';
@@ -75,57 +74,23 @@ class NLU extends AbstractManager implements ContextHandler {
       }
     );
 
-    const prediction = await predictor.predict(context.request.payload);
+    const addDebug = (event: DebugEvent) => {
+      const prefix = `${event.type.toUpperCase()}: `;
+      return context.trace?.push(debugTrace(`${prefix}${event.message}`));
+    };
 
     if (context.trace) {
-      context.trace = this.addDebugTraces(context.trace, predictor);
+      predictor.on('debug', addDebug);
     }
+
+    const prediction = await predictor.predict(context.request.payload);
 
     const request = getIntentRequest(prediction);
 
+    predictor.removeListener('debug', addDebug);
+
     return { ...context, request };
   };
-
-  private addDebugTraces(trace: AnyTrace[], predictor: Predictor): AnyTrace[] {
-    const { predictions } = predictor;
-    if (!predictions.result) {
-      return trace;
-    }
-    const newTraces: typeof trace = [];
-
-    if (predictions.llm) {
-      if (predictions.llm.error) {
-        newTraces.push(debugTrace(predictions.llm.error.message));
-      } else {
-        newTraces.push(
-          debugTrace(`LLM:
-            <pre>
-              model: ${predictions.llm.model}
-              multiplier: ${predictions.llm.multiplier}
-              tokens: ${predictions.llm.tokens}
-            </pre>`)
-        );
-      }
-    }
-
-    if (predictions.nlu) {
-      if (predictions.nlu.error) {
-        newTraces.push(debugTrace(`NLU: \`${predictions.nlu.error.message}\``));
-      } else {
-        newTraces.push(debugTrace(`NLU: confidence: \`${predictions.nlu.confidence}\``));
-      }
-    }
-
-    if (predictions.nlc) {
-      if (predictions.nlc.error) {
-        newTraces.push(debugTrace(`NLC: \`${predictions.nlc.error.message}\``));
-      } else {
-        newTraces.push(debugTrace(`NLC: open slot: ${predictions.nlc.openSlot}`));
-      }
-    }
-
-    return trace.concat(newTraces);
-  }
 }
 
 const debugTrace = (message: string): BaseTrace.DebugTrace => ({
