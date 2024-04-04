@@ -319,8 +319,8 @@ export class Predictor extends EventEmitter {
 
   public async predict(utterance: string): Promise<Prediction | null> {
     // 1. first try restricted regex (no open slots) - exact string match
-    const nlcPrediction = await this.nlc(utterance, false);
-    if (nlcPrediction && !isIntentClassificationLLMSettings(this.settings)) {
+    const nlcPrediction = !isIntentClassificationLLMSettings(this.settings) ? await this.nlc(utterance, false) : null;
+    if (nlcPrediction) {
       this.predictions.result = 'nlc';
       return nlcPrediction;
     }

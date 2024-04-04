@@ -258,15 +258,13 @@ describe('predictor unit tests', () => {
       });
       const predictor = new Predictor(config, props, settings.intentClassification, options);
       const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand');
-      handleNLCCommandStub.onCall(0).returns(null);
-      handleNLCCommandStub.onCall(1).returns(nlcPrediction as any);
 
       const prediction = await predictor.predict(utterance);
       const { result } = predictor.predictions;
 
       sinon.assert.called(config.axios.post);
       sinon.assert.notCalled(config.mlGateway.private?.completion.generateCompletion);
-      expect(handleNLCCommandStub.callCount).to.eql(1);
+      expect(handleNLCCommandStub.callCount).to.eql(0);
       expect(prediction?.predictedIntent).to.eql(VoiceflowConstants.IntentName.NONE);
       expect(result).not.to.eql('nlc');
     });
