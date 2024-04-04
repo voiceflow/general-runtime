@@ -84,6 +84,7 @@ export class Predictor {
       },
       locale: this.options.locale,
       openSlot,
+      dmRequest: this.props.dmRequest,
     });
 
     if (!data) {
@@ -308,7 +309,7 @@ export class Predictor {
       return nluPrediction;
     }
 
-    if (isIntentClassificationLLMSettings(this.settings)) {
+    if (isIntentClassificationLLMSettings(this.settings) && !this.props.dmRequest?.intent) {
       const llmPrediction = await this.llm(nluPrediction, {
         mlGateway: this.config.mlGateway,
       });
