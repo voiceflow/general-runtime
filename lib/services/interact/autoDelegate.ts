@@ -2,15 +2,19 @@ import { BaseTrace } from '@voiceflow/base-types';
 import { Utils } from '@voiceflow/common';
 
 import { PartialContext, TurnBuilder } from '@/runtime';
+import { HandleContextEventHandler } from '@/runtime/lib/Context/types';
 import { Context } from '@/types';
-import { HandleContextEvent } from '@/runtime/lib/Context/types';
 
 export const MAX_DELEGATION_TURNS = 3;
 
 const isGoToTrace = (frame: BaseTrace.AnyTrace | null): frame is BaseTrace.GoToTrace =>
   frame?.type === BaseTrace.TraceType.GOTO && !!frame.payload.request;
 
-const autoDelegateTurn = async (turn: TurnBuilder<Context>, initContext: PartialContext<Context>, event: HandleContextEvent): Promise<Context> => {
+const autoDelegateTurn = async (
+  turn: TurnBuilder<Context>,
+  initContext: PartialContext<Context>,
+  event: HandleContextEventHandler
+): Promise<Context> => {
   let context: Context | null = null;
   const trace: BaseTrace.AnyTrace[] = [];
 

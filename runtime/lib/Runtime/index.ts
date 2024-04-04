@@ -6,6 +6,7 @@ import Handler from '@/runtime/lib/Handler';
 import Lifecycle, { AbstractLifecycle, Event, EventType } from '@/runtime/lib/Lifecycle';
 import cycleStack from '@/runtime/lib/Runtime/cycleStack';
 
+import { HandleContextEventHandler } from '../Context/types';
 import { DataAPI as AnyDataAPI } from '../DataAPI';
 import DebugLogging from './DebugLogging';
 import OutgoingApiLimiter from './OutgoingApiLimiter';
@@ -13,7 +14,6 @@ import Stack, { Frame, FrameState } from './Stack';
 import Store, { State as StorageState } from './Store';
 import Trace from './Trace';
 import ProgramManager from './utils/programManager';
-import { HandleContextEvent } from '../Context/types';
 
 export type SubscriptionEntitlements = Array<{ feature_id: string; feature_type: string; value: string }>;
 
@@ -220,7 +220,7 @@ class Runtime<
     );
   }
 
-  public async update(event: HandleContextEvent): Promise<void> {
+  public async update(eventHandler: HandleContextEventHandler): Promise<void> {
     try {
       await this.injectBaseProgram();
       await this.callEvent(EventType.updateWillExecute, {});
@@ -237,7 +237,7 @@ class Runtime<
       }
 
       this.startTime = Date.now();
-      await cycleStack(this, event);
+      await cycleStack(this, eventHandler);
 
       await this.callEvent(EventType.updateDidExecute, {});
     } catch (error) {

@@ -25,7 +25,10 @@ export interface Context<
   maxLogLevel: RuntimeLogs.LogLevel;
 }
 
-export type ContextHandle<C extends Context<any, any, any, any, any>> = (request: C, event: HandleContextEvent) => C | Promise<C>;
+export type ContextHandle<C extends Context<any, any, any, any, any>> = (
+  request: C,
+  event: HandleContextEventHandler
+) => C | Promise<C>;
 
 export interface ContextHandler<C extends Context<any, any, any, any, any>> {
   handle: ContextHandle<C>;
@@ -50,20 +53,20 @@ export interface InitContextHandler<C extends Context<any, any, any, any, any>> 
 }
 
 export type ContextEvent =
-| {
-    type: 'trace',
-    trace: BaseNode.Utils.BaseTraceFrame
-  }
-| {
-    type: 'trace-begin',
-    trace: Pick<BaseNode.Utils.BaseTraceFrame, 'type'> & Partial<Omit<BaseNode.Utils.BaseTraceFrame, 'type'>>
-  }
-| {
-    type: 'trace-completion',
-    trace: { payload: Partial<BaseNode.Utils.BaseTraceFrame['payload']> }
-  }
-| {
-    type: 'trace-end'
-  }
+  | {
+      type: 'trace';
+      trace: BaseNode.Utils.BaseTraceFrame;
+    }
+  | {
+      type: 'trace-start';
+      trace: Pick<BaseNode.Utils.BaseTraceFrame, 'type'> & Partial<Omit<BaseNode.Utils.BaseTraceFrame, 'type'>>;
+    }
+  | {
+      type: 'trace-completion';
+      trace: { payload: Partial<BaseNode.Utils.BaseTraceFrame['payload']> };
+    }
+  | {
+      type: 'trace-end';
+    };
 
-export type HandleContextEvent = (event: ContextEvent) => any;
+export type HandleContextEventHandler = (event: ContextEvent) => any;

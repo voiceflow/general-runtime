@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file, no-await-in-loop, no-restricted-syntax */
 
-import { Context, ContextHandler, HandleContextEvent, InitContextHandler, PartialContext } from './types';
+import { Context, ContextHandler, HandleContextEventHandler, InitContextHandler, PartialContext } from './types';
 
 export { Context, ContextHandle, ContextHandler, InitContextHandler, PartialContext } from './types';
 
@@ -12,7 +12,7 @@ export class ContextBuilder<C extends Context<any, any, any>> {
     return this;
   }
 
-  async handle(baseContext: C, event: HandleContextEvent): Promise<C> {
+  async handle(baseContext: C, event: HandleContextEventHandler): Promise<C> {
     let context = baseContext;
     for (const handlers of this.pipes) {
       context.end = false;
@@ -33,7 +33,7 @@ export class TurnBuilder<C extends Context<any, any, any>> extends ContextBuilde
     super();
   }
 
-  async handle(context: PartialContext<C>, event: HandleContextEvent): Promise<C> {
+  async handle(context: PartialContext<C>, event: HandleContextEventHandler): Promise<C> {
     return super.handle(await this.init.handle(context), event);
   }
 
