@@ -1,6 +1,6 @@
 import { Utils } from '@voiceflow/common';
 import { DEFAULT_INTENT_CLASSIFICATION_PROMPT_WRAPPER_CODE } from '@voiceflow/default-prompt-wrappers';
-import { DebugTraceDTO, IntentClassificationSettings } from '@voiceflow/dtos';
+import { IntentClassificationSettings } from '@voiceflow/dtos';
 import { ISlotFullfilment } from '@voiceflow/natural-language-commander';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import type { AxiosStatic } from 'axios';

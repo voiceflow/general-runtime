@@ -11,7 +11,7 @@ import { Context, ContextHandler, VersionTag } from '@/types';
 
 import { DebugEvent, Predictor } from '../classification';
 import { castToDTO } from '../classification/classification.utils';
-import { ClassificationResult, PredictError, Prediction } from '../classification/interfaces/nlu.interface';
+import { Prediction } from '../classification/interfaces/nlu.interface';
 import { AbstractManager } from '../utils';
 import { getNoneIntentRequest } from './utils';
 
