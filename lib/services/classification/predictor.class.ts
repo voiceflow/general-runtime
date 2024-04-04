@@ -320,7 +320,7 @@ export class Predictor extends EventEmitter {
   public async predict(utterance: string): Promise<Prediction | null> {
     // 1. first try restricted regex (no open slots) - exact string match
     const nlcPrediction = await this.nlc(utterance, false);
-    if (nlcPrediction) {
+    if (nlcPrediction && !isIntentClassificationLLMSettings(this.settings)) {
       this.predictions.result = 'nlc';
       return nlcPrediction;
     }
@@ -329,7 +329,15 @@ export class Predictor extends EventEmitter {
 
     if (!nluPrediction) {
       // try open regex slot matching
-      this.debug(DebugType.NLU, `No matching intents. Falling back to NLC openSlots: true`);
+      this.debug(DebugType.NLU, `No matching intents`);
+
+      if (isIntentClassificationLLMSettings(this.settings)) {
+        // No NLC when LLM enabled
+        return { ...nonePrediction, utterance };
+      }
+
+      this.debug(DebugType.NLU, `Falling back to NLC openSlots: true`);
+
       this.predictions.result = 'nlc';
       const openPrediction = await this.nlc(utterance, true);
       return (
