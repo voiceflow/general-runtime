@@ -19,9 +19,9 @@ class Auth extends AbstractMiddleware {
 
     if (!this.client) {
       const baseURL =
-        this.config.AUTH_API_SERVICE_HOST && this.config.AUTH_API_SERVICE_PORT_APP
+        this.config.AUTH_API_SERVICE_URI && this.config.AUTH_API_SERVICE_PORT_APP
           ? new URL(
-              `${this.config.NODE_ENV === 'e2e' ? 'https' : 'http'}://${this.config.AUTH_API_SERVICE_HOST}:${
+              `${this.config.NODE_ENV === 'e2e' ? 'https' : 'http'}://${this.config.AUTH_API_SERVICE_URI}:${
                 this.config.AUTH_API_SERVICE_PORT_APP
               }`
             ).href

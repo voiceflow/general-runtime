@@ -26,7 +26,7 @@ describe('feedback manager unit tests', () => {
       };
 
       const config = {
-        ANALYTICS_API_SERVICE_HOST: 'analytics-api.voiceflow.com',
+        ANALYTICS_API_SERVICE_URI: 'analytics-api.voiceflow.com',
         ANALYTICS_API_SERVICE_PORT_APP: '443',
       };
 

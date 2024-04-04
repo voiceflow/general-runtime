@@ -101,7 +101,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
   };
 
   private isNluGatwayEndpointConfigured() {
-    return this.config.NLU_GATEWAY_SERVICE_HOST && this.config.NLU_GATEWAY_SERVICE_PORT_APP;
+    return this.config.NLU_GATEWAY_SERVICE_URI && this.config.NLU_GATEWAY_SERVICE_PORT_APP;
   }
 
   // eslint-disable-next-line sonarjs/cognitive-complexity

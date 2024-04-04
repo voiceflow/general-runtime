@@ -67,7 +67,7 @@ const FLAGGED_WORKSPACES_MAP = new Map<string, string[]>([
   [CloudEnv.SANLAM, []],
 ]);
 
-const { KL_RETRIEVER_SERVICE_HOST: host, KL_RETRIEVER_SERVICE_PORT: port } = Config;
+const { KL_RETRIEVER_SERVICE_URI: host, KL_RETRIEVER_SERVICE_PORT: port } = Config;
 const scheme = process.env.NODE_ENV === 'e2e' ? 'https' : 'http';
 const baseApiUrl = host && port ? `${scheme}://${host}:${port}` : null;
 export const RETRIEVE_ENDPOINT = baseApiUrl ? new URL(`${baseApiUrl}/retrieve`).href : null;

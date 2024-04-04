@@ -43,9 +43,9 @@ const buildClients = (config: Config): ClientMap => {
     rateLimitClient: RateLimitClient('general-runtime', redis, config),
     analyticsIngester: AnalyticsIngester(config),
     analyticsPlatform: new AnalyticsClient(
-      config.ANALYTICS_API_SERVICE_HOST && config.ANALYTICS_API_SERVICE_PORT_APP
+      config.ANALYTICS_API_SERVICE_URI && config.ANALYTICS_API_SERVICE_PORT_APP
         ? new URL(
-            `${config.NODE_ENV === 'e2e' ? 'https' : 'http'}://${config.ANALYTICS_API_SERVICE_HOST}:${
+            `${config.NODE_ENV === 'e2e' ? 'https' : 'http'}://${config.ANALYTICS_API_SERVICE_URI}:${
               config.ANALYTICS_API_SERVICE_PORT_APP
             }`
           ).href

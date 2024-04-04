@@ -9,7 +9,7 @@ class Feedback extends AbstractManager {
   constructor(services: FullServiceMap, config: Config) {
     super(services, config);
 
-    const host = config.ANALYTICS_API_SERVICE_HOST;
+    const host = config.ANALYTICS_API_SERVICE_URI;
     const port = config.ANALYTICS_API_SERVICE_PORT_APP;
     const scheme = process.env.NODE_ENV === 'e2e' ? 'https' : 'http';
 

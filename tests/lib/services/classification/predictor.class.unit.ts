@@ -22,7 +22,7 @@ const GENERAL_SERVICE_ENDPOINT = 'http://localhost:6970';
 const defaultConfig = {
   GENERAL_SERVICE_ENDPOINT,
   CLOUD_ENV: '',
-  NLU_GATEWAY_SERVICE_HOST: '',
+  NLU_GATEWAY_SERVICE_URI: '',
   NLU_GATEWAY_SERVICE_PORT_APP: '',
 };
 

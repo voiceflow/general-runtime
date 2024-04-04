@@ -25,7 +25,7 @@ import {
 class NLU extends AbstractManager implements ContextHandler {
   private getNluGatewayEndpoint() {
     const protocol = this.config.CLOUD_ENV === 'e2e' ? 'https' : 'http';
-    return `${protocol}://${this.config.NLU_GATEWAY_SERVICE_HOST}:${this.config.NLU_GATEWAY_SERVICE_PORT_APP}`;
+    return `${protocol}://${this.config.NLU_GATEWAY_SERVICE_URI}:${this.config.NLU_GATEWAY_SERVICE_PORT_APP}`;
   }
 
   async getNLUPrediction({

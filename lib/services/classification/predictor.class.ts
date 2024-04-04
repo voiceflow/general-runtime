@@ -41,7 +41,7 @@ export interface PredictorConfig {
   axios: AxiosStatic;
   mlGateway: MLGateway;
   CLOUD_ENV: string;
-  NLU_GATEWAY_SERVICE_HOST: string | null;
+  NLU_GATEWAY_SERVICE_URI: string | null;
   NLU_GATEWAY_SERVICE_PORT_APP: string | null;
 }
 
@@ -62,7 +62,7 @@ export class Predictor {
 
   private get nluGatewayURL() {
     const protocol = this.config.CLOUD_ENV === 'e2e' ? 'https' : 'http';
-    return `${protocol}://${this.config.NLU_GATEWAY_SERVICE_HOST}:${this.config.NLU_GATEWAY_SERVICE_PORT_APP}`;
+    return `${protocol}://${this.config.NLU_GATEWAY_SERVICE_URI}:${this.config.NLU_GATEWAY_SERVICE_PORT_APP}`;
   }
 
   // return all the same prediction shape?

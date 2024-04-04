@@ -50,22 +50,22 @@ export interface Config extends RateLimitConfig {
   FUNCTION_LAMBDA_ACCESS_KEY_ID: string | null;
   FUNCTION_LAMBDA_SECRET_ACCESS_KEY: string | null;
 
-  KL_RETRIEVER_SERVICE_HOST: string | null;
+  KL_RETRIEVER_SERVICE_URI: string | null;
   KL_RETRIEVER_SERVICE_PORT: string | null;
 
-  AUTH_API_SERVICE_HOST: string | null;
+  AUTH_API_SERVICE_URI: string | null;
   AUTH_API_SERVICE_PORT_APP: string | null;
 
-  ANALYTICS_API_SERVICE_HOST: string | null;
+  ANALYTICS_API_SERVICE_URI: string | null;
   ANALYTICS_API_SERVICE_PORT_APP: string | null;
 
-  NLU_GATEWAY_SERVICE_HOST: string | null;
+  NLU_GATEWAY_SERVICE_URI: string | null;
   NLU_GATEWAY_SERVICE_PORT_APP: string | null;
 
-  BILLING_API_SERVICE_HOST: string | null;
+  BILLING_API_SERVICE_URI: string | null;
   BILLING_API_SERVICE_PORT_APP: string | null;
 
-  ML_GATEWAY_SERVICE_HOST: string | null;
+  ML_GATEWAY_SERVICE_URI: string | null;
   ML_GATEWAY_SERVICE_PORT_APP: string | null;
 
   CREATOR_API_ENDPOINT: string | null;
