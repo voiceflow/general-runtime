@@ -75,11 +75,7 @@ class NLUController extends AbstractController {
       throw new VError('Missmatch in projectID/versionID', VError.HTTP_STATUS.BAD_REQUEST);
     }
 
-    const { settings, intents, slots } = castToDTO(version);
-
-    if (!settings?.intentClassification) {
-      throw new Error('');
-    }
+    const { intentClassificationSettings, intents, slots } = castToDTO(version, project);
 
     const predictor = new Predictor(
       {
@@ -96,7 +92,7 @@ class NLUController extends AbstractController {
         intents: intents ?? [],
         slots: slots ?? [],
       },
-      settings.intentClassification,
+      intentClassificationSettings,
       {
         locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
         hasChannelIntents: project?.platformData?.hasChannelIntents,

@@ -28,7 +28,7 @@ const ML_GATEWAY_TIMEOUT = 5000;
 const nonePrediction: Omit<Prediction, 'utterance'> = {
   predictedIntent: VoiceflowConstants.IntentName.NONE,
   predictedSlots: [],
-  confidence: 100,
+  confidence: 1,
 };
 
 const hasValueReducer = (slots?: ISlotFullfilment[]) =>
