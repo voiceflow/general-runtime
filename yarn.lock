@@ -4390,6 +4390,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@voiceflow/chat-types@npm:2.13.107":
+  version: 2.13.107
+  resolution: "@voiceflow/chat-types@npm:2.13.107"
+  dependencies:
+    "@voiceflow/base-types": 2.107.2
+    "@voiceflow/common": 8.2.8
+  checksum: e4091f796421747161060f7a047732730365f72df56ae01264f4750a69425d62d8d0b670ff308d0ace20972b5fe3159fd5c2f882e23658aea0202ff3f0dab07f
+  languageName: node
+  linkType: hard
+
 "@voiceflow/commitlint-config@npm:2.0.0":
   version: 2.0.0
   resolution: "@voiceflow/commitlint-config@npm:2.0.0"
@@ -4678,7 +4688,7 @@ __metadata:
     "@voiceflow/utils-designer": 1.9.3
     "@voiceflow/verror": ^1.1.3
     "@voiceflow/voice-types": 2.9.83
-    "@voiceflow/voiceflow-types": 3.28.0
+    "@voiceflow/voiceflow-types": 3.28.3
     ajv: 6.12.3
     axios: ^0.21.1
     chai: ^4.2.0
@@ -5117,6 +5127,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@voiceflow/voice-types@npm:2.9.86":
+  version: 2.9.86
+  resolution: "@voiceflow/voice-types@npm:2.9.86"
+  dependencies:
+    "@voiceflow/base-types": 2.107.2
+    "@voiceflow/common": 8.2.8
+  checksum: 3d23e75b32ff6451d983f95ad65644882f7bf0fd15457585ec3d0966083b10d21bcc8431df0355b81b864b7456f1a5bf70c21241635784a6cd48350a77b3ad91
+  languageName: node
+  linkType: hard
+
 "@voiceflow/voiceflow-types@npm:3.27.0":
   version: 3.27.0
   resolution: "@voiceflow/voiceflow-types@npm:3.27.0"
@@ -5128,14 +5148,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/voiceflow-types@npm:3.28.0":
-  version: 3.28.0
-  resolution: "@voiceflow/voiceflow-types@npm:3.28.0"
+"@voiceflow/voiceflow-types@npm:3.28.3":
+  version: 3.28.3
+  resolution: "@voiceflow/voiceflow-types@npm:3.28.3"
   dependencies:
-    "@voiceflow/base-types": 2.106.0
-    "@voiceflow/chat-types": 2.13.104
-    "@voiceflow/voice-types": 2.9.83
-  checksum: 50b7c82d8dfe52b6a6c83ff62585f7c64137b47cd8582af95acdd8ad7243c23d7db0f05cad2fa622e4d2ae1583b11dbf0925197a66bb363d84d9225da1c8b162
+    "@voiceflow/base-types": 2.107.2
+    "@voiceflow/chat-types": 2.13.107
+    "@voiceflow/voice-types": 2.9.86
+  checksum: a9bb876a28e2a147331c870c555cbf55675a4e651f3aada8714ce1c65e3627ec2a577d6105ca0dfbe4dfb6f8685460c5cbe220ead1bb76022cb6a1c77e18c229
   languageName: node
   linkType: hard
 
