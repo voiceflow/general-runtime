@@ -2,13 +2,13 @@ import { BaseNode } from '@voiceflow/base-types';
 import { HTTPException } from '@voiceflow/exception';
 import { match } from 'ts-pattern';
 
-import { Trace } from '../../runtime-command/trace-command.dto';
+import { UnknownTrace } from '../../runtime-command/trace/base.dto';
 
 export abstract class FunctionException extends Error {
   abstract get message(): string;
 }
 
-export function createFunctionExceptionDebugTrace(err: unknown): Trace {
+export function createFunctionExceptionDebugTrace(err: unknown): UnknownTrace {
   const debugMessage = match(err)
     .when(
       (val): val is Error => val instanceof Error,

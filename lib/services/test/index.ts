@@ -3,7 +3,7 @@ import { performance } from 'perf_hooks';
 
 import { executeFunction } from '@/runtime/lib/Handlers/function/lib/execute-function/execute-function';
 import { createFunctionExceptionDebugTrace } from '@/runtime/lib/Handlers/function/lib/function-exception/function.exception';
-import { Trace } from '@/runtime/lib/Handlers/function/runtime-command/trace-command.dto';
+import { UnknownTrace } from '@/runtime/lib/Handlers/function/runtime-command/trace/base.dto';
 
 import { AbstractManager } from '../utils';
 import { TestFunctionResponse } from './interface';
@@ -43,7 +43,7 @@ export class TestService extends AbstractManager {
 
       const executionTime = endTime - startTime;
 
-      const debugTrace: Trace = createFunctionExceptionDebugTrace(err);
+      const debugTrace: UnknownTrace = createFunctionExceptionDebugTrace(err);
 
       return {
         success: false,

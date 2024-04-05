@@ -1,25 +1,24 @@
 import { BaseNode, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 import { Utils } from '@voiceflow/common';
 
-import {
-  SimpleAction,
-  SimpleAudioTrace,
-  SimpleButton,
-  SimpleCard,
-  SimpleCardV2Trace,
-  SimpleCarouselTrace,
-  SimpleSpeakTrace,
-  SimpleTextTrace,
-  SimpleTraceType,
-  SimpleVisualTrace,
-  Trace,
-} from '../../../runtime-command/trace-command.dto';
+import { SimpleAction, SimpleActionButton } from '../../../runtime-command/button/action-button.dto';
+import { SimpleGeneralButton } from '../../../runtime-command/button/general-button.dto';
+import { SimpleCard } from '../../../runtime-command/card/card.dto';
+import { SimpleAudioTrace } from '../../../runtime-command/trace/audio.dto';
+import { UnknownTrace } from '../../../runtime-command/trace/base.dto';
+import { SimpleCardV2Trace } from '../../../runtime-command/trace/cardV2.dto';
+import { SimpleCarouselTrace } from '../../../runtime-command/trace/carousel.dto';
+import { SimpleChoiceTrace } from '../../../runtime-command/trace/choice.dto';
+import { SimpleTraceType } from '../../../runtime-command/trace/simple-trace-type.enum';
+import { SimpleSpeakTrace } from '../../../runtime-command/trace/speak.dto';
+import { SimpleTextTrace } from '../../../runtime-command/trace/text.dto';
+import { SimpleVisualTrace } from '../../../runtime-command/trace/visual.dto';
 import { isSimpleTrace } from './is-simple-trace';
 
 const { cuid } = Utils.id;
 const { TraceType } = BaseTrace;
 
-const adaptTextTrace = (trace: SimpleTextTrace): Trace => {
+const adaptTextTrace = (trace: SimpleTextTrace): UnknownTrace => {
   return {
     ...trace,
     type: TraceType.TEXT,
@@ -33,7 +32,7 @@ const adaptTextTrace = (trace: SimpleTextTrace): Trace => {
   } satisfies BaseTrace.TextTrace;
 };
 
-const adaptSpeakTrace = (trace: SimpleSpeakTrace): Trace => {
+const adaptSpeakTrace = (trace: SimpleSpeakTrace): UnknownTrace => {
   return {
     ...trace,
     type: TraceType.SPEAK,
@@ -44,7 +43,7 @@ const adaptSpeakTrace = (trace: SimpleSpeakTrace): Trace => {
   } satisfies BaseTrace.SpeakTrace;
 };
 
-const adaptAudioTrace = (trace: SimpleAudioTrace): Trace => {
+const adaptAudioTrace = (trace: SimpleAudioTrace): UnknownTrace => {
   return {
     ...trace,
     type: TraceType.SPEAK,
@@ -55,7 +54,7 @@ const adaptAudioTrace = (trace: SimpleAudioTrace): Trace => {
   } satisfies BaseTrace.SpeakTrace;
 };
 
-const adaptVisualTrace = (trace: SimpleVisualTrace): Trace => {
+const adaptVisualTrace = (trace: SimpleVisualTrace): UnknownTrace => {
   return {
     ...trace,
     type: TraceType.VISUAL,
@@ -76,16 +75,26 @@ const adaptAction = (action: SimpleAction): BaseRequest.Action.BaseAction => {
   if (action.type !== BaseRequest.Action.ActionType.OPEN_URL) {
     throw new Error(`received unexpected action type`);
   }
-
   const { type, ...payload } = action;
-
   return {
     type,
     payload,
   };
 };
 
-const adaptButton = (button: SimpleButton): BaseRequest.ActionRequestButton => {
+const adaptGeneralButton = (button: SimpleGeneralButton): BaseRequest.GeneralRequestButton => {
+  return {
+    name: button.name,
+    request: {
+      type: button.request.type,
+      payload: {
+        label: button.name,
+      },
+    },
+  };
+};
+
+const adaptActionButton = (button: SimpleActionButton): BaseRequest.ActionRequestButton => {
   return {
     name: button.name,
     request: {
@@ -102,11 +111,11 @@ const adaptCard = (card: SimpleCard): BaseNode.Carousel.TraceCarouselCard => {
   return {
     ...card,
     id: cuid.slug(),
-    buttons: (card.buttons ?? []).map((but) => adaptButton(but)),
+    buttons: (card.buttons ?? []).map((but) => adaptActionButton(but)),
   };
 };
 
-const adaptCarouselTrace = (trace: SimpleCarouselTrace): Trace => {
+const adaptCarouselTrace = (trace: SimpleCarouselTrace): UnknownTrace => {
   return {
     ...trace,
     type: TraceType.CAROUSEL,
@@ -118,18 +127,29 @@ const adaptCarouselTrace = (trace: SimpleCarouselTrace): Trace => {
   } satisfies BaseTrace.CarouselTrace;
 };
 
-const adaptCardV2Trace = (trace: SimpleCardV2Trace): Trace => {
+const adaptCardV2Trace = (trace: SimpleCardV2Trace): UnknownTrace => {
   return {
     ...trace,
     type: TraceType.CARD_V2,
     payload: {
       ...trace.payload,
-      buttons: (trace.payload.buttons ?? []).map((but) => adaptButton(but)),
+      buttons: (trace.payload.buttons ?? []).map((but) => adaptActionButton(but)),
     },
   } satisfies BaseTrace.CardV2;
 };
 
-export function adaptTrace(trace: Trace): Trace {
+const adaptChoiceTrace = (trace: SimpleChoiceTrace): UnknownTrace => {
+  return {
+    ...trace,
+    type: TraceType.CHOICE,
+    payload: {
+      ...trace.payload,
+      buttons: (trace.payload.buttons ?? []).map((but) => adaptGeneralButton(but)),
+    },
+  } satisfies BaseTrace.Choice;
+};
+
+export function adaptTrace(trace: UnknownTrace): UnknownTrace {
   if (!isSimpleTrace(trace)) return trace;
 
   switch (trace.type) {
@@ -145,6 +165,8 @@ export function adaptTrace(trace: Trace): Trace {
       return adaptCarouselTrace(trace);
     case SimpleTraceType.CardV2:
       return adaptCardV2Trace(trace);
+    case SimpleTraceType.Choice:
+      return adaptChoiceTrace(trace);
     default:
       return trace;
   }
