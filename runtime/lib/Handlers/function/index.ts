@@ -9,9 +9,9 @@ import {
   NodeType,
 } from '@voiceflow/dtos';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
-import _query from 'utils/underscore-query';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
+import _query from '@/utils/underscore-query';
 
 import Runtime from '../../Runtime';
 import Store from '../../Runtime/Store';
