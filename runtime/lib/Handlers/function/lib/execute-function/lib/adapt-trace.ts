@@ -2,13 +2,11 @@ import { BaseNode, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 import { Utils } from '@voiceflow/common';
 
 import { SimpleAction, SimpleActionButton } from '../../../runtime-command/button/action-button.dto';
-import { SimpleGeneralButton } from '../../../runtime-command/button/general-button.dto';
 import { SimpleCard } from '../../../runtime-command/card/card.dto';
 import { SimpleAudioTrace } from '../../../runtime-command/trace/audio.dto';
 import { UnknownTrace } from '../../../runtime-command/trace/base.dto';
 import { SimpleCardV2Trace } from '../../../runtime-command/trace/cardV2.dto';
 import { SimpleCarouselTrace } from '../../../runtime-command/trace/carousel.dto';
-import { SimpleChoiceTrace } from '../../../runtime-command/trace/choice.dto';
 import { SimpleTraceType } from '../../../runtime-command/trace/simple-trace-type.enum';
 import { SimpleSpeakTrace } from '../../../runtime-command/trace/speak.dto';
 import { SimpleTextTrace } from '../../../runtime-command/trace/text.dto';
@@ -82,18 +80,6 @@ const adaptAction = (action: SimpleAction): BaseRequest.Action.BaseAction => {
   };
 };
 
-const adaptGeneralButton = (button: SimpleGeneralButton): BaseRequest.GeneralRequestButton => {
-  return {
-    name: button.name,
-    request: {
-      type: button.request.type,
-      payload: {
-        label: button.name,
-      },
-    },
-  };
-};
-
 const adaptActionButton = (button: SimpleActionButton): BaseRequest.ActionRequestButton => {
   return {
     name: button.name,
@@ -138,17 +124,6 @@ const adaptCardV2Trace = (trace: SimpleCardV2Trace): UnknownTrace => {
   } satisfies BaseTrace.CardV2;
 };
 
-const adaptChoiceTrace = (trace: SimpleChoiceTrace): UnknownTrace => {
-  return {
-    ...trace,
-    type: TraceType.CHOICE,
-    payload: {
-      ...trace.payload,
-      buttons: (trace.payload.buttons ?? []).map((but) => adaptGeneralButton(but)),
-    },
-  } satisfies BaseTrace.Choice;
-};
-
 export function adaptTrace(trace: UnknownTrace): UnknownTrace {
   if (!isSimpleTrace(trace)) return trace;
 
@@ -166,7 +141,6 @@ export function adaptTrace(trace: UnknownTrace): UnknownTrace {
     case SimpleTraceType.CardV2:
       return adaptCardV2Trace(trace);
     case SimpleTraceType.Choice:
-      return adaptChoiceTrace(trace);
     default:
       return trace;
   }
