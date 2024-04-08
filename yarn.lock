@@ -2245,13 +2245,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@datadog/native-appsec@npm:7.1.0":
-  version: 7.1.0
-  resolution: "@datadog/native-appsec@npm:7.1.0"
+"@datadog/native-appsec@npm:7.1.1":
+  version: 7.1.1
+  resolution: "@datadog/native-appsec@npm:7.1.1"
   dependencies:
     node-gyp: latest
     node-gyp-build: ^3.9.0
-  checksum: aa970555cb6e92fe2d95850815e03cf73ffed8e4ecd1c9cae4a0334162e70dac61942dce667627a9fad38cbda8da13c8653d2be2778ec9fd75c74a8ec5f44e98
+  checksum: 87d42c39767a64ba64dc0f66a923ab7b576f8c39ae0ef78d7432431b1cbfe6b02e0527a13daf3ff007b65d75f262f2910917ccac1bb2c6e2acda802216020eec
   languageName: node
   linkType: hard
 
@@ -2286,17 +2286,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@datadog/pprof@npm:5.1.0":
-  version: 5.1.0
-  resolution: "@datadog/pprof@npm:5.1.0"
+"@datadog/pprof@npm:5.2.0":
+  version: 5.2.0
+  resolution: "@datadog/pprof@npm:5.2.0"
   dependencies:
     delay: ^5.0.0
     node-gyp: latest
     node-gyp-build: <4.0
     p-limit: ^3.1.0
-    pprof-format: ^2.0.7
+    pprof-format: ^2.1.0
     source-map: ^0.7.4
-  checksum: 087e0f54136d316731a4ee0de8cb8e01d47dc3e12e0772943babe2577b5db05a13ce99e8f3215f8023ae0572013e799db23b66901658db361e4bceb9bcdc2c30
+  checksum: baa8e0c9aa7d6540d8e91837975c37d55d7791f3b8fa32a0ccc193e8d11287a8ae45abfe5c7bb4dd7f19d19ab58a9ca8ffeee7610f886a227f171924cf1ba4b2
   languageName: node
   linkType: hard
 
@@ -4704,7 +4704,7 @@ __metadata:
     cuid: ^2.1.8
     cz-conventional-changelog: ^3.0.2
     date-fns: ^2.30.0
-    dd-trace: 5.8.0
+    dd-trace: 5.10.0
     dedent: ^1.5.1
     deep-equal-in-any-order: ^1.0.27
     depcheck: 1.4.7
@@ -7670,15 +7670,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dd-trace@npm:5.8.0":
-  version: 5.8.0
-  resolution: "dd-trace@npm:5.8.0"
+"dd-trace@npm:5.10.0":
+  version: 5.10.0
+  resolution: "dd-trace@npm:5.10.0"
   dependencies:
-    "@datadog/native-appsec": 7.1.0
+    "@datadog/native-appsec": 7.1.1
     "@datadog/native-iast-rewriter": 2.3.0
     "@datadog/native-iast-taint-tracking": 1.7.0
     "@datadog/native-metrics": ^2.0.0
-    "@datadog/pprof": 5.1.0
+    "@datadog/pprof": 5.2.0
     "@datadog/sketches-js": ^2.1.0
     "@opentelemetry/api": ^1.0.0
     "@opentelemetry/core": ^1.14.0
@@ -7700,13 +7700,13 @@ __metadata:
     node-abort-controller: ^3.1.1
     opentracing: ">=0.12.1"
     path-to-regexp: ^0.1.2
-    pprof-format: ^2.0.7
+    pprof-format: ^2.1.0
     protobufjs: ^7.2.5
     retry: ^0.13.1
     semver: ^7.5.4
     shell-quote: ^1.8.1
     tlhunter-sorted-set: ^0.1.0
-  checksum: 477ab2bff0109881aeb3a03e157e86b6fdab2c83a7e81a915a80c2a02d540f3434bf0ee25cc01f891d3a8198551c9822e848e3ff328451096234f050a84b78d8
+  checksum: d852dac7d7c458724475d34a001906574967731d7f13ee8cc8de01b0c2eea0ff485abb059f16357f0f0c5ce074be9a96bb49da34b968f45c3e862ef7f4ac752e
   languageName: node
   linkType: hard
 
@@ -14831,7 +14831,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pprof-format@npm:^2.0.7":
+"pprof-format@npm:^2.1.0":
   version: 2.1.0
   resolution: "pprof-format@npm:2.1.0"
   checksum: f51beeaeac6d1409571a64132836ec5c48ba11a29da9e8da12a61b9689c67933488df77efa644089218da7d54de96e4fafedeaef835dfdfc94da37016a1b64fa
