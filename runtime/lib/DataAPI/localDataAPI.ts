@@ -21,6 +21,14 @@ class LocalDataAPI<
 
     const content = JSON.parse(fs.readFileSync(path.join('projects', projectSource), 'utf8'));
 
+    if (!content.programs || !Object.keys(content.programs).length) {
+      throw new Error('[invalid VFR] no programs included');
+    }
+
+    if (!Object.keys(content.programs).includes(content.version._id)) {
+      throw new Error('[invalid VFR] missing base program');
+    }
+
     this.version = content.version;
     this.project = content.project;
     this.programs = content.programs;

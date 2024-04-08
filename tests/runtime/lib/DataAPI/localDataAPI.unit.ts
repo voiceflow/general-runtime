@@ -4,21 +4,23 @@ import sinon from 'sinon';
 
 import LocalDataAPI from '@/runtime/lib/DataAPI/localDataAPI';
 
+const getVFR = () => ({
+  version: { _id: 'version-id' },
+  project: 'project-val',
+  // 'version-id' is the base program
+  programs: { a: 'b', c: 'd', 'version-id': 'e' },
+});
+
 describe('localDataAPI client unit tests', () => {
   afterEach(() => {
     sinon.restore();
   });
 
   it('constructor with projectsource', () => {
-    const content = {
-      version: 'version-val',
-      project: 'project-val',
-      programs: 'programs-val',
-    };
     const stubFS = {
       readFileSync: sinon.stub().returns('readFileSync-val'),
     };
-    const jsonParseStub = sinon.stub(JSON, 'parse').returns(content as any);
+    const jsonParseStub = sinon.stub(JSON, 'parse').returns(getVFR() as any);
     const path = {
       join: sinon.stub().returns('join-val'),
     };
@@ -31,34 +33,56 @@ describe('localDataAPI client unit tests', () => {
   });
 
   it('constructor without projectsource', () => {
-    const content = {
-      version: 'version-val',
-      project: 'project-val',
-      programs: 'programs-val',
-    };
     const stubFS = {
       readFileSync: sinon.stub().returns('readFileSync-val'),
     };
-    const jsonParseStub = sinon.stub(JSON, 'parse').returns(content as any);
     const path = {
       join: sinon.stub().returns('join-val'),
     };
 
     expect(() => {
-      const api = new LocalDataAPI({ projectSource: '' }, { fs: stubFS as any, path: path as any });
+      new LocalDataAPI({ projectSource: '' }, { fs: stubFS as any, path: path as any });
     }).to.throw();
   });
 
-  it('getVersion', async () => {
-    const content = {
-      version: 'version-val',
-      project: 'project-val',
-      programs: 'programs-val',
+  it('constructor with empty VFR', () => {
+    const stubFS = { readFileSync: sinon.stub().returns(JSON.stringify({})) };
+
+    const path = { join: sinon.stub().returns('join-val') };
+
+    expect(() => {
+      new LocalDataAPI({ projectSource: 'projectSource-val' }, { fs: stubFS as any, path: path as any });
+    }).to.throw('[invalid VFR] no programs included');
+  });
+
+  it('constructor with empty programs', () => {
+    const stubFS = { readFileSync: sinon.stub().returns(JSON.stringify({ programs: {} })) };
+
+    const path = { join: sinon.stub().returns('join-val') };
+
+    expect(() => {
+      new LocalDataAPI({ projectSource: 'projectSource-val' }, { fs: stubFS as any, path: path as any });
+    }).to.throw('[invalid VFR] no programs included');
+  });
+
+  it('constructor missing base program', () => {
+    const stubFS = {
+      readFileSync: sinon.stub().returns(JSON.stringify({ version: { _id: '1' }, programs: { foo: 'bar' } })),
     };
+
+    const path = { join: sinon.stub().returns('join-val') };
+
+    expect(() => {
+      new LocalDataAPI({ projectSource: 'projectSource-val' }, { fs: stubFS as any, path: path as any });
+    }).to.throw('[invalid VFR] missing base program');
+  });
+
+  it('getVersion', async () => {
     const stubFS = {
       readFileSync: sinon.stub().returns('readFileSync-val'),
     };
-    const jsonParseStub = sinon.stub(JSON, 'parse').returns(content as any);
+    sinon.stub(JSON, 'parse').returns(getVFR() as any);
+
     const path = {
       join: sinon.stub().returns('join-val'),
     };
@@ -68,21 +92,14 @@ describe('localDataAPI client unit tests', () => {
       { fs: stubFS as any, path: path as any }
     );
 
-    expect(await LocalDataApi.getVersion()).to.eql(content.version);
+    expect(await LocalDataApi.getVersion()).to.eql(getVFR().version);
   });
 
   it('getProgram', async () => {
-    const content = {
-      version: 'version-val',
-      project: 'project-val',
-      programs: {
-        a: 'b',
-      },
-    };
     const stubFS = {
       readFileSync: sinon.stub().returns('readFileSync-val'),
     };
-    sinon.stub(JSON, 'parse').returns(content as any);
+    sinon.stub(JSON, 'parse').returns(getVFR() as any);
     const path = {
       join: sinon.stub().returns('join-val'),
     };
@@ -96,15 +113,10 @@ describe('localDataAPI client unit tests', () => {
   });
 
   it('getProject', async () => {
-    const content = {
-      version: 'version-val',
-      project: 'project-val',
-      programs: 'programs-val',
-    };
     const stubFS = {
       readFileSync: sinon.stub().returns('readFileSync-val'),
     };
-    sinon.stub(JSON, 'parse').returns(content as any);
+    sinon.stub(JSON, 'parse').returns(getVFR() as any);
     const path = {
       join: sinon.stub().returns('join-val'),
     };
@@ -114,6 +126,6 @@ describe('localDataAPI client unit tests', () => {
       { fs: stubFS as any, path: path as any }
     );
 
-    expect(await LocalDataApi.getProject()).to.eql(content.project);
+    expect(await LocalDataApi.getProject()).to.eql(getVFR().project);
   });
 });
