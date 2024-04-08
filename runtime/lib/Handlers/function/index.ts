@@ -17,7 +17,6 @@ import Runtime from '../../Runtime';
 import Store from '../../Runtime/Store';
 import { executeFunction } from './lib/execute-function/execute-function';
 import { createFunctionExceptionDebugTrace } from './lib/function-exception/function.exception';
-import { createFunctionRequestContext, FunctionRequestContext } from './lib/request-context/request-context';
 import { NextBranches, NextBranchesDTO, NextCommand } from './runtime-command/next-command.dto';
 import { OutputVarsCommand } from './runtime-command/output-vars-command.dto';
 import { TraceCommand } from './runtime-command/trace-command.dto';
@@ -123,6 +122,10 @@ function handleListenResponse(
   return applyTransfer(firstMatchingTransfer.dest, paths);
 }
 
+export interface FunctionRequestContext {
+  event?: unknown;
+}
+
 export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsObj> = (utils) => ({
   canHandle: (node) => node.type === NodeType.FUNCTION,
 
@@ -142,7 +145,9 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
        */
       if (parsedTransfers.success) {
         const conditionalTransfers = parsedTransfers.data;
-        const requestContext = createFunctionRequestContext(runtime);
+        const requestContext: FunctionRequestContext = {
+          event: runtime.getRequest(),
+        };
 
         const nextId = handleListenResponse(conditionalTransfers, requestContext, invocation.paths);
 
