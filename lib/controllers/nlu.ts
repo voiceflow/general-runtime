@@ -1,9 +1,7 @@
 import { Validator } from '@voiceflow/backend-utils';
 import VError from '@voiceflow/verror';
-import { VoiceflowConstants, VoiceflowProject, VoiceflowVersion } from '@voiceflow/voiceflow-types';
-import { ObjectId } from 'mongodb';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
-import { shallowObjectIdToString } from '@/runtime/lib/DataAPI/mongoDataAPI';
 import { Request, VersionTag } from '@/types';
 
 import { Predictor } from '../services/classification';
@@ -31,45 +29,12 @@ class NLUController extends AbstractController {
     QUERY: VALIDATIONS.QUERY.QUERY,
   })
   async inference(req: Request) {
-    const { versionID, projectID } = req.headers;
+    const { versionID } = req.headers;
 
-    const getVersion = async (versionID: string) => {
-      const version = await this.services.mongo?.db.collection('versions').findOne<VoiceflowVersion.Version>(
-        { _id: new ObjectId(versionID) },
-        {
-          projection: {
-            projectID: 1,
-            'prototype.model': 1,
-            'platformData.settings.intentConfidence': 1,
-          },
-        }
-      );
+    const api = await this.services.dataAPI.get();
 
-      if (!version) throw new Error(`Version not found: ${versionID}`);
-
-      return shallowObjectIdToString(version);
-    };
-
-    const getProject = async (projectID: string) => {
-      const project = await this.services.mongo?.db.collection('projects').findOne<VoiceflowProject.Project>(
-        { _id: new ObjectId(projectID) },
-        {
-          projection: {
-            _id: 1,
-            liveVersion: 1,
-            nluSettings: 1,
-            'prototype.nlp': 1,
-            'platformData.hasChannelIntents': 1,
-          },
-        }
-      );
-
-      if (!project) throw new Error(`Project not found: ${projectID}`);
-
-      return shallowObjectIdToString(project);
-    };
-
-    const [version, project] = await Promise.all([getVersion(versionID), getProject(projectID)]);
+    const version = await api.getVersion(versionID);
+    const project = await api.getProject(version.projectID);
 
     if (version.projectID !== project._id) {
       throw new VError('Missmatch in projectID/versionID', VError.HTTP_STATUS.BAD_REQUEST);
