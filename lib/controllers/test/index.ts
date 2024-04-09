@@ -154,6 +154,9 @@ class TestController extends AbstractController {
     const project = await api.getProject(version.projectID);
     const { intents, slots } = castToDTO(version, project);
 
+    // extra intents has the set of capture intents we want to exclude
+    const extraIntentNames = new Set(version.prototype?.surveyorContext.extraIntents.map(({ name }) => name));
+
     const predictor = new Predictor(
       {
         axios: this.services.axios,
@@ -174,6 +177,7 @@ class TestController extends AbstractController {
         locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
         hasChannelIntents: project?.platformData?.hasChannelIntents,
         platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
+        filteredIntents: Array.from(extraIntentNames),
       }
     );
     await predictor.predict(data.utterance);
@@ -186,7 +190,12 @@ class TestController extends AbstractController {
       }
 
       if (predictions.nlc?.predictedIntent) {
-        return [{ name: predictions.nlc.predictedIntent, confidence: predictions.nlc.confidence ?? 1 }];
+        return [
+          {
+            name: predictions.nlc.predictedIntent,
+            confidence: predictions.nlc.confidence ?? 1,
+          },
+        ];
       }
 
       return [];
@@ -194,7 +203,10 @@ class TestController extends AbstractController {
 
     return {
       utterance: predictions.utterance ?? data.utterance,
-      nlu: { intents: nluIntents },
+      nlu: {
+        // Filter out capture intents
+        intents: nluIntents.filter(({ name }) => !extraIntentNames.has(name)),
+      },
       llm: {
         intents:
           predictions.llm && predictions.llm.predictedIntent && predictions.llm.confidence
