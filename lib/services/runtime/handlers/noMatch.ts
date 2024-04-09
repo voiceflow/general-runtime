@@ -112,7 +112,11 @@ const getOutput = async (
   }
 
   if (!isPromptContentEmpty(prompt?.content)) {
-    const output = prompt?.content;
+    const output =
+      typeof prompt?.content === 'string'
+        ? generateOutput(prompt.content, runtime.project, prompt?.voice)
+        : prompt?.content;
+
     if (output) return { output };
   }
 
