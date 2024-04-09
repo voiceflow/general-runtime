@@ -69,14 +69,9 @@ const getOutput = (runtime: Runtime, node: NoReplyNode, noReplyCounter: number) 
   if (noReplyCounter > nonEmptyNoReplies.length) return { delay, output: null };
 
   if (noReplyCounter < nonEmptyNoReplies.length) {
-    const initialOutput = node.noReply?.randomize
+    const output = node.noReply?.randomize
       ? _.sample<string | BaseText.SlateTextValue>(nonEmptyNoReplies)
       : nonEmptyNoReplies?.[noReplyCounter];
-
-    const output =
-      typeof initialOutput === 'string'
-        ? generateOutput(initialOutput, runtime.project, globalNoReplyPrompt?.voice)
-        : initialOutput;
 
     return {
       delay,
