@@ -114,7 +114,16 @@ class MongoDataAPI<
         {
           $project: {
             hasDocuments: {
-              $gt: [{ $size: { $objectToArray: '$knowledgeBase.documents' } }, 0],
+              $gt: [
+                {
+                  $size: {
+                    $objectToArray: {
+                      $ifNull: ['$knowledgeBase.documents', {}], // Provide an empty object as default
+                    },
+                  },
+                },
+                0,
+              ],
             },
           },
         },
