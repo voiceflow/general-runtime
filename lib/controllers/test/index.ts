@@ -154,8 +154,8 @@ class TestController extends AbstractController {
     const project = await api.getProject(version.projectID);
     const { intents, slots } = castToDTO(version, project);
 
+    // extra intents has the set of capture intents we want to exclude
     const extraIntentNames = new Set(version.prototype?.surveyorContext.extraIntents.map(({ name }) => name));
-    const isNotCaptureIntent = ({ name }: { name: string }) => !extraIntentNames.has(name);
 
     const predictor = new Predictor(
       {
@@ -204,7 +204,8 @@ class TestController extends AbstractController {
     return {
       utterance: predictions.utterance ?? data.utterance,
       nlu: {
-        intents: nluIntents.filter(isNotCaptureIntent),
+        // Filter out capture intents
+        intents: nluIntents.filter(({ name }) => !extraIntentNames.has(name)),
       },
       llm: {
         intents:
