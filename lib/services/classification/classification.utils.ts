@@ -6,7 +6,7 @@ import {
   PrototypeModel,
   Version,
 } from '@voiceflow/dtos';
-import { VoiceflowProject, VoiceflowVersion } from '@voiceflow/voiceflow-types';
+import { VFNLU, VoiceflowProject, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 
 import { DEFAULT_NLU_INTENT_CLASSIFICATION, LEGACY_LLM_INTENT_CLASSIFICATION } from './classification.const';
 
@@ -24,7 +24,8 @@ export const isIntentClassificationLLMSettings = (
 
 export const castToDTO = (
   version: VoiceflowVersion.Version,
-  project: VoiceflowProject.Project
+  project: VoiceflowProject.Project,
+  aiAllowed = true
 ): {
   intentClassificationSettings: IntentClassificationSettings;
   intents?: PrototypeModel['intents'];
@@ -33,20 +34,25 @@ export const castToDTO = (
   const { settings, prototype } = version as unknown as Version;
   const { intents, slots } = prototype?.model ?? {};
 
+  const nluFallbackSettings = {
+    type: 'nlu',
+    params: { confidence: version.platformData.settings.intentConfidence },
+  };
+
   const intentClassificationSettings =
     settings?.intentClassification ||
     // remove after migration PL-846
     (project.nluSettings?.classifyStrategy === BaseModels.Project.ClassifyStrategy.VF_NLU_LLM_HYBRID &&
       LEGACY_LLM_INTENT_CLASSIFICATION) ||
     // remove after migration PL-846
-    (version?.platformData?.settings?.intentConfidence && {
-      type: 'nlu',
-      params: { confidence: version.platformData.settings.intentConfidence },
-    }) ||
+    (version?.platformData?.settings?.intentConfidence && nluFallbackSettings) ||
     DEFAULT_NLU_INTENT_CLASSIFICATION;
 
   return {
-    intentClassificationSettings,
+    intentClassificationSettings:
+      isIntentClassificationLLMSettings(intentClassificationSettings) && aiAllowed
+        ? intentClassificationSettings
+        : nluFallbackSettings,
     intents,
     slots,
   };

@@ -3,4 +3,5 @@ export enum FeatureFlag {
   FAQ_FF = 'FAQ_FF',
   VERSIONED_KB_SETTINGS = 'versioned_kb_settings',
   VF_CHUNKS_VARIABLE = 'vf_chunks_variable',
+  ASSISTANT_AI = 'assistant_ai',
 }

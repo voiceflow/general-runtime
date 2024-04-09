@@ -6,6 +6,7 @@
 import { BaseNode, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
+import { FeatureFlag } from '@/lib/feature-flags';
 import { isTextRequest } from '@/lib/services/runtime/types';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
@@ -47,9 +48,11 @@ class NLU extends AbstractManager implements ContextHandler {
       };
     }
 
+    const aiAllowed = this.services.unleash.client.isEnabled(FeatureFlag.ASSISTANT_AI);
+
     const version = await context.data.api.getVersion(context.versionID);
     const project = await context.data.api.getProject(version.projectID);
-    const { intentClassificationSettings, intents, slots } = castToDTO(version, project);
+    const { intentClassificationSettings, intents, slots } = castToDTO(version, project, aiAllowed);
 
     const predictor = new Predictor(
       {
