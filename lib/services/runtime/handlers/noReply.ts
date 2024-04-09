@@ -14,6 +14,7 @@ import {
   isPromptContentEmpty,
   removeEmptyPrompts,
 } from '../utils';
+import { generateOutput } from './utils/output';
 
 type NoReplyNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoReplyNode;
 
@@ -68,9 +69,14 @@ const getOutput = (runtime: Runtime, node: NoReplyNode, noReplyCounter: number) 
   if (noReplyCounter > nonEmptyNoReplies.length) return { delay, output: null };
 
   if (noReplyCounter < nonEmptyNoReplies.length) {
-    const output = node.noReply?.randomize
+    const initialOutput = node.noReply?.randomize
       ? _.sample<string | BaseText.SlateTextValue>(nonEmptyNoReplies)
       : nonEmptyNoReplies?.[noReplyCounter];
+
+    const output =
+      typeof initialOutput === 'string'
+        ? generateOutput(initialOutput, runtime.project, globalNoReplyPrompt?.voice)
+        : initialOutput;
 
     return {
       delay,
@@ -79,7 +85,12 @@ const getOutput = (runtime: Runtime, node: NoReplyNode, noReplyCounter: number) 
   }
 
   if (!isPromptContentEmpty(globalNoReplyPrompt?.content)) {
-    return { delay, output: globalNoReplyPrompt?.content };
+    const output =
+      typeof globalNoReplyPrompt?.content === 'string'
+        ? generateOutput(globalNoReplyPrompt.content, runtime.project, globalNoReplyPrompt?.voice)
+        : globalNoReplyPrompt?.content;
+
+    return { delay, output };
   }
 
   return { delay, output: null };

@@ -221,7 +221,9 @@ export const slateToPlaintext = (content: Readonly<BaseText.SlateTextValue> = []
 export const isPromptContentInitialized = (content: BaseText.SlateTextValue | string | null | undefined) =>
   content != null;
 
-export const isPromptContentEmpty = (content: BaseText.SlateTextValue | string | null | undefined) => {
+export const isPromptContentEmpty = (
+  content: BaseText.SlateTextValue | string | null | undefined
+): content is null | undefined => {
   if (!content) return true;
 
   if (typeof content === 'string') return !content.trim().length;

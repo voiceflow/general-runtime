@@ -10,6 +10,7 @@ export type GeneralRuntime = Runtime<RuntimeRequest, DataAPI, FullServiceMap>;
 
 export interface Prompt {
   content: BaseText.SlateTextValue | string;
+  voice?: string;
 }
 
 export const isTextRequest = (request?: RuntimeRequest | null): request is BaseRequest.TextRequest =>
