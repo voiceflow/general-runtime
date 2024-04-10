@@ -11,9 +11,11 @@ import fetch, { BodyInit, Headers, Request } from 'node-fetch';
 import { setTimeout as sleep } from 'timers/promises';
 import validator from 'validator';
 
+import CONFIG from '@/config';
 import Runtime from '@/runtime/lib/Runtime';
 
 import { createS3Client, readFileFromS3 } from '../../HTTPClient/AWSClient';
+import { FunctionLambdaClient } from '../../HTTPClient/function-lambda/function-lambda-client';
 import { APIResponse } from './api.interface';
 import { APIHandlerConfig, DEFAULT_API_HANDLER_CONFIG } from './types';
 
@@ -141,6 +143,44 @@ const validateIP = async (hostname: string) => {
   }
 };
 
+const doProxyFetch = async (
+  config: APIHandlerConfig,
+  nodeData: APINodeData
+): Promise<{
+  response: APIResponse;
+  requestOptions: Request;
+}> => {
+  // this is actual unused
+  const requestOptions = await createRequest(nodeData, config);
+
+  const functionLambdaClient = new FunctionLambdaClient({
+    functionLambdaARN: CONFIG.FUNCTION_LAMBDA_ARN,
+    accessKeyId: CONFIG.FUNCTION_LAMBDA_ACCESS_KEY_ID,
+    secretAccessKey: CONFIG.FUNCTION_LAMBDA_SECRET_ACCESS_KEY,
+    region: CONFIG.AWS_REGION,
+  });
+
+  const result = await functionLambdaClient.invokeLambda({
+    type: 'API_PROXY',
+    request: nodeData,
+    config: {
+      requestTimeoutMs: config.requestTimeoutMs,
+      maxResponseBodySizeBytes: config.maxResponseBodySizeBytes,
+      maxRequestBodySizeBytes: config.maxRequestBodySizeBytes,
+    },
+  } as any);
+
+  const response: APIResponse = {
+    ...result.body.response,
+    rawResponseJSON: result.body.response.json,
+  };
+
+  return {
+    response,
+    requestOptions,
+  };
+};
+
 const doDirectFetch = async (
   config: APIHandlerConfig,
   nodeData: BaseNode.Api.NodeData['action_data']
@@ -220,7 +260,9 @@ export interface APICallResult {
 }
 
 export const callAPI = async (nodeData: APINodeData, config: Partial<APIHandlerConfig>): Promise<APICallResult> => {
-  const { response, requestOptions } = await doDirectFetch(_.merge(DEFAULT_API_HANDLER_CONFIG, config), nodeData);
+  const fetchMethod = CONFIG.FUNCTION_API_PROXY ? doProxyFetch : doDirectFetch;
+
+  const { response, requestOptions } = await fetchMethod(_.merge(DEFAULT_API_HANDLER_CONFIG, config), nodeData);
 
   const { newVariables, responseJSON } = transformResponseBody(response.json, nodeData);
 
