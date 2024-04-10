@@ -180,7 +180,8 @@ class TestController extends AbstractController {
         filteredIntents: Array.from(extraIntentNames),
       }
     );
-    await predictor.predict(data.utterance);
+
+    const prediction = await predictor.predict(data.utterance);
 
     const { predictions } = predictor;
 
@@ -198,7 +199,7 @@ class TestController extends AbstractController {
         ];
       }
 
-      return [];
+      return [{ name: prediction?.predictedIntent, confidence: prediction?.confidence }];
     })();
 
     return {
