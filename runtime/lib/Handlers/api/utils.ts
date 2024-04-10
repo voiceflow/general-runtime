@@ -7,13 +7,14 @@ import { Agent } from 'https';
 import ipRangeCheck from 'ip-range-check';
 import safeJSONStringify from 'json-stringify-safe';
 import _ from 'lodash';
-import fetch, { BodyInit, Headers, Request, Response } from 'node-fetch';
+import fetch, { BodyInit, Headers, Request } from 'node-fetch';
 import { setTimeout as sleep } from 'timers/promises';
 import validator from 'validator';
 
 import Runtime from '@/runtime/lib/Runtime';
 
 import { createS3Client, readFileFromS3 } from '../../HTTPClient/AWSClient';
+import { APIResponse } from './api.interface';
 import { APIHandlerConfig, DEFAULT_API_HANDLER_CONFIG } from './types';
 
 export type APINodeData = BaseNode.Api.NodeData['action_data'];
@@ -140,10 +141,10 @@ const validateIP = async (hostname: string) => {
   }
 };
 
-const doFetch = async (
+const doDirectFetch = async (
   config: APIHandlerConfig,
   nodeData: BaseNode.Api.NodeData['action_data']
-): Promise<{ response: Response; requestOptions: Request }> => {
+): Promise<{ response: APIResponse; requestOptions: Request }> => {
   const requestOptions = await createRequest(nodeData, config);
 
   if (requestOptions.size > config.maxRequestBodySizeBytes) {
@@ -161,20 +162,34 @@ const doFetch = async (
       size: config.maxResponseBodySizeBytes,
     });
 
-    return { response, requestOptions };
+    const rawResponseJSON = await response
+      .json()
+      // Ignore JSON parsing errors and default to an empty object
+      // This is a kinda hacky way to support non-JSON responses without much effort
+      .catch(() => ({}));
+
+    return {
+      response: {
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+        json: rawResponseJSON,
+      },
+      requestOptions,
+    };
   } finally {
     clearTimeout(abortTimeout);
   }
 };
 
 const transformResponseBody = (
-  responseJSON: object,
-  response: Response,
+  response: APIResponse,
   actionData: BaseNode.Api.NodeData['action_data']
 ): { newVariables: Record<string, Variable>; responseJSON: any } => {
   const responseBodyAdditions = {
     VF_STATUS_CODE: response.status,
-    VF_HEADERS: Object.fromEntries(response.headers.entries()),
+    VF_HEADERS: response.headers,
   };
 
   const newVariables: Record<string, Variable> = Object.fromEntries(
@@ -182,7 +197,7 @@ const transformResponseBody = (
       // Filter out mappings with variable names that are null
       .filter((mapping): mapping is BaseNode.Api.APIMapping & { var: string } => typeof mapping.var === 'string')
       // Create mapping of variable name to variable value from the response JSON
-      .map((mapping): [string, Variable | undefined] => [mapping.var, getVariable(mapping.path, responseJSON)])
+      .map((mapping): [string, Variable | undefined] => [mapping.var, getVariable(mapping.path, response.json)])
       // Filter out variables that are undefined
       .filter((keyValuePair): keyValuePair is [string, Variable] => keyValuePair[1] !== undefined)
   );
@@ -191,29 +206,23 @@ const transformResponseBody = (
     newVariables,
     responseJSON:
       // If response body is a JSON object then add in the `VF_` helpers
-      object.isObject(responseJSON) && !Array.isArray(responseJSON)
-        ? { ...responseJSON, ...responseBodyAdditions }
-        : responseJSON,
+      object.isObject(response.json) && !Array.isArray(response.json)
+        ? { ...response.json, ...responseBodyAdditions }
+        : response.json,
   };
 };
 
 export interface APICallResult {
   variables: Record<string, Variable>;
   request: Request;
-  response: Response;
+  response: APIResponse;
   responseJSON: any;
 }
 
 export const callAPI = async (nodeData: APINodeData, config: Partial<APIHandlerConfig>): Promise<APICallResult> => {
-  const { response, requestOptions } = await doFetch(_.merge(DEFAULT_API_HANDLER_CONFIG, config), nodeData);
+  const { response, requestOptions } = await doDirectFetch(_.merge(DEFAULT_API_HANDLER_CONFIG, config), nodeData);
 
-  const rawResponseJSON = await response
-    .json()
-    // Ignore JSON parsing errors and default to an empty object
-    // This is a kinda hacky way to support non-JSON responses without much effort
-    .catch(() => ({}));
-
-  const { newVariables, responseJSON } = transformResponseBody(rawResponseJSON, response, nodeData);
+  const { newVariables, responseJSON } = transformResponseBody(response.json, nodeData);
 
   return {
     variables: newVariables,

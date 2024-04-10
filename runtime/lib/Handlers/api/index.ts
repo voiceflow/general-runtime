@@ -43,7 +43,7 @@ const createLogEntry = async (
           statusCode: apiCallResult.response.status,
           statusText: apiCallResult.response.statusText,
           body: JSON.stringify(apiCallResult.responseJSON),
-          headers: Object.fromEntries(apiCallResult.response.headers.entries()),
+          headers: apiCallResult.response.headers,
         },
       },
       logLevel,
