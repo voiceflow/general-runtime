@@ -49,6 +49,7 @@ const CONFIG: Config = {
   KNOWLEDGE_BASE_LAMBDA_ENDPOINT: getOptionalProcessEnv('KNOWLEDGE_BASE_LAMBDA_ENDPOINT'),
 
   // function node
+  FUNCTION_API_PROXY: getOptionalProcessEnv('FUNCTION_API_PROXY') === 'true',
   FUNCTION_LAMBDA_ARN: getOptionalProcessEnv('FUNCTION_LAMBDA_ARN') ?? '',
   FUNCTION_LAMBDA_ACCESS_KEY_ID: getOptionalProcessEnv('FUNCTION_LAMBDA_ACCESS_KEY_ID') ?? '',
   FUNCTION_LAMBDA_SECRET_ACCESS_KEY: getOptionalProcessEnv('FUNCTION_LAMBDA_SECRET_ACCESS_KEY') ?? '',

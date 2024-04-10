@@ -46,6 +46,7 @@ export interface Config extends RateLimitConfig {
   GENERAL_SERVICE_ENDPOINT: string | null;
   KNOWLEDGE_BASE_LAMBDA_ENDPOINT: string | null;
 
+  FUNCTION_API_PROXY: boolean | null;
   FUNCTION_LAMBDA_ARN: string | null;
   FUNCTION_LAMBDA_ACCESS_KEY_ID: string | null;
   FUNCTION_LAMBDA_SECRET_ACCESS_KEY: string | null;

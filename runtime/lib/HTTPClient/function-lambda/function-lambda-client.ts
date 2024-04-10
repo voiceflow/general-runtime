@@ -136,7 +136,7 @@ export class FunctionLambdaClient {
     }
   }
 
-  private async invokeLambda(request: FunctionLambdaRequest) {
+  public async invokeLambda(request: FunctionLambdaRequest) {
     const payload = await this.sendInvokeLambdaCommand(request);
 
     if (!payload) {
