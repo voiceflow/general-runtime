@@ -45,7 +45,10 @@ const randomHandler: HandlerFactory<BaseNode.Random.Node> = () => ({
         // all choices have been used
         choices = node.nextIds;
         // reset used choices
-        storage.set<RandomStorage>(S.RANDOMS, { ...storage.get<RandomStorage>(S.RANDOMS), [node.id]: [] });
+        storage.set<RandomStorage>(S.RANDOMS, {
+          ...storage.get<RandomStorage>(S.RANDOMS),
+          [node.id]: [],
+        });
       }
 
       nextId = choices[Math.floor(Math.random() * choices.length)];

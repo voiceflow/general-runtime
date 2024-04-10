@@ -12,8 +12,14 @@ const EndHandler: HandlerFactory<BaseNode.Exit.Node> = () => ({
       runtime.stack.pop();
     }
     runtime.turn.set('end', true);
-    runtime.trace.addTrace<BaseTrace.ExitTrace>({ type: BaseNode.Utils.TraceType.END, payload: null });
-    runtime.trace.debug('exiting session - saving location/resolving stack', BaseNode.NodeType.EXIT);
+    runtime.trace.addTrace<BaseTrace.ExitTrace>({
+      type: BaseNode.Utils.TraceType.END,
+      payload: null,
+    });
+    runtime.trace.debug(
+      'exiting session - saving location/resolving stack',
+      BaseNode.NodeType.EXIT
+    );
 
     const shouldLogVerbose = runtime.debugLogging.shouldLog(RuntimeLogs.LogLevel.VERBOSE);
     runtime.debugLogging.recordStepLog(

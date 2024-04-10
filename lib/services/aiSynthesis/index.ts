@@ -14,7 +14,12 @@ import {
 
 import { SegmentEventType } from '../runtime/types';
 import { AbstractManager } from '../utils';
-import { convertTagsFilterToIDs, generateAnswerSynthesisPrompt, generateTagLabelMap, removePromptLeak } from './utils';
+import {
+  convertTagsFilterToIDs,
+  generateAnswerSynthesisPrompt,
+  generateTagLabelMap,
+  removePromptLeak,
+} from './utils';
 
 class AISynthesis extends AbstractManager {
   private readonly DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS = 4000;
@@ -27,7 +32,11 @@ class AISynthesis extends AbstractManager {
 
   private filterNotFound(output: string) {
     const upperCase = output?.toUpperCase();
-    if (upperCase?.includes('NOT_FOUND') || upperCase?.startsWith("I'M SORRY,") || upperCase?.includes('AS AN AI')) {
+    if (
+      upperCase?.includes('NOT_FOUND') ||
+      upperCase?.startsWith("I'M SORRY,") ||
+      upperCase?.includes('AS AN AI')
+    ) {
       return null;
     }
     return output;
@@ -92,7 +101,8 @@ class AISynthesis extends AbstractManager {
       if (memory[memory.length - 1].content === question) {
         contextMessages.push({
           role: BaseUtils.ai.Role.USER,
-          content: 'frame the statement above so that it can be asked as a question to someone with no context.',
+          content:
+            'frame the statement above so that it can be asked as a question to someone with no context.',
         });
       } else {
         contextMessages.push({
@@ -191,7 +201,10 @@ class AISynthesis extends AbstractManager {
     );
     const settings = _merge({}, globalKBSettings, options);
     // ML team needs to not have a hard model check
-    const settingsWithoutModel = { ...settings, summarization: { ...settings.summarization, model: undefined } };
+    const settingsWithoutModel = {
+      ...settings,
+      summarization: { ...settings.summarization, model: undefined },
+    };
 
     const faq = await fetchFaq(
       project._id,
@@ -202,7 +215,13 @@ class AISynthesis extends AbstractManager {
     );
     if (faq?.answer) return { ...EMPTY_AI_RESPONSE, output: faq.answer, faqSet: faq.faqSet };
 
-    const data = await fetchKnowledgeBase(project._id, project.teamID, question, settingsWithoutModel, tagsFilter);
+    const data = await fetchKnowledgeBase(
+      project._id,
+      project.teamID,
+      question,
+      settingsWithoutModel,
+      tagsFilter
+    );
     if (!data) return { ...EMPTY_AI_RESPONSE, chunks: [] };
 
     // attach metadata to chunks
@@ -216,7 +235,9 @@ class AISynthesis extends AbstractManager {
       ...chunk,
       source: {
         ...documents?.[chunk.documentID]?.data,
-        tags: documents?.[chunk.documentID]?.tags?.map((tagID) => (project?.knowledgeBase?.tags ?? {})[tagID]?.label),
+        tags: documents?.[chunk.documentID]?.tags?.map(
+          (tagID) => (project?.knowledgeBase?.tags ?? {})[tagID]?.label
+        ),
       },
     }));
 

@@ -27,7 +27,10 @@ import {
 const createDM = () => {
   const services = {};
   return new DialogManager(
-    { utils: { ...defaultUtils, isIntentInScope: sinon.stub().resolves(true) }, ...services } as any,
+    {
+      utils: { ...defaultUtils, isIntentInScope: sinon.stub().resolves(true) },
+      ...services,
+    } as any,
     {} as any
   );
 };
@@ -58,7 +61,10 @@ describe('dialog manager unit tests', () => {
         },
       };
       const dm = new DialogManager(
-        { utils: { ...defaultUtils, isIntentInScope: sinon.stub().resolves(false) }, ...services } as any,
+        {
+          utils: { ...defaultUtils, isIntentInScope: sinon.stub().resolves(false) },
+          ...services,
+        } as any,
         {} as any
       );
       const context = {
@@ -80,9 +86,18 @@ describe('dialog manager unit tests', () => {
         const dmState = {
           intentRequest: mockRegularSingleEntityResult,
         };
-        dm.handleDMContext(dmState, mockDMPrefixedMultipleEntityResult, mockRegularMultipleEntityResult, mockLM);
-        const sizeEntityValue = dmState.intentRequest.payload.entities.find((entity) => entity.name === 'size');
-        const toppingEntityValue = dmState.intentRequest.payload.entities.find((entity) => entity.name === 'topping');
+        dm.handleDMContext(
+          dmState,
+          mockDMPrefixedMultipleEntityResult,
+          mockRegularMultipleEntityResult,
+          mockLM
+        );
+        const sizeEntityValue = dmState.intentRequest.payload.entities.find(
+          (entity) => entity.name === 'size'
+        );
+        const toppingEntityValue = dmState.intentRequest.payload.entities.find(
+          (entity) => entity.name === 'topping'
+        );
 
         expect(sizeEntityValue?.value).to.be.equal('large');
         expect(toppingEntityValue?.value).to.be.equal('pepperoni');
@@ -95,8 +110,15 @@ describe('dialog manager unit tests', () => {
           intentRequest: mockRegularNoEntityResult,
         };
 
-        dm.handleDMContext(dmState, mockDMPrefixedUnrelatedSingleEntityResult, mockRegularUnrelatedResult, mockLM);
-        const sizeEntityValue = dmState.intentRequest.payload.entities.find((entity) => entity.name === 'size');
+        dm.handleDMContext(
+          dmState,
+          mockDMPrefixedUnrelatedSingleEntityResult,
+          mockRegularUnrelatedResult,
+          mockLM
+        );
+        const sizeEntityValue = dmState.intentRequest.payload.entities.find(
+          (entity) => entity.name === 'size'
+        );
 
         expect(sizeEntityValue?.value).to.be.equal('small');
       });
@@ -107,7 +129,12 @@ describe('dialog manager unit tests', () => {
         const dmState = {
           intentRequest: mockUnfulfilledIntentRequest,
         };
-        dm.handleDMContext(dmState, mockDMPrefixedNoEntityResult, mockRegularNoEntityResult, mockLM);
+        dm.handleDMContext(
+          dmState,
+          mockDMPrefixedNoEntityResult,
+          mockRegularNoEntityResult,
+          mockLM
+        );
 
         expect(dmState.intentRequest).to.deep.equal(mockRegularNoEntityResult);
       });
@@ -118,7 +145,12 @@ describe('dialog manager unit tests', () => {
         const dmState = {
           intentRequest: mockRegularNoEntityResult,
         };
-        dm.handleDMContext(dmState, mockDMPrefixedNonSubsetEntityResult, mockRegularUnrelatedResult, mockLM);
+        dm.handleDMContext(
+          dmState,
+          mockDMPrefixedNonSubsetEntityResult,
+          mockRegularUnrelatedResult,
+          mockLM
+        );
 
         expect(dmState.intentRequest).to.eql(mockRegularUnrelatedResult);
       });
@@ -130,7 +162,12 @@ describe('dialog manager unit tests', () => {
           intentRequest: mockRegularNoEntityResult,
         };
 
-        dm.handleDMContext(dmState, mockDMPrefixUnrelatedResult, mockRegularUnrelatedResult, mockLM);
+        dm.handleDMContext(
+          dmState,
+          mockDMPrefixUnrelatedResult,
+          mockRegularUnrelatedResult,
+          mockLM
+        );
 
         expect(dmState.intentRequest.payload.intent.name).to.be.equal('wings_order');
       });

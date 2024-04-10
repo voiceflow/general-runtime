@@ -21,16 +21,34 @@ export const utilsObj = {
   replaceVariables,
 };
 
-const pauseIntents = new Set<string>([VoiceflowConstants.IntentName.PAUSE, AlexaConstants.AmazonIntent.PAUSE]);
-const resumeIntents = new Set<string>([VoiceflowConstants.IntentName.RESUME, AlexaConstants.AmazonIntent.RESUME]);
+const pauseIntents = new Set<string>([
+  VoiceflowConstants.IntentName.PAUSE,
+  AlexaConstants.AmazonIntent.PAUSE,
+]);
+const resumeIntents = new Set<string>([
+  VoiceflowConstants.IntentName.RESUME,
+  AlexaConstants.AmazonIntent.RESUME,
+]);
 const startOverIntents = new Set<string>([
   VoiceflowConstants.IntentName.START_OVER,
   AlexaConstants.AmazonIntent.START_OVER,
 ]);
-const repeatIntents = new Set<string>([VoiceflowConstants.IntentName.REPEAT, AlexaConstants.AmazonIntent.REPEAT]);
-const nextIntents = new Set<string>([VoiceflowConstants.IntentName.NEXT, AlexaConstants.AmazonIntent.NEXT]);
-const previousIntents = new Set<string>([VoiceflowConstants.IntentName.PREVIOUS, AlexaConstants.AmazonIntent.PREVIOUS]);
-const cancelIntents = new Set<string>([VoiceflowConstants.IntentName.CANCEL, AlexaConstants.AmazonIntent.CANCEL]);
+const repeatIntents = new Set<string>([
+  VoiceflowConstants.IntentName.REPEAT,
+  AlexaConstants.AmazonIntent.REPEAT,
+]);
+const nextIntents = new Set<string>([
+  VoiceflowConstants.IntentName.NEXT,
+  AlexaConstants.AmazonIntent.NEXT,
+]);
+const previousIntents = new Set<string>([
+  VoiceflowConstants.IntentName.PREVIOUS,
+  AlexaConstants.AmazonIntent.PREVIOUS,
+]);
+const cancelIntents = new Set<string>([
+  VoiceflowConstants.IntentName.CANCEL,
+  AlexaConstants.AmazonIntent.CANCEL,
+]);
 
 export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) => ({
   canHandle: (_, runtime) => {
@@ -99,7 +117,10 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
       streamData.offset = 0;
 
       runtime.end();
-    } else if ((intentName && nextIntents.has(intentName)) || streamPlay.action === StreamAction.NEXT) {
+    } else if (
+      (intentName && nextIntents.has(intentName)) ||
+      streamPlay.action === StreamAction.NEXT
+    ) {
       if (streamPlay.nextID) {
         nextId = streamPlay.nextID;
       }

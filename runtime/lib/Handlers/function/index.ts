@@ -46,7 +46,10 @@ function applyTraceCommand(command: TraceCommand, runtime: Runtime): void {
   });
 }
 
-function applyNextCommand(command: NextCommand, paths: FunctionCompiledInvocation['paths']): string | null {
+function applyNextCommand(
+  command: NextCommand,
+  paths: FunctionCompiledInvocation['paths']
+): string | null {
   if ('path' in command) {
     return paths[command.path] ?? null;
   }
@@ -83,12 +86,15 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
     const resolvedDefinition = resolveFunctionDefinition(definition, runtime.version!);
 
     try {
-      const resolvedInputMapping = Object.entries(invocation.inputVars).reduce((acc, [varName, value]) => {
-        return {
-          ...acc,
-          [varName]: utils.replaceVariables(value, variables.getState()),
-        };
-      }, {});
+      const resolvedInputMapping = Object.entries(invocation.inputVars).reduce(
+        (acc, [varName, value]) => {
+          return {
+            ...acc,
+            [varName]: utils.replaceVariables(value, variables.getState()),
+          };
+        },
+        {}
+      );
 
       const { next, outputVars, trace } = await executeFunction({
         ...node.data,
@@ -102,7 +108,13 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
       });
 
       if (outputVars) {
-        applyOutputCommand(outputVars, runtime, variables, resolvedDefinition.outputVars, invocation.outputVars);
+        applyOutputCommand(
+          outputVars,
+          runtime,
+          variables,
+          resolvedDefinition.outputVars,
+          invocation.outputVars
+        );
       }
 
       if (trace) {

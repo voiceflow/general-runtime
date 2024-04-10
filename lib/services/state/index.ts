@@ -27,7 +27,11 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
    * generate a context for a new session
    * @param versionID - project version to generate the context for
    */
-  generate({ prototype, rootDiagramID }: BaseModels.Version.Model<any>, state?: State, userID?: string): State {
+  generate(
+    { prototype, rootDiagramID }: BaseModels.Version.Model<any>,
+    state?: State,
+    userID?: string
+  ): State {
     const DEFAULT_STACK = [{ diagramID: rootDiagramID, storage: {}, variables: {} }];
 
     const stack =
@@ -58,14 +62,18 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
 
   initializeFromCMSVariables(variables: Record<string, any>) {
     return Object.fromEntries(
-      Object.entries(variables).map(([name, declare]) => [name, parseCMSVariableDefaultValue(name, declare) ?? 0])
+      Object.entries(variables).map(([name, declare]) => [
+        name,
+        parseCMSVariableDefaultValue(name, declare) ?? 0,
+      ])
     );
   }
 
   // initialize all entities and variables to 0, it is important that they are defined
   initializeVariables(version: BaseModels.Version.Model<any>, state: State) {
     const entities = version.prototype?.model.slots.map(({ name }) => name) || [];
-    const variables: Record<string, CompiledCMSVariable> = version.prototype?.surveyorContext.cmsVariables ?? {};
+    const variables: Record<string, CompiledCMSVariable> =
+      version.prototype?.surveyorContext.cmsVariables ?? {};
 
     return {
       ...state,
@@ -90,7 +98,11 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     }
 
     // sanitize incoming intents
-    if (context.request && BaseRequest.isIntentRequest(context.request) && !context.request.payload.entities) {
+    if (
+      context.request &&
+      BaseRequest.isIntentRequest(context.request) &&
+      !context.request.payload.entities
+    ) {
       context.request.payload.entities = [];
     }
 
@@ -111,7 +123,9 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     let plan: string | undefined;
     if (this.config.CREATOR_API_ENDPOINT) {
       const planResponse = await axios
-        .get<{ plan: string } | null>(`${this.config.CREATOR_API_ENDPOINT}/private/project/${project._id}/plan`)
+        .get<{ plan: string } | null>(
+          `${this.config.CREATOR_API_ENDPOINT}/private/project/${project._id}/plan`
+        )
         .catch(() => null);
       plan = planResponse?.data?.plan ?? undefined;
     }

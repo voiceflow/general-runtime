@@ -8,7 +8,11 @@ import log from '@/logger';
 import { dmPrefix } from '../dialog/utils';
 import { getNoneIntentRequest } from './utils';
 
-export const registerSlots = (nlc: NLC, { slots }: BaseModels.PrototypeModel, openSlot: boolean) => {
+export const registerSlots = (
+  nlc: NLC,
+  { slots }: BaseModels.PrototypeModel,
+  openSlot: boolean
+) => {
   slots.forEach((slot) => {
     try {
       if (slot.type?.value?.toLowerCase() !== 'custom' || !slot.inputs?.length) {
@@ -90,14 +94,20 @@ export const registerIntents = (
         utterances: samples.map((value) => value.trim()).filter(Boolean),
       });
     } catch (error) {
-      log.debug(`[app] [runtime] [nlc] unable to register custom intent ${log.vars({ error, intent: intent.name })}`);
+      log.debug(
+        `[app] [runtime] [nlc] unable to register custom intent ${log.vars({
+          error,
+          intent: intent.name,
+        })}`
+      );
     }
   });
 };
 
 export const registerBuiltInIntents = (nlc: NLC, locale = VoiceflowConstants.Locale.EN_US) => {
   const lang = locale.slice(0, 2);
-  const builtInIntents = VoiceflowConstants.DEFAULT_INTENTS_MAP[lang] || VoiceflowConstants.DEFAULT_INTENTS_MAP.en;
+  const builtInIntents =
+    VoiceflowConstants.DEFAULT_INTENTS_MAP[lang] || VoiceflowConstants.DEFAULT_INTENTS_MAP.en;
 
   builtInIntents.forEach((intent) => {
     const { name, samples } = intent;
@@ -105,7 +115,12 @@ export const registerBuiltInIntents = (nlc: NLC, locale = VoiceflowConstants.Loc
     try {
       nlc.registerIntent({ intent: name, utterances: samples });
     } catch (error) {
-      log.debug(`[app] [runtime] [nlc] unable to register built-in intent ${log.vars({ intent: name, error })}`);
+      log.debug(
+        `[app] [runtime] [nlc] unable to register built-in intent ${log.vars({
+          intent: name,
+          error,
+        })}`
+      );
     }
   });
 };
@@ -130,7 +145,11 @@ export const createNLC = ({
   return nlc;
 };
 
-export const nlcToIntent = (intent: IIntentFullfilment | null, query = '', confidence = 1): BaseRequest.IntentRequest =>
+export const nlcToIntent = (
+  intent: IIntentFullfilment | null,
+  query = '',
+  confidence = 1
+): BaseRequest.IntentRequest =>
   (intent && {
     type: BaseRequest.RequestType.INTENT,
     payload: {

@@ -9,8 +9,13 @@ import { TraceLogBuffer } from './traceLogBuffer';
 import { AddTraceFn, getISO8601Timestamp } from './utils';
 
 type Message<T extends RuntimeLogs.Log> = T['message'];
-export type SimpleStepMessage<T extends RuntimeLogs.Logs.StepLog> = Omit<Message<T>, keyof RuntimeLogs.PathReference>;
-type RemovePrefix<Prefix extends string, T extends string> = T extends `${Prefix}${infer T}` ? T : never;
+export type SimpleStepMessage<T extends RuntimeLogs.Logs.StepLog> = Omit<
+  Message<T>,
+  keyof RuntimeLogs.PathReference
+>;
+type RemovePrefix<Prefix extends string, T extends string> = T extends `${Prefix}${infer T}`
+  ? T
+  : never;
 
 type PossibleStepLogLevel = RuntimeLogs.Logs.StepLog['level'];
 type PossibleStepLogKind = RemovePrefix<'step.', RuntimeLogs.Logs.StepLog['kind']>;
@@ -39,7 +44,9 @@ export default class DebugLogging {
         // The fallback here deviates from the spec but is necessary to avoid simply throwing an error when a path leads
         // to a node that isn't mappable to a standard component name
         componentName:
-          kind ?? RuntimeLogs.Kinds.nodeTypeToStepLogKind(node.type as BaseNode.NodeType) ?? (node.type as any),
+          kind ??
+          RuntimeLogs.Kinds.nodeTypeToStepLogKind(node.type as BaseNode.NodeType) ??
+          (node.type as any),
       };
     }
 
@@ -88,7 +95,10 @@ export default class DebugLogging {
       const context = addTraceResolvable;
       this.refreshContext(context);
 
-      assert(context.trace, new TypeError('Provided context object did not have a trace array defined'));
+      assert(
+        context.trace,
+        new TypeError('Provided context object did not have a trace array defined')
+      );
       // @ts-expect-error The trace type that `context` uses is not necessarily compatible with the default of `Context`
       addTrace = context.trace.push.bind(context.trace);
     }
@@ -105,7 +115,9 @@ export default class DebugLogging {
    * maximum log level.
    */
   shouldLog(level: RuntimeLogs.LogLevel): boolean {
-    return RuntimeLogs.getValueForLogLevel(level) <= RuntimeLogs.getValueForLogLevel(this.maxLogLevel);
+    return (
+      RuntimeLogs.getValueForLogLevel(level) <= RuntimeLogs.getValueForLogLevel(this.maxLogLevel)
+    );
   }
 
   /**
@@ -115,12 +127,18 @@ export default class DebugLogging {
   recordStepLog<Kind extends PossibleStepLogKind>(
     kind: Kind,
     node: SimpleStepMessage<
-      Extract<RuntimeLogs.Logs.StepLog, { kind: `step.${Kind}`; level: typeof RuntimeLogs.DEFAULT_LOG_LEVEL }>
+      Extract<
+        RuntimeLogs.Logs.StepLog,
+        { kind: `step.${Kind}`; level: typeof RuntimeLogs.DEFAULT_LOG_LEVEL }
+      >
     > extends RuntimeLogs.PathReference
       ? BaseModels.BaseNode
       : BaseModels.BaseNode | undefined,
     message: SimpleStepMessage<
-      Extract<RuntimeLogs.Logs.StepLog, { kind: `step.${Kind}`; level: typeof RuntimeLogs.DEFAULT_LOG_LEVEL }>
+      Extract<
+        RuntimeLogs.Logs.StepLog,
+        { kind: `step.${Kind}`; level: typeof RuntimeLogs.DEFAULT_LOG_LEVEL }
+      >
     >
   ): void;
 
@@ -136,7 +154,9 @@ export default class DebugLogging {
     > extends RuntimeLogs.PathReference
       ? BaseModels.BaseNode
       : BaseModels.BaseNode | undefined,
-    message: SimpleStepMessage<Extract<RuntimeLogs.Logs.StepLog, { kind: `step.${Kind}`; level: Level }>>,
+    message: SimpleStepMessage<
+      Extract<RuntimeLogs.Logs.StepLog, { kind: `step.${Kind}`; level: Level }>
+    >,
     level: Level
   ): void;
 
@@ -148,7 +168,9 @@ export default class DebugLogging {
   recordStepLog<Kind extends PossibleStepLogKind, Level extends PossibleStepLogLevel>(
     kind: Kind,
     node: BaseModels.BaseNode | undefined,
-    message: SimpleStepMessage<Extract<RuntimeLogs.Logs.StepLog, { kind: `step.${Kind}`; level: Level }>>,
+    message: SimpleStepMessage<
+      Extract<RuntimeLogs.Logs.StepLog, { kind: `step.${Kind}`; level: Level }>
+    >,
     level?: Level
   ): void {
     this.recordLog(
@@ -169,7 +191,10 @@ export default class DebugLogging {
   recordGlobalLog<Kind extends PossibleGlobalLogKind>(
     kind: Kind,
     message: Message<
-      Extract<RuntimeLogs.Logs.GlobalLog, { kind: `global.${Kind}`; level: typeof RuntimeLogs.DEFAULT_LOG_LEVEL }>
+      Extract<
+        RuntimeLogs.Logs.GlobalLog,
+        { kind: `global.${Kind}`; level: typeof RuntimeLogs.DEFAULT_LOG_LEVEL }
+      >
     >
   ): void;
 

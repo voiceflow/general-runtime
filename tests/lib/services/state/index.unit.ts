@@ -66,7 +66,10 @@ describe('state manager unit tests', () => {
         },
       };
 
-      const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
+      const stateManager = new StateManager(
+        { ...services, utils: { ...defaultUtils } } as any,
+        {} as any
+      );
 
       expect(await stateManager.generate(version as any)).to.eql({
         ...state,
@@ -85,7 +88,10 @@ describe('state manager unit tests', () => {
         },
       };
 
-      const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
+      const stateManager = new StateManager(
+        { ...services, utils: { ...defaultUtils } } as any,
+        {} as any
+      );
 
       expect(await stateManager.initializeVariables(version as any, {} as any)).to.eql({
         variables: { variable1: 0, slot1: 0, timestamp: defaultTimestamp },
@@ -104,7 +110,10 @@ describe('state manager unit tests', () => {
         },
       };
 
-      const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
+      const stateManager = new StateManager(
+        { ...services, utils: { ...defaultUtils } } as any,
+        {} as any
+      );
 
       const context = {
         versionID: VERSION_ID,
@@ -143,7 +152,10 @@ describe('state manager unit tests', () => {
         },
       };
 
-      const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
+      const stateManager = new StateManager(
+        { ...services, utils: { ...defaultUtils } } as any,
+        {} as any
+      );
 
       const context = {
         data: { foo: 'bar' },
@@ -161,7 +173,10 @@ describe('state manager unit tests', () => {
         },
       };
 
-      const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
+      const stateManager = new StateManager(
+        { ...services, utils: { ...defaultUtils } } as any,
+        {} as any
+      );
 
       const context = {
         state: {},
@@ -202,7 +217,10 @@ describe('state manager unit tests', () => {
         },
       };
 
-      const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
+      const stateManager = new StateManager(
+        { ...services, utils: { ...defaultUtils } } as any,
+        {} as any
+      );
 
       const context = {
         state: { stack: [] },

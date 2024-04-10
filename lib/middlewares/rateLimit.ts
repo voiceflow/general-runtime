@@ -15,7 +15,9 @@ class RateLimit extends RateLimitMiddleware<FullServiceMap, Config> {
     if (
       !this.config.PROJECT_SOURCE &&
       !this.config.DISABLE_ORIGIN_CHECK &&
-      ![this.config.CREATOR_APP_ORIGIN, ...LOCAL_DEVELOPEMENT].includes(req.headers.origin || 'no-origin') &&
+      ![this.config.CREATOR_APP_ORIGIN, ...LOCAL_DEVELOPEMENT].includes(
+        req.headers.origin || 'no-origin'
+      ) &&
       !req.headers.authorization
     ) {
       RateLimitMiddleware.throwAuthError();
@@ -33,7 +35,11 @@ class RateLimit extends RateLimitMiddleware<FullServiceMap, Config> {
     });
   }
 
-  consumeResource = (getResource: (req: Request) => string | undefined, prefix?: string, isPublic = false) => {
+  consumeResource = (
+    getResource: (req: Request) => string | undefined,
+    prefix?: string,
+    isPublic = false
+  ) => {
     return (req: Request, res: Response, next: NextFunction) => {
       const resource = getResource(req);
 

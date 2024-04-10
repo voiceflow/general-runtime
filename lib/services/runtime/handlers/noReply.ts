@@ -42,7 +42,11 @@ const getDelay = (node: NoReplyNode, runtime: Runtime) => {
   return 0;
 };
 
-export const addNoReplyTimeoutIfExists = (node: NoReplyNode, runtime: Runtime, forceDelay?: number): void => {
+export const addNoReplyTimeoutIfExists = (
+  node: NoReplyNode,
+  runtime: Runtime,
+  forceDelay?: number
+): void => {
   const delay = forceDelay ?? getDelay(node, runtime);
 
   if (!delay) return;
@@ -99,9 +103,11 @@ const utilsObj = {
 };
 
 export const NoReplyHandler = (utils: typeof utilsObj) => ({
-  canHandle: (runtime: Runtime) => runtime.getRequest() === null || BaseRequest.isNoReplyRequest(runtime.getRequest()),
+  canHandle: (runtime: Runtime) =>
+    runtime.getRequest() === null || BaseRequest.isNoReplyRequest(runtime.getRequest()),
   handle: (node: NoReplyNode, runtime: Runtime, variables: Store) => {
-    const noReplyCounter = runtime.storage.get<NoReplyCounterStorage>(StorageType.NO_REPLIES_COUNTER) ?? 0;
+    const noReplyCounter =
+      runtime.storage.get<NoReplyCounterStorage>(StorageType.NO_REPLIES_COUNTER) ?? 0;
 
     const { output, delay } = getOutput(runtime, node, noReplyCounter);
 

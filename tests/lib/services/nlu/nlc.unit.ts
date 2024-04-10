@@ -81,7 +81,9 @@ describe('nlu nlc service unit tests', () => {
 
       const output = { ...commandRes, confidence: 1 };
 
-      expect(handleNLCCommand({ query, model, locale, openSlot: false, dmRequest } as any)).to.eql(output);
+      expect(handleNLCCommand({ query, model, locale, openSlot: false, dmRequest } as any)).to.eql(
+        output
+      );
       expect(createNLCStub.args).to.eql([
         [
           {
@@ -99,7 +101,9 @@ describe('nlu nlc service unit tests', () => {
   describe('nlcToIntent', () => {
     it('no intent', () => {
       const output = 'output';
-      const getNoneIntentRequestStub = sinon.stub(utils, 'getNoneIntentRequest').returns(output as any);
+      const getNoneIntentRequestStub = sinon
+        .stub(utils, 'getNoneIntentRequest')
+        .returns(output as any);
 
       expect(nlcToIntent(null)).to.eql(output);
       expect(getNoneIntentRequestStub.args).to.eql([[{ query: '' }]]);
@@ -133,9 +137,9 @@ describe('nlu nlc service unit tests', () => {
       };
 
       registerBuiltInIntents(nlcObj as any, locale as any);
-      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.en.map(({ name, samples }) => [
-        { intent: name, utterances: samples },
-      ]);
+      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.en.map(
+        ({ name, samples }) => [{ intent: name, utterances: samples }]
+      );
       expect(nlcObj.registerIntent.args).to.eql(registerIntentArgs);
     });
 
@@ -146,9 +150,9 @@ describe('nlu nlc service unit tests', () => {
 
       registerBuiltInIntents(nlcObj as any);
       // eslint-disable-next-line sonarjs/no-identical-functions
-      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.en.map(({ name, samples }) => [
-        { intent: name, utterances: samples },
-      ]);
+      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.en.map(
+        ({ name, samples }) => [{ intent: name, utterances: samples }]
+      );
       expect(nlcObj.registerIntent.args).to.eql(registerIntentArgs);
     });
 
@@ -160,9 +164,9 @@ describe('nlu nlc service unit tests', () => {
 
       registerBuiltInIntents(nlcObj as any, locale as any);
       // eslint-disable-next-line sonarjs/no-identical-functions
-      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.es.map(({ name, samples }) => [
-        { intent: name, utterances: samples },
-      ]);
+      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.es.map(
+        ({ name, samples }) => [{ intent: name, utterances: samples }]
+      );
       expect(nlcObj.registerIntent.args).to.eql(registerIntentArgs);
     });
   });

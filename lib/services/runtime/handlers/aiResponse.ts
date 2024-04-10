@@ -39,7 +39,9 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
         const chunks = answer?.chunks?.map((chunk) => JSON.stringify(chunk)) ?? [];
         const workspaceID = Number(runtime.project?.teamID);
 
-        if (runtime.services.unleash.client.isEnabled(FeatureFlag.VF_CHUNKS_VARIABLE, { workspaceID })) {
+        if (
+          runtime.services.unleash.client.isEnabled(FeatureFlag.VF_CHUNKS_VARIABLE, { workspaceID })
+        ) {
           variables.set(VoiceflowConstants.BuiltInVariable.VF_CHUNKS, chunks);
         }
 
@@ -88,7 +90,11 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
       }
 
       let response: AIResponse;
-      if (node.model === BaseUtils.ai.GPT_MODEL.GPT_4 && runtime.plan && !GPT4_ABLE_PLAN.has(runtime.plan)) {
+      if (
+        node.model === BaseUtils.ai.GPT_MODEL.GPT_4 &&
+        runtime.plan &&
+        !GPT4_ABLE_PLAN.has(runtime.plan)
+      ) {
         response = {
           output: 'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.',
           tokens: 0,

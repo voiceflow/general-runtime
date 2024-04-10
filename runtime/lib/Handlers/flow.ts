@@ -38,7 +38,10 @@ const FlowHandler: HandlerFactory<BaseNode.Flow.Node> = () => ({
 
     runtime.stack.push(newFrame);
 
-    runtime.trace.debug(`entering flow \`${newFrame.getName() || newFrame.getDiagramID()}\``, BaseNode.NodeType.FLOW);
+    runtime.trace.debug(
+      `entering flow \`${newFrame.getName() || newFrame.getDiagramID()}\``,
+      BaseNode.NodeType.FLOW
+    );
     runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.FLOW, node, {
       flow: {
         before: DebugLogging.createFlowReference(topFrame),

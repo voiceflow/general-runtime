@@ -1,7 +1,12 @@
 import { BaseTrace, BaseUtils, Trace } from '@voiceflow/base-types';
 
 import { sanitizeSSML } from '@/lib/services/filter/utils';
-import { isIntentRequest, isPathRequest, isTextRequest, RuntimeRequest } from '@/lib/services/runtime/types';
+import {
+  isIntentRequest,
+  isPathRequest,
+  isTextRequest,
+  RuntimeRequest,
+} from '@/lib/services/runtime/types';
 import { Store } from '@/runtime';
 import { Context, ContextHandler } from '@/types';
 
@@ -40,7 +45,10 @@ class AIAssist extends AbstractManager implements ContextHandler {
 
     const lastTranscript = transcript[transcript.length - 1];
 
-    const content = trace.type === Trace.TraceType.SPEAK ? sanitizeSSML(trace.payload.message) : trace.payload.message;
+    const content =
+      trace.type === Trace.TraceType.SPEAK
+        ? sanitizeSSML(trace.payload.message)
+        : trace.payload.message;
 
     if (lastTranscript?.role === BaseUtils.ai.Role.ASSISTANT) {
       lastTranscript.content += `\n${content}`;

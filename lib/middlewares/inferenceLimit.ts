@@ -30,13 +30,23 @@ class InferenceLimit extends AbstractMiddleware {
       }
 
       try {
-        const rateLimiterRes = await this.rateLimitClient.private.consume(prefix ? `${prefix}:${resource}` : resource);
+        const rateLimiterRes = await this.rateLimitClient.private.consume(
+          prefix ? `${prefix}:${resource}` : resource
+        );
 
-        RateLimitMiddleware.setHeaders(res, rateLimiterRes, this.config.RATE_LIMITER_POINTS_INFERENCE);
+        RateLimitMiddleware.setHeaders(
+          res,
+          rateLimiterRes,
+          this.config.RATE_LIMITER_POINTS_INFERENCE
+        );
       } catch (rateLimiterRes) {
         res.setHeader('Retry-After', Math.floor(rateLimiterRes.msBeforeNext / 1000));
 
-        RateLimitMiddleware.setHeaders(res, rateLimiterRes, this.config.RATE_LIMITER_POINTS_INFERENCE);
+        RateLimitMiddleware.setHeaders(
+          res,
+          rateLimiterRes,
+          this.config.RATE_LIMITER_POINTS_INFERENCE
+        );
 
         res.status(VError.HTTP_STATUS.TOO_MANY_REQUESTS).send('Too Many Requests');
       }

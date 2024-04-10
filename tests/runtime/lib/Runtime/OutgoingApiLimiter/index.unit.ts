@@ -10,7 +10,9 @@ describe('Runtime OutgoingApiLimiter unit tests', () => {
 
       const outgoingApiLimiter = new OutgoingApiLimiter(runtime as any);
 
-      expect(outgoingApiLimiter.makeRedisHostnameHash('hostname-val')).to.eql('outgoing_api_version-id_hostname-val');
+      expect(outgoingApiLimiter.makeRedisHostnameHash('hostname-val')).to.eql(
+        'outgoing_api_version-id_hostname-val'
+      );
     });
   });
 
@@ -55,8 +57,12 @@ describe('Runtime OutgoingApiLimiter unit tests', () => {
 
       const outgoingApiLimiter = new OutgoingApiLimiter(runtime as any);
 
-      expect(await outgoingApiLimiter.addHostnameUseAndShouldThrottle('hostname-val')).to.eql(false);
-      expect(runtime.services.redis.set.args).to.eql([['outgoing_api_version-id_hostname-val', '4', 'EX', 123]]);
+      expect(await outgoingApiLimiter.addHostnameUseAndShouldThrottle('hostname-val')).to.eql(
+        false
+      );
+      expect(runtime.services.redis.set.args).to.eql([
+        ['outgoing_api_version-id_hostname-val', '4', 'EX', 123],
+      ]);
     });
 
     it('works with existing uses more than max', async () => {
@@ -74,7 +80,9 @@ describe('Runtime OutgoingApiLimiter unit tests', () => {
       const outgoingApiLimiter = new OutgoingApiLimiter(runtime as any);
 
       expect(await outgoingApiLimiter.addHostnameUseAndShouldThrottle('hostname-val')).to.eql(true);
-      expect(runtime.services.redis.set.args).to.eql([['outgoing_api_version-id_hostname-val', '5002', 'EX', 123]]);
+      expect(runtime.services.redis.set.args).to.eql([
+        ['outgoing_api_version-id_hostname-val', '5002', 'EX', 123],
+      ]);
     });
 
     it('works with no uses less', async () => {
@@ -91,7 +99,9 @@ describe('Runtime OutgoingApiLimiter unit tests', () => {
 
       const outgoingApiLimiter = new OutgoingApiLimiter(runtime as any);
 
-      expect(await outgoingApiLimiter.addHostnameUseAndShouldThrottle('hostname-val')).to.eql(false);
+      expect(await outgoingApiLimiter.addHostnameUseAndShouldThrottle('hostname-val')).to.eql(
+        false
+      );
       expect(runtime.services.redis.set.args).to.eql([
         ['outgoing_api_version-id_hostname-val', '1', 'EX', 60 * 60 * 6],
       ]);

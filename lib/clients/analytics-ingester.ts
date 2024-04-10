@@ -1,7 +1,14 @@
 import { BaseTrace } from '@voiceflow/base-types';
 import { EmptyObject } from '@voiceflow/common';
-import { Api as IngestApi, Client as IngestClient } from '@voiceflow/event-ingestion-service/build/lib/client';
-import { Event, IngestableInteraction, IngestableTrace } from '@voiceflow/event-ingestion-service/build/lib/types';
+import {
+  Api as IngestApi,
+  Client as IngestClient,
+} from '@voiceflow/event-ingestion-service/build/lib/client';
+import {
+  Event,
+  IngestableInteraction,
+  IngestableTrace,
+} from '@voiceflow/event-ingestion-service/build/lib/types';
 
 import log from '@/logger';
 import { Config, Context } from '@/types';
@@ -89,7 +96,12 @@ export class IngesterClient extends AbstractClient {
     log.trace(`[analytics] process trace ${log.vars({ versionID })}`);
     switch (event) {
       case Event.TURN: {
-        const interactionBody = this.createInteractionBody({ projectID, versionID, metadata, timestamp });
+        const interactionBody = this.createInteractionBody({
+          projectID,
+          versionID,
+          metadata,
+          timestamp,
+        });
         await this.ingestClient?.ingestInteraction(interactionBody);
 
         break;

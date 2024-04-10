@@ -40,13 +40,18 @@ class SessionManager extends AbstractManager implements Session {
     }
   }
 
-  async getFromDb<T extends Record<string, any> = Record<string, any>>(_projectID: string, userID: string) {
+  async getFromDb<T extends Record<string, any> = Record<string, any>>(
+    _projectID: string,
+    userID: string
+  ) {
     const projectID = new ObjectId(_projectID);
     const { mongo } = this.services;
 
     const id = this.getSessionID(_projectID, userID);
 
-    const session = await mongo!.db.collection(this.collectionName).findOne<{ attributes?: T }>({ projectID, id });
+    const session = await mongo!.db
+      .collection(this.collectionName)
+      .findOne<{ attributes?: T }>({ projectID, id });
 
     return (session?.attributes || {}) as T;
   }
@@ -57,14 +62,20 @@ class SessionManager extends AbstractManager implements Session {
 
     const id = this.getSessionID(_projectID, userID);
 
-    const { acknowledged } = await mongo!.db.collection(this.collectionName).deleteOne({ projectID, id });
+    const { acknowledged } = await mongo!.db
+      .collection(this.collectionName)
+      .deleteOne({ projectID, id });
 
     if (!acknowledged) {
       throw Error('delete runtime session error');
     }
   }
 
-  async updateVariables(_projectID: string, userID: string, variables: Record<string, any>): Promise<State> {
+  async updateVariables(
+    _projectID: string,
+    userID: string,
+    variables: Record<string, any>
+  ): Promise<State> {
     const projectID = new ObjectId(_projectID);
     const { mongo } = this.services;
 

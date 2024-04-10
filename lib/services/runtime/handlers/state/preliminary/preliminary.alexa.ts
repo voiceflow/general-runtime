@@ -14,11 +14,15 @@ const utils = {
   commandHandler: CommandAlexaHandler(),
 };
 
-export const PreliminaryAlexaHandler: HandlerFactory<VoiceflowNode.Interaction.Node, typeof utils> = (handlerUtils) => {
+export const PreliminaryAlexaHandler: HandlerFactory<
+  VoiceflowNode.Interaction.Node,
+  typeof utils
+> = (handlerUtils) => {
   const { handle, canHandle } = PreliminaryHandler(handlerUtils);
   return {
     handle,
-    canHandle: (node, ...args) => node.platform === VoiceflowConstants.PlatformType.ALEXA && canHandle(node, ...args),
+    canHandle: (node, ...args) =>
+      node.platform === VoiceflowConstants.PlatformType.ALEXA && canHandle(node, ...args),
   };
 };
 

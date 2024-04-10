@@ -20,7 +20,11 @@ export const getCommand = (runtime: GeneralRuntime): CommandMatch | null => {
     const commands = frames[index]?.getCommands<BaseNode.Utils.AnyCommand>();
 
     for (const command of commands) {
-      const match = findEventMatcher({ event: command?.event || null, runtime, diagramID: command?.diagramID });
+      const match = findEventMatcher({
+        event: command?.event || null,
+        runtime,
+        diagramID: command?.diagramID,
+      });
 
       if (match) {
         return { index, command, match };
@@ -65,7 +69,10 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
       }
 
       stack.top().setNodeID(command.nextID || null);
-      trace.debug(`matched command **${command.type}** - jumping to node`, BaseNode.NodeType.COMMAND);
+      trace.debug(
+        `matched command **${command.type}** - jumping to node`,
+        BaseNode.NodeType.COMMAND
+      );
     }
 
     // push command, adds a new frame
@@ -75,7 +82,10 @@ export const CommandHandler = (utils: typeof utilsObj) => ({
         payload: { path: 'push' },
       });
       stack.top().storage.set(FrameType.CALLED_COMMAND, true);
-      trace.debug(`matched command **${command.type}** - adding command flow`, BaseNode.NodeType.COMMAND);
+      trace.debug(
+        `matched command **${command.type}** - adding command flow`,
+        BaseNode.NodeType.COMMAND
+      );
       // reset state to beginning of new diagram and store current line to the stack
       const newFrame = new utils.Frame({ diagramID: command.diagramID });
       stack.push(newFrame);

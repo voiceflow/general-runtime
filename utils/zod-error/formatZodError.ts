@@ -15,7 +15,9 @@ function formatZodIssue(zodIssue: z.ZodIssue) {
     case z.ZodIssueCode.invalid_literal:
       return `Received value '${zodIssue.received}' for '${path}' when literal value '${zodIssue.expected}' was expected`;
     case z.ZodIssueCode.invalid_enum_value:
-      return `Property '${path}' expects the following enum values '${zodIssue.options.join(', ')}'`;
+      return `Property '${path}' expects the following enum values '${zodIssue.options.join(
+        ', '
+      )}'`;
     case z.ZodIssueCode.custom:
       return `Error at ${path}: ${zodIssue.message}`;
     default:
@@ -23,4 +25,5 @@ function formatZodIssue(zodIssue: z.ZodIssue) {
   }
 }
 
-export const formatZodError = (zodParsingError: z.ZodError) => zodParsingError.issues.map(formatZodIssue).join('. ');
+export const formatZodError = (zodParsingError: z.ZodError) =>
+  zodParsingError.issues.map(formatZodIssue).join('. ');

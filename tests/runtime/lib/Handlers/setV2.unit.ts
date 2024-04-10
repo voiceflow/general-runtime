@@ -15,12 +15,19 @@ describe('setV2 handler unit tests', () => {
 
   describe('canHandle', () => {
     it('false', () => {
-      expect(SetV2Handler().canHandle({ type: 'random' } as any, null as any, null as any, null as any)).to.eql(false);
+      expect(
+        SetV2Handler().canHandle({ type: 'random' } as any, null as any, null as any, null as any)
+      ).to.eql(false);
     });
 
     it('true', () => {
       expect(
-        SetV2Handler().canHandle({ type: BaseNode.NodeType.SET_V2 } as any, null as any, null as any, null as any)
+        SetV2Handler().canHandle(
+          { type: BaseNode.NodeType.SET_V2 } as any,
+          null as any,
+          null as any,
+          null as any
+        )
       ).to.eql(true);
     });
   });
@@ -62,7 +69,9 @@ describe('setV2 handler unit tests', () => {
       };
       const program = { lines: [] };
 
-      expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(null);
+      expect(
+        await handler.handle(node as any, runtime as any, variables as any, program as any)
+      ).to.eql(null);
 
       expect(CodeHandlerStub.calledOnce).to.eql(true);
       expect(CodeHandlerStub.args).to.eql([[{ useStrictVM: true }]]);
@@ -141,7 +150,9 @@ describe('setV2 handler unit tests', () => {
 
       const program = { lines: [] };
 
-      expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(node.nextId);
+      expect(
+        await handler.handle(node as any, runtime as any, variables as any, program as any)
+      ).to.eql(node.nextId);
       expect(variables.getState()).to.eql({ a: undefined, b: undefined, c: 3, newVar: 4 });
       expect(runtime.variables.getState()).to.eql({ newVar: 0 });
       expect(runtime.trace.addTrace.args).to.eql([

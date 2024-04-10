@@ -19,7 +19,11 @@ class Lifecycle {
     return (this.events as EventCallbackMap)[type];
   }
 
-  public async callEvent<K extends EventType>(type: K, event: Event<K>, runtime: Runtime): Promise<void> {
+  public async callEvent<K extends EventType>(
+    type: K,
+    event: Event<K>,
+    runtime: Runtime
+  ): Promise<void> {
     await this.getEvent<K>(type)?.({ ...event, runtime });
   }
 }

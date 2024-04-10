@@ -1,6 +1,10 @@
 import { BaseNode, BaseRequest, Nullable } from '@voiceflow/base-types';
 
-import { GeneralRuntime, isAlexaEventIntentRequest, isIntentRequest } from '@/lib/services/runtime/types';
+import {
+  GeneralRuntime,
+  isAlexaEventIntentRequest,
+  isIntentRequest,
+} from '@/lib/services/runtime/types';
 import { Runtime, Store } from '@/runtime';
 
 import { mapEntities, mapVariables } from '../utils';
@@ -32,7 +36,8 @@ export interface Matcher<
 
 const isIntentEvent = (request: BaseRequest.IntentRequest, context: any) => {
   if (!isIntentRequest(request)) return false;
-  if (request.diagramID && context.diagramID && request.diagramID !== context.diagramID) return false;
+  if (request.diagramID && context.diagramID && request.diagramID !== context.diagramID)
+    return false;
   if (!context.event || !BaseNode.Utils.isIntentEvent(context.event)) return false;
   if (context.event.intent !== request.payload.intent.name) return false;
   return true;
@@ -44,14 +49,17 @@ const isIntentEvent = (request: BaseRequest.IntentRequest, context: any) => {
  */
 const isAlexaEvent = (request: BaseRequest.IntentRequest, context: any) => {
   if (!isAlexaEventIntentRequest(request)) return false;
-  if (request.diagramID && context.diagramID && request.diagramID !== context.diagramID) return false;
+  if (request.diagramID && context.diagramID && request.diagramID !== context.diagramID)
+    return false;
   if (!context.event || context.event.type !== BaseNode.Utils.EventType.ALEXA) return false;
   if (context.event.intent !== request.payload.intent.name) return false;
   return true;
 };
 
 export const intentEventMatcher: Matcher<BaseRequest.IntentRequest, BaseNode.Utils.IntentEvent> = {
-  match: (context): context is SideEffectContext<BaseRequest.IntentRequest, BaseNode.Utils.IntentEvent> => {
+  match: (
+    context
+  ): context is SideEffectContext<BaseRequest.IntentRequest, BaseNode.Utils.IntentEvent> => {
     const request = context.runtime.getRequest();
 
     if (!isIntentRequest(request)) return false;
@@ -71,7 +79,9 @@ export const intentEventMatcher: Matcher<BaseRequest.IntentRequest, BaseNode.Uti
 };
 
 export const alexaEventMatcher: Matcher<BaseRequest.IntentRequest, BaseNode.Utils.AlexaEvent> = {
-  match: (context): context is SideEffectContext<BaseRequest.IntentRequest, BaseNode.Utils.AlexaEvent> => {
+  match: (
+    context
+  ): context is SideEffectContext<BaseRequest.IntentRequest, BaseNode.Utils.AlexaEvent> => {
     const request = context.runtime.getRequest();
 
     if (isIntentRequest(request)) return false;
@@ -101,7 +111,9 @@ export interface GeneralEvent extends BaseNode.Utils.BaseEvent {
 }
 
 export const generalEventMatcher: Matcher<BaseRequest.BaseRequest, BaseNode.Utils.BaseEvent> = {
-  match: (context): context is SideEffectContext<BaseRequest.BaseRequest, BaseNode.Utils.BaseEvent> => {
+  match: (
+    context
+  ): context is SideEffectContext<BaseRequest.BaseRequest, BaseNode.Utils.BaseEvent> => {
     const request = context.runtime.getRequest();
 
     if (!request || isIntentRequest(request) || isAlexaEventIntentRequest(request)) return false;
@@ -116,7 +128,11 @@ export const generalEventMatcher: Matcher<BaseRequest.BaseRequest, BaseNode.Util
   },
 };
 
-const EVENT_MATCHERS: Matcher<any, any>[] = [intentEventMatcher, alexaEventMatcher, generalEventMatcher];
+const EVENT_MATCHERS: Matcher<any, any>[] = [
+  intentEventMatcher,
+  alexaEventMatcher,
+  generalEventMatcher,
+];
 
 export interface EventMatcher {
   sideEffect: (variables: Store) => void;

@@ -104,7 +104,13 @@ export const fetchPrompt = async (
 export const consumeResources = async (
   reference: string,
   runtime: Runtime,
-  resources: { tokens?: number; queryTokens?: number; answerTokens?: number; model: string; multiplier: number } | null
+  resources: {
+    tokens?: number;
+    queryTokens?: number;
+    answerTokens?: number;
+    model: string;
+    multiplier: number;
+  } | null
 ) => {
   if (!resources) return;
 

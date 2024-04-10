@@ -115,7 +115,10 @@ const validateHostname = (urlString: string): string => {
   const { hostname } = url;
 
   if (hostname.toLowerCase() === 'localhost') {
-    throw new VError(`url hostname cannot be localhost: ${urlString}`, VError.HTTP_STATUS.BAD_REQUEST);
+    throw new VError(
+      `url hostname cannot be localhost: ${urlString}`,
+      VError.HTTP_STATUS.BAD_REQUEST
+    );
   }
 
   // eslint-disable-next-line sonarjs/no-empty-collection
@@ -134,9 +137,15 @@ const validateIP = async (hostname: string) => {
         throw new VError(`cannot resolve hostname: ${hostname}`, VError.HTTP_STATUS.BAD_REQUEST);
       });
 
+  const a = console;
+  a.log({ ips, hostname });
   const badIP = ips.find((ip) => PROHIBITED_IP_RANGES.some((range) => ipRangeCheck(ip, range)));
+  a.log({ badIP });
   if (badIP) {
-    throw new VError(`url resolves to IP: ${badIP} in prohibited range`, VError.HTTP_STATUS.BAD_REQUEST);
+    throw new VError(
+      `url resolves to IP: ${badIP} in prohibited range`,
+      VError.HTTP_STATUS.BAD_REQUEST
+    );
   }
 };
 
@@ -180,9 +189,15 @@ const transformResponseBody = (
   const newVariables: Record<string, Variable> = Object.fromEntries(
     actionData.mapping
       // Filter out mappings with variable names that are null
-      .filter((mapping): mapping is BaseNode.Api.APIMapping & { var: string } => typeof mapping.var === 'string')
+      .filter(
+        (mapping): mapping is BaseNode.Api.APIMapping & { var: string } =>
+          typeof mapping.var === 'string'
+      )
       // Create mapping of variable name to variable value from the response JSON
-      .map((mapping): [string, Variable | undefined] => [mapping.var, getVariable(mapping.path, responseJSON)])
+      .map((mapping): [string, Variable | undefined] => [
+        mapping.var,
+        getVariable(mapping.path, responseJSON),
+      ])
       // Filter out variables that are undefined
       .filter((keyValuePair): keyValuePair is [string, Variable] => keyValuePair[1] !== undefined)
   );
@@ -204,8 +219,14 @@ export interface APICallResult {
   responseJSON: any;
 }
 
-export const callAPI = async (nodeData: APINodeData, config: Partial<APIHandlerConfig>): Promise<APICallResult> => {
-  const { response, requestOptions } = await doFetch(_.merge(DEFAULT_API_HANDLER_CONFIG, config), nodeData);
+export const callAPI = async (
+  nodeData: APINodeData,
+  config: Partial<APIHandlerConfig>
+): Promise<APICallResult> => {
+  const { response, requestOptions } = await doFetch(
+    _.merge(DEFAULT_API_HANDLER_CONFIG, config),
+    nodeData
+  );
 
   const rawResponseJSON = await response
     .json()
@@ -238,7 +259,9 @@ export const makeAPICall = async (
     }
   } catch (error) {
     runtime.trace.debug(
-      `Outgoing Api Rate Limiter failed - Error: \n${safeJSONStringify(error.response?.data || error)}`,
+      `Outgoing Api Rate Limiter failed - Error: \n${safeJSONStringify(
+        error.response?.data || error
+      )}`,
       BaseNode.NodeType.API
     );
   }
@@ -293,7 +316,9 @@ export const createRequest = async (
         body = actionData.content;
         break;
       case BaseNode.Api.APIBodyType.URL_ENCODED:
-        body = new URLSearchParams(actionData.body.map(({ key, val }): [key: string, value: string] => [key, val]));
+        body = new URLSearchParams(
+          actionData.body.map(({ key, val }): [key: string, value: string] => [key, val])
+        );
 
         headers.set('Content-Type', 'application/x-www-form-urlencoded');
         break;

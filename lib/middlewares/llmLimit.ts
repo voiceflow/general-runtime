@@ -30,7 +30,9 @@ class LLMLimit extends AbstractMiddleware {
       }
 
       try {
-        const rateLimiterRes = await this.rateLimitClient.private.consume(prefix ? `${prefix}:${resource}` : resource);
+        const rateLimiterRes = await this.rateLimitClient.private.consume(
+          prefix ? `${prefix}:${resource}` : resource
+        );
 
         RateLimitMiddleware.setHeaders(res, rateLimiterRes, this.config.RATE_LIMITER_POINTS_LLM);
       } catch (rateLimiterRes) {

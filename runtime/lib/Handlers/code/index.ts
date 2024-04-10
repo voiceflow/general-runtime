@@ -105,7 +105,9 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions> = ({
 
       runtime.trace.debug(
         // eslint-disable-next-line sonarjs/no-nested-template-literals
-        `evaluating code - ${changesSummary ? `changes:\n${changesSummary}` : 'no variable changes'}`,
+        `evaluating code - ${
+          changesSummary ? `changes:\n${changesSummary}` : 'no variable changes'
+        }`,
         BaseNode.NodeType.CODE
       );
 

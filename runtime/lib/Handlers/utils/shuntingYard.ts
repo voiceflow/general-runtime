@@ -128,7 +128,8 @@ const evaluatePostfix = (postfixExpression: Array<string>) => {
 
         const operand2 = tokenStack.pop();
         // If operator is !(not), there is no operand1
-        const operand1: null | undefined | string = postfixExpression[i] === '!' ? null : tokenStack.pop();
+        const operand1: null | undefined | string =
+          postfixExpression[i] === '!' ? null : tokenStack.pop();
 
         const result = evaluate(operand1 as any, operand2 as any, postfixExpression[i]) as any;
         tokenStack.push(result);
@@ -178,14 +179,20 @@ const popOpStackUntil = (
 // shunting-yard algorithm parses mathematical expressions specified in infix notation
 // it returns a postfix notation string
 // eslint-disable-next-line sonarjs/cognitive-complexity
-const shuntingYard = async (expression: string, variables: Record<string, any>): Promise<Array<string>> => {
+const shuntingYard = async (
+  expression: string,
+  variables: Record<string, any>
+): Promise<Array<string>> => {
   const RPN = [];
   const operatorStack = new Stack();
 
   let i = 0;
   while (i < expression.length) {
     const currToken = expression[i];
-    if (currToken.match(/\d/) || (currToken === '-' && expression[i + 1] && expression[i + 1].match(/\d/))) {
+    if (
+      currToken.match(/\d/) ||
+      (currToken === '-' && expression[i + 1] && expression[i + 1].match(/\d/))
+    ) {
       // Matched a number
       let num = '';
       let dotCount = 0;
@@ -283,7 +290,9 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
       while (i < expression.length) {
         if (
           expression[i] === "'" &&
-          (expression[i + 1] === undefined || expression[i + 1] === ')' || expression[i + 1] === ' ')
+          (expression[i + 1] === undefined ||
+            expression[i + 1] === ')' ||
+            expression[i + 1] === ' ')
         ) {
           break;
         }
@@ -300,7 +309,9 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
       while (i < expression.length) {
         if (
           expression[i] === '$' &&
-          (expression[i + 1] === undefined || expression[i + 1] === ')' || expression[i + 1] === ' ')
+          (expression[i + 1] === undefined ||
+            expression[i + 1] === ')' ||
+            expression[i + 1] === ' ')
         ) {
           break;
         }
@@ -358,7 +369,10 @@ const shuntingYard = async (expression: string, variables: Record<string, any>):
   return RPN;
 };
 
-export const evaluateExpression = async (expression: string | number, variables: Record<string, any>) => {
+export const evaluateExpression = async (
+  expression: string | number,
+  variables: Record<string, any>
+) => {
   try {
     const RPN = await shuntingYard(expression.toString(), variables);
     if (RPN.length === 0 && typeof expression === 'number') {

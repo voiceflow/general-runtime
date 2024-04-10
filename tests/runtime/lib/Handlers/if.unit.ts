@@ -15,14 +15,24 @@ describe('ifHandler unit tests', () => {
     it('false', () => {
       expect(ifHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
       expect(
-        ifHandler.canHandle({ type: BaseNode.NodeType.IF_V2 } as any, null as any, null as any, null as any)
+        ifHandler.canHandle(
+          { type: BaseNode.NodeType.IF_V2 } as any,
+          null as any,
+          null as any,
+          null as any
+        )
       ).to.eql(false);
     });
 
     it('true', () => {
-      expect(ifHandler.canHandle({ expressions: ['a', 'b'] } as any, null as any, null as any, null as any)).to.eql(
-        true
-      );
+      expect(
+        ifHandler.canHandle(
+          { expressions: ['a', 'b'] } as any,
+          null as any,
+          null as any,
+          null as any
+        )
+      ).to.eql(true);
     });
   });
 
@@ -55,9 +65,9 @@ describe('ifHandler unit tests', () => {
         getNode: (id: string) => ({ id, type: BaseNode.NodeType.SPEAK }),
       };
 
-      expect(await ifHandler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(
-        node.nextIds[1]
-      );
+      expect(
+        await ifHandler.handle(node as any, runtime as any, variables as any, program as any)
+      ).to.eql(node.nextIds[1]);
       expect(shuntingYardStub.args).to.eql([
         [node.expressions[0], { v: variablesState }],
         [node.expressions[1], { v: variablesState }],
@@ -68,7 +78,10 @@ describe('ifHandler unit tests', () => {
       expect(runtime.callEvent.args[0][1].error.toString()).to.eql(evaluateError);
 
       expect(runtime.trace.debug.args).to.eql([
-        [`unable to resolve expression \`${node.expressions[0]}\`  \n\`${evaluateError}\``, BaseNode.NodeType.IF],
+        [
+          `unable to resolve expression \`${node.expressions[0]}\`  \n\`${evaluateError}\``,
+          BaseNode.NodeType.IF,
+        ],
         ['evaluating path 2: `second` to `5`', BaseNode.NodeType.IF],
         ['condition true - taking path 2', BaseNode.NodeType.IF],
       ]);
@@ -116,9 +129,9 @@ describe('ifHandler unit tests', () => {
         getNode: (id: string) => ({ id, type: BaseNode.NodeType.SPEAK }),
       };
 
-      expect(await ifHandler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(
-        node.nextIds[1]
-      );
+      expect(
+        await ifHandler.handle(node as any, runtime as any, variables as any, program as any)
+      ).to.eql(node.nextIds[1]);
       expect(shuntingYardStub.args).to.eql([
         [node.expressions[0], { v: variablesState }],
         [node.expressions[1], { v: variablesState }],
@@ -176,9 +189,9 @@ describe('ifHandler unit tests', () => {
           getNode: (id: string) => ({ id, type: BaseNode.NodeType.SPEAK }),
         };
 
-        expect(await ifHandler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(
-          node.elseId
-        );
+        expect(
+          await ifHandler.handle(node as any, runtime as any, variables as any, program as any)
+        ).to.eql(node.elseId);
 
         expect(runtime.trace.debug.args).to.eql([
           ['evaluating path 1: `first` to `undefined`', BaseNode.NodeType.IF],
@@ -209,7 +222,12 @@ describe('ifHandler unit tests', () => {
       it('without elseId', async () => {
         sinon.stub(Utils, 'evaluateExpression').resolves(null as any);
 
-        const node = { expressions: ['first'], nextIds: ['first-path'], id: 'step-id', type: BaseNode.NodeType.IF };
+        const node = {
+          expressions: ['first'],
+          nextIds: ['first-path'],
+          id: 'step-id',
+          type: BaseNode.NodeType.IF,
+        };
         const runtime = {
           trace: { debug: sinon.stub(), addTrace: sinon.stub() },
           debugLogging: null as unknown as DebugLogging,
@@ -220,7 +238,9 @@ describe('ifHandler unit tests', () => {
           getNode: (id: string) => ({ id, type: BaseNode.NodeType.SPEAK }),
         };
 
-        expect(await ifHandler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(null);
+        expect(
+          await ifHandler.handle(node as any, runtime as any, variables as any, program as any)
+        ).to.eql(null);
 
         expect(runtime.trace.debug.args).to.eql([
           ['evaluating path 1: `first` to `undefined`', BaseNode.NodeType.IF],

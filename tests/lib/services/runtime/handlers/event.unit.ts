@@ -2,7 +2,11 @@ import { BaseNode, BaseRequest } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { findEventMatcher, generalEventMatcher, intentEventMatcher } from '@/lib/services/runtime/handlers/event';
+import {
+  findEventMatcher,
+  generalEventMatcher,
+  intentEventMatcher,
+} from '@/lib/services/runtime/handlers/event';
 import * as utils from '@/lib/services/runtime/utils';
 
 describe('event handlers unit tests', () => {
@@ -57,7 +61,9 @@ describe('event handlers unit tests', () => {
   describe('intentEventMatcher', () => {
     describe('match', () => {
       it('no request', () => {
-        expect(intentEventMatcher.match({ runtime: { getRequest: sinon.stub().returns(null) } } as any)).to.eql(false);
+        expect(
+          intentEventMatcher.match({ runtime: { getRequest: sinon.stub().returns(null) } } as any)
+        ).to.eql(false);
       });
 
       it('no event', () => {
@@ -154,9 +160,12 @@ describe('event handlers unit tests', () => {
 
   describe('findEventMatcher', () => {
     it('not found', () => {
-      expect(findEventMatcher({ event: null, runtime: { getRequest: sinon.stub().returns(null) } } as any)).to.eql(
-        null
-      );
+      expect(
+        findEventMatcher({
+          event: null,
+          runtime: { getRequest: sinon.stub().returns(null) },
+        } as any)
+      ).to.eql(null);
     });
 
     it('found', () => {

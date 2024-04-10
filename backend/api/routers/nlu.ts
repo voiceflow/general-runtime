@@ -16,7 +16,10 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
       { kind: 'project', id: req.headers.projectID!.toString() },
       { kind: 'version', id: req.headers.versionID!.toString() },
     ]),
-    middlewares.inferenceLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'inference'),
+    middlewares.inferenceLimit.consumeResource(
+      (req) => req.headers.authorization || req.cookies.auth_vf,
+      'inference'
+    ),
     controllers.nlu.inference
   );
 

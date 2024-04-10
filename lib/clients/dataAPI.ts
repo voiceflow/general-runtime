@@ -17,12 +17,18 @@ class DataAPI {
 
   creatorAPIAuthorization?: string;
 
-  constructor({ config, mongo }: { config: Config; mongo: MongoDB | null }, API = { LocalDataApi, PrototypeDataAPI }) {
+  constructor(
+    { config, mongo }: { config: Config; mongo: MongoDB | null },
+    API = { LocalDataApi, PrototypeDataAPI }
+  ) {
     const { PROJECT_SOURCE } = config;
 
     // fetch from local VF file
     if (PROJECT_SOURCE) {
-      this.localDataApi = new API.LocalDataApi({ projectSource: PROJECT_SOURCE }, { fs: Static.fs, path: Static.path });
+      this.localDataApi = new API.LocalDataApi(
+        { projectSource: PROJECT_SOURCE },
+        { fs: Static.fs, path: Static.path }
+      );
     }
 
     // fetch from server-data-api

@@ -39,7 +39,9 @@ describe('reset handler unit tests', async () => {
         },
       };
 
-      expect(resetHandler.handle(null as any, runtime as any, null as any, null as any)).to.eql(null);
+      expect(resetHandler.handle(null as any, runtime as any, null as any, null as any)).to.eql(
+        null
+      );
       expect(runtime.stack.popTo.args).to.eql([[1]]);
       expect(topFrame.setNodeID.args).to.eql([[undefined]]);
     });

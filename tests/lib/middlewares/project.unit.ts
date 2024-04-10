@@ -7,12 +7,12 @@ import Project from '@/lib/middlewares/project';
 import { VersionTag } from '@/types';
 
 describe('project middleware unit tests', () => {
-  const getMockRequest = <P, RB, B, H>({ params, body, headers }: { params?: P; body?: B; headers?: H } = {}): Request<
-    P,
-    RB,
-    B,
-    H
-  > => ({ params, body, headers } as any);
+  const getMockRequest = <P, RB, B, H>({
+    params,
+    body,
+    headers,
+  }: { params?: P; body?: B; headers?: H } = {}): Request<P, RB, B, H> =>
+    ({ params, body, headers } as any);
   const getMockResponse = (): Response => ({} as any);
   const getMockNext = () => sinon.fake();
 
@@ -185,8 +185,12 @@ describe('project middleware unit tests', () => {
       };
       const middleware = new Project(services as any, {} as any);
 
-      const reqProd = getMockRequest({ headers: { versionID: VersionTag.PRODUCTION, authorization } });
-      const reqDev = getMockRequest({ headers: { versionID: VersionTag.DEVELOPMENT, authorization } });
+      const reqProd = getMockRequest({
+        headers: { versionID: VersionTag.PRODUCTION, authorization },
+      });
+      const reqDev = getMockRequest({
+        headers: { versionID: VersionTag.DEVELOPMENT, authorization },
+      });
 
       const res = getMockResponse();
       const next = getMockNext();

@@ -13,15 +13,27 @@ describe('text handler unit tests', async () => {
   describe('canHandle', () => {
     it('false', async () => {
       expect(
-        TextHandler(null as any).canHandle({ type: 'speak' } as any, null as any, null as any, null as any)
+        TextHandler(null as any).canHandle(
+          { type: 'speak' } as any,
+          null as any,
+          null as any,
+          null as any
+        )
       ).to.eql(false);
-      expect(TextHandler(null as any).canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
+      expect(
+        TextHandler(null as any).canHandle({} as any, null as any, null as any, null as any)
+      ).to.eql(false);
     });
 
     it('true', async () => {
-      expect(TextHandler(null as any).canHandle({ type: 'text' } as any, null as any, null as any, null as any)).to.eql(
-        true
-      );
+      expect(
+        TextHandler(null as any).canHandle(
+          { type: 'text' } as any,
+          null as any,
+          null as any,
+          null as any
+        )
+      ).to.eql(true);
     });
   });
 
@@ -55,10 +67,16 @@ describe('text handler unit tests', async () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
-      const variables = { getState: sinon.stub().returns('vars'), set: sinon.stub(), get: sinon.stub() };
+      const variables = {
+        getState: sinon.stub().returns('vars'),
+        set: sinon.stub(),
+        get: sinon.stub(),
+      };
 
       const textHandler = TextHandler(utils as any);
-      expect(textHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
+      expect(textHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+        node.nextId
+      );
       expect(runtime.trace.addTrace.args).to.eql([
         [textTrace],
         [

@@ -20,7 +20,9 @@ const utilsObj = {
   addNoReplyTimeoutIfExists,
 };
 
-export const CarouselHandler: HandlerFactory<BaseNode.Carousel.Node, typeof utilsObj> = (utils) => ({
+export const CarouselHandler: HandlerFactory<BaseNode.Carousel.Node, typeof utilsObj> = (
+  utils
+) => ({
   canHandle: (node) => node.type === BaseNode.NodeType.CAROUSEL,
   handle: (node, runtime, variables) => {
     const defaultPath = node.nextId || null;
@@ -42,7 +44,9 @@ export const CarouselHandler: HandlerFactory<BaseNode.Carousel.Node, typeof util
             slate,
             text,
           },
-          buttons: _cloneDeep(card.buttons).map((button) => deepVariableSubstitution(button, variablesMap)),
+          buttons: _cloneDeep(card.buttons).map((button) =>
+            deepVariableSubstitution(button, variablesMap)
+          ),
         };
 
         if (item.title || item.imageUrl || item.description.text || item.buttons.length) {

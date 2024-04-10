@@ -15,11 +15,14 @@ const utils = {
   commandHandler: CommandAlexaHandler(),
 };
 
-export const GoToAlexaHandler: HandlerFactory<BaseNode.GoTo.Node, typeof utils> = (handlerUtils) => {
+export const GoToAlexaHandler: HandlerFactory<BaseNode.GoTo.Node, typeof utils> = (
+  handlerUtils
+) => {
   const { handle, canHandle } = GoToHandler(handlerUtils);
   return {
     handle,
-    canHandle: (node, ...args) => node.platform === VoiceflowConstants.PlatformType.ALEXA && canHandle(node, ...args),
+    canHandle: (node, ...args) =>
+      node.platform === VoiceflowConstants.PlatformType.ALEXA && canHandle(node, ...args),
   };
 };
 

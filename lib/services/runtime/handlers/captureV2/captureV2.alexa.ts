@@ -17,7 +17,11 @@ import { EntityFillingNoMatchAlexaHandler } from '../utils/entity';
 import { inputToString } from '../utils/output';
 import { CaptureV2Handler, utilsObj } from './captureV2';
 
-const addPromptIfExists = (node: VoiceflowNode.CaptureV2.Node, runtime: Runtime, variables: Store) => {
+const addPromptIfExists = (
+  node: VoiceflowNode.CaptureV2.Node,
+  runtime: Runtime,
+  variables: Store
+) => {
   if (!runtime.version?.prototype?.model) return;
   const request = runtime.getRequest();
   const intentRequest = {
@@ -31,12 +35,17 @@ const addPromptIfExists = (node: VoiceflowNode.CaptureV2.Node, runtime: Runtime,
   const unfulfilledEntity = getUnfulfilledEntity(intentRequest, runtime.version.prototype.model);
   if (!unfulfilledEntity) return;
 
-  const prompt = _.sample(unfulfilledEntity.dialog.prompt) as VoiceModels.IntentPrompt<AlexaConstants.Voice>;
+  const prompt = _.sample(
+    unfulfilledEntity.dialog.prompt
+  ) as VoiceModels.IntentPrompt<AlexaConstants.Voice>;
   if (!prompt) return;
 
   // in this case, for alexa voices we dont want to add the extra voice wrapper around the output
-  const voice = prompt.voice ?? (runtime.version as VoiceflowVersion.VoiceVersion).platformData.settings.defaultVoice;
-  const trimmedPrompt = voice?.trim() === AlexaConstants.Voice.ALEXA ? { text: prompt.text } : prompt;
+  const voice =
+    prompt.voice ??
+    (runtime.version as VoiceflowVersion.VoiceVersion).platformData.settings.defaultVoice;
+  const trimmedPrompt =
+    voice?.trim() === AlexaConstants.Voice.ALEXA ? { text: prompt.text } : prompt;
   const output = fillStringEntities(intentRequest, inputToString(trimmedPrompt));
   addOutputTrace(
     runtime,
@@ -57,11 +66,14 @@ const utils = {
   addPromptIfExists,
 };
 
-export const CaptureV2AlexaHandler: HandlerFactory<VoiceflowNode.CaptureV2.Node, typeof utils> = (handlerUtils) => {
+export const CaptureV2AlexaHandler: HandlerFactory<VoiceflowNode.CaptureV2.Node, typeof utils> = (
+  handlerUtils
+) => {
   const { handle, canHandle } = CaptureV2Handler(handlerUtils);
   return {
     handle,
-    canHandle: (node, ...args) => node.platform === VoiceflowConstants.PlatformType.ALEXA && canHandle(node, ...args),
+    canHandle: (node, ...args) =>
+      node.platform === VoiceflowConstants.PlatformType.ALEXA && canHandle(node, ...args),
   };
 };
 

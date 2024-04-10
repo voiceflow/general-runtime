@@ -56,7 +56,8 @@ export const fillStringEntities = (intentRequest: BaseRequest.IntentRequest, inp
   return replaceSlots(input, entityMap);
 };
 
-export const dmPrefix = (contents: string) => crypto.createHash('sha256').update(contents).digest('hex').slice(-10);
+export const dmPrefix = (contents: string) =>
+  crypto.createHash('sha256').update(contents).digest('hex').slice(-10);
 
 /** @deprecated we compare entity subsets directly for now, if nothing is filled, it might as well be a fallback */
 export const getDMPrefixIntentName = (intentName: string) => {
@@ -85,9 +86,17 @@ export const isIntentScopeInNode = (
 
 export const isIntentInNode = (
   node: BaseModels.BaseNode & { intent?: { name?: string } }
-): node is BaseModels.BaseNode & { intent: { name: string } } => typeof node.intent?.name === 'string';
+): node is BaseModels.BaseNode & { intent: { name: string } } =>
+  typeof node.intent?.name === 'string';
 
-export const isIntentInScope = async ({ data: { api }, versionID, state, request, version, project }: Context) => {
+export const isIntentInScope = async ({
+  data: { api },
+  versionID,
+  state,
+  request,
+  version,
+  project,
+}: Context) => {
   const client = new Client({
     api,
   });
@@ -107,14 +116,17 @@ export const isIntentInScope = async ({ data: { api }, versionID, state, request
   }
 
   const currentFrame = runtime.stack.top();
-  const program = await runtime.getProgram(runtime.getVersionID(), currentFrame?.getDiagramID()).catch(() => null);
+  const program = await runtime
+    .getProgram(runtime.getVersionID(), currentFrame?.getDiagramID())
+    .catch(() => null);
   const node = program?.getNode(currentFrame.getNodeID());
   const variables = Store.merge(runtime.variables, currentFrame.variables);
 
   if (runtime.getAction() === Action.RUNNING || !node) return false;
 
   // if no event handler can handle, intent req is out of scope => no dialog management required
-  if (!eventHandlers.find((h) => h.canHandle(node as any, runtime, variables, program!))) return false;
+  if (!eventHandlers.find((h) => h.canHandle(node as any, runtime, variables, program!)))
+    return false;
 
   if (isIntentInNode(node) && runtime.getRequest().payload?.intent?.name === node.intent.name) {
     return true;

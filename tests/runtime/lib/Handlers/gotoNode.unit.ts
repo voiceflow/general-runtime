@@ -7,12 +7,19 @@ import { GoToNodeHandler } from '@/runtime/lib/Handlers/gotoNode';
 describe('GotoNode handler', () => {
   describe('canHandle', () => {
     it('false', () => {
-      expect(GoToNodeHandler({} as any).canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
+      expect(
+        GoToNodeHandler({} as any).canHandle({} as any, null as any, null as any, null as any)
+      ).to.eql(false);
     });
 
     it('true', () => {
       expect(
-        GoToNodeHandler({} as any).canHandle({ type: 'goToNode' } as any, null as any, null as any, null as any)
+        GoToNodeHandler({} as any).canHandle(
+          { type: 'goToNode' } as any,
+          null as any,
+          null as any,
+          null as any
+        )
       ).to.eql(true);
     });
   });

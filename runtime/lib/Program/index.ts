@@ -20,7 +20,16 @@ export class ProgramModel {
 
   private startNodeID: string;
 
-  constructor({ id, versionID, diagramID, lines, variables = [], commands = [], name, startId }: MinimalProgram) {
+  constructor({
+    id,
+    versionID,
+    diagramID,
+    lines,
+    variables = [],
+    commands = [],
+    name,
+    startId,
+  }: MinimalProgram) {
     this.versionID = versionID;
     this.diagramID = diagramID;
     this.id = id;

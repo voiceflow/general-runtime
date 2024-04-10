@@ -22,10 +22,14 @@ const IntegrationsHandler: HandlerFactory<BaseNode.Integration.Node, Integration
   integrationsEndpoint,
 }) => ({
   canHandle: (node) =>
-    node.type === BaseNode.NodeType.INTEGRATIONS && VALID_INTEGRATIONS.has(node.selected_integration),
+    node.type === BaseNode.NodeType.INTEGRATIONS &&
+    VALID_INTEGRATIONS.has(node.selected_integration),
   handle: async (node, runtime, variables) => {
     if (!node.selected_integration || !node.selected_action) {
-      runtime.trace.debug('no integration or action specified - fail by default', BaseNode.NodeType.INTEGRATIONS);
+      runtime.trace.debug(
+        'no integration or action specified - fail by default',
+        BaseNode.NodeType.INTEGRATIONS
+      );
       return node.fail_id ?? null;
     }
 
@@ -34,7 +38,10 @@ const IntegrationsHandler: HandlerFactory<BaseNode.Integration.Node, Integration
     try {
       const { selected_action: selectedAction, selected_integration: selectedIntegration } = node;
 
-      const actionBodyData = deepVariableSubstitution(_cloneDeep(node.action_data), variables.getState());
+      const actionBodyData = deepVariableSubstitution(
+        _cloneDeep(node.action_data),
+        variables.getState()
+      );
 
       const { data } = await axios.post(
         `${integrationsEndpoint}${ENDPOINTS_MAP[selectedIntegration][selectedAction]}`,

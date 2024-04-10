@@ -32,16 +32,18 @@ class NLUController extends AbstractController {
     const { versionID, projectID } = req.headers;
 
     const getVersion = async (versionID: string) => {
-      const version = await this.services.mongo?.db.collection('versions').findOne<VoiceflowVersion.Version>(
-        { _id: new ObjectId(versionID) },
-        {
-          projection: {
-            projectID: 1,
-            'prototype.model': 1,
-            'platformData.settings.intentConfidence': 1,
-          },
-        }
-      );
+      const version = await this.services.mongo?.db
+        .collection('versions')
+        .findOne<VoiceflowVersion.Version>(
+          { _id: new ObjectId(versionID) },
+          {
+            projection: {
+              projectID: 1,
+              'prototype.model': 1,
+              'platformData.settings.intentConfidence': 1,
+            },
+          }
+        );
 
       if (!version) throw new Error(`Version not found: ${versionID}`);
 
@@ -49,18 +51,20 @@ class NLUController extends AbstractController {
     };
 
     const getProject = async (projectID: string) => {
-      const project = await this.services.mongo?.db.collection('projects').findOne<VoiceflowProject.Project>(
-        { _id: new ObjectId(projectID) },
-        {
-          projection: {
-            _id: 1,
-            liveVersion: 1,
-            nluSettings: 1,
-            'prototype.nlp': 1,
-            'platformData.hasChannelIntents': 1,
-          },
-        }
-      );
+      const project = await this.services.mongo?.db
+        .collection('projects')
+        .findOne<VoiceflowProject.Project>(
+          { _id: new ObjectId(projectID) },
+          {
+            projection: {
+              _id: 1,
+              liveVersion: 1,
+              nluSettings: 1,
+              'prototype.nlp': 1,
+              'platformData.hasChannelIntents': 1,
+            },
+          }
+        );
 
       if (!project) throw new Error(`Project not found: ${projectID}`);
 

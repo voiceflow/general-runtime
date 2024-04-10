@@ -21,9 +21,9 @@ class Auth extends AbstractMiddleware {
       const baseURL =
         this.config.AUTH_API_SERVICE_HOST && this.config.AUTH_API_SERVICE_PORT_APP
           ? new URL(
-              `${this.config.NODE_ENV === 'e2e' ? 'https' : 'http'}://${this.config.AUTH_API_SERVICE_HOST}:${
-                this.config.AUTH_API_SERVICE_PORT_APP
-              }`
+              `${this.config.NODE_ENV === 'e2e' ? 'https' : 'http'}://${
+                this.config.AUTH_API_SERVICE_HOST
+              }:${this.config.AUTH_API_SERVICE_PORT_APP}`
             ).href
           : null;
 
@@ -55,7 +55,9 @@ class Auth extends AbstractMiddleware {
 
   authorize = (
     actions: `${string}:${string}`[],
-    getResourceOverride?: (payload: Request) => { id: string; kind: string } | { id: string; kind: string }[]
+    getResourceOverride?: (
+      payload: Request
+    ) => { id: string; kind: string } | { id: string; kind: string }[]
   ) => {
     return async (req: Request, res: Response, next: Next) => {
       try {
@@ -106,7 +108,9 @@ class Auth extends AbstractMiddleware {
         const authenticatedProject = auth ? await api.getProject(auth) : null;
         const version = versionID ? await api.getVersion(versionID) : null;
 
-        const projectIDs = new Set([projectID, authenticatedProject?._id, version?.projectID].filter((item) => !!item));
+        const projectIDs = new Set(
+          [projectID, authenticatedProject?._id, version?.projectID].filter((item) => !!item)
+        );
 
         // at least 1 and exactly 1 unique ID
         const isConsistent = projectIDs.size === 1;

@@ -71,7 +71,10 @@ export const ivmExecute = async (
   }
 };
 
-export const remoteVMExecute = async (endpoint: string, reqData: { code: string; variables: Record<string, any> }) => {
+export const remoteVMExecute = async (
+  endpoint: string,
+  reqData: { code: string; variables: Record<string, any> }
+) => {
   const response = await axios.post<Record<string, any>>(endpoint, {
     ...reqData,
     keys: getUndefinedKeys(reqData.variables),
@@ -114,16 +117,18 @@ export const createExecutionResultLogger =
       const differentPropertiesA: Record<string, string> = {};
       const differentPropertiesB: Record<string, string> = {};
 
-      Utils.array.unique([...Object.keys(resultA.value), ...Object.keys(resultB.value)]).forEach((key) => {
-        if (!isDeepStrictEqual(resultA.value[key], resultB.value[key])) {
-          const JSONValueA = JSON.stringify(resultA.value[key]);
-          const JSONValueB = JSON.stringify(resultB.value[key]);
-          if (JSONValueA !== JSONValueB) {
-            differentPropertiesA[key] = JSON.stringify(resultA.value[key]);
-            differentPropertiesB[key] = JSON.stringify(resultB.value[key]);
+      Utils.array
+        .unique([...Object.keys(resultA.value), ...Object.keys(resultB.value)])
+        .forEach((key) => {
+          if (!isDeepStrictEqual(resultA.value[key], resultB.value[key])) {
+            const JSONValueA = JSON.stringify(resultA.value[key]);
+            const JSONValueB = JSON.stringify(resultB.value[key]);
+            if (JSONValueA !== JSONValueB) {
+              differentPropertiesA[key] = JSON.stringify(resultA.value[key]);
+              differentPropertiesB[key] = JSON.stringify(resultB.value[key]);
+            }
           }
-        }
-      });
+        });
 
       if (Object.keys(differentPropertiesA).length || Object.keys(differentPropertiesB).length) {
         log.warn(

@@ -9,9 +9,9 @@ class MLGateway extends AbstractClient {
   async start() {
     if (this.config.ML_GATEWAY_SERVICE_HOST && this.config.ML_GATEWAY_SERVICE_PORT_APP) {
       const baseURL = new URL(
-        `${this.config.NODE_ENV === 'e2e' ? 'https' : 'http'}://${this.config.ML_GATEWAY_SERVICE_HOST}:${
-          this.config.ML_GATEWAY_SERVICE_PORT_APP
-        }`
+        `${this.config.NODE_ENV === 'e2e' ? 'https' : 'http'}://${
+          this.config.ML_GATEWAY_SERVICE_HOST
+        }:${this.config.ML_GATEWAY_SERVICE_PORT_APP}`
       ).href;
 
       this.client = new MLGatewayClient({

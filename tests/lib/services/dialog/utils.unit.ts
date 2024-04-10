@@ -168,7 +168,12 @@ describe('dialog manager utilities unit tests', () => {
 
       const { isIntentInScope } = utils;
 
-      const context = { data: { api: 'api' }, versionID: 'versionID', state: 'state', request: 'request' };
+      const context = {
+        data: { api: 'api' },
+        versionID: 'versionID',
+        state: 'state',
+        request: 'request',
+      };
       expect(await isIntentInScope(context as any)).to.eql(false);
       expect(commandCanHandle.args).to.eql([[runtime]]);
     });
@@ -204,7 +209,12 @@ describe('dialog manager utilities unit tests', () => {
 
       const { isIntentInScope } = utils;
 
-      const context = { data: { api: 'api' }, versionID: 'versionID', state: 'state', request: 'request' };
+      const context = {
+        data: { api: 'api' },
+        versionID: 'versionID',
+        state: 'state',
+        request: 'request',
+      };
       expect(await isIntentInScope(context as any)).to.eql(false);
       expect(commandCanHandle.args).to.eql([[runtime]]);
     });
@@ -242,7 +252,12 @@ describe('dialog manager utilities unit tests', () => {
 
       const { isIntentInScope } = utils;
 
-      const context = { data: { api: 'api' }, versionID: 'versionID', state: 'state', request: 'request' };
+      const context = {
+        data: { api: 'api' },
+        versionID: 'versionID',
+        state: 'state',
+        request: 'request',
+      };
       expect(await isIntentInScope(context as any)).to.eql(true);
       expect(findEventMatcherStub.args).to.eql([[{ event: node.interactions[0].event, runtime }]]);
       expect(commandCanHandle.args).to.eql([[runtime]]);
@@ -281,7 +296,12 @@ describe('dialog manager utilities unit tests', () => {
 
       const { isIntentInScope } = utils;
 
-      const context = { data: { api: 'api' }, versionID: 'versionID', state: 'state', request: 'request' };
+      const context = {
+        data: { api: 'api' },
+        versionID: 'versionID',
+        state: 'state',
+        request: 'request',
+      };
       expect(await isIntentInScope(context as any)).to.eql(true);
       expect(commandCanHandle.args).to.eql([[runtime]]);
     });
@@ -318,7 +338,12 @@ describe('dialog manager utilities unit tests', () => {
 
       const { isIntentInScope } = utils;
 
-      const context = { data: { api: 'api' }, versionID: 'versionID', state: 'state', request: 'request' };
+      const context = {
+        data: { api: 'api' },
+        versionID: 'versionID',
+        state: 'state',
+        request: 'request',
+      };
       expect(await isIntentInScope(context as any)).to.eql(false);
     });
   });

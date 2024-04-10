@@ -27,7 +27,11 @@ export function createS3Client({
   });
 }
 
-export async function readFileFromS3(s3Client: S3, Bucket: string, Key: string): Promise<Buffer | null> {
+export async function readFileFromS3(
+  s3Client: S3,
+  Bucket: string,
+  Key: string
+): Promise<Buffer | null> {
   const { Body } = await s3Client.getObject({
     Bucket,
     Key,

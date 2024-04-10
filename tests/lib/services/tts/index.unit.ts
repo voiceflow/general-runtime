@@ -13,7 +13,10 @@ describe('tts manager unit tests', () => {
   describe('handle', () => {
     it('passes through if no speak', async () => {
       const context = { random: 'random', trace: [{ type: 'different' }] };
-      const tts = new TTSManager({ utils: { ...defaultUtils } } as any, { GENERAL_SERVICE_ENDPOINT: 'vf' } as any);
+      const tts = new TTSManager(
+        { utils: { ...defaultUtils } } as any,
+        { GENERAL_SERVICE_ENDPOINT: 'vf' } as any
+      );
 
       expect(await tts.handle(context as any)).to.eql(context);
     });
@@ -26,7 +29,9 @@ describe('tts manager unit tests', () => {
       };
       const postStub = sinon
         .stub()
-        .returns(Promise.resolve({ data: [{ message: 'payload-value1' }, { message: 'payload-value2' }] }));
+        .returns(
+          Promise.resolve({ data: [{ message: 'payload-value1' }, { message: 'payload-value2' }] })
+        );
       const tts = new TTSManager(
         { axios: { post: postStub }, utils: { ...defaultUtils } } as any,
         { GENERAL_SERVICE_ENDPOINT: 'vf' } as any
@@ -42,7 +47,10 @@ describe('tts manager unit tests', () => {
 
     it('passes if trace does not exist', async () => {
       const context = { data: { locale: 'locale-value' }, random: 'random' };
-      const tts = new TTSManager({ utils: { ...defaultUtils } } as any, { GENERAL_SERVICE_ENDPOINT: 'vf' } as any);
+      const tts = new TTSManager(
+        { utils: { ...defaultUtils } } as any,
+        { GENERAL_SERVICE_ENDPOINT: 'vf' } as any
+      );
 
       expect(await tts.handle(context as any)).to.eql({ ...context, trace: [] });
     });

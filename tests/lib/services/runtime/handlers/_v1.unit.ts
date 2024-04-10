@@ -8,12 +8,18 @@ import { Action } from '@/runtime';
 describe('_v1 handler unit tests', () => {
   describe('canHandle', () => {
     it('false', () => {
-      expect(_V1Handler({} as any).canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
-      expect(_V1Handler({} as any).canHandle({ _v: 2 } as any, null as any, null as any, null as any)).to.eql(false);
+      expect(
+        _V1Handler({} as any).canHandle({} as any, null as any, null as any, null as any)
+      ).to.eql(false);
+      expect(
+        _V1Handler({} as any).canHandle({ _v: 2 } as any, null as any, null as any, null as any)
+      ).to.eql(false);
     });
 
     it('true', () => {
-      expect(_V1Handler({} as any).canHandle({ _v: 1 } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(
+        _V1Handler({} as any).canHandle({ _v: 1 } as any, null as any, null as any, null as any)
+      ).to.eql(true);
     });
   });
 
@@ -39,7 +45,9 @@ describe('_v1 handler unit tests', () => {
           const handler = _V1Handler({} as any);
           const variables = { getState: sinon.stub().returns({ var1: 'variable1' }) };
 
-          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+            node.id
+          );
           expect(runtime.trace.addTrace.args).to.eql([
             [
               {
@@ -75,7 +83,9 @@ describe('_v1 handler unit tests', () => {
           const handler = _V1Handler({} as any);
           const variables = { getState: sinon.stub().returns({}) };
 
-          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+            node.id
+          );
           expect(runtime.trace.addTrace.args).to.eql([
             [
               {
@@ -113,7 +123,9 @@ describe('_v1 handler unit tests', () => {
           const handler = _V1Handler({} as any);
           const variables = { getState: sinon.stub().returns({}) };
 
-          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+            null
+          );
           expect(runtime.trace.addTrace.args).to.eql([
             [
               {
@@ -150,7 +162,9 @@ describe('_v1 handler unit tests', () => {
           const handler = _V1Handler({} as any);
           const variables = { getState: sinon.stub().returns({}) };
 
-          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+            null
+          );
           expect(runtime.trace.addTrace.args).to.eql([
             [
               {
@@ -187,7 +201,9 @@ describe('_v1 handler unit tests', () => {
           const handler = _V1Handler({} as any);
           const variables = { getState: sinon.stub().returns({}) };
 
-          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('2');
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+            '2'
+          );
           expect(runtime.trace.addTrace.args).to.eql([
             [
               {
@@ -234,7 +250,10 @@ describe('_v1 handler unit tests', () => {
           data: { foo: 'bar' },
           paths: [{ event: {}, nextID: 'next-id' }],
         };
-        const commandHandler = { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns('command-id') };
+        const commandHandler = {
+          canHandle: sinon.stub().returns(true),
+          handle: sinon.stub().returns('command-id'),
+        };
         const findEventMatcher = sinon.stub().returns(null);
         const runtime = {
           getAction: sinon.stub().returns(Action.REQUEST),
@@ -243,7 +262,9 @@ describe('_v1 handler unit tests', () => {
         const variables = { getState: sinon.stub().returns({ var1: 'val1' }) };
         const handler = _V1Handler({ commandHandler, findEventMatcher } as any);
 
-        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('command-id');
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+          'command-id'
+        );
         expect(commandHandler.canHandle.args).to.eql([[runtime]]);
         expect(commandHandler.handle.args).to.eql([[runtime, variables]]);
         expect(findEventMatcher.args).to.eql([[{ event: node.paths[0].event, runtime }]]);
@@ -261,7 +282,12 @@ describe('_v1 handler unit tests', () => {
           ],
         };
         const matcher = { sideEffect: sinon.stub() };
-        const findEventMatcher = sinon.stub().onFirstCall().returns(null).onSecondCall().returns(matcher);
+        const findEventMatcher = sinon
+          .stub()
+          .onFirstCall()
+          .returns(null)
+          .onSecondCall()
+          .returns(matcher);
         const runtime = {
           getAction: sinon.stub().returns(Action.REQUEST),
           trace: { addTrace: sinon.stub() },
@@ -269,7 +295,9 @@ describe('_v1 handler unit tests', () => {
         const variables = { getState: sinon.stub().returns({ var1: 'val1' }) };
         const handler = _V1Handler({ findEventMatcher } as any);
 
-        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('next-id2');
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+          'next-id2'
+        );
         expect(findEventMatcher.args).to.eql([
           [{ event: node.paths[0].event, runtime }],
           [{ event: node.paths[1].event, runtime }],
@@ -286,7 +314,12 @@ describe('_v1 handler unit tests', () => {
           paths: [{ event: { name: 'event1' }, nextID: 'next-id' }, { event: { name: 'event2' } }],
         };
         const matcher = { sideEffect: sinon.stub() };
-        const findEventMatcher = sinon.stub().onFirstCall().returns(null).onSecondCall().returns(matcher);
+        const findEventMatcher = sinon
+          .stub()
+          .onFirstCall()
+          .returns(null)
+          .onSecondCall()
+          .returns(matcher);
         const runtime = {
           getAction: sinon.stub().returns(Action.REQUEST),
           trace: { addTrace: sinon.stub() },
@@ -294,7 +327,9 @@ describe('_v1 handler unit tests', () => {
         const variables = { getState: sinon.stub().returns({ var1: 'val1' }) };
         const handler = _V1Handler({ findEventMatcher } as any);
 
-        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+          null
+        );
         expect(findEventMatcher.args).to.eql([
           [{ event: node.paths[0].event, runtime }],
           [{ event: node.paths[1].event, runtime }],

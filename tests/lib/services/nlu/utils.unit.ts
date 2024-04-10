@@ -54,12 +54,20 @@ describe('nlu manager utils unit tests', () => {
 
   describe('getAvailableIntentsAndEntities', () => {
     const mockContext = { data: { api: sinon.stub() } };
-    const mockPizzaIntent = { type: EventType.INTENT, intent: 'Pizza', mappings: [{ slot: 'foo' }, { slot: 'bar' }] };
+    const mockPizzaIntent = {
+      type: EventType.INTENT,
+      intent: 'Pizza',
+      mappings: [{ slot: 'foo' }, { slot: 'bar' }],
+    };
     const mockYesIntent = { type: EventType.INTENT, intent: 'VF.YES', mappings: [{ slot: 'baz' }] };
     const mockNoIntent = { type: EventType.INTENT, intent: 'VF.NO', mappings: [{ slot: 'qux' }] };
 
     it('takes intersection when node is scoped', async () => {
-      const mockNodeInteractions = [{ event: mockPizzaIntent }, { event: mockYesIntent }, { event: mockNoIntent }];
+      const mockNodeInteractions = [
+        { event: mockPizzaIntent },
+        { event: mockYesIntent },
+        { event: mockNoIntent },
+      ];
 
       const mockNode = {
         interactions: mockNodeInteractions,

@@ -1,7 +1,11 @@
 import { expect } from 'chai';
 
 import Store from '@/runtime/lib/Runtime/Store';
-import { createCombinedVariables, mapStores, saveCombinedVariables } from '@/runtime/lib/Runtime/utils/variables';
+import {
+  createCombinedVariables,
+  mapStores,
+  saveCombinedVariables,
+} from '@/runtime/lib/Runtime/utils/variables';
 
 describe('Runtime utils variables', () => {
   it('createCombinedVariables', () => {

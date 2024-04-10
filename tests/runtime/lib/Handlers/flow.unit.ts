@@ -18,9 +18,14 @@ describe('flowHandler unit tests', () => {
     });
 
     it('true', () => {
-      expect(flowHandler.canHandle({ diagram_id: 'program-id' } as any, null as any, null as any, null as any)).to.eql(
-        true
-      );
+      expect(
+        flowHandler.canHandle(
+          { diagram_id: 'program-id' } as any,
+          null as any,
+          null as any,
+          null as any
+        )
+      ).to.eql(true);
     });
   });
 
@@ -62,7 +67,9 @@ describe('flowHandler unit tests', () => {
       const variables = {};
 
       // assertions
-      expect(flowHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+      expect(flowHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+        null
+      );
       expect(frameStub.calledWithNew()).to.eql(true);
       expect(frameStub.args).to.eql([[{ diagramID: node.diagram_id }]]);
       expect(mapStoresStub.args).to.eql([[[], variables, newFrame.variables]]);
@@ -142,10 +149,14 @@ describe('flowHandler unit tests', () => {
       const variables = {};
 
       // assertions
-      expect(flowHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+      expect(flowHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+        null
+      );
       expect(frameStub.calledWithNew()).to.eql(true);
       expect(frameStub.args).to.eql([[{ diagramID: node.diagram_id }]]);
-      expect(mapStoresStub.args).to.eql([[node.variable_map.inputs, variables, newFrame.variables]]);
+      expect(mapStoresStub.args).to.eql([
+        [node.variable_map.inputs, variables, newFrame.variables],
+      ]);
       expect(newFrame.storage.set.args).to.eql([
         [
           S.OUTPUT_MAP,
@@ -157,7 +168,9 @@ describe('flowHandler unit tests', () => {
       ]);
       expect(topFrame.setNodeID.args).to.eql([[null]]);
       expect(runtime.stack.push.args).to.eql([[newFrame]]);
-      expect(runtime.trace.debug.args).to.eql([[`entering flow \`${newFrame.getName()}\``, BaseNode.NodeType.FLOW]]);
+      expect(runtime.trace.debug.args).to.eql([
+        [`entering flow \`${newFrame.getName()}\``, BaseNode.NodeType.FLOW],
+      ]);
       expect(runtime.trace.addTrace.args).to.eql([
         [
           {

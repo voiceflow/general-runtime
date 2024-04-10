@@ -13,7 +13,9 @@ import RuntimeManager from '../runtime';
 import { isConfidenceScoreAbove } from '../runtime/utils';
 import { NLUGatewayPredictResponse, PredictProps } from './types';
 
-export const adaptNLUPrediction = (prediction: NLUGatewayPredictResponse): BaseRequest.IntentRequest => {
+export const adaptNLUPrediction = (
+  prediction: NLUGatewayPredictResponse
+): BaseRequest.IntentRequest => {
   return {
     type: BaseRequest.RequestType.INTENT,
     payload: {
@@ -46,7 +48,11 @@ export const getNoneIntentRequest = ({
   query = '',
   confidence,
   entities = [],
-}: { query?: string; confidence?: number; entities?: BaseRequest.Entity[] } = {}): BaseRequest.IntentRequest => ({
+}: {
+  query?: string;
+  confidence?: number;
+  entities?: BaseRequest.Entity[];
+} = {}): BaseRequest.IntentRequest => ({
   type: BaseRequest.RequestType.INTENT,
   payload: {
     query,
@@ -81,10 +87,18 @@ export const mapChannelIntent = (
     })
     .otherwise(() => ({}));
 
-  return mapToUse[intent as Exclude<VoiceflowConstants.IntentName, VoiceflowConstants.IntentName.NONE>] ?? intent;
+  return (
+    mapToUse[
+      intent as Exclude<VoiceflowConstants.IntentName, VoiceflowConstants.IntentName.NONE>
+    ] ?? intent
+  );
 };
 
-export const mapChannelData = (data: any, platform?: VoiceflowConstants.PlatformType, hasChannelIntents?: boolean) => {
+export const mapChannelData = (
+  data: any,
+  platform?: VoiceflowConstants.PlatformType,
+  hasChannelIntents?: boolean
+) => {
   return {
     ...data,
     payload: {
@@ -97,7 +111,8 @@ export const mapChannelData = (data: any, platform?: VoiceflowConstants.Platform
   };
 };
 
-const setIntersect = (set1: Set<any>, set2: Set<any>) => new Set([...set1].filter((i) => set2.has(i)));
+const setIntersect = (set1: Set<any>, set2: Set<any>) =>
+  new Set([...set1].filter((i) => set2.has(i)));
 
 const getCommandLevelIntentsAndEntities = (
   stack: Stack
@@ -105,12 +120,16 @@ const getCommandLevelIntentsAndEntities = (
   const intentCommands = stack
     .getFrames()
     .flatMap((frame) => frame.getCommands<BaseNode.Utils.AnyCommand<BaseNode.Utils.IntentEvent>>())
-    .filter((command) => command.type === CommandType.JUMP && command.event.type === EventType.INTENT);
+    .filter(
+      (command) => command.type === CommandType.JUMP && command.event.type === EventType.INTENT
+    );
 
   const commandIntentNames = new Set(intentCommands.map((command) => command.event.intent));
 
   const commandEntityNames = new Set(
-    intentCommands.flatMap((command) => command.event?.mappings ?? []).flatMap((mapping) => mapping.slot ?? [])
+    intentCommands
+      .flatMap((command) => command.event?.mappings ?? [])
+      .flatMap((mapping) => mapping.slot ?? [])
   );
 
   return { commandIntentNames, commandEntityNames };
@@ -158,7 +177,9 @@ export const getAvailableIntentsAndEntities = async (
   });
 
   // get command-level scope
-  const { commandIntentNames, commandEntityNames } = getCommandLevelIntentsAndEntities(runtime.stack);
+  const { commandIntentNames, commandEntityNames } = getCommandLevelIntentsAndEntities(
+    runtime.stack
+  );
 
   const currentFrame = runtime.stack.top();
   const program = await runtime.getProgram(runtime.getVersionID(), currentFrame.getDiagramID());
@@ -181,7 +202,8 @@ export const getAvailableIntentsAndEntities = async (
   }
 
   // get node-level scope
-  const { nodeInteractionIntentNames, nodeInteractionEntityNames } = getNodeLevelIntentsAndEntities(node);
+  const { nodeInteractionIntentNames, nodeInteractionEntityNames } =
+    getNodeLevelIntentsAndEntities(node);
 
   // intersect scopes if necessary
   if (node && isIntentScopeInNode(node) && node.intentScope === BaseNode.Utils.IntentScope.NODE) {

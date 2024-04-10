@@ -58,7 +58,10 @@ describe('Runtime Stack unit tests', () => {
 
   it('updateFrames', () => {
     const frames = [{ nodeID: 'one' }, { nodeID: 'two' }];
-    const nextFrames = [new Frame({ nodeID: 'three' } as any), new Frame({ nodeID: 'four' } as any)];
+    const nextFrames = [
+      new Frame({ nodeID: 'three' } as any),
+      new Frame({ nodeID: 'four' } as any),
+    ];
     const handlers = { willChange: sinon.stub(), didChange: sinon.stub() };
     const stack = new Stack(frames as any, handlers as any);
     const prevFrames = stack.getFrames();
@@ -76,7 +79,10 @@ describe('Runtime Stack unit tests', () => {
   });
 
   it('popTo', () => {
-    const stack = new Stack([{ nodeID: 'one' }, { nodeID: 'two' }, { nodeID: 'three' }] as any, null as any);
+    const stack = new Stack(
+      [{ nodeID: 'one' }, { nodeID: 'two' }, { nodeID: 'three' }] as any,
+      null as any
+    );
     const frames = stack.getFrames();
     stack.popTo(1);
     expect(stack.getSize()).to.eql(1);
@@ -84,7 +90,10 @@ describe('Runtime Stack unit tests', () => {
   });
 
   it('lift', () => {
-    const stack = new Stack([{ nodeID: 'one' }, { nodeID: 'two' }, { nodeID: 'three' }] as any, null as any);
+    const stack = new Stack(
+      [{ nodeID: 'one' }, { nodeID: 'two' }, { nodeID: 'three' }] as any,
+      null as any
+    );
     const frames = stack.getFrames();
     stack.lift(2);
     expect(stack.getSize()).to.eql(1);

@@ -9,7 +9,10 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
 
   router.use(bodyParser.json({ limit: BODY_PARSER_SIZE_LIMIT }));
 
-  const feedbackMiddleware = [middlewares.project.resolvePublicProjectID, middlewares.rateLimit.versionConsume];
+  const feedbackMiddleware = [
+    middlewares.project.resolvePublicProjectID,
+    middlewares.rateLimit.versionConsume,
+  ];
 
   // full route: feedback/:projectID/user/:userID/feedback
   router.post('/:projectID/user/:userID', feedbackMiddleware, controllers.feedback.handler);

@@ -15,7 +15,9 @@ describe('EndHandler unit tests', () => {
     });
 
     it('true', () => {
-      expect(endHandler.canHandle({ end: true } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(
+        endHandler.canHandle({ end: true } as any, null as any, null as any, null as any)
+      ).to.eql(true);
     });
   });
 

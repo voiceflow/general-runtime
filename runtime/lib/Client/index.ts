@@ -30,7 +30,11 @@ class Controller<
 > extends AbstractLifecycle {
   private options: Pick<RuntimeOptions<DataAPI, Services>, 'api' | 'handlers' | 'services'>;
 
-  constructor({ api, handlers = [], services = {} as Services }: RuntimeOptions<DataAPI, Services>) {
+  constructor({
+    api,
+    handlers = [],
+    services = {} as Services,
+  }: RuntimeOptions<DataAPI, Services>) {
     super();
 
     this.options = {
@@ -49,7 +53,11 @@ class Controller<
     project,
     plan,
     timeout,
-  }: CreateRuntimeOptions<Request, DataAPI, Services, Version, Project>): Runtime<Request, DataAPI, Services> {
+  }: CreateRuntimeOptions<Request, DataAPI, Services, Version, Project>): Runtime<
+    Request,
+    DataAPI,
+    Services
+  > {
     return new Runtime<Request, DataAPI, Services, Version, Project>({
       request,
       versionID,

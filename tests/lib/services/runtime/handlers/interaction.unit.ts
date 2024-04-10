@@ -10,12 +10,19 @@ import { Action } from '@/runtime';
 describe('Interaction handler', () => {
   describe('canHandle', () => {
     it('false', () => {
-      expect(InteractionHandler(null as any).canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
+      expect(
+        InteractionHandler(null as any).canHandle({} as any, null as any, null as any, null as any)
+      ).to.eql(false);
     });
 
     it('true', () => {
       expect(
-        InteractionHandler(null as any).canHandle({ interactions: [] } as any, null as any, null as any, null as any)
+        InteractionHandler(null as any).canHandle(
+          { interactions: [] } as any,
+          null as any,
+          null as any,
+          null as any
+        )
       ).to.eql(true);
     });
   });
@@ -37,7 +44,9 @@ describe('Interaction handler', () => {
         const variables = { var1: 'val1' };
         const handler = InteractionHandler(utils as any);
 
-        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+          node.id
+        );
         expect(runtime.getAction.callCount).to.eql(1);
         expect(utils.addButtonsIfExists.args).to.eql([[node, runtime, variables]]);
         expect(runtime.storage.delete.args).to.eql([
@@ -69,7 +78,9 @@ describe('Interaction handler', () => {
         const variables = { var1: 'val1' };
         const handler = InteractionHandler(utils as any);
 
-        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+          node.id
+        );
         expect(runtime.getAction.callCount).to.eql(1);
         expect(utils.addButtonsIfExists.args).to.eql([[node, runtime, variables]]);
         expect(runtime.trace.addTrace.callCount).to.eql(0);
@@ -101,7 +112,9 @@ describe('Interaction handler', () => {
           const variables = { var1: 'val1' };
           const handler = InteractionHandler(utils as any);
 
-          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('else-id');
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+            'else-id'
+          );
           expect(runtime.getAction.callCount).to.eql(1);
           expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
           expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
@@ -128,7 +141,9 @@ describe('Interaction handler', () => {
             const variables = { var1: 'val1' };
             const handler = InteractionHandler(utils as any);
 
-            expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+            expect(
+              handler.handle(node as any, runtime as any, variables as any, null as any)
+            ).to.eql(null);
             expect(runtime.getAction.callCount).to.eql(1);
             expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
             expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
@@ -143,7 +158,11 @@ describe('Interaction handler', () => {
               noMatchHandler: { handle: sinon.stub().returns('else-id') },
             };
 
-            const node = { id: 'node-id', interactions: [], intentScope: BaseNode.Utils.IntentScope.NODE };
+            const node = {
+              id: 'node-id',
+              interactions: [],
+              intentScope: BaseNode.Utils.IntentScope.NODE,
+            };
             const runtime = {
               getAction: sinon.stub().returns(Action.REQUEST),
               getRequest: sinon.stub().returns({}),
@@ -154,7 +173,9 @@ describe('Interaction handler', () => {
             const variables = { var1: 'val1' };
             const handler = InteractionHandler(utils as any);
 
-            expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('else-id');
+            expect(
+              handler.handle(node as any, runtime as any, variables as any, null as any)
+            ).to.eql('else-id');
             expect(runtime.getAction.callCount).to.eql(1);
             expect(utils.commandHandler.canHandle.callCount).to.eql(0);
             expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
@@ -181,9 +202,13 @@ describe('Interaction handler', () => {
             const variables = { var1: 'val1' };
             const handler = InteractionHandler(utils as any);
 
-            expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+            expect(
+              handler.handle(node as any, runtime as any, variables as any, null as any)
+            ).to.eql(null);
             expect(runtime.getAction.callCount).to.eql(1);
-            expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime }]]);
+            expect(utils.findEventMatcher.args).to.eql([
+              [{ event: node.interactions[0].event, runtime }],
+            ]);
             expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
             expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
             expect(utils.noMatchHandler.handle.args).to.eql([[node, runtime, variables]]);
@@ -195,7 +220,10 @@ describe('Interaction handler', () => {
         it('command can handle', () => {
           const output = 'next-id';
           const utils = {
-            commandHandler: { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns(output) },
+            commandHandler: {
+              canHandle: sinon.stub().returns(true),
+              handle: sinon.stub().returns(output),
+            },
             noReplyHandler: { canHandle: sinon.stub().returns(false) },
           };
 
@@ -209,7 +237,9 @@ describe('Interaction handler', () => {
           const variables = { var1: 'val1' };
           const handler = InteractionHandler(utils as any);
 
-          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(output);
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+            output
+          );
           expect(runtime.getAction.callCount).to.eql(1);
           expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
           expect(utils.commandHandler.handle.args).to.eql([[runtime, variables]]);
@@ -219,7 +249,10 @@ describe('Interaction handler', () => {
           const output = 'next-id';
           const utils = {
             commandHandler: { canHandle: sinon.stub().returns(false) },
-            repeatHandler: { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns(output) },
+            repeatHandler: {
+              canHandle: sinon.stub().returns(true),
+              handle: sinon.stub().returns(output),
+            },
             noReplyHandler: { canHandle: sinon.stub().returns(false) },
           };
 
@@ -233,7 +266,9 @@ describe('Interaction handler', () => {
           const variables = { var1: 'val1' };
           const handler = InteractionHandler(utils as any);
 
-          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(output);
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+            output
+          );
           expect(runtime.getAction.callCount).to.eql(1);
           expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
           expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
@@ -259,7 +294,9 @@ describe('Interaction handler', () => {
           const variables = { var1: 'val1' };
           const handler = InteractionHandler(utils as any);
 
-          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(output);
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+            output
+          );
           expect(runtime.getAction.callCount).to.eql(1);
           expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
           expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
@@ -284,7 +321,9 @@ describe('Interaction handler', () => {
             storage: { delete: sinon.stub(), get: sinon.stub(), set: sinon.stub() },
           };
           const variables = { var1: 'val1' };
-          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(output);
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+            output
+          );
           expect(utils.noReplyHandler.handle.args).to.eql([[node, runtime, variables]]);
         });
 
@@ -296,7 +335,10 @@ describe('Interaction handler', () => {
               noReplyHandler: { canHandle: sinon.stub().returns(false) },
             };
 
-            const node = { id: 'node-id', interactions: [{ event: { foo: 'bar' }, nextId: 'next-id' }] };
+            const node = {
+              id: 'node-id',
+              interactions: [{ event: { foo: 'bar' }, nextId: 'next-id' }],
+            };
             const runtime = {
               getAction: sinon.stub().returns(Action.REQUEST),
               setAction: sinon.stub(),
@@ -307,13 +349,17 @@ describe('Interaction handler', () => {
             const variables = { var1: 'val1' };
             const handler = InteractionHandler(utils as any);
 
-            expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
-              node.interactions[0].nextId
-            );
+            expect(
+              handler.handle(node as any, runtime as any, variables as any, null as any)
+            ).to.eql(node.interactions[0].nextId);
             expect(runtime.getAction.callCount).to.eql(1);
-            expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime }]]);
+            expect(utils.findEventMatcher.args).to.eql([
+              [{ event: node.interactions[0].event, runtime }],
+            ]);
             expect(sideEffect.callCount).to.eql(1);
-            expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', payload: { path: 'choice:1' } }]]);
+            expect(runtime.trace.addTrace.args).to.eql([
+              [{ type: 'path', payload: { path: 'choice:1' } }],
+            ]);
           });
 
           it('with goTo', () => {
@@ -326,7 +372,13 @@ describe('Interaction handler', () => {
             const node = {
               id: 'node-id',
               interactions: [
-                { event: { type: BaseNode.Utils.EventType.INTENT, foo: 'bar', goTo: { request: 'request' } } },
+                {
+                  event: {
+                    type: BaseNode.Utils.EventType.INTENT,
+                    foo: 'bar',
+                    goTo: { request: 'request' },
+                  },
+                },
               ],
             };
             const runtime = {
@@ -339,9 +391,13 @@ describe('Interaction handler', () => {
             const variables = { var1: 'val1' };
             const handler = InteractionHandler(utils as any);
 
-            expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
+            expect(
+              handler.handle(node as any, runtime as any, variables as any, null as any)
+            ).to.eql(node.id);
             expect(runtime.getAction.callCount).to.eql(1);
-            expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime }]]);
+            expect(utils.findEventMatcher.args).to.eql([
+              [{ event: node.interactions[0].event, runtime }],
+            ]);
             expect(sideEffect.callCount).to.eql(1);
             expect(runtime.trace.addTrace.args).to.eql([
               [{ type: 'goto', payload: { request: node.interactions[0].event.goTo.request } }],
@@ -374,13 +430,17 @@ describe('Interaction handler', () => {
             const variables = { var1: 'val1' };
             const handler = InteractionHandler(utils as any);
 
-            expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
-              node.interactions[3].nextId
-            );
+            expect(
+              handler.handle(node as any, runtime as any, variables as any, null as any)
+            ).to.eql(node.interactions[3].nextId);
             expect(runtime.getAction.callCount).to.eql(1);
-            expect(utils.findEventMatcher.args[3]).to.eql([{ event: node.interactions[3].event, runtime }]);
+            expect(utils.findEventMatcher.args[3]).to.eql([
+              { event: node.interactions[3].event, runtime },
+            ]);
             expect(sideEffect.callCount).to.eql(1);
-            expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', payload: { path: 'choice:4' } }]]);
+            expect(runtime.trace.addTrace.args).to.eql([
+              [{ type: 'path', payload: { path: 'choice:4' } }],
+            ]);
           });
 
           it('without nextId', () => {
@@ -401,11 +461,17 @@ describe('Interaction handler', () => {
             const variables = { var1: 'val1' };
             const handler = InteractionHandler(utils as any);
 
-            expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+            expect(
+              handler.handle(node as any, runtime as any, variables as any, null as any)
+            ).to.eql(null);
             expect(runtime.getAction.callCount).to.eql(1);
-            expect(utils.findEventMatcher.args).to.eql([[{ event: node.interactions[0].event, runtime }]]);
+            expect(utils.findEventMatcher.args).to.eql([
+              [{ event: node.interactions[0].event, runtime }],
+            ]);
             expect(sideEffect.callCount).to.eql(1);
-            expect(runtime.trace.addTrace.args).to.eql([[{ type: 'path', payload: { path: 'choice:1' } }]]);
+            expect(runtime.trace.addTrace.args).to.eql([
+              [{ type: 'path', payload: { path: 'choice:1' } }],
+            ]);
           });
         });
       });

@@ -19,7 +19,11 @@ const convertDeprecatedReprompt = <B extends VoiceflowNode.Utils.NoReplyNode>(no
   },
 });
 
-const addNoReplyIfExists = (node: VoiceflowNode.Interaction.Node, runtime: Runtime, variables: Store) => {
+const addNoReplyIfExists = (
+  node: VoiceflowNode.Interaction.Node,
+  runtime: Runtime,
+  variables: Store
+) => {
   const noReplyNode = convertDeprecatedReprompt(node);
   const noReplyOutput = noReplyNode.noReply.prompts?.length
     ? _.sample(noReplyNode.noReply.prompts)
@@ -45,11 +49,15 @@ const utils = {
   addNoReplyIfExists,
 };
 
-export const InteractionAlexaHandler: HandlerFactory<VoiceflowNode.Interaction.Node, typeof utils> = (handlerUtils) => {
+export const InteractionAlexaHandler: HandlerFactory<
+  VoiceflowNode.Interaction.Node,
+  typeof utils
+> = (handlerUtils) => {
   const { handle, canHandle } = InteractionHandler(handlerUtils);
   return {
     handle,
-    canHandle: (node, ...args) => node.platform === VoiceflowConstants.PlatformType.ALEXA && canHandle(node, ...args),
+    canHandle: (node, ...args) =>
+      node.platform === VoiceflowConstants.PlatformType.ALEXA && canHandle(node, ...args),
   };
 };
 

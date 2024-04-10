@@ -43,7 +43,9 @@ describe('stateManagement controller unit tests', () => {
         body: { foo: 'bar' },
       };
       expect(await controller.update(req as any)).to.eql(req.body);
-      expect(services.session.saveToDb.args).to.eql([[req.headers.projectID, req.params.userID, req.body]]);
+      expect(services.session.saveToDb.args).to.eql([
+        [req.headers.projectID, req.params.userID, req.body],
+      ]);
     });
   });
 
@@ -59,7 +61,9 @@ describe('stateManagement controller unit tests', () => {
         body: {},
       };
       expect(await controller.delete(req as any)).to.eql(output);
-      expect(services.session.deleteFromDb.args).to.eql([[req.headers.projectID, req.params.userID]]);
+      expect(services.session.deleteFromDb.args).to.eql([
+        [req.headers.projectID, req.params.userID],
+      ]);
     });
   });
 
@@ -89,7 +93,9 @@ describe('stateManagement controller unit tests', () => {
       };
 
       expect(await controller.updateVariables(req as any)).to.eql(output);
-      expect(services.session.updateVariables.args).to.eql([[req.headers.projectID, req.params.userID, body]]);
+      expect(services.session.updateVariables.args).to.eql([
+        [req.headers.projectID, req.params.userID, body],
+      ]);
     });
   });
 });

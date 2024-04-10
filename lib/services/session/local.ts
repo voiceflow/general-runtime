@@ -14,7 +14,10 @@ class SessionManager extends AbstractManager implements Session {
     this.table[this.getSessionID(projectID, userID)] = state;
   }
 
-  async getFromDb<T extends Record<string, any> = Record<string, any>>(projectID: string, userID: string) {
+  async getFromDb<T extends Record<string, any> = Record<string, any>>(
+    projectID: string,
+    userID: string
+  ) {
     return (this.table[this.getSessionID(projectID, userID)] || {}) as T;
   }
 

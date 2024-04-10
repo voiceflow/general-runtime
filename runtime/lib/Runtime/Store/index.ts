@@ -49,7 +49,10 @@ class Store {
     );
   }
 
-  constructor(payload: State = {}, { didUpdate, willUpdate }: { didUpdate?: DidUpdate; willUpdate?: WillUpdate } = {}) {
+  constructor(
+    payload: State = {},
+    { didUpdate, willUpdate }: { didUpdate?: DidUpdate; willUpdate?: WillUpdate } = {}
+  ) {
     this.store = { ...payload };
 
     this.didUpdate = didUpdate;
@@ -100,8 +103,14 @@ class Store {
     return Object.keys(this.store);
   }
 
-  public reduce<T>(callback: (acc: T, value: { key: string; value: unknown }, index: number) => T, initial: T): T {
-    return this.keys().reduce((acc, key, i) => callback(acc, { key, value: this.get(key) }, i), initial);
+  public reduce<T>(
+    callback: (acc: T, value: { key: string; value: unknown }, index: number) => T,
+    initial: T
+  ): T {
+    return this.keys().reduce(
+      (acc, key, i) => callback(acc, { key, value: this.get(key) }, i),
+      initial
+    );
   }
 
   public map<T>(callback: (value: { key: string; value: unknown }, index: number) => T): T[] {

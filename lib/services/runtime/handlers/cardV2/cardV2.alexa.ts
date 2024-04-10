@@ -14,11 +14,14 @@ const utils = {
   commandHandler: CommandAlexaHandler(),
 };
 
-export const CardV2AlexaHandler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof utils> = (handlerUtils) => {
+export const CardV2AlexaHandler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof utils> = (
+  handlerUtils
+) => {
   const { handle, canHandle } = CardV2Handler(handlerUtils);
   return {
     handle,
-    canHandle: (node, ...args) => node.platform === VoiceflowConstants.PlatformType.ALEXA && canHandle(node, ...args),
+    canHandle: (node, ...args) =>
+      node.platform === VoiceflowConstants.PlatformType.ALEXA && canHandle(node, ...args),
   };
 };
 

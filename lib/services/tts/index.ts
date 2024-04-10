@@ -15,7 +15,10 @@ export const utils = {};
 
 @injectServices({ utils })
 class TTS extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  fetchTTS = async (node: BaseNode.Speak.TraceFrame, locale?: string): Promise<BaseTrace.SpeakTrace[]> => {
+  fetchTTS = async (
+    node: BaseNode.Speak.TraceFrame,
+    locale?: string
+  ): Promise<BaseTrace.SpeakTrace[]> => {
     try {
       const { data } = await this.services.axios.post<BaseTrace.SpeakTrace['payload'][]>(
         `${this.config.GENERAL_SERVICE_ENDPOINT}/tts/convert`,

@@ -2,7 +2,8 @@ import { BaseNode } from '@voiceflow/base-types';
 
 import { Context, PartialContext } from '@/runtime';
 
-export const audioUrl = 'http://localhost:8000/audio.local/1613583846532-mixaund-tech-corporate.mp3';
+export const audioUrl =
+  'http://localhost:8000/audio.local/1613583846532-mixaund-tech-corporate.mp3';
 
 export const audioMsg = `<audio src="${audioUrl}"/>`;
 

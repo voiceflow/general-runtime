@@ -14,9 +14,14 @@ describe('ifV2 handler unit tests', () => {
 
   describe('canHandle', () => {
     it('false', () => {
-      expect(IfV2Handler({} as any).canHandle({ type: 'random' } as any, null as any, null as any, null as any)).to.eql(
-        false
-      );
+      expect(
+        IfV2Handler({} as any).canHandle(
+          { type: 'random' } as any,
+          null as any,
+          null as any,
+          null as any
+        )
+      ).to.eql(false);
     });
 
     it('true', () => {
@@ -48,7 +53,9 @@ describe('ifV2 handler unit tests', () => {
         const variables = { var1: 'val1' };
         const program = { lines: [] };
 
-        expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(output);
+        expect(
+          await handler.handle(node as any, runtime as any, variables as any, program as any)
+        ).to.eql(output);
         expect(_v1.handle.args).to.eql([[node, runtime, variables, program]]);
       });
     });
@@ -72,15 +79,23 @@ describe('ifV2 handler unit tests', () => {
         };
         runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
         const variables = { var1: 'val1' };
-        const program = { lines: [], getNode: (id: string) => ({ id, type: BaseNode.NodeType.SPEAK }) };
+        const program = {
+          lines: [],
+          getNode: (id: string) => ({ id, type: BaseNode.NodeType.SPEAK }),
+        };
 
-        expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(
-          node.payload.elseId
-        );
+        expect(
+          await handler.handle(node as any, runtime as any, variables as any, program as any)
+        ).to.eql(node.payload.elseId);
 
         expect(CodeHandlerStub.calledOnce).to.eql(true);
-        expect(Object.keys((CodeHandlerStub.args[0][0] as any).callbacks)).to.eql(['setOutputPort', 'addDebugError']);
-        expect(typeof (CodeHandlerStub.args[0][0] as any).callbacks.setOutputPort).to.eql('function');
+        expect(Object.keys((CodeHandlerStub.args[0][0] as any).callbacks)).to.eql([
+          'setOutputPort',
+          'addDebugError',
+        ]);
+        expect(typeof (CodeHandlerStub.args[0][0] as any).callbacks.setOutputPort).to.eql(
+          'function'
+        );
 
         expect(codeHandler.handle.args).to.eql([
           [
@@ -125,7 +140,12 @@ describe('ifV2 handler unit tests', () => {
         const codeHandler = { handle: sinon.stub() };
         sinon.stub(CodeHandler, 'default').returns(codeHandler as any);
 
-        const node = { payload: { expressions: [] }, paths: [], id: 'step-id', type: BaseNode.NodeType.IF_V2 };
+        const node = {
+          payload: { expressions: [] },
+          paths: [],
+          id: 'step-id',
+          type: BaseNode.NodeType.IF_V2,
+        };
         const runtime = {
           trace: { debug: sinon.stub(), addTrace: sinon.stub() },
           turn: { get: sinon.stub().returns([]) },
@@ -135,7 +155,9 @@ describe('ifV2 handler unit tests', () => {
         const variables = { var1: 'val1' };
         const program = { lines: [] };
 
-        expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(null);
+        expect(
+          await handler.handle(node as any, runtime as any, variables as any, program as any)
+        ).to.eql(null);
         expect(runtime.trace.addTrace.args).to.eql([
           [
             {
@@ -180,12 +202,18 @@ describe('ifV2 handler unit tests', () => {
           debugLogging: null as unknown as DebugLogging,
         };
         runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
-        const variables = { getState: sinon.stub().returns({ a: 3, b: false, arr: [1, 3, 5] }), merge: sinon.stub() };
-        const program = { lines: [], getNode: (id: string) => ({ id, type: BaseNode.NodeType.SPEAK }) };
+        const variables = {
+          getState: sinon.stub().returns({ a: 3, b: false, arr: [1, 3, 5] }),
+          merge: sinon.stub(),
+        };
+        const program = {
+          lines: [],
+          getNode: (id: string) => ({ id, type: BaseNode.NodeType.SPEAK }),
+        };
 
-        expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(
-          node.paths[2].nextID
-        );
+        expect(
+          await handler.handle(node as any, runtime as any, variables as any, program as any)
+        ).to.eql(node.paths[2].nextID);
 
         expect(runtime.trace.debug.args).to.eql([
           ['evaluating code - no variable changes', BaseNode.NodeType.CODE],

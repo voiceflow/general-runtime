@@ -21,7 +21,10 @@ const natoApcoExceptions = new Map([
   ['for', 4],
 ]);
 
-const processQuery = (query: string, entityVerboseValue: BaseRequest.VerboseValue[]): QueryWord[] => {
+const processQuery = (
+  query: string,
+  entityVerboseValue: BaseRequest.VerboseValue[]
+): QueryWord[] => {
   const splitQuery = query.split(' ');
   const processed: QueryWord[] = [];
   let startIndex = 0;
@@ -73,7 +76,10 @@ export const natoApcoConverter = (entities: BaseRequest.Entity[], slots: Slot[],
         if (!Array.isArray(entity.verboseValue)) {
           const splitValue = entity.value.split(' ').map((value) => [value]);
           entity.value = splitValue
-            .reduce((acc, cur) => (firstLetterExpections.has(cur[0]) ? acc + cur[0] : acc + cur[0][0]), '')
+            .reduce(
+              (acc, cur) => (firstLetterExpections.has(cur[0]) ? acc + cur[0] : acc + cur[0][0]),
+              ''
+            )
             .toUpperCase();
         } else {
           const processedQuery = processQuery(query, entity.verboseValue);

@@ -27,7 +27,11 @@ describe('runtime utils service unit tests', () => {
       addButtonsIfExists({} as any, { trace: { addTrace } } as any, null as any);
       addButtonsIfExists({ chips: [] } as any, { trace: { addTrace } } as any, null as any);
       addButtonsIfExists({ buttons: [] } as any, { trace: { addTrace } } as any, null as any);
-      addButtonsIfExists({ chips: [], buttons: [] } as any, { trace: { addTrace } } as any, null as any);
+      addButtonsIfExists(
+        { chips: [], buttons: [] } as any,
+        { trace: { addTrace } } as any,
+        null as any
+      );
 
       expect(addTrace.callCount).to.eql(0);
     });
@@ -60,7 +64,10 @@ describe('runtime utils service unit tests', () => {
         buttons: [
           {
             name: 'button {var1}',
-            request: { type: 'intent', payload: { intent: { name: 'intent' }, query: 'button {var1}' } },
+            request: {
+              type: 'intent',
+              payload: { intent: { name: 'intent' }, query: 'button {var1}' },
+            },
           },
           { name: 'button {var2} ', request: { type: 'text', payload: '{var2}' } },
         ],
@@ -132,7 +139,9 @@ describe('runtime utils service unit tests', () => {
         { children: [{ children: [{ text: ' three' }] }, { text: ' four ' }, { text: 'five ' }] },
       ];
 
-      expect(slateToPlaintext(content as any)).to.eql(['one ', 'two', ' ', ' three four five'].join('\n'));
+      expect(slateToPlaintext(content as any)).to.eql(
+        ['one ', 'two', ' ', ' three four five'].join('\n')
+      );
     });
   });
 
@@ -201,7 +210,11 @@ describe('runtime utils service unit tests', () => {
         { name: 'slot2', value: 'ent-val2' },
       ];
 
-      expect(mapEntities(mapping, entities, true)).to.eql({ var1: 'ent-val1', var2: 'ent-val2', var4: 0 });
+      expect(mapEntities(mapping, entities, true)).to.eql({
+        var1: 'ent-val1',
+        var2: 'ent-val2',
+        var4: 0,
+      });
     });
   });
 });

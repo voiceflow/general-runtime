@@ -12,15 +12,27 @@ describe('startHandler unit tests', () => {
 
   describe('canHandle', () => {
     it('false', () => {
-      expect(startHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
+      expect(startHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(
+        false
+      );
       expect(
-        startHandler.canHandle({ start: true, nextId: null } as any, null as any, null as any, null as any)
+        startHandler.canHandle(
+          { start: true, nextId: null } as any,
+          null as any,
+          null as any,
+          null as any
+        )
       ).to.eql(false);
     });
 
     it('true', () => {
       expect(
-        startHandler.canHandle({ start: true, nextId: 'next-id' } as any, null as any, null as any, null as any)
+        startHandler.canHandle(
+          { start: true, nextId: 'next-id' } as any,
+          null as any,
+          null as any,
+          null as any
+        )
       ).to.eql(true);
     });
   });
@@ -36,7 +48,9 @@ describe('startHandler unit tests', () => {
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
       const variables = new Store({ user_id: 'user-id' });
 
-      expect(startHandler.handle(node as any, runtime as any, variables, null as any)).to.eql(node.nextId);
+      expect(startHandler.handle(node as any, runtime as any, variables, null as any)).to.eql(
+        node.nextId
+      );
       expect(runtime.trace.debug.args).to.eql([['beginning flow', BaseNode.NodeType.START]]);
       expect(runtime.trace.addTrace.args).to.eql([
         [

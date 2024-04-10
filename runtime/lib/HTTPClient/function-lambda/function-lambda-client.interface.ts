@@ -17,7 +17,9 @@ interface FunctionLambdaRequestWithCode extends BaseFunctionLambdaRequest {
   code: string;
 }
 
-export type FunctionLambdaRequest = FunctionLambdaRequestWithReference | FunctionLambdaRequestWithCode;
+export type FunctionLambdaRequest =
+  | FunctionLambdaRequestWithReference
+  | FunctionLambdaRequestWithCode;
 
 export const FunctionLambdaSuccessResponseDTO = RuntimeCommandDTO;
 
@@ -30,6 +32,9 @@ export const FunctionLambdaErrorResponseDTO = z.object({
 
 export type FunctionLambdaErrorResponse = z.infer<typeof FunctionLambdaErrorResponseDTO>;
 
-export const FunctionLambdaResponseDTO = z.union([FunctionLambdaSuccessResponseDTO, FunctionLambdaErrorResponseDTO]);
+export const FunctionLambdaResponseDTO = z.union([
+  FunctionLambdaSuccessResponseDTO,
+  FunctionLambdaErrorResponseDTO,
+]);
 
 export type FunctionLambdaResponse = z.infer<typeof FunctionLambdaResponseDTO>;

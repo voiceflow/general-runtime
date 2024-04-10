@@ -2,7 +2,13 @@
 
 import { Context, ContextHandler, InitContextHandler, PartialContext } from './types';
 
-export { Context, ContextHandle, ContextHandler, InitContextHandler, PartialContext } from './types';
+export {
+  Context,
+  ContextHandle,
+  ContextHandler,
+  InitContextHandler,
+  PartialContext,
+} from './types';
 
 export class ContextBuilder<C extends Context<any, any, any>> {
   private pipes: ContextHandler<C>[][] = [];

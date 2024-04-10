@@ -28,7 +28,9 @@ describe('stateManagement manager unit tests', () => {
 
       expect(await service.interact(data as any)).to.eql(handlerResult.trace);
 
-      expect(services.session.getFromDb.args).to.eql([[data.headers.projectID, data.params.userID]]);
+      expect(services.session.getFromDb.args).to.eql([
+        [data.headers.projectID, data.params.userID],
+      ]);
       expect(_.get(data.body, 'state')).to.eql(session);
       expect(services.interact.handler.args).to.eql([[data]]);
       expect(services.session.saveToDb.args).to.eql([
@@ -57,7 +59,9 @@ describe('stateManagement manager unit tests', () => {
 
       expect(await service.interact(data as any)).to.eql(handlerResult.trace);
 
-      expect(services.session.getFromDb.args).to.eql([[data.headers.projectID, data.params.userID]]);
+      expect(services.session.getFromDb.args).to.eql([
+        [data.headers.projectID, data.params.userID],
+      ]);
       expect(resetStub.args).to.eql([[data]]);
       expect(_.get(data.body, 'state')).to.eql(newSession);
       expect(services.interact.handler.args).to.eql([[data]]);
@@ -68,7 +72,11 @@ describe('stateManagement manager unit tests', () => {
 
     it('with state, verbose response', async () => {
       const session = { foo: 'bar' };
-      const handlerResult = { state: { foo: 'bar2' }, trace: ['trace1', 'trace2', 'trace3'], request: { foo: 'bar3' } };
+      const handlerResult = {
+        state: { foo: 'bar2' },
+        trace: ['trace1', 'trace2', 'trace3'],
+        request: { foo: 'bar3' },
+      };
       const services = {
         session: { getFromDb: sinon.stub().resolves(session), saveToDb: sinon.stub() },
         interact: { handler: sinon.stub().resolves(handlerResult) },
@@ -84,7 +92,9 @@ describe('stateManagement manager unit tests', () => {
 
       expect(await service.interact(data as any)).to.eql(handlerResult);
 
-      expect(services.session.getFromDb.args).to.eql([[data.headers.projectID, data.params.userID]]);
+      expect(services.session.getFromDb.args).to.eql([
+        [data.headers.projectID, data.params.userID],
+      ]);
       expect(_.get(data.body, 'state')).to.eql(session);
       expect(services.interact.handler.args).to.eql([[data]]);
       expect(services.session.saveToDb.args).to.eql([
@@ -95,7 +105,11 @@ describe('stateManagement manager unit tests', () => {
     it('no state, verbose response', async () => {
       const session = {};
       const newSession = { foo: 'bar' };
-      const handlerResult = { state: { foo: 'bar2' }, trace: ['trace1', 'trace2', 'trace3'], request: { foo: 'bar3' } };
+      const handlerResult = {
+        state: { foo: 'bar2' },
+        trace: ['trace1', 'trace2', 'trace3'],
+        request: { foo: 'bar3' },
+      };
       const services = {
         session: { getFromDb: sinon.stub().resolves(session), saveToDb: sinon.stub() },
         interact: { handler: sinon.stub().resolves(handlerResult) },
@@ -113,7 +127,9 @@ describe('stateManagement manager unit tests', () => {
 
       expect(await service.interact(data as any)).to.eql(handlerResult);
 
-      expect(services.session.getFromDb.args).to.eql([[data.headers.projectID, data.params.userID]]);
+      expect(services.session.getFromDb.args).to.eql([
+        [data.headers.projectID, data.params.userID],
+      ]);
       expect(resetStub.args).to.eql([[data]]);
       expect(_.get(data.body, 'state')).to.eql(newSession);
       expect(services.interact.handler.args).to.eql([[data]]);
@@ -141,7 +157,11 @@ describe('stateManagement manager unit tests', () => {
       expect(await service.reset(data as any)).to.eql(session);
 
       expect(services.interact.state.args[0]).to.eql([data.headers.versionID]);
-      expect(services.session.saveToDb.args[0]).to.eql([data.headers.projectID, data.params.userID, session]);
+      expect(services.session.saveToDb.args[0]).to.eql([
+        data.headers.projectID,
+        data.params.userID,
+        session,
+      ]);
     });
   });
 });

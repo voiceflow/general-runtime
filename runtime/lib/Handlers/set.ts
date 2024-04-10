@@ -6,9 +6,12 @@ import { EventType } from '@/runtime/lib/Lifecycle';
 import { evaluateExpression, regexExpression } from './utils/shuntingYard';
 
 const setHandler: HandlerFactory<BaseNode.Set.Node> = () => ({
-  canHandle: (node: any) => !!(node.type !== BaseNode.NodeType.SET_V2 && node.sets && node.sets.length < 21),
+  canHandle: (node: any) =>
+    !!(node.type !== BaseNode.NodeType.SET_V2 && node.sets && node.sets.length < 21),
   handle: async (node, runtime, variables) => {
-    const { changedVariables }: RuntimeLogs.ChangedVariables<any, string> = { changedVariables: {} };
+    const { changedVariables }: RuntimeLogs.ChangedVariables<any, string> = {
+      changedVariables: {},
+    };
 
     await Promise.all(
       node.sets.map(async (set) => {
@@ -41,7 +44,9 @@ const setHandler: HandlerFactory<BaseNode.Set.Node> = () => ({
       })
     );
 
-    runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.SET, node, { changedVariables });
+    runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.SET, node, {
+      changedVariables,
+    });
 
     return node.nextId || null;
   },

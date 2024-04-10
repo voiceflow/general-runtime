@@ -4,7 +4,10 @@ import { BaseNode, BaseRequest } from '@voiceflow/base-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { CommandAlexaHandler, getCommand } from '@/lib/services/runtime/handlers/command/command.alexa';
+import {
+  CommandAlexaHandler,
+  getCommand,
+} from '@/lib/services/runtime/handlers/command/command.alexa';
 import { Action } from '@/runtime';
 
 describe('command handler unit tests', async () => {
@@ -64,9 +67,10 @@ describe('command handler unit tests', async () => {
       it('no extracted frame', () => {
         const runtime = {
           stack: { getFrames: sinon.stub().returns([]) },
-          getRequest: sinon
-            .stub()
-            .returns({ type: BaseRequest.RequestType.INTENT, payload: { intent: { name: 'random_intent' } } }),
+          getRequest: sinon.stub().returns({
+            type: BaseRequest.RequestType.INTENT,
+            payload: { intent: { name: 'random_intent' } },
+          }),
           getAction: sinon.stub().returns(Action.REQUEST),
         };
 
@@ -74,7 +78,9 @@ describe('command handler unit tests', async () => {
       });
 
       it('with extracted frame', () => {
-        const command = { event: { intent: 'random_intent', type: BaseRequest.RequestType.INTENT } };
+        const command = {
+          event: { intent: 'random_intent', type: BaseRequest.RequestType.INTENT },
+        };
         const frames = [
           {
             getCommands: sinon.stub().returns([command]),
@@ -95,13 +101,17 @@ describe('command handler unit tests', async () => {
 
   describe('canHandle', () => {
     it('false', () => {
-      expect(CommandAlexaHandler({ getCommand: sinon.stub().returns(null) } as any).canHandle(null as any)).to.eql(
-        false
-      );
+      expect(
+        CommandAlexaHandler({ getCommand: sinon.stub().returns(null) } as any).canHandle(
+          null as any
+        )
+      ).to.eql(false);
     });
     it('true', () => {
       expect(
-        CommandAlexaHandler({ getCommand: sinon.stub().returns({ foo: 'bar' }) } as any).canHandle(null as any)
+        CommandAlexaHandler({ getCommand: sinon.stub().returns({ foo: 'bar' }) } as any).canHandle(
+          null as any
+        )
       ).to.eql(true);
     });
   });
@@ -120,7 +130,9 @@ describe('command handler unit tests', async () => {
 
       it('mappings but no slots', () => {
         const commandHandler = CommandAlexaHandler({
-          getCommand: sinon.stub().returns({ command: { mappings: [] }, intent: {}, match: { sideEffect: () => {} } }),
+          getCommand: sinon
+            .stub()
+            .returns({ command: { mappings: [] }, intent: {}, match: { sideEffect: () => {} } }),
         } as any);
 
         const runtime = { turn: { delete: sinon.stub() } };
@@ -130,7 +142,9 @@ describe('command handler unit tests', async () => {
 
       it('slots but no mappings', () => {
         const commandHandler = CommandAlexaHandler({
-          getCommand: sinon.stub().returns({ command: { intent: { slots: {} } }, match: { sideEffect: () => {} } }),
+          getCommand: sinon
+            .stub()
+            .returns({ command: { intent: { slots: {} } }, match: { sideEffect: () => {} } }),
         } as any);
 
         const runtime = { turn: { delete: sinon.stub() } };
@@ -140,7 +154,11 @@ describe('command handler unit tests', async () => {
 
       it('diagram_id', () => {
         const res = {
-          command: { diagramID: 'diagram-id', intent: 'intent', type: BaseNode.Utils.CommandType.PUSH },
+          command: {
+            diagramID: 'diagram-id',
+            intent: 'intent',
+            type: BaseNode.Utils.CommandType.PUSH,
+          },
           match: { sideEffect: () => {} },
         };
         const utils = { getCommand: sinon.stub().returns(res), Frame: sinon.stub() };
@@ -156,7 +174,10 @@ describe('command handler unit tests', async () => {
 
         expect(commandHandler.handle(runtime as any, null as any)).to.eql(null);
         expect(runtime.trace.debug.args).to.eql([
-          [`matched command **${res.command.type}** - adding command flow`, BaseNode.NodeType.COMMAND],
+          [
+            `matched command **${res.command.type}** - adding command flow`,
+            BaseNode.NodeType.COMMAND,
+          ],
         ]);
         // expect(topFrame.storage.set.args).to.eql([[F.CALLED_COMMAND, true]]);
         expect(utils.Frame.args).to.eql([[{ diagramID: res.command.diagramID }]]);
@@ -188,7 +209,10 @@ describe('command handler unit tests', async () => {
 
           expect(commandHandler.handle(runtime as any, null as any)).to.eql(null);
           expect(runtime.trace.debug.args).to.eql([
-            [`matched command **${res.command.type}** - jumping to node`, BaseNode.NodeType.COMMAND],
+            [
+              `matched command **${res.command.type}** - jumping to node`,
+              BaseNode.NodeType.COMMAND,
+            ],
           ]);
           expect(topFrame.setNodeID.args).to.eql([[res.command.nextID]]);
           expect(runtime.stack.popTo.args).to.eql([[stackSize]]);
@@ -215,7 +239,10 @@ describe('command handler unit tests', async () => {
           expect(runtime.stack.popTo.args).to.eql([[index + 1]]);
           expect(topFrame.setNodeID.args).to.eql([[res.command.nextID]]);
           expect(runtime.trace.debug.args).to.eql([
-            [`matched command **${res.command.type}** - jumping to node`, BaseNode.NodeType.COMMAND],
+            [
+              `matched command **${res.command.type}** - jumping to node`,
+              BaseNode.NodeType.COMMAND,
+            ],
           ]);
         });
 
@@ -232,10 +259,16 @@ describe('command handler unit tests', async () => {
             index: 1,
             match: { sideEffect: () => {} },
           };
-          const utils = { getCommand: sinon.stub().returns(res), Frame: sinon.stub().returns(frame) };
+          const utils = {
+            getCommand: sinon.stub().returns(res),
+            Frame: sinon.stub().returns(frame),
+          };
           const commandHandler = CommandAlexaHandler(utils as any);
 
-          const topFrame = { setNodeID: sinon.stub(), getDiagramID: sinon.stub().returns('different-program-id') };
+          const topFrame = {
+            setNodeID: sinon.stub(),
+            getDiagramID: sinon.stub().returns('different-program-id'),
+          };
           const runtime = {
             trace: { debug: sinon.stub(), addTrace: sinon.stub() },
             turn: { delete: sinon.stub() },
@@ -248,7 +281,10 @@ describe('command handler unit tests', async () => {
           expect(utils.Frame.args).to.eql([[{ diagramID: res.command.diagramID }]]);
           expect(runtime.stack.push.args).to.eql([[frame]]);
           expect(runtime.trace.debug.args).to.eql([
-            [`matched command **${res.command.type}** - jumping to node`, BaseNode.NodeType.COMMAND],
+            [
+              `matched command **${res.command.type}** - jumping to node`,
+              BaseNode.NodeType.COMMAND,
+            ],
           ]);
         });
       });

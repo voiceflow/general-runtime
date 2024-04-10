@@ -14,7 +14,11 @@ export const generateNoMatch = async (
   runtime: Runtime,
   context: BaseUtils.ai.AIModelParams
 ): Promise<AIResponse | null> => {
-  if (context.model === BaseUtils.ai.GPT_MODEL.GPT_4 && runtime.plan && !GPT4_ABLE_PLAN.has(runtime.plan)) {
+  if (
+    context.model === BaseUtils.ai.GPT_MODEL.GPT_4 &&
+    runtime.plan &&
+    !GPT4_ABLE_PLAN.has(runtime.plan)
+  ) {
     return {
       ...EMPTY_AI_RESPONSE,
       output: 'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.',
@@ -30,12 +34,16 @@ export const generateNoMatch = async (
   ];
 
   // system injected as the most recent message
-  const response = await fetchChat({ ...context, system: undefined, messages }, runtime.services.mlGateway, {
-    context: {
-      projectID: runtime.project?._id,
-      workspaceID: runtime.project!.teamID,
-    },
-  });
+  const response = await fetchChat(
+    { ...context, system: undefined, messages },
+    runtime.services.mlGateway,
+    {
+      context: {
+        projectID: runtime.project?._id,
+        workspaceID: runtime.project!.teamID,
+      },
+    }
+  );
 
   if (!response.output) return null;
 

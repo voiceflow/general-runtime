@@ -23,7 +23,8 @@ const vars = (variables: Record<string, unknown>, prefix = '| '): string => {
     prefix +
     Object.entries(variables)
       .map(([key, value]) => {
-        const serializedValue = value !== null && typeof value === 'object' ? util.inspect(value) : value;
+        const serializedValue =
+          value !== null && typeof value === 'object' ? util.inspect(value) : value;
 
         return `${key}=${serializedValue}`;
       })

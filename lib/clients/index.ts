@@ -45,9 +45,9 @@ const buildClients = (config: Config): ClientMap => {
     analyticsPlatform: new AnalyticsClient(
       config.ANALYTICS_API_SERVICE_HOST && config.ANALYTICS_API_SERVICE_PORT_APP
         ? new URL(
-            `${config.NODE_ENV === 'e2e' ? 'https' : 'http'}://${config.ANALYTICS_API_SERVICE_HOST}:${
-              config.ANALYTICS_API_SERVICE_PORT_APP
-            }`
+            `${config.NODE_ENV === 'e2e' ? 'https' : 'http'}://${
+              config.ANALYTICS_API_SERVICE_HOST
+            }:${config.ANALYTICS_API_SERVICE_PORT_APP}`
           ).href
         : null
     ),

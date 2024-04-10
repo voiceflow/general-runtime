@@ -36,14 +36,20 @@ describe('Runtime utils ProgramManager', () => {
     expect(runtime.api.getProgram.args).to.eql([[versionID, diagramID]]);
     expect(runtime.callEvent.args[0][0]).to.eql(EventType.programWillFetch);
     expect(runtime.callEvent.args[0][1].diagramID).to.eql(diagramID);
-    expect(runtime.callEvent.args[1]).to.eql([EventType.programDidFetch, { diagramID, versionID, program }]);
+    expect(runtime.callEvent.args[1]).to.eql([
+      EventType.programDidFetch,
+      { diagramID, versionID, program },
+    ]);
 
     expect(runtime.callEvent.args[0][1].override()).to.eql(undefined);
   });
 
   it('has to fetch program', async () => {
     const program = { id: 'id' };
-    const runtime = { callEvent: sinon.stub(), api: { getProgram: sinon.stub().resolves(program) } };
+    const runtime = {
+      callEvent: sinon.stub(),
+      api: { getProgram: sinon.stub().resolves(program) },
+    };
     const programManager = new ProgramManager(runtime as any);
 
     const diagramID = 'diagram-id';
@@ -53,7 +59,11 @@ describe('Runtime utils ProgramManager', () => {
     expect(_.get(programManager, 'cachedProgram')).to.eql(programModel);
     expect(runtime.callEvent.callCount).to.eql(2);
     expect(runtime.callEvent.args[0][0]).to.eql(EventType.programWillFetch);
-    expect(Object.keys(runtime.callEvent.args[0][1])).to.eql(['versionID', 'diagramID', 'override']);
+    expect(Object.keys(runtime.callEvent.args[0][1])).to.eql([
+      'versionID',
+      'diagramID',
+      'override',
+    ]);
     expect(runtime.callEvent.args[0][1].diagramID).to.eql(diagramID);
     expect(typeof runtime.callEvent.args[0][1].override).to.eql('function');
     expect(runtime.callEvent.args[1]).to.eql([
@@ -65,7 +75,10 @@ describe('Runtime utils ProgramManager', () => {
   it('program gets injected', async () => {
     const runtime = { callEvent: sinon.stub() };
     const injectedProgramModel = { foo: 'bar' };
-    const fakeFn = (_event: string, utils: { diagramID: string; override: (...args: any[]) => any }) => {
+    const fakeFn = (
+      _event: string,
+      utils: { diagramID: string; override: (...args: any[]) => any }
+    ) => {
       utils.override(injectedProgramModel);
     };
 
@@ -83,7 +96,11 @@ describe('Runtime utils ProgramManager', () => {
     const diagramID = 'diagram-id';
     const versionID = 'version-id';
 
-    _.set(programManager, 'cachedProgram', new ProgramModel({ id: programID, diagramID, versionID } as any));
+    _.set(
+      programManager,
+      'cachedProgram',
+      new ProgramModel({ id: programID, diagramID, versionID } as any)
+    );
 
     const program = await programManager.get(versionID, diagramID);
     expect(program.getID()).to.eql(programID);

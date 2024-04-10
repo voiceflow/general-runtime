@@ -3,14 +3,21 @@ import { expect } from 'chai';
 import FormData from 'form-data';
 import sinon, { SinonSandbox } from 'sinon';
 
-import { createRequest, getVariable, ReduceKeyValue, stringToNumIfNumeric } from '@/runtime/lib/Handlers/api/utils';
+import {
+  createRequest,
+  getVariable,
+  ReduceKeyValue,
+  stringToNumIfNumeric,
+} from '@/runtime/lib/Handlers/api/utils';
 
 describe('Handlers api utils unit tests', () => {
   let sandbox: SinonSandbox;
   beforeEach(() => {
     sandbox = sinon.createSandbox();
 
-    sandbox.stub(FormData.prototype, 'getBoundary').returns('--------------------------aaaaaaaaaaaaaaaaaaaaaaaa');
+    sandbox
+      .stub(FormData.prototype, 'getBoundary')
+      .returns('--------------------------aaaaaaaaaaaaaaaaaaaaaaaa');
   });
 
   afterEach(() => {

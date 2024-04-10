@@ -16,7 +16,9 @@ const parseString = async <T>(result: string, markers: [string, string]): Promis
     return JSON.parse(`${markers[0]}${result}${markers[1]}`);
   }
 
-  return JSON.parse(result.substring(result.indexOf(markers[0]), result.lastIndexOf(markers[1]) + 1));
+  return JSON.parse(
+    result.substring(result.indexOf(markers[0]), result.lastIndexOf(markers[1]) + 1)
+  );
 };
 
 export const parseObjectString = async <T>(result: string): Promise<T> => {
@@ -76,7 +78,9 @@ Promise<BaseRequest.IntentRequest> => {
     u:${query} a:
   `;
 
-  const resultDebug = nluResults.intents.map(({ name, confidence }) => `${name}: ${confidence}`).join('\n');
+  const resultDebug = nluResults.intents
+    .map(({ name, confidence }) => `${name}: ${confidence}`)
+    .join('\n');
   trace?.push({
     type: BaseNode.Utils.TraceType.DEBUG,
     payload: {
@@ -135,7 +139,11 @@ Promise<BaseRequest.IntentRequest> => {
         intent.slots
           .map((slot) => entitiesByID[slot.id])
           .filter(Utils.array.isNotNullish)
-          .map(({ name, type, inputs }) => ({ name, type, ...(inputs?.length && { examples: inputs }) }))
+          .map(({ name, type, inputs }) => ({
+            name,
+            type,
+            ...(inputs?.length && { examples: inputs }),
+          }))
       );
 
       const requiredEntities = intent.slots.filter((slot) => slot.required);
@@ -195,7 +203,9 @@ Promise<BaseRequest.IntentRequest> => {
         });
 
       if (result?.output) {
-        const mappings = await parseObjectString<Record<string, string>>(result.output).catch(() => ({}));
+        const mappings = await parseObjectString<Record<string, string>>(result.output).catch(
+          () => ({})
+        );
         // validate mappings is typed correctly
         // eslint-disable-next-line max-depth
         if (!Object.values(mappings).every((value) => typeof value === 'string')) {

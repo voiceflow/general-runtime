@@ -137,7 +137,10 @@ describe('predictor unit tests', () => {
           completion: {
             generateCompletion: sinon
               .stub()
-              .resolves((mlGateway ?? mlGatewayPrediction) as CompletionPrivateHTTPControllerGenerateCompletion200),
+              .resolves(
+                (mlGateway ??
+                  mlGatewayPrediction) as CompletionPrivateHTTPControllerGenerateCompletion200
+              ),
           },
         },
       },

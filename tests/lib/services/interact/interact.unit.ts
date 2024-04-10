@@ -6,7 +6,12 @@ import sinon from 'sinon';
 import Interact from '@/lib/services/interact';
 import { TurnBuilder } from '@/runtime';
 
-const output = (context: any, state: string, params?: any) => ({ ...context, ...params, state, end: false });
+const output = (context: any, state: string, params?: any) => ({
+  ...context,
+  ...params,
+  state,
+  end: false,
+});
 
 const buildServices = (context: any) => ({
   state: { handle: sinon.stub().resolves(output(context, 'state')) },
@@ -35,7 +40,11 @@ describe('interact service unit tests', () => {
     it('works correctly', async () => {
       const data = {
         headers: { authorization: 'auth', origin: 'origin', versionID: 'versionID' },
-        body: { state: { foo: 'bar' }, request: 'request', config: { tts: true, selfDelegate: true } },
+        body: {
+          state: { foo: 'bar' },
+          request: 'request',
+          config: { tts: true, selfDelegate: true },
+        },
         params: {},
         query: { locale: 'locale', logs: RuntimeLogs.LogLevel.INFO },
       };
@@ -89,7 +98,11 @@ describe('interact service unit tests', () => {
           (
             serviceName,
             index
-          ): { serviceName: ServiceName; service: MockService; previousServiceName: ServiceName | undefined } => ({
+          ): {
+            serviceName: ServiceName;
+            service: MockService;
+            previousServiceName: ServiceName | undefined;
+          } => ({
             serviceName,
             service: services[serviceName],
             previousServiceName: servicesToAssertWith[index - 1],
@@ -109,7 +122,11 @@ describe('interact service unit tests', () => {
 
     it('omits TTS if specified in config', async () => {
       const data = {
-        body: { state: { foo: 'bar' }, request: 'request', config: { tts: false, selfDelegate: true } },
+        body: {
+          state: { foo: 'bar' },
+          request: 'request',
+          config: { tts: false, selfDelegate: true },
+        },
         headers: { versionID: 'versionID' },
         query: { locale: 'locale' },
         params: {},
@@ -212,7 +229,14 @@ describe('interact service unit tests', () => {
     expect(await interactController.handler(data as any)).to.eql('resolved-state');
     expect(services.utils.TurnBuilder.args).to.eql([[services.state]]);
     expect(turnBuilder.addHandlers.args).to.eql([
-      [services.asr, services.nlu, services.aiAssist, services.slots, services.dialog, services.runtime],
+      [
+        services.asr,
+        services.nlu,
+        services.aiAssist,
+        services.slots,
+        services.dialog,
+        services.runtime,
+      ],
       [services.analytics],
       [services.speak, services.filter],
     ]);

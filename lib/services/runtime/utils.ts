@@ -7,7 +7,12 @@ import {
   BaseVersion,
   RuntimeLogs,
 } from '@voiceflow/base-types';
-import { replaceVariables, sanitizeVariables, transformStringVariableToNumber, Utils } from '@voiceflow/common';
+import {
+  replaceVariables,
+  sanitizeVariables,
+  transformStringVariableToNumber,
+  Utils,
+} from '@voiceflow/common';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import cuid from 'cuid';
 import _ from 'lodash';
@@ -68,7 +73,10 @@ const replaceRandom = (path: string, data: Record<string, unknown>): string => {
 
   if (Array.isArray(dataBeforeRandomPath)) {
     // replace {random} with proper idx and loop again
-    const newPath = path.replace('[{random}]', `[${Math.floor(Math.random() * dataBeforeRandomPath.length)}]`);
+    const newPath = path.replace(
+      '[{random}]',
+      `[${Math.floor(Math.random() * dataBeforeRandomPath.length)}]`
+    );
     return replaceRandom(newPath, data);
   }
   // if path is invalid (array access on a non array) dont break, just return original path
@@ -94,17 +102,25 @@ export const slateInjectVariables = (
 ): BaseText.SlateTextValue => {
   // return undefined to recursively clone object https://stackoverflow.com/a/52956848
   const customizer = (value: any) =>
-    typeof value === 'string' ? replaceVariables(value, variables, undefined, { trim: false }) : undefined;
+    typeof value === 'string'
+      ? replaceVariables(value, variables, undefined, { trim: false })
+      : undefined;
 
   return _cloneDeepWith(slateValue, customizer);
 };
 
-const processActions = (actions: BaseRequest.Action.BaseAction<unknown>[] | undefined, variables: Store) =>
+const processActions = (
+  actions: BaseRequest.Action.BaseAction<unknown>[] | undefined,
+  variables: Store
+) =>
   actions?.map((action) => {
     if (BaseRequest.Action.isOpenURLAction(action)) {
       return {
         ...action,
-        payload: { ...action.payload, url: replaceVariables(action.payload.url, variables.getState()) },
+        payload: {
+          ...action.payload,
+          url: replaceVariables(action.payload.url, variables.getState()),
+        },
       };
     }
 
@@ -145,7 +161,9 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
               payload: {
                 ...request.payload,
                 query: replaceVariables(request.payload.query, variables.getState()),
-                label: request.payload.label && replaceVariables(request.payload.label, variables.getState()),
+                label:
+                  request.payload.label &&
+                  replaceVariables(request.payload.label, variables.getState()),
                 actions,
               },
             },
@@ -170,7 +188,9 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
           name: processedName,
           request: {
             ...request,
-            payload: !Utils.object.isObject(request.payload) ? request.payload : { ...request.payload, actions },
+            payload: !Utils.object.isObject(request.payload)
+              ? request.payload
+              : { ...request.payload, actions },
           },
         };
       });
@@ -195,7 +215,8 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
   }
 };
 
-export const getReadableConfidence = (confidence?: number): string => ((confidence ?? 1) * 100).toFixed(2);
+export const getReadableConfidence = (confidence?: number): string =>
+  ((confidence ?? 1) * 100).toFixed(2);
 
 export const getGlobalNoMatch = (runtime: Runtime) => {
   return runtime.version?.platformData.settings?.globalNoMatch;
@@ -218,8 +239,9 @@ export const slateToPlaintext = (content: Readonly<BaseText.SlateTextValue> = []
     .join('\n')
     .trim();
 
-export const isPromptContentInitialized = (content: BaseText.SlateTextValue | string | null | undefined) =>
-  content != null;
+export const isPromptContentInitialized = (
+  content: BaseText.SlateTextValue | string | null | undefined
+) => content != null;
 
 export const isPromptContentEmpty = (
   content: BaseText.SlateTextValue | string | null | undefined
@@ -236,12 +258,15 @@ export const removeEmptyPrompts = (
 ): Array<BaseText.SlateTextValue | string> =>
   prompts?.filter(
     (prompt) =>
-      prompt != null && (typeof prompt === 'string' ? prompt !== EMPTY_AUDIO_STRING : !!slateToPlaintext(prompt))
+      prompt != null &&
+      (typeof prompt === 'string' ? prompt !== EMPTY_AUDIO_STRING : !!slateToPlaintext(prompt))
   ) ?? [];
 
 const DEFAULT_DELAY = 1000;
 
-const getVersionMessageDelay = (version?: BaseModels.Version.Model<BaseModels.Version.PlatformData>): number | null => {
+const getVersionMessageDelay = (
+  version?: BaseModels.Version.Model<BaseModels.Version.PlatformData>
+): number | null => {
   return version?.platformData?.settings?.messageDelay?.durationMilliseconds ?? null;
 };
 
@@ -294,7 +319,11 @@ export function speakOutputTrace({ variables, output, isPrompt }: OutputParams<s
 
   const trace: BaseTrace.Speak = {
     type: BaseNode.Utils.TraceType.SPEAK,
-    payload: { message, type: BaseNode.Speak.TraceSpeakType.MESSAGE, ...(isPrompt && { isPrompt }) },
+    payload: {
+      message,
+      type: BaseNode.Speak.TraceSpeakType.MESSAGE,
+      ...(isPrompt && { isPrompt }),
+    },
   };
 
   variables?.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, message);

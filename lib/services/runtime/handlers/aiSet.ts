@@ -43,7 +43,11 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = 
               const chunks = response?.chunks?.map((chunk) => JSON.stringify(chunk)) ?? [];
               const workspaceID = Number(runtime.project?.teamID);
 
-              if (runtime.services.unleash.client.isEnabled(FeatureFlag.VF_CHUNKS_VARIABLE, { workspaceID })) {
+              if (
+                runtime.services.unleash.client.isEnabled(FeatureFlag.VF_CHUNKS_VARIABLE, {
+                  workspaceID,
+                })
+              ) {
                 variables.set(VoiceflowConstants.BuiltInVariable.VF_CHUNKS, chunks);
               }
 
@@ -57,8 +61,15 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = 
               return { ...EMPTY_AI_RESPONSE, ...response, tokens, queryTokens, answerTokens };
             }
 
-            if (node.model === BaseUtils.ai.GPT_MODEL.GPT_4 && runtime.plan && !GPT4_ABLE_PLAN.has(runtime.plan)) {
-              variables.set(variable, 'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.');
+            if (
+              node.model === BaseUtils.ai.GPT_MODEL.GPT_4 &&
+              runtime.plan &&
+              !GPT4_ABLE_PLAN.has(runtime.plan)
+            ) {
+              variables.set(
+                variable,
+                'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.'
+              );
               return EMPTY_AI_RESPONSE;
             }
 

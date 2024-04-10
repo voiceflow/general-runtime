@@ -12,7 +12,9 @@ describe('Next unit tests', () => {
     });
 
     it('true', () => {
-      expect(nextHandler.canHandle({ nextId: 'next-id' } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(
+        nextHandler.canHandle({ nextId: 'next-id' } as any, null as any, null as any, null as any)
+      ).to.eql(true);
     });
   });
 
@@ -22,8 +24,12 @@ describe('Next unit tests', () => {
       const runtime = {
         trace: { debug: sinon.stub() },
       };
-      expect(nextHandler.handle({ nextId } as any, runtime as any, null as any, null as any)).to.eql(nextId);
-      expect(runtime.trace.debug.args).to.eql([['could not handle step - redirecting to the next step']]);
+      expect(
+        nextHandler.handle({ nextId } as any, runtime as any, null as any, null as any)
+      ).to.eql(nextId);
+      expect(runtime.trace.debug.args).to.eql([
+        ['could not handle step - redirecting to the next step'],
+      ]);
     });
 
     it('returns null', () => {
@@ -31,7 +37,9 @@ describe('Next unit tests', () => {
         trace: { debug: sinon.stub() },
       };
       expect(nextHandler.handle({} as any, runtime as any, null as any, null as any)).to.eql(null);
-      expect(runtime.trace.debug.args).to.eql([['could not handle step - redirecting to the next step']]);
+      expect(runtime.trace.debug.args).to.eql([
+        ['could not handle step - redirecting to the next step'],
+      ]);
     });
   });
 });

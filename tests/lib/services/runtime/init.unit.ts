@@ -36,7 +36,10 @@ describe('runtime init service unit tests', () => {
       const versionID = 'version-id';
       const diagramID = 'diagram-id';
       const name = 'flow-name';
-      const topFrame = { getDiagramID: sinon.stub().returns(diagramID), getName: sinon.stub().returns(name) };
+      const topFrame = {
+        getDiagramID: sinon.stub().returns(diagramID),
+        getName: sinon.stub().returns(name),
+      };
       const runtime = {
         getVersionID: sinon.stub().returns(versionID),
         stack: { top: sinon.stub().returns(topFrame) },
@@ -62,7 +65,10 @@ describe('runtime init service unit tests', () => {
     it('base frame', () => {
       const client = { setEvent: sinon.stub() };
       const diagramID = 'diagram-id';
-      const topFrame = { getDiagramID: sinon.stub().returns(diagramID), getName: sinon.stub().returns('base') };
+      const topFrame = {
+        getDiagramID: sinon.stub().returns(diagramID),
+        getName: sinon.stub().returns('base'),
+      };
       const runtime = {
         getVersionID: sinon.stub().returns(diagramID),
         stack: { top: sinon.stub().returns(topFrame) },
@@ -121,7 +127,12 @@ describe('runtime init service unit tests', () => {
         const output = 'output';
         const topFrame = {
           storage: {
-            get: sinon.stub().onFirstCall().returns('called-command').onSecondCall().returns(output),
+            get: sinon
+              .stub()
+              .onFirstCall()
+              .returns('called-command')
+              .onSecondCall()
+              .returns(output),
             delete: sinon.stub(),
           },
         };
@@ -203,7 +214,9 @@ describe('runtime init service unit tests', () => {
       const fn = client.setEvent.args[3][1];
       fn({ runtime });
 
-      expect(runtime.trace.addTrace.args).to.eql([[{ type: BaseNode.Utils.TraceType.END, payload: undefined }]]);
+      expect(runtime.trace.addTrace.args).to.eql([
+        [{ type: BaseNode.Utils.TraceType.END, payload: undefined }],
+      ]);
     });
 
     it('works with empty stack and turn is end', () => {

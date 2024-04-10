@@ -53,7 +53,9 @@ const getDescription = (
   return description;
 };
 
-export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof utilsObj> = (utils) => ({
+export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof utilsObj> = (
+  utils
+) => ({
   canHandle: (node) => node.type === BaseNode.NodeType.CARD_V2,
 
   handle: (node, runtime, variables) => {
@@ -73,7 +75,9 @@ export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof uti
       const title = replaceVariables(node.title, variablesMap);
       const imageUrl = replaceVariables(node.imageUrl, variablesMap);
 
-      const buttons = _cloneDeep(node.buttons).map((button) => utils.deepVariableSubstitution(button, variablesMap));
+      const buttons = _cloneDeep(node.buttons).map((button) =>
+        utils.deepVariableSubstitution(button, variablesMap)
+      );
 
       if (title || buttons.length || description.text || imageUrl) {
         runtime.trace.addTrace<BaseNode.CardV2.TraceFrame>({
@@ -104,7 +108,8 @@ export const CardV2Handler: HandlerFactory<VoiceflowNode.CardV2.Node, typeof uti
 
     if (!isBlocking) return null;
 
-    if (utils.noReplyHandler.canHandle(runtime)) return utils.noReplyHandler.handle(node, runtime, variables);
+    if (utils.noReplyHandler.canHandle(runtime))
+      return utils.noReplyHandler.handle(node, runtime, variables);
 
     return utils.noMatchHandler.handle(node, runtime, variables);
   },

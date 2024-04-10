@@ -3,7 +3,9 @@ import { VoiceflowProgram, VoiceflowProject, VoiceflowVersion } from '@voiceflow
 import { DataAPI } from '@/runtime';
 
 // cache any versions or project it comes across
-class CacheDataAPI implements DataAPI<VoiceflowProgram.Program, VoiceflowVersion.Version, VoiceflowProject.Project> {
+class CacheDataAPI
+  implements DataAPI<VoiceflowProgram.Program, VoiceflowVersion.Version, VoiceflowProject.Project>
+{
   private projects: Record<string, VoiceflowProject.Project> = {};
 
   private versions: Record<string, VoiceflowVersion.Version> = {};

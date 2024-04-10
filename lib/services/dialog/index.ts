@@ -46,7 +46,10 @@ export interface DMStore {
 @injectServices({ utils })
 class DialogManagement extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
   static setDMStore(context: Context, store: DMStore | undefined) {
-    return { ...context, state: { ...context.state, storage: { ...context.state.storage, [StorageType.DM]: store } } };
+    return {
+      ...context,
+      state: { ...context.state, storage: { ...context.state.storage, [StorageType.DM]: store } },
+    };
   }
 
   handleDMContext = (
@@ -59,9 +62,16 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     const incomingRequestName = incomingRequest.payload.intent.name;
     const expectedIntentName = dmStateStore.intentRequest!.payload.intent.name;
 
-    log.trace(`[app] [runtime] [dm] DM-Prefixed inference result ${log.vars({ resultName: dmPrefixedResultName })}`);
+    log.trace(
+      `[app] [runtime] [dm] DM-Prefixed inference result ${log.vars({
+        resultName: dmPrefixedResultName,
+      })}`
+    );
 
-    if (dmPrefixedResultName.startsWith(VF_DM_PREFIX) || dmPrefixedResultName === expectedIntentName) {
+    if (
+      dmPrefixedResultName.startsWith(VF_DM_PREFIX) ||
+      dmPrefixedResultName === expectedIntentName
+    ) {
       // Remove hash prefix entity from the DM-prefixed result
       dmPrefixedResult.payload.entities = dmPrefixedResult.payload.entities.filter(
         (entity) => !entity.name.startsWith(VF_DM_PREFIX)
@@ -136,7 +146,10 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
     // if there is an existing entity filling request
     // AND there are slots to be filled, call predict
-    if (dmStateStore?.intentRequest && getUnfulfilledEntity(dmStateStore.intentRequest, version.prototype.model)) {
+    if (
+      dmStateStore?.intentRequest &&
+      getUnfulfilledEntity(dmStateStore.intentRequest, version.prototype.model)
+    ) {
       log.debug('[app] [runtime] [dm] in entity filling context');
 
       try {
@@ -147,7 +160,10 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               versionID: context.versionID,
               model: version.prototype?.model,
               locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
-              tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
+              tag:
+                project.liveVersion === context.versionID
+                  ? VersionTag.PRODUCTION
+                  : VersionTag.DEVELOPMENT,
               nlp: !!project.prototype?.nlp,
               hasChannelIntents: project?.platformData?.hasChannelIntents,
               platform: version.prototype.platform as VoiceflowConstants.PlatformType,
@@ -159,10 +175,18 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
         // Remove the dmPrefix from entity values that it has accidentally been attached to
         dmPrefixedResult.payload.entities.forEach((entity) => {
-          entity.value = typeof entity.value === 'string' ? entity.value.replace(prefix, '').trim() : entity.value;
+          entity.value =
+            typeof entity.value === 'string'
+              ? entity.value.replace(prefix, '').trim()
+              : entity.value;
         });
 
-        this.handleDMContext(dmStateStore, dmPrefixedResult, incomingRequest, version.prototype.model);
+        this.handleDMContext(
+          dmStateStore,
+          dmPrefixedResult,
+          incomingRequest,
+          version.prototype.model
+        );
 
         if (dmStateStore.intentRequest.payload.intent.name === VoiceflowConstants.IntentName.NONE) {
           return {
@@ -191,7 +215,10 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
     // Are there any unfulfilled required entities?
     // We need to use the stored DM state here to ensure that previously fulfilled entities are also considered!
-    const unfulfilledEntity = getUnfulfilledEntity(dmStateStore!.intentRequest, version.prototype.model);
+    const unfulfilledEntity = getUnfulfilledEntity(
+      dmStateStore!.intentRequest,
+      version.prototype.model
+    );
 
     if (unfulfilledEntity) {
       // There are unfulfilled required entities -> return dialog management prompt
@@ -214,7 +241,10 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         const output = VoiceflowUtils.prompt.isIntentVoicePrompt(prompt)
           ? fillStringEntities(
               dmStateStore!.intentRequest,
-              inputToString(prompt, (version as VoiceflowVersion.VoiceVersion).platformData.settings.defaultVoice)
+              inputToString(
+                prompt,
+                (version as VoiceflowVersion.VoiceVersion).platformData.settings.defaultVoice
+              )
             )
           : prompt.content;
 
@@ -247,7 +277,10 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
           resolvedIntent: dmStateStore.intentRequest.payload.intent.name,
           utterance: dmStateStore.intentRequest.payload.query,
           entities: Object.fromEntries(
-            dmStateStore.intentRequest.payload.entities.map((entity) => [entity.name, { value: entity.value }])
+            dmStateStore.intentRequest.payload.entities.map((entity) => [
+              entity.name,
+              { value: entity.value },
+            ])
           ),
         });
         return {

@@ -24,7 +24,9 @@ export interface Context<
   maxLogLevel: RuntimeLogs.LogLevel;
 }
 
-export type ContextHandle<C extends Context<any, any, any, any, any>> = (request: C) => C | Promise<C>;
+export type ContextHandle<C extends Context<any, any, any, any, any>> = (
+  request: C
+) => C | Promise<C>;
 
 export interface ContextHandler<C extends Context<any, any, any, any, any>> {
   handle: ContextHandle<C>;

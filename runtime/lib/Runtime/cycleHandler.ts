@@ -9,7 +9,11 @@ import Storage from '@/runtime/lib/Runtime/Store';
 export const HANDLER_OVERFLOW = 400;
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-const cycleHandler = async (runtime: Runtime, program: ProgramModel, variableState: Storage): Promise<void> => {
+const cycleHandler = async (
+  runtime: Runtime,
+  program: ProgramModel,
+  variableState: Storage
+): Promise<void> => {
   const referenceFrame = runtime.stack.top();
   const currentFrames = runtime.stack.getFrames();
 
@@ -35,7 +39,9 @@ const cycleHandler = async (runtime: Runtime, program: ProgramModel, variableSta
       const _node = node; // resolve TS type
 
       try {
-        const handler = runtime.getHandlers().find((h) => h.canHandle(_node, runtime, variableState, program));
+        const handler = runtime
+          .getHandlers()
+          .find((h) => h.canHandle(_node, runtime, variableState, program));
 
         if (handler) {
           await runtime.callEvent(EventType.handlerWillHandle, { node, variables: variableState });

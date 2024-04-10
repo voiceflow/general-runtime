@@ -94,7 +94,10 @@ class NLU extends AbstractManager implements ContextHandler {
 
     // 3. finally try open regex slot matching
     if (!model) {
-      throw new VError('Model not found. Ensure project is properly rendered.', HTTP_STATUS.NOT_FOUND);
+      throw new VError(
+        'Model not found. Ensure project is properly rendered.',
+        HTTP_STATUS.NOT_FOUND
+      );
     }
 
     const data = LEGACY_handleNLCCommand({ query, model, locale, openSlot: true, dmRequest });
@@ -132,7 +135,8 @@ class NLU extends AbstractManager implements ContextHandler {
       model: version.prototype?.model,
       locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
       versionID: context.versionID,
-      tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
+      tag:
+        project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
       nlp: !!project.prototype?.nlp,
       hasChannelIntents: project?.platformData?.hasChannelIntents,
       platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,

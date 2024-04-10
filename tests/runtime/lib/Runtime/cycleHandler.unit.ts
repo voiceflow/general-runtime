@@ -43,7 +43,10 @@ describe('Runtime cycleHandler unit tests', () => {
   it('nextID is nodeID', async () => {
     const nodeID = 'node-id';
     const referenceFrame = { getNodeID: sinon.stub().returns(nodeID) };
-    const handlers = [{ canHandle: () => false }, { canHandle: () => true, handle: sinon.stub().resolves(nodeID) }];
+    const handlers = [
+      { canHandle: () => false },
+      { canHandle: () => true, handle: sinon.stub().resolves(nodeID) },
+    ];
     const runtime = {
       callEvent: sinon.stub(),
       stack: { getFrames: sinon.stub().returns([]), top: sinon.stub().returns(referenceFrame) },
@@ -69,7 +72,10 @@ describe('Runtime cycleHandler unit tests', () => {
     const nodeID = 'node-id';
     const referenceFrame = { getNodeID: sinon.stub().returns(nodeID) };
     const error = new Error('random err');
-    const handlers = [{ canHandle: () => false }, { canHandle: () => true, handle: sinon.stub().throws(error) }];
+    const handlers = [
+      { canHandle: () => false },
+      { canHandle: () => true, handle: sinon.stub().throws(error) },
+    ];
     const runtime = {
       callEvent: sinon.stub(),
       stack: { getFrames: sinon.stub().returns([]), top: sinon.stub().returns(referenceFrame) },
@@ -92,7 +98,10 @@ describe('Runtime cycleHandler unit tests', () => {
   it('frames changed', async () => {
     const nodeID = 'node-id';
     const referenceFrame = { getNodeID: sinon.stub().returns(nodeID) };
-    const handlers = [{ canHandle: () => false }, { canHandle: () => true, handle: sinon.stub().resolves('next-id') }];
+    const handlers = [
+      { canHandle: () => false },
+      { canHandle: () => true, handle: sinon.stub().resolves('next-id') },
+    ];
     const runtime = {
       callEvent: sinon.stub(),
       stack: {
@@ -117,7 +126,10 @@ describe('Runtime cycleHandler unit tests', () => {
     _.set(file, 'HANDLER_OVERFLOW', cyclesLimit);
     const nodeID = 'node-id';
     const referenceFrame = { getNodeID: sinon.stub().returns(nodeID), setNodeID: sinon.stub() };
-    const handlers = [{ canHandle: () => false }, { canHandle: () => true, handle: sinon.stub().resolves('next-id') }];
+    const handlers = [
+      { canHandle: () => false },
+      { canHandle: () => true, handle: sinon.stub().resolves('next-id') },
+    ];
     const runtime = {
       callEvent: sinon.stub(),
       stack: {

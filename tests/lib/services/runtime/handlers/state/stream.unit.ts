@@ -15,9 +15,14 @@ describe('stream state handler unit tests', () => {
           getRequest: sinon.stub().returns({}),
           storage: { get: sinon.stub().returns(null) },
         };
-        expect(StreamStateHandler(null as any).canHandle(null as any, runtime as any, null as any, null as any)).to.eql(
-          false
-        );
+        expect(
+          StreamStateHandler(null as any).canHandle(
+            null as any,
+            runtime as any,
+            null as any,
+            null as any
+          )
+        ).to.eql(false);
         expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
       });
 
@@ -26,25 +31,42 @@ describe('stream state handler unit tests', () => {
           getRequest: sinon.stub().returns({}),
           storage: { get: sinon.stub().returns({ action: StreamAction.END }) },
         };
-        expect(StreamStateHandler(null as any).canHandle(null as any, runtime as any, null as any, null as any)).to.eql(
-          false
-        );
-        expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY], [StorageType.STREAM_PLAY]]);
+        expect(
+          StreamStateHandler(null as any).canHandle(
+            null as any,
+            runtime as any,
+            null as any,
+            null as any
+          )
+        ).to.eql(false);
+        expect(runtime.storage.get.args).to.eql([
+          [StorageType.STREAM_PLAY],
+          [StorageType.STREAM_PLAY],
+        ]);
       });
 
       it('alexa intent request', () => {
         const alexaEventIntentRequest = {
           type: BaseRequest.RequestType.INTENT,
-          payload: { intent: { name: VoiceflowConstants.IntentName.PAUSE }, entities: [], data: {} },
+          payload: {
+            intent: { name: VoiceflowConstants.IntentName.PAUSE },
+            entities: [],
+            data: {},
+          },
         };
 
         const runtime = {
           getRequest: sinon.stub().returns(alexaEventIntentRequest),
           storage: { get: sinon.stub().returns({ action: StreamAction.PAUSE }) },
         };
-        expect(StreamStateHandler(null as any).canHandle(null as any, runtime as any, null as any, null as any)).to.eql(
-          false
-        );
+        expect(
+          StreamStateHandler(null as any).canHandle(
+            null as any,
+            runtime as any,
+            null as any,
+            null as any
+          )
+        ).to.eql(false);
         expect(runtime.storage.get.callCount).to.eql(0);
       });
     });
@@ -54,10 +76,18 @@ describe('stream state handler unit tests', () => {
         getRequest: sinon.stub().returns({}),
         storage: { get: sinon.stub().returns({ action: 'play' }) },
       };
-      expect(StreamStateHandler(null as any).canHandle(null as any, runtime as any, null as any, null as any)).to.eql(
-        true
-      );
-      expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY], [StorageType.STREAM_PLAY]]);
+      expect(
+        StreamStateHandler(null as any).canHandle(
+          null as any,
+          runtime as any,
+          null as any,
+          null as any
+        )
+      ).to.eql(true);
+      expect(runtime.storage.get.args).to.eql([
+        [StorageType.STREAM_PLAY],
+        [StorageType.STREAM_PLAY],
+      ]);
     });
   });
 
@@ -66,7 +96,10 @@ describe('stream state handler unit tests', () => {
       it('command can handle', () => {
         const output = 'next-id';
         const utils = {
-          commandHandler: { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns(output) },
+          commandHandler: {
+            canHandle: sinon.stub().returns(true),
+            handle: sinon.stub().returns(output),
+          },
         };
         const runtime = {
           getRequest: sinon.stub().returns(null),
@@ -76,7 +109,9 @@ describe('stream state handler unit tests', () => {
         const variables = { var1: 'val1' };
         const handler = StreamStateHandler(utils as any);
 
-        expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(output);
+        expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(
+          output
+        );
         expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
         expect(runtime.getRequest.callCount).to.eql(1);
         expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
@@ -142,7 +177,9 @@ describe('stream state handler unit tests', () => {
           const variables = { var1: 'val1' };
           const handler = StreamStateHandler(utils as any);
 
-          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(streamPlay.pauseID);
+          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(
+            streamPlay.pauseID
+          );
           expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
           expect(runtime.getRequest.callCount).to.eql(1);
           expect(runtime.storage.set.args[0]).to.eql([
@@ -183,7 +220,9 @@ describe('stream state handler unit tests', () => {
           const variables = { var1: 'val1' };
           const handler = StreamStateHandler(utils as any);
 
-          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(null);
+          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(
+            null
+          );
           expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
           expect(runtime.getRequest.callCount).to.eql(1);
 
@@ -223,7 +262,9 @@ describe('stream state handler unit tests', () => {
         const variables = { var1: 'val1' };
         const handler = StreamStateHandler(utils as any);
 
-        expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(null);
+        expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(
+          null
+        );
         expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
         expect(runtime.getRequest.callCount).to.eql(1);
 
@@ -262,13 +303,18 @@ describe('stream state handler unit tests', () => {
         const variables = { var1: 'val1' };
         const handler = StreamStateHandler(utils as any);
 
-        expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(null);
+        expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(
+          null
+        );
         expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
         expect(runtime.getRequest.callCount).to.eql(1);
 
         expect(runtime.storage.set.callCount).to.eql(1);
         expect(runtime.storage.set.args[0][0]).to.eql(StorageType.STREAM_PLAY);
-        expect(runtime.storage.set.args[0][1]).to.contain({ action: StreamAction.START, offset: 0 });
+        expect(runtime.storage.set.args[0][1]).to.contain({
+          action: StreamAction.START,
+          offset: 0,
+        });
         expect(runtime.trace.addTrace.args[0][0]).to.eql({
           type: BaseNode.Utils.TraceType.STREAM,
           payload: {
@@ -301,13 +347,18 @@ describe('stream state handler unit tests', () => {
         const variables = { var1: 'val1' };
         const handler = StreamStateHandler(utils as any);
 
-        expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(null);
+        expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(
+          null
+        );
         expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
         expect(runtime.getRequest.callCount).to.eql(1);
 
         expect(runtime.storage.set.callCount).to.eql(1);
         expect(runtime.storage.set.args[0][0]).to.eql(StorageType.STREAM_PLAY);
-        expect(runtime.storage.set.args[0][1]).to.contain({ action: StreamAction.START, offset: 0 });
+        expect(runtime.storage.set.args[0][1]).to.contain({
+          action: StreamAction.START,
+          offset: 0,
+        });
         expect(runtime.trace.addTrace.args[0][0]).to.eql({
           type: BaseNode.Utils.TraceType.STREAM,
           payload: {
@@ -341,7 +392,9 @@ describe('stream state handler unit tests', () => {
           const variables = { var1: 'val1' };
           const handler = StreamStateHandler(utils as any);
 
-          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(nextID);
+          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(
+            nextID
+          );
           expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
           expect(runtime.getRequest.callCount).to.eql(1);
 
@@ -371,13 +424,18 @@ describe('stream state handler unit tests', () => {
           };
           const runtime = {
             getRequest: sinon.stub().returns(request),
-            storage: { get: sinon.stub().returns({ action: StreamAction.NEXT }), set: sinon.stub() },
+            storage: {
+              get: sinon.stub().returns({ action: StreamAction.NEXT }),
+              set: sinon.stub(),
+            },
             trace: { addTrace: sinon.stub() },
           };
           const variables = { var1: 'val1' };
           const handler = StreamStateHandler(utils as any);
 
-          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(null);
+          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(
+            null
+          );
           expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
           expect(runtime.getRequest.callCount).to.eql(1);
 
@@ -415,7 +473,9 @@ describe('stream state handler unit tests', () => {
           const variables = { var1: 'val1' };
           const handler = StreamStateHandler(utils as any);
 
-          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(null);
+          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(
+            null
+          );
           expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
           expect(runtime.getRequest.callCount).to.eql(1);
 
@@ -452,7 +512,9 @@ describe('stream state handler unit tests', () => {
           const variables = { var1: 'val1' };
           const handler = StreamStateHandler(utils as any);
 
-          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(previousID);
+          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(
+            previousID
+          );
           expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
           expect(runtime.getRequest.callCount).to.eql(1);
 
@@ -490,7 +552,9 @@ describe('stream state handler unit tests', () => {
         const variables = { var1: 'val1' };
         const handler = StreamStateHandler(utils as any);
 
-        expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(null);
+        expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(
+          null
+        );
         expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
         expect(runtime.getRequest.callCount).to.eql(1);
 
@@ -520,7 +584,10 @@ describe('stream state handler unit tests', () => {
           const utils = { commandHandler: { canHandle: sinon.stub().returns(false) } };
           const request = {
             type: BaseRequest.RequestType.INTENT,
-            payload: { intent: { name: AlexaConstants.AmazonIntent.PLAYBACK_NEARLY_FINISHED }, entities: [] },
+            payload: {
+              intent: { name: AlexaConstants.AmazonIntent.PLAYBACK_NEARLY_FINISHED },
+              entities: [],
+            },
           };
           const runtime = {
             getRequest: sinon.stub().returns(request),
@@ -531,7 +598,9 @@ describe('stream state handler unit tests', () => {
           const variables = { var1: 'val1' };
           const handler = StreamStateHandler(utils as any);
 
-          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(null);
+          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(
+            null
+          );
           expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
           expect(runtime.getRequest.callCount).to.eql(1);
 
@@ -559,7 +628,10 @@ describe('stream state handler unit tests', () => {
           const utils = { commandHandler: { canHandle: sinon.stub().returns(false) } };
           const request = {
             type: BaseRequest.RequestType.INTENT,
-            payload: { intent: { name: AlexaConstants.AmazonIntent.PLAYBACK_NEARLY_FINISHED }, entities: [] },
+            payload: {
+              intent: { name: AlexaConstants.AmazonIntent.PLAYBACK_NEARLY_FINISHED },
+              entities: [],
+            },
           };
           const runtime = {
             getRequest: sinon.stub().returns(request),
@@ -569,7 +641,9 @@ describe('stream state handler unit tests', () => {
           const variables = { var1: 'val1' };
           const handler = StreamStateHandler(utils as any);
 
-          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(null);
+          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(
+            null
+          );
           expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
           expect(runtime.getRequest.callCount).to.eql(1);
 
@@ -595,7 +669,10 @@ describe('stream state handler unit tests', () => {
           const utils = { commandHandler: { canHandle: sinon.stub().returns(false) } };
           const request = {
             type: BaseRequest.RequestType.INTENT,
-            payload: { intent: { name: AlexaConstants.AmazonIntent.PLAYBACK_NEARLY_FINISHED }, entities: [] },
+            payload: {
+              intent: { name: AlexaConstants.AmazonIntent.PLAYBACK_NEARLY_FINISHED },
+              entities: [],
+            },
           };
           const nextID = 'next-id';
           const runtime = {
@@ -606,7 +683,9 @@ describe('stream state handler unit tests', () => {
           const variables = { var1: 'val1' };
           const handler = StreamStateHandler(utils as any);
 
-          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(nextID);
+          expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(
+            nextID
+          );
           expect(runtime.storage.get.args).to.eql([[StorageType.STREAM_PLAY]]);
           expect(runtime.getRequest.callCount).to.eql(1);
 

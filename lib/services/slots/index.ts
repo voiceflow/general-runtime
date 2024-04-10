@@ -28,14 +28,19 @@ class SlotsService extends AbstractManager<{ utils: typeof utils }> implements C
     }
 
     if (payload.confidence) {
-      new DebugLogging(context).recordGlobalLog(RuntimeLogs.Kinds.GlobalLogKind.NLU_INTENT_RESOLVED, {
-        confidence: payload.confidence,
-        resolvedIntent: payload.intent.name,
-        utterance: payload.query,
-        entities: slots
-          ? Object.fromEntries(payload.entities.map((entity) => [entity.name, { value: entity.value }]))
-          : {},
-      });
+      new DebugLogging(context).recordGlobalLog(
+        RuntimeLogs.Kinds.GlobalLogKind.NLU_INTENT_RESOLVED,
+        {
+          confidence: payload.confidence,
+          resolvedIntent: payload.intent.name,
+          utterance: payload.query,
+          entities: slots
+            ? Object.fromEntries(
+                payload.entities.map((entity) => [entity.name, { value: entity.value }])
+              )
+            : {},
+        }
+      );
     }
 
     return context;

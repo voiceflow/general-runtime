@@ -23,12 +23,18 @@ describe('getCommand', () => {
     sinon
       .stub(EventHandler, 'findEventMatcher')
       .callsFake((c: any) => c.event === c.runtime.getRequest() && ('matcher' as any));
-    expect(GetCommand(runtime as any)).to.eql({ index: 1, command: { event: 'c4' }, match: 'matcher' });
+    expect(GetCommand(runtime as any)).to.eql({
+      index: 1,
+      command: { event: 'c4' },
+      match: 'matcher',
+    });
   });
 
   it('not matched', () => {
     const stack = {
-      getFrames: sinon.stub().returns([{ getCommands: sinon.stub().returns([{ event: 'c1' }, { event: 'c2' }]) }]),
+      getFrames: sinon
+        .stub()
+        .returns([{ getCommands: sinon.stub().returns([{ event: 'c1' }, { event: 'c2' }]) }]),
     };
     const runtime = { stack };
     sinon.stub(EventHandler, 'findEventMatcher').callsFake(() => false as any);
@@ -60,7 +66,9 @@ describe('Command handler', () => {
       const commandObj = { event: { foo: 'bar' } };
       const sideEffectStub = sinon.stub();
       const utils = {
-        getCommand: sinon.stub().returns({ command: commandObj, match: { sideEffect: sideEffectStub } }),
+        getCommand: sinon
+          .stub()
+          .returns({ command: commandObj, match: { sideEffect: sideEffectStub } }),
       };
       const handler = CommandHandler(utils as any);
 
@@ -74,17 +82,27 @@ describe('Command handler', () => {
 
     describe('command type jump', () => {
       it('no top of stack', () => {
-        const commandObj = { event: { foo: 'bar' }, type: BaseNode.Utils.CommandType.JUMP, nextID: 'next-id' };
+        const commandObj = {
+          event: { foo: 'bar' },
+          type: BaseNode.Utils.CommandType.JUMP,
+          nextID: 'next-id',
+        };
         const index = 1;
         const sideEffectStub = sinon.stub();
         const utils = {
-          getCommand: sinon.stub().returns({ command: commandObj, index, match: { sideEffect: sideEffectStub } }),
+          getCommand: sinon
+            .stub()
+            .returns({ command: commandObj, index, match: { sideEffect: sideEffectStub } }),
         };
         const handler = CommandHandler(utils as any);
 
         const setNodeID = sinon.stub();
         const runtime = {
-          stack: { getSize: sinon.stub().returns(3), popTo: sinon.stub(), top: sinon.stub().returns({ setNodeID }) },
+          stack: {
+            getSize: sinon.stub().returns(3),
+            popTo: sinon.stub(),
+            top: sinon.stub().returns({ setNodeID }),
+          },
           trace: { debug: sinon.stub(), addTrace: sinon.stub() },
         };
         const variables = { var1: 'val1' };
@@ -103,11 +121,17 @@ describe('Command handler', () => {
 
       describe('top of stack', () => {
         it('with nextID', () => {
-          const commandObj = { event: { foo: 'bar' }, type: BaseNode.Utils.CommandType.JUMP, nextID: 'next-id' };
+          const commandObj = {
+            event: { foo: 'bar' },
+            type: BaseNode.Utils.CommandType.JUMP,
+            nextID: 'next-id',
+          };
           const index = 2;
           const sideEffectStub = sinon.stub();
           const utils = {
-            getCommand: sinon.stub().returns({ command: commandObj, index, match: { sideEffect: sideEffectStub } }),
+            getCommand: sinon
+              .stub()
+              .returns({ command: commandObj, index, match: { sideEffect: sideEffectStub } }),
           };
           const handler = CommandHandler(utils as any);
 
@@ -134,7 +158,9 @@ describe('Command handler', () => {
           const index = 2;
           const sideEffectStub = sinon.stub();
           const utils = {
-            getCommand: sinon.stub().returns({ command: commandObj, index, match: { sideEffect: sideEffectStub } }),
+            getCommand: sinon
+              .stub()
+              .returns({ command: commandObj, index, match: { sideEffect: sideEffectStub } }),
           };
           const handler = CommandHandler(utils as any);
 
@@ -163,7 +189,9 @@ describe('Command handler', () => {
         const commandObj = { event: { foo: 'bar' }, type: BaseNode.Utils.CommandType.PUSH };
         const sideEffectStub = sinon.stub();
         const utils = {
-          getCommand: sinon.stub().returns({ command: commandObj, match: { sideEffect: sideEffectStub } }),
+          getCommand: sinon
+            .stub()
+            .returns({ command: commandObj, match: { sideEffect: sideEffectStub } }),
         };
         const handler = CommandHandler(utils as any);
 
@@ -176,17 +204,26 @@ describe('Command handler', () => {
       });
 
       it('with diagramID', () => {
-        const commandObj = { event: { foo: 'bar' }, type: BaseNode.Utils.CommandType.PUSH, diagramID: 'diagram-id' };
+        const commandObj = {
+          event: { foo: 'bar' },
+          type: BaseNode.Utils.CommandType.PUSH,
+          diagramID: 'diagram-id',
+        };
         const sideEffectStub = sinon.stub();
         const utils = {
-          getCommand: sinon.stub().returns({ command: commandObj, match: { sideEffect: sideEffectStub } }),
+          getCommand: sinon
+            .stub()
+            .returns({ command: commandObj, match: { sideEffect: sideEffectStub } }),
           Frame: sinon.stub(),
         };
         const handler = CommandHandler(utils as any);
 
         const storageSetStub = sinon.stub();
         const runtime = {
-          stack: { top: sinon.stub().returns({ storage: { set: storageSetStub } }), push: sinon.stub() },
+          stack: {
+            top: sinon.stub().returns({ storage: { set: storageSetStub } }),
+            push: sinon.stub(),
+          },
           trace: { debug: sinon.stub(), addTrace: sinon.stub() },
         };
         const variables = { var1: 'val1' };
@@ -195,7 +232,10 @@ describe('Command handler', () => {
         expect(utils.getCommand.args).to.eql([[runtime]]);
         expect(sideEffectStub.args).to.eql([[variables]]);
         expect(runtime.trace.debug.args).to.eql([
-          [`matched command **${commandObj.type}** - adding command flow`, BaseNode.NodeType.COMMAND],
+          [
+            `matched command **${commandObj.type}** - adding command flow`,
+            BaseNode.NodeType.COMMAND,
+          ],
         ]);
         expect(storageSetStub.args).to.eql([[FrameType.CALLED_COMMAND, true]]);
         expect(utils.Frame.args).to.eql([[{ diagramID: commandObj.diagramID }]]);

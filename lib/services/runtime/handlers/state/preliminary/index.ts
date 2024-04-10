@@ -33,7 +33,9 @@ export const utilsObj = {
  * If request comes in but runtime nodeID is not a node that handles events (i.e, interaction, capture, _v1, etc..) =>
  * Handle it here
  */
-export const PreliminaryHandler: HandlerFactory<VoiceflowNode.Interaction.Node, typeof utilsObj> = (utils) => ({
+export const PreliminaryHandler: HandlerFactory<VoiceflowNode.Interaction.Node, typeof utilsObj> = (
+  utils
+) => ({
   canHandle: (node, runtime, variables, program) => {
     const request = runtime.getRequest();
     return (

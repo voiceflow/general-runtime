@@ -35,7 +35,10 @@ const IfV2Handler: HandlerFactory<BaseNode.IfV2.Node, IfV2Options> = ({ _v1 }) =
     };
 
     // use isolated-vm
-    const codeHandler = CodeHandler({ callbacks: { setOutputPort, addDebugError }, useStrictVM: true });
+    const codeHandler = CodeHandler({
+      callbacks: { setOutputPort, addDebugError },
+      useStrictVM: true,
+    });
 
     let code = '';
     for (let i = 0; i < node.payload.expressions.length; i++) {
@@ -48,7 +51,9 @@ const IfV2Handler: HandlerFactory<BaseNode.IfV2.Node, IfV2Options> = ({ _v1 }) =
               }
             } catch (err) {
               if (err != null) {
-                addDebugError({ index: ${i + 1}, expression: \`${expression}\`, msg: err.toString() });
+                addDebugError({ index: ${
+                  i + 1
+                }, expression: \`${expression}\`, msg: err.toString() });
               } else {
                 // matched - exit early
                 throw(null);
@@ -67,11 +72,17 @@ const IfV2Handler: HandlerFactory<BaseNode.IfV2.Node, IfV2Options> = ({ _v1 }) =
     );
 
     debugErrors.forEach((err) =>
-      runtime.trace.debug(`Error condition ${err.index} - "${err.expression}": ${err.msg}`, BaseNode.NodeType.IF_V2)
+      runtime.trace.debug(
+        `Error condition ${err.index} - "${err.expression}": ${err.msg}`,
+        BaseNode.NodeType.IF_V2
+      )
     );
 
     if (outputPortIndex !== -1) {
-      runtime.trace.debug(`condition matched - taking path ${outputPortIndex + 1}`, BaseNode.NodeType.IF_V2);
+      runtime.trace.debug(
+        `condition matched - taking path ${outputPortIndex + 1}`,
+        BaseNode.NodeType.IF_V2
+      );
       const pathID = node.paths[outputPortIndex].nextID;
 
       runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.CONDITION, node, {

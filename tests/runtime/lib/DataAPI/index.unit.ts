@@ -96,7 +96,9 @@ describe('client unit tests', () => {
       expect(eventCallback.args).to.eql([[{ ...event, runtime }]]);
 
       // event not found
-      expect(async () => client.callEvent('random' as any, event as any, runtime as any)).not.throw();
+      expect(async () =>
+        client.callEvent('random' as any, event as any, runtime as any)
+      ).not.throw();
     });
   });
 });

@@ -7,7 +7,10 @@ import { DataAPI } from './types';
 // shallow objectId to string
 export const shallowObjectIdToString = <T extends Record<string, any>>(obj: T): T => {
   return Object.fromEntries(
-    Object.entries(obj).map(([key, value]) => [key, value instanceof ObjectId ? value.toHexString() : value])
+    Object.entries(obj).map(([key, value]) => [
+      key,
+      value instanceof ObjectId ? value.toHexString() : value,
+    ])
   ) as T;
 };
 
@@ -63,14 +66,18 @@ class MongoDataAPI<
 
     const version = await this.client.db
       .collection(this.versionsCollection)
-      .findOne<(V & { _id: ObjectId; projectID: ObjectId }) | null>({ _id: new ObjectId(versionID) });
+      .findOne<(V & { _id: ObjectId; projectID: ObjectId }) | null>({
+        _id: new ObjectId(versionID),
+      });
 
     if (!version) throw new Error(`Version not found: ${versionID}`);
 
     return shallowObjectIdToString(version);
   };
 
-  public getVersionPublishing = async (versionID: string): Promise<V['platformData']['publishing']> => {
+  public getVersionPublishing = async (
+    versionID: string
+  ): Promise<V['platformData']['publishing']> => {
     const version = await this.client.db.collection(this.versionsCollection).findOne(
       { _id: new ObjectId(versionID) },
       {
@@ -94,7 +101,9 @@ class MongoDataAPI<
         _id: new ObjectId(projectID),
       },
       {
-        projection: Object.fromEntries(documentIDs.map((documentID) => [`knowledgeBase.documents.${documentID}`, 1])),
+        projection: Object.fromEntries(
+          documentIDs.map((documentID) => [`knowledgeBase.documents.${documentID}`, 1])
+        ),
       }
     );
 
@@ -157,7 +166,10 @@ class MongoDataAPI<
   };
 
   public getProjectByAPIKey = async (auth: string) => {
-    const [apiKeyID, apiKeyKey] = MongoDataAPI.isolateAPIKey(auth).replace('VF.', '').replace('DM.', '').split('.');
+    const [apiKeyID, apiKeyKey] = MongoDataAPI.isolateAPIKey(auth)
+      .replace('VF.', '')
+      .replace('DM.', '')
+      .split('.');
 
     const apiKey = await this.client.db
       .collection(this.apiKeyCollection)

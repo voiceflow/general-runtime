@@ -10,12 +10,19 @@ import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 describe('CaptureV2 handler', () => {
   describe('canHandle', () => {
     it('false', () => {
-      expect(CaptureV2Handler(null as any).canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
+      expect(
+        CaptureV2Handler(null as any).canHandle({} as any, null as any, null as any, null as any)
+      ).to.eql(false);
     });
 
     it('true', () => {
       expect(
-        CaptureV2Handler(null as any).canHandle({ type: 'captureV2' } as any, null as any, null as any, null as any)
+        CaptureV2Handler(null as any).canHandle(
+          { type: 'captureV2' } as any,
+          null as any,
+          null as any,
+          null as any
+        )
       ).to.eql(true);
     });
   });
@@ -36,7 +43,9 @@ describe('CaptureV2 handler', () => {
         storage: { delete: sinon.stub() },
       };
       const variables = { var1: 'val1' };
-      expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
+      expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+        node.id
+      );
       expect(runtime.trace.addTrace.args).to.eql([
         [
           {
@@ -76,7 +85,9 @@ describe('CaptureV2 handler', () => {
           storage: { delete: sinon.stub() },
         };
         const variables = { var1: 'val1' };
-        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(output);
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+          output
+        );
 
         expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
         expect(utils.commandHandler.handle.args).to.eql([[runtime, variables]]);
@@ -106,7 +117,9 @@ describe('CaptureV2 handler', () => {
           storage: { delete: sinon.stub() },
         };
         const variables = { var1: 'val1' };
-        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(output);
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+          output
+        );
 
         expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
         expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
@@ -131,7 +144,9 @@ describe('CaptureV2 handler', () => {
           storage: { delete: sinon.stub() },
         };
         const variables = { var1: 'val1' };
-        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(output);
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+          output
+        );
 
         expect(utils.noReplyHandler.handle.args).to.eql([[node, runtime, variables]]);
       });
@@ -180,7 +195,9 @@ describe('CaptureV2 handler', () => {
           };
           runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
           const variables = new Store();
-          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+            node.nextId
+          );
 
           expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
           expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
@@ -254,7 +271,9 @@ describe('CaptureV2 handler', () => {
           };
           runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
           const variables = new Store();
-          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+            node.nextId
+          );
 
           expect(utils.commandHandler.canHandle.callCount).to.eql(0);
           expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
@@ -302,7 +321,12 @@ describe('CaptureV2 handler', () => {
           };
           const handler = CaptureV2Handler(utils as any);
 
-          const node = { id: 'node-id', variable: 'variable1', nextId: 'next-id', type: BaseNode.NodeType.CAPTURE_V2 };
+          const node = {
+            id: 'node-id',
+            variable: 'variable1',
+            nextId: 'next-id',
+            type: BaseNode.NodeType.CAPTURE_V2,
+          };
           const request = {
             type: 'intent',
             payload: {
@@ -323,7 +347,9 @@ describe('CaptureV2 handler', () => {
           };
           runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
           const variables = new Store();
-          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+            node.nextId
+          );
 
           expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
           expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
@@ -373,7 +399,10 @@ describe('CaptureV2 handler', () => {
           const handler = CaptureV2Handler(utils as any);
 
           const node = { id: 'node-id', intent: { name: 'intent1' } };
-          const request = { type: 'intent', payload: { intent: { name: 'intent2', entities: [] } } };
+          const request = {
+            type: 'intent',
+            payload: { intent: { name: 'intent2', entities: [] } },
+          };
           const runtime = {
             getAction: sinon.stub().returns(Action.REQUEST),
             getRequest: sinon.stub().returns(request),
@@ -381,12 +410,16 @@ describe('CaptureV2 handler', () => {
             storage: { delete: sinon.stub() },
           };
           const variables = { var1: 'val1' };
-          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('no-match-path');
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+            'no-match-path'
+          );
 
           expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
           expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
           expect(runtime.getRequest.callCount).to.eql(1);
-          expect(utils.entityFillingNoMatchHandler.handle.args).to.eql([[node, runtime, variables]]);
+          expect(utils.entityFillingNoMatchHandler.handle.args).to.eql([
+            [node, runtime, variables],
+          ]);
           expect(noMatchHandler.args).to.eql([
             [
               [node.intent.name],
@@ -426,12 +459,16 @@ describe('CaptureV2 handler', () => {
             storage: { delete: sinon.stub() },
           };
           const variables = { var1: 'val1' };
-          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('no-match-path');
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+            'no-match-path'
+          );
 
           expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
           expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
           expect(runtime.getRequest.callCount).to.eql(1);
-          expect(utils.entityFillingNoMatchHandler.handle.args).to.eql([[node, runtime, variables]]);
+          expect(utils.entityFillingNoMatchHandler.handle.args).to.eql([
+            [node, runtime, variables],
+          ]);
           expect(noMatchHandler.args).to.eql([[]]);
         });
 
@@ -461,12 +498,16 @@ describe('CaptureV2 handler', () => {
             storage: { delete: sinon.stub() },
           };
           const variables = { var1: 'val1' };
-          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('no-match-path');
+          expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+            'no-match-path'
+          );
 
           expect(utils.commandHandler.canHandle.args).to.eql([[runtime]]);
           expect(utils.repeatHandler.canHandle.args).to.eql([[runtime]]);
           expect(runtime.getRequest.callCount).to.eql(1);
-          expect(utils.entityFillingNoMatchHandler.handle.args).to.eql([[node, runtime, variables]]);
+          expect(utils.entityFillingNoMatchHandler.handle.args).to.eql([
+            [node, runtime, variables],
+          ]);
           expect(noMatchHandler.args).to.eql([
             [
               [node.intent.name],

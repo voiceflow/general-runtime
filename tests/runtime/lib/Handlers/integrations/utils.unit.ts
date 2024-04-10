@@ -27,20 +27,29 @@ describe('handlers integrations utils unit tests', () => {
             ],
           },
         };
-        expect(resultMappings(node as any, resultData as any)).to.eql({ var1: 'val1', var2: 'val2' });
+        expect(resultMappings(node as any, resultData as any)).to.eql({
+          var1: 'val1',
+          var2: 'val2',
+        });
       });
     });
 
     it('CUSTOM_API', () => {
       const resultData = { foo: 'bar' };
       expect(
-        resultMappings({ selected_integration: BaseNode.Utils.IntegrationType.CUSTOM_API } as any, resultData as any)
+        resultMappings(
+          { selected_integration: BaseNode.Utils.IntegrationType.CUSTOM_API } as any,
+          resultData as any
+        )
       ).to.eql(resultData);
     });
 
     it('ZAPIER', () => {
       expect(
-        resultMappings({ selected_integration: BaseNode.Utils.IntegrationType.ZAPIER } as any, null as any)
+        resultMappings(
+          { selected_integration: BaseNode.Utils.IntegrationType.ZAPIER } as any,
+          null as any
+        )
       ).to.eql({});
     });
   });

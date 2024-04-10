@@ -9,11 +9,19 @@ import { AbstractManager } from './utils';
 class StateManagement extends AbstractManager {
   async interact(data: {
     params: { userID: string };
-    body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
+    body: {
+      state?: State;
+      action?: RuntimeRequest;
+      request?: RuntimeRequest;
+      config?: BaseRequest.RequestConfig;
+    };
     query: { locale?: string; verbose?: boolean; logs?: RuntimeLogs.LogLevel };
     headers: { authorization?: string; projectID: string; versionID: string };
   }) {
-    let state = await this.services.session.getFromDb<State>(data.headers.projectID, data.params.userID);
+    let state = await this.services.session.getFromDb<State>(
+      data.headers.projectID,
+      data.params.userID
+    );
     if (_.isEmpty(state)) {
       state = await this.reset(data);
     }
@@ -29,7 +37,10 @@ class StateManagement extends AbstractManager {
     return data.query.verbose ? { state: updatedState, trace, request } : trace;
   }
 
-  async reset(data: { headers: { projectID: string; versionID: string }; params: { userID: string } }) {
+  async reset(data: {
+    headers: { projectID: string; versionID: string };
+    params: { userID: string };
+  }) {
     const {
       headers: { projectID, versionID },
       params: { userID },

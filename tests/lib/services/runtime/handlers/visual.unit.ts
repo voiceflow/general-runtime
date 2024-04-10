@@ -31,8 +31,12 @@ describe('Visual handler', () => {
 
     const handler = VisualHandler();
 
-    expect(handler.canHandle({ ...deps.node, data: null }, deps.runtime, null as any, null as any)).to.eql(false);
-    expect(handler.canHandle({ ...deps.node, type: null }, deps.runtime, null as any, null as any)).to.eql(false);
+    expect(
+      handler.canHandle({ ...deps.node, data: null }, deps.runtime, null as any, null as any)
+    ).to.eql(false);
+    expect(
+      handler.canHandle({ ...deps.node, type: null }, deps.runtime, null as any, null as any)
+    ).to.eql(false);
   });
 
   it('handle', async () => {
@@ -42,7 +46,9 @@ describe('Visual handler', () => {
 
     handler.handle(deps.node, deps.runtime, null as any, null as any);
 
-    expect(deps.runtime.trace.debug.args).to.eql([['__visual__ - entered', BaseNode.NodeType.VISUAL]]);
+    expect(deps.runtime.trace.debug.args).to.eql([
+      ['__visual__ - entered', BaseNode.NodeType.VISUAL],
+    ]);
     expect(deps.runtime.trace.addTrace.args).to.eql([
       [{ type: BaseNode.Utils.TraceType.VISUAL, payload: deps.node.data }],
     ]);

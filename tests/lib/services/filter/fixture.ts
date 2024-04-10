@@ -47,5 +47,12 @@ export const CHOICE_TRACE: BaseTrace.ChoiceTrace = {
 };
 
 export const context: PartialContext<Context> = {
-  trace: [BLOCK_TRACE_START, DEBUG_TRACE, BLOCK_TRACE_MIDDLE, SPEAK_TRACE_NO_SSML, SPEAK_TRACE_SSML, CHOICE_TRACE],
+  trace: [
+    BLOCK_TRACE_START,
+    DEBUG_TRACE,
+    BLOCK_TRACE_MIDDLE,
+    SPEAK_TRACE_NO_SSML,
+    SPEAK_TRACE_SSML,
+    CHOICE_TRACE,
+  ],
 };

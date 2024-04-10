@@ -9,7 +9,10 @@ export const MAX_DELEGATION_TURNS = 3;
 const isGoToTrace = (frame: BaseTrace.AnyTrace | null): frame is BaseTrace.GoToTrace =>
   frame?.type === BaseTrace.TraceType.GOTO && !!frame.payload.request;
 
-const autoDelegateTurn = async (turn: TurnBuilder<Context>, initContext: PartialContext<Context>): Promise<Context> => {
+const autoDelegateTurn = async (
+  turn: TurnBuilder<Context>,
+  initContext: PartialContext<Context>
+): Promise<Context> => {
   let context: Context | null = null;
   const trace: BaseTrace.AnyTrace[] = [];
 

@@ -21,7 +21,9 @@ describe('dataAPI client unit tests', () => {
       CREATOR_API_ENDPOINT: 'creator endpoint',
     };
 
-    expect(await new DataAPI({ config, mongo: true } as any, API as any).get()).to.eql({ type: 'local' });
+    expect(await new DataAPI({ config, mongo: true } as any, API as any).get()).to.eql({
+      type: 'local',
+    });
     expect(API.LocalDataApi.args).to.eql([
       [{ projectSource: config.PROJECT_SOURCE }, { fs: Static.fs, path: Static.path }],
     ]);
@@ -40,7 +42,9 @@ describe('dataAPI client unit tests', () => {
       CREATOR_API_ENDPOINT: 'creator endpoint',
     };
 
-    expect(await new DataAPI({ config, mongo: { db: 'mongodb' } } as any, API as any).get()).to.eql({ type: 'remote' });
+    expect(await new DataAPI({ config, mongo: { db: 'mongodb' } } as any, API as any).get()).to.eql(
+      { type: 'remote' }
+    );
     expect(API.PrototypeDataAPI.args).to.eql([[{ db: 'mongodb' }]]);
     expect(API.CreatorDataApi.callCount).to.eql(0);
     expect(API.LocalDataApi.callCount).to.eql(0);

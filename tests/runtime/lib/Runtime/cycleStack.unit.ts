@@ -89,13 +89,17 @@ describe('Runtime cycleStack unit tests', () => {
 
       expect(runtime.getProgram.args).to.eql([[versionID, diagramID]]);
       expect(currentFrame.hydrate.args).to.eql([[program]]);
-      expect(createCombinedVariablesStub.args).to.eql([[runtime.variables, currentFrame.variables]]);
+      expect(createCombinedVariablesStub.args).to.eql([
+        [runtime.variables, currentFrame.variables],
+      ]);
       expect(runtime.callEvent.args).to.eql([
         [EventType.stateWillExecute, { program, variables: combinedVariables }],
         [EventType.stateDidExecute, { program, variables: combinedVariables }],
       ]);
       expect(cycleHandlerStub.args).to.eql([[runtime, program, combinedVariables]]);
-      expect(saveCombinedVariablesStub.args).to.eql([[combinedVariables, runtime.variables, currentFrame.variables]]);
+      expect(saveCombinedVariablesStub.args).to.eql([
+        [combinedVariables, runtime.variables, currentFrame.variables],
+      ]);
     });
 
     it('stack is not the same after', async () => {

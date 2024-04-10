@@ -19,7 +19,9 @@ const utilsObj = {
   addNoReplyTimeoutIfExists,
 };
 
-export const CaptureHandler: HandlerFactory<VoiceflowNode.Capture.Node, typeof utilsObj> = (utils) => ({
+export const CaptureHandler: HandlerFactory<VoiceflowNode.Capture.Node, typeof utilsObj> = (
+  utils
+) => ({
   canHandle: (node) => !!node.variable || node.type === BaseNode.NodeType.CAPTURE,
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (node, runtime, variables) => {
@@ -63,9 +65,13 @@ export const CaptureHandler: HandlerFactory<VoiceflowNode.Capture.Node, typeof u
 
     if (isIntentRequest(request)) {
       if (!node.variable && node.slots?.length && request.payload.entities) {
-        const variablesBefore: Record<string, RuntimeLogs.VariableValue | null> = Object.fromEntries(
-          node.slots.map((entity) => [entity, variables.get<RuntimeLogs.VariableValue>(entity) ?? null])
-        );
+        const variablesBefore: Record<string, RuntimeLogs.VariableValue | null> =
+          Object.fromEntries(
+            node.slots.map((entity) => [
+              entity,
+              variables.get<RuntimeLogs.VariableValue>(entity) ?? null,
+            ])
+          );
         const variablesAfter = mapEntities(
           node.slots.map((slot) => ({ slot, variable: slot })),
           request.payload.entities

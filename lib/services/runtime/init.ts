@@ -55,7 +55,10 @@ const init = (client: Client) => {
 
   client.setEvent(EventType.updateDidExecute, ({ runtime }) => {
     if (runtime.stack.isEmpty() && !runtime.turn.get(TurnType.END)) {
-      runtime.trace.addTrace<BaseNode.Exit.TraceFrame>({ type: BaseNode.Utils.TraceType.END, payload: undefined });
+      runtime.trace.addTrace<BaseNode.Exit.TraceFrame>({
+        type: BaseNode.Utils.TraceType.END,
+        payload: undefined,
+      });
     }
   });
 

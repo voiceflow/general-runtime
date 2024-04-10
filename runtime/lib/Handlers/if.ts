@@ -18,7 +18,9 @@ const IfHandler: HandlerFactory<BaseNode.If.Node> = () => ({
         });
 
         runtime.trace.debug(
-          `evaluating path ${i + 1}: \`${regexExpression(node.expressions[i])}\` to \`${evaluated?.toString?.()}\``,
+          `evaluating path ${i + 1}: \`${regexExpression(
+            node.expressions[i]
+          )}\` to \`${evaluated?.toString?.()}\``,
           BaseNode.NodeType.IF
         );
 
@@ -34,7 +36,9 @@ const IfHandler: HandlerFactory<BaseNode.If.Node> = () => ({
         }
       } catch (error) {
         runtime.trace.debug(
-          `unable to resolve expression \`${regexExpression(node.expressions[i])}\`  \n\`${error}\``,
+          `unable to resolve expression \`${regexExpression(
+            node.expressions[i]
+          )}\`  \n\`${error}\``,
           BaseNode.NodeType.IF
         );
         // eslint-disable-next-line no-await-in-loop

@@ -9,7 +9,9 @@ const utilsObj = {
   commandHandler: CommandHandler(),
 };
 
-export const OneShotIntentHandler: HandlerFactory<BaseNode.Start.Node, typeof utilsObj> = (utils) => ({
+export const OneShotIntentHandler: HandlerFactory<BaseNode.Start.Node, typeof utilsObj> = (
+  utils
+) => ({
   canHandle: (node, runtime) => {
     return (
       runtime.getAction() === Action.REQUEST &&

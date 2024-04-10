@@ -28,9 +28,19 @@ class OutgoingApiLimiter {
       // TODO: Once Redis on PROD is updated to version >6, replace the two lines below by
       // await this.runtime.services.redis.set(this.makeRedisHostnameHash(hostname), `${uses + 1}`, 'KEEPTTL');
       const curExpiry = await this.runtime.services.redis.ttl(this.makeRedisHostnameHash(hostname));
-      await this.runtime.services.redis.set(this.makeRedisHostnameHash(hostname), `${uses + 1}`, 'EX', curExpiry);
+      await this.runtime.services.redis.set(
+        this.makeRedisHostnameHash(hostname),
+        `${uses + 1}`,
+        'EX',
+        curExpiry
+      );
     } else {
-      await this.runtime.services.redis.set(this.makeRedisHostnameHash(hostname), '1', 'EX', this.EXPIRY_LENGTH);
+      await this.runtime.services.redis.set(
+        this.makeRedisHostnameHash(hostname),
+        '1',
+        'EX',
+        this.EXPIRY_LENGTH
+      );
     }
     return (uses ? uses + 1 : 1) > MIN_NUMBER_OF_CALLS_TO_THROTTLE;
   }

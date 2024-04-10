@@ -16,7 +16,10 @@ class LocalDataAPI<
 
   private programs: Record<string, P>;
 
-  constructor({ projectSource }: { projectSource: string }, { fs, path }: { fs: typeof FS; path: typeof Path }) {
+  constructor(
+    { projectSource }: { projectSource: string },
+    { fs, path }: { fs: typeof FS; path: typeof Path }
+  ) {
     if (!projectSource) throw new Error('project source undefined');
 
     const content = JSON.parse(fs.readFileSync(path.join('projects', projectSource), 'utf8'));
@@ -36,7 +39,8 @@ class LocalDataAPI<
 
   public getVersion = async () => this.version;
 
-  public getProgram = async (_versionID: string, diagramID: string) => this.programs[diagramID] ?? null;
+  public getProgram = async (_versionID: string, diagramID: string) =>
+    this.programs[diagramID] ?? null;
 
   public getProject = async () => this.project;
 
@@ -44,7 +48,8 @@ class LocalDataAPI<
 
   public getKBDocuments = async () => this.project.knowledgeBase?.documents || {};
 
-  public hasKBDocuments = async () => Object.keys(this.project.knowledgeBase?.documents || {}).length > 0;
+  public hasKBDocuments = async () =>
+    Object.keys(this.project.knowledgeBase?.documents || {}).length > 0;
 }
 
 export default LocalDataAPI;

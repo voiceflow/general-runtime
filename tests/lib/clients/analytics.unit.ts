@@ -53,7 +53,9 @@ describe('Analytics client unit tests', () => {
 
       const client = AnalyticsIngester(config as any);
 
-      const ingestClient = { ingestInteraction: sinon.stub().resolves({ data: { turnID: 'turnID' } }) };
+      const ingestClient = {
+        ingestInteraction: sinon.stub().resolves({ data: { turnID: 'turnID' } }),
+      };
 
       (client as any).ingestClient = ingestClient;
       const timestamp = new Date();

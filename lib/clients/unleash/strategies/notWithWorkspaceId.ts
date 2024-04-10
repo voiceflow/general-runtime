@@ -5,7 +5,10 @@ class NotWithWorkspaceId extends Strategy {
     super('notWithWorkspaceId');
   }
 
-  isEnabled(parameters: { workspaceIds: string }, { workspaceId }: Context & { workspaceId?: number }): boolean {
+  isEnabled(
+    parameters: { workspaceIds: string },
+    { workspaceId }: Context & { workspaceId?: number }
+  ): boolean {
     // regexp copied from the default userWithId strategy
     const workspaceIds = parameters.workspaceIds.split(/\s*,\s*/);
 

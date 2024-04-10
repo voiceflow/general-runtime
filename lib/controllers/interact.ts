@@ -26,7 +26,12 @@ class InteractController extends AbstractController {
   async handler(
     req: Request<
       { userID: string },
-      { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig },
+      {
+        state?: State;
+        action?: RuntimeRequest;
+        request?: RuntimeRequest;
+        config?: BaseRequest.RequestConfig;
+      },
       { authorization: string; versionID: string },
       { locale?: string; logs: RuntimeLogs.LogLevel }
     >

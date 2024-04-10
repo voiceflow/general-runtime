@@ -6,11 +6,9 @@ import { Config } from '@/types';
 
 import { FullServiceMap } from '.';
 
-export abstract class AbstractManager<T extends Record<string, any> = Record<string, any>> extends BaseAbstractManager<
-  FullServiceMap,
-  Config,
-  T
-> {}
+export abstract class AbstractManager<
+  T extends Record<string, any> = Record<string, any>
+> extends BaseAbstractManager<FullServiceMap, Config, T> {}
 
 type InjectedServiceMap<S extends Record<string, unknown>> = {
   [K in keyof S]: { new (services: FullServiceMap, config: Config): S[K] };
@@ -36,7 +34,10 @@ export const injectServices =
         const injectedServices = keys
           .filter((key) => !(key in services))
           .reduce(
-            (acc, key) => Object.assign(acc, { [key]: constructService(injectedServiceMap[key], services, config) }),
+            (acc, key) =>
+              Object.assign(acc, {
+                [key]: constructService(injectedServiceMap[key], services, config),
+              }),
             {} as S
           );
 

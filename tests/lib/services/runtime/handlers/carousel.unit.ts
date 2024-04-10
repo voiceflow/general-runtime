@@ -9,12 +9,19 @@ import { Action } from '@/runtime';
 describe('Carousel handler', () => {
   describe('canHandle', () => {
     it('false', () => {
-      expect(CarouselHandler(null as any).canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
+      expect(
+        CarouselHandler(null as any).canHandle({} as any, null as any, null as any, null as any)
+      ).to.eql(false);
     });
 
     it('true', () => {
       expect(
-        CarouselHandler(null as any).canHandle({ type: 'carousel' } as any, null as any, null as any, null as any)
+        CarouselHandler(null as any).canHandle(
+          { type: 'carousel' } as any,
+          null as any,
+          null as any,
+          null as any
+        )
       ).to.eql(true);
     });
   });
@@ -68,11 +75,16 @@ describe('Carousel handler', () => {
         trace: { addTrace: sinon.stub() },
         storage: { delete: sinon.stub() },
       };
-      const variables = { getState: sinon.stub().returns({ var1: 'val 1', image1: 'sample-image' }) };
+      const variables = {
+        getState: sinon.stub().returns({ var1: 'val 1', image1: 'sample-image' }),
+      };
       expect(handler.handle(node, runtime as any, variables as any, null as any)).to.eql(node.id);
       expect(utils.addNoReplyTimeoutIfExists.args).to.eql([[node, runtime]]);
       expect(runtime.storage.delete.callCount).to.eql(2);
-      expect(runtime.storage.delete.args).to.eql([[StorageType.NO_MATCHES_COUNTER], [StorageType.NO_REPLIES_COUNTER]]);
+      expect(runtime.storage.delete.args).to.eql([
+        [StorageType.NO_MATCHES_COUNTER],
+        [StorageType.NO_REPLIES_COUNTER],
+      ]);
       expect(runtime.trace.addTrace.args).to.eql([
         [
           {
@@ -115,7 +127,10 @@ describe('Carousel handler', () => {
     describe('action is not response', () => {
       it('command can handle', () => {
         const output = 'next-id';
-        const commandHandler = { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns(output) };
+        const commandHandler = {
+          canHandle: sinon.stub().returns(true),
+          handle: sinon.stub().returns(output),
+        };
         const noReplyHandler = { canHandle: sinon.stub().returns(false) };
         const utils = {
           commandHandler,
@@ -136,7 +151,9 @@ describe('Carousel handler', () => {
           storage: { delete: sinon.stub() },
         };
         const variables = { var1: 'val1' };
-        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(output);
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+          output
+        );
 
         expect(commandHandler.canHandle.args).to.eql([[runtime]]);
         expect(commandHandler.handle.args).to.eql([[runtime, variables]]);
@@ -145,7 +162,10 @@ describe('Carousel handler', () => {
       it('noReply can handle', () => {
         const output = 'next-id';
         const commandHandler = { canHandle: sinon.stub().returns(false) };
-        const noReplyHandler = { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns(output) };
+        const noReplyHandler = {
+          canHandle: sinon.stub().returns(true),
+          handle: sinon.stub().returns(output),
+        };
         const utils = {
           commandHandler,
           noReplyHandler,
@@ -165,7 +185,9 @@ describe('Carousel handler', () => {
           storage: { delete: sinon.stub() },
         };
         const variables = { var1: 'val1' };
-        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(output);
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+          output
+        );
 
         expect(noReplyHandler.handle.args).to.eql([[node, runtime, variables]]);
       });
@@ -197,7 +219,9 @@ describe('Carousel handler', () => {
           storage: { delete: sinon.stub() },
         };
         const variables = { var1: 'val1' };
-        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql('no-match-path');
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+          'no-match-path'
+        );
 
         expect(commandHandler.canHandle.args).to.eql([[runtime]]);
         expect(noMatchHandler.handle.args).to.eql([[node, runtime, variables]]);
@@ -256,7 +280,9 @@ describe('Carousel handler', () => {
         storage: { delete: sinon.stub() },
       };
       const variables = { getState: sinon.stub().returns({ var1: 'val 1' }) };
-      expect(handler.handle(node, runtime as any, variables as any, null as any)).to.eql(node.nextId);
+      expect(handler.handle(node, runtime as any, variables as any, null as any)).to.eql(
+        node.nextId
+      );
       expect(utils.addNoReplyTimeoutIfExists.callCount).to.eql(0);
       expect(runtime.storage.delete.callCount).to.eql(0);
       expect(runtime.trace.addTrace.args).to.eql([
@@ -301,7 +327,10 @@ describe('Carousel handler', () => {
     describe('action is not response', () => {
       it('command can handle', () => {
         const output = 'next-id';
-        const commandHandler = { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns(output) };
+        const commandHandler = {
+          canHandle: sinon.stub().returns(true),
+          handle: sinon.stub().returns(output),
+        };
         const noReplyHandler = { canHandle: sinon.stub().returns(false) };
         const utils = {
           commandHandler,
@@ -322,7 +351,9 @@ describe('Carousel handler', () => {
           storage: { delete: sinon.stub() },
         };
         const variables = { var1: 'val1' };
-        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(output);
+        expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+          output
+        );
 
         expect(commandHandler.canHandle.args).to.eql([[runtime]]);
         expect(commandHandler.handle.args).to.eql([[runtime, variables]]);

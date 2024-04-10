@@ -139,6 +139,8 @@ export type EventCallback<
   K extends EventType,
   TF extends BaseNode.Utils.BaseTraceFrame = BaseNode.Utils.BaseTraceFrame
 > = (event: CallbackEvent<K, TF>) => void | Promise<void>;
-export type EventCallbackMap<TF extends BaseNode.Utils.BaseTraceFrame = BaseNode.Utils.BaseTraceFrame> = {
+export type EventCallbackMap<
+  TF extends BaseNode.Utils.BaseTraceFrame = BaseNode.Utils.BaseTraceFrame
+> = {
   [key in EventType]: EventCallback<key, TF>;
 };

@@ -13,7 +13,12 @@ const createLogEntry = async (
   apiCallResult: APICallResult,
   nodeData: APINodeData,
   debugLogging: DebugLogging
-): Promise<[message: SimpleStepMessage<RuntimeLogs.Logs.ApiStepLog>, level: RuntimeLogs.Logs.ApiStepLog['level']]> => {
+): Promise<
+  [
+    message: SimpleStepMessage<RuntimeLogs.Logs.ApiStepLog>,
+    level: RuntimeLogs.Logs.ApiStepLog['level']
+  ]
+> => {
   const isVerbose = debugLogging.shouldLog(RuntimeLogs.LogLevel.VERBOSE);
   const logLevelOnSuccess = isVerbose ? RuntimeLogs.LogLevel.VERBOSE : RuntimeLogs.LogLevel.INFO;
 
@@ -80,7 +85,10 @@ const APIHandler = (config: Partial<APIHandlerConfig>): Handler<BaseNode.Integra
   handle: async (node, runtime, variables) => {
     let nextId: string | null = null;
 
-    const actionBodyData = deepVariableSubstitution(_cloneDeep(node.action_data), variables.getState()) as APINodeData;
+    const actionBodyData = deepVariableSubstitution(
+      _cloneDeep(node.action_data),
+      variables.getState()
+    ) as APINodeData;
 
     // override user agent
     const headers = actionBodyData.headers || [];
@@ -112,7 +120,10 @@ const APIHandler = (config: Partial<APIHandlerConfig>): Handler<BaseNode.Integra
       nextId = node.success_id ?? null;
     } else {
       runtime.trace.debug(
-        `API call error - \n${safeJSONStringify({ status: data.response.status, data: data.responseJSON })}`,
+        `API call error - \n${safeJSONStringify({
+          status: data.response.status,
+          data: data.responseJSON,
+        })}`,
         BaseNode.NodeType.API
       );
 

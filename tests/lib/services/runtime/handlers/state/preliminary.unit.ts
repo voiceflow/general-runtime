@@ -86,7 +86,10 @@ describe('preliminary handler unit tests', () => {
   describe('handle', () => {
     it('command can handle', () => {
       const nodeID = 'node-id';
-      const commandHandler = { canHandle: sinon.stub().returns(true), handle: sinon.stub().returns(nodeID) };
+      const commandHandler = {
+        canHandle: sinon.stub().returns(true),
+        handle: sinon.stub().returns(nodeID),
+      };
       const utils = {
         commandHandler,
       };
@@ -94,7 +97,9 @@ describe('preliminary handler unit tests', () => {
 
       const runtime = { setAction: sinon.stub() };
       const variables = { var1: 'val1', var2: 'val2' };
-      expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(nodeID);
+      expect(handler.handle(null as any, runtime as any, variables as any, null as any)).to.eql(
+        nodeID
+      );
 
       expect(commandHandler.canHandle.args).to.eql([[runtime]]);
       expect(commandHandler.handle.args).to.eql([[runtime, variables]]);
@@ -110,7 +115,9 @@ describe('preliminary handler unit tests', () => {
       const node = { id: 'id' };
       const runtime = { setAction: sinon.stub() };
       const variables = { var1: 'val1', var2: 'val2' };
-      expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.id);
+      expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+        node.id
+      );
 
       expect(commandHandler.canHandle.args).to.eql([[runtime]]);
     });

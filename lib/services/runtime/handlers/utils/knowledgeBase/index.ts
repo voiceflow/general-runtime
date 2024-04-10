@@ -71,7 +71,9 @@ const { KL_RETRIEVER_SERVICE_HOST: host, KL_RETRIEVER_SERVICE_PORT: port } = Con
 const scheme = process.env.NODE_ENV === 'e2e' ? 'https' : 'http';
 const baseApiUrl = host && port ? `${scheme}://${host}:${port}` : null;
 export const RETRIEVE_ENDPOINT = baseApiUrl ? new URL(`${baseApiUrl}/retrieve`).href : null;
-export const FAQ_RETRIEVAL_ENDPOINT = baseApiUrl ? new URL(`${baseApiUrl}/api/v1/retrieve/faq`).href : null;
+export const FAQ_RETRIEVAL_ENDPOINT = baseApiUrl
+  ? new URL(`${baseApiUrl}/api/v1/retrieve/faq`).href
+  : null;
 export const { KNOWLEDGE_BASE_LAMBDA_ENDPOINT } = Config;
 
 export const getAnswerEndpoint = (cloudEnv: string, workspaceID: string): string | null => {
@@ -129,7 +131,12 @@ export const getKBSettings = (
   return (useVersionedSettings && versionSettings) || projectSettings;
 };
 
-export const addFaqTrace = (runtime: Runtime, faqQuestion: string, faqAnswer: string, query: string) => {
+export const addFaqTrace = (
+  runtime: Runtime,
+  faqQuestion: string,
+  faqAnswer: string,
+  query: string
+) => {
   runtime.trace.addTrace<BaseTrace.KnowledgeBase>({
     type: BaseNode.Utils.TraceType.KNOWLEDGE_BASE,
     payload: {
@@ -212,7 +219,12 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<AIResponse
       };
     }
 
-    const data = await fetchKnowledgeBase(runtime.project._id, runtime.project.teamID, question, kbSettings);
+    const data = await fetchKnowledgeBase(
+      runtime.project._id,
+      runtime.project.teamID,
+      question,
+      kbSettings
+    );
     if (!data) return null;
 
     const answer = await runtime.services.aiSynthesis.answerSynthesis({
@@ -226,7 +238,9 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<AIResponse
     const chunks = data?.chunks?.map((chunk) => JSON.stringify(chunk)) ?? [];
     const workspaceID = Number(runtime.project?.teamID);
 
-    if (runtime.services.unleash.client.isEnabled(FeatureFlag.VF_CHUNKS_VARIABLE, { workspaceID })) {
+    if (
+      runtime.services.unleash.client.isEnabled(FeatureFlag.VF_CHUNKS_VARIABLE, { workspaceID })
+    ) {
       runtime.variables.set(VoiceflowConstants.BuiltInVariable.VF_CHUNKS, chunks);
     }
 

@@ -6,7 +6,9 @@ const metricsAsserter = new VFMetrics.Testing.MetricsAsserter(MetricsClient);
 
 describe('metrics client unit tests', () => {
   it('generalRequest', async () => {
-    const fixture = await metricsAsserter.assertMetric({ expected: /^general_request_total 1 \d+$/m });
+    const fixture = await metricsAsserter.assertMetric({
+      expected: /^general_request_total 1 \d+$/m,
+    });
 
     fixture.metrics.generalRequest();
 

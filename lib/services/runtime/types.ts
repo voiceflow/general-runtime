@@ -13,7 +13,9 @@ export interface Prompt {
   voice?: string;
 }
 
-export const isTextRequest = (request?: RuntimeRequest | null): request is BaseRequest.TextRequest =>
+export const isTextRequest = (
+  request?: RuntimeRequest | null
+): request is BaseRequest.TextRequest =>
   !!request && BaseRequest.isTextRequest(request) && typeof request.payload === 'string';
 
 /**
@@ -21,24 +23,31 @@ export const isTextRequest = (request?: RuntimeRequest | null): request is BaseR
  * if `request.payload.data` exists, if so this is an Alexa event request
  * otherwise it is a normal intent request
  */
-export const isIntentRequest = (request?: RuntimeRequest | null): request is BaseRequest.IntentRequest =>
+export const isIntentRequest = (
+  request?: RuntimeRequest | null
+): request is BaseRequest.IntentRequest =>
   !!request &&
   BaseRequest.isIntentRequest(request) &&
   !!request.payload?.intent?.name &&
   Array.isArray(request.payload.entities) &&
   !request.payload?.data;
 
-export const isAlexaEventIntentRequest = (request?: RuntimeRequest | null): request is BaseRequest.IntentRequest =>
+export const isAlexaEventIntentRequest = (
+  request?: RuntimeRequest | null
+): request is BaseRequest.IntentRequest =>
   !!request &&
   BaseRequest.isIntentRequest(request) &&
   !!request.payload?.intent?.name &&
   Array.isArray(request.payload.entities) &&
   !!request.payload?.data;
 
-export const isActionRequest = (request?: RuntimeRequest | null): request is BaseRequest.ActionRequest =>
-  !!request && BaseRequest.isActionRequest(request);
+export const isActionRequest = (
+  request?: RuntimeRequest | null
+): request is BaseRequest.ActionRequest => !!request && BaseRequest.isActionRequest(request);
 
-export const isPathRequest = (request?: RuntimeRequest | null): request is BaseRequest.GeneralRequest =>
+export const isPathRequest = (
+  request?: RuntimeRequest | null
+): request is BaseRequest.GeneralRequest =>
   !!request &&
   BaseRequest.isGeneralRequest(request) &&
   request.type.startsWith('path-') &&

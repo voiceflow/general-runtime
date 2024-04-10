@@ -21,7 +21,8 @@ import { generateNoMatch } from './utils/generativeNoMatch';
 import { knowledgeBaseNoMatch } from './utils/knowledgeBase';
 import { generateOutput } from './utils/output';
 
-export type NoMatchNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoMatchNode & { type: BaseNode.NodeType };
+export type NoMatchNode = BaseRequest.NodeButton &
+  VoiceflowNode.Utils.NoMatchNode & { type: BaseNode.NodeType };
 
 export const utilsObj = {
   getOutputTrace,
@@ -30,7 +31,13 @@ export const utilsObj = {
   addNoReplyTimeoutIfExists,
 };
 
-export const convertDeprecatedNoMatch = ({ noMatch, elseId, noMatches, randomize, ...node }: NoMatchNode) =>
+export const convertDeprecatedNoMatch = ({
+  noMatch,
+  elseId,
+  noMatches,
+  randomize,
+  ...node
+}: NoMatchNode) =>
   ({
     noMatch: {
       prompts: noMatch?.prompts ?? noMatches,
@@ -76,7 +83,9 @@ const getOutput = async (
       // use knowledge base if it exists OR if the user has FAQs
       if (
         (await runtime.api.hasKBDocuments(runtime.project._id)) ||
-        runtime.services.unleash.client.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(runtime.project?.teamID) })
+        runtime.services.unleash.client.isEnabled(FeatureFlag.FAQ_FF, {
+          workspaceID: Number(runtime.project?.teamID),
+        })
       ) {
         result = await knowledgeBaseNoMatch(runtime);
         await consumeResources('KB Fallback', runtime, result);
@@ -89,14 +98,24 @@ const getOutput = async (
       }
 
       if (result?.output)
-        return { output: generateOutput(result.output, runtime.project), ai: true, tokens: result.tokens };
+        return {
+          output: generateOutput(result.output, runtime.project),
+          ai: true,
+          tokens: result.tokens,
+        };
     } catch (err) {
       if (err?.message?.includes('[moderation error]')) {
-        return { output: generateOutput(`global no match ${err.message}`, runtime.project), ai: true };
+        return {
+          output: generateOutput(`global no match ${err.message}`, runtime.project),
+          ai: true,
+        };
       }
       if (err?.message?.includes('Quota exceeded')) {
         runtime.trace.debug('token quota exceeded', node.type);
-        return { output: generateOutput('global no match [token quota exceeded]', runtime.project), ai: true };
+        return {
+          output: generateOutput('global no match [token quota exceeded]', runtime.project),
+          ai: true,
+        };
       }
       throw err;
     }
@@ -126,7 +145,8 @@ const getOutput = async (
 export const NoMatchHandler = (utils: typeof utilsObj) => ({
   handle: async (_node: NoMatchNode, runtime: Runtime, variables: Store) => {
     const node = convertDeprecatedNoMatch(_node);
-    const noMatchCounter = runtime.storage.get<NoMatchCounterStorage>(StorageType.NO_MATCHES_COUNTER) ?? 0;
+    const noMatchCounter =
+      runtime.storage.get<NoMatchCounterStorage>(StorageType.NO_MATCHES_COUNTER) ?? 0;
 
     const result = await getOutput(node, runtime, noMatchCounter);
 

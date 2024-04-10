@@ -14,21 +14,30 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.post(
     '/functions',
     middlewares.auth.verifyIdentity,
-    middlewares.rateLimit.consumeResource((req) => req.headers.authorization ?? req.cookies.auth_vf, 'function'),
+    middlewares.rateLimit.consumeResource(
+      (req) => req.headers.authorization ?? req.cookies.auth_vf,
+      'function'
+    ),
     controllers.test.testFunction
   );
 
   router.post(
     '/:workspaceID/api',
     middlewares.auth.authorize(['workspace:READ']),
-    middlewares.rateLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'api'),
+    middlewares.rateLimit.consumeResource(
+      (req) => req.headers.authorization || req.cookies.auth_vf,
+      'api'
+    ),
     controllers.test.testAPI
   );
 
   router.post(
     '/:workspaceID/code',
     middlewares.auth.authorize(['workspace:READ']),
-    middlewares.rateLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'code'),
+    middlewares.rateLimit.consumeResource(
+      (req) => req.headers.authorization || req.cookies.auth_vf,
+      'code'
+    ),
     controllers.test.testCode
   );
 
@@ -40,13 +49,19 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
       auth: req.headers.authorization,
       versionID: req.body.versionID,
     })),
-    middlewares.llmLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'knowledge-base'),
+    middlewares.llmLimit.consumeResource(
+      (req) => req.headers.authorization || req.cookies.auth_vf,
+      'knowledge-base'
+    ),
     controllers.test.testKnowledgeBase
   );
 
   router.post(
     '/:workspaceID/completion',
-    middlewares.llmLimit.consumeResource((req) => req.headers.authorization || req.cookies.auth_vf, 'completion'),
+    middlewares.llmLimit.consumeResource(
+      (req) => req.headers.authorization || req.cookies.auth_vf,
+      'completion'
+    ),
     controllers.test.testCompletion
   );
 

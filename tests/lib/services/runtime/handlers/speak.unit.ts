@@ -20,15 +20,26 @@ describe('speak handler unit tests', async () => {
 
   describe('canHandle', () => {
     it('false', async () => {
-      expect(speakHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
-      expect(speakHandler.canHandle({ speak: 'hello' } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(speakHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(
+        false
+      );
+      expect(
+        speakHandler.canHandle({ speak: 'hello' } as any, null as any, null as any, null as any)
+      ).to.eql(true);
     });
 
     it('true', async () => {
       expect(
-        speakHandler.canHandle({ random_speak: ['a', 'b', 'c'] } as any, null as any, null as any, null as any)
+        speakHandler.canHandle(
+          { random_speak: ['a', 'b', 'c'] } as any,
+          null as any,
+          null as any,
+          null as any
+        )
       ).to.eql(true);
-      expect(speakHandler.canHandle({ speak: 'hi' } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(
+        speakHandler.canHandle({ speak: 'hi' } as any, null as any, null as any, null as any)
+      ).to.eql(true);
     });
   });
 
@@ -52,9 +63,15 @@ describe('speak handler unit tests', async () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
-      const variables = { getState: sinon.stub().returns({}), set: sinon.stub(), get: sinon.stub() };
+      const variables = {
+        getState: sinon.stub().returns({}),
+        set: sinon.stub(),
+        get: sinon.stub(),
+      };
 
-      expect(speakHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
+      expect(
+        speakHandler.handle(node as any, runtime as any, variables as any, null as any)
+      ).to.eql(node.nextId);
       expect(topFrame.storage.set.args[0][0]).to.eql(FrameType.OUTPUT);
       // output is one of the options in random_speak
       const spokenPhrase = runtime.trace.addTrace.args[0][0].payload.message as string;
@@ -111,9 +128,15 @@ describe('speak handler unit tests', async () => {
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
       const varState = { var: 1.234, var1: 'here' };
-      const variables = { getState: sinon.stub().returns(varState), set: sinon.stub(), get: sinon.stub() };
+      const variables = {
+        getState: sinon.stub().returns(varState),
+        set: sinon.stub(),
+        get: sinon.stub(),
+      };
 
-      expect(speakHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+      expect(
+        speakHandler.handle(node as any, runtime as any, variables as any, null as any)
+      ).to.eql(null);
       // output has vars replaced and numbers turned to 2digits floats
       expect(topFrame.storage.set.args).to.eql([[FrameType.OUTPUT, 'random 1.23 or here']]);
       expect(runtime.trace.addTrace.args).to.eql([
@@ -151,7 +174,9 @@ describe('speak handler unit tests', async () => {
       };
       const variables = { getState: sinon.stub().returns({}) };
 
-      expect(speakHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+      expect(
+        speakHandler.handle(node as any, runtime as any, variables as any, null as any)
+      ).to.eql(null);
       expect(runtime.storage.produce.callCount).to.eql(0);
     });
   });

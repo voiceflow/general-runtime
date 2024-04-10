@@ -14,8 +14,9 @@ import { Action, Runtime } from '@/runtime';
 import { findEventMatcher } from '../event';
 import { CommandHandler, utilsObj } from '.';
 
-const matcher = (intentName: string) => (command: BaseNode.Utils.AnyCommand<BaseNode.Utils.IntentEvent> | null) =>
-  command?.event?.intent === intentName;
+const matcher =
+  (intentName: string) => (command: BaseNode.Utils.AnyCommand<BaseNode.Utils.IntentEvent> | null) =>
+    command?.event?.intent === intentName;
 
 export const getCommand = (runtime: Runtime) => {
   const request = runtime.getRequest();
@@ -31,7 +32,9 @@ export const getCommand = (runtime: Runtime) => {
     const found = runtime.stack
       .getFrames()
       .some((frame) =>
-        frame.getCommands<BaseNode.Utils.AnyCommand<BaseNode.Utils.IntentEvent>>().some(matcher(intentName))
+        frame
+          .getCommands<BaseNode.Utils.AnyCommand<BaseNode.Utils.IntentEvent>>()
+          .some(matcher(intentName))
       );
 
     if (!found) {
@@ -45,7 +48,11 @@ export const getCommand = (runtime: Runtime) => {
     const commands = frames[index]?.getCommands<BaseNode.Utils.AnyCommand>();
 
     for (const command of commands) {
-      const match = findEventMatcher({ event: command?.event || null, runtime, diagramID: command?.diagramID });
+      const match = findEventMatcher({
+        event: command?.event || null,
+        runtime,
+        diagramID: command?.diagramID,
+      });
 
       if (match) {
         return { index, command, match };
@@ -61,6 +68,7 @@ const utils = {
   getCommand,
 };
 
-export const CommandAlexaHandler = (handlerUtils: typeof utils = utils) => CommandHandler(handlerUtils);
+export const CommandAlexaHandler = (handlerUtils: typeof utils = utils) =>
+  CommandHandler(handlerUtils);
 
 export default () => CommandAlexaHandler(utils);

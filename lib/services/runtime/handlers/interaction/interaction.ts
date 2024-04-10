@@ -22,10 +22,16 @@ export const utilsObj = {
 };
 
 type utilsObjType = typeof utilsObj & {
-  addNoReplyIfExists?: (node: VoiceflowNode.Interaction.Node, runtime: Runtime, variables: Store) => void;
+  addNoReplyIfExists?: (
+    node: VoiceflowNode.Interaction.Node,
+    runtime: Runtime,
+    variables: Store
+  ) => void;
 };
 
-export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, utilsObjType> = (utils) => ({
+export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, utilsObjType> = (
+  utils
+) => ({
   canHandle: (node) => !!node.interactions,
   handle: (node, runtime, variables) => {
     const runtimeAction = runtime.getAction();
@@ -80,7 +86,10 @@ export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, 
     }
 
     // check if there is a command in the stack that fulfills request
-    if (node.intentScope !== BaseNode.Utils.IntentScope.NODE && utils.commandHandler.canHandle(runtime)) {
+    if (
+      node.intentScope !== BaseNode.Utils.IntentScope.NODE &&
+      utils.commandHandler.canHandle(runtime)
+    ) {
       return utils.commandHandler.handle(runtime, variables);
     }
 

@@ -25,7 +25,10 @@ describe('localDataAPI client unit tests', () => {
       join: sinon.stub().returns('join-val'),
     };
 
-    new LocalDataAPI({ projectSource: 'projectSource-val' }, { fs: stubFS as any, path: path as any });
+    new LocalDataAPI(
+      { projectSource: 'projectSource-val' },
+      { fs: stubFS as any, path: path as any }
+    );
 
     expect(jsonParseStub.args).to.eql([['readFileSync-val']]);
     expect(stubFS.readFileSync.args).to.eql([['join-val', 'utf8']]);
@@ -51,7 +54,10 @@ describe('localDataAPI client unit tests', () => {
     const path = { join: sinon.stub().returns('join-val') };
 
     expect(() => {
-      new LocalDataAPI({ projectSource: 'projectSource-val' }, { fs: stubFS as any, path: path as any });
+      new LocalDataAPI(
+        { projectSource: 'projectSource-val' },
+        { fs: stubFS as any, path: path as any }
+      );
     }).to.throw('[invalid VFR] no programs included');
   });
 
@@ -61,19 +67,27 @@ describe('localDataAPI client unit tests', () => {
     const path = { join: sinon.stub().returns('join-val') };
 
     expect(() => {
-      new LocalDataAPI({ projectSource: 'projectSource-val' }, { fs: stubFS as any, path: path as any });
+      new LocalDataAPI(
+        { projectSource: 'projectSource-val' },
+        { fs: stubFS as any, path: path as any }
+      );
     }).to.throw('[invalid VFR] no programs included');
   });
 
   it('constructor missing base program', () => {
     const stubFS = {
-      readFileSync: sinon.stub().returns(JSON.stringify({ version: { _id: '1' }, programs: { foo: 'bar' } })),
+      readFileSync: sinon
+        .stub()
+        .returns(JSON.stringify({ version: { _id: '1' }, programs: { foo: 'bar' } })),
     };
 
     const path = { join: sinon.stub().returns('join-val') };
 
     expect(() => {
-      new LocalDataAPI({ projectSource: 'projectSource-val' }, { fs: stubFS as any, path: path as any });
+      new LocalDataAPI(
+        { projectSource: 'projectSource-val' },
+        { fs: stubFS as any, path: path as any }
+      );
     }).to.throw('[invalid VFR] missing base program');
   });
 

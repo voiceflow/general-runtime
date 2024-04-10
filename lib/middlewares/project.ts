@@ -43,7 +43,8 @@ class Project extends AbstractMiddleware {
     next: NextFunction
   ): Promise<void> {
     req.headers.versionID =
-      req.params.versionID ?? (typeof req.headers.versionID === 'string' ? req.headers.versionID : undefined);
+      req.params.versionID ??
+      (typeof req.headers.versionID === 'string' ? req.headers.versionID : undefined);
     if (!req.headers.versionID) {
       throw new VError('Missing versionID in request', VError.HTTP_STATUS.BAD_REQUEST);
     }
@@ -94,11 +95,15 @@ class Project extends AbstractMiddleware {
         );
       });
 
-      const resolvedVersionID = versionID === VersionTag.PRODUCTION ? project.liveVersion : project.devVersion;
+      const resolvedVersionID =
+        versionID === VersionTag.PRODUCTION ? project.liveVersion : project.devVersion;
 
       if (!resolvedVersionID) {
         if (versionID === VersionTag.PRODUCTION) {
-          throw new VError('Voiceflow project was not published to production', VError.HTTP_STATUS.BAD_REQUEST);
+          throw new VError(
+            'Voiceflow project was not published to production',
+            VError.HTTP_STATUS.BAD_REQUEST
+          );
         } else {
           throw new VError('Unable to resolve version alias', VError.HTTP_STATUS.BAD_REQUEST);
         }
@@ -108,7 +113,11 @@ class Project extends AbstractMiddleware {
 
       return next();
     } catch (err) {
-      return next(err instanceof VError ? err : new VError('Unknown error', VError.HTTP_STATUS.INTERNAL_SERVER_ERROR));
+      return next(
+        err instanceof VError
+          ? err
+          : new VError('Unknown error', VError.HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      );
     }
   }
 
@@ -139,7 +148,11 @@ class Project extends AbstractMiddleware {
 
       return next();
     } catch (err) {
-      return next(err instanceof VError ? err : new VError('Unknown error', VError.HTTP_STATUS.INTERNAL_SERVER_ERROR));
+      return next(
+        err instanceof VError
+          ? err
+          : new VError('Unknown error', VError.HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      );
     }
   }
 

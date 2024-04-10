@@ -4,7 +4,13 @@ import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import { Action, HandlerFactory, Runtime, Store } from '@/runtime';
 
 import { isIntentRequest, StorageType } from '../../types';
-import { addButtonsIfExists, addOutputTrace, getOutputTrace, isConfidenceScoreAbove, mapEntities } from '../../utils';
+import {
+  addButtonsIfExists,
+  addOutputTrace,
+  getOutputTrace,
+  isConfidenceScoreAbove,
+  mapEntities,
+} from '../../utils';
 import CommandHandler from '../command';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
 import RepeatHandler from '../repeat';
@@ -12,14 +18,19 @@ import { EntityFillingNoMatchHandler, entityFillingRequest, setElicit } from '..
 
 const ENTIRE_RESPONSE_CONFIDENCE_THRESHOLD = 0.6;
 
-type CaptureWithIntent = VoiceflowNode.CaptureV2.Node & { intent: Required<BaseNode.CaptureV2.NodeIntent> };
+type CaptureWithIntent = VoiceflowNode.CaptureV2.Node & {
+  intent: Required<BaseNode.CaptureV2.NodeIntent>;
+};
 type CaptureWithVariable = VoiceflowNode.CaptureV2.Node & { variable: string };
 
-export const isNodeCapturingEntity = (node: VoiceflowNode.CaptureV2.Node): node is CaptureWithIntent =>
+export const isNodeCapturingEntity = (
+  node: VoiceflowNode.CaptureV2.Node
+): node is CaptureWithIntent =>
   typeof node.intent?.name === 'string' && typeof node.intent?.entities != null && !node.variable;
 
-export const isNodeCapturingEntireResponse = (node: VoiceflowNode.CaptureV2.Node): node is CaptureWithVariable =>
-  typeof node.variable === 'string';
+export const isNodeCapturingEntireResponse = (
+  node: VoiceflowNode.CaptureV2.Node
+): node is CaptureWithVariable => typeof node.variable === 'string';
 
 export const utilsObj = {
   addOutputTrace,
@@ -32,10 +43,16 @@ export const utilsObj = {
   entityFillingNoMatchHandler: EntityFillingNoMatchHandler(),
 };
 type utilsObjType = typeof utilsObj & {
-  addPromptIfExists?: (node: VoiceflowNode.CaptureV2.Node, runtime: Runtime, variables: Store) => void;
+  addPromptIfExists?: (
+    node: VoiceflowNode.CaptureV2.Node,
+    runtime: Runtime,
+    variables: Store
+  ) => void;
 };
 
-export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, utilsObjType> = (utils) => ({
+export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, utilsObjType> = (
+  utils
+) => ({
   canHandle: (node) => node.type === BaseNode.NodeType.CAPTURE_V2,
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (node, runtime, variables) => {
@@ -53,7 +70,12 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, util
       if (captureIntentName) {
         runtime.trace.addTrace<BaseTrace.GoToTrace>({
           type: BaseTrace.TraceType.GOTO,
-          payload: { request: setElicit(entityFillingRequest(captureIntentName, node.intent?.entities ?? []), true) },
+          payload: {
+            request: setElicit(
+              entityFillingRequest(captureIntentName, node.intent?.entities ?? []),
+              true
+            ),
+          },
         });
       }
 
@@ -99,9 +121,13 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, util
       };
 
       if (isNodeCapturingEntity(node) && intent.name === node.intent?.name) {
-        const variablesBefore: Record<string, RuntimeLogs.VariableValue | null> = Object.fromEntries(
-          node.intent.entities.map((entity) => [entity, variables.get<RuntimeLogs.VariableValue>(entity) ?? null])
-        );
+        const variablesBefore: Record<string, RuntimeLogs.VariableValue | null> =
+          Object.fromEntries(
+            node.intent.entities.map((entity) => [
+              entity,
+              variables.get<RuntimeLogs.VariableValue>(entity) ?? null,
+            ])
+          );
         const variablesAfter = mapEntities(
           node.intent.entities.map((slot) => ({ slot, variable: slot })),
           request.payload.entities
@@ -139,7 +165,10 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, util
     const noMatchHandler = utils.entityFillingNoMatchHandler.handle(node, runtime, variables);
 
     return captureIntentName
-      ? noMatchHandler([captureIntentName], entityFillingRequest(captureIntentName, node.intent?.entities))
+      ? noMatchHandler(
+          [captureIntentName],
+          entityFillingRequest(captureIntentName, node.intent?.entities)
+        )
       : noMatchHandler();
   },
 });

@@ -108,7 +108,9 @@ describe('mongo sessionManager unit tests', async () => {
       const projectID = '60660078d1be7ef51a0be899';
       const userID = 'user-id';
 
-      await expect(state.deleteFromDb(projectID, userID)).to.eventually.rejectedWith('delete runtime session error');
+      await expect(state.deleteFromDb(projectID, userID)).to.eventually.rejectedWith(
+        'delete runtime session error'
+      );
       expect(deleteOne.args).to.eql([
         [
           {
@@ -134,7 +136,9 @@ describe('mongo sessionManager unit tests', async () => {
       const projectID = '60660078d1be7ef51a0be899';
       const userID = 'user-id';
 
-      await expect(state.deleteFromDb(projectID, userID)).to.eventually.rejectedWith('delete runtime session error');
+      await expect(state.deleteFromDb(projectID, userID)).to.eventually.rejectedWith(
+        'delete runtime session error'
+      );
       expect(deleteOne.args).to.eql([
         [
           {

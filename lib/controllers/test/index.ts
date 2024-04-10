@@ -111,9 +111,12 @@ class TestController extends AbstractController {
   }
 
   async testCompletion(
-    req: Request<BaseUtils.ai.AIModelParams & BaseUtils.ai.AIContextParams & { workspaceID: string }>
+    req: Request<
+      BaseUtils.ai.AIModelParams & BaseUtils.ai.AIContextParams & { workspaceID: string }
+    >
   ) {
-    if (typeof req.body.prompt !== 'string') throw new VError('invalid prompt', VError.HTTP_STATUS.BAD_REQUEST);
+    if (typeof req.body.prompt !== 'string')
+      throw new VError('invalid prompt', VError.HTTP_STATUS.BAD_REQUEST);
 
     try {
       const { output } = await fetchPrompt(
@@ -131,7 +134,9 @@ class TestController extends AbstractController {
     }
   }
 
-  async testFunction(req: Request<Record<string, never>, TestFunctionRequestBody>): Promise<TestFunctionResponse> {
+  async testFunction(
+    req: Request<Record<string, never>, TestFunctionRequestBody>
+  ): Promise<TestFunctionResponse> {
     try {
       await TestFunctionRequestBodyDTO.parseAsync(req.body);
     } catch (err) {

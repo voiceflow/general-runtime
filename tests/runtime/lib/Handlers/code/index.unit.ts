@@ -66,7 +66,9 @@ describe('CodeHandler', () => {
       const variables = { a: 0 };
       const store = new Store(variables);
 
-      mockLog.expects('warn').calledWithMatch('Code execution results between remote and isolated-vm are different');
+      mockLog
+        .expects('warn')
+        .calledWithMatch('Code execution results between remote and isolated-vm are different');
       sandbox.stub(axios, 'post').resolves({ data: { a: 1 } });
       sandbox.stub(mockNode, 'code').get(() => 'a = 2');
 
@@ -80,7 +82,9 @@ describe('CodeHandler', () => {
       const variables = { a: 0 };
       const store = new Store(variables);
 
-      mockLog.expects('warn').calledWithMatch('Code execution remote succeeded when isolated-vm rejected');
+      mockLog
+        .expects('warn')
+        .calledWithMatch('Code execution remote succeeded when isolated-vm rejected');
       sandbox.stub(axios, 'post').resolves({ data: { a: 1 } });
       sandbox.stub(mockNode, 'code').get(() => 'throw new Error("error")');
 
@@ -94,7 +98,9 @@ describe('CodeHandler', () => {
       const variables = { a: 0 };
       const store = new Store(variables);
 
-      mockLog.expects('warn').calledWithMatch('Code execution remote rejected when isolated-vm succeeded');
+      mockLog
+        .expects('warn')
+        .calledWithMatch('Code execution remote rejected when isolated-vm succeeded');
       sandbox.stub(axios, 'post').rejects(new Error('error'));
 
       const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);

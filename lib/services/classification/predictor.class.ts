@@ -11,7 +11,10 @@ import logger from '@/logger';
 
 import { handleNLCCommand } from '../nlu/nlc';
 import { mapChannelIntent } from '../nlu/utils';
-import { isIntentClassificationLLMSettings, isIntentClassificationNLUSettings } from './classification.utils';
+import {
+  isIntentClassificationLLMSettings,
+  isIntentClassificationNLUSettings,
+} from './classification.utils';
 import {
   ClassificationResult,
   NLUIntentPrediction,
@@ -112,7 +115,10 @@ export class Predictor {
     return response;
   }
 
-  public async fillSlots(utterance: string, options: Partial<NLUPredictOptions>): Promise<PredictedSlot[] | null> {
+  public async fillSlots(
+    utterance: string,
+    options: Partial<NLUPredictOptions>
+  ): Promise<PredictedSlot[] | null> {
     const prediction = await this.nluGatewayPrediction(utterance, {
       excludeFilteredIntents: false,
       ...options,
@@ -136,14 +142,17 @@ export class Predictor {
     const { filteredIntents = [], excludeFilteredIntents = true } = options;
 
     const { data: prediction } = await this.config.axios
-      .post<NLUIntentPrediction | null>(`${this.nluGatewayURL}/v1/predict/${this.props.versionID}`, {
-        utterance,
-        tag: this.props.tag,
-        workspaceID: this.props.workspaceID,
-        filteredIntents,
-        excludeFilteredIntents,
-        limit: 10,
-      })
+      .post<NLUIntentPrediction | null>(
+        `${this.nluGatewayURL}/v1/predict/${this.props.versionID}`,
+        {
+          utterance,
+          tag: this.props.tag,
+          workspaceID: this.props.workspaceID,
+          filteredIntents,
+          excludeFilteredIntents,
+          limit: 10,
+        }
+      )
       .catch((err: Error) => {
         logger.error(err, 'Something went wrong with NLU prediction');
         return { data: null };
@@ -151,7 +160,10 @@ export class Predictor {
     return prediction;
   }
 
-  public async nlu(utterance: string, options: Partial<NLUPredictOptions>): Promise<NLUIntentPrediction | null> {
+  public async nlu(
+    utterance: string,
+    options: Partial<NLUPredictOptions>
+  ): Promise<NLUIntentPrediction | null> {
     const prediction = await this.nluGatewayPrediction(utterance, options);
     if (!prediction) {
       this.predictions.nlu = {
@@ -164,7 +176,10 @@ export class Predictor {
 
     this.predictions.nlu = prediction;
 
-    if (isIntentClassificationNLUSettings(this.settings) && prediction?.confidence < this.settings.params.confidence) {
+    if (
+      isIntentClassificationNLUSettings(this.settings) &&
+      prediction?.confidence < this.settings.params.confidence
+    ) {
       this.predictions.nlu = {
         ...prediction,
         error: {
@@ -185,7 +200,8 @@ export class Predictor {
       return null;
     }
 
-    const promptContent = this.settings.promptWrapper?.content ?? DEFAULT_INTENT_CLASSIFICATION_PROMPT_WRAPPER_CODE;
+    const promptContent =
+      this.settings.promptWrapper?.content ?? DEFAULT_INTENT_CLASSIFICATION_PROMPT_WRAPPER_CODE;
 
     const intents = nluPrediction.intents
       // filter out none intent
@@ -248,7 +264,9 @@ export class Predictor {
     }
 
     // validate llm output as a valid intent
-    const matchedIntent = this.props.intents.find((intent) => intent.name === completionResponse.output);
+    const matchedIntent = this.props.intents.find(
+      (intent) => intent.name === completionResponse.output
+    );
     const { error } = completionResponse;
 
     this.predictions.llm = {
@@ -354,7 +372,9 @@ export class Predictor {
   }
 
   public hasErrors() {
-    return this.predictions.nlc?.error || this.predictions.nlu?.error || this.predictions.llm?.error;
+    return (
+      this.predictions.nlc?.error || this.predictions.nlu?.error || this.predictions.llm?.error
+    );
   }
 
   public get classificationType() {

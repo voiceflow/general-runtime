@@ -15,12 +15,19 @@ describe('setHandler unit tests', () => {
     it('false', () => {
       expect(setHandler.canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
       expect(
-        setHandler.canHandle({ type: BaseNode.NodeType.SET_V2 } as any, null as any, null as any, null as any)
+        setHandler.canHandle(
+          { type: BaseNode.NodeType.SET_V2 } as any,
+          null as any,
+          null as any,
+          null as any
+        )
       ).to.eql(false);
     });
 
     it('true', () => {
-      expect(setHandler.canHandle({ sets: ['a', 'b'] } as any, null as any, null as any, null as any)).to.eql(true);
+      expect(
+        setHandler.canHandle({ sets: ['a', 'b'] } as any, null as any, null as any, null as any)
+      ).to.eql(true);
     });
   });
 
@@ -70,7 +77,9 @@ describe('setHandler unit tests', () => {
         set: sinon.stub(),
       };
 
-      expect(await setHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
+      expect(
+        await setHandler.handle(node as any, runtime as any, variables as any, null as any)
+      ).to.eql(node.nextId);
       expect(shuntingYardStub.args).to.eql([
         [node.sets[1].expression, { v: variablesState }],
         [node.sets[2].expression, { v: variablesState }],
@@ -82,7 +91,10 @@ describe('setHandler unit tests', () => {
         [node.sets[3].variable, 5],
       ]);
       expect(runtime.trace.debug.args).to.eql([
-        ['unable to resolve expression `` for `{undefined}`  \n`Error: No Variable Defined`', BaseNode.NodeType.SET],
+        [
+          'unable to resolve expression `` for `{undefined}`  \n`Error: No Variable Defined`',
+          BaseNode.NodeType.SET,
+        ],
         ['setting `{v1}`  \nevaluating `v1-expression` to `undefined`', BaseNode.NodeType.SET],
         ['setting `{v2}`  \nevaluating `v2-expression` to `undefined`', BaseNode.NodeType.SET],
         ['setting `{v3}`  \nevaluating `v3-expression` to `5`', BaseNode.NodeType.SET],
@@ -126,7 +138,9 @@ describe('setHandler unit tests', () => {
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
-      expect(await setHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql(null);
+      expect(await setHandler.handle(node as any, runtime as any, null as any, null as any)).to.eql(
+        null
+      );
 
       expect(runtime.trace.addTrace.args).to.eql([
         [

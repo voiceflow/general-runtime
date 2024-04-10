@@ -139,7 +139,9 @@ describe('noReply handler unit tests', () => {
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
-      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql('node-id');
+      expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(
+        'node-id'
+      );
       expect(runtime.trace.addTrace.args).to.eql([[NoReplyPathTrace]]);
     });
 
@@ -177,7 +179,9 @@ describe('noReply handler unit tests', () => {
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
-      expect(node.noReply.prompts.includes(runtime.trace.addTrace.args[1][0].payload.message)).to.eql(true);
+      expect(
+        node.noReply.prompts.includes(runtime.trace.addTrace.args[1][0].payload.message)
+      ).to.eql(true);
     });
 
     it('with noReply null speak string', () => {
@@ -294,7 +298,9 @@ describe('noReply handler unit tests', () => {
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
       expect(noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
-      expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(GlobalNoReply.prompt.content);
+      expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(
+        GlobalNoReply.prompt.content
+      );
     });
   });
 

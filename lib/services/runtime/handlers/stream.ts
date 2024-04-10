@@ -10,7 +10,9 @@ const handlerUtils = {
   replaceVariables,
 };
 
-export const StreamHandler: HandlerFactory<BaseNode.Stream.Node, typeof handlerUtils> = (utils) => ({
+export const StreamHandler: HandlerFactory<BaseNode.Stream.Node, typeof handlerUtils> = (
+  utils
+) => ({
   canHandle: (node) => node.type === BaseNode.NodeType.STREAM && !!node.src,
   handle: (node, runtime, variables) => {
     const variablesMap = variables.getState();

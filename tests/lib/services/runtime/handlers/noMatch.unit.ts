@@ -48,7 +48,9 @@ describe('noMatch handler unit tests', async () => {
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
-      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(
+        node.id
+      );
       expect(runtime.trace.addTrace.args).to.eql([
         [RepromptPathTrace],
         [
@@ -113,7 +115,9 @@ describe('noMatch handler unit tests', async () => {
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
-      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(null);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(
+        null
+      );
     });
 
     it('without noMatch prompts', async () => {
@@ -144,7 +148,9 @@ describe('noMatch handler unit tests', async () => {
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
-      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql('node-id');
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(
+        'node-id'
+      );
       expect(runtime.trace.addTrace.args).to.eql([[NoMatchPathTrace]]);
     });
 
@@ -184,7 +190,9 @@ describe('noMatch handler unit tests', async () => {
         addButtonsIfExists,
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
-      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql('node-id');
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(
+        'node-id'
+      );
       expect(addButtonsIfExists.args).to.eql([[node, runtime, variables]]);
       expect(runtime.trace.addTrace.args).to.eql([
         [RepromptPathTrace],
@@ -249,7 +257,9 @@ describe('noMatch handler unit tests', async () => {
         addButtonsIfExists,
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
-      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql('node-id');
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(
+        'node-id'
+      );
 
       expect(runtime.trace.addTrace.args).to.eql([
         [RepromptPathTrace],
@@ -313,8 +323,12 @@ describe('noMatch handler unit tests', async () => {
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
-      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
-      expect(node.noMatch.prompts.includes(runtime.trace.addTrace.args[1][0].payload.message)).to.eql(true);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(
+        node.id
+      );
+      expect(
+        node.noMatch.prompts.includes(runtime.trace.addTrace.args[1][0].payload.message)
+      ).to.eql(true);
     });
 
     it('with noMatch null speak string', async () => {
@@ -350,7 +364,9 @@ describe('noMatch handler unit tests', async () => {
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
-      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(
+        node.id
+      );
       expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(NON_NULL_STRING);
     });
 
@@ -387,7 +403,9 @@ describe('noMatch handler unit tests', async () => {
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
-      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(
+        node.id
+      );
       expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(NON_NULL_STRING);
     });
 
@@ -430,8 +448,12 @@ describe('noMatch handler unit tests', async () => {
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
-      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
-      expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(GlobalNoMatch.prompt.content);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(
+        node.id
+      );
+      expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(
+        GlobalNoMatch.prompt.content
+      );
     });
 
     it('with global noMatch and default message', async () => {
@@ -473,7 +495,9 @@ describe('noMatch handler unit tests', async () => {
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
-      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(
+        node.id
+      );
       expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(
         VoiceflowConstants.defaultMessages.globalNoMatch
       );
@@ -511,7 +535,9 @@ describe('noMatch handler unit tests', async () => {
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
-      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(
+        node.id
+      );
       expect(runtime.trace.addTrace.args).to.eql([
         [RepromptPathTrace],
         [
@@ -572,8 +598,12 @@ describe('noMatch handler unit tests', async () => {
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
-      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
-      expect(node.noMatches.includes(runtime.trace.addTrace.args[1][0].payload.message)).to.eql(true);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(
+        node.id
+      );
+      expect(node.noMatches.includes(runtime.trace.addTrace.args[1][0].payload.message)).to.eql(
+        true
+      );
     });
 
     it('with noMatch null speak string', async () => {
@@ -607,7 +637,9 @@ describe('noMatch handler unit tests', async () => {
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
-      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(
+        node.id
+      );
       expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(NON_NULL_STRING);
     });
 
@@ -642,7 +674,9 @@ describe('noMatch handler unit tests', async () => {
         addButtonsIfExists: sinon.stub(),
         addNoReplyTimeoutIfExists: sinon.stub(),
       });
-      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(node.id);
+      expect(await noMatchHandler.handle(node as any, runtime as any, variables as any)).to.eql(
+        node.id
+      );
       expect(runtime.trace.addTrace.args[1][0].payload.message).to.eql(NON_NULL_STRING);
     });
   });

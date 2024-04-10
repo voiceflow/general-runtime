@@ -63,14 +63,32 @@ class StateManagementController extends AbstractController {
     return this.services.session.deleteFromDb(req.headers.projectID, req.params.userID);
   }
 
-  @validate({ HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID, HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID })
-  async reset(req: Request<{ userID: string }, any, { projectID: string; authorization: string; versionID: string }>) {
+  @validate({
+    HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID,
+    HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
+  })
+  async reset(
+    req: Request<
+      { userID: string },
+      any,
+      { projectID: string; authorization: string; versionID: string }
+    >
+  ) {
     return this.services.stateManagement.reset(req);
   }
 
-  @validate({ BODY_UPDATE_VARIABLES: VALIDATIONS.BODY.OBJECT, HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID })
-  async updateVariables(req: Request<{ userID: string }, Record<string, any>, { projectID: string }>) {
-    return this.services.session.updateVariables(req.headers.projectID, req.params.userID, req.body);
+  @validate({
+    BODY_UPDATE_VARIABLES: VALIDATIONS.BODY.OBJECT,
+    HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID,
+  })
+  async updateVariables(
+    req: Request<{ userID: string }, Record<string, any>, { projectID: string }>
+  ) {
+    return this.services.session.updateVariables(
+      req.headers.projectID,
+      req.params.userID,
+      req.body
+    );
   }
 }
 

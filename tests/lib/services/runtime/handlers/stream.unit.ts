@@ -9,7 +9,12 @@ describe('stream handler unit tests', async () => {
   describe('canHandle', () => {
     it('false', () => {
       expect(
-        StreamHandler(null as any).canHandle({ type: 'diff type' } as any, null as any, null as any, null as any)
+        StreamHandler(null as any).canHandle(
+          { type: 'diff type' } as any,
+          null as any,
+          null as any,
+          null as any
+        )
       ).to.eql(false);
       expect(
         StreamHandler(null as any).canHandle(
@@ -63,7 +68,9 @@ describe('stream handler unit tests', async () => {
       const variablesMap = { var1: 'val1', var2: 'val2' };
       const variables = { getState: sinon.stub().returns(variablesMap) };
 
-      expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+      expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+        null
+      );
       expect(runtime.storage.set.args).to.eql([
         [
           StorageType.STREAM_PLAY,
@@ -122,14 +129,20 @@ describe('stream handler unit tests', async () => {
         title: 'title',
       };
       const runtime = {
-        storage: { set: sinon.stub(), get: sinon.stub().returns({ id: 'id2' }), delete: sinon.stub() },
+        storage: {
+          set: sinon.stub(),
+          get: sinon.stub().returns({ id: 'id2' }),
+          delete: sinon.stub(),
+        },
         trace: { addTrace: sinon.stub() },
         end: sinon.stub(),
       };
       const variablesMap = { var1: 'val1', var2: 'val2' };
       const variables = { getState: sinon.stub().returns(variablesMap) };
 
-      expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+      expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+        null
+      );
       expect(runtime.storage.set.args).to.eql([
         [
           StorageType.STREAM_PLAY,
@@ -202,7 +215,9 @@ describe('stream handler unit tests', async () => {
       const variablesMap = { var1: 'val1', var2: 'val2' };
       const variables = { getState: sinon.stub().returns(variablesMap) };
 
-      expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(null);
+      expect(handler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(
+        null
+      );
       expect(runtime.storage.set.args).to.eql([
         [
           StorageType.STREAM_PLAY,
