@@ -99,7 +99,7 @@ const APIHandler = (config: Partial<APIHandlerConfig>): Handler<BaseNode.Integra
         log.error(
           error,
           `[function api proxy error] ${JSON.stringify({
-            versionID: runtime.getVersionID(),
+            versionID: runtime?.getVersionID?.(),
             diagramID: runtime?.stack?.top()?.getDiagramID(),
             nodeID: node.id,
           })}`
