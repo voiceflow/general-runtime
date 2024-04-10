@@ -3,5 +3,5 @@ export interface APIResponse {
   status: number;
   statusText: string;
   headers: Record<string, string>;
-  json: any;
+  json: unknown;
 }

@@ -150,7 +150,7 @@ const doProxyFetch = async (
   response: APIResponse;
   requestOptions: Request;
 }> => {
-  // this is actual unused
+  // this is actual unuse by the lambda, but just for the sake of downstream functions
   const requestOptions = await createRequest(nodeData, config);
 
   const functionLambdaClient = new FunctionLambdaClient({
@@ -168,15 +168,11 @@ const doProxyFetch = async (
       maxResponseBodySizeBytes: config.maxResponseBodySizeBytes,
       maxRequestBodySizeBytes: config.maxRequestBodySizeBytes,
     },
+    tls: await fetchTLS(config, nodeData.tls),
   } as any);
 
-  const response: APIResponse = {
-    ...result.body.response,
-    rawResponseJSON: result.body.response.json,
-  };
-
   return {
-    response,
+    response: result.body.response,
     requestOptions,
   };
 };
@@ -297,10 +293,10 @@ export const makeAPICall = async (
   return callAPI(nodeData, config);
 };
 
-const createAgent = async (
+const fetchTLS = async (
   config: APIHandlerConfig,
   tls: BaseNode.Api.NodeData['action_data']['tls']
-): Promise<Agent | undefined> => {
+): Promise<{ cert: string; key: string } | null> => {
   if (
     !tls?.cert ||
     !tls?.key ||
@@ -309,20 +305,29 @@ const createAgent = async (
     !config.s3SecretAccessKey ||
     !config.awsRegion
   )
-    return;
+    return null;
 
   const s3Client = createS3Client(config);
 
-  if (!s3Client) return;
+  if (!s3Client) return null;
   const [cert, key] = await Promise.all([
     readFileFromS3(s3Client, config.s3TLSBucket, tls?.cert),
     readFileFromS3(s3Client, config.s3TLSBucket, tls?.key),
   ]);
 
-  if (!cert || !key) return;
+  if (!cert || !key) return null;
 
-  // eslint-disable-next-line consistent-return
-  return new Agent({ cert, key });
+  return { cert: cert.toString(), key: key.toString() };
+};
+
+const createAgent = async (
+  config: APIHandlerConfig,
+  tls: BaseNode.Api.NodeData['action_data']['tls']
+): Promise<Agent | undefined> => {
+  const tlsData = await fetchTLS(config, tls);
+  if (!tlsData) return undefined;
+
+  return new Agent(tlsData);
 };
 
 export const createRequest = async (
