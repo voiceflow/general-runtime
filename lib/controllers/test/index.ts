@@ -7,6 +7,7 @@ import { z } from 'zod';
 
 import { Predictor } from '@/lib/services/classification';
 import { castToDTO } from '@/lib/services/classification/classification.utils';
+import { PredictedIntent } from '@/lib/services/classification/interfaces/nlu.interface';
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
 import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
@@ -180,11 +181,12 @@ class TestController extends AbstractController {
         filteredIntents: Array.from(extraIntentNames),
       }
     );
-    await predictor.predict(data.utterance);
+
+    const prediction = await predictor.predict(data.utterance);
 
     const { predictions } = predictor;
 
-    const nluIntents = (() => {
+    const nluIntents = ((): PredictedIntent[] => {
       if (predictions.nlu?.intents) {
         return predictions.nlu.intents;
       }
@@ -198,7 +200,16 @@ class TestController extends AbstractController {
         ];
       }
 
-      return [];
+      if (!prediction) {
+        throw new VError('No predictions', VError.HTTP_STATUS.NOT_FOUND);
+      }
+
+      return [
+        {
+          name: prediction.predictedIntent,
+          confidence: prediction.confidence,
+        },
+      ];
     })();
 
     return {
