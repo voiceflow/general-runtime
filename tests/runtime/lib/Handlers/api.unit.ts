@@ -301,14 +301,15 @@ describe('API Handler unit tests', () => {
                 'Request-Header': 'request-header-value',
               },
             }),
-            response: new Response('whatever', {
+            response: {
+              ok: true,
               status: 200,
               statusText: 'OK',
               headers: {
-                'Response-Header': 'response-header-value',
-                'Content-Type': 'application/json',
+                'response-header': 'response-header-value',
+                'content-type': 'application/json',
               },
-            }),
+            },
             responseJSON: {
               foo: 'bar',
             },
