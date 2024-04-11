@@ -1,4 +1,4 @@
-import { BaseTrace, BaseVersion } from '@voiceflow/base-types';
+import { BaseNode, BaseTrace, BaseVersion } from '@voiceflow/base-types';
 import { BaseTraceFrame } from '@voiceflow/base-types/build/cjs/trace';
 import { replaceVariables } from '@voiceflow/common';
 import {
@@ -9,6 +9,7 @@ import {
   NodeType,
 } from '@voiceflow/dtos';
 
+import { TurnType } from '@/lib/services/runtime/types';
 import { HandlerFactory } from '@/runtime/lib/Handler';
 import _query from '@/utils/underscore-query';
 
@@ -122,6 +123,47 @@ function handleListenResponse(
   return applyTransfer(firstMatchingTransfer.dest, paths);
 }
 
+const guidedNavigationEventPrefix = `_vf_internal_guided-navigation`;
+
+const isGuidedNavigation = (runtime: Runtime): boolean =>
+  runtime.version?._id === runtime.project?.devVersion && !!runtime.turn.get(TurnType.STOP_ALL);
+
+const toGuidedNavigationEventType = (name: string): string => `${guidedNavigationEventPrefix}:${name}`;
+
+const fromGuidedNavigationEventType = (name: string): string => name.replace(`${guidedNavigationEventPrefix}:`, '');
+
+const isGuidedNavigationEventType = (name: string): boolean => name.startsWith(`${guidedNavigationEventPrefix}:`);
+
+function injectGuidedNavigationButtons(runtime: Runtime, paths: FunctionCompiledDefinition['pathCodes']) {
+  if (!isGuidedNavigation(runtime)) return;
+
+  /**
+   * User is running the development version through the Prototype Tool and has enabled
+   * "Guided Navigation". Moreover, the user has not returned a `choice` trace.
+   */
+  if (runtime.turn.get(TurnType.STOP_ALL)) {
+    runtime.trace.addTrace<BaseNode.Utils.BaseTraceFrame<unknown>>({
+      type: '__vf_internal__function_guided_navigation__buttons__',
+      payload: {},
+      defaultPath: 0,
+      paths: paths
+        .toSorted((a, b) => a.localeCompare(b))
+        .map((path) => ({ label: path, event: { type: toGuidedNavigationEventType(path) } })),
+    });
+  }
+}
+
+function applyGuidedNavigationButton(
+  { type }: { type: string; payload: string },
+  paths: FunctionCompiledInvocation['paths']
+) {
+  if (isGuidedNavigationEventType(type)) {
+    const pathName = fromGuidedNavigationEventType(type);
+    return paths[pathName];
+  }
+  return null;
+}
+
 export interface FunctionRequestContext {
   event?: unknown;
 }
@@ -135,12 +177,22 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
     const resolvedDefinition = resolveFunctionDefinition(definition, runtime.version!);
 
     try {
+      /**
+       * Case 1 - Guided navigation from the Prototype Tool. Instead of performing the listen's match
+       *          logic, the user instead explicitly specifies the
+       */
+      if (runtime.getAction() === Action.REQUEST && isGuidedNavigation(runtime)) {
+        runtime.variables.set(InternalVariables.FUNCTION_CONDITIONAL_TRANSFERS, null);
+
+        return applyGuidedNavigationButton(runtime.getRequest(), invocation.paths);
+      }
+
       const parsedTransfers = NextBranchesDTO.safeParse(
         runtime.variables.get(InternalVariables.FUNCTION_CONDITIONAL_TRANSFERS)
       );
 
       /**
-       * Case 1 - If there is a `parsedTransfers`, then we are resuming Function step execution after
+       * Case 2 - If there is a `parsedTransfers`, then we are resuming Function step execution after
        *          obtaining user input
        */
       if (runtime.getAction() === Action.REQUEST && parsedTransfers.success) {
@@ -157,7 +209,7 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
       }
 
       /**
-       * Case 2 - If there are no `parsedTransfers`, then we are hitting this Function step for the
+       * Case 3 - If there are no `parsedTransfers`, then we are hitting this Function step for the
        *          first time
        */
       const resolvedInputMapping = Object.entries(invocation.inputVars).reduce((acc, [varName, value]) => {
@@ -189,6 +241,8 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
       if (trace) {
         applyTraceCommand(trace, runtime);
       }
+
+      injectGuidedNavigationButtons(runtime, resolvedDefinition.pathCodes);
 
       if (resolvedDefinition.pathCodes.length === 0) {
         return invocation.paths.__vf__default ?? null;
