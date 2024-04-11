@@ -65,7 +65,7 @@ describe('setV2 handler unit tests', () => {
       expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(null);
 
       expect(CodeHandlerStub.calledOnce).to.eql(true);
-      expect(CodeHandlerStub.args).to.eql([[{ useStrictVM: true }]]);
+      expect(CodeHandlerStub.args).to.eql([[]]);
 
       expect(codeHandler.handle.args).to.eql([
         [
