@@ -212,6 +212,9 @@ class TestController extends AbstractController {
       ];
     })();
 
+    // Only returning LLM related error message for now (PL-931)
+    const errors = predictions.llm?.error && [predictions.llm.error];
+
     return {
       utterance: predictions.utterance ?? data.utterance,
       nlu: {
@@ -229,6 +232,7 @@ class TestController extends AbstractController {
               ]
             : [],
       },
+      errors,
     };
   }
 
