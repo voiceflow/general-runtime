@@ -345,7 +345,6 @@ export class Predictor extends EventEmitter {
 
     if (isIntentClassificationNLUSettings(this.settings)) {
       this.predictions.result = 'nlu';
-      this.debug(DebugType.NLU, `confidence: ${nluPrediction.confidence}`);
       return nluPrediction;
     }
 
