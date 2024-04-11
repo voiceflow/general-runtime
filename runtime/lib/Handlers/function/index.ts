@@ -8,12 +8,12 @@ import {
   FunctionCompiledNode,
   NodeType,
 } from '@voiceflow/dtos';
-import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
 import _query from '@/utils/underscore-query';
 
-import Runtime from '../../Runtime';
+import { InternalVariables } from '../../Constants/internal-variables';
+import Runtime, { Action } from '../../Runtime';
 import Store from '../../Runtime/Store';
 import { executeFunction } from './lib/execute-function/execute-function';
 import { createFunctionExceptionDebugTrace } from './lib/function-exception/function.exception';
@@ -64,7 +64,7 @@ function applyNextCommand(
     if (!command.listen) return null;
 
     const { defaultTo, to } = command;
-    runtime.variables.set(VoiceflowConstants.BuiltInVariable.FUNCTION_CONDITIONAL_TRANSFERS, { defaultTo, to });
+    runtime.variables.set(InternalVariables.FUNCTION_CONDITIONAL_TRANSFERS, { defaultTo, to });
 
     return nodeId;
   }
@@ -136,14 +136,14 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
 
     try {
       const parsedTransfers = NextBranchesDTO.safeParse(
-        runtime.variables.get(VoiceflowConstants.BuiltInVariable.FUNCTION_CONDITIONAL_TRANSFERS)
+        runtime.variables.get(InternalVariables.FUNCTION_CONDITIONAL_TRANSFERS)
       );
 
       /**
        * Case 1 - If there is a `parsedTransfers`, then we are resuming Function step execution after
        *          obtaining user input
        */
-      if (parsedTransfers.success) {
+      if (runtime.getAction() === Action.REQUEST && parsedTransfers.success) {
         const conditionalTransfers = parsedTransfers.data;
         const requestContext: FunctionRequestContext = {
           event: runtime.getRequest(),
@@ -151,7 +151,7 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
 
         const nextId = handleListenResponse(conditionalTransfers, requestContext, invocation.paths);
 
-        runtime.variables.set(VoiceflowConstants.BuiltInVariable.FUNCTION_CONDITIONAL_TRANSFERS, null);
+        runtime.variables.set(InternalVariables.FUNCTION_CONDITIONAL_TRANSFERS, null);
 
         return nextId;
       }
