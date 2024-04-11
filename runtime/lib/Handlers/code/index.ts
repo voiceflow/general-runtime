@@ -4,7 +4,6 @@ import safeJSONStringify from 'json-stringify-safe';
 import _ from 'lodash';
 import { isDeepStrictEqual } from 'util';
 
-import log from '@/logger';
 import { HandlerFactory } from '@/runtime/lib/Handler';
 
 import * as utils from './utils';
@@ -44,39 +43,7 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions> = ({
       if (useStrictVM) {
         newVariableState = await utils.ivmExecute(reqData, callbacks);
       } else if (endpoint) {
-        // Execute code in each environment and compare results
-        // Goal is to ensure that the code execution is consistent across environments
-        //  so the remote executor can be removed, leaving only isolated-vm
-        const [endpointResult, ivmResult] = await Promise.allSettled([
-          utils.remoteVMExecute(endpoint, reqData),
-          utils.ivmExecute(reqData, callbacks),
-        ]);
-
-        const logExecutionResult = utils.createExecutionResultLogger(log, {
-          projectID: runtime.project?._id,
-          versionID: runtime.getVersionID(),
-          diagramID: runtime.stack.top()?.getDiagramID(),
-          nodeID: node.id,
-          code: node.code,
-        });
-
-        // Compare remote execution result with isolated-vm execution result
-        logExecutionResult(
-          {
-            name: 'remote',
-            result: endpointResult,
-          },
-          {
-            name: 'isolated-vm',
-            result: ivmResult,
-          }
-        );
-
-        // Remote execution result is the source of truth
-        if (endpointResult.status === 'rejected') {
-          throw endpointResult.reason;
-        }
-        newVariableState = endpointResult.value;
+        newVariableState = await utils.remoteVMExecute(endpoint, reqData);
       } else {
         newVariableState = await utils.ivmExecute(reqData, callbacks);
       }
