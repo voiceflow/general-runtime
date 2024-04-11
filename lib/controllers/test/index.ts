@@ -229,6 +229,8 @@ class TestController extends AbstractController {
               ]
             : [],
       },
+      // Only returning LLM related error message for now (PL-931)
+      errors: predictions.llm?.error && [predictions.llm.error],
     };
   }
 
