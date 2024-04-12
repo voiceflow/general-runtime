@@ -65,7 +65,7 @@ function applyNextCommand(
     if (!command.listen) return null;
 
     const { defaultTo, to } = command;
-    runtime.variables.set(InternalVariables.FUNCTION_CONDITIONAL_TRANSFERS, { defaultTo, to });
+    runtime.storage.set(InternalVariables.FUNCTION_CONDITIONAL_TRANSFERS, { defaultTo, to });
 
     return nodeId;
   }
@@ -182,13 +182,13 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
        *          logic, the user instead explicitly specifies the
        */
       if (runtime.getAction() === Action.REQUEST && isGuidedNavigation(runtime)) {
-        runtime.variables.set(InternalVariables.FUNCTION_CONDITIONAL_TRANSFERS, null);
+        runtime.storage.set(InternalVariables.FUNCTION_CONDITIONAL_TRANSFERS, null);
 
         return applyGuidedNavigationButton(runtime.getRequest(), invocation.paths);
       }
 
       const parsedTransfers = NextBranchesDTO.safeParse(
-        runtime.variables.get(InternalVariables.FUNCTION_CONDITIONAL_TRANSFERS)
+        runtime.storage.get(InternalVariables.FUNCTION_CONDITIONAL_TRANSFERS)
       );
 
       /**
@@ -203,7 +203,7 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
 
         const nextId = handleListenResponse(conditionalTransfers, requestContext, invocation.paths);
 
-        runtime.variables.set(InternalVariables.FUNCTION_CONDITIONAL_TRANSFERS, null);
+        runtime.storage.set(InternalVariables.FUNCTION_CONDITIONAL_TRANSFERS, null);
 
         return nextId;
       }
