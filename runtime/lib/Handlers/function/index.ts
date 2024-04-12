@@ -142,13 +142,14 @@ function injectGuidedNavigationButtons(runtime: Runtime, paths: FunctionCompiled
    * "Guided Navigation". Moreover, the user has not returned a `choice` trace.
    */
   if (runtime.turn.get(TurnType.STOP_ALL)) {
+    const sortedPaths = paths.slice();
+    sortedPaths.sort();
+
     runtime.trace.addTrace<BaseNode.Utils.BaseTraceFrame<unknown>>({
       type: '__vf_internal__function_guided_navigation__buttons__',
       payload: {},
       defaultPath: 0,
-      paths: paths
-        .toSorted((a, b) => a.localeCompare(b))
-        .map((path) => ({ label: path, event: { type: toGuidedNavigationEventType(path) } })),
+      paths: sortedPaths.map((path) => ({ label: path, event: { type: toGuidedNavigationEventType(path) } })),
     });
   }
 }
