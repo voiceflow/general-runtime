@@ -17,14 +17,13 @@ const getRequiredEntities = (node: BaseNode.AICapture.Node, runtime: GeneralRunt
   const entityMap = Object.fromEntries((runtime.version?.prototype?.model.slots || []).map((slot) => [slot.key, slot]));
   return node.entities.map((entityID) => entityMap[entityID]);
 };
-/* eslint max-depth: ["error", 5] */
 const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRuntime> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_CAPTURE,
   handle: async (node, runtime, variables) => {
     // console.log("variables : ",variables)
     const entityProcessingType = variables.get('entity_processing_type');
     if (entityProcessingType === 'extract_and_capture') {
-      // console.log("entityProcessingType",entityProcessingType)
+      console.log("entityProcessingType",entityProcessingType)
       // determine exit path
       const exitPath = (node.exitPath && node.elseId) || node.nextId || null;
       // required entities to be filled - fetch this from runtime
@@ -156,10 +155,9 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
 
       return exitPath;
     }
-
-    // console.log("entityProcessingType",entityProcessingType)
-    return null;
-
+    else {
+      console.log("entityProcessingType",entityProcessingType)
+    }
     return null;
   },
 });
