@@ -4755,7 +4755,6 @@ __metadata:
     typedoc: ^0.20.16
     typedoc-plugin-sourcefile-url: ^1.0.6
     typescript: 4.9.3
-    underscore-query: 3.3.2
     unleash-client: 5.0.0
     validator: ^13.7.0
     words-to-numbers: ^1.5.1
@@ -18061,13 +18060,6 @@ __metadata:
     has-symbols: ^1.0.3
     which-boxed-primitive: ^1.0.2
   checksum: b7a1cf5862b5e4b5deb091672ffa579aa274f648410009c81cca63fed3b62b610c4f3b773f912ce545bb4e31edc3138975b5bc777fc6e4817dca51affb6380e9
-  languageName: node
-  linkType: hard
-
-"underscore-query@npm:3.3.2":
-  version: 3.3.2
-  resolution: "underscore-query@npm:3.3.2"
-  checksum: 78b8944f2cff77e6400a33297a5f763f2f260a6eac648d97b985272b6695b47198652a6cc8ac100090778cdd225f37c0fdcb535232019992075e811294dee3a1
   languageName: node
   linkType: hard
 
