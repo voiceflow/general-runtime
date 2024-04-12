@@ -8,10 +8,10 @@ import {
   FunctionCompiledNode,
   NodeType,
 } from '@voiceflow/dtos';
+import sift from 'sift';
 
 import { TurnType } from '@/lib/services/runtime/types';
 import { HandlerFactory } from '@/runtime/lib/Handler';
-import _query from '@/utils/underscore-query';
 
 import { InternalVariables } from '../../Constants/internal-variables';
 import Runtime, { Action } from '../../Runtime';
@@ -114,7 +114,9 @@ function handleListenResponse(
   requestContext: FunctionRequestContext,
   paths: FunctionCompiledInvocation['paths']
 ): string {
-  const firstMatchingTransfer = conditionalTransfers.to.find((item) => _query([requestContext], item.on).length > 0);
+  const firstMatchingTransfer = conditionalTransfers.to.find(
+    (item) => [requestContext].filter(sift(item.on)).length > 0
+  );
 
   if (!firstMatchingTransfer) {
     return applyTransfer(conditionalTransfers.defaultTo, paths);

@@ -4740,6 +4740,7 @@ __metadata:
     promise.withresolvers: ^1.0.3
     redoc-cli: ^0.12.3
     regenerator-runtime: ^0.13.3
+    sift: ^17.1.2
     sinon: ^7.5.0
     slate: 0.72.3
     source-map-support: ^0.5.19
@@ -16381,6 +16382,13 @@ __metadata:
     get-intrinsic: ^1.0.2
     object-inspect: ^1.9.0
   checksum: 351e41b947079c10bd0858364f32bb3a7379514c399edb64ab3dce683933483fc63fb5e4efe0a15a2e8a7e3c436b6a91736ddb8d8c6591b0460a24bb4a1ee245
+  languageName: node
+  linkType: hard
+
+"sift@npm:^17.1.2":
+  version: 17.1.2
+  resolution: "sift@npm:17.1.2"
+  checksum: 2154d2cc18bac57bf0b2293142f21811ec2850c9b5bd0e7a274e13febe11064865a9bc7cdb00d7b7b492bfd03c0b5f225d726a61e1e480347f4dd563b62cb6cf
   languageName: node
   linkType: hard
 
