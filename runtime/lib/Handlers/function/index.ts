@@ -178,10 +178,56 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
 
     try {
       /**
-       * Case 1 - Guided navigation from the Prototype Tool. Instead of performing the listen's match
+       * Case 1 - If there are no `parsedTransfers`, then we are hitting this Function step for the
+       *          first time
+       */
+      if (runtime.getAction() === Action.RUNNING) {
+        const resolvedInputMapping = Object.entries(invocation.inputVars).reduce((acc, [varName, value]) => {
+          return {
+            ...acc,
+            [varName]: utils.replaceVariables(value, variables.getState()),
+          };
+        }, {});
+
+        const { next, outputVars, trace } = await executeFunction({
+          ...node.data,
+          definition: resolvedDefinition,
+          source: {
+            codeId: resolvedDefinition.codeId,
+          },
+          invocation: {
+            inputVars: resolvedInputMapping,
+          },
+        });
+
+        if (outputVars) {
+          applyOutputCommand(outputVars, runtime, {
+            variables,
+            outputVarDeclarations: resolvedDefinition.outputVars,
+            outputVarAssignments: invocation.outputVars,
+          });
+        }
+
+        if (trace) {
+          applyTraceCommand(trace, runtime);
+        }
+
+        injectGuidedNavigationButtons(runtime, resolvedDefinition.pathCodes);
+
+        if (resolvedDefinition.pathCodes.length === 0) {
+          return invocation.paths.__vf__default ?? null;
+        }
+        if (next) {
+          return applyNextCommand(next, runtime, { nodeId: node.id, paths: invocation.paths });
+        }
+        return null;
+      }
+
+      /**
+       * Case 2 - Guided navigation from the Prototype Tool. Instead of performing the listen's match
        *          logic, the user instead explicitly specifies the
        */
-      if (runtime.getAction() === Action.REQUEST && isGuidedNavigation(runtime)) {
+      if (isGuidedNavigation(runtime)) {
         runtime.storage.set(InternalVariables.FUNCTION_CONDITIONAL_TRANSFERS, null);
 
         return applyGuidedNavigationButton(runtime.getRequest(), invocation.paths);
@@ -192,10 +238,10 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
       );
 
       /**
-       * Case 2 - If there is a `parsedTransfers`, then we are resuming Function step execution after
+       * Case 3 - If there is a `parsedTransfers`, then we are resuming Function step execution after
        *          obtaining user input
        */
-      if (runtime.getAction() === Action.REQUEST && parsedTransfers.success) {
+      if (parsedTransfers.success) {
         const conditionalTransfers = parsedTransfers.data;
         const requestContext: FunctionRequestContext = {
           event: runtime.getRequest(),
@@ -209,48 +255,10 @@ export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsO
       }
 
       /**
-       * Case 3 - If there are no `parsedTransfers`, then we are hitting this Function step for the
-       *          first time
+       * Case 4 - A bug has occurred. The function step was told to listen, but for some reason, there
+       *          were no valid `parsedTransfers` stored.
        */
-      const resolvedInputMapping = Object.entries(invocation.inputVars).reduce((acc, [varName, value]) => {
-        return {
-          ...acc,
-          [varName]: utils.replaceVariables(value, variables.getState()),
-        };
-      }, {});
-
-      const { next, outputVars, trace } = await executeFunction({
-        ...node.data,
-        definition: resolvedDefinition,
-        source: {
-          codeId: resolvedDefinition.codeId,
-        },
-        invocation: {
-          inputVars: resolvedInputMapping,
-        },
-      });
-
-      if (outputVars) {
-        applyOutputCommand(outputVars, runtime, {
-          variables,
-          outputVarDeclarations: resolvedDefinition.outputVars,
-          outputVarAssignments: invocation.outputVars,
-        });
-      }
-
-      if (trace) {
-        applyTraceCommand(trace, runtime);
-      }
-
-      injectGuidedNavigationButtons(runtime, resolvedDefinition.pathCodes);
-
-      if (resolvedDefinition.pathCodes.length === 0) {
-        return invocation.paths.__vf__default ?? null;
-      }
-      if (next) {
-        return applyNextCommand(next, runtime, { nodeId: node.id, paths: invocation.paths });
-      }
-      return null;
+      throw new Error('function step execution received user input, but function step has no input handlers');
     } catch (err) {
       // !TODO! - Revamp `general-runtime` types to allow users to modify the built-in
       //          trace types and avoid this `as` cast.
