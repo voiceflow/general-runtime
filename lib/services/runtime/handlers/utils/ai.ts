@@ -78,7 +78,7 @@ export const fetchRuntimeChat = async ({
     { ...options, context: { projectID: runtime.version?.projectID, workspaceID: runtime.project!.teamID } },
     runtime.variables.getState()
   );
-
+  //console.log("fetch chat result:",result)
   consumeResources(resource, runtime, result);
 
   return result;
