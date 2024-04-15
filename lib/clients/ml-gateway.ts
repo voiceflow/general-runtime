@@ -1,5 +1,5 @@
 import { MLGatewayClient } from '@voiceflow/sdk-http-ml-gateway';
-import fetch from 'node-fetch';
+import { fetch } from 'undici';
 
 import { AbstractClient } from './utils';
 
