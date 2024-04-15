@@ -15,7 +15,7 @@ export const NextPathDTO = z
 export type NextPath = z.infer<typeof NextPathDTO>;
 
 export const NextBranchesDTO = z.object({
-  defaultTo: TransferDTO,
+  defaultTo: z.union([z.string(), TransferDTO]),
   to: z.array(ConditionalTransferDTO),
 });
 
