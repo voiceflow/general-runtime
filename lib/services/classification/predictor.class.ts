@@ -228,10 +228,10 @@ export class Predictor extends EventEmitter {
       const result = await executePromptWrapper(promptContent, promptArgs);
       prompt = result.prompt;
     } catch (err) {
-      logger.error(err, 'PromptWrapperError: went real bad');
+      logger.error(err, 'Prompt wrapper execution error');
       this.predictions.llm = {
         error: {
-          message: 'PromptWrapperError: went real bad',
+          message: 'Prompt wrapper execution error. Please review your prompt wrapper syntax.',
         },
       };
       this.debug(DebugType.LLM, this.predictions.llm.error?.message);
@@ -253,19 +253,14 @@ export class Predictor extends EventEmitter {
       })
       .catch((error: Error) => {
         logger.error(error, '[hybridPredict intent classification]');
-        this.predictions.llm = {
-          error: {
-            message: `Falling back to NLU`,
-          },
-        };
-        this.debug(DebugType.LLM, this.predictions.llm.error?.message);
+        this.debug(DebugType.LLM, 'Falling back to NLU');
         return null;
       });
 
     if (!completionResponse?.output) {
       this.predictions.llm = {
         error: {
-          message: `unable to get LLM result, potential timeout`,
+          message: `LLM response timeout. Please retry.`,
         },
       };
       this.debug(DebugType.LLM, this.predictions.llm.error?.message);
@@ -285,7 +280,7 @@ export class Predictor extends EventEmitter {
       this.predictions.llm = {
         ...this.predictions.llm,
         error: {
-          message: "LLM prediction didn't match any intents, falling back to NLU",
+          message: 'LLM could not match any intents. Defaulting to NLU for classification.',
         },
       };
       this.debug(DebugType.LLM, this.predictions.llm.error?.message);
@@ -350,14 +345,13 @@ export class Predictor extends EventEmitter {
 
     if (isIntentClassificationNLUSettings(this.settings)) {
       this.predictions.result = 'nlu';
-      this.debug(DebugType.NLU, `confidence: ${nluPrediction.confidence}`);
       return nluPrediction;
     }
 
-    this.debug(
-      DebugType.NLU,
-      `intents: <pre style="text-align: left">${JSON.stringify(nluPrediction.intents, null, 2)}</pre>`
-    );
+    const intentDebugMessage = nluPrediction.intents
+      .map((intent) => `${intent.name} (${Math.round(intent.confidence * 100)}%)`)
+      .join('<br />');
+    this.debug(DebugType.NLU, `<pre>Top ${nluPrediction.intents.length}:<br/>${intentDebugMessage}</pre>`);
 
     if (isIntentClassificationLLMSettings(this.settings) && !this.props.dmRequest?.intent) {
       const llmPrediction = await this.llm(nluPrediction, {

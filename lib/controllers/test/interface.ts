@@ -75,6 +75,13 @@ export const TestClassificationResponseDTO = z
     nlu: ClassificationDTO,
     llm: ClassificationDTO,
     utterance: z.string(),
+    errors: z
+      .array(
+        z.object({
+          message: z.string(),
+        })
+      )
+      .optional(),
   })
   .strict();
 
