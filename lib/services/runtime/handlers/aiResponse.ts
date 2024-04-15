@@ -11,7 +11,7 @@ import { HandlerFactory } from '@/runtime';
 
 import { FrameType, GeneralRuntime, Output } from '../types';
 import { addOutputTrace, getOutputTrace } from '../utils';
-import { AIResponse, consumeResources, fetchPrompt } from './utils/ai';
+import { AIResponse, consumeResources, fetchPromptStream } from './utils/ai';
 import { generateOutput } from './utils/output';
 import { getVersionDefaultVoice } from './utils/version';
 
@@ -98,14 +98,52 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           multiplier: 1,
         };
       } else {
-        response = await fetchPrompt(
+        response = {
+          output: '',
+          tokens: 0,
+          queryTokens: 0,
+          answerTokens: 0,
+          model: '',
+          multiplier: 0,
+        };
+
+        // eslint-disable-next-line no-restricted-syntax
+        for await (const completion of fetchPromptStream(
           node,
           runtime.services.mlGateway,
           {
             context: { projectID, workspaceID },
           },
           variables.getState()
-        );
+        )) {
+          // eslint-disable-next-line max-depth
+          if (!completion.output) continue;
+
+          response.output += completion.output;
+          response.answerTokens += completion.answerTokens;
+          response.queryTokens += completion.queryTokens;
+          response.tokens += completion.tokens;
+          response.model = completion.model;
+          response.multiplier = completion.multiplier;
+
+          const output = generateOutput(
+            completion.output,
+            runtime.project,
+            // use default voice if voice doesn't exist
+            node.voice ?? getVersionDefaultVoice(runtime.version)
+          );
+
+          addOutputTrace(
+            runtime,
+            getOutputTrace({
+              output,
+              variables,
+              version: runtime.version,
+              ai: true,
+            }),
+            { variables }
+          );
+        }
       }
 
       await consumeResources('AI Response', runtime, response);
@@ -120,17 +158,6 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
       );
 
       runtime.stack.top().storage.set<Output>(FrameType.OUTPUT, output);
-
-      addOutputTrace(
-        runtime,
-        getOutputTrace({
-          output,
-          variables,
-          version: runtime.version,
-          ai: true,
-        }),
-        { variables }
-      );
 
       return nextID;
     } catch (err) {
