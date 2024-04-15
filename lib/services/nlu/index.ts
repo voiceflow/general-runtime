@@ -56,7 +56,7 @@ class NLU extends AbstractManager implements ContextHandler {
         axios: this.services.axios,
         mlGateway: this.services.mlGateway,
         CLOUD_ENV: this.config.CLOUD_ENV,
-        NLU_GATEWAY_SERVICE_HOST: this.config.NLU_GATEWAY_SERVICE_HOST,
+        NLU_GATEWAY_SERVICE_URI: this.config.NLU_GATEWAY_SERVICE_URI,
         NLU_GATEWAY_SERVICE_PORT_APP: this.config.NLU_GATEWAY_SERVICE_PORT_APP,
       },
       {
