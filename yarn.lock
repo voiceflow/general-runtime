@@ -4682,7 +4682,7 @@ __metadata:
     "@voiceflow/prettier-config": 1.2.1
     "@voiceflow/sdk-analytics": ^1.26.0
     "@voiceflow/sdk-auth": ^2.7.5
-    "@voiceflow/sdk-http-ml-gateway": 2.13.31
+    "@voiceflow/sdk-http-ml-gateway": "link:/Users/tyler/Voiceflow/creator-app/libs/sdk-http-ml-gateway"
     "@voiceflow/test-common": ^1.8.1
     "@voiceflow/utils-designer": 1.9.3
     "@voiceflow/verror": ^1.1.3
@@ -4755,6 +4755,7 @@ __metadata:
     typedoc: ^0.20.16
     typedoc-plugin-sourcefile-url: ^1.0.6
     typescript: 4.9.3
+    undici: ^6.13.0
     unleash-client: 5.0.0
     validator: ^13.7.0
     words-to-numbers: ^1.5.1
@@ -4895,18 +4896,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/orval-fetch@npm:1.3.0":
-  version: 1.3.0
-  resolution: "@voiceflow/orval-fetch@npm:1.3.0"
-  peerDependencies:
-    "@orval/core": ^6
-  peerDependenciesMeta:
-    "@orval/core":
-      optional: true
-  checksum: d33928c837290616d455afec9edf83ea9fafd702e25c5dc802d82ea9534e6544be3b53b12085b777030ec3c1b7cebe967043ab5d34a85e0e9ec405b864e3b076
-  languageName: node
-  linkType: hard
-
 "@voiceflow/pino-pretty@npm:4.4.0":
   version: 4.4.0
   resolution: "@voiceflow/pino-pretty@npm:4.4.0"
@@ -5033,47 +5022,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/sdk-common@npm:1.11.3":
-  version: 1.11.3
-  resolution: "@voiceflow/sdk-common@npm:1.11.3"
-  dependencies:
-    "@voiceflow/exception": 1.5.1
-    "@voiceflow/fetch": 1.5.2
-  peerDependencies:
-    "@nestjs/common": ^9
-    "@nestjs/core": ^9
-    undici: ^5
-  peerDependenciesMeta:
-    "@nestjs/common":
-      optional: true
-    "@nestjs/core":
-      optional: true
-    undici:
-      optional: true
-  checksum: 4ec77419e82dc576796c21005c88953ffb97c037855054ccfea142dcd2468e6cd007c482feb851259fa9bd4fc12c9f71a580da405f21a15793410226fe62de73
+"@voiceflow/sdk-http-ml-gateway@link:/Users/tyler/Voiceflow/creator-app/libs/sdk-http-ml-gateway::locator=%40voiceflow%2Fgeneral-runtime%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@voiceflow/sdk-http-ml-gateway@link:/Users/tyler/Voiceflow/creator-app/libs/sdk-http-ml-gateway::locator=%40voiceflow%2Fgeneral-runtime%40workspace%3A."
   languageName: node
-  linkType: hard
-
-"@voiceflow/sdk-http-ml-gateway@npm:2.13.31":
-  version: 2.13.31
-  resolution: "@voiceflow/sdk-http-ml-gateway@npm:2.13.31"
-  dependencies:
-    "@voiceflow/orval-fetch": 1.3.0
-    "@voiceflow/sdk-common": 1.11.3
-  peerDependencies:
-    "@nestjs/common": ^9
-    nestjs-zod: ^2
-    undici: ^5
-  peerDependenciesMeta:
-    "@nestjs/common":
-      optional: true
-    nestjs-zod:
-      optional: true
-    undici:
-      optional: true
-  checksum: 489d3cc6c26895bdc426ebd298f618e01fd66a624cd06088d34ec107a7ec3507242c4279aadb9bc836315a7080aca161d0b4e58e10dcb3615f662e00040a308d
-  languageName: node
-  linkType: hard
+  linkType: soft
 
 "@voiceflow/test-common@npm:^1.8.1":
   version: 1.8.1
@@ -18061,6 +18014,13 @@ __metadata:
   version: 5.26.5
   resolution: "undici-types@npm:5.26.5"
   checksum: 3192ef6f3fd5df652f2dc1cd782b49d6ff14dc98e5dced492aa8a8c65425227da5da6aafe22523c67f035a272c599bb89cfe803c1db6311e44bed3042fc25487
+  languageName: node
+  linkType: hard
+
+"undici@npm:^6.13.0":
+  version: 6.13.0
+  resolution: "undici@npm:6.13.0"
+  checksum: 47495e93aceeab18664678b6fb0ea2395b7c13a33d2ed4f7f36eb9be9ec5cd6f8e3a4ddaec18127da5e2012e5d7666ca824c7dc70af606dcfe6fdb8441ee3a7a
   languageName: node
   linkType: hard
 
