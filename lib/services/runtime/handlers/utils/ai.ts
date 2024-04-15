@@ -56,8 +56,10 @@ export const fetchChat = async (
       moderation: true,
       billing: true,
     })) ?? EMPTY_AI_RESPONSE;
-  console.log("------------- TESTING CAPTURE AI -------------")
-  console.dir({messages,output},{depth:null})
+  console.log('------------- TESTING CAPTURE AI -------------');
+  console.log('params', params);
+  console.log('------------- TESTING CAPTURE AI -------------');
+  console.dir({ messages, output }, { depth: null });
   return { messages, output, tokens, queryTokens, answerTokens, model, multiplier };
 };
 
