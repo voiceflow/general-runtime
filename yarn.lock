@@ -4757,6 +4757,7 @@ __metadata:
     typedoc: ^0.20.16
     typedoc-plugin-sourcefile-url: ^1.0.6
     typescript: 4.9.3
+    undici: ^6.13.0
     unleash-client: 5.0.0
     validator: ^13.7.0
     words-to-numbers: ^1.5.1
@@ -18144,6 +18145,13 @@ __metadata:
   version: 5.26.5
   resolution: "undici-types@npm:5.26.5"
   checksum: 3192ef6f3fd5df652f2dc1cd782b49d6ff14dc98e5dced492aa8a8c65425227da5da6aafe22523c67f035a272c599bb89cfe803c1db6311e44bed3042fc25487
+  languageName: node
+  linkType: hard
+
+"undici@npm:^6.13.0":
+  version: 6.13.0
+  resolution: "undici@npm:6.13.0"
+  checksum: 47495e93aceeab18664678b6fb0ea2395b7c13a33d2ed4f7f36eb9be9ec5cd6f8e3a4ddaec18127da5e2012e5d7666ca824c7dc70af606dcfe6fdb8441ee3a7a
   languageName: node
   linkType: hard
 
