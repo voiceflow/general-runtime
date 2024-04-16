@@ -107,6 +107,8 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           multiplier: 1,
         };
 
+        let traceStarted = false;
+
         // eslint-disable-next-line no-restricted-syntax
         for await (const completion of fetchPromptStream(
           node,
@@ -133,15 +135,44 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
             node.voice ?? getVersionDefaultVoice(runtime.version)
           );
 
+          // eslint-disable-next-line max-depth
+          if (traceStarted) {
+            addOutputTrace(
+              runtime,
+              getOutputTrace({
+                output,
+                variables,
+                version: runtime.version,
+                ai: true,
+              }),
+              { variables, eventType: 'trace-completion' }
+            );
+          } else {
+            addOutputTrace(
+              runtime,
+              getOutputTrace({
+                output,
+                variables,
+                version: runtime.version,
+                ai: true,
+              }),
+              { variables, eventType: 'trace-start' }
+            );
+          }
+
+          traceStarted = true;
+        }
+
+        if (traceStarted) {
           addOutputTrace(
             runtime,
             getOutputTrace({
-              output,
+              output: '',
               variables,
               version: runtime.version,
               ai: true,
             }),
-            { variables }
+            { variables, eventType: 'trace-end' }
           );
         }
       }
@@ -156,6 +187,9 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
         // use default voice if voice doesn't exist
         node.voice ?? getVersionDefaultVoice(runtime.version)
       );
+
+      // Set last response to entire AI response, not just a partial chunk
+      variables.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, response.output);
 
       runtime.stack.top().storage.set<Output>(FrameType.OUTPUT, output);
 
