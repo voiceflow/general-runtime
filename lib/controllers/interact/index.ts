@@ -56,8 +56,8 @@ class InteractController extends AbstractController {
           state,
         },
         (event) => {
-          if (event.type === 'trace') {
-            session.push({ type: 'trace', trace: (event as any).trace }, 'trace');
+          if ('trace' in event) {
+            session.push({ type: event.type, trace: event.trace }, event.type);
           }
         }
       );
