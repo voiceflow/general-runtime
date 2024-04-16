@@ -144,6 +144,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
                 variables,
                 version: runtime.version,
                 ai: true,
+                partial: false,
               }),
               { variables, eventType: 'trace-completion' }
             );
@@ -155,6 +156,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
                 variables,
                 version: runtime.version,
                 ai: true,
+                partial: true,
               }),
               { variables, eventType: 'trace-start' }
             );
@@ -171,6 +173,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
               variables,
               version: runtime.version,
               ai: true,
+              partial: true,
             }),
             { variables, eventType: 'trace-end' }
           );
