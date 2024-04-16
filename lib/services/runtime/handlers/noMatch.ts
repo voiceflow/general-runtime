@@ -9,6 +9,7 @@ import { isPrompt, NoMatchCounterStorage, Output, StorageType } from '../types';
 import {
   addButtonsIfExists,
   addOutputTrace,
+  getDefaultVoiceSetting,
   getGlobalNoMatch,
   getOutputTrace,
   isPromptContentEmpty,
@@ -54,6 +55,7 @@ const getOutput = async (
 ): Promise<{ output: Output; ai?: boolean; tokens?: number } | void | null> => {
   const nonEmptyNoMatches = removeEmptyNoMatches(node);
   const globalNoMatch = getGlobalNoMatch(runtime);
+  const defaultVoice = getDefaultVoiceSetting(runtime);
   const exhaustedReprompts = noMatchCounter >= nonEmptyNoMatches.length;
 
   if (!exhaustedReprompts) {
@@ -107,14 +109,18 @@ const getOutput = async (
   // if user never set global no-match prompt, we should use default
   if (!isPromptContentInitialized(prompt?.content)) {
     return {
-      output: generateOutput(VoiceflowConstants.defaultMessages.globalNoMatch, runtime.project),
+      output: generateOutput(
+        VoiceflowConstants.defaultMessages.globalNoMatch,
+        runtime.project,
+        prompt?.voice ?? defaultVoice
+      ),
     };
   }
 
   if (!isPromptContentEmpty(prompt?.content)) {
     const output =
       typeof prompt?.content === 'string'
-        ? generateOutput(prompt.content, runtime.project, prompt?.voice)
+        ? generateOutput(prompt.content, runtime.project, prompt?.voice ?? defaultVoice)
         : prompt?.content;
 
     if (output) return { output };

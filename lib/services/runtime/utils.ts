@@ -212,6 +212,14 @@ export const getGlobalNoReplyPrompt = (runtime: Runtime) => {
   return prompt && isPrompt(prompt) ? prompt : null;
 };
 
+export const getDefaultVoiceSetting = (runtime: Runtime): string | undefined => {
+  if (!runtime.version?.platformData?.settings) return undefined;
+  if (!('defaultVoice' in runtime.version.platformData.settings)) return undefined;
+  if (typeof runtime.version.platformData.settings.defaultVoice !== 'string') return undefined;
+
+  return runtime.version.platformData.settings.defaultVoice;
+};
+
 export const slateToPlaintext = (content: Readonly<BaseText.SlateTextValue> = []): string =>
   content
     .map((n) => Slate.Node.string(n))

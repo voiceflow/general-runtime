@@ -9,6 +9,7 @@ import {
   addButtonsIfExists,
   addOutputTrace,
   getDefaultNoReplyTimeoutSeconds,
+  getDefaultVoiceSetting,
   getGlobalNoReplyPrompt,
   getOutputTrace,
   isPromptContentEmpty,
@@ -56,6 +57,7 @@ export const addNoReplyTimeoutIfExists = (node: NoReplyNode, runtime: Runtime, f
 const getOutput = (runtime: Runtime, node: NoReplyNode, noReplyCounter: number) => {
   const nonEmptyNoReplies = removeEmptyNoReplies(node);
   const globalNoReplyPrompt = getGlobalNoReplyPrompt(runtime);
+  const defaultVoice = getDefaultVoiceSetting(runtime);
 
   // use global no reply delay if next no-reply is expected to be the global one
   const useGlobalNoReplyDelay = noReplyCounter === nonEmptyNoReplies.length - 1;
@@ -82,7 +84,7 @@ const getOutput = (runtime: Runtime, node: NoReplyNode, noReplyCounter: number) 
   if (!isPromptContentEmpty(globalNoReplyPrompt?.content)) {
     const output =
       typeof globalNoReplyPrompt?.content === 'string'
-        ? generateOutput(globalNoReplyPrompt.content, runtime.project, globalNoReplyPrompt?.voice)
+        ? generateOutput(globalNoReplyPrompt.content, runtime.project, globalNoReplyPrompt?.voice ?? defaultVoice)
         : globalNoReplyPrompt?.content;
 
     return { delay, output };
