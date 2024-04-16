@@ -1,12 +1,8 @@
-import { VoiceflowProgram, VoiceflowProject, VoiceflowVersion } from '@voiceflow/voiceflow-types';
+import { VoiceflowProgram, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 
 import { MongoDataAPI } from '@/runtime';
 
-class PrototypeDataAPI extends MongoDataAPI<
-  VoiceflowProgram.Program,
-  VoiceflowVersion.Version,
-  VoiceflowProject.Project
-> {
+class PrototypeDataAPI extends MongoDataAPI<VoiceflowProgram.Program, VoiceflowVersion.Version> {
   protected programsCollection = 'prototype-programs';
 }
 
