@@ -217,10 +217,10 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
           );
         }
 
-        const messages = getMemoryMessages(runtime.variables.getState());
+        //const messages = getMemoryMessages(runtime.variables.getState());
         // console.log('MSGS----', messages);
 
-        const mapped_msgs = messages.map(({ role, content }) => `${role}: ${content}`).join('\n');
+        //const mapped_msgs = messages.map(({ role, content }) => `${role}: ${content}`).join('\n');
         //console.log('mapped_msgs', mapped_msgs);
 
         // if nothing in entity cache is null
