@@ -70,3 +70,5 @@ export type ContextEvent =
     };
 
 export type HandleContextEventHandler = (event: ContextEvent) => any;
+
+export type ContextEventType = ContextEvent['type'];

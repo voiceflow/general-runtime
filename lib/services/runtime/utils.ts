@@ -322,9 +322,9 @@ export function getOutputTrace(params: OutputParams<Output>): BaseTrace.Speak | 
 export function addOutputTrace(
   runtime: { trace: { addTrace: AddTraceFn }; debugLogging: DebugLogging },
   trace: BaseTrace.Speak | BaseTrace.Text,
-  { node, variables }: { node?: BaseModels.BaseNode; variables?: Store } = {}
+  { node, variables, eventType }: { node?: BaseModels.BaseNode; variables?: Store; eventType?: string } = {}
 ) {
-  runtime.trace.addTrace(trace);
+  runtime.trace.addTrace(trace, { eventType });
 
   if (variables) AIAssist.injectOutput(variables, trace);
 
