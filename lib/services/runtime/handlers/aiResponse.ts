@@ -102,8 +102,8 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           tokens: 0,
           queryTokens: 0,
           answerTokens: 0,
-          model: '',
-          multiplier: 0,
+          model: node.model ?? '',
+          multiplier: 1,
         };
 
         // eslint-disable-next-line no-restricted-syntax
@@ -116,7 +116,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           variables.getState()
         )) {
           // eslint-disable-next-line max-depth
-          if (!completion.output) continue;
+          if (typeof completion.output !== 'string') continue;
 
           response.output += completion.output;
           response.answerTokens += completion.answerTokens;
