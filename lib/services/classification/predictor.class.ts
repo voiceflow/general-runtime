@@ -4,6 +4,7 @@ import { IntentClassificationSettings } from '@voiceflow/dtos';
 import { ISlotFullfilment } from '@voiceflow/natural-language-commander';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import type { AxiosStatic } from 'axios';
+import { EventEmitter } from 'node:events';
 import { match } from 'ts-pattern';
 
 import MLGateway from '@/lib/clients/ml-gateway';
@@ -23,12 +24,23 @@ import {
 } from './interfaces/nlu.interface';
 import { executePromptWrapper } from './prompt-wrapper-executor';
 
+export enum DebugType {
+  LLM = 'llm',
+  NLU = 'nlu',
+  NLC = 'nlc',
+}
+
+export interface DebugEvent {
+  message: string;
+  type: DebugType;
+}
+
 const ML_GATEWAY_TIMEOUT = 5000;
 
 const nonePrediction: Omit<Prediction, 'utterance'> = {
   predictedIntent: VoiceflowConstants.IntentName.NONE,
   predictedSlots: [],
-  confidence: 100,
+  confidence: 1,
 };
 
 const hasValueReducer = (slots?: ISlotFullfilment[]) =>
@@ -45,7 +57,7 @@ export interface PredictorConfig {
   NLU_GATEWAY_SERVICE_PORT_APP: string | null;
 }
 
-export class Predictor {
+export class Predictor extends EventEmitter {
   private intentNameMap: any = {};
 
   readonly predictions: Partial<ClassificationResult> = {};
@@ -56,6 +68,7 @@ export class Predictor {
     private settings: IntentClassificationSettings,
     private options: PredictOptions
   ) {
+    super();
     // match NLU prediction intents to NLU model
     this.intentNameMap = Object.fromEntries(props.intents.map((intent) => [intent.name, intent]));
   }
@@ -63,6 +76,10 @@ export class Predictor {
   private get nluGatewayURL() {
     const protocol = this.config.CLOUD_ENV === 'e2e' ? 'https' : 'http';
     return `${protocol}://${this.config.NLU_GATEWAY_SERVICE_URI}:${this.config.NLU_GATEWAY_SERVICE_PORT_APP}`;
+  }
+
+  private debug(type: DebugType, message?: string) {
+    this.emit('debug', { type, message });
   }
 
   // return all the same prediction shape?
@@ -74,6 +91,7 @@ export class Predictor {
           message: 'No intents to match against',
         },
       };
+      this.debug(DebugType.NLC, this.predictions.nlc.error?.message);
       return null;
     }
     const data = handleNLCCommand({
@@ -84,6 +102,7 @@ export class Predictor {
       },
       locale: this.options.locale,
       openSlot,
+      dmRequest: this.props.dmRequest,
     });
 
     if (!data) {
@@ -93,6 +112,7 @@ export class Predictor {
           message: 'No matches found',
         },
       };
+      this.debug(DebugType.NLC, this.predictions.nlc.error?.message);
       return null;
     }
 
@@ -159,6 +179,7 @@ export class Predictor {
           message: 'Something went wrong with NLU prediction',
         },
       };
+      this.debug(DebugType.NLU, this.predictions.nlu.error?.message);
       return null;
     }
 
@@ -171,6 +192,7 @@ export class Predictor {
           message: 'NLU predicted confidence below settings threshold',
         },
       };
+      this.debug(DebugType.NLU, this.predictions.nlu.error?.message);
       return null;
     }
 
@@ -206,12 +228,13 @@ export class Predictor {
       const result = await executePromptWrapper(promptContent, promptArgs);
       prompt = result.prompt;
     } catch (err) {
-      logger.error(err, 'PromptWrapperError: went real bad');
+      logger.error(err, 'Prompt wrapper execution error');
       this.predictions.llm = {
         error: {
-          message: 'PromptWrapperError: went real bad',
+          message: 'Prompt wrapper execution error. Please review your prompt wrapper syntax.',
         },
       };
+      this.debug(DebugType.LLM, this.predictions.llm.error?.message);
       return null;
     }
 
@@ -230,20 +253,17 @@ export class Predictor {
       })
       .catch((error: Error) => {
         logger.error(error, '[hybridPredict intent classification]');
-        this.predictions.llm = {
-          error: {
-            message: `Falling back to NLU`,
-          },
-        };
+        this.debug(DebugType.LLM, 'Falling back to NLU');
         return null;
       });
 
     if (!completionResponse?.output) {
       this.predictions.llm = {
         error: {
-          message: `unable to get LLM result, potential timeout`,
+          message: `LLM response timeout. Please retry.`,
         },
       };
+      this.debug(DebugType.LLM, this.predictions.llm.error?.message);
       return null;
     }
 
@@ -260,9 +280,10 @@ export class Predictor {
       this.predictions.llm = {
         ...this.predictions.llm,
         error: {
-          message: "LLM prediction didn't match any intents, falling back to NLU",
+          message: 'LLM could not match any intents. Defaulting to NLU for classification.',
         },
       };
+      this.debug(DebugType.LLM, this.predictions.llm.error?.message);
       return null;
     }
 
@@ -278,12 +299,22 @@ export class Predictor {
 
     this.predictions.llm = response;
 
+    this.debug(
+      DebugType.LLM,
+      `<pre>
+         intent: ${response.predictedIntent}
+         model: ${response.model}
+         multiplier: ${response.multiplier}
+         tokens: ${response.tokens}
+       </pre>`
+    );
+
     return response;
   }
 
   public async predict(utterance: string): Promise<Prediction | null> {
     // 1. first try restricted regex (no open slots) - exact string match
-    const nlcPrediction = await this.nlc(utterance, false);
+    const nlcPrediction = !isIntentClassificationLLMSettings(this.settings) ? await this.nlc(utterance, false) : null;
     if (nlcPrediction) {
       this.predictions.result = 'nlc';
       return nlcPrediction;
@@ -293,6 +324,15 @@ export class Predictor {
 
     if (!nluPrediction) {
       // try open regex slot matching
+      this.debug(DebugType.NLU, `No matching intents`);
+
+      if (isIntentClassificationLLMSettings(this.settings)) {
+        // No NLC when LLM enabled
+        return { ...nonePrediction, utterance };
+      }
+
+      this.debug(DebugType.NLU, `Falling back to NLC openSlots: true`);
+
       this.predictions.result = 'nlc';
       const openPrediction = await this.nlc(utterance, true);
       return (
@@ -308,7 +348,12 @@ export class Predictor {
       return nluPrediction;
     }
 
-    if (isIntentClassificationLLMSettings(this.settings)) {
+    const intentDebugMessage = nluPrediction.intents
+      .map((intent) => `${intent.name} (${Math.round(intent.confidence * 100)}%)`)
+      .join('<br />');
+    this.debug(DebugType.NLU, `<pre>Top ${nluPrediction.intents.length}:<br/>${intentDebugMessage}</pre>`);
+
+    if (isIntentClassificationLLMSettings(this.settings) && !this.props.dmRequest?.intent) {
       const llmPrediction = await this.llm(nluPrediction, {
         mlGateway: this.config.mlGateway,
       });
@@ -316,6 +361,7 @@ export class Predictor {
       if (!llmPrediction) {
         // fallback to NLU prediction
         this.predictions.result = 'nlu';
+        this.debug(DebugType.LLM, `Falling back to NLU`);
         return nluPrediction;
       }
 
@@ -345,6 +391,7 @@ export class Predictor {
     // finally try open regex slot matching
     this.predictions.result = 'nlc';
     const openPrediction = await this.nlc(utterance, true);
+    this.debug(DebugType.NLC, `Last ditch wth NLC openSlots true`);
     return (
       openPrediction ?? {
         ...nonePrediction,

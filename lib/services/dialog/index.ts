@@ -18,6 +18,9 @@ import { Store } from '@/runtime';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
+import { Predictor } from '../classification';
+import { castToDTO } from '../classification/classification.utils';
+import { getIntentRequest } from '../nlu';
 import { getNoneIntentRequest } from '../nlu/utils';
 import { isIntentRequest, StorageType } from '../runtime/types';
 import { addOutputTrace, getOutputTrace } from '../runtime/utils';
@@ -46,7 +49,13 @@ export interface DMStore {
 @injectServices({ utils })
 class DialogManagement extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
   static setDMStore(context: Context, store: DMStore | undefined) {
-    return { ...context, state: { ...context.state, storage: { ...context.state.storage, [StorageType.DM]: store } } };
+    return {
+      ...context,
+      state: {
+        ...context.state,
+        storage: { ...context.state.storage, [StorageType.DM]: store },
+      },
+    };
   }
 
   handleDMContext = (
@@ -96,7 +105,9 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       dmStateStore.intentRequest = incomingRequest;
     } else {
       // CASE-A2: The prefixed and regular calls do not match the same intent
-      dmStateStore.intentRequest = getNoneIntentRequest({ query: incomingRequest.payload.query });
+      dmStateStore.intentRequest = getNoneIntentRequest({
+        query: incomingRequest.payload.query,
+      });
     }
   };
 
@@ -120,7 +131,10 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
     const incomingRequest = context.request;
     const currentStore = context.state.storage[StorageType.DM];
-    const dmStateStore: DMStore = { ...currentStore, priorIntent: currentStore?.intentRequest };
+    const dmStateStore: DMStore = {
+      ...currentStore,
+      priorIntent: currentStore?.intentRequest,
+    };
     const { query } = incomingRequest.payload;
 
     // when capturing multiple intents on alexa, the currentStore.payload.entities only has the latest entity
@@ -141,21 +155,36 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
       try {
         const prefix = dmPrefix(dmStateStore.intentRequest.payload.intent.name);
-        const dmPrefixedResult = this.isNluGatwayEndpointConfigured()
-          ? await this.services.nlu.predict({
-              query: `${prefix} ${query}`,
+        const { intentClassificationSettings, intents, slots } = castToDTO(version, project);
+
+        let dmPrefixedResult = incomingRequest;
+
+        if (this.isNluGatwayEndpointConfigured()) {
+          const predictor = new Predictor(
+            {
+              axios: this.services.axios,
+              mlGateway: this.services.mlGateway,
+              CLOUD_ENV: this.config.CLOUD_ENV,
+              NLU_GATEWAY_SERVICE_URI: this.config.NLU_GATEWAY_SERVICE_URI,
+              NLU_GATEWAY_SERVICE_PORT_APP: this.config.NLU_GATEWAY_SERVICE_PORT_APP,
+            },
+            {
+              workspaceID: project.teamID,
               versionID: context.versionID,
-              model: version.prototype?.model,
-              locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
               tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
-              nlp: !!project.prototype?.nlp,
+              intents: intents ?? [],
+              slots: slots ?? [],
+              dmRequest: dmStateStore.intentRequest.payload,
+            },
+            intentClassificationSettings,
+            {
+              locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
               hasChannelIntents: project?.platformData?.hasChannelIntents,
               platform: version.prototype.platform as VoiceflowConstants.PlatformType,
-              dmRequest: dmStateStore.intentRequest.payload,
-              workspaceID: project.teamID,
-              intentConfidence: version?.platformData?.settings?.intentConfidence,
-            })
-          : incomingRequest;
+            }
+          );
+          dmPrefixedResult = getIntentRequest(await predictor.predict(`${prefix} ${query}`));
+        }
 
         // Remove the dmPrefix from entity values that it has accidentally been attached to
         dmPrefixedResult.payload.entities.forEach((entity) => {
@@ -166,7 +195,10 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
         if (dmStateStore.intentRequest.payload.intent.name === VoiceflowConstants.IntentName.NONE) {
           return {
-            ...DialogManagement.setDMStore(context, { ...dmStateStore, intentRequest: undefined }),
+            ...DialogManagement.setDMStore(context, {
+              ...dmStateStore,
+              intentRequest: undefined,
+            }),
             request: getNoneIntentRequest({ query }),
           };
         }
@@ -257,7 +289,10 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         };
       }
       return {
-        ...DialogManagement.setDMStore(context, { ...dmStateStore, intentRequest: undefined }),
+        ...DialogManagement.setDMStore(context, {
+          ...dmStateStore,
+          intentRequest: undefined,
+        }),
         request: getNoneIntentRequest({ query }),
       };
     }

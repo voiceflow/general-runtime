@@ -2,19 +2,24 @@ import { Validator } from '@voiceflow/backend-utils';
 import { BaseModels, BaseUtils } from '@voiceflow/base-types';
 import { BadRequestException } from '@voiceflow/exception';
 import VError from '@voiceflow/verror';
-import _merge from 'lodash/merge';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { z } from 'zod';
 
+import { Predictor } from '@/lib/services/classification';
+import { castToDTO } from '@/lib/services/classification/classification.utils';
+import { PredictedIntent } from '@/lib/services/classification/interfaces/nlu.interface';
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
 import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';
-import { Request, Response } from '@/types';
+import { Request, Response, VersionTag } from '@/types';
 import { formatZodError } from '@/utils/zod-error/formatZodError';
 
 import { fetchPrompt } from '../../services/runtime/handlers/utils/ai';
 import { validate } from '../../utils';
 import { AbstractController } from '../utils';
 import {
+  TestClassificationRequestBodyDTO,
+  TestClassificationResponse,
   TestFunctionRequestBody,
   TestFunctionRequestBodyDTO,
   TestFunctionResponse,
@@ -52,7 +57,10 @@ class TestController extends AbstractController {
 
     try {
       const startTime = performance.now();
-      const variables = await ivmExecute({ code: req.body.code, variables: req.body.variables });
+      const variables = await ivmExecute({
+        code: req.body.code,
+        variables: req.body.variables,
+      });
       res.send({ variables, time: performance.now() - startTime });
     } catch (error) {
       res.status(400).send({ error: error.message });
@@ -111,9 +119,16 @@ class TestController extends AbstractController {
   }
 
   async testCompletion(
-    req: Request<BaseUtils.ai.AIModelParams & BaseUtils.ai.AIContextParams & { workspaceID: string }>
+    req: Request<
+      BaseUtils.ai.AIModelParams &
+        BaseUtils.ai.AIContextParams & {
+          workspaceID: string;
+        }
+    >
   ) {
-    if (typeof req.body.prompt !== 'string') throw new VError('invalid prompt', VError.HTTP_STATUS.BAD_REQUEST);
+    if (typeof req.body.prompt !== 'string') {
+      throw new VError('invalid prompt', VError.HTTP_STATUS.BAD_REQUEST);
+    }
 
     try {
       const { output } = await fetchPrompt(
@@ -129,6 +144,94 @@ class TestController extends AbstractController {
       }
       throw err;
     }
+  }
+
+  async testClassification(req: Request): Promise<TestClassificationResponse> {
+    const data = TestClassificationRequestBodyDTO.parse(req.body);
+
+    const api = await this.services.dataAPI.get();
+
+    const version = await api.getVersion(data.versionID);
+    const project = await api.getProject(version.projectID);
+    const { intents, slots } = castToDTO(version, project);
+
+    // extra intents has the set of capture intents we want to exclude
+    const extraIntentNames = new Set(version.prototype?.surveyorContext.extraIntents.map(({ name }) => name));
+
+    const predictor = new Predictor(
+      {
+        axios: this.services.axios,
+        mlGateway: this.services.mlGateway,
+        CLOUD_ENV: this.config.CLOUD_ENV,
+        NLU_GATEWAY_SERVICE_URI: this.config.NLU_GATEWAY_SERVICE_URI,
+        NLU_GATEWAY_SERVICE_PORT_APP: this.config.NLU_GATEWAY_SERVICE_PORT_APP,
+      },
+      {
+        workspaceID: project.teamID,
+        versionID: data.versionID,
+        tag: project.liveVersion === data.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
+        intents: intents ?? [],
+        slots,
+      },
+      data.intentClassificationSettings,
+      {
+        locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
+        hasChannelIntents: project?.platformData?.hasChannelIntents,
+        platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
+        filteredIntents: Array.from(extraIntentNames),
+      }
+    );
+
+    const prediction = await predictor.predict(data.utterance);
+
+    const { predictions } = predictor;
+
+    const nluIntents = ((): PredictedIntent[] => {
+      if (predictions.nlu?.intents) {
+        return predictions.nlu.intents;
+      }
+
+      if (predictions.nlc?.predictedIntent) {
+        return [
+          {
+            name: predictions.nlc.predictedIntent,
+            confidence: predictions.nlc.confidence ?? 1,
+          },
+        ];
+      }
+
+      if (!prediction) {
+        throw new VError('No predictions', VError.HTTP_STATUS.NOT_FOUND);
+      }
+
+      return [
+        {
+          name: prediction.predictedIntent,
+          confidence: prediction.confidence,
+        },
+      ];
+    })();
+
+    return {
+      utterance: predictions.utterance ?? data.utterance,
+      nlu: {
+        // Filter out capture intents
+        intents: nluIntents.filter(({ name }) => !extraIntentNames.has(name)),
+      },
+      llm: {
+        intents:
+          predictions.llm && predictions.llm.predictedIntent && predictions.llm.confidence
+            ? [
+                {
+                  name: predictions.llm.predictedIntent,
+                  confidence: predictions.llm.confidence,
+                },
+              ]
+            : [],
+      },
+      // Only returning LLM related error message for now (PL-931)
+      errors: predictions.llm?.error && [predictions.llm.error],
+    };
   }
 
   async testFunction(req: Request<Record<string, never>, TestFunctionRequestBody>): Promise<TestFunctionResponse> {
