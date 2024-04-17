@@ -26,7 +26,6 @@
     "@voiceflow/dtos": "1.53.1",
     "@voiceflow/event-ingestion-service": "1.5.1",
     "@voiceflow/exception": "^1.5.1",
-    "@voiceflow/google-types": "2.20.57",
     "@voiceflow/internal": "3.2.3",
     "@voiceflow/logger": "2.2.0",
     "@voiceflow/metrics": "1.4.1",

@@ -1,7 +1,6 @@
 import { AlexaConstants } from '@voiceflow/alexa-types';
 import { BaseModels, BaseNode, BaseRequest } from '@voiceflow/base-types';
 import { CommandType, EventType } from '@voiceflow/base-types/build/cjs/node/utils';
-import { GoogleConstants } from '@voiceflow/google-types';
 import { VoiceflowConstants, VoiceflowUtils } from '@voiceflow/voiceflow-types';
 import { match } from 'ts-pattern';
 
@@ -58,7 +57,6 @@ export const getNoneIntentRequest = ({
   },
 });
 
-const googleIntentMap = GoogleConstants.VOICEFLOW_TO_GOOGLE_INTENT_MAP;
 // we dont want to map NONE into Fallback otherwise we might introduce issues on the dialog handler
 const { None, ...alexaIntentMap } = AlexaConstants.VoiceflowToAmazonIntentMap;
 
@@ -74,7 +72,6 @@ export const mapChannelIntent = (
   // alexa intents were given some but not exhaustive examples untill https://github.com/voiceflow/general-service/pull/379 was merged
   // this means old programs will hold VF intents, new ones wil hold channel intents
   const mapToUse = match(platform)
-    .with(VoiceflowConstants.PlatformType.GOOGLE, () => googleIntentMap)
     .with(VoiceflowConstants.PlatformType.ALEXA, () => {
       if (hasChannelIntents) return alexaIntentMap;
       return {};

@@ -1,6 +1,5 @@
 import { AlexaConstants } from '@voiceflow/alexa-types';
 import { BaseVersion } from '@voiceflow/base-types';
-import { GoogleConstants } from '@voiceflow/google-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { Runtime, Store } from '@/runtime';
@@ -13,11 +12,7 @@ const utilsObj = {
   getOutputTrace,
 };
 
-const repeatIntents = new Set<string>([
-  VoiceflowConstants.IntentName.REPEAT,
-  AlexaConstants.AmazonIntent.REPEAT,
-  GoogleConstants.GoogleIntent.REPEAT,
-]);
+const repeatIntents = new Set<string>([VoiceflowConstants.IntentName.REPEAT, AlexaConstants.AmazonIntent.REPEAT]);
 
 export const RepeatHandler = (utils: typeof utilsObj) => ({
   canHandle: (runtime: Runtime): boolean => {
