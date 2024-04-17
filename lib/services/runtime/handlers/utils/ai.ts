@@ -56,10 +56,6 @@ export const fetchChat = async (
       moderation: true,
       billing: true,
     })) ?? EMPTY_AI_RESPONSE;
-  console.log('------------- TESTING CAPTURE AI -------------');
-  console.log('params', params);
-  console.log('------------- TESTING CAPTURE AI -------------');
-  console.dir({ messages, output }, { depth: null });
   return { messages, output, tokens, queryTokens, answerTokens, model, multiplier };
 };
 
@@ -80,7 +76,6 @@ export const fetchRuntimeChat = async ({
     { ...options, context: { projectID: runtime.version?.projectID, workspaceID: runtime.project!.teamID } },
     runtime.variables.getState()
   );
-  //console.log("fetch chat result:",result)
   consumeResources(resource, runtime, result);
 
   return result;

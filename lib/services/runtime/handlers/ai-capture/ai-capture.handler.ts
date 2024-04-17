@@ -35,12 +35,6 @@ function parseOutput(input: string | null): ParsedData {
     return data;
   }
   const lines = input.split(/\n+/); // Assuming each section is separated by a double newline
-  /*if (lines.length > 1) {
-    console.log('The output contains more than one item.');
-  } else {
-    console.log('The output contains one or no items.');
-    lines = input.split(/\n/); // Assuming each section is separated by a single newline
-  }*/
   lines.forEach((line) => {
     if (line.startsWith('Type:')) {
       data.Type = line.substring('Type: '.length);
@@ -50,7 +44,7 @@ function parseOutput(input: string | null): ParsedData {
       try {
         data.EntityState = JSON.parse(entityStateJson);
       } catch (error) {
-        console.error('Error parsing Entity State JSON', error);
+        data.EntityState = null;
       }
     } else if (line.startsWith('Rationale:')) {
       data.Rationale = line.substring('Rationale: '.length);
@@ -68,17 +62,15 @@ function separateDialogues(utterance: string, dialogues: BaseUtils.ai.Message[])
   let userContents: string[] = dialogues
     .filter((dialogue) => dialogue.role === 'user')
     .map((dialogue) => dialogue.content);
-  const entriesToRemove: string[] = ['1. Extract and Capture', '2. Single Prompt'];
-  const assistantEntriesToRemove: string[] = ['Please provide your name and company'];
-  userContents = userContents.filter((userContent) => !entriesToRemove.includes(userContent));
+  const entriesToRemove: Set<string> = new Set(['1. Extract and Capture', '2. Single Prompt']);
+  const assistantEntriesToRemove: Set<string> = new Set(['Please provide your name and company']);
+  userContents = userContents.filter((userContent) => !entriesToRemove.has(userContent));
   userContents = userContents.filter((userContent) => !userContent.includes(utterance));
-  console.log('User Dialogues after removal:', userContents);
+
   let assistantContents: string[] = dialogues
     .filter((dialogue) => dialogue.role === 'assistant')
     .map((dialogue) => dialogue.content);
-  assistantContents = assistantContents.filter(
-    (assistantContent) => !assistantEntriesToRemove.includes(assistantContent)
-  );
+  assistantContents = assistantContents.filter((assistantContent) => !assistantEntriesToRemove.has(assistantContent));
   return [userContents, assistantContents];
 }
 interface ParsedData {
@@ -90,32 +82,25 @@ interface ParsedData {
 
 function extractBracedStrings(input: string): string[] {
   const regex = /(\{[^}]*\})/g;
-  let matches: RegExpMatchArray | null;
   let results: string[] = [];
 
   // Extract matches using the regex pattern
-  matches = input.match(regex);
+  const matches: RegExpMatchArray | null = input.match(regex);
 
   if (matches) {
     results.push(...matches);
-  } else {
-    console.log('No matches found!');
   }
-
   return results;
 }
 
 const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRuntime> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_CAPTURE,
   handle: async (node, runtime, variables) => {
-    console.log('variables : ', variables);
     const entityProcessingType = variables.get('entity_processing_type');
-    console.log('entityProcessingType', entityProcessingType);
     // determine exit path
     const exitPath = (node.exitPath && node.elseId) || node.nextId || null;
     // required entities to be filled - fetch this from runtime
     const requiredEntities = getRequiredEntities(node, runtime);
-    console.log('requiredEntities : ', requiredEntities);
     //
     let entityCache: EntityCache =
       runtime.storage.get(StorageType.AI_CAPTURE_ENTITY_CACHE) ??
@@ -133,11 +118,8 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
     }
 
     const utterance = AIAssist.getInput(runtime.getRequest());
-    console.log('utterance : ', utterance);
     const isLocalScope = node.intentScope === BaseNode.Utils.IntentScope.NODE;
     if (entityProcessingType === 'extract_and_capture') {
-      console.log('entityProcessingType', entityProcessingType);
-
       if (utterance) {
         if (NoReplyHandler().canHandle(runtime)) {
           return NoReplyHandler().handle(node, runtime, variables);
@@ -190,49 +172,21 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
           },
           runtime,
         });
-        console.log('extract result.output:', result.output);
         if (result.output) {
           const out = extractBracedStrings(result.output)[0];
           const resultEntities = JSON.parse(out);
-          console.log('resultEntities:', resultEntities);
           // if no new entities are captured, try to resolve an intent
           if (!Object.values(resultEntities).some(Boolean) && !isLocalScope && CommandHandler().canHandle(runtime)) {
-            console.log('!Object.values(resultEntities).some(Boolean)', !Object.values(resultEntities).some(Boolean));
-            console.log(
-              '!isLocalScope && CommandHandler().canHandle(runtime)',
-              !isLocalScope && CommandHandler().canHandle(runtime)
-            );
             return CommandHandler().handle(runtime, variables);
           }
 
           entityCache = Object.fromEntries(
             requiredEntities.map(({ name }) => [name, resultEntities[name] || entityCache[name] || null])
           );
-          console.log('entityCache', entityCache);
 
           runtime.storage.set(StorageType.AI_CAPTURE_ENTITY_CACHE, entityCache);
-          console.log(
-            'runtime.storage.get(StorageType.AI_CAPTURE_ENTITY_CACHE)',
-            runtime.storage.get(StorageType.AI_CAPTURE_ENTITY_CACHE)
-          );
         }
-
-        //const messages = getMemoryMessages(runtime.variables.getState());
-        // console.log('MSGS----', messages);
-
-        //const mapped_msgs = messages.map(({ role, content }) => `${role}: ${content}`).join('\n');
-        //console.log('mapped_msgs', mapped_msgs);
-
-        // if nothing in entity cache is null
-        /*if (Object.values(entityCache).every(Boolean)) {
-          variables.merge(
-            Object.fromEntries(requiredEntities.map((entity) => [entity.name, entityCache[entity.name]]))
-          );
-          console.log('variables', variables);
-          runtime.storage.delete(StorageType.AI_CAPTURE_ENTITY_CACHE);
-          return node.nextId ?? null;
-        }*/
-
+        //we still need to process the entities captured for exit scenarios.
         const captureResult = await fetchRuntimeChat({
           resource: 'AI Capture Rules & Response',
           params: {
@@ -267,7 +221,6 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
         //const capture = JSON.parse(captureResult.output?.trim() || '') as { Type?: string; Response?: string };
 
         const parsedOut: ParsedData = parseOutput(captureResult.output);
-        console.log('parsedOut for capture ', parsedOut);
         if (parsedOut.Type.includes('exit')) {
           runtime.storage.delete(StorageType.AI_CAPTURE_ENTITY_CACHE);
           return exitPath;
@@ -298,11 +251,8 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
           return NoReplyHandler().handle(node, runtime, variables);
         }
         const messages = getMemoryMessages(runtime.variables.getState());
-        console.log('MSGS----', messages);
         // Separate the dialogues and store in respective variables
         let [prevUserStatements, prevResponses] = separateDialogues(utterance, messages);
-        console.log('User Dialogues:', prevUserStatements);
-        console.log('Assistant Dialogues:', prevResponses);
         // capture entities
         const result = await fetchRuntimeChat({
           resource: 'AI Capture Extraction Single Prompt',
@@ -356,40 +306,24 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
           },
           runtime,
         });
-        // console.log("single prompt - result:",result)
-        console.log('single prompt - result.output:', result.output);
+
         const output: string | null = result.output;
         const parsedOut: ParsedData = parseOutput(output);
-        console.log('parsedOut', parsedOut);
         const resultEntities = parsedOut.EntityState;
         if (resultEntities) {
-          console.log('resultEntities:', resultEntities);
           // if no new entities are captured, try to resolve an intent
           if (!Object.values(resultEntities).some(Boolean) && !isLocalScope && CommandHandler().canHandle(runtime)) {
-            console.log('!Object.values(resultEntities).some(Boolean)', !Object.values(resultEntities).some(Boolean));
-            console.log(
-              '!isLocalScope && CommandHandler().canHandle(runtime)',
-              !isLocalScope && CommandHandler().canHandle(runtime)
-            );
             return CommandHandler().handle(runtime, variables);
           }
 
           entityCache = Object.fromEntries(
             requiredEntities.map(({ name }) => [name, resultEntities[name] || entityCache[name] || null])
           );
-          console.log('entityCache', entityCache);
-
           runtime.storage.set(StorageType.AI_CAPTURE_ENTITY_CACHE, entityCache);
-          console.log(
-            'runtime.storage.get(StorageType.AI_CAPTURE_ENTITY_CACHE)',
-            runtime.storage.get(StorageType.AI_CAPTURE_ENTITY_CACHE)
-          );
-          console.log('MESSAGES---', runtime.variables.getState());
         }
         // Check for exit first
 
         if (parsedOut.Type.includes('exit')) {
-          console.log("The parsedOut.Type contains the substring 'exit'");
           runtime.storage.delete(StorageType.AI_CAPTURE_ENTITY_CACHE);
           return exitPath;
         }
@@ -399,7 +333,6 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
           variables.merge(
             Object.fromEntries(requiredEntities.map((entity) => [entity.name, entityCache[entity.name]]))
           );
-          console.log('variables', variables);
           runtime.storage.delete(StorageType.AI_CAPTURE_ENTITY_CACHE);
           return node.nextId ?? null;
         }
