@@ -42,7 +42,7 @@ export const castToDTO = (
 
   let intentClassificationSettings: IntentClassificationSettings;
 
-  if (isIntentClassificationSettings(settings?.intentClassification)) {
+  if (settings?.intentClassification && isIntentClassificationSettings(settings.intentClassification)) {
     intentClassificationSettings = settings.intentClassification;
   } else if (project.nluSettings?.classifyStrategy === BaseModels.Project.ClassifyStrategy.VF_NLU_LLM_HYBRID) {
     // remove after migration PL-846
