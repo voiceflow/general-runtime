@@ -3,6 +3,7 @@ import {
   IntentClassificationLLMSettings,
   IntentClassificationNLUSettings,
   IntentClassificationSettings,
+  IntentClassificationSettingsDTO,
   PrototypeModel,
   Version,
 } from '@voiceflow/dtos';
@@ -22,6 +23,12 @@ export const isIntentClassificationLLMSettings = (
   return settings.type === 'llm';
 };
 
+export const isIntentClassificationSettings = (
+  intentClassificationSettings?: unknown
+): intentClassificationSettings is IntentClassificationSettings => {
+  return IntentClassificationSettingsDTO.safeParse(intentClassificationSettings).success;
+};
+
 export const castToDTO = (
   version: VoiceflowVersion.Version,
   project: VoiceflowProject.Project
@@ -33,17 +40,22 @@ export const castToDTO = (
   const { settings, prototype } = version as unknown as Version;
   const { intents, slots } = prototype?.model ?? {};
 
-  const intentClassificationSettings =
-    settings?.intentClassification ||
+  let intentClassificationSettings: IntentClassificationSettings;
+
+  if (isIntentClassificationSettings(settings?.intentClassification)) {
+    intentClassificationSettings = settings.intentClassification;
+  } else if (project.nluSettings?.classifyStrategy === BaseModels.Project.ClassifyStrategy.VF_NLU_LLM_HYBRID) {
     // remove after migration PL-846
-    (project.nluSettings?.classifyStrategy === BaseModels.Project.ClassifyStrategy.VF_NLU_LLM_HYBRID &&
-      LEGACY_LLM_INTENT_CLASSIFICATION) ||
+    intentClassificationSettings = LEGACY_LLM_INTENT_CLASSIFICATION;
+  } else if (version?.platformData?.settings?.intentConfidence) {
     // remove after migration PL-846
-    (version?.platformData?.settings?.intentConfidence && {
+    intentClassificationSettings = {
       type: 'nlu',
       params: { confidence: version.platformData.settings.intentConfidence },
-    }) ||
-    DEFAULT_NLU_INTENT_CLASSIFICATION;
+    };
+  } else {
+    intentClassificationSettings = DEFAULT_NLU_INTENT_CLASSIFICATION;
+  }
 
   return {
     intentClassificationSettings,
