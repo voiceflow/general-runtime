@@ -153,7 +153,7 @@ class TestController extends AbstractController {
 
     const version = await api.getVersion(data.versionID);
     const project = await api.getProject(version.projectID);
-    const { intents, slots } = castToDTO(version, project);
+    const { intents, isTrained, slots } = castToDTO(version, project);
 
     // extra intents has the set of capture intents we want to exclude
     const extraIntentNames = new Set(version.prototype?.surveyorContext.extraIntents.map(({ name }) => name));
@@ -172,6 +172,7 @@ class TestController extends AbstractController {
         tag: project.liveVersion === data.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
         intents: intents ?? [],
         slots,
+        isTrained,
       },
       data.intentClassificationSettings,
       {

@@ -49,7 +49,7 @@ class NLU extends AbstractManager implements ContextHandler {
 
     const version = await context.data.api.getVersion(context.versionID);
     const project = await context.data.api.getProject(version.projectID);
-    const { intentClassificationSettings, intents, slots } = castToDTO(version, project);
+    const { intentClassificationSettings, intents, isTrained, slots } = castToDTO(version, project);
 
     const predictor = new Predictor(
       {
@@ -65,6 +65,7 @@ class NLU extends AbstractManager implements ContextHandler {
         tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
         intents: intents ?? [],
         slots: slots ?? [],
+        isTrained,
       },
       intentClassificationSettings,
       {

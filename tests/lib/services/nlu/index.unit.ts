@@ -54,6 +54,9 @@ describe('nlu manager unit tests', () => {
     liveVersion: '1',
     devVersion: '2',
     teamID,
+    prototype: {
+      nlp: true,
+    },
   };
   const liveVersion = 'some-live-version';
 

@@ -317,7 +317,7 @@ export class Predictor extends EventEmitter {
       return nlcPrediction;
     }
 
-    const nluPrediction = await this.nlu(utterance, this.options);
+    const nluPrediction = this.props.isTrained && (await this.nlu(utterance, this.options));
 
     if (!nluPrediction) {
       // try open regex slot matching

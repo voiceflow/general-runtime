@@ -76,6 +76,9 @@ describe('predictor unit tests', () => {
     liveVersion: '1',
     devVersion: '2',
     teamID,
+    prototype: {
+      nlp: true,
+    },
   };
 
   const noneIntent: BaseRequest.IntentRequest = {
@@ -108,6 +111,7 @@ describe('predictor unit tests', () => {
     versionID: version._id,
     workspaceID: String(project.teamID),
     tag: VersionTag.DEVELOPMENT,
+    isTrained: true,
   };
   const defaultSettings: IntentClassificationSettings = {
     type: 'nlu',
@@ -221,6 +225,25 @@ describe('predictor unit tests', () => {
 
       sinon.assert.called(config.axios.post);
       expect(handleNLCCommandStub.callCount).to.eql(2);
+      expect(prediction?.predictedIntent).to.eql(nlcPrediction.intent);
+      expect(result).to.eql('nlc');
+    });
+
+    it('not called when nlp false', async () => {
+      const utterance = 'query-val';
+      const { config, props, settings, options } = setup({
+        axios: { data: null },
+        props: { isTrained: false },
+      });
+      const predictor = new Predictor(config, props, settings.intentClassification, options);
+      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand');
+      handleNLCCommandStub.returns(nlcPrediction as any);
+
+      const prediction = await predictor.predict(utterance);
+      const { result } = predictor.predictions;
+
+      sinon.assert.notCalled(config.axios.post);
+      expect(handleNLCCommandStub.callCount).to.eql(1);
       expect(prediction?.predictedIntent).to.eql(nlcPrediction.intent);
       expect(result).to.eql('nlc');
     });

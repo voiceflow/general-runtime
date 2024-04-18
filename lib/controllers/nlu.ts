@@ -75,7 +75,7 @@ class NLUController extends AbstractController {
       throw new VError('Missmatch in projectID/versionID', VError.HTTP_STATUS.BAD_REQUEST);
     }
 
-    const { intentClassificationSettings, intents, slots } = castToDTO(version, project);
+    const { intentClassificationSettings, intents, isTrained, slots } = castToDTO(version, project);
 
     const predictor = new Predictor(
       {
@@ -91,6 +91,7 @@ class NLUController extends AbstractController {
         tag: project.liveVersion === versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
         intents: intents ?? [],
         slots: slots ?? [],
+        isTrained,
       },
       intentClassificationSettings,
       {

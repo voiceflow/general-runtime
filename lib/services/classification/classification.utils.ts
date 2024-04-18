@@ -36,6 +36,7 @@ export const castToDTO = (
   intentClassificationSettings: IntentClassificationSettings;
   intents?: PrototypeModel['intents'];
   slots?: PrototypeModel['slots'];
+  isTrained: boolean;
 } => {
   const { settings, prototype } = version as unknown as Version;
   const { intents, slots } = prototype?.model ?? {};
@@ -61,5 +62,6 @@ export const castToDTO = (
     intentClassificationSettings,
     intents,
     slots,
+    isTrained: !!project.prototype?.nlp,
   };
 };

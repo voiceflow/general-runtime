@@ -67,6 +67,7 @@ export interface PredictRequest {
   tag: string;
   versionID: string;
   workspaceID: string;
+  isTrained: boolean;
 
   // legacy
   dmRequest?: BaseRequest.IntentRequestPayload;
