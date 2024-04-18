@@ -27,7 +27,6 @@ import { executePromptWrapper } from './prompt-wrapper-executor';
 export enum DebugType {
   LLM = 'llm',
   NLU = 'nlu',
-  NLC = 'nlc',
 }
 
 export interface DebugEvent {
@@ -91,7 +90,6 @@ export class Predictor extends EventEmitter {
           message: 'No intents to match against',
         },
       };
-      this.debug(DebugType.NLC, this.predictions.nlc.error?.message);
       return null;
     }
     const data = handleNLCCommand({
@@ -112,7 +110,6 @@ export class Predictor extends EventEmitter {
           message: 'No matches found',
         },
       };
-      this.debug(DebugType.NLC, this.predictions.nlc.error?.message);
       return null;
     }
 
@@ -331,8 +328,6 @@ export class Predictor extends EventEmitter {
         return { ...nonePrediction, utterance };
       }
 
-      this.debug(DebugType.NLU, `Falling back to NLC openSlots: true`);
-
       this.predictions.result = 'nlc';
       const openPrediction = await this.nlc(utterance, true);
       return (
@@ -391,7 +386,6 @@ export class Predictor extends EventEmitter {
     // finally try open regex slot matching
     this.predictions.result = 'nlc';
     const openPrediction = await this.nlc(utterance, true);
-    this.debug(DebugType.NLC, `Last ditch wth NLC openSlots true`);
     return (
       openPrediction ?? {
         ...nonePrediction,
