@@ -55,10 +55,6 @@ describe('predictor unit tests', () => {
     ],
     key: 'pizzaAmountKey',
   };
-  const orderPizzaIntentWithSlotsPrediction = {
-    name: orderPizzaIntentWithSlots.name,
-    confidence: 1,
-  };
   const model: PrototypeModel = {
     slots: [],
     intents: [orderPizzaIntent],
@@ -258,15 +254,17 @@ describe('predictor unit tests', () => {
       });
       const predictor = new Predictor(config, props, settings.intentClassification, options);
       const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand');
+      handleNLCCommandStub.onCall(0).returns(null);
+      handleNLCCommandStub.onCall(1).returns(nlcPrediction as any);
 
       const prediction = await predictor.predict(utterance);
       const { result } = predictor.predictions;
 
       sinon.assert.called(config.axios.post);
       sinon.assert.notCalled(config.mlGateway.private?.completion.generateCompletion);
-      expect(handleNLCCommandStub.callCount).to.eql(0);
-      expect(prediction?.predictedIntent).to.eql(VoiceflowConstants.IntentName.NONE);
-      expect(result).not.to.eql('nlc');
+      expect(handleNLCCommandStub.callCount).to.eql(2);
+      expect(prediction?.predictedIntent).to.eql(nlcPrediction.intent);
+      expect(result).to.eql('nlc');
     });
 
     it('uses slots from NLU if same prediction', async () => {
@@ -319,61 +317,6 @@ describe('predictor unit tests', () => {
       expect(result).to.eql('llm');
       expect(config.axios.post.callCount).to.eql(2);
       expect(prediction?.predictedIntent).to.eql(predictionWithSlots.output);
-    });
-
-    it('skips NLC', async () => {
-      const utterance = 'query-val';
-      const predictionWithSlots = {
-        ...mlGatewayPrediction,
-        output: orderPizzaIntentWithSlots.name,
-      };
-      const { config, props, settings, options } = setup({
-        props: {
-          intents: [orderPizzaIntentWithSlots],
-          slots: [pizzaAmountSlot],
-        },
-        axios: {
-          data: {
-            ...nluGatewayPrediction,
-            predictionIntent: orderPizzaIntentWithSlots.name,
-            intents: [orderPizzaIntentWithSlotsPrediction],
-          },
-        },
-        mlGateway: predictionWithSlots,
-        settings: {
-          type: 'llm',
-          params: { model: 'gpt-4-turbo', temperature: 0.7 },
-        },
-      });
-
-      const predictor = new Predictor(config, props, settings.intentClassification, options);
-      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand');
-      handleNLCCommandStub.returns(nlcPrediction as any);
-
-      const prediction = await predictor.predict(utterance);
-      const { result } = predictor.predictions;
-
-      expect(result).to.eql('llm');
-      expect(prediction?.predictedIntent).to.eql(predictionWithSlots.output);
-      expect(prediction?.predictedIntent).not.to.eql(nlcPrediction.output);
-    });
-
-    it('no NLC on NLU failure', async () => {
-      const utterance = 'query-val';
-      const { config, props, settings, options } = setup({
-        axios: { data: null },
-        settings: {
-          type: 'llm',
-          params: { model: 'gpt-4-turbo', temperature: 0.7 },
-        },
-      });
-      const predictor = new Predictor(config, props, settings.intentClassification, options);
-
-      const prediction = await predictor.predict(utterance);
-      const { result } = predictor.predictions;
-
-      expect(prediction?.predictedIntent).to.eql(VoiceflowConstants.IntentName.NONE);
-      expect(result).not.to.eql('nlc');
     });
   });
 });

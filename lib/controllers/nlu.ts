@@ -1,13 +1,11 @@
 import { Validator } from '@voiceflow/backend-utils';
 import VError from '@voiceflow/verror';
-import { VoiceflowConstants, VoiceflowProject, VoiceflowVersion } from '@voiceflow/voiceflow-types';
+import { VoiceflowProject, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 import { ObjectId } from 'mongodb';
 
 import { shallowObjectIdToString } from '@/runtime/lib/DataAPI/mongoDataAPI';
 import { Request, VersionTag } from '@/types';
 
-import { Predictor } from '../services/classification';
-import { castToDTO } from '../services/classification/classification.utils';
 import { validate } from '../utils';
 import { AbstractController } from './utils';
 
@@ -75,31 +73,16 @@ class NLUController extends AbstractController {
       throw new VError('Missmatch in projectID/versionID', VError.HTTP_STATUS.BAD_REQUEST);
     }
 
-    const { intentClassificationSettings, intents, slots } = castToDTO(version, project);
-
-    const predictor = new Predictor(
-      {
-        axios: this.services.axios,
-        mlGateway: this.services.mlGateway,
-        CLOUD_ENV: this.config.CLOUD_ENV,
-        NLU_GATEWAY_SERVICE_URI: this.config.NLU_GATEWAY_SERVICE_URI,
-        NLU_GATEWAY_SERVICE_PORT_APP: this.config.NLU_GATEWAY_SERVICE_PORT_APP,
-      },
-      {
-        workspaceID: project.teamID,
-        versionID,
-        tag: project.liveVersion === versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
-        intents: intents ?? [],
-        slots: slots ?? [],
-      },
-      intentClassificationSettings,
-      {
-        locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
-        hasChannelIntents: project?.platformData?.hasChannelIntents,
-        platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
-      }
-    );
-    return predictor.predict(req.query.query);
+    return this.services.nlu.predict({
+      versionID,
+      query: req.query.query,
+      tag: project.liveVersion === versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
+      nlp: !!project.prototype?.nlp,
+      hasChannelIntents: project?.platformData?.hasChannelIntents,
+      workspaceID: project.teamID,
+      intentConfidence: version?.platformData?.settings?.intentConfidence,
+      nluSettings: project.nluSettings,
+    });
   }
 }
 

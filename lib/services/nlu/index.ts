@@ -3,37 +3,104 @@
  * @packageDocumentation
  */
 
-import { BaseNode, BaseRequest, BaseTrace } from '@voiceflow/base-types';
+import { BaseRequest } from '@voiceflow/base-types';
+import VError, { HTTP_STATUS } from '@voiceflow/verror';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { isTextRequest } from '@/lib/services/runtime/types';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
-import { DebugEvent, DebugType, Predictor } from '../classification';
-import { castToDTO } from '../classification/classification.utils';
-import { Prediction } from '../classification/interfaces/nlu.interface';
 import { AbstractManager } from '../utils';
-import { getNoneIntentRequest } from './utils';
-
-export const getIntentRequest = (prediction: Prediction | null): BaseRequest.IntentRequest => {
-  if (!prediction) {
-    return getNoneIntentRequest();
-  }
-
-  return {
-    type: BaseRequest.RequestType.INTENT,
-    payload: {
-      query: prediction.utterance,
-      intent: {
-        name: prediction.predictedIntent,
-      },
-      entities: prediction.predictedSlots,
-      confidence: prediction.confidence,
-    },
-  };
-};
+import { hybridPredict } from './llmHybrid';
+import { LEGACY_handleNLCCommand } from './nlc';
+import { NLUGatewayPredictResponse, PredictProps } from './types';
+import {
+  getAvailableIntentsAndEntities,
+  getNoneIntentRequest,
+  isHybridLLMStrategy,
+  mapChannelData,
+  resolveIntentConfidence,
+} from './utils';
 
 class NLU extends AbstractManager implements ContextHandler {
+  private getNluGatewayEndpoint() {
+    const protocol = this.config.CLOUD_ENV === 'e2e' ? 'https' : 'http';
+    return `${protocol}://${this.config.NLU_GATEWAY_SERVICE_URI}:${this.config.NLU_GATEWAY_SERVICE_PORT_APP}`;
+  }
+
+  async getNLUPrediction({
+    tag,
+    query,
+    versionID,
+    workspaceID,
+    nluSettings,
+  }: PredictProps): Promise<NLUGatewayPredictResponse | null> {
+    const { data } = await this.services.axios
+      .post<NLUGatewayPredictResponse>(`${this.getNluGatewayEndpoint()}/v1/predict/${versionID}`, {
+        utterance: query,
+        tag,
+        workspaceID,
+        filteredIntents: [],
+        filteredEntities: [],
+        excludeFilteredIntents: true,
+        excludeFilteredEntities: true,
+        ...(isHybridLLMStrategy(nluSettings) && { limit: 10 }),
+      })
+      .catch(() => ({ data: null }));
+
+    return data;
+  }
+
+  async predict(props: PredictProps): Promise<BaseRequest.IntentRequest> {
+    const {
+      nlp,
+      query,
+      model,
+      trace,
+      locale = VoiceflowConstants.Locale.EN_US,
+      platform,
+      dmRequest,
+      nluSettings,
+      hasChannelIntents,
+    } = props;
+
+    // 1. first try restricted regex (no open slots) - exact string match
+    if (model) {
+      const data = LEGACY_handleNLCCommand({ query, model, locale, openSlot: false, dmRequest });
+      if (data.payload.intent.name !== VoiceflowConstants.IntentName.NONE) {
+        return mapChannelData(data, platform, hasChannelIntents);
+      }
+    }
+
+    // 2. next try to determine the intent of an utterance with an NLU
+    if (nlp) {
+      const data = await this.getNLUPrediction(props);
+
+      if (data && !dmRequest?.intent && isHybridLLMStrategy(nluSettings) && model) {
+        return hybridPredict(
+          {
+            nluResults: data,
+            mlGateway: this.services.mlGateway,
+            trace,
+          },
+          { ...props, model }
+        );
+      }
+
+      if (data) {
+        return resolveIntentConfidence(data, props);
+      }
+    }
+
+    // 3. finally try open regex slot matching
+    if (!model) {
+      throw new VError('Model not found. Ensure project is properly rendered.', HTTP_STATUS.NOT_FOUND);
+    }
+
+    const data = LEGACY_handleNLCCommand({ query, model, locale, openSlot: true, dmRequest });
+    return mapChannelData(data, platform, hasChannelIntents);
+  }
+
   handle = async (context: Context) => {
     if (!isTextRequest(context.request)) {
       return context;
@@ -47,58 +114,40 @@ class NLU extends AbstractManager implements ContextHandler {
       };
     }
 
-    const version = await context.data.api.getVersion(context.versionID);
-    const project = await context.data.api.getProject(version.projectID);
-    const { intentClassificationSettings, intents, slots } = castToDTO(version, project);
-
-    const predictor = new Predictor(
-      {
-        axios: this.services.axios,
-        mlGateway: this.services.mlGateway,
-        CLOUD_ENV: this.config.CLOUD_ENV,
-        NLU_GATEWAY_SERVICE_URI: this.config.NLU_GATEWAY_SERVICE_URI,
-        NLU_GATEWAY_SERVICE_PORT_APP: this.config.NLU_GATEWAY_SERVICE_PORT_APP,
-      },
-      {
-        workspaceID: project.teamID,
-        versionID: context.versionID,
-        tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
-        intents: intents ?? [],
-        slots: slots ?? [],
-      },
-      intentClassificationSettings,
-      {
-        locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
-        hasChannelIntents: project?.platformData?.hasChannelIntents,
-        platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
-      }
+    const { availableIntents, availableEntities, bypass } = await getAvailableIntentsAndEntities(
+      this.services.runtime,
+      context
     );
 
-    const addDebug = (event: DebugEvent) => {
-      if (event.type === DebugType.NLC) return;
-      const prefix = `${event.type.toUpperCase()}: `;
-      context.trace?.push(debugTrace(`${prefix}${event.message}`));
-    };
-
-    if (context.trace) {
-      predictor.on('debug', addDebug);
+    if (bypass) {
+      return { ...context, request: getNoneIntentRequest({ query: context.request.payload }) };
     }
 
-    const prediction = await predictor.predict(context.request.payload);
+    const version = await context.data.api.getVersion(context.versionID);
 
-    const request = getIntentRequest(prediction);
+    const project = await context.data.api.getProject(version.projectID);
 
-    predictor.removeListener('debug', addDebug);
+    const request = await this.predict({
+      query: context.request.payload,
+      model: version.prototype?.model,
+      locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
+      versionID: context.versionID,
+      tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
+      nlp: !!project.prototype?.nlp,
+      hasChannelIntents: project?.platformData?.hasChannelIntents,
+      platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
+      workspaceID: project.teamID,
+      intentConfidence: version?.platformData?.settings?.intentConfidence,
+      filteredIntents: availableIntents,
+      filteredEntities: availableEntities,
+      excludeFilteredIntents: false,
+      excludeFilteredEntities: false,
+      nluSettings: project.nluSettings,
+      trace: context.trace,
+    });
 
     return { ...context, request };
   };
 }
-
-const debugTrace = (message: string): BaseTrace.DebugTrace => ({
-  type: BaseNode.Utils.TraceType.DEBUG,
-  payload: {
-    message,
-  },
-});
 
 export default NLU;
