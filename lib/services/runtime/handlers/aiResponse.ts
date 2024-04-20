@@ -1,5 +1,5 @@
 /* eslint-disable sonarjs/cognitive-complexity */
-import { BaseNode, BaseUtils } from '@voiceflow/base-types';
+import { BaseNode, BaseTrace, BaseUtils } from '@voiceflow/base-types';
 import { deepVariableSubstitution } from '@voiceflow/common';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
@@ -11,7 +11,7 @@ import { HandlerFactory } from '@/runtime';
 import { FrameType, GeneralRuntime, Output } from '../types';
 import { addOutputTrace, getOutputTrace } from '../utils';
 import { AIResponse, canUseModel, consumeResources, fetchPromptStream } from './utils/ai';
-import { generateOutput } from './utils/output';
+import { generateOutput, isChatProject } from './utils/output';
 import { getVersionDefaultVoice } from './utils/version';
 
 const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, GeneralRuntime> = () => ({
@@ -127,55 +127,40 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           response.model = completion.model;
           response.multiplier = completion.multiplier;
 
-          const output = generateOutput(
-            completion.output,
-            runtime.project,
-            // use default voice if voice doesn't exist
-            node.voice ?? getVersionDefaultVoice(runtime.version)
-          );
-
           // eslint-disable-next-line max-depth
           if (traceStarted) {
-            addOutputTrace(
-              runtime,
-              getOutputTrace({
-                output,
-                variables,
-                version: runtime.version,
-                ai: true,
-                partial: false,
-              }),
-              { variables, eventType: 'trace-completion' }
-            );
+            const trace: BaseTrace.CompletionContinueTrace = {
+              type: BaseTrace.TraceType.COMPLETION_CONTINUE,
+              payload: {
+                completion: completion.output,
+              },
+            };
+
+            runtime.trace.addTrace(trace);
           } else {
-            addOutputTrace(
-              runtime,
-              getOutputTrace({
-                output,
-                variables,
-                version: runtime.version,
-                ai: true,
-                partial: true,
-              }),
-              { variables, eventType: 'trace-start' }
-            );
+            const trace: BaseTrace.CompletionStartTrace = {
+              type: BaseTrace.TraceType.COMPLETION_START,
+              payload: {
+                completion: completion.output,
+                ...(!isChatProject(runtime.project) && {
+                  voice: node.voice ?? getVersionDefaultVoice(runtime.version),
+                }),
+                type: !isChatProject(runtime.project) ? BaseTrace.TraceType.SPEAK : BaseTrace.TraceType.TEXT,
+              },
+            };
+
+            runtime.trace.addTrace(trace);
           }
 
           traceStarted = true;
         }
 
         if (traceStarted) {
-          addOutputTrace(
-            runtime,
-            getOutputTrace({
-              output: '',
-              variables,
-              version: runtime.version,
-              ai: true,
-              partial: true,
-            }),
-            { variables, eventType: 'trace-end' }
-          );
+          const trace: BaseTrace.CompletionEndTrace = {
+            type: BaseTrace.TraceType.COMPLETION_END,
+            payload: {},
+          };
+          runtime.trace.addTrace(trace);
         }
       }
 

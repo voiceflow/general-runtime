@@ -7,14 +7,14 @@ export const inputToString = ({ text, voice }: BaseModels.IntentInput, defaultVo
   return currentVoice?.trim() ? `<voice name="${currentVoice}">${text}</voice>` : text;
 };
 
-export const generateOutput = (output: string, project?: BaseModels.Project.Model<any, any>, voice?: string) => {
-  // TODO: exclusively use project.type after large scale migration
-  const isChat =
-    project?.type === VoiceflowConstants.ProjectType.CHAT ||
-    project?.platform === VoiceflowConstants.PlatformType.CHATBOT;
+// TODO: exclusively use project.type after large scale migration
+export const isChatProject = (project?: BaseModels.Project.Model<any, any>) =>
+  project?.type === VoiceflowConstants.ProjectType.CHAT ||
+  project?.platform === VoiceflowConstants.PlatformType.CHATBOT;
 
+export const generateOutput = (output: string, project?: BaseModels.Project.Model<any, any>, voice?: string) => {
   // return chat response
-  if (isChat) {
+  if (isChatProject(project)) {
     return output
       .trim()
       .split('\n')
