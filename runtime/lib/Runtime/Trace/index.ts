@@ -1,7 +1,6 @@
 import { BaseNode } from '@voiceflow/base-types';
 import _truncate from 'lodash/truncate';
 
-import { ContextEventType } from '@/runtime/lib/Context/types';
 import { EventType } from '@/runtime/lib/Lifecycle';
 
 import Runtime from '..';
@@ -11,7 +10,7 @@ export default class Trace {
 
   constructor(private runtime: Runtime) {}
 
-  addTrace<TF extends BaseNode.Utils.BaseTraceFrame>(frame: TF, { eventType }: { eventType?: ContextEventType } = {}) {
+  addTrace<TF extends BaseNode.Utils.BaseTraceFrame>(frame: TF) {
     let stop = false;
 
     this.runtime.callEvent(EventType.traceWillAdd, {
@@ -19,7 +18,6 @@ export default class Trace {
       stop: () => {
         stop = true;
       },
-      eventType,
     });
 
     if (stop) return;
