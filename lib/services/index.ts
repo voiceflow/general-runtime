@@ -9,6 +9,7 @@ import Dialog from './dialog';
 import Feedback from './feedback';
 import Filter from './filter';
 import Interact from './interact';
+import MergeCompletion from './merge-completion';
 import NLU from './nlu';
 import Runtime from './runtime';
 import { LocalSession, MongoSession, Session } from './session';
@@ -40,6 +41,7 @@ export interface ServiceMap {
   test: TestService;
   transcript: Transcript;
   stateManagement: StateManagement;
+  mergeCompletion: MergeCompletion;
 }
 
 export interface FullServiceMap extends ClientMap, ServiceMap {}
@@ -59,6 +61,7 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
     services.session = new MongoSession(services, config);
   }
   services.aiSynthesis = new AISynthesis(services, config);
+  services.mergeCompletion = new MergeCompletion(services, config);
   services.runtime = new Runtime(services, config);
   services.state = new State(services, config);
   services.asr = new ASR(services, config);

@@ -51,23 +51,9 @@ export interface InitContextHandler<C extends Context<any, any, any, any, any>> 
   handle: InitContextHandle<C>;
 }
 
-export type ContextEvent =
-  | {
-      type: 'trace';
-      trace: BaseNode.Utils.BaseTraceFrame;
-    }
-  | {
-      type: 'trace-start';
-      trace: Pick<BaseNode.Utils.BaseTraceFrame, 'type'> & Partial<Omit<BaseNode.Utils.BaseTraceFrame, 'type'>>;
-    }
-  | {
-      type: 'trace-completion';
-      trace: { payload: Partial<BaseNode.Utils.BaseTraceFrame['payload']> };
-    }
-  | {
-      type: 'trace-end';
-    };
+export interface ContextEvent {
+  type: 'trace';
+  trace: BaseNode.Utils.BaseTraceFrame;
+}
 
 export type HandleContextEventHandler = (event: ContextEvent) => any;
-
-export type ContextEventType = ContextEvent['type'];

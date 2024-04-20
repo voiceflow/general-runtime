@@ -259,7 +259,7 @@ interface OutputParams<V> {
   ai?: boolean;
   version?: BaseVersion.Version;
   isPrompt?: boolean;
-  partial?: boolean;
+  delay?: number;
 }
 
 export function textOutputTrace({
@@ -269,8 +269,7 @@ export function textOutputTrace({
   version,
   variables,
   isPrompt,
-  partial,
-}: OutputParams<BaseText.SlateTextValue> & { delay?: number }) {
+}: OutputParams<BaseText.SlateTextValue>) {
   const sanitizedVars = sanitizeVariables(variables?.getState() ?? {});
   const content = slateInjectVariables(output, sanitizedVars);
   const plainContent = slateToPlaintext(content);
@@ -292,29 +291,27 @@ export function textOutputTrace({
     },
   };
 
-  if (!partial) {
-    variables?.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, plainContent);
-  } else {
-    delete trace.payload.delay;
-    delete trace.payload.slate.messageDelayMilliseconds;
-  }
+  variables?.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, plainContent);
 
   return trace;
 }
 
-export function speakOutputTrace({ variables, output, isPrompt, partial }: OutputParams<string>) {
+export function speakOutputTrace({ variables, output, isPrompt, ai }: OutputParams<string>) {
   const sanitizedVars = sanitizeVariables(variables?.getState() ?? {});
   // in case a variable's value is a text containing another variable (i.e text2="say {text}")
   const message = replaceVariables(replaceVariables(output || '', sanitizedVars), sanitizedVars);
 
   const trace: BaseTrace.Speak = {
     type: BaseNode.Utils.TraceType.SPEAK,
-    payload: { message, type: BaseNode.Speak.TraceSpeakType.MESSAGE, ...(isPrompt && { isPrompt }) },
+    payload: {
+      message,
+      type: BaseNode.Speak.TraceSpeakType.MESSAGE,
+      ...(ai && { ai }),
+      ...(isPrompt && { isPrompt }),
+    },
   };
 
-  if (!partial) {
-    variables?.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, message);
-  }
+  variables?.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, message);
 
   return trace;
 }
@@ -331,9 +328,9 @@ export function getOutputTrace(params: OutputParams<Output>): BaseTrace.Speak | 
 export function addOutputTrace(
   runtime: { trace: { addTrace: AddTraceFn }; debugLogging: DebugLogging },
   trace: BaseTrace.Speak | BaseTrace.Text,
-  { node, variables, eventType }: { node?: BaseModels.BaseNode; variables?: Store; eventType?: string } = {}
+  { node, variables }: { node?: BaseModels.BaseNode; variables?: Store } = {}
 ) {
-  runtime.trace.addTrace(trace, { eventType });
+  runtime.trace.addTrace(trace);
 
   if (variables) AIAssist.injectOutput(variables, trace);
 

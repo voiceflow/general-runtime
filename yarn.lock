@@ -4331,6 +4331,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@voiceflow/base-types@link:/Users/tyler/Voiceflow/libs/packages/base-types::locator=%40voiceflow%2Fgeneral-runtime%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@voiceflow/base-types@link:/Users/tyler/Voiceflow/libs/packages/base-types::locator=%40voiceflow%2Fgeneral-runtime%40workspace%3A."
+  languageName: node
+  linkType: soft
+
 "@voiceflow/base-types@npm:2.106.0":
   version: 2.106.0
   resolution: "@voiceflow/base-types@npm:2.106.0"
@@ -4664,7 +4670,7 @@ __metadata:
     "@types/workerpool": ^5.0.1
     "@voiceflow/alexa-types": 2.14.56
     "@voiceflow/backend-utils": 4.8.5
-    "@voiceflow/base-types": 2.107.2
+    "@voiceflow/base-types": "link:/Users/tyler/Voiceflow/libs/packages/base-types"
     "@voiceflow/body-parser": ^1.21.1
     "@voiceflow/chat-types": 2.13.104
     "@voiceflow/commitlint-config": 2.0.0

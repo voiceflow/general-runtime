@@ -66,9 +66,9 @@ const init = (client: Client, eventHandler: HandleContextEventHandler) => {
     runtime.trace.debug('ERROR: turn timeout - check for infinite loops');
   });
 
-  client.setEvent(EventType.traceWillAdd, ({ frame, eventType }) => {
+  client.setEvent(EventType.traceWillAdd, ({ frame }) => {
     eventHandler({
-      type: eventType ?? 'trace',
+      type: 'trace',
       trace: frame,
     });
   });

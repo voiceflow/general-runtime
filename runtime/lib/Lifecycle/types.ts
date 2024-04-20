@@ -1,6 +1,5 @@
 import { BaseModels, BaseNode, BaseTrace } from '@voiceflow/base-types';
 
-import { ContextEventType } from '../Context/types';
 import Program from '../Program';
 import Runtime from '../Runtime';
 import Frame from '../Runtime/Stack/Frame';
@@ -82,7 +81,6 @@ interface FrameDidFinishEvent extends BaseEvent {
 interface TraceWillAddEvent<TF extends BaseNode.Utils.BaseTraceFrame> extends BaseEvent {
   stop: () => void;
   frame: TF;
-  eventType?: ContextEventType;
 }
 
 interface StackWillChangeEvent extends BaseEvent {
