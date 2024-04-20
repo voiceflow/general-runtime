@@ -134,6 +134,11 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
               type: BaseTrace.TraceType.COMPLETION_CONTINUE,
               payload: {
                 completion: completion.output,
+                tokens: {
+                  answer: completion.answerTokens,
+                  query: completion.queryTokens,
+                  total: completion.tokens,
+                },
               },
             };
 
@@ -147,6 +152,12 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
                   voice: node.voice ?? getVersionDefaultVoice(runtime.version),
                 }),
                 type: !isChatProject(runtime.project) ? BaseTrace.TraceType.SPEAK : BaseTrace.TraceType.TEXT,
+                tokens: {
+                  model: completion.model,
+                  answer: completion.answerTokens,
+                  query: completion.queryTokens,
+                  total: completion.tokens,
+                },
               },
             };
 
