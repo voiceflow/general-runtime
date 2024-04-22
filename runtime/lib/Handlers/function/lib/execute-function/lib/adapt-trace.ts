@@ -1,7 +1,12 @@
 import { BaseNode, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 import { Utils } from '@voiceflow/common';
 
-import { SimpleAction, SimpleActionButton } from '../../../runtime-command/button/action-button.dto';
+import {
+  SimpleAction,
+  SimpleActionButton,
+  SimpleActionButtonDTO,
+} from '../../../runtime-command/button/action-button.dto';
+import { SimpleGeneralButton, SimpleGeneralButtonDTO } from '../../../runtime-command/button/general-button.dto';
 import { SimpleCard } from '../../../runtime-command/card/card.dto';
 import { SimpleAudioTrace } from '../../../runtime-command/trace/audio.dto';
 import { UnknownTrace } from '../../../runtime-command/trace/base.dto';
@@ -93,11 +98,38 @@ const adaptActionButton = (button: SimpleActionButton): BaseRequest.ActionReques
   };
 };
 
+const adaptButton = (
+  button: SimpleActionButton | SimpleGeneralButton
+): BaseRequest.ActionRequestButton | BaseRequest.GeneralRequestButton => {
+  const parsedActionButton = SimpleActionButtonDTO.safeParse(button);
+  if (parsedActionButton.success) {
+    return adaptActionButton(parsedActionButton.data);
+  }
+
+  const parsedGeneralButton = SimpleGeneralButtonDTO.safeParse(button);
+  if (parsedGeneralButton.success) {
+    // !TODO! - Need to add an empty payload object `{}` because the old button type in
+    //          `base-types` requires that `payload` is defined, but the new button type
+    //          in `dtos` makes `payload` optional so it's missing when we need it. Need to
+    //          port all code over to the `dtos` package and unify the expectations for this
+    //          property.
+    return {
+      ...parsedGeneralButton.data,
+      request: {
+        payload: {},
+        ...parsedGeneralButton.data.request,
+      },
+    };
+  }
+
+  throw new TypeError('received unexpected button type');
+};
+
 const adaptCard = (card: SimpleCard): BaseNode.Carousel.TraceCarouselCard => {
   return {
     ...card,
     id: cuid.slug(),
-    buttons: (card.buttons ?? []).map((but) => adaptActionButton(but)),
+    buttons: (card.buttons ?? []).map((but) => adaptButton(but)),
   };
 };
 
@@ -119,7 +151,7 @@ const adaptCardV2Trace = (trace: SimpleCardV2Trace): UnknownTrace => {
     type: TraceType.CARD_V2,
     payload: {
       ...trace.payload,
-      buttons: (trace.payload.buttons ?? []).map((but) => adaptActionButton(but)),
+      buttons: (trace.payload.buttons ?? []).map((but) => adaptButton(but)),
     },
   } satisfies BaseTrace.CardV2;
 };

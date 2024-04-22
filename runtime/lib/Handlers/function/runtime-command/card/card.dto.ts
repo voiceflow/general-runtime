@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { SimpleActionButtonDTO } from '../button/action-button.dto';
+import { SimpleButtonDTO } from '../button/button.dto';
 
 export const SimpleCardDTO = z.object({
   imageUrl: z.string(),
@@ -8,7 +8,7 @@ export const SimpleCardDTO = z.object({
   description: z.object({
     text: z.string(),
   }),
-  buttons: z.array(SimpleActionButtonDTO).optional(),
+  buttons: z.array(SimpleButtonDTO).optional(),
 });
 
 export type SimpleCard = z.infer<typeof SimpleCardDTO>;
