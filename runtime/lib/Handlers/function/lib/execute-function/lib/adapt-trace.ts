@@ -111,8 +111,8 @@ const adaptButton = (
     // !TODO! - Need to add an empty payload object `{}` because the old button type in
     //          `base-types` requires that `payload` is defined, but the new button type
     //          in `dtos` makes `payload` optional so it's missing when we need it. Need to
-    //          port all code over to the `dtos` package and unify the expectations for this
-    //          property.
+    //          port all code over to the `dtos` package and unify the types across
+    //          `general-runtime` and `creator-app`.
     return {
       ...parsedGeneralButton.data,
       request: {
