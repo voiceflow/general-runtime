@@ -8,7 +8,7 @@ export { default as Handler, HandlerFactory } from './lib/Handler';
 export * from './lib/Handlers';
 export { CallbackEvent, Event, EventCallback, EventType } from './lib/Lifecycle';
 export { default as Program } from './lib/Program';
-export { Action, default as Runtime, State } from './lib/Runtime';
+export { Action, default as Runtime, State, SubscriptionEntitlements } from './lib/Runtime';
 export { default as Stack } from './lib/Runtime/Stack';
 export { default as Frame } from './lib/Runtime/Stack/Frame';
 export { default as Store } from './lib/Runtime/Store';

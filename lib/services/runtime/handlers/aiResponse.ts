@@ -5,13 +5,12 @@ import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import _cloneDeep from 'lodash/cloneDeep';
 
-import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import { FeatureFlag } from '@/lib/feature-flags';
 import { HandlerFactory } from '@/runtime';
 
 import { FrameType, GeneralRuntime, Output } from '../types';
 import { addOutputTrace, getOutputTrace } from '../utils';
-import { AIResponse, consumeResources, fetchPrompt } from './utils/ai';
+import { AIResponse, canUseModel, consumeResources, fetchPrompt } from './utils/ai';
 import { generateOutput } from './utils/output';
 import { getVersionDefaultVoice } from './utils/version';
 
@@ -88,7 +87,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
       }
 
       let response: AIResponse;
-      if (node.model === BaseUtils.ai.GPT_MODEL.GPT_4 && runtime.plan && !GPT4_ABLE_PLAN.has(runtime.plan)) {
+      if (node.model && !canUseModel(node.model, runtime)) {
         response = {
           output: 'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.',
           tokens: 0,

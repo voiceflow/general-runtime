@@ -1,7 +1,7 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 
-import { CompletionOptions } from '@/lib/clients/ai/ai-model.interface';
+import { CompletionOptions, GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import MLGateway from '@/lib/clients/ml-gateway';
 import { Runtime } from '@/runtime';
 
@@ -10,6 +10,27 @@ import AIAssist from '../../../aiAssist';
 export const getMemoryMessages = (variablesState: Record<string, unknown>) => [
   ...((variablesState?.[AIAssist.StorageKey] as BaseUtils.ai.Message[]) || []),
 ];
+
+export const canUseModel = (model: BaseUtils.ai.GPT_MODEL, runtime: Runtime) => {
+  if (![BaseUtils.ai.GPT_MODEL.GPT_4, BaseUtils.ai.GPT_MODEL.GPT_4_turbo].includes(model)) {
+    return true;
+  }
+  // TODO remove once we remove teams table
+  if (runtime.plan && GPT4_ABLE_PLAN.has(runtime.plan)) return true;
+
+  if (model === BaseUtils.ai.GPT_MODEL.GPT_4) {
+    return runtime.subscriptionEntitlements?.some(
+      (entitlement) => entitlement.feature_id === 'feat-model-gpt-4' && entitlement.value === 'true'
+    );
+  }
+
+  if (model === BaseUtils.ai.GPT_MODEL.GPT_4_turbo) {
+    return runtime.subscriptionEntitlements?.some(
+      (entitlement) => entitlement.feature_id === 'feat-model-gpt-4-turbo' && entitlement.value === 'true'
+    );
+  }
+  return false;
+};
 
 export interface AIResponse {
   output: string | null;

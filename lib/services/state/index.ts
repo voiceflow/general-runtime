@@ -5,7 +5,7 @@ import axios from 'axios';
 import _ from 'lodash';
 
 import { FrameType } from '@/lib/services/runtime/types';
-import { PartialContext, State } from '@/runtime';
+import { PartialContext, State, SubscriptionEntitlements } from '@/runtime';
 import { Context, InitContextHandler } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
@@ -79,6 +79,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     };
   }
 
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   async handle(context: PartialContext<Context>) {
     if (!context.versionID) {
       throw new Error('context versionID not defined');
@@ -108,8 +109,39 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     const version = await api.getVersion(context.versionID!);
     const project = await api.getProject(version.projectID);
 
+    let subscriptionEntitlements: SubscriptionEntitlements | undefined;
+    // TODO add identity vars check too
+    if (this.config.BILLING_API_SERVICE_URI && this.config.BILLING_API_SERVICE_PORT_APP) {
+      const scheme = process.env.NODE_ENV === 'e2e' ? 'https' : 'http';
+      // eslint-disable-next-line no-secrets/no-secrets
+      // const identityURL = `${scheme}://${this.config.IDENTITY_API_SERVICE_URI}:${this.config.IDENTITY_API_SERVICE_PORT_APP}`;
+      const identityURL = `${scheme}://identity-api:8080`;
+
+      const workspaceResponse = await axios
+        .get<{ organizationID: string } | null>(`${identityURL}/v1alpha1/private/workspace/${project.teamID}`)
+        .catch(() => null);
+      if (workspaceResponse?.data) {
+        const billingURL = `${scheme}://${this.config.BILLING_API_SERVICE_URI}:${this.config.BILLING_API_SERVICE_PORT_APP}`;
+
+        const subscriptionResponse = await axios
+          .get<{
+            subscription: {
+              status: string;
+              subscription_entitlements: SubscriptionEntitlements;
+            };
+          } | null>(`${billingURL}/v1/private/organizations/${workspaceResponse.data.organizationID}/subscription`)
+          .catch(() => null);
+        if (subscriptionResponse?.data) {
+          subscriptionEntitlements = !['active', 'in_trial'].includes(subscriptionResponse.data.subscription.status)
+            ? []
+            : subscriptionResponse.data?.subscription?.subscription_entitlements;
+        }
+      }
+    }
+
+    // TODO remove once we drop teams table
     let plan: string | undefined;
-    if (this.config.CREATOR_API_ENDPOINT) {
+    if (!subscriptionEntitlements && this.config.CREATOR_API_ENDPOINT) {
       const planResponse = await axios
         .get<{ plan: string } | null>(`${this.config.CREATOR_API_ENDPOINT}/private/project/${project._id}/plan`)
         .catch(() => null);
@@ -136,6 +168,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
       version,
       project,
       plan,
+      subscriptionEntitlements,
     };
   }
 }

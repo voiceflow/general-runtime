@@ -1,9 +1,8 @@
 import { BaseUtils } from '@voiceflow/base-types';
 
-import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import { Runtime } from '@/runtime';
 
-import { AIResponse, EMPTY_AI_RESPONSE, fetchChat, getMemoryMessages } from './ai';
+import { AIResponse, canUseModel, EMPTY_AI_RESPONSE, fetchChat, getMemoryMessages } from './ai';
 
 // get current UTC time, default to 1 newline after
 export const getCurrentTime = ({ newlines = 1 }: { newlines?: number } = {}) => {
@@ -14,7 +13,7 @@ export const generateNoMatch = async (
   runtime: Runtime,
   context: BaseUtils.ai.AIModelParams
 ): Promise<AIResponse | null> => {
-  if (context.model === BaseUtils.ai.GPT_MODEL.GPT_4 && runtime.plan && !GPT4_ABLE_PLAN.has(runtime.plan)) {
+  if (context.model && !canUseModel(context.model, runtime)) {
     return {
       ...EMPTY_AI_RESPONSE,
       output: 'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.',
