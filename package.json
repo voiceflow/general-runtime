@@ -150,7 +150,9 @@
   "main": "build/start.js",
   "optionalDependencies": {
     "@voiceflow/sdk-analytics": "^1.26.0",
-    "@voiceflow/sdk-auth": "^2.7.5"
+    "@voiceflow/sdk-auth": "^2.7.5",
+    "@voiceflow/sdk-billing": "^1.23.4",
+    "@voiceflow/sdk-identity": "^1.19.5"
   },
   "packageManager": "yarn@3.2.1",
   "repository": {

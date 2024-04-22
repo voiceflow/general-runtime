@@ -104,6 +104,8 @@ describe('state manager unit tests', () => {
         dataAPI: {
           get: sinon.stub().returns({ getVersion: getVersionStub, getProject: getProjectStub }),
         },
+        identityClient: { getClient: () => null },
+        billingClient: { getClient: () => null },
       };
 
       const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
@@ -144,6 +146,8 @@ describe('state manager unit tests', () => {
         dataAPI: {
           get: sinon.stub().returns({ getVersion: getVersionStub }),
         },
+        identityClient: { getClient: () => null },
+        billingClient: { getClient: () => null },
       };
 
       const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
@@ -162,6 +166,8 @@ describe('state manager unit tests', () => {
         dataAPI: {
           get: sinon.stub().returns({ getVersion: getVersionStub, getProject: getProjectStub }),
         },
+        identityClient: { getClient: () => null },
+        billingClient: { getClient: () => null },
       };
 
       const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
@@ -204,6 +210,8 @@ describe('state manager unit tests', () => {
         dataAPI: {
           get: sinon.stub().returns({ getVersion: getVersionStub, getProject: getProjectStub }),
         },
+        identityClient: { getClient: () => null },
+        billingClient: { getClient: () => null },
       };
 
       const stateManager = new StateManager({ ...services, utils: { ...defaultUtils } } as any, {} as any);
