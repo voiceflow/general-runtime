@@ -196,13 +196,15 @@ describe('Runtime unit', () => {
       runtime.callEvent = callEventStub;
       const setActionStub = sinon.stub();
       runtime.setAction = setActionStub;
-      await runtime.update();
+      const eventHandler = sinon.stub();
+
+      await runtime.update(eventHandler);
       expect(callEventStub.args).to.eql([
         [EventType.updateWillExecute, {}],
         [EventType.updateDidExecute, {}],
       ]);
       expect(setActionStub.args).to.eql([[Action.RUNNING]]);
-      expect(cycleStackStub.args).to.eql([[runtime]]);
+      expect(cycleStackStub.args).to.eql([[runtime, eventHandler]]);
     });
 
     it('request action', async () => {
@@ -218,13 +220,14 @@ describe('Runtime unit', () => {
       runtime.callEvent = callEventStub;
       const setActionStub = sinon.stub();
       runtime.setAction = setActionStub;
-      await runtime.update();
+      const eventHandler = sinon.stub();
+      await runtime.update(eventHandler);
       expect(callEventStub.args).to.eql([
         [EventType.updateWillExecute, {}],
         [EventType.updateDidExecute, {}],
       ]);
       expect(setActionStub.args).to.eql([[Action.REQUEST]]);
-      expect(cycleStackStub.args).to.eql([[runtime]]);
+      expect(cycleStackStub.args).to.eql([[runtime, eventHandler]]);
     });
 
     it('injectBaseProgram', async () => {
@@ -243,13 +246,14 @@ describe('Runtime unit', () => {
       runtime.callEvent = callEventStub;
       const setActionStub = sinon.stub();
       runtime.setAction = setActionStub;
-      await runtime.update();
+      const eventHandler = sinon.stub();
+      await runtime.update(eventHandler);
       expect(callEventStub.args[0][0]).to.eql(EventType.stackWillChange);
       expect(callEventStub.args[1][0]).to.eql(EventType.stackDidChange);
       expect(callEventStub.args[2]).to.eql([EventType.updateWillExecute, {}]);
       expect(callEventStub.args[3]).to.eql([EventType.updateDidExecute, {}]);
       expect(setActionStub.args).to.eql([[Action.REQUEST]]);
-      expect(cycleStackStub.args).to.eql([[runtime]]);
+      expect(cycleStackStub.args).to.eql([[runtime, eventHandler]]);
       expect(runtime.stack.get(0)?.getDiagramID()).to.eql(versionID);
     });
   });

@@ -15,6 +15,9 @@ const PROJECT_PROJECTION = {
     'knowledgeBase.documents': 0,
   },
 };
+const EMPTY_PROJECTION = {
+  projection: undefined,
+};
 
 const MOCK_PROGRAM_QUERY = { versionID: new ObjectId(VERSION_ID), diagramID: new ObjectId(DIAGRAM_ID) };
 
@@ -40,7 +43,7 @@ describe('mongoDataAPI client unit tests', () => {
 
     expect(await api.getVersion(MOCK_ID)).to.eql(MOCK_RETURN_VALUE);
     expect(client.db.collection.args).to.eql([['versions']]);
-    expect(collection.findOne.args).to.eql([[MOCK_QUERY]]);
+    expect(collection.findOne.args).to.eql([[MOCK_QUERY, EMPTY_PROJECTION]]);
   });
 
   it('getProject', async () => {
@@ -63,7 +66,11 @@ describe('mongoDataAPI client unit tests', () => {
     expect(await api.getProject(MOCK_ID)).to.eql(MOCK_RETURN_VALUE);
 
     expect(client.db.collection.args).to.eql([['custom-programs'], ['custom-versions'], ['custom-projects']]);
-    expect(collection.findOne.args).to.eql([[MOCK_PROGRAM_QUERY], [MOCK_QUERY], [MOCK_QUERY, PROJECT_PROJECTION]]);
+    expect(collection.findOne.args).to.eql([
+      [MOCK_PROGRAM_QUERY],
+      [MOCK_QUERY, EMPTY_PROJECTION],
+      [MOCK_QUERY, PROJECT_PROJECTION],
+    ]);
   });
 
   it('throws error on null find', async () => {
