@@ -31,6 +31,8 @@ const project = { id: PROJECT_ID };
 
 const plan = undefined;
 
+const subscriptionEntitlements = undefined;
+
 const state = {
   stack: [
     {
@@ -123,6 +125,7 @@ describe('state manager unit tests', () => {
         userID,
         version,
         plan,
+        subscriptionEntitlements,
         project,
         trace: [],
         data: {
@@ -181,6 +184,7 @@ describe('state manager unit tests', () => {
         version,
         project,
         plan,
+        subscriptionEntitlements,
         state,
         trace: [],
         data: {
@@ -223,6 +227,7 @@ describe('state manager unit tests', () => {
         version,
         project,
         plan,
+        subscriptionEntitlements,
         userID,
         data: {
           ...context.data,

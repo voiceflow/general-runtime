@@ -18,14 +18,14 @@ export const canUseModel = (model: BaseUtils.ai.GPT_MODEL, runtime: Runtime) => 
   // TODO remove once we remove teams table
   if (runtime.plan && GPT4_ABLE_PLAN.has(runtime.plan)) return true;
 
-  if (model === BaseUtils.ai.GPT_MODEL.GPT_4) {
-    return runtime.subscriptionEntitlements?.some(
+  if (runtime.subscriptionEntitlements && model === BaseUtils.ai.GPT_MODEL.GPT_4) {
+    return runtime.subscriptionEntitlements.some(
       (entitlement) => entitlement.feature_id === 'feat-model-gpt-4' && entitlement.value === 'true'
     );
   }
 
-  if (model === BaseUtils.ai.GPT_MODEL.GPT_4_turbo) {
-    return runtime.subscriptionEntitlements?.some(
+  if (runtime.subscriptionEntitlements && model === BaseUtils.ai.GPT_MODEL.GPT_4_turbo) {
+    return runtime.subscriptionEntitlements.some(
       (entitlement) => entitlement.feature_id === 'feat-model-gpt-4-turbo' && entitlement.value === 'true'
     );
   }
