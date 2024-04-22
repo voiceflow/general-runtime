@@ -62,7 +62,11 @@ describe('setV2 handler unit tests', () => {
       };
       const program = { lines: [] };
 
-      expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(null);
+      const eventHandler = sinon.stub();
+
+      expect(await handler.handle(node as any, runtime as any, variables as any, program as any, eventHandler)).to.eql(
+        null
+      );
 
       expect(CodeHandlerStub.calledOnce).to.eql(true);
       expect(CodeHandlerStub.args).to.eql([[]]);
@@ -85,6 +89,7 @@ describe('setV2 handler unit tests', () => {
           runtime,
           variables,
           program,
+          eventHandler,
         ],
       ]);
       expect(runtime.trace.addTrace.args).to.eql([

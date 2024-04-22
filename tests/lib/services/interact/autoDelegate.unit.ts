@@ -21,12 +21,13 @@ describe('auto delegate unit tests', () => {
         .resolves({ trace: trace2, request: 'finalRequest' }),
     };
 
-    expect(await autoDelegate(turn as any, context as any)).to.eql({
+    expect(await autoDelegate(turn as any, context as any, () => undefined)).to.eql({
       trace: [trace1[0], trace2[0]],
       request: 'finalRequest',
     });
 
-    expect(turn.handle.args).to.eql([[context], [{ request: 'goto-request', trace: trace1 }]]);
+    expect(turn.handle.args[0][0]).to.eql(context);
+    expect(turn.handle.args[1][0]).to.eql({ request: 'goto-request', trace: trace1 });
   });
 
   it('max calls', async () => {
@@ -39,7 +40,7 @@ describe('auto delegate unit tests', () => {
 
     const turn = { handle: sinon.stub().resolves({ trace }) };
 
-    expect(await autoDelegate(turn as any, context as any)).to.eql({
+    expect(await autoDelegate(turn as any, context as any, () => undefined)).to.eql({
       request: 'goto-request',
       trace: [genericTrace, genericTrace, genericTrace],
     });
@@ -57,7 +58,7 @@ describe('auto delegate unit tests', () => {
 
     const turn = { handle: sinon.stub().resolves({ trace }) };
 
-    expect(await autoDelegate(turn as any, context as any)).to.eql({ trace });
+    expect(await autoDelegate(turn as any, context as any, () => undefined)).to.eql({ trace });
 
     expect(turn.handle.callCount).to.eql(1);
   });

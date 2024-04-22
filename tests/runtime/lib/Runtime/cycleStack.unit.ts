@@ -19,7 +19,7 @@ describe('Runtime cycleStack unit tests', () => {
 
   it('depth is above limit', () => {
     const runtime = { stack: { getSize: sinon.stub().returns(1) }, end: sinon.stub() };
-    cycleStack(runtime as any, 61);
+    cycleStack(runtime as any, () => undefined, 61);
     expect(runtime.end.callCount).to.eql(1);
   });
 
@@ -85,7 +85,9 @@ describe('Runtime cycleStack unit tests', () => {
         variables: 'runtime-variables',
       };
 
-      await cycleStack(runtime as any);
+      const eventHandler = () => undefined;
+
+      await cycleStack(runtime as any, eventHandler);
 
       expect(runtime.getProgram.args).to.eql([[versionID, diagramID]]);
       expect(currentFrame.hydrate.args).to.eql([[program]]);
@@ -94,7 +96,7 @@ describe('Runtime cycleStack unit tests', () => {
         [EventType.stateWillExecute, { program, variables: combinedVariables }],
         [EventType.stateDidExecute, { program, variables: combinedVariables }],
       ]);
-      expect(cycleHandlerStub.args).to.eql([[runtime, program, combinedVariables]]);
+      expect(cycleHandlerStub.args).to.eql([[runtime, program, combinedVariables, eventHandler]]);
       expect(saveCombinedVariablesStub.args).to.eql([[combinedVariables, runtime.variables, currentFrame.variables]]);
     });
 

@@ -30,7 +30,7 @@ describe('interact controller unit tests', () => {
 
       const req = { headers: {}, params: {}, body: {} };
       expect(await controller.handler(req as any)).to.eql(output);
-      expect(services.interact.handler.args).to.eql([[req]]);
+      expect(services.interact.handler.args[0][0]).to.eql(req);
     });
   });
 });

@@ -30,7 +30,7 @@ describe('stateManagement manager unit tests', () => {
 
       expect(services.session.getFromDb.args).to.eql([[data.headers.projectID, data.params.userID]]);
       expect(_.get(data.body, 'state')).to.eql(session);
-      expect(services.interact.handler.args).to.eql([[data]]);
+      expect(services.interact.handler.args[0][0]).to.eql(data);
       expect(services.session.saveToDb.args).to.eql([
         [data.headers.projectID, data.params.userID, handlerResult.state],
       ]);
@@ -60,7 +60,7 @@ describe('stateManagement manager unit tests', () => {
       expect(services.session.getFromDb.args).to.eql([[data.headers.projectID, data.params.userID]]);
       expect(resetStub.args).to.eql([[data]]);
       expect(_.get(data.body, 'state')).to.eql(newSession);
-      expect(services.interact.handler.args).to.eql([[data]]);
+      expect(services.interact.handler.args[0][0]).to.eql(data);
       expect(services.session.saveToDb.args).to.eql([
         [data.headers.projectID, data.params.userID, handlerResult.state],
       ]);
@@ -86,7 +86,7 @@ describe('stateManagement manager unit tests', () => {
 
       expect(services.session.getFromDb.args).to.eql([[data.headers.projectID, data.params.userID]]);
       expect(_.get(data.body, 'state')).to.eql(session);
-      expect(services.interact.handler.args).to.eql([[data]]);
+      expect(services.interact.handler.args[0][0]).to.eql(data);
       expect(services.session.saveToDb.args).to.eql([
         [data.headers.projectID, data.params.userID, handlerResult.state],
       ]);
@@ -116,7 +116,7 @@ describe('stateManagement manager unit tests', () => {
       expect(services.session.getFromDb.args).to.eql([[data.headers.projectID, data.params.userID]]);
       expect(resetStub.args).to.eql([[data]]);
       expect(_.get(data.body, 'state')).to.eql(newSession);
-      expect(services.interact.handler.args).to.eql([[data]]);
+      expect(services.interact.handler.args[0][0]).to.eql(data);
       expect(services.session.saveToDb.args).to.eql([
         [data.headers.projectID, data.params.userID, handlerResult.state],
       ]);
