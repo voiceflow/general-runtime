@@ -5,7 +5,6 @@
 
 import { BaseRequest, RuntimeLogs } from '@voiceflow/base-types';
 import { createSession } from 'better-sse';
-import { match } from 'ts-pattern';
 
 // import { isEmpty, merge } from "lodash";
 import { RuntimeRequest } from '@/lib/services/runtime/types';
