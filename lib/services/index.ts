@@ -61,7 +61,6 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
     services.session = new MongoSession(services, config);
   }
   services.aiSynthesis = new AISynthesis(services, config);
-  services.mergeCompletion = new MergeCompletion(services, config);
   services.runtime = new Runtime(services, config);
   services.state = new State(services, config);
   services.asr = new ASR(services, config);
@@ -76,6 +75,7 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.test = new TestService(services, config);
   services.transcript = new Transcript(services, config);
   services.aiAssist = new AIAssist(services, config);
+  services.mergeCompletion = new MergeCompletion(services, config);
   services.interact = new Interact(services, config);
   services.feedback = new Feedback(services, config);
 

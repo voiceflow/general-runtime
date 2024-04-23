@@ -60,7 +60,7 @@ export const fetchChat = async (
 };
 
 export async function* fetchPromptStream(
-  params: BaseUtils.ai.AIModelParams & { mode: BaseUtils.ai.PROMPT_MODE; prompt: string },
+  params: BaseUtils.ai.AIModelParams & { mode?: BaseUtils.ai.PROMPT_MODE; prompt?: string },
   mlGateway: MLGateway,
   options: CompletionOptions,
   variablesState: Record<string, unknown> = {}
