@@ -87,7 +87,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
         platform?: string;
       };
     },
-    eventHandler: HandleContextEventHandler
+    eventHandler: HandleContextEventHandler = () => undefined
   ): Promise<ResponseContext> {
     const {
       analytics,
