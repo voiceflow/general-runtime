@@ -32,12 +32,14 @@ const getSubscriptionEntitlements = async (
   const billingClient = await billingClientFactory.getClient();
   if (identityClient && billingClient) {
     const workspace = await identityClient.private.findOne(workspaceID);
-    const subscriptionResponse = await billingClient.organizationsPrivate.getOrganizationSubscription(
-      workspace.organizationID
-    );
-    return !['active', 'in_trial'].includes(subscriptionResponse.subscription.status)
-      ? []
-      : subscriptionResponse.subscription?.subscription_entitlements;
+    const subscriptionResponse = await billingClient.organizationsPrivate
+      .getOrganizationSubscription(workspace.organizationID)
+      .catch(() => null);
+    if (subscriptionResponse) {
+      return !['active', 'in_trial'].includes(subscriptionResponse.subscription.status)
+        ? []
+        : subscriptionResponse.subscription?.subscription_entitlements;
+    }
   }
   return undefined;
 };

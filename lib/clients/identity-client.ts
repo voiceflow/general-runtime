@@ -1,3 +1,5 @@
+import fetch from 'node-fetch';
+
 export class IdentityClient {
   private client?: unknown;
 
@@ -11,7 +13,7 @@ export class IdentityClient {
     if (!this.client) {
       if (!this.endpointURL) return undefined;
 
-      this.client = new sdk.IdentityClient({ baseURL: this.endpointURL });
+      this.client = new sdk.IdentityClient({ baseURL: this.endpointURL, fetch });
     }
 
     return this.client as InstanceType<typeof sdk.IdentityClient>;

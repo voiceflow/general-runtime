@@ -1,3 +1,5 @@
+import fetch from 'node-fetch';
+
 export class BillingClient {
   private client?: unknown;
 
@@ -11,7 +13,7 @@ export class BillingClient {
     if (!this.client) {
       if (!this.endpointURL) return undefined;
 
-      this.client = new sdk.BillingClient({ baseURL: this.endpointURL });
+      this.client = new sdk.BillingClient({ baseURL: this.endpointURL, fetch });
     }
 
     return this.client as InstanceType<typeof sdk.BillingClient>;
