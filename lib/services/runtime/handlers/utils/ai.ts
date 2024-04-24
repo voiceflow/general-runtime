@@ -11,25 +11,36 @@ export const getMemoryMessages = (variablesState: Record<string, unknown>) => [
   ...((variablesState?.[AIAssist.StorageKey] as BaseUtils.ai.Message[]) || []),
 ];
 
+const MODEL_TO_ENTITLEMENT = new Map<BaseUtils.ai.GPT_MODEL, string>([
+  [BaseUtils.ai.GPT_MODEL.GPT_4, 'feat-model-gpt-4'],
+  [BaseUtils.ai.GPT_MODEL.GPT_4_turbo, 'feat-model-gpt-4-turbo'],
+  [BaseUtils.ai.GPT_MODEL.GPT_3_5_turbo, 'feat-model-gpt-3-5-turbo'],
+  [BaseUtils.ai.GPT_MODEL.CLAUDE_V2, 'feat-model-claude-2'],
+  [BaseUtils.ai.GPT_MODEL.CLAUDE_V1, 'feat-model-claude-1'],
+  [BaseUtils.ai.GPT_MODEL.CLAUDE_INSTANT_V1, 'feat-model-claude-instant'],
+  // feat-model-claude-haiku
+  // feat-model-claude-sonnet
+  // feat-model-claude-opus
+]);
+
 export const canUseModel = (model: BaseUtils.ai.GPT_MODEL, runtime: Runtime) => {
-  if (![BaseUtils.ai.GPT_MODEL.GPT_4, BaseUtils.ai.GPT_MODEL.GPT_4_turbo].includes(model)) {
-    return true;
-  }
   // TODO remove once we remove teams table
-  if (runtime.plan && GPT4_ABLE_PLAN.has(runtime.plan)) return true;
+  if (!runtime.subscriptionEntitlements) {
+    if (![BaseUtils.ai.GPT_MODEL.GPT_4, BaseUtils.ai.GPT_MODEL.GPT_4_turbo].includes(model)) {
+      return true;
+    }
 
-  if (runtime.subscriptionEntitlements && model === BaseUtils.ai.GPT_MODEL.GPT_4) {
-    return runtime.subscriptionEntitlements.some(
-      (entitlement) => entitlement.feature_id === 'feat-model-gpt-4' && entitlement.value === 'true'
-    );
+    if (runtime.plan && GPT4_ABLE_PLAN.has(runtime.plan)) return true;
   }
 
-  if (runtime.subscriptionEntitlements && model === BaseUtils.ai.GPT_MODEL.GPT_4_turbo) {
-    return runtime.subscriptionEntitlements.some(
-      (entitlement) => entitlement.feature_id === 'feat-model-gpt-4-turbo' && entitlement.value === 'true'
-    );
-  }
-  return false;
+  // Default to allow if we aren't tracking this model
+  if (!MODEL_TO_ENTITLEMENT.has(model)) return true;
+
+  const modelEntitlementName = MODEL_TO_ENTITLEMENT.get(model)!;
+
+  return runtime.subscriptionEntitlements!.some(
+    (entitlement) => entitlement.feature_id === modelEntitlementName && entitlement.value === 'true'
+  );
 };
 
 export interface AIResponse {
