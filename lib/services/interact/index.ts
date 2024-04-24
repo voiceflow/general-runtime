@@ -46,7 +46,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
         // config,
       },
       state,
-      userID: request.userID,
+      userID: stateID,
       request: request.action,
       versionID: request.versionID,
       maxLogLevel: RuntimeLogs.LogLevel.OFF,
@@ -64,7 +64,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
     turn.addHandlers(speak, filter);
 
     // if (config.selfDelegate) {
-    //   return turn.resolve(turn.handle(context, event));
+    //   return turn.resolve(turn.handle(context, eventHandler));
     // }
 
     const result = await turn.resolve(this.services.utils.autoDelegate(turn, context, eventHandler));
