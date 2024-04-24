@@ -8,9 +8,3 @@ export const isCompletionContinueTrace = (trace: BaseTrace.AnyTrace): trace is B
 
 export const isCompletionEndTrace = (trace: BaseTrace.AnyTrace): trace is BaseTrace.CompletionEndTrace =>
   trace.type === BaseTrace.TraceType.COMPLETION_END;
-
-// export const isSpeakTrace = (trace: BaseTrace.AnyTrace): trace is BaseTrace.SpeakTrace =>
-//   trace.type === BaseTrace.TraceType.SPEAK;
-
-// export const isTextTrace = (trace: BaseTrace.AnyTrace): trace is BaseTrace.TextTrace =>
-//   trace.type === BaseTrace.TraceType.TEXT;
