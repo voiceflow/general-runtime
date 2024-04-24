@@ -25,7 +25,7 @@ class AIAssist extends AbstractManager implements ContextHandler {
     }
 
     if (isPathRequest(request)) {
-      return request.payload.label ?? null;
+      return request.payload?.label ?? null;
     }
 
     return null;
