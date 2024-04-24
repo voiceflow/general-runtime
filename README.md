@@ -1,6 +1,10 @@
+Update April 24, 2024: the open-source general-runtime along with the VFR local file will no longer be actively supported. A longer term sunset plan will be provided. It is not recommended to create dependencies or references to this respository.
+
+----
+
 # general-runtime
 
-[![circle ci](https://circleci.com/gh/voiceflow/general-runtime/tree/master.svg?style=shield&circle-token=a041e74a416dfed4c1777c27c9867306c2f50824)](https://circleci.com/gh/voiceflow/general-runtime/tree/master)
+[![circle ci](https://circleci.com/gh/voiceflow/general-runtime.svg?style=shield)](https://circleci.com/gh/voiceflow/general-runtime)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=voiceflow_general-runtime&metric=coverage)](https://sonarcloud.io/dashboard?id=voiceflow_general-runtime)
 [![sonar quality gate](https://sonarcloud.io/api/project_badges/measure?project=voiceflow_general-runtime&metric=alert_status)](https://sonarcloud.io/dashboard?id=voiceflow_general-runtime)
 
