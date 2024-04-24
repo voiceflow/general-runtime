@@ -14,19 +14,11 @@ import { ResponseContext } from '../../services/interact';
 import { validate } from '../../utils';
 import { SharedValidations } from '../../validations';
 import { AbstractController } from '../utils';
-import {
-  InteractRequestBody,
-  InteractRequestHeaders,
-  InteractRequestParams,
-  InteractRequestQuery,
-} from './dtos/interact.request';
+import { InteractRequestBody, InteractRequestParams } from './dtos/interact.request';
 import { SSE_KEEP_ALIVE_MS, SSE_RETRY_MS } from './interact.const';
 
 class InteractController extends AbstractController {
-  async stream(
-    req: Request<InteractRequestParams, InteractRequestBody, InteractRequestHeaders, InteractRequestQuery>,
-    res: Response
-  ) {
+  async stream(req: Request<InteractRequestParams, InteractRequestBody>, res: Response) {
     const params = await InteractRequestParams.parseAsync(req.params);
     const body = await InteractRequestBody.parseAsync(req.body);
 
