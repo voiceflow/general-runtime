@@ -1,4 +1,5 @@
-Update April 24, 2024: the open-source general-runtime along with the VFR local file will no longer be actively supported. A longer term sunset plan will be provided. It is not recommended to create dependencies or references to this respository.
+> [!WARNING]  
+> Update April 24, 2024: the open-source general-runtime deployment will no longer be actively supported. A longer term sunset plan will be provided. It is not recommended to create dependencies or references to this respository.
 
 ----
 
