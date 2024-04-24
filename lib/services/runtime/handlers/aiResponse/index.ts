@@ -4,7 +4,7 @@ import { deepVariableSubstitution } from '@voiceflow/common';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import _cloneDeep from 'lodash/cloneDeep';
-import { endWith, filter, from, lastValueFrom, map, reduce, skipLast } from 'rxjs';
+import { endWith, filter, from, iif, isEmpty, lastValueFrom, map, NEVER, reduce, skipLast } from 'rxjs';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import { FeatureFlag } from '@/lib/feature-flags';
@@ -120,7 +120,9 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           )
         );
 
-        const completion$ = promptStream$.pipe(
+        const emptyStream = await lastValueFrom(promptStream$.pipe(isEmpty()));
+
+        const completion$ = iif(() => emptyStream, NEVER, promptStream$).pipe(
           skipLast(1),
           filter((completion) => completion.output !== ''),
           map((completion, i) =>
