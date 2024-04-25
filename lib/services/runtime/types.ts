@@ -1,4 +1,5 @@
 import { BaseNode, BaseRequest, BaseText } from '@voiceflow/base-types';
+import * as DTO from '@voiceflow/dtos';
 
 import type { DataAPI, Runtime } from '@/runtime';
 
@@ -14,7 +15,7 @@ export interface Prompt {
 }
 
 export const isTextRequest = (request?: RuntimeRequest): request is BaseRequest.TextRequest =>
-  !!request && BaseRequest.isTextRequest(request) && typeof request.payload === 'string';
+  !!request && isTextRequest(request) && typeof request.payload === 'string';
 
 /**
  * Intent request is being reused for both Alexa events and intent events. To distinguish them we check
@@ -23,24 +24,24 @@ export const isTextRequest = (request?: RuntimeRequest): request is BaseRequest.
  */
 export const isIntentRequest = (request?: RuntimeRequest): request is BaseRequest.IntentRequest =>
   !!request &&
-  BaseRequest.isIntentRequest(request) &&
+  DTO.isIntentRequest(request) &&
   !!request.payload?.intent?.name &&
   Array.isArray(request.payload.entities) &&
   !request.payload?.data;
 
 export const isAlexaEventIntentRequest = (request?: RuntimeRequest): request is BaseRequest.IntentRequest =>
   !!request &&
-  BaseRequest.isIntentRequest(request) &&
+  DTO.isIntentRequest(request) &&
   !!request.payload?.intent?.name &&
   Array.isArray(request.payload.entities) &&
   !!request.payload?.data;
 
 export const isActionRequest = (request?: RuntimeRequest): request is BaseRequest.ActionRequest =>
-  !!request && BaseRequest.isActionRequest(request);
+  !!request && DTO.isActionRequest(request);
 
 export const isPathRequest = (request?: RuntimeRequest): request is BaseRequest.GeneralRequest =>
   !!request &&
-  BaseRequest.isGeneralRequest(request) &&
+  DTO.isGeneralRequest(request) &&
   request.type.startsWith('path-') &&
   typeof request.payload?.label === 'string';
 
