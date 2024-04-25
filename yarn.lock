@@ -4338,12 +4338,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/base-types@link:/Users/brennan-lu/desktop/voiceflow/libs/packages/base-types::locator=%40voiceflow%2Fgeneral-runtime%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "@voiceflow/base-types@link:/Users/brennan-lu/desktop/voiceflow/libs/packages/base-types::locator=%40voiceflow%2Fgeneral-runtime%40workspace%3A."
-  languageName: node
-  linkType: soft
-
 "@voiceflow/base-types@npm:2.106.0":
   version: 2.106.0
   resolution: "@voiceflow/base-types@npm:2.106.0"
@@ -4351,6 +4345,16 @@ __metadata:
     "@voiceflow/common": 8.3.0
     slate: 0.94.1
   checksum: 97821b9df95282b9f68f2cce61f6a6dc8ed353096198c605cddca5f58f59b2215d5a0bd58cf9c959c793cd5ff765c51724d3fcd3d28e89e8224170524eceb7ee
+  languageName: node
+  linkType: hard
+
+"@voiceflow/base-types@npm:2.107.2":
+  version: 2.107.2
+  resolution: "@voiceflow/base-types@npm:2.107.2"
+  dependencies:
+    "@voiceflow/common": 8.2.8
+    slate: 0.94.1
+  checksum: e51f9985d670745e30a2a3082515ae92924a88f25b26b944b2b1ae20ab4ddcdd8eab7ec9bdead38e42254e8a7133bd39d48a1df01ae07fb9d237b87edd723615
   languageName: node
   linkType: hard
 
@@ -4390,6 +4394,16 @@ __metadata:
     "@voiceflow/base-types": 2.108.0
     "@voiceflow/common": 8.3.0
   checksum: eff9138d99a297b36c0a9a6700c61f24756274de7b6318a584360e58e6abe4ec2892b7859d37d76a72218eb89f11d443a216ddcf65f3513624c801a89a898e77
+  languageName: node
+  linkType: hard
+
+"@voiceflow/chat-types@npm:2.13.107":
+  version: 2.13.107
+  resolution: "@voiceflow/chat-types@npm:2.13.107"
+  dependencies:
+    "@voiceflow/base-types": 2.107.2
+    "@voiceflow/common": 8.2.8
+  checksum: e4091f796421747161060f7a047732730365f72df56ae01264f4750a69425d62d8d0b670ff308d0ace20972b5fe3159fd5c2f882e23658aea0202ff3f0dab07f
   languageName: node
   linkType: hard
 
@@ -4676,7 +4690,7 @@ __metadata:
     "@types/workerpool": ^5.0.1
     "@voiceflow/alexa-types": 2.15.0
     "@voiceflow/backend-utils": 4.8.5
-    "@voiceflow/base-types": "link:/Users/brennan-lu/desktop/voiceflow/libs/packages/base-types"
+    "@voiceflow/base-types": 2.107.2
     "@voiceflow/body-parser": ^1.21.1
     "@voiceflow/chat-types": 2.14.1
     "@voiceflow/commitlint-config": 2.0.0
@@ -4701,7 +4715,7 @@ __metadata:
     "@voiceflow/utils-designer": 1.9.3
     "@voiceflow/verror": ^1.1.3
     "@voiceflow/voice-types": 2.9.83
-    "@voiceflow/voiceflow-types": "link:/Users/brennan-lu/desktop/voiceflow/libs/packages/voiceflow-types"
+    "@voiceflow/voiceflow-types": 3.28.3
     ajv: 6.12.3
     axios: ^0.21.1
     better-sse: ^0.11.0
@@ -5203,11 +5217,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/voiceflow-types@link:/Users/brennan-lu/desktop/voiceflow/libs/packages/voiceflow-types::locator=%40voiceflow%2Fgeneral-runtime%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "@voiceflow/voiceflow-types@link:/Users/brennan-lu/desktop/voiceflow/libs/packages/voiceflow-types::locator=%40voiceflow%2Fgeneral-runtime%40workspace%3A."
+"@voiceflow/voice-types@npm:2.9.86":
+  version: 2.9.86
+  resolution: "@voiceflow/voice-types@npm:2.9.86"
+  dependencies:
+    "@voiceflow/base-types": 2.107.2
+    "@voiceflow/common": 8.2.8
+  checksum: 3d23e75b32ff6451d983f95ad65644882f7bf0fd15457585ec3d0966083b10d21bcc8431df0355b81b864b7456f1a5bf70c21241635784a6cd48350a77b3ad91
   languageName: node
-  linkType: soft
+  linkType: hard
 
 "@voiceflow/voiceflow-types@npm:3.30.0":
   version: 3.30.0
@@ -5217,6 +5235,17 @@ __metadata:
     "@voiceflow/chat-types": 2.14.0
     "@voiceflow/voice-types": 2.10.0
   checksum: 555772bdcce163323e15d506dbda4fe636608ece778979cad48e09a433f817ac1fcddc5384aff2ac75706165772c85a29d8f4bbdfb490f87b08a7617c244e293
+  languageName: node
+  linkType: hard
+
+"@voiceflow/voiceflow-types@npm:3.28.3":
+  version: 3.28.3
+  resolution: "@voiceflow/voiceflow-types@npm:3.28.3"
+  dependencies:
+    "@voiceflow/base-types": 2.107.2
+    "@voiceflow/chat-types": 2.13.107
+    "@voiceflow/voice-types": 2.9.86
+  checksum: a9bb876a28e2a147331c870c555cbf55675a4e651f3aada8714ce1c65e3627ec2a577d6105ca0dfbe4dfb6f8685460c5cbe220ead1bb76022cb6a1c77e18c229
   languageName: node
   linkType: hard
 
