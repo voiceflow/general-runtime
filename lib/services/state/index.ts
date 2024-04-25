@@ -1,5 +1,6 @@
 import { BaseModels, BaseRequest, BaseTrace } from '@voiceflow/base-types';
 import { CompiledCMSVariable } from '@voiceflow/base-types/build/cjs/cms/variables';
+import * as DTO from '@voiceflow/dtos';
 import { parseCMSVariableDefaultValue } from '@voiceflow/utils-designer';
 import axios from 'axios';
 import _ from 'lodash';
@@ -107,13 +108,13 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
       throw new Error('context versionID not defined');
     }
 
-    if (context.request && BaseRequest.isLaunchRequest(context.request) && context.state) {
+    if (context.request && DTO.isLaunchRequest(context.request) && context.state) {
       context.state.stack = [];
       context.state.storage = {};
     }
 
     // sanitize incoming intents
-    if (context.request && BaseRequest.isIntentRequest(context.request) && !context.request.payload.entities) {
+    if (context.request && DTO.isIntentRequest(context.request) && !context.request.payload.entities) {
       context.request.payload.entities = [];
     }
 

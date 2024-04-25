@@ -8,6 +8,7 @@ import {
   RuntimeLogs,
 } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables, transformStringVariableToNumber, Utils } from '@voiceflow/common';
+import * as DTO from '@voiceflow/dtos';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import cuid from 'cuid';
 import _ from 'lodash';
@@ -125,7 +126,7 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
       .map(({ name, request }) => {
         const processedName = replaceVariables(name, variables.getState());
 
-        if (BaseRequest.isTextRequest(request)) {
+        if (DTO.isTextRequest(request)) {
           return {
             name: processedName,
             request: {
@@ -137,7 +138,7 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
 
         const actions = processActions(request.payload?.actions, variables);
 
-        if (BaseRequest.isIntentRequest(request)) {
+        if (DTO.isIntentRequest(request)) {
           return {
             name: processedName,
             request: {
