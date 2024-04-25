@@ -3,8 +3,8 @@
  * @packageDocumentation
  */
 
-import { BaseNode, BaseRequest } from '@voiceflow/base-types';
-import { isLaunchReqeust, LaunchRequestDTO } from '@voiceflow/dtos';
+import { BaseNode } from '@voiceflow/base-types';
+import { isLaunchRequest } from '@voiceflow/dtos';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import Client, { Action as RuntimeAction, Runtime } from '@/runtime';
@@ -107,7 +107,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
   }
 
   private getRuntimeForContext(context: Context, eventHandler: HandleContextEventHandler): Runtime {
-    if (context.request && isLaunchReqeust(context.request)) {
+    if (context.request && isLaunchRequest(context.request)) {
       context.request = null;
     }
 

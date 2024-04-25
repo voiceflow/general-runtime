@@ -1,4 +1,4 @@
-import { BaseModels, BaseRequest, BaseTrace } from '@voiceflow/base-types';
+import { BaseModels, BaseTrace } from '@voiceflow/base-types';
 import { CompiledCMSVariable } from '@voiceflow/base-types/build/cjs/cms/variables';
 import * as DTO from '@voiceflow/dtos';
 import { parseCMSVariableDefaultValue } from '@voiceflow/utils-designer';
