@@ -4682,7 +4682,7 @@ __metadata:
     "@voiceflow/prettier-config": 1.2.1
     "@voiceflow/sdk-analytics": ^1.26.0
     "@voiceflow/sdk-auth": ^2.7.5
-    "@voiceflow/sdk-billing": ^1.23.4
+    "@voiceflow/sdk-billing": ^1.23.9
     "@voiceflow/sdk-http-ml-gateway": 2.13.31
     "@voiceflow/sdk-identity": ^1.19.5
     "@voiceflow/test-common": ^1.8.1
@@ -5029,9 +5029,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/sdk-billing@npm:^1.23.4":
-  version: 1.23.4
-  resolution: "@voiceflow/sdk-billing@npm:1.23.4"
+"@voiceflow/sdk-billing@npm:^1.23.9":
+  version: 1.23.9
+  resolution: "@voiceflow/sdk-billing@npm:1.23.9"
   dependencies:
     "@voiceflow/orval-fetch": 1.4.0
     "@voiceflow/sdk-common": 1.11.3
@@ -5051,7 +5051,7 @@ __metadata:
       optional: true
     undici:
       optional: true
-  checksum: c10264565c6ccf09e0db62c728f84545a2d6b95c703bd6af42fdb9dd91f9dc2fdfb27a0f3d77f854a6c61865d88bc57d9499f10b18d96703bcba3e8136599314
+  checksum: 4ac1d073f51e36856083f5273ba08f279a783450b2631b27490d06cbb9a753725f2cc22527095d91f900c315ad0eb1adb06816a7a4e2e9a85aa3d10c650d9b15
   languageName: node
   linkType: hard
 
