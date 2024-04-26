@@ -25,6 +25,9 @@ export const getMemoryMessages = (variablesState: Record<string, unknown>) => [
 ];
 
 export const canUseModel = (model: BaseUtils.ai.GPT_MODEL, runtime: Runtime) => {
+  if (![AIModel.GPT_4, AIModel.GPT_4_TURBO, AIModel.CLAUDE_3_SONNET, AIModel.CLAUDE_3_OPUS].includes(model as any)) {
+    return true;
+  }
   // TODO remove once we remove teams table
   if (runtime.plan) {
     // if not restricted models
