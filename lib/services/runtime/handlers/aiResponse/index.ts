@@ -4,7 +4,21 @@ import { deepVariableSubstitution } from '@voiceflow/common';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import _cloneDeep from 'lodash/cloneDeep';
-import { endWith, filter, from, iif, isEmpty, lastValueFrom, map, NEVER, reduce, skipLast } from 'rxjs';
+import {
+  concat,
+  filter,
+  from,
+  iif,
+  isEmpty,
+  lastValueFrom,
+  map,
+  NEVER,
+  of,
+  reduce,
+  shareReplay,
+  switchMap,
+  take,
+} from 'rxjs';
 
 import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import { FeatureFlag } from '@/lib/feature-flags';
@@ -118,35 +132,41 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
             },
             variables.getState()
           )
-        );
+        ).pipe(shareReplay());
 
-        const emptyStream = await lastValueFrom(promptStream$.pipe(isEmpty()));
-
-        const completion$ = iif(() => emptyStream, NEVER, promptStream$).pipe(
-          skipLast(1),
-          filter((completion) => completion.output !== ''),
-          map((completion, i) =>
-            i > 0 ? completionToContinueTrace(completion) : completionToStartTrace(runtime, node, completion)
-          ),
-          endWith(endTrace())
-        );
-
-        [response] = await Promise.all([
-          lastValueFrom(
-            promptStream$.pipe(
-              reduce((acc: any, completion: any) => {
-                acc.output += completion.output;
-                acc.answerTokens += completion.answerTokens;
-                acc.queryTokens += completion.queryTokens;
-                acc.tokens += completion.tokens;
-                acc.model = completion.model;
-                acc.multiplier = completion.multiplier;
-                return acc;
-              }, response)
+        const completion$ = concat(
+          promptStream$.pipe(
+            filter((completion) => completion.output != null),
+            map((completion, i) =>
+              i > 0 ? completionToContinueTrace(completion) : completionToStartTrace(runtime, node, completion)
             )
           ),
-          completion$.forEach((trace) => runtime.trace.addTrace(trace)),
-        ]);
+          promptStream$.pipe(
+            take(1),
+            isEmpty(),
+            switchMap((isEmpty) => iif(() => isEmpty, NEVER, of(endTrace())))
+          )
+        );
+
+        const traceConsumerPromise = completion$.forEach((trace) => runtime.trace.addTrace(trace));
+
+        const responseConsumerPromise = lastValueFrom(
+          promptStream$.pipe(
+            reduce((acc, completion) => {
+              if (!acc.output) acc.output = '';
+
+              acc.output += completion.output ?? '';
+              acc.answerTokens += completion.answerTokens;
+              acc.queryTokens += completion.queryTokens;
+              acc.tokens += completion.tokens;
+              acc.model = completion.model;
+              acc.multiplier = completion.multiplier;
+              return acc;
+            }, response)
+          )
+        );
+
+        [response] = await Promise.all([responseConsumerPromise, traceConsumerPromise]);
       }
 
       await consumeResources('AI Response', runtime, response);
