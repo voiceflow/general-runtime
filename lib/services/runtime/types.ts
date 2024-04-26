@@ -15,7 +15,7 @@ export interface Prompt {
 }
 
 export const isTextRequest = (request?: RuntimeRequest): request is BaseRequest.TextRequest =>
-  !!request && isTextRequest(request) && typeof request.payload === 'string';
+  !!request && DTO.isTextRequest(request) && typeof request.payload === 'string';
 
 /**
  * Intent request is being reused for both Alexa events and intent events. To distinguish them we check
