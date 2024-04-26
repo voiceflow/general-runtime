@@ -1,5 +1,6 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
+import { AIModel } from '@voiceflow/dtos';
 
 import { CompletionOptions, GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import MLGateway from '@/lib/clients/ml-gateway';
@@ -7,28 +8,42 @@ import { Runtime } from '@/runtime';
 
 import AIAssist from '../../../aiAssist';
 
+const MODEL_TO_ENTITLEMENT = new Map<AIModel, string>([
+  [AIModel.GPT_4, 'feat-model-gpt-4'],
+  [AIModel.GPT_4_TURBO, 'feat-model-gpt-4-turbo'],
+  [AIModel.GPT_3_5_TURBO, 'feat-model-gpt-3-5-turbo'],
+  [AIModel.CLAUDE_V2, 'feat-model-claude-2'],
+  [AIModel.CLAUDE_V1, 'feat-model-claude-1'],
+  [AIModel.CLAUDE_INSTANT_V1, 'feat-model-claude-instant'],
+  [AIModel.CLAUDE_3_HAIKU, 'feat-model-claude-haiku'],
+  [AIModel.CLAUDE_3_SONNET, 'feat-model-claude-sonnet'],
+  [AIModel.CLAUDE_3_OPUS, 'feat-model-claude-opus'],
+]);
+
 export const getMemoryMessages = (variablesState: Record<string, unknown>) => [
   ...((variablesState?.[AIAssist.StorageKey] as BaseUtils.ai.Message[]) || []),
 ];
 
 export const canUseModel = (model: BaseUtils.ai.GPT_MODEL, runtime: Runtime) => {
-  if (![BaseUtils.ai.GPT_MODEL.GPT_4, BaseUtils.ai.GPT_MODEL.GPT_4_turbo].includes(model)) {
-    return true;
-  }
   // TODO remove once we remove teams table
-  if (runtime.plan && GPT4_ABLE_PLAN.has(runtime.plan)) return true;
+  if (runtime.plan) {
+    // if not restricted models
+    if (![AIModel.GPT_4, AIModel.GPT_4_TURBO, AIModel.CLAUDE_3_SONNET, AIModel.CLAUDE_3_OPUS].includes(model as any)) {
+      return true;
+    }
+    // if restricted model but plan allows
+    if (GPT4_ABLE_PLAN.has(runtime.plan)) return true;
 
-  if (runtime.subscriptionEntitlements && model === BaseUtils.ai.GPT_MODEL.GPT_4) {
+    return false;
+  }
+
+  if (runtime.subscriptionEntitlements) {
+    const modelEntitlementName = MODEL_TO_ENTITLEMENT.get(model);
     return runtime.subscriptionEntitlements.some(
-      (entitlement) => entitlement.feature_id === 'feat-model-gpt-4' && entitlement.value === 'true'
+      (entitlement) => entitlement.feature_id === modelEntitlementName && entitlement.value === 'true'
     );
   }
 
-  if (runtime.subscriptionEntitlements && model === BaseUtils.ai.GPT_MODEL.GPT_4_turbo) {
-    return runtime.subscriptionEntitlements.some(
-      (entitlement) => entitlement.feature_id === 'feat-model-gpt-4-turbo' && entitlement.value === 'true'
-    );
-  }
   return false;
 };
 
