@@ -23,7 +23,7 @@
     "@voiceflow/chat-types": "2.14.1",
     "@voiceflow/common": "8.2.8",
     "@voiceflow/default-prompt-wrappers": "^1.1.1",
-    "@voiceflow/dtos": "1.53.1",
+    "@voiceflow/dtos": "1.60.2",
     "@voiceflow/event-ingestion-service": "1.5.1",
     "@voiceflow/exception": "^1.5.1",
     "@voiceflow/internal": "3.2.3",

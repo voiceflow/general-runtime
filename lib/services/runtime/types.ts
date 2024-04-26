@@ -15,7 +15,7 @@ export interface Prompt {
 }
 
 export const isTextRequest = (request?: RuntimeRequest): request is BaseRequest.TextRequest =>
-  !!request && DTO.isTextRequest(request) && typeof request.payload === 'string';
+  !!request && DTO.isTextRequest(request);
 
 /**
  * Intent request is being reused for both Alexa events and intent events. To distinguish them we check
@@ -23,18 +23,10 @@ export const isTextRequest = (request?: RuntimeRequest): request is BaseRequest.
  * otherwise it is a normal intent request
  */
 export const isIntentRequest = (request?: RuntimeRequest): request is BaseRequest.IntentRequest =>
-  !!request &&
-  DTO.isIntentRequest(request) &&
-  !!request.payload?.intent?.name &&
-  Array.isArray(request.payload.entities) &&
-  !request.payload?.data;
+  !!request && DTO.isIntentRequest(request) && Array.isArray(request.payload.entities) && !request.payload?.data;
 
 export const isAlexaEventIntentRequest = (request?: RuntimeRequest): request is BaseRequest.IntentRequest =>
-  !!request &&
-  DTO.isIntentRequest(request) &&
-  !!request.payload?.intent?.name &&
-  Array.isArray(request.payload.entities) &&
-  !!request.payload?.data;
+  !!request && DTO.isIntentRequest(request) && Array.isArray(request.payload.entities) && !!request.payload?.data;
 
 export const isActionRequest = (request?: RuntimeRequest): request is BaseRequest.ActionRequest =>
   !!request && DTO.isActionRequest(request);
