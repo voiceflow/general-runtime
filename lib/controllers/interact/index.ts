@@ -4,6 +4,7 @@
  */
 
 import { BaseRequest, RuntimeLogs } from '@voiceflow/base-types';
+import { AnyRequestDTO } from '@voiceflow/dtos';
 import { createSession } from 'better-sse';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
@@ -26,7 +27,7 @@ class InteractController extends AbstractController {
     const { versionID } = params;
     const { sessionID } = body.session;
     const { userID } = body.session;
-    const { action } = body;
+    const action = await AnyRequestDTO.parseAsync(req.body.action);
     const { state } = body;
 
     try {
@@ -77,7 +78,16 @@ class InteractController extends AbstractController {
       { locale?: string; logs: RuntimeLogs.LogLevel }
     >
   ): Promise<ResponseContext> {
-    return this.services.interact.handler(req);
+    const parsedRequest = {
+      ...req,
+      body: {
+        ...req.body,
+        request: AnyRequestDTO.parse(req.body.request),
+        action: AnyRequestDTO.parse(req.body.action),
+      },
+    };
+
+    return this.services.interact.handler(parsedRequest);
   }
 }
 

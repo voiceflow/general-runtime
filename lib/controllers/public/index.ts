@@ -1,5 +1,6 @@
 import { Validator } from '@voiceflow/backend-utils';
 import { BaseRequest } from '@voiceflow/base-types';
+import { AnyRequestDTO } from '@voiceflow/dtos';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
 import { Request } from '@/types';
@@ -34,11 +35,19 @@ class PublicController extends AbstractController {
       { projectID: string; versionID: string }
     >
   ) {
-    const trace = await this.services.stateManagement.interact({
+    const parsedRequest = {
       ...req,
+      body: {
+        ...req.body,
+        action: AnyRequestDTO.parse(req.body.action),
+      },
+    };
+
+    const trace = await this.services.stateManagement.interact({
+      ...parsedRequest,
       // only pass in select properties to avoid any potential security issues
       query: {}, // no logs allowed
-      headers: { projectID: req.headers.projectID, versionID: req.headers.versionID },
+      headers: { projectID: parsedRequest.headers.projectID, versionID: parsedRequest.headers.versionID },
     });
 
     return { trace };
