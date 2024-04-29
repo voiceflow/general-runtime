@@ -1,10 +1,9 @@
-import { RuntimeLogs } from '@voiceflow/base-types';
+import { BaseRequest, RuntimeLogs } from '@voiceflow/base-types';
 import assert from 'assert/strict';
 
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { Context, ContextHandler } from '@/types';
 
-import { isGeneralIntentRequest } from '../runtime/types';
 import { AbstractManager, injectServices } from '../utils';
 import { natoApcoConverter } from './natoApco';
 
@@ -12,8 +11,18 @@ export const utils = {};
 
 @injectServices({ utils })
 class SlotsService extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
+  private isLUISIntentRequest(value: BaseRequest.BaseRequest | null): value is BaseRequest.IntentRequest {
+    return (
+      !!value &&
+      BaseRequest.isIntentRequest(value) &&
+      !!value.payload?.intent?.name &&
+      Array.isArray(value.payload.entities) &&
+      !value.payload?.data
+    );
+  }
+
   handle = async (context: Context) => {
-    if (!isGeneralIntentRequest(context.request)) {
+    if (!this.isLUISIntentRequest(context.request)) {
       return context;
     }
 
