@@ -1,18 +1,20 @@
 /* eslint-disable sonarjs/cognitive-complexity */
-import { BaseNode, BaseTrace, BaseUtils } from '@voiceflow/base-types';
+import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { deepVariableSubstitution } from '@voiceflow/common';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import _cloneDeep from 'lodash/cloneDeep';
+import { concat, filter, from, isEmpty, lastValueFrom, map, NEVER, of, reduce, shareReplay, switchMap } from 'rxjs';
 
 import { FeatureFlag } from '@/lib/feature-flags';
 import { HandlerFactory } from '@/runtime';
 
-import { FrameType, GeneralRuntime, Output } from '../types';
-import { addOutputTrace, getOutputTrace } from '../utils';
-import { AIResponse, canUseModel, consumeResources, fetchPromptStream } from './utils/ai';
-import { generateOutput, isChatProject } from './utils/output';
-import { getVersionDefaultVoice } from './utils/version';
+import { FrameType, GeneralRuntime, Output } from '../../types';
+import { addOutputTrace, getOutputTrace } from '../../utils';
+import { AIResponse, canUseModel, consumeResources, fetchPromptStream } from '../utils/ai';
+import { generateOutput } from '../utils/output';
+import { getVersionDefaultVoice } from '../utils/version';
+import { completionToContinueTrace, completionToStartTrace, endTrace } from './traces';
 
 const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, GeneralRuntime> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_RESPONSE,
@@ -106,73 +108,49 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           multiplier: 1,
         };
 
-        let traceStarted = false;
+        const promptStream$ = from(
+          fetchPromptStream(
+            node,
+            runtime.services.mlGateway,
+            {
+              context: { projectID, workspaceID },
+            },
+            variables.getState()
+          )
+        ).pipe(shareReplay());
 
-        // eslint-disable-next-line no-restricted-syntax
-        for await (const completion of fetchPromptStream(
-          node,
-          runtime.services.mlGateway,
-          {
-            context: { projectID, workspaceID },
-          },
-          variables.getState()
-        )) {
-          // eslint-disable-next-line max-depth
-          if (typeof completion.output !== 'string') continue;
+        const completion$ = concat(
+          promptStream$.pipe(
+            filter((completion) => completion.output != null),
+            map((completion, i) =>
+              i > 0 ? completionToContinueTrace(completion) : completionToStartTrace(runtime, node, completion)
+            )
+          ),
+          promptStream$.pipe(
+            isEmpty(),
+            switchMap((isEmpty) => (isEmpty ? NEVER : of(endTrace())))
+          )
+        );
 
-          response.output += completion.output;
-          response.answerTokens += completion.answerTokens;
-          response.queryTokens += completion.queryTokens;
-          response.tokens += completion.tokens;
-          response.model = completion.model;
-          response.multiplier = completion.multiplier;
+        const traceConsumerPromise = completion$.forEach((trace) => runtime.trace.addTrace(trace));
 
-          // eslint-disable-next-line max-depth
-          if (traceStarted) {
-            const trace: BaseTrace.CompletionContinueTrace = {
-              type: BaseTrace.TraceType.COMPLETION_CONTINUE,
-              payload: {
-                completion: completion.output,
-                tokens: {
-                  answer: completion.answerTokens,
-                  query: completion.queryTokens,
-                  total: completion.tokens,
-                },
-              },
-            };
+        const responseConsumerPromise = lastValueFrom(
+          promptStream$.pipe(
+            reduce((acc, completion) => {
+              if (!acc.output) acc.output = '';
 
-            runtime.trace.addTrace(trace);
-          } else {
-            const trace: BaseTrace.CompletionStartTrace = {
-              type: BaseTrace.TraceType.COMPLETION_START,
-              payload: {
-                completion: completion.output,
-                ...(!isChatProject(runtime.project) && {
-                  voice: node.voice ?? getVersionDefaultVoice(runtime.version),
-                }),
-                type: !isChatProject(runtime.project) ? BaseTrace.TraceType.SPEAK : BaseTrace.TraceType.TEXT,
-                tokens: {
-                  model: completion.model,
-                  answer: completion.answerTokens,
-                  query: completion.queryTokens,
-                  total: completion.tokens,
-                },
-              },
-            };
+              acc.output += completion.output ?? '';
+              acc.answerTokens += completion.answerTokens;
+              acc.queryTokens += completion.queryTokens;
+              acc.tokens += completion.tokens;
+              acc.model = completion.model;
+              acc.multiplier = completion.multiplier;
+              return acc;
+            }, response)
+          )
+        );
 
-            runtime.trace.addTrace(trace);
-          }
-
-          traceStarted = true;
-        }
-
-        if (traceStarted) {
-          const trace: BaseTrace.CompletionEndTrace = {
-            type: BaseTrace.TraceType.COMPLETION_END,
-            payload: {},
-          };
-          runtime.trace.addTrace(trace);
-        }
+        [response] = await Promise.all([responseConsumerPromise, traceConsumerPromise]);
       }
 
       await consumeResources('AI Response', runtime, response);

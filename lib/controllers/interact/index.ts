@@ -6,7 +6,6 @@
 import { BaseRequest, RuntimeLogs } from '@voiceflow/base-types';
 import { createSession } from 'better-sse';
 
-// import { isEmpty, merge } from "lodash";
 import { RuntimeRequest } from '@/lib/services/runtime/types';
 import { State } from '@/runtime';
 import { Request, Response } from '@/types';
@@ -15,22 +14,13 @@ import { ResponseContext } from '../../services/interact';
 import { validate } from '../../utils';
 import { SharedValidations } from '../../validations';
 import { AbstractController } from '../utils';
-import {
-  InteractRequestBody,
-  InteractRequestHeaders,
-  InteractRequestParams,
-  InteractRequestQuery,
-} from './dtos/interact.request';
+import { InteractRequestBody, InteractRequestParams } from './dtos/interact.request';
+import { SSE_KEEP_ALIVE_MS, SSE_RETRY_MS } from './interact.const';
 
 class InteractController extends AbstractController {
-  async stream(
-    req: Request<InteractRequestParams, InteractRequestBody, InteractRequestHeaders, InteractRequestQuery>,
-    res: Response
-  ) {
+  async stream(req: Request<InteractRequestParams, InteractRequestBody>, res: Response) {
     const params = await InteractRequestParams.parseAsync(req.params);
     const body = await InteractRequestBody.parseAsync(req.body);
-    // const _headers = await InteractRequestHeaders.parseAsync(req.headers);
-    // const _query = await InteractRequestQuery.parseAsync(req.query);
 
     const { projectID } = params;
     const { versionID } = params;
@@ -41,8 +31,8 @@ class InteractController extends AbstractController {
 
     try {
       const session = await createSession(req, res, {
-        keepAlive: 30000,
-        retry: 2000,
+        keepAlive: SSE_KEEP_ALIVE_MS,
+        retry: SSE_RETRY_MS,
       });
 
       const result = await this.services.interact.interact(
@@ -87,7 +77,7 @@ class InteractController extends AbstractController {
       { locale?: string; logs: RuntimeLogs.LogLevel }
     >
   ): Promise<ResponseContext> {
-    return this.services.interact.handler(req, () => undefined);
+    return this.services.interact.handler(req);
   }
 }
 

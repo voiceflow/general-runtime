@@ -25,7 +25,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.use('/transcripts', TranscriptRouter(middlewares, controllers));
   router.use('/nlu', NLURouter(middlewares, controllers));
 
-  router.use('/v2/interact', InteractV2Router(middlewares, controllers));
+  router.use('/v2beta1/interact', InteractV2Router(middlewares, controllers));
 
   return router;
 };
