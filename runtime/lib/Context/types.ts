@@ -1,6 +1,6 @@
 import { BaseNode, BaseProject, BaseVersion, RuntimeLogs } from '@voiceflow/base-types';
 
-import { State } from '@/runtime/lib/Runtime';
+import { State, SubscriptionEntitlements } from '@/runtime/lib/Runtime';
 
 export interface Context<
   Request = Record<string, unknown>,
@@ -20,6 +20,7 @@ export interface Context<
   versionID: string;
   projectID: string;
   plan?: string;
+  subscriptionEntitlements?: SubscriptionEntitlements;
   /** The most verbose logs to receive in runtime logging. */
   maxLogLevel: RuntimeLogs.LogLevel;
 }

@@ -4,8 +4,10 @@ import { parseCMSVariableDefaultValue } from '@voiceflow/utils-designer';
 import axios from 'axios';
 import _ from 'lodash';
 
+import { BillingClient } from '@/lib/clients/billing-client';
+import { IdentityClient } from '@/lib/clients/identity-client';
 import { FrameType } from '@/lib/services/runtime/types';
-import { PartialContext, State } from '@/runtime';
+import { PartialContext, State, SubscriptionEntitlements } from '@/runtime';
 import { Context, InitContextHandler } from '@/types';
 
 import { AbstractManager, injectServices } from '../utils';
@@ -20,6 +22,27 @@ const initializeStore = (variables: string[], defaultValue = 0) =>
     acc[variable] = defaultValue;
     return acc;
   }, {});
+
+const getSubscriptionEntitlements = async (
+  identityClientFactory: IdentityClient,
+  billingClientFactory: BillingClient,
+  workspaceID: string
+) => {
+  const identityClient = await identityClientFactory.getClient();
+  const billingClient = await billingClientFactory.getClient();
+  if (identityClient && billingClient) {
+    const workspace = await identityClient.private.findOne(workspaceID);
+    const subscriptionResponse = await billingClient.organizationsPrivate
+      .getOrganizationSubscription(workspace.organizationID)
+      .catch(() => null);
+    if (subscriptionResponse) {
+      return !['active', 'in_trial'].includes(subscriptionResponse.subscription.status)
+        ? []
+        : subscriptionResponse.subscription?.subscription_entitlements;
+    }
+  }
+  return undefined;
+};
 
 @injectServices({ utils })
 class StateManager extends AbstractManager<{ utils: typeof utils }> implements InitContextHandler {
@@ -108,8 +131,15 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     const version = await api.getVersion(context.versionID!);
     const project = await api.getProject(version.projectID);
 
+    const subscriptionEntitlements: SubscriptionEntitlements | undefined = await getSubscriptionEntitlements(
+      this.services.identityClient,
+      this.services.billingClient,
+      project.teamID
+    );
+
+    // TODO remove once we drop teams table
     let plan: string | undefined;
-    if (this.config.CREATOR_API_ENDPOINT) {
+    if (!subscriptionEntitlements && this.config.CREATOR_API_ENDPOINT) {
       const planResponse = await axios
         .get<{ plan: string } | null>(`${this.config.CREATOR_API_ENDPOINT}/private/project/${project._id}/plan`)
         .catch(() => null);
@@ -136,6 +166,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
       version,
       project,
       plan,
+      subscriptionEntitlements,
     };
   }
 }

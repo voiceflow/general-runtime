@@ -74,6 +74,7 @@ describe('client unit tests', () => {
             version,
             project: undefined,
             plan: undefined,
+            subscriptionEntitlements: undefined,
             timeout,
           },
         ],

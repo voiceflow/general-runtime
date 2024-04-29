@@ -3,12 +3,11 @@ import { deepVariableSubstitution } from '@voiceflow/common';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import _cloneDeep from 'lodash/cloneDeep';
 
-import { GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import { FeatureFlag } from '@/lib/feature-flags';
 import { HandlerFactory } from '@/runtime';
 
 import { GeneralRuntime } from '../types';
-import { AIResponse, consumeResources, EMPTY_AI_RESPONSE, fetchPrompt } from './utils/ai';
+import { AIResponse, canUseModel, consumeResources, EMPTY_AI_RESPONSE, fetchPrompt } from './utils/ai';
 
 const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_SET,
@@ -57,7 +56,7 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = 
               return { ...EMPTY_AI_RESPONSE, ...response, tokens, queryTokens, answerTokens };
             }
 
-            if (node.model === BaseUtils.ai.GPT_MODEL.GPT_4 && runtime.plan && !GPT4_ABLE_PLAN.has(runtime.plan)) {
+            if (node.model && !canUseModel(node.model, runtime)) {
               variables.set(variable, 'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.');
               return EMPTY_AI_RESPONSE;
             }

@@ -113,6 +113,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
       version: context.version,
       project: context.project,
       plan: context.plan,
+      subscriptionEntitlements: context.subscriptionEntitlements,
       timeout: Math.max(this.config.ERROR_RESPONSE_MS - 5000, 0),
     });
 

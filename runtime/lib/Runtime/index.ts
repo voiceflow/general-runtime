@@ -14,6 +14,8 @@ import Store, { State as StorageState } from './Store';
 import Trace from './Trace';
 import ProgramManager from './utils/programManager';
 
+export type SubscriptionEntitlements = Array<{ feature_id: string; feature_type: string; value: string }>;
+
 export interface Options<
   DataAPI extends AnyDataAPI = AnyDataAPI,
   Services extends BaseTypes.AnyRecord = BaseTypes.AnyRecord
@@ -45,6 +47,7 @@ export interface RuntimeOptions<
   version?: Version;
   project?: Project;
   plan?: string;
+  subscriptionEntitlements?: SubscriptionEntitlements;
   timeout: number;
 }
 
@@ -99,6 +102,8 @@ class Runtime<
 
   public plan?: PlanType;
 
+  public subscriptionEntitlements?: SubscriptionEntitlements;
+
   public timeout: number;
 
   public startTime = 0;
@@ -112,6 +117,7 @@ class Runtime<
     state,
     options,
     plan,
+    subscriptionEntitlements,
     timeout,
   }: RuntimeOptions<Request, DataAPI, Services, Version, Project>) {
     super(events);
@@ -121,6 +127,7 @@ class Runtime<
     this.version = version;
     this.project = project;
     this.plan = plan as PlanType;
+    this.subscriptionEntitlements = subscriptionEntitlements;
     this.timeout = timeout;
 
     const { services = {} as Services, handlers = [], api } = options;

@@ -2,7 +2,11 @@ import * as BaseTypes from '@voiceflow/base-types';
 
 import { DataAPI as AnyDataAPI } from '@/runtime/lib/DataAPI';
 import { AbstractLifecycle } from '@/runtime/lib/Lifecycle';
-import Runtime, { Options as RuntimeOptions, State as RuntimeState } from '@/runtime/lib/Runtime';
+import Runtime, {
+  Options as RuntimeOptions,
+  State as RuntimeState,
+  SubscriptionEntitlements,
+} from '@/runtime/lib/Runtime';
 
 export interface CreateRuntimeOptions<
   Request,
@@ -18,6 +22,7 @@ export interface CreateRuntimeOptions<
   version?: Version;
   project?: Project;
   plan?: string;
+  subscriptionEntitlements?: SubscriptionEntitlements;
   timeout: number;
 }
 
@@ -48,6 +53,7 @@ class Controller<
     version,
     project,
     plan,
+    subscriptionEntitlements,
     timeout,
   }: CreateRuntimeOptions<Request, DataAPI, Services, Version, Project>): Runtime<Request, DataAPI, Services> {
     return new Runtime<Request, DataAPI, Services, Version, Project>({
@@ -59,6 +65,7 @@ class Controller<
       version,
       project,
       plan,
+      subscriptionEntitlements,
       timeout,
     });
   }

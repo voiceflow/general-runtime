@@ -63,6 +63,9 @@ export interface Config extends RateLimitConfig {
   NLU_GATEWAY_SERVICE_URI: string | null;
   NLU_GATEWAY_SERVICE_PORT_APP: string | null;
 
+  IDENTITY_API_SERVICE_URI: string | null;
+  IDENTITY_API_SERVICE_PORT_APP: string | null;
+
   BILLING_API_SERVICE_URI: string | null;
   BILLING_API_SERVICE_PORT_APP: string | null;
 
