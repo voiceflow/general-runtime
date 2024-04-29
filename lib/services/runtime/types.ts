@@ -9,6 +9,12 @@ export type RuntimeRequest = BaseRequest.BaseRequest | null;
 
 export type GeneralRuntime = Runtime<RuntimeRequest, DataAPI, FullServiceMap>;
 
+export interface AlexaIntentRequest extends BaseRequest.IntentRequest {
+  payload: Omit<BaseRequest.IntentRequestPayload, 'data'> & {
+    data: Record<string, unknown>;
+  };
+}
+
 export interface Prompt {
   content: BaseText.SlateTextValue | string;
   voice?: string;
@@ -25,7 +31,7 @@ export const isTextRequest = (request?: RuntimeRequest): request is BaseRequest.
 export const isIntentRequest = (request?: RuntimeRequest): request is BaseRequest.IntentRequest =>
   !!request && DTO.isIntentRequest(request) && Array.isArray(request.payload.entities) && !request.payload?.data;
 
-export const isAlexaEventIntentRequest = (request?: RuntimeRequest): request is BaseRequest.IntentRequest =>
+export const isAlexaEventIntentRequest = (request?: RuntimeRequest): request is AlexaIntentRequest =>
   !!request && DTO.isIntentRequest(request) && Array.isArray(request.payload.entities) && !!request.payload?.data;
 
 export const isActionRequest = (request?: RuntimeRequest): request is BaseRequest.ActionRequest =>
