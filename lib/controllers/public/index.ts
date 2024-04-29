@@ -39,7 +39,7 @@ class PublicController extends AbstractController {
       ...req,
       body: {
         ...req.body,
-        action: AnyRequestDTO.parse(req.body.action),
+        ...(req.body.action && { action: AnyRequestDTO.parse(req.body.action) }),
       },
     };
 

@@ -4,9 +4,9 @@
  */
 
 import { BaseNode, BaseRequest, BaseTrace } from '@voiceflow/base-types';
+import * as DTO from '@voiceflow/dtos';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
-import { isTextRequest } from '@/lib/services/runtime/types';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
 import { DebugEvent, Predictor } from '../classification';
@@ -35,7 +35,7 @@ export const getIntentRequest = (prediction: Prediction | null): BaseRequest.Int
 
 class NLU extends AbstractManager implements ContextHandler {
   handle = async (context: Context) => {
-    if (!isTextRequest(context.request)) {
+    if (!DTO.isTextRequest(context.request)) {
       return context;
     }
 

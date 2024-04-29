@@ -7,7 +7,7 @@ import { HandlerFactory } from '@/runtime';
 
 import {
   isAlexaEventIntentRequest,
-  isIntentRequest,
+  isGeneralIntentRequest,
   StorageType,
   StreamAction,
   StreamPauseStorage,
@@ -46,7 +46,7 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
     const streamPlay = runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY)!;
 
     const request = runtime.getRequest();
-    const intentName = isIntentRequest(request) ? request.payload.intent.name : null;
+    const intentName = isGeneralIntentRequest(request) ? request.payload.intent.name : null;
 
     let nextId: BaseNode.Utils.NodeID = null;
 

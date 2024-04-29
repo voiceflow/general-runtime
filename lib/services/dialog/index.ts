@@ -22,7 +22,7 @@ import { Predictor } from '../classification';
 import { castToDTO } from '../classification/classification.utils';
 import { getIntentRequest } from '../nlu';
 import { getNoneIntentRequest } from '../nlu/utils';
-import { isIntentRequest, StorageType } from '../runtime/types';
+import { isGeneralIntentRequest, StorageType } from '../runtime/types';
 import { addOutputTrace, getOutputTrace } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
 import { rectifyEntityValue } from './synonym';
@@ -117,7 +117,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handle = async (context: Context) => {
-    if (!isIntentRequest(context.request)) {
+    if (!isGeneralIntentRequest(context.request)) {
       return context;
     }
 

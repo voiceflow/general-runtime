@@ -82,8 +82,8 @@ class InteractController extends AbstractController {
       ...req,
       body: {
         ...req.body,
-        request: AnyRequestDTO.parse(req.body.request),
-        action: AnyRequestDTO.parse(req.body.action),
+        ...(req.body.request && { request: AnyRequestDTO.parse(req.body.request) }),
+        ...(req.body.action && { action: AnyRequestDTO.parse(req.body.action) }),
       },
     };
 

@@ -4,7 +4,7 @@ import assert from 'assert/strict';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { Context, ContextHandler } from '@/types';
 
-import { isIntentRequest } from '../runtime/types';
+import { isGeneralIntentRequest } from '../runtime/types';
 import { AbstractManager, injectServices } from '../utils';
 import { natoApcoConverter } from './natoApco';
 
@@ -13,7 +13,7 @@ export const utils = {};
 @injectServices({ utils })
 class SlotsService extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
   handle = async (context: Context) => {
-    if (!isIntentRequest(context.request)) {
+    if (!isGeneralIntentRequest(context.request)) {
       return context;
     }
 

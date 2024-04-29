@@ -9,7 +9,7 @@ import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { HandlerFactory, Runtime } from '@/runtime';
 
-import { isIntentRequest } from '../../../types';
+import { isGeneralIntentRequest } from '../../../types';
 import { CommandAlexaHandler } from '../../command/command.alexa';
 import { StreamStateHandler, utilsObj } from '.';
 
@@ -22,7 +22,7 @@ const utils = {
 // in said case we need to treat that as a stream when the playback nearly finished intent comes in
 const isDirectiveWithAudio = (node: BaseModels.BaseNode, runtime: Runtime) => {
   const request = runtime.getRequest();
-  const intentName = isIntentRequest(request) ? request.payload.intent.name : null;
+  const intentName = isGeneralIntentRequest(request) ? request.payload.intent.name : null;
   return (
     node.type === BaseNode.NodeType.CHANNEL_ACTION &&
     (node as BaseNode.ChannelAction.Node).data.name === BaseNode.NodeType.DIRECTIVE &&

@@ -4,7 +4,7 @@ import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { Runtime, Store } from '@/runtime';
 
-import { FrameType, isIntentRequest, Output, StorageType, TurnType } from '../types';
+import { FrameType, isGeneralIntentRequest, Output, StorageType, TurnType } from '../types';
 import { addOutputTrace, getOutputTrace } from '../utils';
 
 const utilsObj = {
@@ -19,7 +19,7 @@ export const RepeatHandler = (utils: typeof utilsObj) => ({
     const repeat = runtime.storage.get<BaseVersion.RepeatType>(StorageType.REPEAT);
     const request = runtime.getRequest();
     return (
-      isIntentRequest(request) &&
+      isGeneralIntentRequest(request) &&
       repeatIntents.has(request.payload.intent.name) &&
       !!repeat &&
       [BaseVersion.RepeatType.ALL, BaseVersion.RepeatType.DIALOG].includes(repeat)
