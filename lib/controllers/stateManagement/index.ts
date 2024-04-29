@@ -47,8 +47,8 @@ class StateManagementController extends AbstractController {
       ...req,
       body: {
         ...req.body,
-        action: AnyRequestDTO.parse(req.body.action),
-        request: AnyRequestDTO.parse(req.body.request),
+        ...(req.body.request && { request: AnyRequestDTO.parse(req.body.request) }),
+        ...(req.body.action && { action: AnyRequestDTO.parse(req.body.action) }),
       },
     };
 

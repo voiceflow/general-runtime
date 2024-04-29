@@ -1,6 +1,6 @@
 import { BaseNode, BaseRequest, Nullable } from '@voiceflow/base-types';
 
-import { GeneralRuntime, isAlexaEventIntentRequest, isIntentRequest } from '@/lib/services/runtime/types';
+import { GeneralRuntime, isAlexaEventIntentRequest, isGeneralIntentRequest } from '@/lib/services/runtime/types';
 import { Runtime, Store } from '@/runtime';
 
 import { mapEntities, mapVariables } from '../utils';
@@ -31,7 +31,7 @@ export interface Matcher<
 }
 
 const isIntentEvent = (request: BaseRequest.IntentRequest, context: any) => {
-  if (!isIntentRequest(request)) return false;
+  if (!isGeneralIntentRequest(request)) return false;
   if (request.diagramID && context.diagramID && request.diagramID !== context.diagramID) return false;
   if (!context.event || !BaseNode.Utils.isIntentEvent(context.event)) return false;
   if (context.event.intent !== request.payload.intent.name) return false;
@@ -54,7 +54,7 @@ export const intentEventMatcher: Matcher<BaseRequest.IntentRequest, BaseNode.Uti
   match: (context): context is SideEffectContext<BaseRequest.IntentRequest, BaseNode.Utils.IntentEvent> => {
     const request = context.runtime.getRequest();
 
-    if (!isIntentRequest(request)) return false;
+    if (!isGeneralIntentRequest(request)) return false;
     if (isAlexaEventIntentRequest(request)) return false;
     if (!isIntentEvent(request, context)) return false;
     if (isAlexaEvent(request, context)) return false;
@@ -74,7 +74,7 @@ export const alexaEventMatcher: Matcher<BaseRequest.IntentRequest, BaseNode.Util
   match: (context): context is SideEffectContext<BaseRequest.IntentRequest, BaseNode.Utils.AlexaEvent> => {
     const request = context.runtime.getRequest();
 
-    if (isIntentRequest(request)) return false;
+    if (isGeneralIntentRequest(request)) return false;
     if (!isAlexaEventIntentRequest(request)) return false;
     if (isIntentEvent(request, context)) return false;
     if (!isAlexaEvent(request, context)) return false;
@@ -104,7 +104,7 @@ export const generalEventMatcher: Matcher<BaseRequest.BaseRequest, BaseNode.Util
   match: (context): context is SideEffectContext<BaseRequest.BaseRequest, BaseNode.Utils.BaseEvent> => {
     const request = context.runtime.getRequest();
 
-    if (!request || isIntentRequest(request) || isAlexaEventIntentRequest(request)) return false;
+    if (!request || isGeneralIntentRequest(request) || isAlexaEventIntentRequest(request)) return false;
     if (!context.event?.type) return false;
     if (context.event.type !== request.type) return false;
 

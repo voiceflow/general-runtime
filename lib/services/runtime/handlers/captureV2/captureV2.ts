@@ -3,7 +3,7 @@ import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory, Runtime, Store } from '@/runtime';
 
-import { isIntentRequest, StorageType } from '../../types';
+import { isGeneralIntentRequest, StorageType } from '../../types';
 import { addButtonsIfExists, addOutputTrace, getOutputTrace, isConfidenceScoreAbove, mapEntities } from '../../utils';
 import CommandHandler from '../command';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
@@ -86,7 +86,7 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, util
     }
 
     // on successful match
-    if (isIntentRequest(request)) {
+    if (isGeneralIntentRequest(request)) {
       const { query, intent } = request.payload;
 
       const handleCapturePath = () => {

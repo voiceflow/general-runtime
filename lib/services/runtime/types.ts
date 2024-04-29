@@ -1,50 +1,61 @@
-import { BaseNode, BaseRequest, BaseText } from '@voiceflow/base-types';
+import { BaseNode, BaseText } from '@voiceflow/base-types';
 import * as DTO from '@voiceflow/dtos';
+import { z } from 'zod';
 
 import type { DataAPI, Runtime } from '@/runtime';
 
 import type { FullServiceMap } from '..';
 
-export type RuntimeRequest = BaseRequest.BaseRequest | null;
+export type RuntimeRequest = DTO.BaseRequest | null;
 
 export type GeneralRuntime = Runtime<RuntimeRequest, DataAPI, FullServiceMap>;
 
-export interface AlexaIntentRequest extends BaseRequest.IntentRequest {
-  payload: Omit<BaseRequest.IntentRequestPayload, 'data'> & {
-    data: Record<string, unknown>;
-  };
-}
+export const AlexaIntentRequestDTO = DTO.IntentRequestDTO.extend({
+  payload: DTO.IntentRequestPayloadDTO.extend({
+    data: z.record(z.unknown()),
+    entities: z.array(DTO.IntentRequestEntityDTO),
+  }),
+});
+
+export type AlexaIntentRequest = z.infer<typeof AlexaIntentRequestDTO>;
+
+export const GeneralIntentRequestDTO = DTO.IntentRequestDTO.extend({
+  payload: DTO.IntentRequestPayloadDTO.omit({ data: true }).extend({
+    entities: z.array(DTO.IntentRequestEntityDTO),
+  }),
+});
+
+export type GeneralIntentRequest = z.infer<typeof GeneralIntentRequestDTO>;
+
+export const PathRequestDTO = DTO.GeneralRequestDTO.extend({
+  type: z.string().refine((val) => val.startsWith('path-')),
+  payload: DTO.ActionAndLabelRequestPayloadDTO.extend({
+    label: z.string(),
+  }),
+});
+
+export type PathRequest = z.infer<typeof PathRequestDTO>;
 
 export interface Prompt {
   content: BaseText.SlateTextValue | string;
   voice?: string;
 }
 
-export const isTextRequest = (request?: RuntimeRequest): request is BaseRequest.TextRequest =>
-  !!request && DTO.isTextRequest(request);
-
 /**
  * Intent request is being reused for both Alexa events and intent events. To distinguish them we check
  * if `request.payload.data` exists, if so this is an Alexa event request
  * otherwise it is a normal intent request
  */
-export const isIntentRequest = (request?: RuntimeRequest): request is BaseRequest.IntentRequest =>
-  !!request && DTO.isIntentRequest(request) && Array.isArray(request.payload.entities) && !request.payload?.data;
+export const isGeneralIntentRequest = (request: unknown): request is GeneralIntentRequest =>
+  GeneralIntentRequestDTO.safeParse(request).success;
 
-export const isAlexaEventIntentRequest = (request?: RuntimeRequest): request is AlexaIntentRequest =>
-  !!request && DTO.isIntentRequest(request) && Array.isArray(request.payload.entities) && !!request.payload?.data;
+export const isAlexaEventIntentRequest = (request: unknown): request is AlexaIntentRequest =>
+  AlexaIntentRequestDTO.safeParse(request).success;
 
-export const isActionRequest = (request?: RuntimeRequest): request is BaseRequest.ActionRequest =>
-  !!request && DTO.isActionRequest(request);
+export const isPathRequest = (request: unknown): request is PathRequest => PathRequestDTO.safeParse(request).success;
 
-export const isPathRequest = (request?: RuntimeRequest): request is BaseRequest.GeneralRequest =>
-  !!request &&
-  DTO.isGeneralRequest(request) &&
-  request.type.startsWith('path-') &&
-  typeof request.payload?.label === 'string';
-
-export const isRuntimeRequest = (request: any): request is RuntimeRequest => {
-  return request === null || !!(typeof request.type === 'string' && !!request.type);
+export const isRuntimeRequest = (request: unknown): request is RuntimeRequest => {
+  return request === null || DTO.BaseRequestDTO.safeParse(request).success;
 };
 
 export const isPrompt = (prompt: unknown): prompt is Prompt => {
