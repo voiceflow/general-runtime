@@ -78,16 +78,14 @@ class InteractController extends AbstractController {
       { locale?: string; logs: RuntimeLogs.LogLevel }
     >
   ): Promise<ResponseContext> {
-    const parsedRequest = {
-      ...req,
-      body: {
-        ...req.body,
-        ...(req.body.request && { request: AnyRequestDTO.parse(req.body.request) }),
-        ...(req.body.action && { action: AnyRequestDTO.parse(req.body.action) }),
-      },
-    };
+    if (req.body.request) {
+      req.body.request = AnyRequestDTO.parse(req.body.request);
+    }
+    if (req.body.action) {
+      req.body.action = AnyRequestDTO.parse(req.body.action);
+    }
 
-    return this.services.interact.handler(parsedRequest);
+    return this.services.interact.handler(req);
   }
 }
 

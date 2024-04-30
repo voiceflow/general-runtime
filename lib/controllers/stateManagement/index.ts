@@ -43,16 +43,14 @@ class StateManagementController extends AbstractController {
       { verbose?: boolean; logs?: RuntimeLogs.LogLevel }
     >
   ) {
-    const parsedRequest = {
-      ...req,
-      body: {
-        ...req.body,
-        ...(req.body.request && { request: AnyRequestDTO.parse(req.body.request) }),
-        ...(req.body.action && { action: AnyRequestDTO.parse(req.body.action) }),
-      },
-    };
+    if (req.body.request) {
+      req.body.request = AnyRequestDTO.parse(req.body.request);
+    }
+    if (req.body.action) {
+      req.body.action = AnyRequestDTO.parse(req.body.action);
+    }
 
-    return this.services.stateManagement.interact(parsedRequest);
+    return this.services.stateManagement.interact(req);
   }
 
   @validate({ HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID })
