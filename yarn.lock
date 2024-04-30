@@ -4675,7 +4675,6 @@ __metadata:
     "@voiceflow/event-ingestion-service": 1.5.1
     "@voiceflow/exception": ^1.5.1
     "@voiceflow/git-branch-check": 1.4.1
-    "@voiceflow/google-types": 2.20.57
     "@voiceflow/internal": 3.2.3
     "@voiceflow/logger": 2.2.0
     "@voiceflow/metrics": 1.4.1
@@ -4776,19 +4775,6 @@ __metadata:
   bin:
     git-branch-check: index.js
   checksum: 7573d448d4bc3f4b5fb548bab72cae68ae378c67f09ee1a1f555b2e62357ad0854990492b5ac8e3a5d1dbfc50c79cbf5d450f7fddc17f41405392bd1c9de12a8
-  languageName: node
-  linkType: hard
-
-"@voiceflow/google-types@npm:2.20.57":
-  version: 2.20.57
-  resolution: "@voiceflow/google-types@npm:2.20.57"
-  dependencies:
-    "@voiceflow/base-types": 2.106.0
-    "@voiceflow/chat-types": 2.13.104
-    "@voiceflow/common": 8.2.8
-    "@voiceflow/voice-types": 2.9.83
-    "@voiceflow/voiceflow-types": 3.27.0
-  checksum: e7952ba9c65bf932c923b839139b4f39245e6c5830d11db4fd242936157f51d97f79669fbfc566366b3397e42f6084794a77b49cf2d8719bcec12a45aeebbbf7
   languageName: node
   linkType: hard
 
