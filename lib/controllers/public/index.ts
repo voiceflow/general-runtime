@@ -35,19 +35,15 @@ class PublicController extends AbstractController {
       { projectID: string; versionID: string }
     >
   ) {
-    const parsedRequest = {
-      ...req,
-      body: {
-        ...req.body,
-        ...(req.body.action && { action: AnyRequestDTO.parse(req.body.action) }),
-      },
-    };
+    if (req.body.action) {
+      req.body.action = AnyRequestDTO.parse(req.body.action);
+    }
 
     const trace = await this.services.stateManagement.interact({
-      ...parsedRequest,
+      ...req,
       // only pass in select properties to avoid any potential security issues
       query: {}, // no logs allowed
-      headers: { projectID: parsedRequest.headers.projectID, versionID: parsedRequest.headers.versionID },
+      headers: { projectID: req.headers.projectID, versionID: req.headers.versionID },
     });
 
     return { trace };
