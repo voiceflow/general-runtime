@@ -16,7 +16,7 @@ import CacheDataAPI from '../state/cacheDataAPI';
 import { AbstractManager, injectServices } from '../utils';
 import Handlers from './handlers';
 import init from './init';
-import { isGeneralIntentRequest, isPathRequest, isRuntimeRequest, TurnType } from './types';
+import { isRuntimeRequest, TurnType } from './types';
 import { getReadableConfidence } from './utils';
 
 export const utils = {
@@ -53,7 +53,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
 
     const runtime = this.getRuntimeForContext({ versionID, userID, state, request, ...context }, eventHandler);
 
-    if (isGeneralIntentRequest(request)) {
+    if (DTO.isLegacyIntentRequest(request)) {
       const confidence = getReadableConfidence(request.payload.confidence);
 
       runtime.trace.debug(
@@ -68,7 +68,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
       }
     }
 
-    if (isPathRequest(request)) {
+    if (DTO.isPathRequest(request)) {
       runtime.variables.set(VoiceflowConstants.BuiltInVariable.LAST_UTTERANCE, request.payload?.label);
     }
 

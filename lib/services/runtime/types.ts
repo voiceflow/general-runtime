@@ -41,19 +41,6 @@ export interface Prompt {
   voice?: string;
 }
 
-/**
- * Intent request is being reused for both Alexa events and intent events. To distinguish them we check
- * if `request.payload.data` exists, if so this is an Alexa event request
- * otherwise it is a normal intent request
- */
-export const isGeneralIntentRequest = (request: unknown): request is GeneralIntentRequest =>
-  GeneralIntentRequestDTO.safeParse(request).success;
-
-export const isAlexaEventIntentRequest = (request: unknown): request is AlexaIntentRequest =>
-  AlexaIntentRequestDTO.safeParse(request).success;
-
-export const isPathRequest = (request: unknown): request is PathRequest => PathRequestDTO.safeParse(request).success;
-
 export const isRuntimeRequest = (request: unknown): request is RuntimeRequest => {
   return request === null || DTO.BaseRequestDTO.safeParse(request).success;
 };

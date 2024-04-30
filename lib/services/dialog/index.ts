@@ -6,6 +6,7 @@
 import { BaseModels, BaseNode, BaseRequest, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
 import { ChatModels } from '@voiceflow/chat-types';
 import { VF_DM_PREFIX } from '@voiceflow/common';
+import * as DTO from '@voiceflow/dtos';
 import VError from '@voiceflow/verror';
 import { VoiceModels } from '@voiceflow/voice-types';
 import { VoiceflowConstants, VoiceflowUtils, VoiceflowVersion } from '@voiceflow/voiceflow-types';
@@ -22,7 +23,7 @@ import { Predictor } from '../classification';
 import { castToDTO } from '../classification/classification.utils';
 import { getIntentRequest } from '../nlu';
 import { getNoneIntentRequest } from '../nlu/utils';
-import { isGeneralIntentRequest, StorageType } from '../runtime/types';
+import { StorageType } from '../runtime/types';
 import { addOutputTrace, getOutputTrace } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
 import { rectifyEntityValue } from './synonym';
@@ -117,7 +118,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handle = async (context: Context) => {
-    if (!isGeneralIntentRequest(context.request)) {
+    if (!DTO.isLegacyIntentRequest(context.request)) {
       return context;
     }
 
