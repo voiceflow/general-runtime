@@ -11,13 +11,24 @@ export const utils = {};
 
 @injectServices({ utils })
 class SlotsService extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  private isLUISIntentRequest(value: BaseRequest.BaseRequest | null): value is BaseRequest.IntentRequest {
+  private isLUISIntentRequest(value: unknown): value is BaseRequest.IntentRequest {
     return (
       !!value &&
-      BaseRequest.isIntentRequest(value) &&
+      typeof value === 'object' &&
+      'type' in value &&
+      typeof value.type === 'string' &&
+      value.type === BaseRequest.RequestType.INTENT &&
+      'payload' in value &&
+      !!value.payload &&
+      typeof value.payload === 'object' &&
+      'intent' in value.payload &&
+      typeof value.payload.intent === 'object' &&
+      !!value.payload.intent &&
+      'name' in value.payload.intent &&
       !!value.payload?.intent?.name &&
+      'entities' in value.payload &&
       Array.isArray(value.payload.entities) &&
-      !value.payload?.data
+      !('data' in value.payload)
     );
   }
 
