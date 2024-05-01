@@ -1,4 +1,12 @@
+/* eslint-disable sonarjs/cognitive-complexity */
 import { BaseTrace } from '@voiceflow/base-types';
+import {
+  isCompletionContinueTrace,
+  isCompletionEndTrace,
+  isCompletionStartTrace,
+  isCompletionStartTraceSpeak,
+  isCompletionStartTraceText,
+} from '@voiceflow/base-types/build/cjs/trace/completion';
 
 import { Store } from '@/runtime';
 import { Context, ContextHandler } from '@/types';
@@ -6,7 +14,6 @@ import { Context, ContextHandler } from '@/types';
 import { generateOutput } from '../runtime/handlers/utils/output';
 import { getOutputTrace } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
-import { isCompletionContinueTrace, isCompletionEndTrace, isCompletionStartTrace } from './guards';
 
 const utils = {};
 
@@ -36,7 +43,8 @@ export default class MergeCompletion extends AbstractManager<{ utils: typeof uti
           return acc;
         }
 
-        const output = generateOutput(lastTrace.payload.completion, context.project, lastTrace.payload.voice);
+        const voice = isCompletionStartTraceSpeak(lastTrace) ? lastTrace.payload.voice : undefined;
+        const output = generateOutput(lastTrace.payload.completion, context.project, voice);
 
         // Override completion trace to real trace
         acc[acc.length - 1] = getOutputTrace({
@@ -44,7 +52,7 @@ export default class MergeCompletion extends AbstractManager<{ utils: typeof uti
           ai: true,
           variables: new Store(context.state.variables),
           version: context.version,
-          delay: lastTrace.payload.delay,
+          delay: isCompletionStartTraceText(lastTrace) ? lastTrace.payload.delay : undefined,
         });
       } else {
         acc.push(trace);
