@@ -60,13 +60,12 @@ describe('interact service unit tests', () => {
           },
         },
       };
-      const eventHandler = sinon.stub();
 
       const services = buildServices(context);
 
       const interactManager = new Interact(services as any, null as any);
 
-      expect(await interactManager.handler(data as any, eventHandler)).to.eql({
+      expect(await interactManager.handler(data as any)).to.eql({
         state: 'filter',
         request: context.request,
         trace: 'trace',
@@ -124,13 +123,12 @@ describe('interact service unit tests', () => {
         versionID: data.headers.versionID,
         data: { locale: data.query.locale },
       };
-      const eventHandler = sinon.stub();
 
       const services = buildServices(context);
 
       const interactController = new Interact(services as any, null as any);
 
-      expect(await interactController.handler(data as any, eventHandler)).to.eql({
+      expect(await interactController.handler(data as any)).to.eql({
         state: 'filter',
         request: context.request,
         trace: 'trace',
@@ -155,12 +153,11 @@ describe('interact service unit tests', () => {
       versionID: data.headers.versionID,
       data: { locale: data.query.locale },
     };
-    const eventHandler = sinon.stub();
 
     const services = buildServices(context);
 
     const interactController = new Interact(services as any, null as any);
-    expect(await interactController.handler(data as any, eventHandler)).to.eql({
+    expect(await interactController.handler(data as any)).to.eql({
       state: 'filter',
       request: context.request,
       trace: 'trace',
@@ -213,10 +210,8 @@ describe('interact service unit tests', () => {
       },
     };
 
-    const eventHandler = sinon.stub();
-
     const interactController = new Interact(services as any, null as any);
-    expect(await interactController.handler(data as any, eventHandler)).to.eql('resolved-state');
+    expect(await interactController.handler(data as any)).to.eql('resolved-state');
     expect(services.utils.TurnBuilder.args[0][0]).to.eql(services.state);
     expect(turnBuilder.addHandlers.args).to.eql([
       [
@@ -231,7 +226,8 @@ describe('interact service unit tests', () => {
       [services.analytics],
       [services.speak, services.filter],
     ]);
-    expect(services.utils.autoDelegate.args).to.eql([[turnBuilder, context, eventHandler]]);
+    expect(services.utils.autoDelegate.args[0][0]).to.eql(turnBuilder);
+    expect(services.utils.autoDelegate.args[0][1]).to.eql(context);
     expect(await turnBuilder.resolve.args[0][0]).to.eql(finalState);
   });
 });

@@ -41,10 +41,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
     const state = merge(storedState, request.state);
 
     const context: PartialContext<Context> = {
-      data: {
-        // locale,
-        // config,
-      },
+      data: {},
       state,
       userID: stateID,
       request: request.action,
@@ -56,16 +53,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
 
     turn.addHandlers(asr, nlu, aiAssist, slots, dialog, runtime);
     turn.addHandlers(analytics);
-
-    // if (config.tts) {
-    //   turn.addHandlers(tts);
-    // }
-
     turn.addHandlers(speak, filter);
-
-    // if (config.selfDelegate) {
-    //   return turn.resolve(turn.handle(context, eventHandler));
-    // }
 
     const result = await turn.resolve(this.services.utils.autoDelegate(turn, context, eventHandler));
 
@@ -74,21 +62,18 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
     return result;
   }
 
-  async handler(
-    req: {
-      params: { userID?: string };
-      body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
-      query: { locale?: string; logs?: RuntimeLogs.LogLevel };
-      headers: {
-        authorization?: string;
-        origin?: string;
-        sessionid?: string;
-        versionID: string;
-        platform?: string;
-      };
-    },
-    eventHandler: HandleContextEventHandler = () => undefined
-  ): Promise<ResponseContext> {
+  async handler(req: {
+    params: { userID?: string };
+    body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
+    query: { locale?: string; logs?: RuntimeLogs.LogLevel };
+    headers: {
+      authorization?: string;
+      origin?: string;
+      sessionid?: string;
+      versionID: string;
+      platform?: string;
+    };
+  }): Promise<ResponseContext> {
     const {
       analytics,
       runtime,
@@ -142,10 +127,10 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
     turn.addHandlers(speak, filter);
 
     if (config.selfDelegate) {
-      return turn.resolve(turn.handle(context, eventHandler));
+      return turn.resolve(turn.handle(context, () => undefined));
     }
 
-    return turn.resolve(this.services.utils.autoDelegate(turn, context, eventHandler));
+    return turn.resolve(this.services.utils.autoDelegate(turn, context, () => undefined));
   }
 }
 

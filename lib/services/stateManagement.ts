@@ -22,7 +22,7 @@ class StateManagement extends AbstractManager {
       variables: data.body.state?.variables,
     });
 
-    const { state: updatedState, trace, request } = await this.services.interact.handler(data, () => undefined);
+    const { state: updatedState, trace, request } = await this.services.interact.handler(data);
 
     await this.services.session.saveToDb(data.headers.projectID, data.params.userID, updatedState);
 
