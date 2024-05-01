@@ -1,6 +1,5 @@
 import { BaseNode, BaseText } from '@voiceflow/base-types';
 import * as DTO from '@voiceflow/dtos';
-import { z } from 'zod';
 
 import type { DataAPI, Runtime } from '@/runtime';
 
@@ -9,32 +8,6 @@ import type { FullServiceMap } from '..';
 export type RuntimeRequest = DTO.BaseRequest | null;
 
 export type GeneralRuntime = Runtime<RuntimeRequest, DataAPI, FullServiceMap>;
-
-export const AlexaIntentRequestDTO = DTO.IntentRequestDTO.extend({
-  payload: DTO.IntentRequestPayloadDTO.extend({
-    data: z.record(z.unknown()),
-    entities: z.array(DTO.IntentRequestEntityDTO),
-  }),
-});
-
-export type AlexaIntentRequest = z.infer<typeof AlexaIntentRequestDTO>;
-
-export const GeneralIntentRequestDTO = DTO.IntentRequestDTO.extend({
-  payload: DTO.IntentRequestPayloadDTO.omit({ data: true }).extend({
-    entities: z.array(DTO.IntentRequestEntityDTO),
-  }),
-});
-
-export type GeneralIntentRequest = z.infer<typeof GeneralIntentRequestDTO>;
-
-export const PathRequestDTO = DTO.GeneralRequestDTO.extend({
-  type: z.string().refine((val) => val.startsWith('path-')),
-  payload: DTO.ActionAndLabelRequestPayloadDTO.extend({
-    label: z.string(),
-  }),
-});
-
-export type PathRequest = z.infer<typeof PathRequestDTO>;
 
 export interface Prompt {
   content: BaseText.SlateTextValue | string;
