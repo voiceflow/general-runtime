@@ -34,7 +34,7 @@
     "@voiceflow/utils-designer": "1.9.3",
     "@voiceflow/verror": "^1.1.3",
     "@voiceflow/voice-types": "2.9.83",
-    "@voiceflow/voiceflow-types": "3.28.3",
+    "@voiceflow/voiceflow-types": "3.30.1",
     "ajv": "6.12.3",
     "axios": "^0.21.1",
     "better-sse": "^0.11.0",
