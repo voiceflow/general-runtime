@@ -4,15 +4,17 @@ import { deepVariableSubstitution } from '@voiceflow/common';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import _cloneDeep from 'lodash/cloneDeep';
+import { concat, filter, from, isEmpty, lastValueFrom, map, NEVER, of, reduce, shareReplay, switchMap } from 'rxjs';
 
 import { FeatureFlag } from '@/lib/feature-flags';
 import { HandlerFactory } from '@/runtime';
 
-import { FrameType, GeneralRuntime, Output } from '../types';
-import { addOutputTrace, getOutputTrace } from '../utils';
-import { AIResponse, canUseModel, consumeResources, fetchPrompt } from './utils/ai';
-import { generateOutput } from './utils/output';
-import { getVersionDefaultVoice } from './utils/version';
+import { FrameType, GeneralRuntime, Output } from '../../types';
+import { addOutputTrace, getOutputTrace } from '../../utils';
+import { AIResponse, canUseModel, consumeResources, fetchPromptStream } from '../utils/ai';
+import { generateOutput } from '../utils/output';
+import { getVersionDefaultVoice } from '../utils/version';
+import { completionToContinueTrace, completionToStartTrace, endTrace } from './traces';
 
 const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, GeneralRuntime> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_RESPONSE,
@@ -97,14 +99,58 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           multiplier: 1,
         };
       } else {
-        response = await fetchPrompt(
-          node,
-          runtime.services.mlGateway,
-          {
-            context: { projectID, workspaceID },
-          },
-          variables.getState()
+        response = {
+          output: '',
+          tokens: 0,
+          queryTokens: 0,
+          answerTokens: 0,
+          model: node.model ?? '',
+          multiplier: 1,
+        };
+
+        const promptStream$ = from(
+          fetchPromptStream(
+            node,
+            runtime.services.mlGateway,
+            {
+              context: { projectID, workspaceID },
+            },
+            variables.getState()
+          )
+        ).pipe(shareReplay());
+
+        const completion$ = concat(
+          promptStream$.pipe(
+            filter((completion) => completion.output != null),
+            map((completion, i) =>
+              i > 0 ? completionToContinueTrace(completion) : completionToStartTrace(runtime, node, completion)
+            )
+          ),
+          promptStream$.pipe(
+            isEmpty(),
+            switchMap((isEmpty) => (isEmpty ? NEVER : of(endTrace())))
+          )
         );
+
+        const traceConsumerPromise = completion$.forEach((trace) => runtime.trace.addTrace(trace));
+
+        const responseConsumerPromise = lastValueFrom(
+          promptStream$.pipe(
+            reduce((acc, completion) => {
+              if (!acc.output) acc.output = '';
+
+              acc.output += completion.output ?? '';
+              acc.answerTokens += completion.answerTokens;
+              acc.queryTokens += completion.queryTokens;
+              acc.tokens += completion.tokens;
+              acc.model = completion.model;
+              acc.multiplier = completion.multiplier;
+              return acc;
+            }, response)
+          )
+        );
+
+        [response] = await Promise.all([responseConsumerPromise, traceConsumerPromise]);
       }
 
       await consumeResources('AI Response', runtime, response);
@@ -118,18 +164,10 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
         node.voice ?? getVersionDefaultVoice(runtime.version)
       );
 
-      runtime.stack.top().storage.set<Output>(FrameType.OUTPUT, output);
+      // Set last response to entire AI response, not just a partial chunk
+      variables.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, response.output);
 
-      addOutputTrace(
-        runtime,
-        getOutputTrace({
-          output,
-          variables,
-          version: runtime.version,
-          ai: true,
-        }),
-        { variables }
-      );
+      runtime.stack.top().storage.set<Output>(FrameType.OUTPUT, output);
 
       return nextID;
     } catch (err) {

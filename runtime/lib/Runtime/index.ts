@@ -6,6 +6,7 @@ import Handler from '@/runtime/lib/Handler';
 import Lifecycle, { AbstractLifecycle, Event, EventType } from '@/runtime/lib/Lifecycle';
 import cycleStack from '@/runtime/lib/Runtime/cycleStack';
 
+import { HandleContextEventHandler } from '../Context/types';
 import { DataAPI as AnyDataAPI } from '../DataAPI';
 import DebugLogging from './DebugLogging';
 import OutgoingApiLimiter from './OutgoingApiLimiter';
@@ -219,7 +220,7 @@ class Runtime<
     );
   }
 
-  public async update(): Promise<void> {
+  public async update(eventHandler: HandleContextEventHandler): Promise<void> {
     try {
       await this.injectBaseProgram();
       await this.callEvent(EventType.updateWillExecute, {});
@@ -236,7 +237,7 @@ class Runtime<
       }
 
       this.startTime = Date.now();
-      await cycleStack(this);
+      await cycleStack(this, eventHandler);
 
       await this.callEvent(EventType.updateDidExecute, {});
     } catch (error) {

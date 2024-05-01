@@ -9,6 +9,7 @@ import Dialog from './dialog';
 import Feedback from './feedback';
 import Filter from './filter';
 import Interact from './interact';
+import MergeCompletion from './merge-completion';
 import NLU from './nlu';
 import Runtime from './runtime';
 import { LocalSession, MongoSession, Session } from './session';
@@ -40,6 +41,7 @@ export interface ServiceMap {
   test: TestService;
   transcript: Transcript;
   stateManagement: StateManagement;
+  mergeCompletion: MergeCompletion;
 }
 
 export interface FullServiceMap extends ClientMap, ServiceMap {}
@@ -53,6 +55,11 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   } as FullServiceMap;
 
   // order here matters, services defined after runtime are not available inside of it
+  if (config.SESSIONS_SOURCE === Source.LOCAL) {
+    services.session = new LocalSession(services, config);
+  } else if (config.SESSIONS_SOURCE === Source.MONGO) {
+    services.session = new MongoSession(services, config);
+  }
   services.aiSynthesis = new AISynthesis(services, config);
   services.runtime = new Runtime(services, config);
   services.state = new State(services, config);
@@ -68,14 +75,9 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.test = new TestService(services, config);
   services.transcript = new Transcript(services, config);
   services.aiAssist = new AIAssist(services, config);
+  services.mergeCompletion = new MergeCompletion(services, config);
   services.interact = new Interact(services, config);
   services.feedback = new Feedback(services, config);
-
-  if (config.SESSIONS_SOURCE === Source.LOCAL) {
-    services.session = new LocalSession(services, config);
-  } else if (config.SESSIONS_SOURCE === Source.MONGO) {
-    services.session = new MongoSession(services, config);
-  }
 
   return services;
 };

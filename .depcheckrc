@@ -24,5 +24,8 @@
     "source-map-support",
     "supertest",
     "typedoc-plugin-sourcefile-url"
+  ],
+  "ignorePatterns": [
+    ".yarn/**/*"
   ]
 }

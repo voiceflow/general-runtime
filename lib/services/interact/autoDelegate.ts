@@ -2,6 +2,7 @@ import { BaseTrace } from '@voiceflow/base-types';
 import { Utils } from '@voiceflow/common';
 
 import { PartialContext, TurnBuilder } from '@/runtime';
+import { HandleContextEventHandler } from '@/runtime/lib/Context/types';
 import { Context } from '@/types';
 
 export const MAX_DELEGATION_TURNS = 3;
@@ -9,13 +10,17 @@ export const MAX_DELEGATION_TURNS = 3;
 const isGoToTrace = (frame: BaseTrace.AnyTrace | null): frame is BaseTrace.GoToTrace =>
   frame?.type === BaseTrace.TraceType.GOTO && !!frame.payload.request;
 
-const autoDelegateTurn = async (turn: TurnBuilder<Context>, initContext: PartialContext<Context>): Promise<Context> => {
+const autoDelegateTurn = async (
+  turn: TurnBuilder<Context>,
+  initContext: PartialContext<Context>,
+  event: HandleContextEventHandler
+): Promise<Context> => {
   let context: Context | null = null;
   const trace: BaseTrace.AnyTrace[] = [];
 
   for (let i = 0; i < MAX_DELEGATION_TURNS; i++) {
     // eslint-disable-next-line no-await-in-loop
-    context = await turn.handle(context || initContext);
+    context = await turn.handle(context || initContext, event);
     if (!context.trace) break;
 
     const [filteredTrace, goToTrace] = Utils.array.filterAndGetLastRemovedValue(

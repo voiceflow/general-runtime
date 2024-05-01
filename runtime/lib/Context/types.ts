@@ -25,7 +25,10 @@ export interface Context<
   maxLogLevel: RuntimeLogs.LogLevel;
 }
 
-export type ContextHandle<C extends Context<any, any, any, any, any>> = (request: C) => C | Promise<C>;
+export type ContextHandle<C extends Context<any, any, any, any, any>> = (
+  request: C,
+  event: HandleContextEventHandler
+) => C | Promise<C>;
 
 export interface ContextHandler<C extends Context<any, any, any, any, any>> {
   handle: ContextHandle<C>;
@@ -48,3 +51,10 @@ export type InitContextHandle<C extends Context<any, any, any, any, any>> = (
 export interface InitContextHandler<C extends Context<any, any, any, any, any>> {
   handle: InitContextHandle<C>;
 }
+
+export interface ContextEvent {
+  type: 'trace';
+  trace: BaseNode.Utils.BaseTraceFrame;
+}
+
+export type HandleContextEventHandler = (event: ContextEvent) => any;

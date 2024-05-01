@@ -15,7 +15,7 @@ const handlerUtils = {
 
 export const TextHandler: HandlerFactory<BaseNode.Text.Node, typeof handlerUtils> = (utils) => ({
   canHandle: (node) => node.type === BaseNode.NodeType.TEXT,
-  handle: (node, runtime, variables) => {
+  handle: async (node, runtime, variables) => {
     const slate = utils._sample(node.texts);
 
     if (slate) {

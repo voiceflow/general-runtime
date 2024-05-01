@@ -2,12 +2,13 @@ import { BaseNode, BaseTrace, BaseUtils } from '@voiceflow/base-types';
 
 import log from '@/logger';
 import Client, { EventType } from '@/runtime';
+import { HandleContextEventHandler } from '@/runtime/lib/Context/types';
 
 import { FrameType, Output, TurnType } from './types';
 import { addOutputTrace, getOutputTrace } from './utils';
 
 // initialize event behaviors for client
-const init = (client: Client) => {
+const init = (client: Client, eventHandler: HandleContextEventHandler) => {
   client.setEvent(EventType.stackDidChange, ({ runtime }) => {
     const top = runtime.stack.top();
 
@@ -63,6 +64,13 @@ const init = (client: Client) => {
 
   client.setEvent(EventType.timeout, ({ runtime }) => {
     runtime.trace.debug('ERROR: turn timeout - check for infinite loops');
+  });
+
+  client.setEvent(EventType.traceWillAdd, ({ frame }) => {
+    eventHandler({
+      type: 'trace',
+      trace: frame,
+    });
   });
 };
 

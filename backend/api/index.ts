@@ -10,6 +10,7 @@ import PublicRouter from './routers/public';
 import StateRouter from './routers/state';
 import TestRouter from './routers/test';
 import TranscriptRouter from './routers/transcript';
+import InteractV2Router from './routers/v2/interact';
 
 export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   const router = express.Router();
@@ -23,6 +24,8 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.use('/knowledge-base', KnowledgeBaseRouter(middlewares, controllers));
   router.use('/transcripts', TranscriptRouter(middlewares, controllers));
   router.use('/nlu', NLURouter(middlewares, controllers));
+
+  router.use('/v2beta1/interact', InteractV2Router(middlewares, controllers));
 
   return router;
 };

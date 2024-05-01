@@ -259,6 +259,7 @@ interface OutputParams<V> {
   ai?: boolean;
   version?: BaseVersion.Version;
   isPrompt?: boolean;
+  delay?: number;
 }
 
 export function textOutputTrace({
@@ -268,7 +269,7 @@ export function textOutputTrace({
   version,
   variables,
   isPrompt,
-}: OutputParams<BaseText.SlateTextValue> & { delay?: number }) {
+}: OutputParams<BaseText.SlateTextValue>) {
   const sanitizedVars = sanitizeVariables(variables?.getState() ?? {});
   const content = slateInjectVariables(output, sanitizedVars);
   const plainContent = slateToPlaintext(content);
@@ -295,14 +296,19 @@ export function textOutputTrace({
   return trace;
 }
 
-export function speakOutputTrace({ variables, output, isPrompt }: OutputParams<string>) {
+export function speakOutputTrace({ variables, output, isPrompt, ai }: OutputParams<string>) {
   const sanitizedVars = sanitizeVariables(variables?.getState() ?? {});
   // in case a variable's value is a text containing another variable (i.e text2="say {text}")
   const message = replaceVariables(replaceVariables(output || '', sanitizedVars), sanitizedVars);
 
   const trace: BaseTrace.Speak = {
     type: BaseNode.Utils.TraceType.SPEAK,
-    payload: { message, type: BaseNode.Speak.TraceSpeakType.MESSAGE, ...(isPrompt && { isPrompt }) },
+    payload: {
+      message,
+      type: BaseNode.Speak.TraceSpeakType.MESSAGE,
+      ...(ai && { ai }),
+      ...(isPrompt && { isPrompt }),
+    },
   };
 
   variables?.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, message);

@@ -7,6 +7,7 @@ import { BaseNode, BaseRequest } from '@voiceflow/base-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import Client, { Action as RuntimeAction, Runtime } from '@/runtime';
+import { HandleContextEventHandler } from '@/runtime/lib/Context/types';
 import { Config, Context, ContextHandler } from '@/types';
 
 import { FullServiceMap } from '../index';
@@ -31,22 +32,25 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     this.handlers = this.services.utils.Handlers(config);
   }
 
-  createClient(api: CacheDataAPI) {
+  createClient(api: CacheDataAPI, eventHandler: HandleContextEventHandler) {
     const client = new this.services.utils.Client({
       api,
       services: this.services,
       handlers: this.handlers,
     });
 
-    init(client);
+    init(client, eventHandler);
 
     return client;
   }
 
-  public async handle({ versionID, userID, state, request, ...context }: Context): Promise<Context> {
+  public async handle(
+    { versionID, userID, state, request, ...context }: Context,
+    eventHandler: HandleContextEventHandler
+  ): Promise<Context> {
     if (!isRuntimeRequest(request)) throw new Error(`invalid runtime request type: ${JSON.stringify(request)}`);
 
-    const runtime = this.getRuntimeForContext({ versionID, userID, state, request, ...context });
+    const runtime = this.getRuntimeForContext({ versionID, userID, state, request, ...context }, eventHandler);
 
     if (isIntentRequest(request)) {
       const confidence = getReadableConfidence(request.payload.confidence);
@@ -86,7 +90,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
 
     // skip runtime for the action request, since it do not have any effects
     if (!isActionRequest(request)) {
-      await runtime.update();
+      await runtime.update(eventHandler);
     } else {
       runtime.setAction(RuntimeAction.END); // to get final state
     }
@@ -101,12 +105,12 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     };
   }
 
-  private getRuntimeForContext(context: Context): Runtime {
+  private getRuntimeForContext(context: Context, eventHandler: HandleContextEventHandler): Runtime {
     if (context.request && BaseRequest.isLaunchRequest(context.request)) {
       context.request = null;
     }
 
-    const runtime = this.createClient(context.data.api).createRuntime({
+    const runtime = this.createClient(context.data.api, eventHandler).createRuntime({
       versionID: context.versionID,
       state: context.state,
       request: context.request,

@@ -26,7 +26,7 @@ describe('text handler unit tests', async () => {
   });
 
   describe('handle', () => {
-    it('works', () => {
+    it('works', async () => {
       const newSlate = { content: [{ children: [{ text: 'injectedSlate' }] }] };
       const textTrace = { type: 'text', payload: { slate: newSlate, message: 'plainText' } };
       const sample = { content: [{ children: [{ text: 'sampledSlate' }] }] };
@@ -58,7 +58,9 @@ describe('text handler unit tests', async () => {
       const variables = { getState: sinon.stub().returns('vars'), set: sinon.stub(), get: sinon.stub() };
 
       const textHandler = TextHandler(utils as any);
-      expect(textHandler.handle(node as any, runtime as any, variables as any, null as any)).to.eql(node.nextId);
+      await expect(
+        textHandler.handle(node as any, runtime as any, variables as any, null as any, () => undefined)
+      ).eventually.to.eql(node.nextId);
       expect(runtime.trace.addTrace.args).to.eql([
         [textTrace],
         [

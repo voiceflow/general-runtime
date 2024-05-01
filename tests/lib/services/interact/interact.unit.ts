@@ -17,6 +17,7 @@ const buildServices = (context: any) => ({
   tts: { handle: sinon.stub().resolves(output(context, 'tts')) },
   speak: { handle: sinon.stub().resolves(output(context, 'speak')) },
   runtime: { handle: sinon.stub().resolves(output(context, 'runtime')) },
+  mergeCompletion: { handle: sinon.stub().resolves(output(context, 'mergeCompletion')) },
   analytics: { handle: sinon.stub().resolves(output(context, 'analytics')) },
   dialog: { handle: sinon.stub().resolves(output(context, 'dialog')) },
   filter: { handle: sinon.stub().resolves(output(context, 'filter', { trace: 'trace' })) },
@@ -78,6 +79,7 @@ describe('interact service unit tests', () => {
         'slots',
         'dialog',
         'runtime',
+        'mergeCompletion',
         'analytics',
         'tts',
         'speak',
@@ -97,10 +99,10 @@ describe('interact service unit tests', () => {
         )
         .forEach(({ serviceName, service, previousServiceName }) => {
           if (serviceName === 'state') {
-            expect(service.handle.args).to.eql([[context]]);
+            expect(service.handle.args[0][0]).to.eql(context);
           } else {
             assert(previousServiceName);
-            expect(service.handle.args).to.eql([[output(context, previousServiceName)]]);
+            expect(service.handle.args[0][0]).to.eql(output(context, previousServiceName));
           }
         });
 
@@ -133,7 +135,7 @@ describe('interact service unit tests', () => {
       });
 
       expect(services.tts.handle.callCount).to.eql(0);
-      expect(services.speak.handle.args).to.eql([[output(context, 'analytics')]]);
+      expect(services.speak.handle.args[0][0]).to.eql(output(context, 'analytics'));
     });
   });
 
@@ -210,13 +212,22 @@ describe('interact service unit tests', () => {
 
     const interactController = new Interact(services as any, null as any);
     expect(await interactController.handler(data as any)).to.eql('resolved-state');
-    expect(services.utils.TurnBuilder.args).to.eql([[services.state]]);
+    expect(services.utils.TurnBuilder.args[0][0]).to.eql(services.state);
     expect(turnBuilder.addHandlers.args).to.eql([
-      [services.asr, services.nlu, services.aiAssist, services.slots, services.dialog, services.runtime],
+      [
+        services.asr,
+        services.nlu,
+        services.aiAssist,
+        services.slots,
+        services.dialog,
+        services.runtime,
+        services.mergeCompletion,
+      ],
       [services.analytics],
       [services.speak, services.filter],
     ]);
-    expect(services.utils.autoDelegate.args).to.eql([[turnBuilder, context]]);
+    expect(services.utils.autoDelegate.args[0][0]).to.eql(turnBuilder);
+    expect(services.utils.autoDelegate.args[0][1]).to.eql(context);
     expect(await turnBuilder.resolve.args[0][0]).to.eql(finalState);
   });
 });

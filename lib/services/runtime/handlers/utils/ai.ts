@@ -98,6 +98,49 @@ export const fetchChat = async (
   return { messages, output, tokens, queryTokens, answerTokens, model, multiplier };
 };
 
+export async function* fetchPromptStream(
+  params: BaseUtils.ai.AIModelParams & { mode?: BaseUtils.ai.PROMPT_MODE; prompt?: string },
+  mlGateway: MLGateway,
+  options: CompletionOptions,
+  variablesState: Record<string, unknown> = {}
+) {
+  if (!mlGateway.private) {
+    yield EMPTY_AI_RESPONSE;
+    return;
+  }
+
+  const sanitizedVars = sanitizeVariables(variablesState);
+
+  const prompt = replaceVariables(params.prompt, sanitizedVars);
+
+  let messages: BaseUtils.ai.Message[] = [];
+
+  if (params.mode === BaseUtils.ai.PROMPT_MODE.MEMORY) {
+    messages = getMemoryMessages(variablesState);
+  } else if (params.mode === BaseUtils.ai.PROMPT_MODE.MEMORY_PROMPT) {
+    messages = getMemoryMessages(variablesState);
+    if (prompt) messages.push({ role: BaseUtils.ai.Role.USER, content: prompt });
+  } else if (!prompt) {
+    yield EMPTY_AI_RESPONSE;
+    return;
+  } else {
+    messages = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
+  }
+
+  yield* mlGateway.private.completion.generateChatCompletionStream({
+    messages,
+    params: {
+      ...params,
+      system: replaceVariables(params.system, sanitizedVars),
+    },
+    workspaceID: options.context.workspaceID,
+    projectID: options.context.projectID,
+    moderation: true,
+    billing: true,
+    options,
+  });
+}
+
 export const fetchPrompt = async (
   params: BaseUtils.ai.AIModelParams & { mode: BaseUtils.ai.PROMPT_MODE; prompt: string },
   mlGateway: MLGateway,

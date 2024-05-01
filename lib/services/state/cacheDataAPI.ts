@@ -29,6 +29,10 @@ class CacheDataAPI implements DataAPI<VoiceflowProgram.Program, VoiceflowVersion
     return this.projects[projectID];
   }
 
+  async getProjectVersionIDByTag(projectID: string, tag: string): Promise<string | undefined> {
+    return this.api.getProjectVersionIDByTag(projectID, tag);
+  }
+
   async getKBDocuments(projectID: string, documentIDs: string[]) {
     return this.api.getKBDocuments(projectID, documentIDs);
   }
