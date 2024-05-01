@@ -28,10 +28,11 @@ import { HandlerFactory } from '@/runtime';
 
 import { FrameType, GeneralRuntime, Output } from '../../types';
 import { addOutputTrace, getOutputTrace } from '../../utils';
-import { AIResponse, canUseModel, consumeResources, fetchPromptStream } from '../utils/ai';
+import { AIResponse, EMPTY_AI_RESPONSE, canUseModel, consumeResources, fetchPromptStream } from '../utils/ai';
 import { generateOutput } from '../utils/output';
 import { getVersionDefaultVoice } from '../utils/version';
 import { completionToContinueTrace, completionToStartTrace, endTrace } from './traces';
+import { KnowledegeBaseChunk } from '../utils/knowledgeBase';
 
 const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, GeneralRuntime> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_RESPONSE,
@@ -46,19 +47,64 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
         const settings = deepVariableSubstitution(_cloneDeep(node), variables.getState());
         const summarization = settings.overrideParams ? settings : {};
 
-        const answer = await runtime.services.aiSynthesis.knowledgeBaseQuery({
+        const promptStream$ = from(runtime.services.aiSynthesis.knowledgeBaseQueryStream({
           project: runtime.project!,
           version: runtime.version!,
           question: settings.prompt,
           instruction: settings.instruction,
           options: { summarization },
-        });
+        })).pipe(
+          switchMap((stream) => stream),
+          shareReplay()
+        );
 
-        const chunks = answer?.chunks?.map((chunk) => JSON.stringify(chunk)) ?? [];
+        const completion$ = concat(
+          promptStream$.pipe(
+            filter((completion) => completion.output != null),
+            map((completion, i) =>
+              i > 0 ? completionToContinueTrace(completion) : completionToStartTrace(runtime, node, completion)
+            )
+          ),
+          promptStream$.pipe(
+            isEmpty(),
+            switchMap((isEmpty) => (isEmpty ? NEVER : of(endTrace())))
+          )
+        );
+
+        const chunksPromise = lastValueFrom(
+          promptStream$.pipe(
+            reduce((acc, answer) => {
+              acc.push(...(answer.chunks ?? []));
+              return acc;
+            }, [] as KnowledegeBaseChunk[]),
+          )
+        );
+
+        const traceConsumerPromise = completion$.forEach((trace) => runtime.trace.addTrace(trace));
+
+        const responseConsumerPromise = lastValueFrom(
+          promptStream$.pipe(
+            reduce((acc, completion) => {
+              if (!acc.output) acc.output = '';
+
+              acc.output += completion.output ?? '';
+              acc.answerTokens += completion.answerTokens;
+              acc.queryTokens += completion.queryTokens;
+              acc.tokens += completion.tokens;
+              acc.model = completion.model;
+              acc.multiplier = completion.multiplier;
+              return acc;
+            }, EMPTY_AI_RESPONSE)
+          )
+        );
+
+        const [answer, chunks] = await Promise.all([responseConsumerPromise, chunksPromise, traceConsumerPromise,]);
+        const chunkStrings = chunks.map((chunk) => JSON.stringify(chunk));
+
         const workspaceID = Number(runtime.project?.teamID);
 
         if (runtime.services.unleash.client.isEnabled(FeatureFlag.VF_CHUNKS_VARIABLE, { workspaceID })) {
-          variables.set(VoiceflowConstants.BuiltInVariable.VF_CHUNKS, chunks);
+          variables.set(VoiceflowConstants.BuiltInVariable.VF_CHUNKS, chunkStrings);
         }
 
         await consumeResources('AI Response KB', runtime, answer);
@@ -67,13 +113,13 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
 
         const documents = await runtime.api.getKBDocuments(
           runtime.version!.projectID,
-          answer.chunks?.map(({ documentID }) => documentID) || []
+          chunks.map(({ documentID }) => documentID) || []
         );
 
         runtime.trace.addTrace({
           type: 'knowledgeBase',
           payload: {
-            chunks: answer.chunks?.map(({ score, documentID }) => ({
+            chunks: chunks.map(({ score, documentID }) => ({
               score,
               documentID,
               documentData: documents[documentID]?.data,
@@ -85,22 +131,17 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           },
         });
 
+        const outputString = answer?.output || 'Unable to find relevant answer.';
         const output = generateOutput(
-          answer?.output || 'Unable to find relevant answer.',
+          outputString,
           runtime.project,
           node.voice ?? getVersionDefaultVoice(runtime.version)
         );
 
-        addOutputTrace(
-          runtime,
-          getOutputTrace({
-            output,
-            variables,
-            version: runtime.version,
-            ai: true,
-          }),
-          { variables }
-        );
+        // Set last response to entire AI response, not just a partial chunk
+        variables.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, outputString);
+
+        runtime.stack.top().storage.set<Output>(FrameType.OUTPUT, output);
 
         return nextID;
       }
