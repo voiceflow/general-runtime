@@ -4348,6 +4348,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@voiceflow/base-types@npm:2.109.0":
+  version: 2.109.0
+  resolution: "@voiceflow/base-types@npm:2.109.0"
+  dependencies:
+    "@voiceflow/common": 8.3.0
+    slate: 0.94.1
+  checksum: c1ca33c6dfdff8264dbfe892443eabbe6532dcac70679459207c686209b7061124acb151438293226eb25f0142c1715150b048a288eeaaa0854ea8da3f151ee0
+  languageName: node
+  linkType: hard
+
 "@voiceflow/base-types@npm:2.90.1":
   version: 2.90.1
   resolution: "@voiceflow/base-types@npm:2.90.1"
@@ -4384,6 +4394,16 @@ __metadata:
     "@voiceflow/base-types": 2.108.0
     "@voiceflow/common": 8.3.0
   checksum: eff9138d99a297b36c0a9a6700c61f24756274de7b6318a584360e58e6abe4ec2892b7859d37d76a72218eb89f11d443a216ddcf65f3513624c801a89a898e77
+  languageName: node
+  linkType: hard
+
+"@voiceflow/chat-types@npm:2.14.1":
+  version: 2.14.1
+  resolution: "@voiceflow/chat-types@npm:2.14.1"
+  dependencies:
+    "@voiceflow/base-types": 2.109.0
+    "@voiceflow/common": 8.3.0
+  checksum: 5128272663d6bdddba073ad8333377482b99b8b26ee00ce8d7a24418488ca9d1dda136a22d7449ca1097fa3c20a9ade5737d0e688d78e8ab0c9dd01b11402072
   languageName: node
   linkType: hard
 
@@ -4670,9 +4690,9 @@ __metadata:
     "@types/workerpool": ^5.0.1
     "@voiceflow/alexa-types": 2.15.0
     "@voiceflow/backend-utils": 4.8.5
-    "@voiceflow/base-types": 2.108.0
+    "@voiceflow/base-types": 2.109.0
     "@voiceflow/body-parser": ^1.21.1
-    "@voiceflow/chat-types": 2.14.0
+    "@voiceflow/chat-types": 2.14.1
     "@voiceflow/commitlint-config": 2.0.0
     "@voiceflow/common": 8.2.8
     "@voiceflow/default-prompt-wrappers": ^1.1.1
@@ -4689,13 +4709,13 @@ __metadata:
     "@voiceflow/sdk-analytics": ^1.26.0
     "@voiceflow/sdk-auth": ^2.7.5
     "@voiceflow/sdk-billing": ^1.23.9
-    "@voiceflow/sdk-http-ml-gateway": 2.14.8
+    "@voiceflow/sdk-http-ml-gateway": 2.15.0
     "@voiceflow/sdk-identity": ^1.19.5
     "@voiceflow/test-common": ^1.8.1
     "@voiceflow/utils-designer": 1.9.3
     "@voiceflow/verror": ^1.1.3
-    "@voiceflow/voice-types": 2.10.0
-    "@voiceflow/voiceflow-types": 3.30.0
+    "@voiceflow/voice-types": 2.10.1
+    "@voiceflow/voiceflow-types": 3.30.1
     ajv: 6.12.3
     axios: ^0.21.1
     better-sse: ^0.11.0
@@ -4909,18 +4929,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/orval-fetch@npm:1.3.0":
-  version: 1.3.0
-  resolution: "@voiceflow/orval-fetch@npm:1.3.0"
-  peerDependencies:
-    "@orval/core": ^6
-  peerDependenciesMeta:
-    "@orval/core":
-      optional: true
-  checksum: d33928c837290616d455afec9edf83ea9fafd702e25c5dc802d82ea9534e6544be3b53b12085b777030ec3c1b7cebe967043ab5d34a85e0e9ec405b864e3b076
-  languageName: node
-  linkType: hard
-
 "@voiceflow/orval-fetch@npm:1.4.0":
   version: 1.4.0
   resolution: "@voiceflow/orval-fetch@npm:1.4.0"
@@ -4930,6 +4938,18 @@ __metadata:
     "@orval/core":
       optional: true
   checksum: fd8e1294a92dbf6a0b13b7227825294354dd5600b2786dfd2390b4e2aa0f6b7338253d7be017404bf489171a32a66b175fea825eba8b7ce56f0dbf3b11d4a0ec
+  languageName: node
+  linkType: hard
+
+"@voiceflow/orval-fetch@npm:1.5.2":
+  version: 1.5.2
+  resolution: "@voiceflow/orval-fetch@npm:1.5.2"
+  peerDependencies:
+    "@orval/core": ^6
+  peerDependenciesMeta:
+    "@orval/core":
+      optional: true
+  checksum: d654d19f8e8f9bd4a012823449b8cb524bfa477b3309896998a3b35074993708b21d9d0a01015cd6012ec84911984c068a3a7f1d82a69050bf19074d88e028e7
   languageName: node
   linkType: hard
 
@@ -5106,12 +5126,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/sdk-http-ml-gateway@npm:2.14.8":
-  version: 2.14.8
-  resolution: "@voiceflow/sdk-http-ml-gateway@npm:2.14.8"
+"@voiceflow/sdk-http-ml-gateway@npm:2.15.0":
+  version: 2.15.0
+  resolution: "@voiceflow/sdk-http-ml-gateway@npm:2.15.0"
   dependencies:
-    "@voiceflow/orval-fetch": 1.3.0
+    "@voiceflow/orval-fetch": 1.5.2
     "@voiceflow/sdk-common": 1.11.3
+    eventsource-parser: ^1.1.2
   peerDependencies:
     "@nestjs/common": ^9
     nestjs-zod: ^2
@@ -5123,7 +5144,7 @@ __metadata:
       optional: true
     undici:
       optional: true
-  checksum: 59d24fa1fbcd6e0963b66fe8ace55e63e9e00fc9a2328530b32c99ae4423acc4c96d74ba3d77e60d92335ecf68648f2b2daaa703cb981ec6378e7d129b62a68f
+  checksum: b657047ed186075e0652d54d97412a441e6fc9b1ccdf9cad456daf31622675df2bdcc2d408fba7520b8c3f2b85e6ca7830022836411a5c0ddb3829ef1725d43f
   languageName: node
   linkType: hard
 
@@ -5196,6 +5217,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@voiceflow/voice-types@npm:2.10.1":
+  version: 2.10.1
+  resolution: "@voiceflow/voice-types@npm:2.10.1"
+  dependencies:
+    "@voiceflow/base-types": 2.109.0
+    "@voiceflow/common": 8.3.0
+  checksum: 3cf53bc10d22d7796a4a64d934412a4e20b402d5c8dc1f69d2000387608467b757aaa81362c5bd22f02549ce3091e3c8b444a6b0f51bd315c2530824d6347b59
+  languageName: node
+  linkType: hard
+
 "@voiceflow/voiceflow-types@npm:3.30.0":
   version: 3.30.0
   resolution: "@voiceflow/voiceflow-types@npm:3.30.0"
@@ -5204,6 +5235,17 @@ __metadata:
     "@voiceflow/chat-types": 2.14.0
     "@voiceflow/voice-types": 2.10.0
   checksum: 555772bdcce163323e15d506dbda4fe636608ece778979cad48e09a433f817ac1fcddc5384aff2ac75706165772c85a29d8f4bbdfb490f87b08a7617c244e293
+  languageName: node
+  linkType: hard
+
+"@voiceflow/voiceflow-types@npm:3.30.1":
+  version: 3.30.1
+  resolution: "@voiceflow/voiceflow-types@npm:3.30.1"
+  dependencies:
+    "@voiceflow/base-types": 2.109.0
+    "@voiceflow/chat-types": 2.14.1
+    "@voiceflow/voice-types": 2.10.1
+  checksum: 4b07741a12d81bc78f72ce50a180d4026dad874f11c5a20d5eeaa2a3f76333fedcc1f4a2c2c3ffa3150e1d6704a39ed1cdb7d96922052ec940a119218a91555e
   languageName: node
   linkType: hard
 
@@ -9248,6 +9290,13 @@ __metadata:
   version: 3.3.0
   resolution: "events@npm:3.3.0"
   checksum: f6f487ad2198aa41d878fa31452f1a3c00958f46e9019286ff4787c84aac329332ab45c9cdc8c445928fc6d7ded294b9e005a7fce9426488518017831b272780
+  languageName: node
+  linkType: hard
+
+"eventsource-parser@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "eventsource-parser@npm:1.1.2"
+  checksum: 01896eea7203e097e50f7554da6ca3c6d33593ff11e8e3c970461932c3643bed2aea8402bf7fd16a1b25117de4e6fed15fef80672964a7dbd42b1e6781bf6e7a
   languageName: node
   linkType: hard
 
