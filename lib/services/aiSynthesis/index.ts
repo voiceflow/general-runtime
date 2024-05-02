@@ -1,5 +1,6 @@
 import { BaseModels, BaseUtils } from '@voiceflow/base-types';
 import _merge from 'lodash/merge';
+import { filter, from, lastValueFrom, map, Observable, of, reduce, switchMap } from 'rxjs';
 
 import { AIModelContext } from '@/lib/clients/ai/ai-model.interface';
 import { AIResponse, EMPTY_AI_RESPONSE, fetchChat, fetchChatStream } from '@/lib/services/runtime/handlers/utils/ai';
@@ -15,7 +16,6 @@ import {
 import { SegmentEventType } from '../runtime/types';
 import { AbstractManager } from '../utils';
 import { convertTagsFilterToIDs, generateAnswerSynthesisPrompt, generateTagLabelMap, removePromptLeak } from './utils';
-import { Observable, filter, from, lastValueFrom, map, of, reduce, switchMap } from 'rxjs';
 
 class AISynthesis extends AbstractManager {
   private readonly DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS = 4000;
@@ -34,7 +34,7 @@ class AISynthesis extends AbstractManager {
     return output;
   }
 
-  async * answerSynthesisStream({
+  answerSynthesisStream({
     question,
     instruction,
     data,
@@ -48,7 +48,7 @@ class AISynthesis extends AbstractManager {
     variables?: Record<string, any>;
     options?: Partial<BaseUtils.ai.AIModelParams>;
     context: AIModelContext;
-  }): AsyncGenerator<AIResponse | null> {
+  }): Observable<AIResponse> {
     const systemWithTime = `${system}\n\n${getCurrentTime()}`.trim();
 
     const options = { model, system: systemWithTime, temperature, maxTokens };
@@ -60,15 +60,28 @@ class AISynthesis extends AbstractManager {
       },
     ];
 
-    yield * fetchChatStream(
-      { ...options, messages },
-      this.services.mlGateway,
-      {
-        retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
-        retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
-        context,
-      },
-      variables
+    return from(
+      fetchChatStream(
+        { ...options, messages },
+        this.services.mlGateway,
+        {
+          retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
+          retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
+          context,
+        },
+        variables
+      )
+    ).pipe(
+      map((completion) => {
+        if (!completion.output) return completion;
+
+        completion.output = this.filterNotFound(completion.output);
+        completion.output = removePromptLeak(completion.output);
+        completion.output = completion.output || null;
+
+        return completion;
+      }),
+      filter((completion) => completion != null)
     );
   }
 
@@ -96,12 +109,6 @@ class AISynthesis extends AbstractManager {
         }, EMPTY_AI_RESPONSE)
       )
     );
-
-    response.output = response.output?.trim() || null;
-    if (response.output) {
-      response.output = this.filterNotFound(response.output);
-      response.output = removePromptLeak(response.output);
-    }
 
     return response;
   }
@@ -247,15 +254,17 @@ class AISynthesis extends AbstractManager {
 
     if (!synthesis) return of({ ...EMPTY_AI_RESPONSE, chunks });
 
-    return from(this.services.aiSynthesis.answerSynthesisStream({
-      question,
-      instruction,
-      data,
-      options: settings?.summarization,
-      context: { projectID: project._id, workspaceID: project.teamID },
-    })).pipe(
+    return from(
+      this.services.aiSynthesis.answerSynthesisStream({
+        question,
+        instruction,
+        data,
+        options: settings?.summarization,
+        context: { projectID: project._id, workspaceID: project.teamID },
+      })
+    ).pipe(
       filter((answer) => answer != null),
-      map((answer, i) => i === 0 ? { chunks, ...answer! } : answer!)
+      map((answer, i) => (i === 0 ? { chunks, ...answer! } : answer!))
     );
   }
 
@@ -271,26 +280,28 @@ class AISynthesis extends AbstractManager {
     };
     tags?: BaseModels.Project.KnowledgeBaseTagsFilter;
   }): Promise<AIResponse & Partial<KnowledgeBaseResponse> & { faqSet?: KnowledgeBaseFaqSet }> {
-
     return lastValueFrom(
       from(this.knowledgeBaseQueryStream(params)).pipe(
         switchMap((stream) => stream),
-        reduce((acc, completion) => {
-          if (!acc.output) acc.output = '';
+        reduce(
+          (acc, completion) => {
+            if (!acc.output) acc.output = '';
 
-          acc.chunks.push(...(completion.chunks ?? []));
-          acc.output += completion.output ?? '';
-          acc.answerTokens += completion.answerTokens;
-          acc.queryTokens += completion.queryTokens;
-          acc.tokens += completion.tokens;
-          acc.model = completion.model;
-          acc.multiplier = completion.multiplier;
-          acc.faqSet = completion.faqSet;
-          return acc;
-        }, {
-          ...EMPTY_AI_RESPONSE,
-          chunks: [],
-        } as AIResponse & KnowledgeBaseResponse & { faqSet?: KnowledgeBaseFaqSet })
+            acc.chunks.push(...(completion.chunks ?? []));
+            acc.output += completion.output ?? '';
+            acc.answerTokens += completion.answerTokens;
+            acc.queryTokens += completion.queryTokens;
+            acc.tokens += completion.tokens;
+            acc.model = completion.model;
+            acc.multiplier = completion.multiplier;
+            acc.faqSet = completion.faqSet;
+            return acc;
+          },
+          {
+            ...EMPTY_AI_RESPONSE,
+            chunks: [],
+          } as AIResponse & KnowledgeBaseResponse & { faqSet?: KnowledgeBaseFaqSet }
+        )
       )
     );
   }
