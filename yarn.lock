@@ -4338,13 +4338,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/base-types@npm:2.106.0":
-  version: 2.106.0
-  resolution: "@voiceflow/base-types@npm:2.106.0"
+"@voiceflow/base-types@npm:2.108.0":
+  version: 2.108.0
+  resolution: "@voiceflow/base-types@npm:2.108.0"
   dependencies:
     "@voiceflow/common": 8.3.0
     slate: 0.94.1
   checksum: 97821b9df95282b9f68f2cce61f6a6dc8ed353096198c605cddca5f58f59b2215d5a0bd58cf9c959c793cd5ff765c51724d3fcd3d28e89e8224170524eceb7ee
+  languageName: node
+  linkType: hard
+
+"@voiceflow/base-types@npm:2.109.0":
+  version: 2.109.0
+  resolution: "@voiceflow/base-types@npm:2.109.0"
+  dependencies:
+    "@voiceflow/common": 8.3.0
+    slate: 0.94.1
+  checksum: c1ca33c6dfdff8264dbfe892443eabbe6532dcac70679459207c686209b7061124acb151438293226eb25f0142c1715150b048a288eeaaa0854ea8da3f151ee0
   languageName: node
   linkType: hard
 
@@ -4394,6 +4404,16 @@ __metadata:
     "@voiceflow/base-types": 2.108.0
     "@voiceflow/common": 8.3.0
   checksum: eff9138d99a297b36c0a9a6700c61f24756274de7b6318a584360e58e6abe4ec2892b7859d37d76a72218eb89f11d443a216ddcf65f3513624c801a89a898e77
+  languageName: node
+  linkType: hard
+
+"@voiceflow/chat-types@npm:2.14.1":
+  version: 2.14.1
+  resolution: "@voiceflow/chat-types@npm:2.14.1"
+  dependencies:
+    "@voiceflow/base-types": 2.109.0
+    "@voiceflow/common": 8.3.0
+  checksum: 5128272663d6bdddba073ad8333377482b99b8b26ee00ce8d7a24418488ca9d1dda136a22d7449ca1097fa3c20a9ade5737d0e688d78e8ab0c9dd01b11402072
   languageName: node
   linkType: hard
 
@@ -4721,7 +4741,7 @@ __metadata:
     "@voiceflow/test-common": ^1.8.1
     "@voiceflow/utils-designer": 1.9.3
     "@voiceflow/verror": ^1.1.3
-    "@voiceflow/voice-types": 2.9.83
+    "@voiceflow/voice-types": 2.10.1
     "@voiceflow/voiceflow-types": 3.30.2
     ajv: 6.12.3
     axios: ^0.21.1
@@ -5212,6 +5232,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@voiceflow/voice-types@npm:2.10.0":
+  version: 2.10.0
+  resolution: "@voiceflow/voice-types@npm:2.10.0"
+  dependencies:
+    "@voiceflow/base-types": 2.108.0
+    "@voiceflow/common": 8.3.0
+  checksum: f3b90e6d4de723465b031498e622c33458a93de817f5de80634f2ad5254b7868bc9ebb2d1ece39a15ddd69c5be230083550b63da571f5eb124cb92f911a4c83a
+  languageName: node
+  linkType: hard
+
+"@voiceflow/voice-types@npm:2.10.1":
+  version: 2.10.1
+  resolution: "@voiceflow/voice-types@npm:2.10.1"
+  dependencies:
+    "@voiceflow/base-types": 2.109.0
+    "@voiceflow/common": 8.3.0
+  checksum: 3cf53bc10d22d7796a4a64d934412a4e20b402d5c8dc1f69d2000387608467b757aaa81362c5bd22f02549ce3091e3c8b444a6b0f51bd315c2530824d6347b59
+  languageName: node
+  linkType: hard
+
 "@voiceflow/voice-types@npm:2.10.2":
   version: 2.10.2
   resolution: "@voiceflow/voice-types@npm:2.10.2"
@@ -5222,19 +5262,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/voice-types@npm:2.9.83":
-  version: 2.9.83
-  resolution: "@voiceflow/voice-types@npm:2.9.83"
-  dependencies:
-    "@voiceflow/base-types": 2.108.0
-    "@voiceflow/common": 8.3.0
-  checksum: f3b90e6d4de723465b031498e622c33458a93de817f5de80634f2ad5254b7868bc9ebb2d1ece39a15ddd69c5be230083550b63da571f5eb124cb92f911a4c83a
-  languageName: node
-  linkType: hard
-
-"@voiceflow/voiceflow-types@npm:3.27.0":
-  version: 3.27.0
-  resolution: "@voiceflow/voiceflow-types@npm:3.27.0"
+"@voiceflow/voiceflow-types@npm:3.30.0":
+  version: 3.30.0
+  resolution: "@voiceflow/voiceflow-types@npm:3.30.0"
   dependencies:
     "@voiceflow/base-types": 2.108.0
     "@voiceflow/chat-types": 2.14.0

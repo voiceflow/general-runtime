@@ -3,11 +3,11 @@ import { BaseModels } from '@voiceflow/base-types';
 import VError from '@voiceflow/verror';
 import { NextFunction, Request as ExpressRequest, Response } from 'express';
 
+import { isValidObjectID } from '@/runtime/lib/DataAPI/mongoDataAPI';
 import { isVersionTag, Request, VersionTag } from '@/types';
 
 import { validate } from '../utils';
 import { AbstractMiddleware } from './utils';
-import { isValidObjectID } from '@/runtime/lib/DataAPI/mongoDataAPI';
 
 const VALIDATIONS = {
   HEADERS: {
@@ -57,9 +57,8 @@ class Project extends AbstractMiddleware {
       throw new VError('Error setting up data API', VError.HTTP_STATUS.UNAUTHORIZED);
     });
 
-    const tag = req.params.tag;
+    const { tag } = req.params;
     if (isVersionTag(tag)) {
-
       const versionID = await api.getProjectVersionIDByTag(req.params.projectID, tag);
       if (!versionID) {
         throw new VError('Cannot resolve project version', VError.HTTP_STATUS.BAD_REQUEST);
@@ -67,7 +66,6 @@ class Project extends AbstractMiddleware {
 
       req.params.versionID = versionID;
     } else if (isValidObjectID(tag)) {
-
       const version = await api.getVersion(tag, { projectID: 1 });
       if (!version || version.projectID !== req.params.projectID) {
         throw new VError('Invalid project version tag', VError.HTTP_STATUS.BAD_REQUEST);

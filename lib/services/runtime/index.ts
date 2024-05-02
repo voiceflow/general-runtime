@@ -106,7 +106,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     };
   }
 
-private getRuntimeForContext(context: Context, eventHandler: HandleContextEventHandler): Runtime {
+  private getRuntimeForContext(context: Context, eventHandler: HandleContextEventHandler): Runtime {
     if (context.request && DTO.isLaunchRequest(context.request)) {
       context.request = null;
     }
