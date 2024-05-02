@@ -1,5 +1,6 @@
-import { BaseModels, BaseRequest } from '@voiceflow/base-types';
+import { BaseModels } from '@voiceflow/base-types';
 import { getUtterancesWithSlotNames } from '@voiceflow/common';
+import * as DTO from '@voiceflow/dtos';
 import NLC, { IIntentFullfilment, IIntentSlot } from '@voiceflow/natural-language-commander';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
@@ -33,7 +34,7 @@ export const registerSlots = (nlc: NLC, { slots }: BaseModels.PrototypeModel, op
 export const registerIntents = (
   nlc: NLC,
   { slots, intents }: BaseModels.PrototypeModel,
-  dmRequest?: BaseRequest.IntentRequestPayload
+  dmRequest?: DTO.IntentRequestPayload
 ) => {
   intents.forEach((intent) => {
     const samples = getUtterancesWithSlotNames({
@@ -119,7 +120,7 @@ export const createNLC = ({
   model: BaseModels.PrototypeModel;
   locale: VoiceflowConstants.Locale;
   openSlot: boolean;
-  dmRequest?: BaseRequest.IntentRequestPayload;
+  dmRequest?: DTO.IntentRequestPayload;
 }) => {
   const nlc = new NLC();
 
@@ -130,9 +131,9 @@ export const createNLC = ({
   return nlc;
 };
 
-export const nlcToIntent = (intent: IIntentFullfilment | null, query = '', confidence = 1): BaseRequest.IntentRequest =>
+export const nlcToIntent = (intent: IIntentFullfilment | null, query = '', confidence = 1): DTO.IntentRequest =>
   (intent && {
-    type: BaseRequest.RequestType.INTENT,
+    type: DTO.RequestType.INTENT,
     payload: {
       query,
       intent: { name: intent.intent },
@@ -157,7 +158,7 @@ export const handleNLCCommand = ({
   model: BaseModels.PrototypeModel;
   locale: VoiceflowConstants.Locale;
   openSlot: boolean;
-  dmRequest?: BaseRequest.IntentRequestPayload;
+  dmRequest?: DTO.IntentRequestPayload;
 }): (IIntentFullfilment & { confidence: number }) | null => {
   const nlc = createNLC({ model, locale, openSlot, dmRequest });
 

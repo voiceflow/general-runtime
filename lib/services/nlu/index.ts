@@ -15,7 +15,7 @@ import { Prediction } from '../classification/interfaces/nlu.interface';
 import { AbstractManager } from '../utils';
 import { getNoneIntentRequest } from './utils';
 
-export const getIntentRequest = (prediction: Prediction | null): BaseRequest.IntentRequest => {
+export const getIntentRequest = (prediction: Prediction | null): DTO.IntentRequest => {
   if (!prediction) {
     return getNoneIntentRequest();
   }

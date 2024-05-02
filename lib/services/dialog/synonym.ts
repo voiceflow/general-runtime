@@ -1,4 +1,5 @@
-import { BaseModels, BaseRequest } from '@voiceflow/base-types';
+import { BaseModels } from '@voiceflow/base-types';
+import * as DTO from '@voiceflow/dtos';
 import damerauLevenshteinDistance from 'talisman/metrics/damerau-levenshtein';
 import dice from 'talisman/metrics/dice';
 
@@ -63,9 +64,9 @@ export const getSynonym = (_query: string, _samples: string[] = [], tolerance = 
 };
 
 export const rectifyEntityValue = (
-  intentReq: BaseRequest.IntentRequest,
+  intentReq: DTO.IntentRequest,
   model: BaseModels.PrototypeModel
-): BaseRequest.IntentRequest => {
+): DTO.IntentRequest => {
   intentReq.payload.entities.forEach((entity) => {
     const entityDefinition = model.slots.find((item) => item.name === entity.name);
     if (!entityDefinition) return;
