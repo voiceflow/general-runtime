@@ -4,7 +4,7 @@ import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory, Runtime, Store } from '@/runtime';
 
-import { StorageType } from '../../types';
+import { StorageType, toBaseTypesIntent } from '../../types';
 import { addButtonsIfExists, addOutputTrace, getOutputTrace, isConfidenceScoreAbove, mapEntities } from '../../utils';
 import CommandHandler from '../command';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
@@ -52,9 +52,10 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, util
       }
 
       if (captureIntentName) {
+        const elicitingIntent = setElicit(entityFillingRequest(captureIntentName, node.intent?.entities ?? []), true);
         runtime.trace.addTrace<BaseTrace.GoToTrace>({
           type: BaseTrace.TraceType.GOTO,
-          payload: { request: setElicit(entityFillingRequest(captureIntentName, node.intent?.entities ?? []), true) },
+          payload: { request: toBaseTypesIntent(elicitingIntent) },
         });
       }
 

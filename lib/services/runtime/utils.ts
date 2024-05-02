@@ -100,17 +100,25 @@ export const slateInjectVariables = (
   return _cloneDeepWith(slateValue, customizer);
 };
 
-const processActions = (actions: BaseRequest.Action.BaseAction<unknown>[] | undefined, variables: Store) =>
+const processActions = (actions: BaseRequest.Action.BaseAction[] | undefined, variables: Store) =>
   actions?.map((action) => {
-    if (BaseRequest.Action.isOpenURLAction(action)) {
+    const result = DTO.OpenURLActionDTO.safeParse(action);
+    if (result.success) {
+      const { data } = result;
       return {
         ...action,
-        payload: { ...action.payload, url: replaceVariables(action.payload.url, variables.getState()) },
+        payload: { ...data.payload, url: replaceVariables(data.payload.url, variables.getState()) },
       };
     }
 
     return action;
   });
+
+const isTextRequest = (request: BaseRequest.BaseRequest): request is BaseRequest.TextRequest =>
+  DTO.isTextRequest(request);
+
+const isIntentRequest = (request: BaseRequest.BaseRequest): request is BaseRequest.IntentRequest =>
+  DTO.isIntentRequest(request);
 
 export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
   node: N,
@@ -126,7 +134,7 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
       .map(({ name, request }) => {
         const processedName = replaceVariables(name, variables.getState());
 
-        if (DTO.isTextRequest(request)) {
+        if (isTextRequest(request)) {
           return {
             name: processedName,
             request: {
@@ -137,8 +145,7 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
         }
 
         const actions = processActions(request.payload?.actions, variables);
-
-        if (DTO.isIntentRequest(request)) {
+        if (isIntentRequest(request)) {
           return {
             name: processedName,
             request: {

@@ -1,7 +1,8 @@
 /* eslint-disable no-restricted-syntax */
-import { BaseModels, BaseNode, BaseRequest } from '@voiceflow/base-types';
+import { BaseModels, BaseNode } from '@voiceflow/base-types';
 import { EventType } from '@voiceflow/base-types/build/cjs/node/utils';
 import { SLOT_REGEXP, VF_DM_PREFIX } from '@voiceflow/common';
+import * as DTO from '@voiceflow/dtos';
 import * as crypto from 'crypto';
 
 import CommandHandler from '@/lib/services/runtime/handlers/command';
@@ -17,7 +18,7 @@ export const getSlotNameByID = (id: string, model: BaseModels.PrototypeModel) =>
 };
 
 export const getUnfulfilledEntity = (
-  intentRequest: BaseRequest.IntentRequest,
+  intentRequest: DTO.IntentRequest,
   model: BaseModels.PrototypeModel
 ): (BaseModels.IntentSlot & { name: string }) | null => {
   const intentModelSlots =
@@ -43,14 +44,14 @@ export const replaceSlots = (input: string, variables: Record<string, string>) =
   input.replace(SLOT_REGEXP, (_match, inner) => variables[inner] || '');
 
 // create a dictionary of all entities from Entity[] => { [entity.name]: entity.value }
-export const getEntitiesMap = (intentRequest: BaseRequest.IntentRequest): Record<string, string> =>
+export const getEntitiesMap = (intentRequest: DTO.IntentRequest): Record<string, string> =>
   intentRequest.payload.entities.reduce<Record<string, string>>(
     (acc, entity) => ({ ...acc, ...(entity.value && { [entity.name]: entity.value }) }),
     {}
   );
 
 // Populates all entities in a given string
-export const fillStringEntities = (intentRequest: BaseRequest.IntentRequest, input = '') => {
+export const fillStringEntities = (intentRequest: DTO.IntentRequest, input = '') => {
   const entityMap = getEntitiesMap(intentRequest);
 
   return replaceSlots(input, entityMap);
