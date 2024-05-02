@@ -23,16 +23,22 @@ export type GeneralRuntime = Runtime<RuntimeRequest, DataAPI, FullServiceMap>;
  * To resolve the type issue, we create this utility function to ensure that the `payload` property on
  * each action is defined (as `payload: undefined` as a fallback).
  */
-export const toBaseTypesIntent = (intent: DTO.IntentRequest): BaseRequest.IntentRequest => ({
-  ...intent,
-  type: BaseRequest.RequestType.INTENT,
-  payload: {
-    ...intent.payload,
-    actions: intent.payload.actions?.map(
-      (action): BaseRequest.Action.BaseAction => ({ payload: undefined, ...action })
-    ),
-  },
-});
+export const toBaseTypesIntent = (intent: DTO.IntentRequest): BaseRequest.IntentRequest => {
+  const { actions, ...restPayload } = intent.payload;
+
+  const adaptedActions = intent.payload.actions?.map(
+    (action): BaseRequest.Action.BaseAction => ({ payload: undefined, ...action })
+  );
+
+  return {
+    ...intent,
+    type: BaseRequest.RequestType.INTENT,
+    payload: {
+      ...restPayload,
+      ...(adaptedActions && { actions: adaptedActions }),
+    },
+  };
+};
 
 export interface Prompt {
   content: BaseText.SlateTextValue | string;
