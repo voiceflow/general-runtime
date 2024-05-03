@@ -7,6 +7,7 @@ import _cloneDeep from 'lodash/cloneDeep';
 import { concat, filter, from, isEmpty, lastValueFrom, map, NEVER, of, reduce, shareReplay, switchMap } from 'rxjs';
 
 import { FeatureFlag } from '@/lib/feature-flags';
+import AIAssist from '@/lib/services/aiAssist';
 import { HandlerFactory } from '@/runtime';
 
 import { FrameType, GeneralRuntime, Output } from '../../types';
@@ -162,6 +163,17 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
         runtime.project,
         // use default voice if voice doesn't exist
         node.voice ?? getVersionDefaultVoice(runtime.version)
+      );
+
+      // Inject final output for memory
+      AIAssist.injectOutput(
+        variables,
+        getOutputTrace({
+          output,
+          variables,
+          version: runtime.version,
+          ai: true,
+        })
       );
 
       // Set last response to entire AI response, not just a partial chunk
