@@ -187,6 +187,7 @@ workflows:
       - vfcommon/provision-env:
           context: dev-test
           env-name: {{ .values.e2e_env_name }}
+          pool-type: e2e
           filters: *bors_branches_filters
       - vfcommon/prepare-env:
           context: dev-test
