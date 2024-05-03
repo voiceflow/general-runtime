@@ -36,6 +36,9 @@ workflows:
             - vfcommon/set-json-command:
                 field: node_version
                 command: jq --raw-output '.volta.node // ""' package.json | sed -E "s/^([0-9]+)(\.[0-9]+)?.*$/\1\2/g"
+            - vfcommon/set-json-string-from-env:
+                field: common_orb_version
+                value-env-var: COMMON_ORB_VERSION
             - run: cat values.json
           contexts: values.json
 
