@@ -27,7 +27,7 @@ class InteractController extends AbstractController {
     const { versionID } = params;
     const { sessionID } = body.session;
     const { userID } = body.session;
-    const action = await AnyRequestDTO.parseAsync(req.body.action);
+    const { action } = body;
     const { state } = body;
 
     try {
