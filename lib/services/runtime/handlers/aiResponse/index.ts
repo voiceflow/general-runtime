@@ -1,10 +1,26 @@
 /* eslint-disable sonarjs/cognitive-complexity */
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { deepVariableSubstitution } from '@voiceflow/common';
+import { CompletionPrivateHTTPControllerGenerateChatCompletionStream200 as ChatCompletionStream } from '@voiceflow/sdk-http-ml-gateway/generated';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import _cloneDeep from 'lodash/cloneDeep';
-import { concat, filter, from, isEmpty, lastValueFrom, map, NEVER, of, reduce, shareReplay, switchMap } from 'rxjs';
+import {
+  concat,
+  defer,
+  filter,
+  from,
+  iif,
+  isEmpty,
+  lastValueFrom,
+  map,
+  NEVER,
+  Observable,
+  of,
+  reduce,
+  shareReplay,
+  switchMap,
+} from 'rxjs';
 
 import { FeatureFlag } from '@/lib/feature-flags';
 import AIAssist from '@/lib/services/aiAssist';
@@ -89,55 +105,53 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
         return nextID;
       }
 
-      let response: AIResponse;
-      if (node.model && !canUseModel(node.model, runtime)) {
-        response = {
-          output: 'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.',
+      // Create a stream of LLM responses
+      const promptStream$: Observable<ChatCompletionStream> = iif(
+        () => !!node.model && !canUseModel(node.model, runtime),
+        of({
+          output: `Your plan does not have access to the model "${node.model}". Please upgrade to use this feature.`,
           tokens: 0,
           queryTokens: 0,
           answerTokens: 0,
-          model: node.model,
+          model: node.model!,
           multiplier: 1,
-        };
-      } else {
-        response = {
-          output: '',
-          tokens: 0,
-          queryTokens: 0,
-          answerTokens: 0,
-          model: node.model ?? '',
-          multiplier: 1,
-        };
-
-        const promptStream$ = from(
-          fetchPromptStream(
-            node,
-            runtime.services.mlGateway,
-            {
-              context: { projectID, workspaceID },
-            },
-            variables.getState()
-          )
-        ).pipe(shareReplay());
-
-        const completion$ = concat(
-          promptStream$.pipe(
-            filter((completion) => completion.output != null),
-            map((completion, i) =>
-              i > 0 ? completionToContinueTrace(completion) : completionToStartTrace(runtime, node, completion)
+        }),
+        defer(() =>
+          from(
+            fetchPromptStream(
+              node,
+              runtime.services.mlGateway,
+              {
+                context: { projectID, workspaceID },
+              },
+              variables.getState()
             )
-          ),
-          promptStream$.pipe(
-            isEmpty(),
-            switchMap((isEmpty) => (isEmpty ? NEVER : of(endTrace())))
           )
-        );
+        )
+      ).pipe(shareReplay());
 
-        const traceConsumerPromise = completion$.forEach((trace) => runtime.trace.addTrace(trace));
+      // Convert LLM responses to completion traces
+      const completion$ = concat(
+        promptStream$.pipe(
+          filter((completion) => completion.output != null),
+          map((completion, i) =>
+            i > 0 ? completionToContinueTrace(completion) : completionToStartTrace(runtime, node, completion)
+          )
+        ),
+        promptStream$.pipe(
+          isEmpty(),
+          switchMap((isEmpty) => (isEmpty ? NEVER : of(endTrace())))
+        )
+      );
 
-        const responseConsumerPromise = lastValueFrom(
-          promptStream$.pipe(
-            reduce((acc, completion) => {
+      // Add completion traces to runtime, consuming `completion$` stream
+      const traceConsumerPromise = completion$.forEach((trace) => runtime.trace.addTrace(trace));
+
+      // Combine all LLM responses into a single `AIResponse`
+      const responseConsumerPromise = lastValueFrom(
+        promptStream$.pipe(
+          reduce<ChatCompletionStream, AIResponse>(
+            (acc, completion) => {
               if (!acc.output) acc.output = '';
 
               acc.output += completion.output ?? '';
@@ -147,12 +161,20 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
               acc.model = completion.model;
               acc.multiplier = completion.multiplier;
               return acc;
-            }, response)
+            },
+            {
+              output: '',
+              tokens: 0,
+              queryTokens: 0,
+              answerTokens: 0,
+              model: node.model ?? '',
+              multiplier: 1,
+            }
           )
-        );
+        )
+      );
 
-        [response] = await Promise.all([responseConsumerPromise, traceConsumerPromise]);
-      }
+      const [response] = await Promise.all([responseConsumerPromise, traceConsumerPromise]);
 
       await consumeResources('AI Response', runtime, response);
 
