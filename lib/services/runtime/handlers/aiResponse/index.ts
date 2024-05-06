@@ -1,7 +1,7 @@
 /* eslint-disable sonarjs/cognitive-complexity */
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { deepVariableSubstitution } from '@voiceflow/common';
-import { CompletionPrivateHTTPControllerGenerateChatCompletionStream200 } from '@voiceflow/sdk-http-ml-gateway/generated';
+import { CompletionPrivateHTTPControllerGenerateChatCompletionStream200 as ChatCompletionStream } from '@voiceflow/sdk-http-ml-gateway/generated';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import _cloneDeep from 'lodash/cloneDeep';
@@ -103,10 +103,9 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
         return nextID;
       }
 
-      let promptStream$: Observable<CompletionPrivateHTTPControllerGenerateChatCompletionStream200>;
-      let response: AIResponse;
+      let promptStream$: Observable<ChatCompletionStream>;
       if (node.model && !canUseModel(node.model, runtime)) {
-        response = {
+        const response: AIResponse = {
           output: 'GPT-4 is only available on the Pro plan. Please upgrade to use this feature.',
           tokens: 0,
           queryTokens: 0,
@@ -114,16 +113,8 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           model: node.model,
           multiplier: 1,
         };
-        promptStream$ = from([response]);
+        promptStream$ = of(response);
       } else {
-        response = {
-          output: '',
-          tokens: 0,
-          queryTokens: 0,
-          answerTokens: 0,
-          model: node.model ?? '',
-          multiplier: 1,
-        };
         promptStream$ = from(
           fetchPromptStream(
             node,
@@ -135,6 +126,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           )
         ).pipe(shareReplay());
       }
+
       const completion$ = concat(
         promptStream$.pipe(
           filter((completion) => completion.output != null),
@@ -152,21 +144,31 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
 
       const responseConsumerPromise = lastValueFrom(
         promptStream$.pipe(
-          reduce((acc, completion) => {
-            if (!acc.output) acc.output = '';
+          reduce<ChatCompletionStream, AIResponse>(
+            (acc, completion) => {
+              if (!acc.output) acc.output = '';
 
-            acc.output += completion.output ?? '';
-            acc.answerTokens += completion.answerTokens;
-            acc.queryTokens += completion.queryTokens;
-            acc.tokens += completion.tokens;
-            acc.model = completion.model;
-            acc.multiplier = completion.multiplier;
-            return acc;
-          }, response)
+              acc.output += completion.output ?? '';
+              acc.answerTokens += completion.answerTokens;
+              acc.queryTokens += completion.queryTokens;
+              acc.tokens += completion.tokens;
+              acc.model = completion.model;
+              acc.multiplier = completion.multiplier;
+              return acc;
+            },
+            {
+              output: '',
+              tokens: 0,
+              queryTokens: 0,
+              answerTokens: 0,
+              model: node.model ?? '',
+              multiplier: 1,
+            }
+          )
         )
       );
 
-      [response] = await Promise.all([responseConsumerPromise, traceConsumerPromise]);
+      const [response] = await Promise.all([responseConsumerPromise, traceConsumerPromise]);
 
       await consumeResources('AI Response', runtime, response);
 
