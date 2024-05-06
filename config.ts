@@ -39,7 +39,7 @@ const CONFIG: Config = {
   INTEGRATIONS_HANDLER_ENDPOINT: getOptionalProcessEnv('INTEGRATIONS_HANDLER_ENDPOINT') || 'none',
 
   // api node
-  API_REQUEST_TIMEOUT_MS: Number(getOptionalProcessEnv('API_MAX_TIMEOUT_MS')) || null,
+  API_REQUEST_TIMEOUT_MS: Number(getOptionalProcessEnv('API_REQUEST_TIMEOUT_MS')) || null,
   API_MAX_CONTENT_LENGTH_BYTES: Number(getOptionalProcessEnv('API_MAX_CONTENT_LENGTH_BYTES')) || null,
   API_MAX_BODY_LENGTH_BYTES: Number(getOptionalProcessEnv('API_MAX_BODY_LENGTH_BYTES')) || null,
 
