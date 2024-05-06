@@ -7,7 +7,6 @@ import { AnalyticsClient } from './analytics-client';
 import AnalyticsIngester, { IngesterClient } from './analytics-ingester';
 import { BillingClient } from './billing-client';
 import DataAPI from './dataAPI';
-import { IdentityClient } from './identity-client';
 import Metrics, { MetricsType } from './metrics';
 import MLGateway from './ml-gateway';
 import MongoDB from './mongodb';
@@ -24,7 +23,6 @@ export interface ClientMap extends StaticType {
   analyticsIngester: IngesterClient | null;
   analyticsPlatform: AnalyticsClient;
   billingClient: BillingClient;
-  identityClient: IdentityClient;
   mlGateway: MLGateway;
   unleash: Unleash;
 }
@@ -60,15 +58,6 @@ const buildClients = (config: Config): ClientMap => {
         ? new URL(
             `${config.NODE_ENV === 'e2e' ? 'https' : 'http'}://${config.BILLING_API_SERVICE_URI}:${
               config.BILLING_API_SERVICE_PORT_APP
-            }`
-          ).href
-        : null
-    ),
-    identityClient: new IdentityClient(
-      config.IDENTITY_API_SERVICE_URI && config.IDENTITY_API_SERVICE_PORT_APP
-        ? new URL(
-            `${config.NODE_ENV === 'e2e' ? 'https' : 'http'}://${config.IDENTITY_API_SERVICE_URI}:${
-              config.IDENTITY_API_SERVICE_PORT_APP
             }`
           ).href
         : null

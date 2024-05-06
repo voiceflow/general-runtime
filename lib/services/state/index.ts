@@ -5,7 +5,6 @@ import axios from 'axios';
 import _ from 'lodash';
 
 import { BillingClient } from '@/lib/clients/billing-client';
-import { IdentityClient } from '@/lib/clients/identity-client';
 import { FrameType } from '@/lib/services/runtime/types';
 import { PartialContext, State, SubscriptionEntitlements } from '@/runtime';
 import { Context, InitContextHandler } from '@/types';
@@ -23,17 +22,11 @@ const initializeStore = (variables: string[], defaultValue = 0) =>
     return acc;
   }, {});
 
-const getSubscriptionEntitlements = async (
-  identityClientFactory: IdentityClient,
-  billingClientFactory: BillingClient,
-  workspaceID: string
-) => {
-  const identityClient = await identityClientFactory.getClient();
+const getSubscriptionEntitlements = async (billingClientFactory: BillingClient, workspaceID: string) => {
   const billingClient = await billingClientFactory.getClient();
-  if (identityClient && billingClient) {
-    const workspace = await identityClient.private.findOne(workspaceID);
-    const subscriptionResponse = await billingClient.organizationsPrivate
-      .getOrganizationSubscription(workspace.organizationID)
+  if (billingClient) {
+    const subscriptionResponse = await billingClient.resourcesPrivate
+      .getResourceSubscription('workspace', workspaceID)
       .catch(() => null);
     if (subscriptionResponse) {
       return !['active', 'in_trial'].includes(subscriptionResponse.subscription.status)
@@ -132,7 +125,6 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
     const project = await api.getProject(version.projectID);
 
     const subscriptionEntitlements: SubscriptionEntitlements | undefined = await getSubscriptionEntitlements(
-      this.services.identityClient,
       this.services.billingClient,
       project.teamID
     );

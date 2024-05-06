@@ -4708,9 +4708,8 @@ __metadata:
     "@voiceflow/prettier-config": 1.2.1
     "@voiceflow/sdk-analytics": ^1.26.0
     "@voiceflow/sdk-auth": ^2.7.5
-    "@voiceflow/sdk-billing": ^1.23.9
+    "@voiceflow/sdk-billing": ^1.25.0
     "@voiceflow/sdk-http-ml-gateway": 2.15.0
-    "@voiceflow/sdk-identity": ^1.19.5
     "@voiceflow/test-common": ^1.8.1
     "@voiceflow/utils-designer": 1.9.3
     "@voiceflow/verror": ^1.1.3
@@ -4796,8 +4795,6 @@ __metadata:
     "@voiceflow/sdk-auth":
       optional: true
     "@voiceflow/sdk-billing":
-      optional: true
-    "@voiceflow/sdk-identity":
       optional: true
   languageName: unknown
   linkType: soft
@@ -4929,18 +4926,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/orval-fetch@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@voiceflow/orval-fetch@npm:1.4.0"
-  peerDependencies:
-    "@orval/core": ^6
-  peerDependenciesMeta:
-    "@orval/core":
-      optional: true
-  checksum: fd8e1294a92dbf6a0b13b7227825294354dd5600b2786dfd2390b4e2aa0f6b7338253d7be017404bf489171a32a66b175fea825eba8b7ce56f0dbf3b11d4a0ec
-  languageName: node
-  linkType: hard
-
 "@voiceflow/orval-fetch@npm:1.5.2":
   version: 1.5.2
   resolution: "@voiceflow/orval-fetch@npm:1.5.2"
@@ -4950,6 +4935,18 @@ __metadata:
     "@orval/core":
       optional: true
   checksum: d654d19f8e8f9bd4a012823449b8cb524bfa477b3309896998a3b35074993708b21d9d0a01015cd6012ec84911984c068a3a7f1d82a69050bf19074d88e028e7
+  languageName: node
+  linkType: hard
+
+"@voiceflow/orval-fetch@npm:1.5.8":
+  version: 1.5.8
+  resolution: "@voiceflow/orval-fetch@npm:1.5.8"
+  peerDependencies:
+    "@orval/core": ^6
+  peerDependenciesMeta:
+    "@orval/core":
+      optional: true
+  checksum: 59ad55c887de4cf6b9495038e63ea52602808a790a20d793195a6aadcb18a1a16ed192a23764da43357491f5012520e4993d51de5ad717aa53f6005a60cf12b4
   languageName: node
   linkType: hard
 
@@ -5058,12 +5055,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/sdk-billing@npm:^1.23.9":
-  version: 1.23.9
-  resolution: "@voiceflow/sdk-billing@npm:1.23.9"
+"@voiceflow/sdk-billing@npm:^1.25.0":
+  version: 1.25.0
+  resolution: "@voiceflow/sdk-billing@npm:1.25.0"
   dependencies:
-    "@voiceflow/orval-fetch": 1.4.0
-    "@voiceflow/sdk-common": 1.11.3
+    "@voiceflow/orval-fetch": 1.5.8
+    "@voiceflow/sdk-common": 1.11.10
     "@voiceflow/verror": 1.1.2
     rxjs: 7.5.7
   peerDependencies:
@@ -5080,7 +5077,28 @@ __metadata:
       optional: true
     undici:
       optional: true
-  checksum: 4ac1d073f51e36856083f5273ba08f279a783450b2631b27490d06cbb9a753725f2cc22527095d91f900c315ad0eb1adb06816a7a4e2e9a85aa3d10c650d9b15
+  checksum: f909503440fddfdd84279d4fe2d0cd2a1913903f31e633aed1f06e220d6a0150e17f9a104d3cd1493cb571e8c8f6273c0d8e409ecffd3c6b20a8a2418b1ee00a
+  languageName: node
+  linkType: hard
+
+"@voiceflow/sdk-common@npm:1.11.10":
+  version: 1.11.10
+  resolution: "@voiceflow/sdk-common@npm:1.11.10"
+  dependencies:
+    "@voiceflow/exception": 1.5.1
+    "@voiceflow/fetch": 1.5.2
+  peerDependencies:
+    "@nestjs/common": ^9
+    "@nestjs/core": ^9
+    undici: ^5
+  peerDependenciesMeta:
+    "@nestjs/common":
+      optional: true
+    "@nestjs/core":
+      optional: true
+    undici:
+      optional: true
+  checksum: ffcf8370828634fbd8432d3b51b08e0bcea919bcdcf04d39f1269fc189ad7538c3aad68e46fa4ce189aafbc84d3b940c476b26b8316f19f4a9cc412e0096424d
   languageName: node
   linkType: hard
 
@@ -5145,27 +5163,6 @@ __metadata:
     undici:
       optional: true
   checksum: b657047ed186075e0652d54d97412a441e6fc9b1ccdf9cad456daf31622675df2bdcc2d408fba7520b8c3f2b85e6ca7830022836411a5c0ddb3829ef1725d43f
-  languageName: node
-  linkType: hard
-
-"@voiceflow/sdk-identity@npm:^1.19.5":
-  version: 1.19.5
-  resolution: "@voiceflow/sdk-identity@npm:1.19.5"
-  dependencies:
-    "@voiceflow/orval-fetch": 1.4.0
-    "@voiceflow/sdk-common": 1.11.3
-  peerDependencies:
-    "@nestjs/common": ^9
-    nestjs-zod: ^2
-    undici: ^5
-  peerDependenciesMeta:
-    "@nestjs/common":
-      optional: true
-    nestjs-zod:
-      optional: true
-    undici:
-      optional: true
-  checksum: 5f6bccdba0deacc904c89f40d80859cc7e0dfbd4b2288a4b24495dc6be3d98bfd44db6003dd5690de0e1ff66c9f0010377a5e813da249f8958b256b555495c71
   languageName: node
   linkType: hard
 

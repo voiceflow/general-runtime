@@ -1,10 +1,24 @@
 /* eslint-disable sonarjs/cognitive-complexity */
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { deepVariableSubstitution } from '@voiceflow/common';
+import { CompletionPrivateHTTPControllerGenerateChatCompletionStream200 } from '@voiceflow/sdk-http-ml-gateway/generated';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import _cloneDeep from 'lodash/cloneDeep';
-import { concat, filter, from, isEmpty, lastValueFrom, map, NEVER, of, reduce, shareReplay, switchMap } from 'rxjs';
+import {
+  concat,
+  filter,
+  from,
+  isEmpty,
+  lastValueFrom,
+  map,
+  NEVER,
+  Observable,
+  of,
+  reduce,
+  shareReplay,
+  switchMap,
+} from 'rxjs';
 
 import { FeatureFlag } from '@/lib/feature-flags';
 import AIAssist from '@/lib/services/aiAssist';
@@ -89,6 +103,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
         return nextID;
       }
 
+      let promptStream$: Observable<CompletionPrivateHTTPControllerGenerateChatCompletionStream200>;
       let response: AIResponse;
       if (node.model && !canUseModel(node.model, runtime)) {
         response = {
@@ -99,6 +114,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           model: node.model,
           multiplier: 1,
         };
+        promptStream$ = from([response]);
       } else {
         response = {
           output: '',
@@ -108,8 +124,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           model: node.model ?? '',
           multiplier: 1,
         };
-
-        const promptStream$ = from(
+        promptStream$ = from(
           fetchPromptStream(
             node,
             runtime.services.mlGateway,
@@ -119,40 +134,39 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
             variables.getState()
           )
         ).pipe(shareReplay());
-
-        const completion$ = concat(
-          promptStream$.pipe(
-            filter((completion) => completion.output != null),
-            map((completion, i) =>
-              i > 0 ? completionToContinueTrace(completion) : completionToStartTrace(runtime, node, completion)
-            )
-          ),
-          promptStream$.pipe(
-            isEmpty(),
-            switchMap((isEmpty) => (isEmpty ? NEVER : of(endTrace())))
-          )
-        );
-
-        const traceConsumerPromise = completion$.forEach((trace) => runtime.trace.addTrace(trace));
-
-        const responseConsumerPromise = lastValueFrom(
-          promptStream$.pipe(
-            reduce((acc, completion) => {
-              if (!acc.output) acc.output = '';
-
-              acc.output += completion.output ?? '';
-              acc.answerTokens += completion.answerTokens;
-              acc.queryTokens += completion.queryTokens;
-              acc.tokens += completion.tokens;
-              acc.model = completion.model;
-              acc.multiplier = completion.multiplier;
-              return acc;
-            }, response)
-          )
-        );
-
-        [response] = await Promise.all([responseConsumerPromise, traceConsumerPromise]);
       }
+      const completion$ = concat(
+        promptStream$.pipe(
+          filter((completion) => completion.output != null),
+          map((completion, i) =>
+            i > 0 ? completionToContinueTrace(completion) : completionToStartTrace(runtime, node, completion)
+          )
+        ),
+        promptStream$.pipe(
+          isEmpty(),
+          switchMap((isEmpty) => (isEmpty ? NEVER : of(endTrace())))
+        )
+      );
+
+      const traceConsumerPromise = completion$.forEach((trace) => runtime.trace.addTrace(trace));
+
+      const responseConsumerPromise = lastValueFrom(
+        promptStream$.pipe(
+          reduce((acc, completion) => {
+            if (!acc.output) acc.output = '';
+
+            acc.output += completion.output ?? '';
+            acc.answerTokens += completion.answerTokens;
+            acc.queryTokens += completion.queryTokens;
+            acc.tokens += completion.tokens;
+            acc.model = completion.model;
+            acc.multiplier = completion.multiplier;
+            return acc;
+          }, response)
+        )
+      );
+
+      [response] = await Promise.all([responseConsumerPromise, traceConsumerPromise]);
 
       await consumeResources('AI Response', runtime, response);
 
