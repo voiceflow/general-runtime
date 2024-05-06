@@ -41,6 +41,14 @@ defaults:
           template: basic_fail_1
           branch_pattern: master
 
+  executor: &node-executor
+    name: vfcommon/node-executor-node-20
+    tag: {{ .values.node_version }}-vf-1
+
+  code-test-executor: &code-test-node-executor
+    name: vfcommon/code-test-executor-node-20
+    tag: {{ .values.node_version }}-vf-1
+
 orbs:
   vfcommon: voiceflow/common@{{ .values.common_orb_version }}
   sonarcloud: sonarsource/sonarcloud@2.0.0
@@ -48,7 +56,7 @@ orbs:
 
 jobs:
   test:
-    executor: vfcommon/code-test-executor-node-20
+    executor: *code-test-node-executor
     steps:
       - checkout
       - vfcommon/setup_dynamodb
@@ -111,7 +119,7 @@ jobs:
       - sonarcloud/scan
 
   install_and_buildx:
-    executor: vfcommon/node-executor-node-20
+    executor: *node-executor
     steps:
       - checkout
       - setup_remote_docker:
