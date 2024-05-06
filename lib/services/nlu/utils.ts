@@ -145,14 +145,16 @@ export const getAvailableIntentsAndEntities = async (
   availableEntities: Set<string>;
   bypass?: boolean;
 }> => {
-  const runtime = runtimeManager.createClient(context.data.api, () => undefined).createRuntime({
-    versionID: context.versionID,
-    state: context.state,
-    request: context.request,
-    version: context.version,
-    project: context.project,
-    timeout: 0,
-  });
+  const runtime = runtimeManager
+    .createClient(context.data.api, () => undefined)
+    .createRuntime({
+      versionID: context.versionID,
+      state: context.state,
+      request: context.request,
+      version: context.version,
+      project: context.project,
+      timeout: 0,
+    });
 
   // get command-level scope
   const { commandIntentNames, commandEntityNames } = getCommandLevelIntentsAndEntities(runtime.stack);
