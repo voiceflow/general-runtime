@@ -1,7 +1,7 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { AIModel } from '@voiceflow/dtos';
-import {lastValueFrom, from, reduce} from 'rxjs';
+import { from, lastValueFrom, reduce } from 'rxjs';
 
 import { CompletionOptions, GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import MLGateway from '@/lib/clients/ml-gateway';
@@ -81,7 +81,7 @@ export const EMPTY_AI_RESPONSE: AIResponse = {
   multiplier: 1,
 };
 
-export async function * fetchChatStream(
+export async function* fetchChatStream(
   params: BaseUtils.ai.AIModelParams & { messages: BaseUtils.ai.Message[] },
   mlGateway: MLGateway,
   options: CompletionOptions,
@@ -98,7 +98,7 @@ export async function * fetchChatStream(
     content: replaceVariables(message.content, sanitizedVars),
   }));
 
-  yield * mlGateway.private.completion.generateChatCompletionStream({
+  yield* mlGateway.private.completion.generateChatCompletionStream({
     messages,
     params: { ...params, system: replaceVariables(params.system, sanitizedVars) },
     options,
@@ -107,7 +107,7 @@ export async function * fetchChatStream(
     moderation: true,
     billing: true,
   });
-};
+}
 
 export const fetchChat = async (
   params: BaseUtils.ai.AIModelParams & { messages: BaseUtils.ai.Message[] },
@@ -130,7 +130,7 @@ export const fetchChat = async (
       }, EMPTY_AI_RESPONSE)
     )
   );
-}
+};
 
 export async function* fetchPromptStream(
   params: BaseUtils.ai.AIModelParams & { mode?: BaseUtils.ai.PROMPT_MODE; prompt?: string },
