@@ -5,6 +5,7 @@ import { HandlerFactory } from '@/runtime';
 
 import { GeneralRuntime } from '../../types';
 import { addOutputTrace, getOutputTrace } from '../../utils';
+import { canUseModel } from '../utils/ai';
 import { generateOutput } from '../utils/output';
 import { knowledgeBaseHandler } from './knowledge-base';
 import { modelHandler } from './model';
@@ -16,6 +17,25 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
     const elseID = node.elseId ?? null;
 
     try {
+      // Exit early if the model is not available
+      if (!!node.model && !canUseModel(node.model, runtime)) {
+        const output = generateOutput(
+          `Your plan does not have access to the model "${node.model}". Please upgrade to use this feature.`,
+          runtime.project
+        );
+
+        const trace = getOutputTrace({
+          output,
+          ai: true,
+          variables,
+          version: runtime.version,
+        });
+
+        addOutputTrace(runtime, trace, { node, variables });
+
+        return nextID;
+      }
+
       if (node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE) {
         return await knowledgeBaseHandler(runtime, node, variables, nextID, elseID);
       }
