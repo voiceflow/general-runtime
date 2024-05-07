@@ -1,10 +1,11 @@
 import { AlexaConstants } from '@voiceflow/alexa-types';
 import { BaseVersion } from '@voiceflow/base-types';
+import * as DTO from '@voiceflow/dtos';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { Runtime, Store } from '@/runtime';
 
-import { FrameType, isIntentRequest, Output, StorageType, TurnType } from '../types';
+import { FrameType, Output, StorageType, TurnType } from '../types';
 import { addOutputTrace, getOutputTrace } from '../utils';
 
 const utilsObj = {
@@ -19,7 +20,7 @@ export const RepeatHandler = (utils: typeof utilsObj) => ({
     const repeat = runtime.storage.get<BaseVersion.RepeatType>(StorageType.REPEAT);
     const request = runtime.getRequest();
     return (
-      isIntentRequest(request) &&
+      DTO.isLegacyIntentRequest(request) &&
       repeatIntents.has(request.payload.intent.name) &&
       !!repeat &&
       [BaseVersion.RepeatType.ALL, BaseVersion.RepeatType.DIALOG].includes(repeat)

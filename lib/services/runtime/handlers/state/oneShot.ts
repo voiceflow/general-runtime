@@ -1,8 +1,8 @@
 import { BaseNode } from '@voiceflow/base-types';
+import * as DTO from '@voiceflow/dtos';
 
 import { Action, HandlerFactory } from '@/runtime';
 
-import { isIntentRequest } from '../../types';
 import CommandHandler from '../command';
 
 const utilsObj = {
@@ -13,7 +13,7 @@ export const OneShotIntentHandler: HandlerFactory<BaseNode.Start.Node, typeof ut
   canHandle: (node, runtime) => {
     return (
       runtime.getAction() === Action.REQUEST &&
-      isIntentRequest(runtime.getRequest()) &&
+      DTO.isLegacyIntentRequest(runtime.getRequest()) &&
       runtime.stack.getSize() <= 2 &&
       node.type === BaseNode.NodeType.START
     );

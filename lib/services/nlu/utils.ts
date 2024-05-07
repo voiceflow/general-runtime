@@ -1,6 +1,7 @@
 import { AlexaConstants } from '@voiceflow/alexa-types';
 import { BaseModels, BaseNode, BaseRequest } from '@voiceflow/base-types';
 import { CommandType, EventType } from '@voiceflow/base-types/build/cjs/node/utils';
+import * as DTO from '@voiceflow/dtos';
 import { VoiceflowConstants, VoiceflowUtils } from '@voiceflow/voiceflow-types';
 import { match } from 'ts-pattern';
 
@@ -12,7 +13,7 @@ import RuntimeManager from '../runtime';
 import { isConfidenceScoreAbove } from '../runtime/utils';
 import { NLUGatewayPredictResponse, PredictProps } from './types';
 
-export const adaptNLUPrediction = (prediction: NLUGatewayPredictResponse): BaseRequest.IntentRequest => {
+export const adaptNLUPrediction = (prediction: NLUGatewayPredictResponse): DTO.IntentRequest => {
   return {
     type: BaseRequest.RequestType.INTENT,
     payload: {
@@ -45,8 +46,8 @@ export const getNoneIntentRequest = ({
   query = '',
   confidence,
   entities = [],
-}: { query?: string; confidence?: number; entities?: BaseRequest.Entity[] } = {}): BaseRequest.IntentRequest => ({
-  type: BaseRequest.RequestType.INTENT,
+}: { query?: string; confidence?: number; entities?: DTO.IntentRequestEntity[] } = {}): DTO.IntentRequest => ({
+  type: DTO.RequestType.INTENT,
   payload: {
     query,
     intent: {
@@ -145,14 +146,16 @@ export const getAvailableIntentsAndEntities = async (
   availableEntities: Set<string>;
   bypass?: boolean;
 }> => {
-  const runtime = runtimeManager.createClient(context.data.api, () => undefined).createRuntime({
-    versionID: context.versionID,
-    state: context.state,
-    request: context.request,
-    version: context.version,
-    project: context.project,
-    timeout: 0,
-  });
+  const runtime = runtimeManager
+    .createClient(context.data.api, () => undefined)
+    .createRuntime({
+      versionID: context.versionID,
+      state: context.state,
+      request: context.request,
+      version: context.version,
+      project: context.project,
+      timeout: 0,
+    });
 
   // get command-level scope
   const { commandIntentNames, commandEntityNames } = getCommandLevelIntentsAndEntities(runtime.stack);
