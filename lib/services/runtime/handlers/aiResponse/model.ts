@@ -1,29 +1,14 @@
 import { CompletionPrivateHTTPControllerGenerateChatCompletionStream200 as ChatCompletionStream } from '@voiceflow/sdk-http-ml-gateway/generated';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
-import {
-  concat,
-  defer,
-  filter,
-  from,
-  iif,
-  isEmpty,
-  lastValueFrom,
-  map,
-  NEVER,
-  Observable,
-  of,
-  reduce,
-  shareReplay,
-  switchMap,
-} from 'rxjs';
+import { concat, filter, from, isEmpty, lastValueFrom, map, NEVER, of, reduce, shareReplay, switchMap } from 'rxjs';
 
 import AIAssist from '@/lib/services/aiAssist';
 import { Store } from '@/runtime';
 
 import { FrameType, GeneralRuntime, Output } from '../../types';
 import { getOutputTrace } from '../../utils';
-import { AIResponse, canUseModel, consumeResources, fetchPromptStream } from '../utils/ai';
+import { AIResponse, consumeResources, fetchPromptStream } from '../utils/ai';
 import { generateOutput } from '../utils/output';
 import { getVersionDefaultVoice } from '../utils/version';
 import { completionToContinueTrace, completionToStartTrace, endTrace } from './traces';
@@ -38,27 +23,14 @@ export async function modelHandler(
   const workspaceID = runtime.project?.teamID || '';
 
   // Create a stream of LLM responses
-  const promptStream$: Observable<ChatCompletionStream> = iif(
-    () => !!node.model && !canUseModel(node.model, runtime),
-    of({
-      output: `Your plan does not have access to the model "${node.model}". Please upgrade to use this feature.`,
-      tokens: 0,
-      queryTokens: 0,
-      answerTokens: 0,
-      model: node.model!,
-      multiplier: 1,
-    }),
-    defer(() =>
-      from(
-        fetchPromptStream(
-          node,
-          runtime.services.mlGateway,
-          {
-            context: { projectID, workspaceID },
-          },
-          variables.getState()
-        )
-      )
+  const promptStream$ = from(
+    fetchPromptStream(
+      node,
+      runtime.services.mlGateway,
+      {
+        context: { projectID, workspaceID },
+      },
+      variables.getState()
     )
   ).pipe(shareReplay());
 
