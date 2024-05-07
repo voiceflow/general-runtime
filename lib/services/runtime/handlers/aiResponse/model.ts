@@ -1,7 +1,6 @@
 import { CompletionPrivateHTTPControllerGenerateChatCompletionStream200 as ChatCompletionStream } from '@voiceflow/sdk-http-ml-gateway/generated';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
-import _cloneDeep from 'lodash/cloneDeep';
 import {
   concat,
   defer,

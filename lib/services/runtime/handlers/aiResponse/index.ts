@@ -1,6 +1,5 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { VoiceNode } from '@voiceflow/voice-types';
-import _cloneDeep from 'lodash/cloneDeep';
 
 import { HandlerFactory } from '@/runtime';
 
@@ -18,10 +17,10 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
 
     try {
       if (node.source === BaseUtils.ai.DATA_SOURCE.KNOWLEDGE_BASE) {
-        return knowledgeBaseHandler(runtime, node, variables, nextID, elseID);
+        return await knowledgeBaseHandler(runtime, node, variables, nextID, elseID);
       }
 
-      return modelHandler(runtime, node, variables, nextID);
+      return await modelHandler(runtime, node, variables, nextID);
     } catch (err) {
       if (err?.message?.includes('[moderation error]')) {
         addOutputTrace(
