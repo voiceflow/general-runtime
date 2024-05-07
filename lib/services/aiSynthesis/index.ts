@@ -9,12 +9,12 @@ import {
   fetchFaq,
   fetchKnowledgeBase,
   getKBSettings,
-  KnowledgeBaseFaqSet,
   KnowledgeBaseResponse,
 } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
 
 import { SegmentEventType } from '../runtime/types';
 import { AbstractManager } from '../utils';
+import { KBResponse } from './types';
 import { convertTagsFilterToIDs, generateAnswerSynthesisPrompt, generateTagLabelMap, removePromptLeak } from './utils';
 
 class AISynthesis extends AbstractManager {
@@ -205,7 +205,7 @@ class AISynthesis extends AbstractManager {
       summarization?: Partial<BaseModels.Project.KnowledgeBaseSettings['summarization']>;
     };
     tags?: BaseModels.Project.KnowledgeBaseTagsFilter;
-  }): Promise<Observable<AIResponse & Partial<KnowledgeBaseResponse> & { faqSet?: KnowledgeBaseFaqSet }>> {
+  }): Promise<Observable<KBResponse>> {
     let tagsFilter: BaseModels.Project.KnowledgeBaseTagsFilter = {};
 
     if (tags) {
@@ -279,29 +279,24 @@ class AISynthesis extends AbstractManager {
       summarization?: Partial<BaseModels.Project.KnowledgeBaseSettings['summarization']>;
     };
     tags?: BaseModels.Project.KnowledgeBaseTagsFilter;
-  }): Promise<AIResponse & Partial<KnowledgeBaseResponse> & { faqSet?: KnowledgeBaseFaqSet }> {
+  }): Promise<KBResponse> {
     return lastValueFrom(
       from(this.knowledgeBaseQueryStream(params)).pipe(
         switchMap((stream) => stream),
-        reduce(
-          (acc, completion) => {
-            if (!acc.output) acc.output = '';
+        reduce<KBResponse, KBResponse>((acc, completion) => {
+          if (!acc.output) acc.output = '';
+          if (!acc.chunks) acc.chunks = [];
 
-            acc.chunks.push(...(completion.chunks ?? []));
-            acc.output += completion.output ?? '';
-            acc.answerTokens += completion.answerTokens;
-            acc.queryTokens += completion.queryTokens;
-            acc.tokens += completion.tokens;
-            acc.model = completion.model;
-            acc.multiplier = completion.multiplier;
-            acc.faqSet = completion.faqSet;
-            return acc;
-          },
-          {
-            ...EMPTY_AI_RESPONSE,
-            chunks: [],
-          } as AIResponse & KnowledgeBaseResponse & { faqSet?: KnowledgeBaseFaqSet }
-        )
+          acc.chunks.push(...(completion.chunks ?? []));
+          acc.output += completion.output ?? '';
+          acc.answerTokens += completion.answerTokens;
+          acc.queryTokens += completion.queryTokens;
+          acc.tokens += completion.tokens;
+          acc.model = completion.model;
+          acc.multiplier = completion.multiplier;
+          acc.faqSet = completion.faqSet;
+          return acc;
+        }, EMPTY_AI_RESPONSE)
       )
     );
   }
