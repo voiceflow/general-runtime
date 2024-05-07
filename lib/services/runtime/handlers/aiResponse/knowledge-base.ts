@@ -1,7 +1,7 @@
 import { deepVariableSubstitution } from '@voiceflow/common';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
-import _cloneDeep from 'lodash/cloneDeep';
+import cloneDeep from 'lodash/cloneDeep';
 import { concat, from, isEmpty, lastValueFrom, map, NEVER, of, reduce, shareReplay, switchMap } from 'rxjs';
 
 import { FeatureFlag } from '@/lib/feature-flags';
@@ -21,7 +21,7 @@ export async function knowledgeBaseHandler(
   nextID: string | null,
   elseID: string | null
 ) {
-  const settings = deepVariableSubstitution(_cloneDeep(node), variables.getState());
+  const settings = deepVariableSubstitution(cloneDeep(node), variables.getState());
   const summarization = settings.overrideParams ? settings : {};
 
   const promptStream$ = from(
