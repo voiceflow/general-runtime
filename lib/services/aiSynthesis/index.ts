@@ -1,6 +1,6 @@
 import { BaseModels, BaseUtils } from '@voiceflow/base-types';
 import _merge from 'lodash/merge';
-import { filter, from, lastValueFrom, map, Observable, of, reduce, switchMap } from 'rxjs';
+import { from, lastValueFrom, map, Observable, of, reduce, switchMap } from 'rxjs';
 
 import { AIModelContext } from '@/lib/clients/ai/ai-model.interface';
 import { AIResponse, EMPTY_AI_RESPONSE, fetchChat, fetchChatStream } from '@/lib/services/runtime/handlers/utils/ai';
@@ -80,8 +80,7 @@ class AISynthesis extends AbstractManager {
         completion.output = completion.output || null;
 
         return completion;
-      }),
-      filter((completion) => completion != null)
+      })
     );
   }
 
@@ -262,10 +261,7 @@ class AISynthesis extends AbstractManager {
         options: settings?.summarization,
         context: { projectID: project._id, workspaceID: project.teamID },
       })
-    ).pipe(
-      filter((answer) => answer != null),
-      map((answer, i) => (i === 0 ? { chunks, ...answer! } : answer!))
-    );
+    ).pipe(map((answer, i) => (i === 0 ? { chunks, ...answer! } : answer!)));
   }
 
   async knowledgeBaseQuery(params: {
