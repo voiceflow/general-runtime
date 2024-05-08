@@ -1,4 +1,4 @@
-import { BaseRequest } from '@voiceflow/base-types';
+import * as DTO from '@voiceflow/dtos';
 import { PrototypeIntent, PrototypeSlot } from '@voiceflow/dtos';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
@@ -56,7 +56,7 @@ export interface PredictedIntent {
   confidence: number;
 }
 
-export interface PredictedSlot {
+export interface PredictedSlot extends Record<string, unknown> {
   name: string;
   value: string;
 }
@@ -70,7 +70,7 @@ export interface PredictRequest {
   isTrained: boolean;
 
   // legacy
-  dmRequest?: BaseRequest.IntentRequestPayload;
+  dmRequest?: DTO.IntentRequestPayload;
 }
 
 export interface PredictOptions {

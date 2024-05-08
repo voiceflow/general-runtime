@@ -3,9 +3,10 @@
  * @packageDocumentation
  */
 
-import { BaseModels, BaseNode, BaseRequest, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
+import { BaseModels, BaseNode, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
 import { ChatModels } from '@voiceflow/chat-types';
 import { VF_DM_PREFIX } from '@voiceflow/common';
+import * as DTO from '@voiceflow/dtos';
 import VError from '@voiceflow/verror';
 import { VoiceModels } from '@voiceflow/voice-types';
 import { VoiceflowConstants, VoiceflowUtils, VoiceflowVersion } from '@voiceflow/voiceflow-types';
@@ -22,7 +23,7 @@ import { Predictor } from '../classification';
 import { castToDTO } from '../classification/classification.utils';
 import { getIntentRequest } from '../nlu';
 import { getNoneIntentRequest } from '../nlu/utils';
-import { isIntentRequest, StorageType } from '../runtime/types';
+import { StorageType, toBaseTypesIntent } from '../runtime/types';
 import { addOutputTrace, getOutputTrace } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
 import { rectifyEntityValue } from './synonym';
@@ -42,8 +43,8 @@ export const utils = {
 };
 
 export interface DMStore {
-  intentRequest?: BaseRequest.IntentRequest;
-  priorIntent?: BaseRequest.IntentRequest;
+  intentRequest?: DTO.IntentRequest;
+  priorIntent?: DTO.IntentRequest;
 }
 
 @injectServices({ utils })
@@ -60,8 +61,8 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
   handleDMContext = (
     dmStateStore: DMStore,
-    dmPrefixedResult: BaseRequest.IntentRequest,
-    incomingRequest: BaseRequest.IntentRequest,
+    dmPrefixedResult: DTO.IntentRequest,
+    incomingRequest: DTO.IntentRequest,
     languageModel: BaseModels.PrototypeModel
   ): void => {
     const dmPrefixedResultName = dmPrefixedResult.payload.intent.name;
@@ -117,7 +118,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
   handle = async (context: Context) => {
-    if (!isIntentRequest(context.request)) {
+    if (!DTO.isLegacyIntentRequest(context.request)) {
       return context;
     }
 
@@ -271,7 +272,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
           type: BaseTrace.TraceType.ENTITY_FILLING,
           payload: {
             entityToFill: unfulfilledEntity.name,
-            intent: dmStateStore.intentRequest,
+            intent: toBaseTypesIntent(dmStateStore.intentRequest),
           },
         });
 
