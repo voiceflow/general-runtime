@@ -1,7 +1,6 @@
 import { BaseNode, BaseRequest, Nullable } from '@voiceflow/base-types';
-import * as DTO from '@voiceflow/dtos';
 
-import { GeneralRuntime } from '@/lib/services/runtime/types';
+import { GeneralRuntime, isAlexaEventIntentRequest, isIntentRequest } from '@/lib/services/runtime/types';
 import { Runtime, Store } from '@/runtime';
 
 import { mapEntities, mapVariables } from '../utils';
@@ -16,7 +15,7 @@ export interface MatchContext {
 }
 
 export interface SideEffectContext<
-  Request extends BaseRequest.BaseRequest = BaseRequest.BaseRequest,
+  Request extends BaseRequest.BaseRequest<any> = BaseRequest.BaseRequest<any>,
   Event extends BaseNode.Utils.BaseEvent = BaseNode.Utils.BaseEvent
 > {
   event: Event;
@@ -24,15 +23,15 @@ export interface SideEffectContext<
 }
 
 export interface Matcher<
-  Request extends BaseRequest.BaseRequest = BaseRequest.BaseRequest,
+  Request extends BaseRequest.BaseRequest<any> = BaseRequest.BaseRequest<any>,
   Event extends BaseNode.Utils.BaseEvent = BaseNode.Utils.BaseEvent
 > {
   match: (context: MatchContext) => context is SideEffectContext<Request, Event>;
   sideEffect: (context: SideEffectContext<Request, Event>) => (variables: Store) => void;
 }
 
-const isIntentEvent = (request: DTO.IntentRequest, context: any) => {
-  if (!DTO.isLegacyIntentRequest(request)) return false;
+const isIntentEvent = (request: BaseRequest.IntentRequest, context: any) => {
+  if (!isIntentRequest(request)) return false;
   if (request.diagramID && context.diagramID && request.diagramID !== context.diagramID) return false;
   if (!context.event || !BaseNode.Utils.isIntentEvent(context.event)) return false;
   if (context.event.intent !== request.payload.intent.name) return false;
@@ -43,8 +42,8 @@ const isIntentEvent = (request: DTO.IntentRequest, context: any) => {
  * Intent request is being reused for both Alexa events and intent events. To distinguish them we check
  * if `request.payload.data` exists, if so this is an Alexa event
  */
-const isAlexaEvent = (request: DTO.IntentRequest, context: any) => {
-  if (!DTO.isAlexaIntentRequest(request)) return false;
+const isAlexaEvent = (request: BaseRequest.IntentRequest, context: any) => {
+  if (!isAlexaEventIntentRequest(request)) return false;
   if (request.diagramID && context.diagramID && request.diagramID !== context.diagramID) return false;
   if (!context.event || context.event.type !== BaseNode.Utils.EventType.ALEXA) return false;
   if (context.event.intent !== request.payload.intent.name) return false;
@@ -55,8 +54,8 @@ export const intentEventMatcher: Matcher<BaseRequest.IntentRequest, BaseNode.Uti
   match: (context): context is SideEffectContext<BaseRequest.IntentRequest, BaseNode.Utils.IntentEvent> => {
     const request = context.runtime.getRequest();
 
-    if (!DTO.isLegacyIntentRequest(request)) return false;
-    if (DTO.isAlexaIntentRequest(request)) return false;
+    if (!isIntentRequest(request)) return false;
+    if (isAlexaEventIntentRequest(request)) return false;
     if (!isIntentEvent(request, context)) return false;
     if (isAlexaEvent(request, context)) return false;
 
@@ -75,8 +74,8 @@ export const alexaEventMatcher: Matcher<BaseRequest.IntentRequest, BaseNode.Util
   match: (context): context is SideEffectContext<BaseRequest.IntentRequest, BaseNode.Utils.AlexaEvent> => {
     const request = context.runtime.getRequest();
 
-    if (DTO.isLegacyIntentRequest(request)) return false;
-    if (!DTO.isAlexaIntentRequest(request)) return false;
+    if (isIntentRequest(request)) return false;
+    if (!isAlexaEventIntentRequest(request)) return false;
     if (isIntentEvent(request, context)) return false;
     if (!isAlexaEvent(request, context)) return false;
 
@@ -105,7 +104,7 @@ export const generalEventMatcher: Matcher<BaseRequest.BaseRequest, BaseNode.Util
   match: (context): context is SideEffectContext<BaseRequest.BaseRequest, BaseNode.Utils.BaseEvent> => {
     const request = context.runtime.getRequest();
 
-    if (!request || DTO.isLegacyIntentRequest(request) || DTO.isAlexaIntentRequest(request)) return false;
+    if (!request || isIntentRequest(request) || isAlexaEventIntentRequest(request)) return false;
     if (!context.event?.type) return false;
     if (context.event.type !== request.type) return false;
 

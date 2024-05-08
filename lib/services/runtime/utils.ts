@@ -8,7 +8,6 @@ import {
   RuntimeLogs,
 } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables, transformStringVariableToNumber, Utils } from '@voiceflow/common';
-import * as DTO from '@voiceflow/dtos';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import cuid from 'cuid';
 import _ from 'lodash';
@@ -100,25 +99,17 @@ export const slateInjectVariables = (
   return _cloneDeepWith(slateValue, customizer);
 };
 
-const processActions = (actions: BaseRequest.Action.BaseAction[] | undefined, variables: Store) =>
+const processActions = (actions: BaseRequest.Action.BaseAction<unknown>[] | undefined, variables: Store) =>
   actions?.map((action) => {
-    const result = DTO.OpenURLActionDTO.safeParse(action);
-    if (result.success) {
-      const { data } = result;
+    if (BaseRequest.Action.isOpenURLAction(action)) {
       return {
         ...action,
-        payload: { ...data.payload, url: replaceVariables(data.payload.url, variables.getState()) },
+        payload: { ...action.payload, url: replaceVariables(action.payload.url, variables.getState()) },
       };
     }
 
     return action;
   });
-
-const isTextRequest = (request: BaseRequest.BaseRequest): request is BaseRequest.TextRequest =>
-  DTO.isTextRequest(request);
-
-const isIntentRequest = (request: BaseRequest.BaseRequest): request is BaseRequest.IntentRequest =>
-  DTO.isIntentRequest(request);
 
 export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
   node: N,
@@ -134,7 +125,7 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
       .map(({ name, request }) => {
         const processedName = replaceVariables(name, variables.getState());
 
-        if (isTextRequest(request)) {
+        if (BaseRequest.isTextRequest(request)) {
           return {
             name: processedName,
             request: {
@@ -145,7 +136,8 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
         }
 
         const actions = processActions(request.payload?.actions, variables);
-        if (isIntentRequest(request)) {
+
+        if (BaseRequest.isIntentRequest(request)) {
           return {
             name: processedName,
             request: {

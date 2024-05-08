@@ -1,8 +1,8 @@
-import * as DTO from '@voiceflow/dtos';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory } from '@/runtime';
 
+import { isAlexaEventIntentRequest } from '../../../types';
 import { getCommand } from '../../command';
 import CommandAlexaHandler from '../../command/command.alexa';
 
@@ -13,7 +13,7 @@ export const EventAlexaHandlerGenerator: HandlerFactory<VoiceflowNode.Interactio
     if (node.platform !== VoiceflowConstants.PlatformType.ALEXA) return false;
 
     const request = runtime.getRequest();
-    if (!DTO.isAlexaIntentRequest(request)) return false;
+    if (!isAlexaEventIntentRequest(request)) return false;
 
     return runtime.getAction() === Action.REQUEST && !!getCommand(runtime);
   },

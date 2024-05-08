@@ -1,8 +1,7 @@
 import { BaseTrace, BaseUtils, Trace } from '@voiceflow/base-types';
-import * as DTO from '@voiceflow/dtos';
 
 import { sanitizeSSML } from '@/lib/services/filter/utils';
-import { RuntimeRequest } from '@/lib/services/runtime/types';
+import { isIntentRequest, isPathRequest, isTextRequest, RuntimeRequest } from '@/lib/services/runtime/types';
 import { Store } from '@/runtime';
 import { Context, ContextHandler } from '@/types';
 
@@ -17,16 +16,16 @@ class AIAssist extends AbstractManager implements ContextHandler {
   static StringStorageKey = 'vf_memory';
 
   static getInput(request: RuntimeRequest) {
-    if (DTO.isLegacyIntentRequest(request)) {
+    if (isIntentRequest(request)) {
       return request.payload.query;
     }
 
-    if (DTO.isTextRequest(request)) {
+    if (isTextRequest(request)) {
       return request.payload;
     }
 
-    if (DTO.isPathRequest(request)) {
-      return request.payload?.label ?? null;
+    if (isPathRequest(request)) {
+      return request.payload.label ?? null;
     }
 
     return null;

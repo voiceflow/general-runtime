@@ -1,8 +1,8 @@
-import * as DTO from '@voiceflow/dtos';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, FunctionHandler, Handler, HandlerFactory, IfV2Handler } from '@/runtime';
 
+import { isAlexaEventIntentRequest } from '../../../types';
 import _V1Handler from '../../_v1';
 import CaptureHandler from '../../capture';
 import CaptureV2Handler from '../../captureV2';
@@ -39,7 +39,7 @@ export const PreliminaryHandler: HandlerFactory<VoiceflowNode.Interaction.Node, 
     const request = runtime.getRequest();
     return (
       !!request &&
-      !DTO.isAlexaIntentRequest(request) &&
+      !isAlexaEventIntentRequest(request) &&
       runtime.getAction() === Action.REQUEST &&
       !utils.eventHandlers.find((h) => h.canHandle(node, runtime, variables, program))
     );

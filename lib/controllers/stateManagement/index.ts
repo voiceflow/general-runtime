@@ -1,8 +1,6 @@
 import { Validator } from '@voiceflow/backend-utils';
-import { BaseRequest, RuntimeLogs } from '@voiceflow/base-types';
-import { AnyRequestDTO } from '@voiceflow/dtos';
+import { RuntimeLogs } from '@voiceflow/base-types';
 
-import { RuntimeRequest } from '@/lib/services/runtime/types';
 import { SharedValidations } from '@/lib/validations';
 import { State } from '@/runtime';
 import { Request } from '@/types';
@@ -38,23 +36,16 @@ class StateManagementController extends AbstractController {
   async interact(
     req: Request<
       { userID: string },
-      { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig },
+      any,
       { projectID: string; authorization: string; versionID: string },
       { verbose?: boolean; logs?: RuntimeLogs.LogLevel }
     >
   ) {
-    if (req.body.request) {
-      req.body.request = AnyRequestDTO.parse(req.body.request);
-    }
-    if (req.body.action) {
-      req.body.action = AnyRequestDTO.parse(req.body.action);
-    }
-
     return this.services.stateManagement.interact(req);
   }
 
   @validate({ HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID })
-  async get(req: Request<{ userID: string }, unknown, { projectID: string }>) {
+  async get(req: Request<{ userID: string }, any, { projectID: string }>) {
     return this.services.session.getFromDb(req.headers.projectID, req.params.userID);
   }
 

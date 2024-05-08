@@ -60,7 +60,7 @@ describe('runtime utils service unit tests', () => {
         buttons: [
           {
             name: 'button {var1}',
-            request: { type: 'intent', payload: { intent: { name: 'intent' }, query: 'button {var1}', entities: [] } },
+            request: { type: 'intent', payload: { intent: { name: 'intent' }, query: 'button {var1}' } },
           },
           { name: 'button {var2} ', request: { type: 'text', payload: '{var2}' } },
         ],
@@ -83,7 +83,6 @@ describe('runtime utils service unit tests', () => {
                     payload: {
                       actions: undefined,
                       label: undefined,
-                      entities: [],
                       intent: { name: 'intent' },
                       query: 'button value1',
                     },

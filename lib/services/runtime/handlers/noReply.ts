@@ -1,5 +1,4 @@
 import { BaseNode, BaseRequest, BaseText, BaseTrace } from '@voiceflow/base-types';
-import * as DTO from '@voiceflow/dtos';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
@@ -102,7 +101,7 @@ const utilsObj = {
 };
 
 export const NoReplyHandler = (utils: typeof utilsObj) => ({
-  canHandle: (runtime: Runtime) => runtime.getRequest() === null || DTO.isNoReplyRequest(runtime.getRequest()),
+  canHandle: (runtime: Runtime) => runtime.getRequest() === null || BaseRequest.isNoReplyRequest(runtime.getRequest()),
   handle: (node: NoReplyNode, runtime: Runtime, variables: Store) => {
     const noReplyCounter = runtime.storage.get<NoReplyCounterStorage>(StorageType.NO_REPLIES_COUNTER) ?? 0;
 

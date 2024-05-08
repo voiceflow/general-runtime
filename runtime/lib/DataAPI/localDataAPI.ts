@@ -2,9 +2,8 @@ import { AnyRecord, BaseModels } from '@voiceflow/base-types';
 import * as FS from 'fs';
 import * as Path from 'path';
 
-import { VersionTag } from '@/types';
-
 import { DataAPI } from './types';
+import { VersionTag } from '@/types';
 
 class LocalDataAPI<
   P extends BaseModels.Program.Model<any, any> = BaseModels.Program.Model<any, any>,
@@ -50,7 +49,7 @@ class LocalDataAPI<
       default:
         return this.project?.devVersion?.toString();
     }
-  };
+  }
 
   public getVersionPublishing = async () => this.version.platformData?.publishing || {};
 
