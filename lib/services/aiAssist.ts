@@ -8,6 +8,7 @@ import { Context, ContextHandler } from '@/types';
 import { AbstractManager } from './utils';
 
 const MAX_TURNS = 10;
+export const MAX_CONTENT_LENGTH = 10000;
 
 // writes a primative string aiAssistTranscript into the context state storage
 class AIAssist extends AbstractManager implements ContextHandler {
@@ -46,7 +47,7 @@ class AIAssist extends AbstractManager implements ContextHandler {
       lastTranscript.content += `\n${content}`;
 
       // truncate the content if it's too long, consecutive assistant messages can accumulate
-      lastTranscript.content = lastTranscript.content.substring(0, 10000);
+      lastTranscript.content = lastTranscript.content.substring(0, MAX_CONTENT_LENGTH);
     } else {
       transcript.push({ role: BaseUtils.ai.Role.ASSISTANT, content });
       if (transcript.length > MAX_TURNS) transcript.shift();
