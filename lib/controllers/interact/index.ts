@@ -31,8 +31,10 @@ class InteractController extends AbstractController {
     const { action } = body;
     const { state } = body;
 
-    if (action !== null && !AnyRequestDTO.safeParse(action).success) {
-      logger.info(`malformed request object [type]=${action?.type}, [json]=${JSON.stringify(action.request, null, 2)}`);
+    if (!!action && !AnyRequestDTO.safeParse(action).success) {
+      logger.info(
+        `malformed request object [action], [type]=${action?.type}, [json]=${JSON.stringify(action.request, null, 2)}`
+      );
     }
 
     try {
@@ -83,14 +85,22 @@ class InteractController extends AbstractController {
       { locale?: string; logs: RuntimeLogs.LogLevel }
     >
   ): Promise<ResponseContext> {
-    if (req.body.request !== null && !AnyRequestDTO.safeParse(req.body.request).success) {
+    if (!!req.body.request && !AnyRequestDTO.safeParse(req.body.request).success) {
       logger.info(
-        `malformed request object [type]=${req.body.request?.type}, [json]=${JSON.stringify(req.body.request, null, 2)}`
+        `malformed request object [request], [type]=${req.body.request?.type}, [json]=${JSON.stringify(
+          req.body.request,
+          null,
+          2
+        )}`
       );
     }
-    if (req.body.action !== null && !AnyRequestDTO.safeParse(req.body.action).success) {
+    if (!!req.body.action && !AnyRequestDTO.safeParse(req.body.action).success) {
       logger.info(
-        `malformed request object [type]=${req.body.action?.type}, [json]=${JSON.stringify(req.body.action, null, 2)}`
+        `malformed request object [action], [type]=${req.body.action?.type}, [json]=${JSON.stringify(
+          req.body.action,
+          null,
+          2
+        )}`
       );
     }
 

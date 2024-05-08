@@ -36,9 +36,13 @@ class PublicController extends AbstractController {
       { projectID: string; versionID: string }
     >
   ) {
-    if (req.body.action !== null && !AnyRequestDTO.safeParse(req.body.action).success) {
+    if (!!req.body.action && !AnyRequestDTO.safeParse(req.body.action).success) {
       logger.info(
-        `malformed request object [type]=${req.body.action?.type}, [json]=${JSON.stringify(req.body.action, null, 2)}`
+        `malformed request object [action], [type]=${req.body.action?.type}, [json]=${JSON.stringify(
+          req.body.action,
+          null,
+          2
+        )}`
       );
     }
 
