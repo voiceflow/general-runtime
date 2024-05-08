@@ -3,8 +3,7 @@
  * @packageDocumentation
  */
 
-import { BaseNode } from '@voiceflow/base-types';
-import * as DTO from '@voiceflow/dtos';
+import { BaseNode, BaseRequest } from '@voiceflow/base-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import Client, { Action as RuntimeAction, Runtime } from '@/runtime';
@@ -16,7 +15,7 @@ import CacheDataAPI from '../state/cacheDataAPI';
 import { AbstractManager, injectServices } from '../utils';
 import Handlers from './handlers';
 import init from './init';
-import { isRuntimeRequest, TurnType } from './types';
+import { isActionRequest, isIntentRequest, isPathRequest, isRuntimeRequest, TurnType } from './types';
 import { getReadableConfidence } from './utils';
 
 export const utils = {
@@ -53,7 +52,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
 
     const runtime = this.getRuntimeForContext({ versionID, userID, state, request, ...context }, eventHandler);
 
-    if (DTO.isLegacyIntentRequest(request)) {
+    if (isIntentRequest(request)) {
       const confidence = getReadableConfidence(request.payload.confidence);
 
       runtime.trace.debug(
@@ -68,8 +67,8 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
       }
     }
 
-    if (DTO.isPathRequest(request)) {
-      runtime.variables.set(VoiceflowConstants.BuiltInVariable.LAST_UTTERANCE, request.payload?.label);
+    if (isPathRequest(request)) {
+      runtime.variables.set(VoiceflowConstants.BuiltInVariable.LAST_UTTERANCE, request.payload.label);
     }
 
     runtime.variables.set(VoiceflowConstants.BuiltInVariable.LAST_EVENT, request);
@@ -90,7 +89,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     }
 
     // skip runtime for the action request, since it do not have any effects
-    if (!DTO.isActionRequest(request)) {
+    if (!isActionRequest(request)) {
       await runtime.update(eventHandler);
     } else {
       runtime.setAction(RuntimeAction.END); // to get final state
@@ -107,7 +106,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
   }
 
   private getRuntimeForContext(context: Context, eventHandler: HandleContextEventHandler): Runtime {
-    if (context.request && DTO.isLaunchRequest(context.request)) {
+    if (context.request && BaseRequest.isLaunchRequest(context.request)) {
       context.request = null;
     }
 

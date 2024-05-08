@@ -1,11 +1,10 @@
 import { BaseNode, BaseRequest, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
-import * as DTO from '@voiceflow/dtos';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 import wordsToNumbers from 'words-to-numbers';
 
 import { Action, HandlerFactory } from '@/runtime';
 
-import { StorageType } from '../types';
+import { isIntentRequest, StorageType } from '../types';
 import { addButtonsIfExists, mapEntities } from '../utils';
 import CommandHandler from './command';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from './noReply';
@@ -62,7 +61,7 @@ export const CaptureHandler: HandlerFactory<VoiceflowNode.Capture.Node, typeof u
 
     const request = runtime.getRequest();
 
-    if (DTO.isLegacyIntentRequest(request)) {
+    if (isIntentRequest(request)) {
       if (!node.variable && node.slots?.length && request.payload.entities) {
         const variablesBefore: Record<string, RuntimeLogs.VariableValue | null> = Object.fromEntries(
           node.slots.map((entity) => [entity, variables.get<RuntimeLogs.VariableValue>(entity) ?? null])

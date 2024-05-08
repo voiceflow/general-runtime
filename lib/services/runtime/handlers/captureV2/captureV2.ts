@@ -1,10 +1,9 @@
 import { BaseNode, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
-import * as DTO from '@voiceflow/dtos';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 
 import { Action, HandlerFactory, Runtime, Store } from '@/runtime';
 
-import { StorageType, toBaseTypesIntent } from '../../types';
+import { isIntentRequest, StorageType } from '../../types';
 import { addButtonsIfExists, addOutputTrace, getOutputTrace, isConfidenceScoreAbove, mapEntities } from '../../utils';
 import CommandHandler from '../command';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
@@ -52,10 +51,9 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, util
       }
 
       if (captureIntentName) {
-        const elicitingIntent = setElicit(entityFillingRequest(captureIntentName, node.intent?.entities ?? []), true);
         runtime.trace.addTrace<BaseTrace.GoToTrace>({
           type: BaseTrace.TraceType.GOTO,
-          payload: { request: toBaseTypesIntent(elicitingIntent) },
+          payload: { request: setElicit(entityFillingRequest(captureIntentName, node.intent?.entities ?? []), true) },
         });
       }
 
@@ -88,7 +86,7 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, util
     }
 
     // on successful match
-    if (DTO.isLegacyIntentRequest(request)) {
+    if (isIntentRequest(request)) {
       const { query, intent } = request.payload;
 
       const handleCapturePath = () => {

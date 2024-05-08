@@ -1,12 +1,18 @@
 import { AlexaConstants } from '@voiceflow/alexa-types';
 import { BaseNode } from '@voiceflow/base-types';
 import { replaceVariables } from '@voiceflow/common';
-import * as DTO from '@voiceflow/dtos';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { HandlerFactory } from '@/runtime';
 
-import { StorageType, StreamAction, StreamPauseStorage, StreamPlayStorage } from '../../../types';
+import {
+  isAlexaEventIntentRequest,
+  isIntentRequest,
+  StorageType,
+  StreamAction,
+  StreamPauseStorage,
+  StreamPlayStorage,
+} from '../../../types';
 import CommandHandler from '../../command';
 import { mapStreamActions } from '../../utils/stream';
 
@@ -30,7 +36,7 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
   canHandle: (_, runtime) => {
     const request = runtime.getRequest();
     return (
-      !DTO.isAlexaIntentRequest(request) &&
+      !isAlexaEventIntentRequest(request) &&
       !!runtime.storage.get(StorageType.STREAM_PLAY) &&
       runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY)!.action !== StreamAction.END
     );
@@ -40,7 +46,7 @@ export const StreamStateHandler: HandlerFactory<any, typeof utilsObj> = (utils) 
     const streamPlay = runtime.storage.get<StreamPlayStorage>(StorageType.STREAM_PLAY)!;
 
     const request = runtime.getRequest();
-    const intentName = DTO.isLegacyIntentRequest(request) ? request.payload.intent.name : null;
+    const intentName = isIntentRequest(request) ? request.payload.intent.name : null;
 
     let nextId: BaseNode.Utils.NodeID = null;
 

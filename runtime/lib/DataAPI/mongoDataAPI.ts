@@ -2,9 +2,8 @@ import { BaseModels } from '@voiceflow/base-types';
 import { AnyRecord } from 'dns';
 import { Db, ObjectId } from 'mongodb';
 
-import { VersionTag } from '@/types';
-
 import { DataAPI } from './types';
+import { VersionTag } from '@/types';
 
 // shallow objectId to string
 export const shallowObjectIdToString = <T extends Record<string, any>>(obj: T): T => {
@@ -168,7 +167,7 @@ class MongoDataAPI<
         {
           projection: {
             liveVersion: 1,
-            devVersion: 1,
+            devVersion: 1
           },
         }
       );
@@ -182,7 +181,7 @@ class MongoDataAPI<
       default:
         return project.devVersion.toHexString();
     }
-  };
+  }
 
   public getProjectByAPIKey = async (auth: string) => {
     const [apiKeyID, apiKeyKey] = MongoDataAPI.isolateAPIKey(auth).replace('VF.', '').replace('DM.', '').split('.');
