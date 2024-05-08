@@ -3,10 +3,11 @@ import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import { VersionTag } from '@/types';
 
-interface PredictedSlot {
+interface PredictedSlot extends Record<string, unknown> {
   name: string;
   value: string;
 }
+
 export interface NLUGatewayPredictResponse {
   utterance: string;
   predictedIntent: string;

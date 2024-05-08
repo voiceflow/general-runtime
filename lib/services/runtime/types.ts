@@ -1,51 +1,52 @@
 import { BaseNode, BaseRequest, BaseText } from '@voiceflow/base-types';
+import * as DTO from '@voiceflow/dtos';
 
 import type { DataAPI, Runtime } from '@/runtime';
 
 import type { FullServiceMap } from '..';
 
-export type RuntimeRequest = BaseRequest.BaseRequest | null;
+export type RuntimeRequest = DTO.BaseRequest | null;
 
 export type GeneralRuntime = Runtime<RuntimeRequest, DataAPI, FullServiceMap>;
+
+/**
+ * Please remove this function once `@voiceflow/base-types` is fully replaced by `@voiceflow/dtos`.
+ *
+ * Needed to resolve an annoying edge-case where `value: z.unknown()` causes Zod to type the
+ * value as `value?: unknown` but this cannot be assigned to `value: unknown` from `@voiceflow/base-types`.
+ *
+ * Not sure why zod@3.22.4 does this instead of:
+ *  1. Typing `value: z.unknown()` as `value: unknown` and
+ *  2. Typing `value: z.unknown().optional()` as `value?: unknown`
+ * which would more naturally map to TS.
+ *
+ * To resolve the type issue, we create this utility function to ensure that the `payload` property on
+ * each action is defined (as `payload: undefined` as a fallback).
+ */
+export const toBaseTypesIntent = (intent: DTO.IntentRequest): BaseRequest.IntentRequest => {
+  const { actions, ...restPayload } = intent.payload;
+
+  const adaptedActions = intent.payload.actions?.map(
+    (action): BaseRequest.Action.BaseAction => ({ payload: undefined, ...action })
+  );
+
+  return {
+    ...intent,
+    type: BaseRequest.RequestType.INTENT,
+    payload: {
+      ...restPayload,
+      ...(adaptedActions && { actions: adaptedActions }),
+    },
+  };
+};
 
 export interface Prompt {
   content: BaseText.SlateTextValue | string;
   voice?: string;
 }
 
-export const isTextRequest = (request?: RuntimeRequest | null): request is BaseRequest.TextRequest =>
-  !!request && BaseRequest.isTextRequest(request) && typeof request.payload === 'string';
-
-/**
- * Intent request is being reused for both Alexa events and intent events. To distinguish them we check
- * if `request.payload.data` exists, if so this is an Alexa event request
- * otherwise it is a normal intent request
- */
-export const isIntentRequest = (request?: RuntimeRequest | null): request is BaseRequest.IntentRequest =>
-  !!request &&
-  BaseRequest.isIntentRequest(request) &&
-  !!request.payload?.intent?.name &&
-  Array.isArray(request.payload.entities) &&
-  !request.payload?.data;
-
-export const isAlexaEventIntentRequest = (request?: RuntimeRequest | null): request is BaseRequest.IntentRequest =>
-  !!request &&
-  BaseRequest.isIntentRequest(request) &&
-  !!request.payload?.intent?.name &&
-  Array.isArray(request.payload.entities) &&
-  !!request.payload?.data;
-
-export const isActionRequest = (request?: RuntimeRequest | null): request is BaseRequest.ActionRequest =>
-  !!request && BaseRequest.isActionRequest(request);
-
-export const isPathRequest = (request?: RuntimeRequest | null): request is BaseRequest.GeneralRequest =>
-  !!request &&
-  BaseRequest.isGeneralRequest(request) &&
-  request.type.startsWith('path-') &&
-  typeof request.payload?.label === 'string';
-
-export const isRuntimeRequest = (request: any): request is RuntimeRequest => {
-  return request === null || !!(typeof request.type === 'string' && !!request.type);
+export const isRuntimeRequest = (request: unknown): request is RuntimeRequest => {
+  return request === null || DTO.BaseRequestDTO.safeParse(request).success;
 };
 
 export const isPrompt = (prompt: unknown): prompt is Prompt => {
