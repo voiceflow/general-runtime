@@ -4,9 +4,11 @@
  */
 
 import { BaseRequest, RuntimeLogs } from '@voiceflow/base-types';
+import { AnyRequestDTO } from '@voiceflow/dtos';
 import { createSession } from 'better-sse';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
+import logger from '@/logger';
 import { State } from '@/runtime';
 import { Request, Response } from '@/types';
 
@@ -28,6 +30,10 @@ class InteractController extends AbstractController {
     const { userID } = body.session;
     const { action } = body;
     const { state } = body;
+
+    if (action !== null && !AnyRequestDTO.safeParse(action).success) {
+      logger.info(`malformed request object [type]=${action?.type}, [json]=${JSON.stringify(action.request, null, 2)}`);
+    }
 
     try {
       const session = await createSession(req, res, {
@@ -77,6 +83,17 @@ class InteractController extends AbstractController {
       { locale?: string; logs: RuntimeLogs.LogLevel }
     >
   ): Promise<ResponseContext> {
+    if (req.body.request !== null && !AnyRequestDTO.safeParse(req.body.request).success) {
+      logger.info(
+        `malformed request object [type]=${req.body.request?.type}, [json]=${JSON.stringify(req.body.request, null, 2)}`
+      );
+    }
+    if (req.body.action !== null && !AnyRequestDTO.safeParse(req.body.action).success) {
+      logger.info(
+        `malformed request object [type]=${req.body.action?.type}, [json]=${JSON.stringify(req.body.action, null, 2)}`
+      );
+    }
+
     return this.services.interact.handler(req);
   }
 }

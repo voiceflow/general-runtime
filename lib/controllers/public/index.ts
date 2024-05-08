@@ -1,7 +1,9 @@
 import { Validator } from '@voiceflow/backend-utils';
 import { BaseRequest } from '@voiceflow/base-types';
+import { AnyRequestDTO } from '@voiceflow/dtos';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
+import logger from '@/logger';
 import { Request } from '@/types';
 
 import { customAJV, validate } from '../../utils';
@@ -34,6 +36,12 @@ class PublicController extends AbstractController {
       { projectID: string; versionID: string }
     >
   ) {
+    if (req.body.action !== null && !AnyRequestDTO.safeParse(req.body.action).success) {
+      logger.info(
+        `malformed request object [type]=${req.body.action?.type}, [json]=${JSON.stringify(req.body.action, null, 2)}`
+      );
+    }
+
     const trace = await this.services.stateManagement.interact({
       ...req,
       // only pass in select properties to avoid any potential security issues
