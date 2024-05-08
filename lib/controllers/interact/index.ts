@@ -4,18 +4,16 @@
  */
 
 import { BaseRequest, RuntimeLogs } from '@voiceflow/base-types';
-import { AnyRequestDTO } from '@voiceflow/dtos';
 import { createSession } from 'better-sse';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
-import logger from '@/logger';
 import { State } from '@/runtime';
 import { Request, Response } from '@/types';
 
 import { ResponseContext } from '../../services/interact';
 import { validate } from '../../utils';
 import { SharedValidations } from '../../validations';
-import { AbstractController } from '../utils';
+import { AbstractController, logMalformedRequest } from '../utils';
 import { InteractRequestBody, InteractRequestParams } from './dtos/interact.request';
 import { SSE_KEEP_ALIVE_MS, SSE_RETRY_MS } from './interact.const';
 
@@ -30,12 +28,7 @@ class InteractController extends AbstractController {
     const { userID } = body.session;
     const { action } = body;
     const { state } = body;
-
-    if (!!action && !AnyRequestDTO.safeParse(action).success) {
-      logger.info(
-        `malformed request object [action], [type]=${action?.type}, [json]=${JSON.stringify(action.request, null, 2)}`
-      );
-    }
+    logMalformedRequest(action, 'action');
 
     try {
       const session = await createSession(req, res, {
@@ -85,24 +78,8 @@ class InteractController extends AbstractController {
       { locale?: string; logs: RuntimeLogs.LogLevel }
     >
   ): Promise<ResponseContext> {
-    if (!!req.body.request && !AnyRequestDTO.safeParse(req.body.request).success) {
-      logger.info(
-        `malformed request object [request], [type]=${req.body.request?.type}, [json]=${JSON.stringify(
-          req.body.request,
-          null,
-          2
-        )}`
-      );
-    }
-    if (!!req.body.action && !AnyRequestDTO.safeParse(req.body.action).success) {
-      logger.info(
-        `malformed request object [action], [type]=${req.body.action?.type}, [json]=${JSON.stringify(
-          req.body.action,
-          null,
-          2
-        )}`
-      );
-    }
+    logMalformedRequest(req.body.request, 'request');
+    logMalformedRequest(req.body.action, 'action');
 
     return this.services.interact.handler(req);
   }

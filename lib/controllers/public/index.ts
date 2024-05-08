@@ -1,13 +1,11 @@
 import { Validator } from '@voiceflow/backend-utils';
 import { BaseRequest } from '@voiceflow/base-types';
-import { AnyRequestDTO } from '@voiceflow/dtos';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
-import logger from '@/logger';
 import { Request } from '@/types';
 
 import { customAJV, validate } from '../../utils';
-import { AbstractController } from '../utils';
+import { AbstractController, logMalformedRequest } from '../utils';
 import { PublicInteractSchema } from './requests';
 
 const { body, header } = Validator;
@@ -36,15 +34,7 @@ class PublicController extends AbstractController {
       { projectID: string; versionID: string }
     >
   ) {
-    if (!!req.body.action && !AnyRequestDTO.safeParse(req.body.action).success) {
-      logger.info(
-        `malformed request object [action], [type]=${req.body.action?.type}, [json]=${JSON.stringify(
-          req.body.action,
-          null,
-          2
-        )}`
-      );
-    }
+    logMalformedRequest(req.body.action, 'action');
 
     const trace = await this.services.stateManagement.interact({
       ...req,

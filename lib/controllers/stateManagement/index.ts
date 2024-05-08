@@ -1,14 +1,12 @@
 import { Validator } from '@voiceflow/backend-utils';
 import { RuntimeLogs } from '@voiceflow/base-types';
-import { AnyRequestDTO } from '@voiceflow/dtos';
 
 import { SharedValidations } from '@/lib/validations';
-import logger from '@/logger';
 import { State } from '@/runtime';
 import { Request } from '@/types';
 
 import { customAJV, validate } from '../../utils';
-import { AbstractController } from '../utils';
+import { AbstractController, logMalformedRequest } from '../utils';
 import { UpdateSchema } from './requests';
 
 const { body, header, query } = Validator;
@@ -43,24 +41,8 @@ class StateManagementController extends AbstractController {
       { verbose?: boolean; logs?: RuntimeLogs.LogLevel }
     >
   ) {
-    if (!!req.body.request && !AnyRequestDTO.safeParse(req.body.request).success) {
-      logger.info(
-        `malformed request object [request], [type]=${req.body.request?.type}, [json]=${JSON.stringify(
-          req.body.request,
-          null,
-          2
-        )}`
-      );
-    }
-    if (!!req.body.action && !AnyRequestDTO.safeParse(req.body.action).success) {
-      logger.info(
-        `malformed request object [action], [type]=${req.body.action?.type}, [json]=${JSON.stringify(
-          req.body.action,
-          null,
-          2
-        )}`
-      );
-    }
+    logMalformedRequest(req.body.request, 'request');
+    logMalformedRequest(req.body.action, 'action');
     return this.services.stateManagement.interact(req);
   }
 
