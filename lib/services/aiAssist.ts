@@ -44,6 +44,9 @@ class AIAssist extends AbstractManager implements ContextHandler {
 
     if (lastTranscript?.role === BaseUtils.ai.Role.ASSISTANT) {
       lastTranscript.content += `\n${content}`;
+
+      // truncate the content if it's too long, consecutive assistant messages can accumulate
+      lastTranscript.content = lastTranscript.content.substring(0, 10000);
     } else {
       transcript.push({ role: BaseUtils.ai.Role.ASSISTANT, content });
       if (transcript.length > MAX_TURNS) transcript.shift();
