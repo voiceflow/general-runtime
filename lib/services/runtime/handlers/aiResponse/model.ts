@@ -1,7 +1,7 @@
 import { CompletionPrivateHTTPControllerGenerateChatCompletionStream200 as ChatCompletionStream } from '@voiceflow/sdk-http-ml-gateway/generated';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
-import { concat, filter, from, isEmpty, lastValueFrom, map, NEVER, of, reduce, shareReplay, switchMap } from 'rxjs';
+import { concat, concatMap, filter, from, isEmpty, lastValueFrom, map, NEVER, of, reduce, shareReplay } from 'rxjs';
 
 import AIAssist from '@/lib/services/aiAssist';
 import { Store } from '@/runtime';
@@ -44,7 +44,7 @@ export async function modelHandler(
     ),
     promptStream$.pipe(
       isEmpty(),
-      switchMap((isEmpty) => (isEmpty ? NEVER : of(endTrace())))
+      concatMap((isEmpty) => (isEmpty ? NEVER : of(endTrace())))
     )
   );
 
