@@ -2,7 +2,7 @@ import { deepVariableSubstitution } from '@voiceflow/common';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import cloneDeep from 'lodash/cloneDeep';
-import { concat, from, isEmpty, lastValueFrom, map, NEVER, of, reduce, shareReplay, switchMap } from 'rxjs';
+import { concat, concatMap, from, isEmpty, lastValueFrom, map, NEVER, of, reduce, shareReplay } from 'rxjs';
 
 import { FeatureFlag } from '@/lib/feature-flags';
 import { Store } from '@/runtime';
@@ -33,7 +33,7 @@ export async function knowledgeBaseHandler(
       options: { summarization },
     })
   ).pipe(
-    switchMap((stream) => stream),
+    concatMap((stream) => stream),
     shareReplay()
   );
 
@@ -45,7 +45,7 @@ export async function knowledgeBaseHandler(
     ),
     promptStream$.pipe(
       isEmpty(),
-      switchMap((isEmpty) => (isEmpty ? NEVER : of(endTrace())))
+      concatMap((isEmpty) => (isEmpty ? NEVER : of(endTrace())))
     )
   );
 
