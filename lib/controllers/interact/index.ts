@@ -28,7 +28,6 @@ class InteractController extends AbstractController {
     const { userID } = body.session;
     const { action } = body;
     const { state } = body;
-    logMalformedRequest(action, 'action');
 
     try {
       const session = await createSession(req, res, {
