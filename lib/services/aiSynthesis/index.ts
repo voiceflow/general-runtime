@@ -1,6 +1,6 @@
 import { BaseModels, BaseUtils } from '@voiceflow/base-types';
 import _merge from 'lodash/merge';
-import { from, lastValueFrom, map, Observable, of, reduce, switchMap } from 'rxjs';
+import { concatMap, from, lastValueFrom, map, Observable, of, reduce } from 'rxjs';
 
 import { AIModelContext } from '@/lib/clients/ai/ai-model.interface';
 import { AIResponse, EMPTY_AI_RESPONSE, fetchChat, fetchChatStream } from '@/lib/services/runtime/handlers/utils/ai';
@@ -261,7 +261,7 @@ class AISynthesis extends AbstractManager {
         options: settings?.summarization,
         context: { projectID: project._id, workspaceID: project.teamID },
       })
-    ).pipe(map((answer, i) => (i === 0 ? { chunks, ...answer! } : answer!)));
+    ).pipe(map((answer, i) => (i === 0 ? { chunks, ...answer } : answer)));
   }
 
   async knowledgeBaseQuery(params: {
@@ -278,7 +278,7 @@ class AISynthesis extends AbstractManager {
   }): Promise<KBResponse> {
     return lastValueFrom(
       from(this.knowledgeBaseQueryStream(params)).pipe(
-        switchMap((stream) => stream),
+        concatMap((stream) => stream),
         reduce<KBResponse, KBResponse>((acc, completion) => {
           if (!acc.output) acc.output = '';
           if (!acc.chunks) acc.chunks = [];
