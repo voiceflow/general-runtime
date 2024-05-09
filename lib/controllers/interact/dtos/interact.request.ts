@@ -1,7 +1,8 @@
+import { AnyRequestDTO } from '@voiceflow/dtos';
 import z from 'zod';
 
 export const InteractRequestBody = z.object({
-  action: z.record(z.any()),
+  action: AnyRequestDTO,
   session: z.object({
     sessionID: z.string(),
     userID: z.string(),

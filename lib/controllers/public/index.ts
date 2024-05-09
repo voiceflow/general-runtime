@@ -5,7 +5,7 @@ import { RuntimeRequest } from '@/lib/services/runtime/types';
 import { Request } from '@/types';
 
 import { customAJV, validate } from '../../utils';
-import { AbstractController } from '../utils';
+import { AbstractController, logMalformedRequest } from '../utils';
 import { PublicInteractSchema } from './requests';
 
 const { body, header } = Validator;
@@ -34,6 +34,8 @@ class PublicController extends AbstractController {
       { projectID: string; versionID: string }
     >
   ) {
+    logMalformedRequest(req.body.action, 'action');
+
     const trace = await this.services.stateManagement.interact({
       ...req,
       // only pass in select properties to avoid any potential security issues
