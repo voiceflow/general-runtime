@@ -1,6 +1,6 @@
 import { BaseRequest } from '@voiceflow/base-types';
 import { IntentClassificationSettings, PrototypeModel, Version } from '@voiceflow/dtos';
-import { CompletionPrivateHTTPControllerGenerateCompletion200 } from '@voiceflow/sdk-http-ml-gateway/generated';
+import type { IIntentFullfilment } from '@voiceflow/natural-language-commander';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -143,9 +143,7 @@ describe('predictor unit tests', () => {
       mlGateway: {
         private: {
           completion: {
-            generateCompletion: sinon
-              .stub()
-              .resolves((mlGateway ?? mlGatewayPrediction) as CompletionPrivateHTTPControllerGenerateCompletion200),
+            generateCompletion: sinon.stub().resolves(mlGateway ?? mlGatewayPrediction),
           },
         },
       },

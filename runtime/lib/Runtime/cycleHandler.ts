@@ -6,16 +6,9 @@ import ProgramModel from '@/runtime/lib/Program';
 import Runtime from '@/runtime/lib/Runtime';
 import Storage from '@/runtime/lib/Runtime/Store';
 
-import { HandleContextEventHandler } from '../Context/types';
-
 export const HANDLER_OVERFLOW = 400;
 
-const cycleHandler = async (
-  runtime: Runtime,
-  program: ProgramModel,
-  variableState: Storage,
-  eventHandler: HandleContextEventHandler
-): Promise<void> => {
+const cycleHandler = async (runtime: Runtime, program: ProgramModel, variableState: Storage): Promise<void> => {
   const referenceFrame = runtime.stack.top();
   const currentFrames = runtime.stack.getFrames();
 
@@ -46,7 +39,7 @@ const cycleHandler = async (
         if (handler) {
           await runtime.callEvent(EventType.handlerWillHandle, { node, variables: variableState });
 
-          nextID = await handler.handle(_node, runtime, variableState, program, eventHandler);
+          nextID = await handler.handle(_node, runtime, variableState, program);
 
           await runtime.callEvent(EventType.handlerDidHandle, { node, variables: variableState });
         }

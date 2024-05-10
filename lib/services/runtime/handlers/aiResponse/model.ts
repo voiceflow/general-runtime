@@ -1,4 +1,3 @@
-import { CompletionPrivateHTTPControllerGenerateChatCompletionStream200 as ChatCompletionStream } from '@voiceflow/sdk-http-ml-gateway/generated';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { concat, concatMap, filter, from, isEmpty, lastValueFrom, map, NEVER, of, reduce, shareReplay } from 'rxjs';
@@ -54,7 +53,7 @@ export async function modelHandler(
   // Combine all LLM responses into a single `AIResponse`
   const responseConsumerPromise = lastValueFrom(
     promptStream$.pipe(
-      reduce<ChatCompletionStream, AIResponse>(
+      reduce<AIResponse, AIResponse>(
         (acc, completion) => {
           if (!acc.output) acc.output = '';
 

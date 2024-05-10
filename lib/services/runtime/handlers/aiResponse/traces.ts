@@ -1,16 +1,16 @@
 import { BaseTrace } from '@voiceflow/base-types';
-import { CompletionPrivateHTTPControllerGenerateChatCompletionStream200 } from '@voiceflow/sdk-http-ml-gateway/generated';
 import { VoiceNode } from '@voiceflow/voice-types';
 
 import { Runtime } from '@/runtime';
 
+import { AIResponse } from '../utils/ai';
 import { isChatProject } from '../utils/output';
 import { getVersionDefaultVoice } from '../utils/version';
 
 export const completionToStartTrace = (
   runtime: Runtime,
   node: VoiceNode.AIResponse.Node,
-  completion: CompletionPrivateHTTPControllerGenerateChatCompletionStream200
+  completion: AIResponse
 ): BaseTrace.CompletionStartTrace => ({
   type: BaseTrace.TraceType.COMPLETION_START,
   payload: {
@@ -28,9 +28,7 @@ export const completionToStartTrace = (
   },
 });
 
-export const completionToContinueTrace = (
-  completion: CompletionPrivateHTTPControllerGenerateChatCompletionStream200
-): BaseTrace.CompletionContinueTrace => ({
+export const completionToContinueTrace = (completion: AIResponse): BaseTrace.CompletionContinueTrace => ({
   type: BaseTrace.TraceType.COMPLETION_CONTINUE,
   payload: {
     completion: completion.output!,

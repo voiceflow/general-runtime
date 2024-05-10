@@ -1,30 +1,21 @@
-import { MLGatewayClient } from '@voiceflow/sdk-http-ml-gateway';
 import { fetch } from 'undici';
 
-import { AbstractClient } from './utils';
+export class MLGateway {
+  private client?: unknown;
 
-class MLGateway extends AbstractClient {
-  private client: MLGatewayClient | undefined;
+  constructor(private readonly endpointURL: string | null) {}
 
-  async start() {
-    if (this.config.ML_GATEWAY_SERVICE_URI && this.config.ML_GATEWAY_SERVICE_PORT_APP) {
-      const baseURL = new URL(
-        `${this.config.NODE_ENV === 'e2e' ? 'https' : 'http'}://${this.config.ML_GATEWAY_SERVICE_URI}:${
-          this.config.ML_GATEWAY_SERVICE_PORT_APP
-        }`
-      ).href;
+  public async getClient() {
+    // eslint-disable-next-line import/no-extraneous-dependencies
+    const sdk = await import('@voiceflow/sdk-http-ml-gateway').catch(() => null);
+    if (!sdk) return undefined;
 
-      this.client = new MLGatewayClient({
-        baseURL,
-        fetch,
-      });
+    if (!this.client) {
+      if (!this.endpointURL) return undefined;
+
+      this.client = new sdk.MLGatewayClient({ baseURL: this.endpointURL, fetch });
     }
-  }
 
-  // no public endpoints allowed
-  get private() {
-    return this.client?.private;
+    return this.client as InstanceType<typeof sdk.MLGatewayClient>;
   }
 }
-
-export default MLGateway;
