@@ -161,10 +161,6 @@
     "type": "git",
     "url": "git+https://github.com/voiceflow/general-runtime.git"
   },
-  "resolutions": {
-    "js-zip": "^3.8.0",
-    "qs": "^6.9.7"
-  },
   "scripts": {
     "build": "rm -rf build && tsc -p ./tsconfig.build.json && tsc-alias -p ./tsconfig.build.json && cpy app.config.js yarn.lock build/",
     "commit": "cz",

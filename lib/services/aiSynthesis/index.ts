@@ -1,20 +1,19 @@
 import { BaseModels, BaseUtils } from '@voiceflow/base-types';
 import _merge from 'lodash/merge';
-import { concatMap, from, lastValueFrom, map, Observable, of, reduce } from 'rxjs';
 
 import { AIModelContext } from '@/lib/clients/ai/ai-model.interface';
-import { AIResponse, EMPTY_AI_RESPONSE, fetchChat, fetchChatStream } from '@/lib/services/runtime/handlers/utils/ai';
+import { AIResponse, EMPTY_AI_RESPONSE, fetchChat } from '@/lib/services/runtime/handlers/utils/ai';
 import { getCurrentTime } from '@/lib/services/runtime/handlers/utils/generativeNoMatch';
 import {
   fetchFaq,
   fetchKnowledgeBase,
   getKBSettings,
+  KnowledgeBaseFaqSet,
   KnowledgeBaseResponse,
 } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
 
 import { SegmentEventType } from '../runtime/types';
 import { AbstractManager } from '../utils';
-import { KBResponse } from './types';
 import { convertTagsFilterToIDs, generateAnswerSynthesisPrompt, generateTagLabelMap, removePromptLeak } from './utils';
 
 class AISynthesis extends AbstractManager {
@@ -34,7 +33,7 @@ class AISynthesis extends AbstractManager {
     return output;
   }
 
-  answerSynthesisStream({
+  async answerSynthesis({
     question,
     instruction,
     data,
@@ -48,7 +47,9 @@ class AISynthesis extends AbstractManager {
     variables?: Record<string, any>;
     options?: Partial<BaseUtils.ai.AIModelParams>;
     context: AIModelContext;
-  }): Observable<AIResponse> {
+  }): Promise<AIResponse | null> {
+    let response: AIResponse = EMPTY_AI_RESPONSE;
+
     const systemWithTime = `${system}\n\n${getCurrentTime()}`.trim();
 
     const options = { model, system: systemWithTime, temperature, maxTokens };
@@ -60,54 +61,22 @@ class AISynthesis extends AbstractManager {
       },
     ];
 
-    return from(
-      fetchChatStream(
-        { ...options, messages },
-        this.services.mlGateway,
-        {
-          retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
-          retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
-          context,
-        },
-        variables
-      )
-    ).pipe(
-      map((completion) => {
-        if (!completion.output) return completion;
-
-        completion.output = this.filterNotFound(completion.output);
-        completion.output = removePromptLeak(completion.output);
-        completion.output = completion.output || null;
-
-        return completion;
-      })
+    response = await fetchChat(
+      { ...options, messages },
+      this.services.mlGateway,
+      {
+        retries: this.DEFAULT_ANSWER_SYNTHESIS_RETRIES,
+        retryDelay: this.DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS,
+        context,
+      },
+      variables
     );
-  }
 
-  async answerSynthesis(params: {
-    question: string;
-    instruction?: string;
-    data: KnowledgeBaseResponse;
-    variables?: Record<string, any>;
-    options?: Partial<BaseUtils.ai.AIModelParams>;
-    context: AIModelContext;
-  }): Promise<AIResponse | null> {
-    const response: AIResponse = await lastValueFrom(
-      from(this.answerSynthesisStream(params)).pipe(
-        reduce((acc, completion) => {
-          if (!completion) return acc;
-          if (!acc.output) acc.output = '';
-
-          acc.output += completion.output ?? '';
-          acc.answerTokens += completion.answerTokens;
-          acc.queryTokens += completion.queryTokens;
-          acc.tokens += completion.tokens;
-          acc.model = completion.model;
-          acc.multiplier = completion.multiplier;
-          return acc;
-        }, EMPTY_AI_RESPONSE)
-      )
-    );
+    response.output = response.output?.trim() || null;
+    if (response.output) {
+      response.output = this.filterNotFound(response.output);
+      response.output = removePromptLeak(response.output);
+    }
 
     return response;
   }
@@ -185,7 +154,7 @@ class AISynthesis extends AbstractManager {
     }
   };
 
-  async knowledgeBaseQueryStream({
+  async knowledgeBaseQuery({
     project,
     version,
     question,
@@ -204,7 +173,7 @@ class AISynthesis extends AbstractManager {
       summarization?: Partial<BaseModels.Project.KnowledgeBaseSettings['summarization']>;
     };
     tags?: BaseModels.Project.KnowledgeBaseTagsFilter;
-  }): Promise<Observable<KBResponse>> {
+  }): Promise<AIResponse & Partial<KnowledgeBaseResponse> & { faqSet?: KnowledgeBaseFaqSet }> {
     let tagsFilter: BaseModels.Project.KnowledgeBaseTagsFilter = {};
 
     if (tags) {
@@ -231,10 +200,10 @@ class AISynthesis extends AbstractManager {
       project?.knowledgeBase?.faqSets,
       settingsWithoutModel
     );
-    if (faq?.answer) return of({ ...EMPTY_AI_RESPONSE, output: faq.answer, faqSet: faq.faqSet });
+    if (faq?.answer) return { ...EMPTY_AI_RESPONSE, output: faq.answer, faqSet: faq.faqSet };
 
     const data = await fetchKnowledgeBase(project._id, project.teamID, question, settingsWithoutModel, tagsFilter);
-    if (!data) return of({ ...EMPTY_AI_RESPONSE, chunks: [] });
+    if (!data) return { ...EMPTY_AI_RESPONSE, chunks: [] };
 
     // attach metadata to chunks
     const api = await this.services.dataAPI.get();
@@ -251,50 +220,22 @@ class AISynthesis extends AbstractManager {
       },
     }));
 
-    if (!synthesis) return of({ ...EMPTY_AI_RESPONSE, chunks });
+    if (!synthesis) return { ...EMPTY_AI_RESPONSE, chunks };
 
-    return from(
-      this.services.aiSynthesis.answerSynthesisStream({
-        question,
-        instruction,
-        data,
-        options: settings?.summarization,
-        context: { projectID: project._id, workspaceID: project.teamID },
-      })
-    ).pipe(map((answer, i) => (i === 0 ? { chunks, ...answer } : answer)));
-  }
+    const answer = await this.services.aiSynthesis.answerSynthesis({
+      question,
+      instruction,
+      data,
+      options: settings?.summarization,
+      context: { projectID: project._id, workspaceID: project.teamID },
+    });
 
-  async knowledgeBaseQuery(params: {
-    project: BaseModels.Project.Model<any, any>;
-    version?: BaseModels.Version.Model<any> | null;
-    question: string;
-    instruction?: string;
-    synthesis?: boolean;
-    options?: {
-      search?: Partial<BaseModels.Project.KnowledgeBaseSettings['search']>;
-      summarization?: Partial<BaseModels.Project.KnowledgeBaseSettings['summarization']>;
+    if (!answer) return { ...EMPTY_AI_RESPONSE, chunks };
+
+    return {
+      chunks,
+      ...answer,
     };
-    tags?: BaseModels.Project.KnowledgeBaseTagsFilter;
-  }): Promise<KBResponse> {
-    return lastValueFrom(
-      from(this.knowledgeBaseQueryStream(params)).pipe(
-        concatMap((stream) => stream),
-        reduce<KBResponse, KBResponse>((acc, completion) => {
-          if (!acc.output) acc.output = '';
-          if (!acc.chunks) acc.chunks = [];
-
-          acc.chunks.push(...(completion.chunks ?? []));
-          acc.output += completion.output ?? '';
-          acc.answerTokens += completion.answerTokens;
-          acc.queryTokens += completion.queryTokens;
-          acc.tokens += completion.tokens;
-          acc.model = completion.model;
-          acc.multiplier = completion.multiplier;
-          acc.faqSet = completion.faqSet;
-          return acc;
-        }, EMPTY_AI_RESPONSE)
-      )
-    );
   }
 }
 
