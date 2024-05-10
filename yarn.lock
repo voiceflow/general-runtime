@@ -4804,6 +4804,8 @@ __metadata:
       optional: true
     "@voiceflow/sdk-billing":
       optional: true
+    "@voiceflow/sdk-http-ml-gateway":
+      optional: true
   languageName: unknown
   linkType: soft
 

@@ -39,7 +39,6 @@ describe('ifV2 handler unit tests', () => {
         const handler = IfV2Handler({ _v1 } as any);
         const codeHandler = { handle: sinon.stub() };
         sinon.stub(CodeHandler, 'default').returns(codeHandler as any);
-        const eventHandler = sinon.stub();
 
         const node = { payload: { expressions: [] }, paths: [] };
         const runtime = {
@@ -49,10 +48,8 @@ describe('ifV2 handler unit tests', () => {
         const variables = { var1: 'val1' };
         const program = { lines: [] };
 
-        expect(
-          await handler.handle(node as any, runtime as any, variables as any, program as any, eventHandler)
-        ).to.eql(output);
-        expect(_v1.handle.args).to.eql([[node, runtime, variables, program, eventHandler]]);
+        expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(output);
+        expect(_v1.handle.args).to.eql([[node, runtime, variables, program]]);
       });
     });
 
@@ -77,11 +74,9 @@ describe('ifV2 handler unit tests', () => {
         const variables = { var1: 'val1' };
         const program = { lines: [], getNode: (id: string) => ({ id, type: BaseNode.NodeType.SPEAK }) };
 
-        const eventHandler = sinon.stub();
-
-        expect(
-          await handler.handle(node as any, runtime as any, variables as any, program as any, eventHandler)
-        ).to.eql(node.payload.elseId);
+        expect(await handler.handle(node as any, runtime as any, variables as any, program as any)).to.eql(
+          node.payload.elseId
+        );
 
         expect(CodeHandlerStub.calledOnce).to.eql(true);
         expect(Object.keys((CodeHandlerStub.args[0][0] as any).callbacks)).to.eql(['setOutputPort', 'addDebugError']);
@@ -97,7 +92,6 @@ describe('ifV2 handler unit tests', () => {
             runtime,
             variables,
             program,
-            eventHandler,
           ],
         ]);
 

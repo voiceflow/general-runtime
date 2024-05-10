@@ -2,13 +2,12 @@ import { S } from '@/runtime/lib/Constants';
 import { EventType } from '@/runtime/lib/Lifecycle';
 import Runtime from '@/runtime/lib/Runtime';
 
-import { HandleContextEventHandler } from '../Context/types';
 import cycleHandler from './cycleHandler';
 import { createCombinedVariables, mapStores, saveCombinedVariables } from './utils/variables';
 
 const STACK_OVERFLOW = 60;
 
-const cycleStack = async (runtime: Runtime, eventHandler: HandleContextEventHandler, depth = 0): Promise<void> => {
+const cycleStack = async (runtime: Runtime, depth = 0): Promise<void> => {
   if (runtime.stack.getSize() === 0 || depth > STACK_OVERFLOW) {
     runtime.end();
     return;
@@ -33,7 +32,7 @@ const cycleStack = async (runtime: Runtime, eventHandler: HandleContextEventHand
 
   try {
     await runtime.callEvent(EventType.stateWillExecute, { program, variables: combinedVariables });
-    await cycleHandler(runtime, program, combinedVariables, eventHandler);
+    await cycleHandler(runtime, program, combinedVariables);
     await runtime.callEvent(EventType.stateDidExecute, { program, variables: combinedVariables });
   } catch (error) {
     await runtime.callEvent(EventType.stateDidCatch, { error });
@@ -59,7 +58,7 @@ const cycleStack = async (runtime: Runtime, eventHandler: HandleContextEventHand
     }
   }
 
-  await cycleStack(runtime, eventHandler, depth + 1);
+  await cycleStack(runtime, depth + 1);
 };
 
 export default cycleStack;

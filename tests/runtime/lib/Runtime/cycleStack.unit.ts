@@ -85,9 +85,7 @@ describe('Runtime cycleStack unit tests', () => {
         variables: 'runtime-variables',
       };
 
-      const eventHandler = () => undefined;
-
-      await cycleStack(runtime as any, eventHandler);
+      await cycleStack(runtime as any);
 
       expect(runtime.getProgram.args).to.eql([[versionID, diagramID]]);
       expect(currentFrame.hydrate.args).to.eql([[program]]);
@@ -96,7 +94,7 @@ describe('Runtime cycleStack unit tests', () => {
         [EventType.stateWillExecute, { program, variables: combinedVariables }],
         [EventType.stateDidExecute, { program, variables: combinedVariables }],
       ]);
-      expect(cycleHandlerStub.args).to.eql([[runtime, program, combinedVariables, eventHandler]]);
+      expect(cycleHandlerStub.args).to.eql([[runtime, program, combinedVariables]]);
       expect(saveCombinedVariablesStub.args).to.eql([[combinedVariables, runtime.variables, currentFrame.variables]]);
     });
 

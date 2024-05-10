@@ -8,7 +8,7 @@ export type SetV2Options = Record<string, never>;
 
 const SetV2Handler: HandlerFactory<BaseNode.SetV2.Node, SetV2Options | void> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.SET_V2,
-  handle: async (node, runtime, variables, program, eventHandler) => {
+  handle: async (node, runtime, variables, program) => {
     const codeHandler = CodeHandler();
 
     const beforeValues: Map<string, any> = new Map();
@@ -33,8 +33,7 @@ const SetV2Handler: HandlerFactory<BaseNode.SetV2.Node, SetV2Options | void> = (
       { code: codeLines.join('\n'), id: GENERATED_CODE_NODE_ID, type: BaseNode.NodeType.CODE },
       runtime,
       variables,
-      program,
-      eventHandler
+      program
     );
 
     runtime.debugLogging.recordStepLog(RuntimeLogs.Kinds.StepLogKind.SET, node, {

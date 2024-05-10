@@ -4,7 +4,7 @@ import { AIModel } from '@voiceflow/dtos';
 import { from, lastValueFrom, reduce } from 'rxjs';
 
 import { CompletionOptions, GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
-import MLGateway from '@/lib/clients/ml-gateway';
+import { MLGateway } from '@/lib/clients/ml-gateway';
 import { Runtime } from '@/runtime';
 
 import AIAssist from '../../../aiAssist';
@@ -77,7 +77,8 @@ export async function* fetchChatStream(
   options: CompletionOptions,
   variablesState: Record<string, unknown> = {}
 ): AsyncGenerator<AIResponse> {
-  if (!mlGateway.private) {
+  const mlGatewayClient = await mlGateway.getClient();
+  if (!mlGatewayClient) {
     yield EMPTY_AI_RESPONSE;
     return;
   }
@@ -88,7 +89,7 @@ export async function* fetchChatStream(
     content: replaceVariables(message.content, sanitizedVars),
   }));
 
-  yield* mlGateway.private.completion.generateChatCompletionStream({
+  yield* mlGatewayClient.private.completion.generateChatCompletionStream({
     messages,
     params: { ...params, system: replaceVariables(params.system, sanitizedVars) },
     options,
@@ -128,7 +129,8 @@ export async function* fetchPromptStream(
   options: CompletionOptions,
   variablesState: Record<string, unknown> = {}
 ) {
-  if (!mlGateway.private) {
+  const mlGatewayClient = await mlGateway.getClient();
+  if (!mlGatewayClient) {
     yield EMPTY_AI_RESPONSE;
     return;
   }
@@ -151,7 +153,7 @@ export async function* fetchPromptStream(
     messages = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
   }
 
-  yield* mlGateway.private.completion.generateChatCompletionStream({
+  yield* mlGatewayClient.private.completion.generateChatCompletionStream({
     messages,
     params: {
       ...params,
@@ -171,7 +173,8 @@ export const fetchPrompt = async (
   options: CompletionOptions,
   variablesState: Record<string, unknown> = {}
 ): Promise<AIResponse> => {
-  if (!mlGateway.private) return EMPTY_AI_RESPONSE;
+  const mlGatewayClient = await mlGateway.getClient();
+  if (!mlGatewayClient) return EMPTY_AI_RESPONSE;
 
   const sanitizedVars = sanitizeVariables(variablesState);
 
@@ -191,7 +194,7 @@ export const fetchPrompt = async (
   }
 
   const { output, tokens, queryTokens, answerTokens, model, multiplier } =
-    (await mlGateway.private.completion.generateChatCompletion({
+    (await mlGatewayClient.private.completion.generateChatCompletion({
       messages,
       params: {
         ...params,

@@ -8,7 +8,7 @@ import AnalyticsIngester, { IngesterClient } from './analytics-ingester';
 import { BillingClient } from './billing-client';
 import DataAPI from './dataAPI';
 import Metrics, { MetricsType } from './metrics';
-import MLGateway from './ml-gateway';
+import { MLGateway } from './ml-gateway';
 import MongoDB from './mongodb';
 import { RedisClient } from './redis';
 import Static, { StaticType } from './static';
@@ -41,7 +41,6 @@ const buildClients = (config: Config): ClientMap => {
     mongo,
     dataAPI: new DataAPI({ config, mongo }),
     metrics: Metrics(config),
-    mlGateway: new MLGateway(config),
     rateLimitClient: RateLimitClient('general-runtime', redis, config),
     analyticsIngester: AnalyticsIngester(config),
     analyticsPlatform: new AnalyticsClient(
@@ -62,6 +61,15 @@ const buildClients = (config: Config): ClientMap => {
           ).href
         : null
     ),
+    mlGateway: new MLGateway(
+      config.ML_GATEWAY_SERVICE_URI && config.ML_GATEWAY_SERVICE_PORT_APP
+        ? new URL(
+            `${config.NODE_ENV === 'e2e' ? 'https' : 'http'}://${config.ML_GATEWAY_SERVICE_URI}:${
+              config.ML_GATEWAY_SERVICE_PORT_APP
+            }`
+          ).href
+        : null
+    ),
     unleash,
   };
 };
@@ -69,7 +77,6 @@ const buildClients = (config: Config): ClientMap => {
 export const initClients = async (clients: ClientMap) => {
   await clients.unleash?.ready();
   await clients.mongo?.start();
-  await clients.mlGateway?.start();
 };
 
 export const stopClients = async (_config: Config, clients: ClientMap) => {

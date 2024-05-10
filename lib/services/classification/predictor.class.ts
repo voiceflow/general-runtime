@@ -7,7 +7,7 @@ import type { AxiosStatic } from 'axios';
 import { EventEmitter } from 'node:events';
 import { match } from 'ts-pattern';
 
-import MLGateway from '@/lib/clients/ml-gateway';
+import { MLGateway } from '@/lib/clients/ml-gateway';
 import logger from '@/logger';
 
 import { handleNLCCommand } from '../nlu/nlc';
@@ -200,6 +200,9 @@ export class Predictor extends EventEmitter {
     nluPrediction: NLUIntentPrediction,
     { mlGateway }: { mlGateway: MLGateway }
   ): Promise<Omit<Prediction, 'predictedSlots'> | null> {
+    const mlGatewayClient = await mlGateway.getClient();
+    if (!mlGatewayClient) return null;
+
     if (!isIntentClassificationLLMSettings(this.settings)) {
       return null;
     }
@@ -235,7 +238,7 @@ export class Predictor extends EventEmitter {
       return null;
     }
 
-    const completionResponse = await mlGateway.private?.completion
+    const completionResponse = await mlGatewayClient.private?.completion
       .generateCompletion({
         workspaceID: this.props.workspaceID,
         prompt,
