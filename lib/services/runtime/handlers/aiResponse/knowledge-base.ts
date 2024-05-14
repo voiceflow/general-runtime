@@ -62,17 +62,20 @@ export async function knowledgeBaseHandler(
 
   const responseConsumerPromise = lastValueFrom(
     promptStream$.pipe(
-      reduce((acc, completion) => {
-        if (!acc.output) acc.output = '';
+      reduce(
+        (acc, completion) => {
+          if (!acc.output) acc.output = '';
 
-        acc.output += completion.output ?? '';
-        acc.answerTokens += completion.answerTokens;
-        acc.queryTokens += completion.queryTokens;
-        acc.tokens += completion.tokens;
-        acc.model = completion.model;
-        acc.multiplier = completion.multiplier;
-        return acc;
-      }, EMPTY_AI_RESPONSE)
+          acc.output += completion.output ?? '';
+          acc.answerTokens += completion.answerTokens;
+          acc.queryTokens += completion.queryTokens;
+          acc.tokens += completion.tokens;
+          acc.model = completion.model;
+          acc.multiplier = completion.multiplier;
+          return acc;
+        },
+        { ...EMPTY_AI_RESPONSE }
+      )
     )
   );
 
