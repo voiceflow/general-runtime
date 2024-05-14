@@ -1,6 +1,7 @@
+/* eslint-disable sonarjs/cognitive-complexity */
 import { BaseModels, BaseUtils } from '@voiceflow/base-types';
 import _merge from 'lodash/merge';
-import { concatMap, from, lastValueFrom, map, Observable, of, reduce } from 'rxjs';
+import { concatMap, filter, from, lastValueFrom, map, Observable, of, reduce } from 'rxjs';
 
 import { AIModelContext } from '@/lib/clients/ai/ai-model.interface';
 import { AIResponse, EMPTY_AI_RESPONSE, fetchChat, fetchChatStream } from '@/lib/services/runtime/handlers/utils/ai';
@@ -14,6 +15,7 @@ import {
 
 import { SegmentEventType } from '../runtime/types';
 import { AbstractManager } from '../utils';
+import { BufferedReducerSubject } from './buffer-reduce.subject';
 import { KBResponse } from './types';
 import { convertTagsFilterToIDs, generateAnswerSynthesisPrompt, generateTagLabelMap, removePromptLeak } from './utils';
 
@@ -27,8 +29,8 @@ class AISynthesis extends AbstractManager {
   private readonly DEFAULT_QUESTION_SYNTHESIS_RETRIES = 2;
 
   private filterNotFound(output: string) {
-    const upperCase = output?.toUpperCase();
-    if (upperCase?.includes('NOT_FOUND') || upperCase?.startsWith("I'M SORRY,") || upperCase?.includes('AS AN AI')) {
+    const upperCase = output.toUpperCase();
+    if (upperCase.includes('NOT_FOUND') || upperCase?.startsWith("I'M SORRY,") || upperCase?.includes('AS AN AI')) {
       return null;
     }
     return output;
@@ -71,17 +73,7 @@ class AISynthesis extends AbstractManager {
         },
         variables
       )
-    ).pipe(
-      map((completion) => {
-        if (!completion.output) return completion;
-
-        completion.output = this.filterNotFound(completion.output);
-        completion.output = removePromptLeak(completion.output);
-        completion.output = completion.output || null;
-
-        return completion;
-      })
-    );
+    ).pipe(filter((completion) => !!completion?.output));
   }
 
   async answerSynthesis(params: {
@@ -94,20 +86,29 @@ class AISynthesis extends AbstractManager {
   }): Promise<AIResponse | null> {
     const response: AIResponse = await lastValueFrom(
       from(this.answerSynthesisStream(params)).pipe(
-        reduce((acc, completion) => {
-          if (!completion) return acc;
-          if (!acc.output) acc.output = '';
+        reduce(
+          (acc, completion) => {
+            if (!completion) return acc;
+            if (!acc.output) acc.output = '';
 
-          acc.output += completion.output ?? '';
-          acc.answerTokens += completion.answerTokens;
-          acc.queryTokens += completion.queryTokens;
-          acc.tokens += completion.tokens;
-          acc.model = completion.model;
-          acc.multiplier = completion.multiplier;
-          return acc;
-        }, EMPTY_AI_RESPONSE)
+            acc.output += completion.output ?? '';
+            acc.answerTokens += completion.answerTokens;
+            acc.queryTokens += completion.queryTokens;
+            acc.tokens += completion.tokens;
+            acc.model = completion.model;
+            acc.multiplier = completion.multiplier;
+            return acc;
+          },
+          { ...EMPTY_AI_RESPONSE }
+        )
       )
     );
+
+    response.output = response.output?.trim() || null;
+    if (response.output) {
+      response.output = this.filterNotFound(response.output);
+      response.output = removePromptLeak(response.output);
+    }
 
     return response;
   }
@@ -253,7 +254,32 @@ class AISynthesis extends AbstractManager {
 
     if (!synthesis) return of({ ...EMPTY_AI_RESPONSE, chunks });
 
-    return from(
+    const stream$ = new BufferedReducerSubject<KBResponse>(
+      (resp) => {
+        const output = (resp.output ?? '').toLocaleUpperCase();
+        // Stop stream all together if output is a bad phrase
+        if (this.filterNotFound(resp.output ?? '') === null) return 'stop';
+
+        // Keep buffering if the output appears to match a bad phrase
+        return 'NOT_FOUND'.startsWith(output) || "I'M SORRY,".startsWith(output) || 'AS AN AI'.startsWith(output);
+      },
+      (buffer, value) => {
+        if (!buffer.output) buffer.output = '';
+        if (!buffer.chunks) buffer.chunks = [];
+
+        buffer.chunks.push(...(value.chunks ?? []));
+        buffer.output += value.output ?? '';
+        buffer.answerTokens += value.answerTokens;
+        buffer.queryTokens += value.queryTokens;
+        buffer.tokens += value.tokens;
+        buffer.model = value.model;
+        buffer.multiplier = value.multiplier;
+        buffer.faqSet = value.faqSet;
+        return buffer;
+      }
+    );
+
+    from(
       this.services.aiSynthesis.answerSynthesisStream({
         question,
         instruction,
@@ -261,7 +287,11 @@ class AISynthesis extends AbstractManager {
         options: settings?.summarization,
         context: { projectID: project._id, workspaceID: project.teamID },
       })
-    ).pipe(map((answer, i) => (i === 0 ? { chunks, ...answer } : answer)));
+    )
+      .pipe(map((answer, i) => (i === 0 ? { chunks, ...answer } : answer)))
+      .subscribe(stream$);
+
+    return stream$;
   }
 
   async knowledgeBaseQuery(params: {
@@ -276,25 +306,36 @@ class AISynthesis extends AbstractManager {
     };
     tags?: BaseModels.Project.KnowledgeBaseTagsFilter;
   }): Promise<KBResponse> {
-    return lastValueFrom(
+    const response = await lastValueFrom(
       from(this.knowledgeBaseQueryStream(params)).pipe(
         concatMap((stream) => stream),
-        reduce<KBResponse, KBResponse>((acc, completion) => {
-          if (!acc.output) acc.output = '';
-          if (!acc.chunks) acc.chunks = [];
+        reduce<KBResponse, KBResponse>(
+          (acc, completion) => {
+            if (!acc.output) acc.output = '';
+            if (!acc.chunks) acc.chunks = [];
 
-          acc.chunks.push(...(completion.chunks ?? []));
-          acc.output += completion.output ?? '';
-          acc.answerTokens += completion.answerTokens;
-          acc.queryTokens += completion.queryTokens;
-          acc.tokens += completion.tokens;
-          acc.model = completion.model;
-          acc.multiplier = completion.multiplier;
-          acc.faqSet = completion.faqSet;
-          return acc;
-        }, EMPTY_AI_RESPONSE)
+            acc.chunks.push(...(completion.chunks ?? []));
+            acc.output += completion.output ?? '';
+            acc.answerTokens += completion.answerTokens;
+            acc.queryTokens += completion.queryTokens;
+            acc.tokens += completion.tokens;
+            acc.model = completion.model;
+            acc.multiplier = completion.multiplier;
+            acc.faqSet = completion.faqSet;
+            return acc;
+          },
+          { ...EMPTY_AI_RESPONSE }
+        )
       )
     );
+
+    response.output = response.output?.trim() || null;
+    if (response.output) {
+      response.output = this.filterNotFound(response.output);
+      response.output = removePromptLeak(response.output);
+    }
+
+    return response;
   }
 }
 

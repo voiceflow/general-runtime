@@ -42,6 +42,10 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
 
       return await modelHandler(runtime, node, variables, nextID);
     } catch (err) {
+      if (err?.message === 'BufferedReducerSubject') {
+        return elseID;
+      }
+
       if (err?.message?.includes('[moderation error]')) {
         addOutputTrace(
           runtime,

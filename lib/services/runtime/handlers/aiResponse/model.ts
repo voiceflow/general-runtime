@@ -8,7 +8,7 @@ import { Store } from '@/runtime';
 
 import { FrameType, GeneralRuntime, Output } from '../../types';
 import { getOutputTrace } from '../../utils';
-import { AIResponse, consumeResources, fetchPromptStream } from '../utils/ai';
+import { AIResponse, consumeResources, EMPTY_AI_RESPONSE, fetchPromptStream } from '../utils/ai';
 import { generateOutput } from '../utils/output';
 import { getVersionDefaultVoice } from '../utils/version';
 import { completionToContinueTrace, completionToStartTrace, endTrace } from './traces';
@@ -66,14 +66,7 @@ export async function modelHandler(
           acc.multiplier = completion.multiplier;
           return acc;
         },
-        {
-          output: '',
-          tokens: 0,
-          queryTokens: 0,
-          answerTokens: 0,
-          model: node.model ?? '',
-          multiplier: 1,
-        }
+        { ...EMPTY_AI_RESPONSE }
       )
     )
   );
