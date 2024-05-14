@@ -47,6 +47,9 @@ class Server {
       this.server = http.createServer(this.app);
     }
 
+    // nodeJS keepAliveTimeout has to be higher than downstream nginx keepAliveTimeout (default 75s)
+    this.server.keepAliveTimeout = 76 * 1000;
+
     const { middlewares, controllers } = this.serviceManager;
 
     ExpressMiddleware.attach(this.app, middlewares, controllers);
