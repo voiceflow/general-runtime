@@ -68,7 +68,7 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
     }
 
     if (isPathRequest(request)) {
-      runtime.variables.set(VoiceflowConstants.BuiltInVariable.LAST_UTTERANCE, request.payload.label);
+      runtime.variables.set(VoiceflowConstants.BuiltInVariable.LAST_UTTERANCE, request.payload?.label);
     }
 
     runtime.variables.set(VoiceflowConstants.BuiltInVariable.LAST_EVENT, request);

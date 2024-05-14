@@ -15,7 +15,7 @@ export interface MatchContext {
 }
 
 export interface SideEffectContext<
-  Request extends BaseRequest.BaseRequest<any> = BaseRequest.BaseRequest<any>,
+  Request extends BaseRequest.BaseRequest = BaseRequest.BaseRequest,
   Event extends BaseNode.Utils.BaseEvent = BaseNode.Utils.BaseEvent
 > {
   event: Event;
@@ -23,7 +23,7 @@ export interface SideEffectContext<
 }
 
 export interface Matcher<
-  Request extends BaseRequest.BaseRequest<any> = BaseRequest.BaseRequest<any>,
+  Request extends BaseRequest.BaseRequest = BaseRequest.BaseRequest,
   Event extends BaseNode.Utils.BaseEvent = BaseNode.Utils.BaseEvent
 > {
   match: (context: MatchContext) => context is SideEffectContext<Request, Event>;

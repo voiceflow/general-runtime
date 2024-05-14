@@ -13,7 +13,7 @@ import { Request, Response } from '@/types';
 import { ResponseContext } from '../../services/interact';
 import { validate } from '../../utils';
 import { SharedValidations } from '../../validations';
-import { AbstractController, logMalformedRequest } from '../utils';
+import { AbstractController, adaptMalformedRequest, logMalformedRequest } from '../utils';
 import { InteractRequestBody, InteractRequestParams } from './dtos/interact.request';
 import { SSE_KEEP_ALIVE_MS, SSE_RETRY_MS } from './interact.const';
 
@@ -77,6 +77,8 @@ class InteractController extends AbstractController {
       { locale?: string; logs: RuntimeLogs.LogLevel }
     >
   ): Promise<ResponseContext> {
+    if (req.body.request) req.body.request = adaptMalformedRequest(req.body.request);
+    if (req.body.action) req.body.action = adaptMalformedRequest(req.body.action);
     logMalformedRequest(req.body.request, 'request');
     logMalformedRequest(req.body.action, 'action');
 
