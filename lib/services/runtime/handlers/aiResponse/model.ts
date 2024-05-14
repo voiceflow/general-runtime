@@ -32,7 +32,7 @@ export async function modelHandler(
       },
       variables.getState()
     )
-  ).pipe(shareReplay());
+  ).pipe(shareReplay({ refCount: true }));
 
   // Convert LLM responses to completion traces
   const completion$ = concat(
