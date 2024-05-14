@@ -34,7 +34,7 @@ export async function knowledgeBaseHandler(
     })
   ).pipe(
     concatMap((stream) => stream),
-    shareReplay()
+    shareReplay({ refCount: true })
   );
 
   const completion$ = concat(
