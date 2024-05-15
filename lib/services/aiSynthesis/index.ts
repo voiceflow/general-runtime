@@ -17,7 +17,13 @@ import { SegmentEventType } from '../runtime/types';
 import { AbstractManager } from '../utils';
 import { BufferedReducerSubject } from './buffer-reduce.subject';
 import { KBResponse } from './types';
-import { convertTagsFilterToIDs, generateAnswerSynthesisPrompt, generateTagLabelMap, removePromptLeak } from './utils';
+import {
+  convertTagsFilterToIDs,
+  generateAnswerSynthesisPrompt,
+  generateTagLabelMap,
+  NOT_FOUND_RESPONSES,
+  removePromptLeak,
+} from './utils';
 
 class AISynthesis extends AbstractManager {
   private readonly DEFAULT_ANSWER_SYNTHESIS_RETRY_DELAY_MS = 4000;
@@ -30,9 +36,10 @@ class AISynthesis extends AbstractManager {
 
   private filterNotFound(output: string) {
     const upperCase = output.toUpperCase();
-    if (upperCase.includes('NOT_FOUND') || upperCase?.startsWith("I'M SORRY,") || upperCase?.includes('AS AN AI')) {
+    if (NOT_FOUND_RESPONSES.some((phrase) => upperCase.includes(phrase))) {
       return null;
     }
+
     return output;
   }
 
@@ -261,7 +268,7 @@ class AISynthesis extends AbstractManager {
         if (this.filterNotFound(resp.output ?? '') === null) return 'stop';
 
         // Keep buffering if the output appears to match a bad phrase
-        return 'NOT_FOUND'.startsWith(output) || "I'M SORRY,".startsWith(output) || 'AS AN AI'.startsWith(output);
+        return NOT_FOUND_RESPONSES.some((phrase) => phrase.startsWith(output));
       },
       (buffer, value) => {
         if (!buffer.output) buffer.output = '';
