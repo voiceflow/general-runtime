@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/cognitive-complexity */
 import { Utils } from '@voiceflow/common';
 import { DEFAULT_INTENT_CLASSIFICATION_PROMPT_WRAPPER_CODE } from '@voiceflow/default-prompt-wrappers';
 import { IntentClassificationSettings } from '@voiceflow/dtos';
@@ -320,14 +321,12 @@ export class Predictor extends EventEmitter {
     const nluPrediction = this.props.isTrained && (await this.nlu(utterance, this.options));
 
     if (!nluPrediction) {
-      // try open regex slot matching
-      this.debug(DebugType.NLU, `No matching intents`);
-
       if (isIntentClassificationLLMSettings(this.settings)) {
         // No NLC when LLM enabled
         return { ...nonePrediction, utterance };
       }
 
+      // try open regex slot matching
       this.predictions.result = 'nlc';
       const openPrediction = await this.nlc(utterance, true);
       return (
@@ -361,6 +360,13 @@ export class Predictor extends EventEmitter {
       }
 
       this.predictions.result = 'llm';
+
+      if (!(llmPrediction.predictedIntent in this.intentNameMap)) {
+        return {
+          ...llmPrediction,
+          predictedSlots: [],
+        };
+      }
 
       // STEP 4: retrieve intent from intent map
       const intent = this.intentNameMap[llmPrediction.predictedIntent];

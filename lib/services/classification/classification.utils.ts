@@ -58,10 +58,12 @@ export const castToDTO = (
     intentClassificationSettings = DEFAULT_NLU_INTENT_CLASSIFICATION;
   }
 
+  const isTrained = !!project.prototype?.nlp && Array.isArray(intents) && intents.length > 0;
+
   return {
     intentClassificationSettings,
     intents,
     slots,
-    isTrained: !!project.prototype?.nlp,
+    isTrained,
   };
 };
