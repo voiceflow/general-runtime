@@ -177,7 +177,6 @@ export class Predictor extends EventEmitter {
           message: 'Something went wrong with NLU prediction',
         },
       };
-      this.debug(DebugType.NLU, this.predictions.nlu.error?.message);
       return null;
     }
 
