@@ -6,7 +6,7 @@ import { State } from '@/runtime';
 import { Request } from '@/types';
 
 import { customAJV, validate } from '../../utils';
-import { AbstractController, logMalformedRequest } from '../utils';
+import { AbstractController, adaptMalformedRequest, logMalformedRequest } from '../utils';
 import { UpdateSchema } from './requests';
 
 const { body, header, query } = Validator;
@@ -41,6 +41,8 @@ class StateManagementController extends AbstractController {
       { verbose?: boolean; logs?: RuntimeLogs.LogLevel }
     >
   ) {
+    if (req.body.request) req.body.request = adaptMalformedRequest(req.body.request);
+    if (req.body.action) req.body.action = adaptMalformedRequest(req.body.action);
     logMalformedRequest(req.body.request, 'request');
     logMalformedRequest(req.body.action, 'action');
     return this.services.stateManagement.interact(req);
