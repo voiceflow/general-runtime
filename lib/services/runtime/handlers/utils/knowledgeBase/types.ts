@@ -16,4 +16,5 @@ export enum CloudEnv {
   MATTEL = 'mattel',
   REDVENTURES = 'redventures',
   SANLAM = 'sanlam',
+  CITIZENS = 'citizens',
 }

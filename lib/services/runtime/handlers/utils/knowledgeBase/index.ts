@@ -65,6 +65,7 @@ const FLAGGED_WORKSPACES_MAP = new Map<string, string[]>([
   [CloudEnv.MATTEL, []],
   [CloudEnv.REDVENTURES, []],
   [CloudEnv.SANLAM, []],
+  [CloudEnv.CITIZENS, []],
 ]);
 
 const { KL_RETRIEVER_SERVICE_URI: host, KL_RETRIEVER_SERVICE_PORT: port } = Config;
