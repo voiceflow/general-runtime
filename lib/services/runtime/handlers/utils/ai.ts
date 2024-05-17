@@ -1,6 +1,7 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { AIModel } from '@voiceflow/dtos';
+import dedent from 'dedent';
 
 import { CompletionOptions, GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import MLGateway from '@/lib/clients/ml-gateway';
@@ -196,11 +197,15 @@ export const consumeResources = async (
   const baseQueryTokens = multiplier === 0 ? 0 : Math.ceil(queryTokens / multiplier);
   const baseAnswerTokens = multiplier === 0 ? 0 : Math.ceil(answerTokens / multiplier);
 
+  const modelMessage = model ? `<br />Model: \`${model}\`` : '';
+
   runtime.trace.debug(
-    `__${reference}__
-    <br /> Model: \`${model}\`
-    <br /> Token Multiplier: \`${multiplier}x\`
-    <br /> Token Consumption: \`{total: ${baseTokens}, query: ${baseQueryTokens}, answer: ${baseAnswerTokens}}\`
-    <br /> Post-Multiplier Token Consumption: \`{total: ${tokens}, query: ${queryTokens}, answer: ${answerTokens}}\``
+    dedent(`
+    __${reference}__
+    ${modelMessage}
+    <br />Token Multiplier: \`${multiplier}x\`
+    <br />Token Consumption: \`{total: ${baseTokens}, query: ${baseQueryTokens}, answer: ${baseAnswerTokens}}\`
+    <br />Post-Multiplier Token Consumption: \`{total: ${tokens}, query: ${queryTokens}, answer: ${answerTokens}}\`
+  `)
   );
 };
