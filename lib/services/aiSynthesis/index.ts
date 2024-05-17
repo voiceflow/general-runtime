@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/cognitive-complexity */
 import { BaseModels, BaseUtils } from '@voiceflow/base-types';
 import _merge from 'lodash/merge';
 import { concatMap, filter, from, lastValueFrom, map, Observable, of, reduce } from 'rxjs';
@@ -15,6 +14,7 @@ import {
 
 import { SegmentEventType } from '../runtime/types';
 import { AbstractManager } from '../utils';
+import { BufferedReducerStopException } from './buffer-reduce.exception';
 import { BufferedReducerSubject } from './buffer-reduce.subject';
 import { KBResponse } from './types';
 import {
@@ -264,26 +264,23 @@ class AISynthesis extends AbstractManager {
     const stream$ = new BufferedReducerSubject<KBResponse>(
       (resp) => {
         const output = (resp.output ?? '').toLocaleUpperCase();
-        // Stop stream all together if output is a bad phrase
-        if (this.filterNotFound(resp.output ?? '') === null) return 'stop';
 
-        // Keep buffering if the output appears to match a bad phrase
+        // Stop stream all together if output is a not found phrase
+        if (this.filterNotFound(output) === null) throw new BufferedReducerStopException();
+
+        // Keep buffering if the output appears to match a not found phrase
         return NOT_FOUND_RESPONSES.some((phrase) => phrase.startsWith(output));
       },
-      (buffer, value) => {
-        if (!buffer.output) buffer.output = '';
-        if (!buffer.chunks) buffer.chunks = [];
-
-        buffer.chunks.push(...(value.chunks ?? []));
-        buffer.output += value.output ?? '';
-        buffer.answerTokens += value.answerTokens;
-        buffer.queryTokens += value.queryTokens;
-        buffer.tokens += value.tokens;
-        buffer.model = value.model;
-        buffer.multiplier = value.multiplier;
-        buffer.faqSet = value.faqSet;
-        return buffer;
-      }
+      (buffer, value) => ({
+        chunks: (buffer.chunks || []).concat(value.chunks ?? []),
+        output: (buffer.output ?? '') + (value.output ?? ''),
+        answerTokens: buffer.answerTokens + value.answerTokens,
+        queryTokens: buffer.queryTokens + value.queryTokens,
+        tokens: buffer.tokens + value.tokens,
+        model: value.model,
+        multiplier: value.multiplier,
+        faqSet: value.faqSet,
+      })
     );
 
     from(
