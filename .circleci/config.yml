@@ -38,7 +38,7 @@ workflows:
                 command: jq --raw-output '.volta.node // ""' package.json
             - vfcommon/set-json-string-from-env:
                 field: common_orb_version
-                value-env-var: COMMON_ORB_VERSION
+                value-env-var: COMMON_ORB_VERSION_OVERRIDE
             - run: cat values.json
           contexts: values.json
 
