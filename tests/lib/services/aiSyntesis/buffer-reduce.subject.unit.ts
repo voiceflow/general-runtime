@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { catchError, throwError } from 'rxjs';
+import { catchError } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import sinon from 'sinon';
 
@@ -67,9 +67,9 @@ describe('BufferedReducerSubject', () => {
       expectObservable(
         subject.pipe(
           // convert error to "error" to match expectation of `#` in marble diagram
-          catchError((err) =>
-            err instanceof BufferedReducerStopException ? throwError(() => 'error') : throwError(() => err)
-          )
+          catchError((err) => {
+            throw err instanceof BufferedReducerStopException ? 'error' : err;
+          })
         )
       ).toBe('--#');
 
