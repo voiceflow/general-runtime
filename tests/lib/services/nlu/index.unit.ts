@@ -24,11 +24,17 @@ describe('nlu manager unit tests', () => {
     sinon.restore();
   });
 
+  const orderPizzaIntent = { name: 'Order Pizza', confidence: 1 };
   const model: PrototypeModel = {
     slots: [],
-    intents: [],
+    intents: [
+      {
+        name: orderPizzaIntent.name,
+        key: orderPizzaIntent.name,
+        inputs: [],
+      },
+    ],
   };
-  const orderPizzaIntent = { name: 'Order Pizza', confidence: 1 };
   const query = 'I would like a large sofa pizza with extra chair';
   const version: Pick<Version, '_id' | 'projectID' | 'prototype' | 'settings'> = {
     _id: 'version-id',
