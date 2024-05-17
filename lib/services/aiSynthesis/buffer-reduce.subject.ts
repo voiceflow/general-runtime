@@ -21,17 +21,20 @@ export class BufferedReducerSubject<T> extends Subject<T> {
 
     this.buffer = this.buffer ? this.accumulator(this.buffer, value) : value;
 
-    const result = this.predicate(this.buffer);
-    if (result === 'stop') {
-      delete this.buffer;
-      super.error(new Error('BufferedReducerSubject'));
-      return;
-    }
+    try {
+      const result = this.predicate(this.buffer);
 
-    if (!result) {
-      this.buffering = false;
-      super.next(this.buffer);
-      delete this.buffer;
+      if (!result) {
+        this.buffering = false;
+        super.next(this.buffer);
+      }
+    } catch (err) {
+      super.error(err);
     }
+  }
+
+  unsubscribe(): void {
+    delete this.buffer;
+    super.unsubscribe();
   }
 }
