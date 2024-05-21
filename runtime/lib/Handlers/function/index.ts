@@ -2,10 +2,10 @@ import { BaseNode, BaseTrace, BaseVersion } from '@voiceflow/base-types';
 import { BaseTraceFrame } from '@voiceflow/base-types/build/cjs/trace';
 import { replaceVariables } from '@voiceflow/common';
 import {
-  FunctionCompiledData,
-  FunctionCompiledDefinition,
-  FunctionCompiledInvocation,
-  FunctionCompiledNode,
+  CompiledFunctionData,
+  CompiledFunctionDefinition,
+  CompiledFunctionInvocation,
+  CompiledFunctionNode,
   NodeType,
 } from '@voiceflow/dtos';
 import sift from 'sift';
@@ -36,8 +36,8 @@ function applyOutputCommand(
     outputVarAssignments,
   }: {
     variables: Store;
-    outputVarDeclarations: FunctionCompiledDefinition['outputVars'];
-    outputVarAssignments: FunctionCompiledInvocation['outputVars'];
+    outputVarDeclarations: CompiledFunctionDefinition['outputVars'];
+    outputVarAssignments: CompiledFunctionInvocation['outputVars'];
   }
 ): void {
   Object.keys(outputVarDeclarations).forEach((functionVarName) => {
@@ -59,7 +59,7 @@ function applyTraceCommand(command: TraceCommand, runtime: Runtime): void {
 function applyNextCommand(
   command: NextCommand,
   runtime: Runtime,
-  { nodeId, paths }: { nodeId: string; paths: FunctionCompiledInvocation['paths'] }
+  { nodeId, paths }: { nodeId: string; paths: CompiledFunctionInvocation['paths'] }
 ): string | null {
   if ('listen' in command) {
     if (!command.listen) return null;
@@ -76,9 +76,9 @@ function applyNextCommand(
 }
 
 function resolveFunctionDefinition(
-  definition: FunctionCompiledData['definition'],
+  definition: CompiledFunctionData['definition'],
   version: BaseVersion.Version
-): FunctionCompiledDefinition {
+): CompiledFunctionDefinition {
   if ('functionId' in definition) {
     const functionDefinition = version.prototype?.surveyorContext.functionDefinitions;
 
@@ -95,7 +95,7 @@ function resolveFunctionDefinition(
 
   return definition;
 }
-function applyTransfer(transfer: string | Transfer, paths: FunctionCompiledInvocation['paths']) {
+function applyTransfer(transfer: string | Transfer, paths: CompiledFunctionInvocation['paths']) {
   // Case 1 - `transfer` is a path string that must be mapped
   if (typeof transfer === 'string') {
     return paths[transfer];
@@ -112,7 +112,7 @@ function applyTransfer(transfer: string | Transfer, paths: FunctionCompiledInvoc
 function handleListenResponse(
   conditionalTransfers: NextBranches,
   requestContext: FunctionRequestContext,
-  paths: FunctionCompiledInvocation['paths']
+  paths: CompiledFunctionInvocation['paths']
 ): string {
   const firstMatchingTransfer = conditionalTransfers.to.find(
     (item) => [requestContext].filter(sift(item.on)).length > 0
@@ -136,7 +136,7 @@ const fromGuidedNavigationEventType = (name: string): string => name.replace(`${
 
 const isGuidedNavigationEventType = (name: string): boolean => name.startsWith(`${guidedNavigationEventPrefix}:`);
 
-function injectGuidedNavigationButtons(runtime: Runtime, paths: FunctionCompiledDefinition['pathCodes']) {
+function injectGuidedNavigationButtons(runtime: Runtime, paths: CompiledFunctionDefinition['pathCodes']) {
   if (!isGuidedNavigation(runtime)) return;
 
   /**
@@ -158,7 +158,7 @@ function injectGuidedNavigationButtons(runtime: Runtime, paths: FunctionCompiled
 
 function applyGuidedNavigationButton(
   { type }: { type: string; payload: string },
-  paths: FunctionCompiledInvocation['paths']
+  paths: CompiledFunctionInvocation['paths']
 ) {
   if (isGuidedNavigationEventType(type)) {
     const pathName = fromGuidedNavigationEventType(type);
@@ -171,7 +171,7 @@ export interface FunctionRequestContext {
   event?: unknown;
 }
 
-export const FunctionHandler: HandlerFactory<FunctionCompiledNode, typeof utilsObj> = (utils) => ({
+export const FunctionHandler: HandlerFactory<CompiledFunctionNode, typeof utilsObj> = (utils) => ({
   canHandle: (node) => node.type === NodeType.FUNCTION,
 
   handle: async (node, runtime, variables): Promise<string | null> => {

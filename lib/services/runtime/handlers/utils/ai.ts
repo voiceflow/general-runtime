@@ -18,7 +18,7 @@ const MODEL_TO_ENTITLEMENT = new Map<AIModel, string>([
   [AIModel.CLAUDE_3_HAIKU, 'feat-model-claude-haiku'],
   [AIModel.CLAUDE_3_SONNET, 'feat-model-claude-sonnet'],
   [AIModel.CLAUDE_3_OPUS, 'feat-model-claude-opus'],
-  [AIModel.GTP_4_O, 'feat-model-gpt-4o'],
+  [AIModel.GPT_4O, 'feat-model-gpt-4o'],
 ]);
 
 export const getMemoryMessages = (variablesState: Record<string, unknown>) => [
@@ -28,7 +28,7 @@ export const getMemoryMessages = (variablesState: Record<string, unknown>) => [
 export const canUseModel = (model: BaseUtils.ai.GPT_MODEL, runtime: Runtime) => {
   // TODO remove once we remove teams table
   if (
-    ![AIModel.GPT_4, AIModel.GPT_4_TURBO, AIModel.GTP_4_O, AIModel.CLAUDE_3_SONNET, AIModel.CLAUDE_3_OPUS].includes(
+    ![AIModel.GPT_4, AIModel.GPT_4_TURBO, AIModel.GPT_4O, AIModel.CLAUDE_3_SONNET, AIModel.CLAUDE_3_OPUS].includes(
       model as any
     )
   ) {
@@ -38,7 +38,7 @@ export const canUseModel = (model: BaseUtils.ai.GPT_MODEL, runtime: Runtime) => 
   if (runtime.plan) {
     // if not restricted models
     if (
-      ![AIModel.GPT_4, AIModel.GPT_4_TURBO, AIModel.GTP_4_O, AIModel.CLAUDE_3_SONNET, AIModel.CLAUDE_3_OPUS].includes(
+      ![AIModel.GPT_4, AIModel.GPT_4_TURBO, AIModel.GPT_4O, AIModel.CLAUDE_3_SONNET, AIModel.CLAUDE_3_OPUS].includes(
         model as any
       )
     ) {
