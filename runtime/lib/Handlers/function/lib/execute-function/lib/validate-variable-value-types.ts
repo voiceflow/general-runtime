@@ -1,4 +1,4 @@
-import { FunctionCompiledVariableDeclaration, VariableDatatype } from '@voiceflow/dtos';
+import { CompiledFunctionVariableDeclaration, VariableDatatype } from '@voiceflow/dtos';
 import { z } from 'zod';
 
 import { FunctionInputTypeException } from '../exceptions/function-input-type.exception';
@@ -22,7 +22,7 @@ function getZodValidator(type: VariableDatatype) {
 }
 
 export function validateVariableValueTypes(
-  declarations: Record<string, FunctionCompiledVariableDeclaration>,
+  declarations: Record<string, CompiledFunctionVariableDeclaration>,
   variableValues: Record<string, unknown>
 ) {
   const firstInvalid = Object.entries(declarations).find(([varName, declare]) => {
