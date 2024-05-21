@@ -23,6 +23,9 @@ export const ResponseHandler: HandlerFactory<CompiledResponseNode, typeof handle
       if (val.type === ResponseVariantType.TEXT) {
         const trace = utils.textOutputTrace({
           output: val.data.text,
+          delay: val.data.speed ?? 50,
+          variables,
+          version: runtime.version,
         });
 
         utils.addOutputTrace(runtime, trace, { node, variables });
