@@ -1,7 +1,8 @@
 import { CompiledResponseNode, NodeType, ResponseVariantType, VersionProgramResources } from '@voiceflow/dtos';
 
-import { addOutputTrace, textOutputTrace } from '@/lib/services/runtime/utils';
-import { HandlerFactory } from '@/runtime/lib/Handler';
+import { HandlerFactory } from '@/runtime';
+
+import { addOutputTrace, textOutputTrace } from '../../utils';
 
 const handlerUtils = {
   addOutputTrace,
@@ -9,7 +10,9 @@ const handlerUtils = {
 };
 
 export const ResponseHandler: HandlerFactory<CompiledResponseNode, typeof handlerUtils> = (utils) => ({
-  canHandle: (node) => node.type === NodeType.RESPONSE,
+  canHandle: (node) => {
+    return node.type === NodeType.RESPONSE;
+  },
 
   handle: async (node, runtime, variables): Promise<string | null> => {
     const { programResources } = runtime.version as any;

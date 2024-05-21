@@ -27,6 +27,7 @@ import CarouselHandler from './carousel';
 import ChannelActionHandler from './channelAction';
 import GoToHandler from './goTo';
 import InteractionHandler from './interaction';
+import ResponseHandler from './response';
 import SpeakHandler from './speak';
 import StateHandlers from './state';
 import StreamHandler from './stream';
@@ -48,6 +49,7 @@ export default (config: Config) => [
   EndHandler(),
   FlowHandler(),
   FunctionHandler(),
+  ResponseHandler(),
   IfHandler(),
   IfV2Handler({ _v1: _v1Handler }),
   APIHandler(config),
