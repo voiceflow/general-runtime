@@ -13,7 +13,7 @@ export const ResponseHandler: HandlerFactory<CompiledResponseNode, typeof handle
 
   handle: async (node, runtime, variables): Promise<string | null> => {
     const { programResources } = runtime.version as any;
-    const { responses } = programResources;
+    const { responses } = programResources as VersionProgramResources;
     const responseData = responses[node.data.responseID];
     const defaultDiscriminator = 'default:en-us';
     const variants = responseData.variants[defaultDiscriminator];
