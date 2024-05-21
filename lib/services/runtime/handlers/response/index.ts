@@ -10,9 +10,7 @@ const handlerUtils = {
 };
 
 export const ResponseHandler: HandlerFactory<CompiledResponseNode, typeof handlerUtils> = (utils) => ({
-  canHandle: (node) => {
-    return node.type === NodeType.RESPONSE;
-  },
+  canHandle: (node) => node.type === NodeType.RESPONSE,
 
   handle: async (node, runtime, variables): Promise<string | null> => {
     const { programResources } = runtime.version as any;
