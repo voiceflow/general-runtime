@@ -29,11 +29,8 @@ export const ResponseHandler: HandlerFactory<CompiledResponseNode, typeof handle
     if (!version.programResources) {
       throw new Error(`[${RESPONSE_HANDLER_ERROR_TAG}]: Version was not compiled`);
     }
-    const { responses } = version.programResources;
-
-    const responseData = responses[node.data.responseID];
-
-    const variants = responseData.variants[DEFAULT_DISCRIMINATOR];
+    const responses = version.programResources.responses[node.data.responseID];
+    const variants = responses.variants[DEFAULT_DISCRIMINATOR];
 
     if (!variants) {
       throw new Error(
