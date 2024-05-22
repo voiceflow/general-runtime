@@ -24,7 +24,7 @@ export const ResponseHandler: HandlerFactory<CompiledResponseNode, typeof handle
      * !TODO! - Need to replace this `as Version` cast by refactoring `general-runtime` to use the
      *          `Version` from the DTOs.
      */
-    const version = runtime.version as Version;
+    const version = runtime.version as unknown as Version;
 
     if (!version.programResources) {
       throw new Error(`[${RESPONSE_HANDLER_ERROR_TAG}]: Version was not compiled`);
