@@ -3,7 +3,7 @@ import { deepVariableSubstitution } from '@voiceflow/common';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import cloneDeep from 'lodash/cloneDeep';
-import { catchError, concatMap, EMPTY, from, tap } from 'rxjs';
+import { catchError, concatMap, EMPTY, filter, from, tap } from 'rxjs';
 
 import { FeatureFlag } from '@/lib/feature-flags';
 import { BufferedReducerStopException } from '@/lib/services/aiSynthesis/buffer-reduce.exception';
@@ -43,9 +43,8 @@ export async function knowledgeBaseHandler(
   let startTraceSent = false;
   await kbStream$
     .pipe(
+      filter((completion) => !!completion.output),
       tap((completion) => {
-        if (!completion.output) return;
-
         runtime.trace.addTrace(
           startTraceSent ? completionToContinueTrace(completion) : completionToStartTrace(runtime, node, completion)
         );

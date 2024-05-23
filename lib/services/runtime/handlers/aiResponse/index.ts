@@ -8,7 +8,7 @@ import { addOutputTrace, getOutputTrace } from '../../utils';
 import { canUseModel } from '../utils/ai';
 import { generateOutput } from '../utils/output';
 import { knowledgeBaseHandler } from './knowledge-base';
-import { modelHandler } from './model';
+import { llmHandler } from './llm';
 
 const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, GeneralRuntime> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_RESPONSE,
@@ -40,7 +40,7 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
         return await knowledgeBaseHandler(runtime, node, variables, nextID, elseID);
       }
 
-      return await modelHandler(runtime, node, variables, nextID);
+      return await llmHandler(runtime, node, variables, nextID);
     } catch (err) {
       if (err?.message?.includes('[moderation error]')) {
         addOutputTrace(

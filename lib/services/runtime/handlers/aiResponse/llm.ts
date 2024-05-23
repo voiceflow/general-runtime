@@ -1,6 +1,6 @@
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
-import { from, tap } from 'rxjs';
+import { filter, from, tap } from 'rxjs';
 
 import AIAssist from '@/lib/services/aiAssist';
 import { Store } from '@/runtime';
@@ -12,7 +12,7 @@ import { generateOutput } from '../utils/output';
 import { getVersionDefaultVoice } from '../utils/version';
 import { completionToContinueTrace, completionToStartTrace, endTrace } from './traces';
 
-export async function modelHandler(
+export async function llmHandler(
   runtime: GeneralRuntime,
   node: VoiceNode.AIResponse.Node,
   variables: Store,
@@ -38,9 +38,8 @@ export async function modelHandler(
   let startTraceSent = false;
   await promptStream$
     .pipe(
+      filter((completion) => !!completion.output),
       tap((completion) => {
-        if (!completion.output) return;
-
         runtime.trace.addTrace(
           startTraceSent ? completionToContinueTrace(completion) : completionToStartTrace(runtime, node, completion)
         );
