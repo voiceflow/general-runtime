@@ -1,4 +1,4 @@
-import { CompiledResponseNode, NodeType, ResponseVariantType, Version } from '@voiceflow/dtos';
+import { CompiledResponseNode, CompiledResponseNodeDTO, ResponseVariantType, Version } from '@voiceflow/dtos';
 
 import { HandlerFactory } from '@/runtime';
 
@@ -14,7 +14,7 @@ const RESPONSE_HANDLER_ERROR_TAG = 'response-handler';
 const DEFAULT_DISCRIMINATOR = 'default:en-us';
 
 export const ResponseHandler: HandlerFactory<CompiledResponseNode, typeof handlerUtils> = (utils) => ({
-  canHandle: (node) => node.type === NodeType.RESPONSE,
+  canHandle: (node) => CompiledResponseNodeDTO.safeParse(node).success,
 
   handle: async (node, runtime, variables): Promise<string | null> => {
     if (!runtime.version) {
