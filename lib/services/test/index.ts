@@ -1,4 +1,4 @@
-import { FunctionCompiledDefinition, FunctionCompiledInvocation } from '@voiceflow/dtos';
+import { CompiledFunctionDefinition, CompiledFunctionInvocation } from '@voiceflow/dtos';
 import { performance } from 'perf_hooks';
 
 import { executeFunction } from '@/runtime/lib/Handlers/function/lib/execute-function/execute-function';
@@ -11,8 +11,8 @@ import { TestFunctionResponse } from './interface';
 export class TestService extends AbstractManager {
   public async testFunction(
     code: string,
-    definition: Pick<FunctionCompiledDefinition, 'inputVars' | 'pathCodes'>,
-    invocation: Pick<FunctionCompiledInvocation, 'inputVars'>
+    definition: Pick<CompiledFunctionDefinition, 'inputVars' | 'pathCodes'>,
+    invocation: Pick<CompiledFunctionInvocation, 'inputVars'>
   ): Promise<TestFunctionResponse> {
     let startTime = null;
     let endTime = null;
