@@ -1,8 +1,8 @@
-import { FunctionCompiledVariableDeclaration } from '@voiceflow/dtos';
+import { CompiledFunctionVariableDeclaration } from '@voiceflow/dtos';
 
 interface BaseExecuteFunctionArgs {
   definition: {
-    inputVars: Record<string, FunctionCompiledVariableDeclaration>;
+    inputVars: Record<string, CompiledFunctionVariableDeclaration>;
     pathCodes: string[];
   };
   invocation: {
