@@ -1,7 +1,6 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { VoiceNode } from '@voiceflow/voice-types';
 
-import { BufferedReducerStopException } from '@/lib/services/aiSynthesis/buffer-reduce.exception';
 import { HandlerFactory } from '@/runtime';
 
 import { GeneralRuntime } from '../../types';
@@ -43,10 +42,6 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
 
       return await modelHandler(runtime, node, variables, nextID);
     } catch (err) {
-      if (err instanceof BufferedReducerStopException) {
-        return elseID;
-      }
-
       if (err?.message?.includes('[moderation error]')) {
         addOutputTrace(
           runtime,

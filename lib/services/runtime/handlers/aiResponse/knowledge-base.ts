@@ -1,10 +1,13 @@
+/* eslint-disable sonarjs/cognitive-complexity */
 import { deepVariableSubstitution } from '@voiceflow/common';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import cloneDeep from 'lodash/cloneDeep';
-import { concat, concatMap, from, isEmpty, lastValueFrom, map, NEVER, of, reduce, shareReplay } from 'rxjs';
+import { catchError, concatMap, EMPTY, from, tap } from 'rxjs';
 
 import { FeatureFlag } from '@/lib/feature-flags';
+import { BufferedReducerStopException } from '@/lib/services/aiSynthesis/buffer-reduce.exception';
+import { KBResponse } from '@/lib/services/aiSynthesis/types';
 import { Store } from '@/runtime';
 
 import { FrameType, GeneralRuntime, Output } from '../../types';
@@ -24,7 +27,10 @@ export async function knowledgeBaseHandler(
   const settings = deepVariableSubstitution(cloneDeep(node), variables.getState());
   const summarization = settings.overrideParams ? settings : {};
 
-  const promptStream$ = from(
+  const answer: KBResponse = { ...EMPTY_AI_RESPONSE, chunks: [] };
+  let chunks: KnowledegeBaseChunk[] = [];
+
+  const kbStream$ = from(
     runtime.services.aiSynthesis.knowledgeBaseQueryStream({
       project: runtime.project!,
       version: runtime.version!,
@@ -32,54 +38,46 @@ export async function knowledgeBaseHandler(
       instruction: settings.instruction,
       options: { summarization },
     })
-  ).pipe(
-    concatMap((stream) => stream),
-    shareReplay({ refCount: true })
-  );
+  ).pipe(concatMap((stream) => stream));
 
-  const completion$ = concat(
-    promptStream$.pipe(
-      map((completion, i) =>
-        i > 0 ? completionToContinueTrace(completion) : completionToStartTrace(runtime, node, completion)
-      )
-    ),
-    promptStream$.pipe(
-      isEmpty(),
-      concatMap((isEmpty) => (isEmpty ? NEVER : of(endTrace())))
+  let startTraceSent = false;
+  await kbStream$
+    .pipe(
+      tap((completion) => {
+        if (!completion.output) return;
+
+        runtime.trace.addTrace(
+          startTraceSent ? completionToContinueTrace(completion) : completionToStartTrace(runtime, node, completion)
+        );
+
+        startTraceSent = true;
+      }),
+      catchError((err) => {
+        if (err instanceof BufferedReducerStopException) {
+          return EMPTY;
+        }
+        throw err;
+      })
     )
-  );
+    .forEach((completion) => {
+      if (!answer.output) answer.output = '';
 
-  const chunksPromise = lastValueFrom(
-    promptStream$.pipe(
-      reduce((acc, answer) => {
-        acc.push(...(answer.chunks ?? []));
-        return acc;
-      }, [] as KnowledegeBaseChunk[])
-    )
-  );
+      answer.output += completion.output ?? '';
+      answer.answerTokens += completion.answerTokens;
+      answer.queryTokens += completion.queryTokens;
+      answer.tokens += completion.tokens;
+      answer.model = completion.model;
+      answer.multiplier = completion.multiplier;
 
-  const traceConsumerPromise = completion$.forEach((trace) => runtime.trace.addTrace(trace));
+      chunks = chunks.concat(completion.chunks ?? []);
+    });
 
-  const responseConsumerPromise = lastValueFrom(
-    promptStream$.pipe(
-      reduce(
-        (acc, completion) => {
-          if (!acc.output) acc.output = '';
+  if (startTraceSent) {
+    runtime.trace.addTrace(endTrace());
+  }
 
-          acc.output += completion.output ?? '';
-          acc.answerTokens += completion.answerTokens;
-          acc.queryTokens += completion.queryTokens;
-          acc.tokens += completion.tokens;
-          acc.model = completion.model;
-          acc.multiplier = completion.multiplier;
-          return acc;
-        },
-        { ...EMPTY_AI_RESPONSE }
-      )
-    )
-  );
+  if (!answer.output) return settings.notFoundPath ? elseID : nextID;
 
-  const [answer, chunks] = await Promise.all([responseConsumerPromise, chunksPromise, traceConsumerPromise]);
   const chunkStrings = chunks.map((chunk) => JSON.stringify(chunk));
 
   const workspaceID = Number(runtime.project?.teamID);
@@ -89,8 +87,6 @@ export async function knowledgeBaseHandler(
   }
 
   await consumeResources('AI Response KB', runtime, answer);
-
-  if (!answer.output && settings.notFoundPath) return elseID;
 
   const documents = await runtime.api.getKBDocuments(
     runtime.version!.projectID,

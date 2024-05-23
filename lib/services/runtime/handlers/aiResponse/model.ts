@@ -1,7 +1,6 @@
-import { CompletionPrivateHTTPControllerGenerateChatCompletionStream200 as ChatCompletionStream } from '@voiceflow/sdk-http-ml-gateway/generated';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
-import { concat, concatMap, filter, from, isEmpty, lastValueFrom, map, NEVER, of, reduce, shareReplay } from 'rxjs';
+import { from, tap } from 'rxjs';
 
 import AIAssist from '@/lib/services/aiAssist';
 import { Store } from '@/runtime';
@@ -22,6 +21,8 @@ export async function modelHandler(
   const projectID = runtime.project?._id;
   const workspaceID = runtime.project?.teamID || '';
 
+  const response: AIResponse = { ...EMPTY_AI_RESPONSE };
+
   // Create a stream of LLM responses
   const promptStream$ = from(
     fetchPromptStream(
@@ -32,46 +33,35 @@ export async function modelHandler(
       },
       variables.getState()
     )
-  ).pipe(shareReplay({ refCount: true }));
-
-  // Convert LLM responses to completion traces
-  const completion$ = concat(
-    promptStream$.pipe(
-      filter((completion) => completion.output != null),
-      map((completion, i) =>
-        i > 0 ? completionToContinueTrace(completion) : completionToStartTrace(runtime, node, completion)
-      )
-    ),
-    promptStream$.pipe(
-      isEmpty(),
-      concatMap((isEmpty) => (isEmpty ? NEVER : of(endTrace())))
-    )
   );
 
-  // Add completion traces to runtime, consuming `completion$` stream
-  const traceConsumerPromise = completion$.forEach((trace) => runtime.trace.addTrace(trace));
+  let startTraceSent = false;
+  await promptStream$
+    .pipe(
+      tap((completion) => {
+        if (!completion.output) return;
 
-  // Combine all LLM responses into a single `AIResponse`
-  const responseConsumerPromise = lastValueFrom(
-    promptStream$.pipe(
-      reduce<ChatCompletionStream, AIResponse>(
-        (acc, completion) => {
-          if (!acc.output) acc.output = '';
+        runtime.trace.addTrace(
+          startTraceSent ? completionToContinueTrace(completion) : completionToStartTrace(runtime, node, completion)
+        );
 
-          acc.output += completion.output ?? '';
-          acc.answerTokens += completion.answerTokens;
-          acc.queryTokens += completion.queryTokens;
-          acc.tokens += completion.tokens;
-          acc.model = completion.model;
-          acc.multiplier = completion.multiplier;
-          return acc;
-        },
-        { ...EMPTY_AI_RESPONSE }
-      )
+        startTraceSent = true;
+      })
     )
-  );
+    .forEach((completion) => {
+      if (!response.output) response.output = '';
 
-  const [response] = await Promise.all([responseConsumerPromise, traceConsumerPromise]);
+      response.output += completion.output ?? '';
+      response.answerTokens += completion.answerTokens;
+      response.queryTokens += completion.queryTokens;
+      response.tokens += completion.tokens;
+      response.model = completion.model;
+      response.multiplier = completion.multiplier;
+    });
+
+  if (startTraceSent) {
+    runtime.trace.addTrace(endTrace());
+  }
 
   await consumeResources('AI Response', runtime, response);
 
