@@ -93,5 +93,3 @@ export const removePromptLeak = (output: string | null) => {
 
   return output?.replace(regex_prompt_leak, '') || null;
 };
-
-export const NOT_FOUND_RESPONSES = ['NOT_FOUND', 'NOTFOUND', "I'M SORRY,", 'AS AN AI'];
