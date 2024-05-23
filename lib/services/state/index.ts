@@ -29,9 +29,7 @@ const getSubscriptionEntitlements = async (billingClientFactory: BillingClient, 
       .getResourceSubscription('workspace', workspaceID)
       .catch(() => null);
     if (subscriptionResponse) {
-      return !['active', 'in_trial'].includes(subscriptionResponse.subscription.status)
-        ? []
-        : subscriptionResponse.subscription?.subscription_entitlements;
+      return subscriptionResponse.subscription.subscription_entitlements;
     }
   }
   return undefined;
