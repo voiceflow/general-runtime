@@ -4808,6 +4808,7 @@ __metadata:
     ts-pattern: ^4.0.5
     tsc-alias: ^1.8.8
     tsconfig-paths: ^4.0.0
+    type-fest: 4.18.2
     typedoc: ^0.20.16
     typedoc-plugin-sourcefile-url: ^1.0.6
     typescript: 4.9.3
@@ -17978,6 +17979,13 @@ __metadata:
   version: 4.0.8
   resolution: "type-detect@npm:4.0.8"
   checksum: 62b5628bff67c0eb0b66afa371bd73e230399a8d2ad30d852716efcc4656a7516904570cd8631a49a3ce57c10225adf5d0cbdcb47f6b0255fe6557c453925a15
+  languageName: node
+  linkType: hard
+
+"type-fest@npm:4.18.2":
+  version: 4.18.2
+  resolution: "type-fest@npm:4.18.2"
+  checksum: 2e9272b2b97b2f4ea2bbffda43cfce9ca89c474ad7c9565e39b80fee2ce609ea60385faffbbef98994b38feb3fa5fa38feb33acf175f4f85ee21d1773e87bf44
   languageName: node
   linkType: hard
 
