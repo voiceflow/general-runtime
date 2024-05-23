@@ -1,7 +1,6 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { AIModel } from '@voiceflow/dtos';
-import { from, lastValueFrom, reduce } from 'rxjs';
 
 import { CompletionOptions, GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
 import MLGateway from '@/lib/clients/ml-gateway';
@@ -71,16 +70,13 @@ export const EMPTY_AI_RESPONSE: AIResponse = {
   multiplier: 1,
 };
 
-export async function* fetchChatStream(
+export const fetchChat = async (
   params: BaseUtils.ai.AIModelParams & { messages: BaseUtils.ai.Message[] },
   mlGateway: MLGateway,
   options: CompletionOptions,
   variablesState: Record<string, unknown> = {}
-): AsyncGenerator<AIResponse> {
-  if (!mlGateway.private) {
-    yield EMPTY_AI_RESPONSE;
-    return;
-  }
+): Promise<AIResponse> => {
+  if (!mlGateway.private) return EMPTY_AI_RESPONSE;
 
   const sanitizedVars = sanitizeVariables(variablesState);
   const messages = params.messages.map((message) => ({
@@ -88,38 +84,18 @@ export async function* fetchChatStream(
     content: replaceVariables(message.content, sanitizedVars),
   }));
 
-  yield* mlGateway.private.completion.generateChatCompletionStream({
-    messages,
-    params: { ...params, system: replaceVariables(params.system, sanitizedVars) },
-    options,
-    workspaceID: options.context.workspaceID,
-    projectID: options.context.projectID,
-    moderation: true,
-    billing: true,
-  });
-}
+  const { output, tokens, queryTokens, answerTokens, model, multiplier } =
+    (await mlGateway.private.completion.generateChatCompletion({
+      messages,
+      params: { ...params, system: replaceVariables(params.system, sanitizedVars) },
+      options,
+      workspaceID: options.context.workspaceID,
+      projectID: options.context.projectID,
+      moderation: true,
+      billing: true,
+    })) ?? EMPTY_AI_RESPONSE;
 
-export const fetchChat = async (
-  params: BaseUtils.ai.AIModelParams & { messages: BaseUtils.ai.Message[] },
-  mlGateway: MLGateway,
-  options: CompletionOptions,
-  variablesState: Record<string, unknown> = {}
-): Promise<AIResponse> => {
-  return lastValueFrom(
-    from(fetchChatStream(params, mlGateway, options, variablesState)).pipe(
-      reduce((acc, completion) => {
-        if (!acc.output) acc.output = '';
-
-        acc.output += completion.output ?? '';
-        acc.answerTokens += completion.answerTokens;
-        acc.queryTokens += completion.queryTokens;
-        acc.tokens += completion.tokens;
-        acc.model = completion.model;
-        acc.multiplier = completion.multiplier;
-        return acc;
-      }, EMPTY_AI_RESPONSE)
-    )
-  );
+  return { messages, output, tokens, queryTokens, answerTokens, model, multiplier };
 };
 
 export async function* fetchPromptStream(
