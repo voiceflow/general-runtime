@@ -6,6 +6,7 @@ import _ from 'lodash';
 
 import { BillingClient } from '@/lib/clients/billing-client';
 import { FrameType } from '@/lib/services/runtime/types';
+import logger from '@/logger';
 import { PartialContext, State, SubscriptionEntitlements } from '@/runtime';
 import { Context, InitContextHandler } from '@/types';
 
@@ -27,11 +28,13 @@ const getSubscriptionEntitlements = async (billingClientFactory: BillingClient, 
   if (billingClient) {
     const subscriptionResponse = await billingClient.resourcesPrivate
       .getResourceSubscription('workspace', workspaceID)
-      .catch(() => null);
+      .catch((error) => {
+        logger.error(`Failed to get subscription entitlements for workspace ${workspaceID}: ${logger.vars({ error })}`);
+        return undefined;
+      });
+
     if (subscriptionResponse) {
-      return !['active', 'in_trial'].includes(subscriptionResponse.subscription.status)
-        ? []
-        : subscriptionResponse.subscription?.subscription_entitlements;
+      return subscriptionResponse.subscription?.subscription_entitlements;
     }
   }
   return undefined;
