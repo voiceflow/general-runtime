@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { NodeEventHandler } from 'rxjs/internal/observable/fromEvent';
 import sinon from 'sinon';
 
-import ResponseHandler from '@/lib/services/runtime/handlers/response/index';
+import ResponseHandler from '@/lib/services/runtime/handlers/response/response.handler';
 import { Program, Runtime, Store } from '@/runtime';
 import { mockResponseNode } from '@/tests/mocks/node/response.node.mock';
 import { ID, mockVersion } from '@/tests/mocks/version/version.mock';
