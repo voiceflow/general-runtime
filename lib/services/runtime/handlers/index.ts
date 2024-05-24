@@ -27,7 +27,7 @@ import CarouselHandler from './carousel';
 import ChannelActionHandler from './channelAction';
 import GoToHandler from './goTo';
 import InteractionHandler from './interaction';
-import ResponseHandler from './response';
+import ResponseHandler from './response/response.handler';
 import SpeakHandler from './speak';
 import StateHandlers from './state';
 import StreamHandler from './stream';
