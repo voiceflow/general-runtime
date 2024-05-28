@@ -1,5 +1,6 @@
 {
   "e2e_env_name": "e2e-general-runtime-12c262a",
   "common_orb_version": "0.56.2",
-  "branch": "trying"
+  "branch": "trying",
+  "node_version": "21.0.0"
 }

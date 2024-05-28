@@ -150,8 +150,8 @@ jobs:
   mock-e2e-run:
     executor: vfcommon/default-executor
     steps:
-        - run:
-          name: mock-e2e-run
+      - run:
+          name: mock e2e run
           command: |
             sleep 60
             echo "mock-e2e-run done"
@@ -159,8 +159,8 @@ jobs:
   mock-log-collection:
     executor: vfcommon/default-executor
     steps:
-        - run:
-          name: mock-log-collection
+      - run:
+          name: mock log collection
           command: |
             job_status=$(circleci-agent job status mock-e2e-run)
             if [ "$job_status" == "success" ] || [ "$job_status" == "failed" ]; then
@@ -169,6 +169,7 @@ jobs:
               echo "Job is still running with status $job_status"
             fi
             echo "mock-log-collection done"
+
 
 workflows:
   {{- if has $masterProdBranches .values.branch }}
@@ -187,7 +188,7 @@ workflows:
           filters: *bors_branches_filters
       - mock-log-collection:
           requires:
-            -initial-setup
+            - initial-setup
           filters: *bors_branches_filters
       # - install_and_buildx:
       #     <<: *slack-fail-post-step
@@ -302,14 +303,14 @@ workflows:
       #         only: master
 
       # Update Production branch
-      - vfcommon/post_image_push_actions:
-          namespace: << pipeline.parameters.k8s-namespace >>
-          component: << pipeline.parameters.track-component >>
-          tagged: true
-          context: dev-test
-          requires:
-            - vfcommon/update_track
-          filters:
-            branches:
-              only:
-                - production
+      # - vfcommon/post_image_push_actions:
+      #     namespace: << pipeline.parameters.k8s-namespace >>
+      #     component: << pipeline.parameters.track-component >>
+      #     tagged: true
+      #     context: dev-test
+      #     requires:
+      #       - vfcommon/update_track
+      #     filters:
+      #       branches:
+      #         only:
+      #           - production
