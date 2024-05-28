@@ -138,68 +138,11 @@ jobs:
           enable_cache_to: true
           extra_build_args: *node_version_arg
 
-
-  collect-logs:
-    executor: vfcommon/default-executor
-    parameters:
-      cluster:
-        type: string
-        description: Name of the cluster in which the environment exists
-        default: "cm4-vf-dev-br-2-0-p1"
-    steps:
-      - vfcommon/install-vfcli:
-          init-cluster: << parameters.cluster >>
-      - run:
-          name: Install stern
-          command: |
-            curl -sSL https://raw.githubusercontent.com/upciti/wakemeops/main/assets/install_repository | sudo bash
-            sudo apt install stern
-      - run:
-          name: Gather Logs
-          environment:
-            ENV_NAME: {{ .values.e2e_env_name }}
-            LOG_DIR: &log_dir /tmp/pod-logs-{{ .values.e2e_env_name }}
-          command: |
-            # function capture_logs() {
-            #   stern -n "${ENV_NAME:?}" -l "app.kubernetes.io/name=$1" -f > "${LOG_DIR:?}/$1.log"
-            #   # kubectl logs -n "${ENV_NAME:?}" -l "app.kubernetes.io/name=$1" -f > "${LOG_DIR:?}/$1.log"
-            # }
-
-            # mkdir "${LOG_DIR:?}"
-            # capture_logs realtime-http &
-            # kubectl describe nodes -n "${ENV_NAME:?}" > "${LOG_DIR:?}/kube-resources.log" &
-
-            # kubectl events -n "${ENV_NAME:?}" -w \
-            #   | tee /dev/tty \
-            #   | tee "${LOG_DIR:?}/kube-events.log" \
-            #   | grep -q "smoke-test-stop-log-collection" \
-            #   || true
-
-            # echo 'termination event received'
-            # echo 'dumping cluster information'
-
-            # kubectl cluster-info dump -n "${ENV_NAME:?}" --output-directory /tmp/cluster-info
-            job_status=$(circleci-agent job status vfcommon/run-smoke-tests)
-            if [ "$job_status" == "success" ] || [ "$job_status" == "failed" ]; then
-              echo "Job has finished executing"
-            else
-              echo "Job is still running with status $job_status"
-            fi
-      # - store_artifacts:
-      #     name: Store Logs
-      #     path: *log_dir
-      #     destination: logs
-      # - store_artifacts:
-      #     name: Store Cluster Info
-      #     path: /tmp/cluster-info
-      #     destination: cluster-info
   initial-setup:
     executor: vfcommon/default-executor
     steps:
-
        - run:
           name: Initial Setup
-          environment:
           command: |
             sleep 30
             echo "Initial Setup done"
@@ -209,7 +152,6 @@ jobs:
     steps:
         - run:
           name: mock-e2e-run
-          environment:
           command: |
             sleep 60
             echo "mock-e2e-run done"
@@ -219,7 +161,6 @@ jobs:
     steps:
         - run:
           name: mock-log-collection
-          environment:
           command: |
             job_status=$(circleci-agent job status mock-e2e-run)
             if [ "$job_status" == "success" ] || [ "$job_status" == "failed" ]; then
