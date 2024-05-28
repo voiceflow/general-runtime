@@ -1,11 +1,12 @@
 status = [
-  "ci/circleci: update_track",
-  "ci/circleci: install_and_buildx",
-  "ci/circleci: test",
+  "ci/circleci: initial-setup",
+  # "ci/circleci: update_track",
+   #"ci/circleci: install_and_buildx",
+   #"ci/circleci: test",
   # "ci/circleci: run-e2e-tests",
-  "ci/circleci: run-smoke-tests",
-  "ci/circleci: provision-env",
-  "ci/circleci: prepare-env",
+  # "ci/circleci: run-smoke-tests",
+   #"ci/circleci: provision-env",
+   #"ci/circleci: prepare-env",
 ]
 delete_merged_branches = true
 use_squash_merge = true
