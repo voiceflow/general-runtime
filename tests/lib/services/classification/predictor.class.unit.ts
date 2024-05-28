@@ -81,17 +81,6 @@ describe('predictor unit tests', () => {
     },
   };
 
-  const noneIntent: BaseRequest.IntentRequest = {
-    type: BaseRequest.RequestType.INTENT,
-    payload: {
-      intent: {
-        name: VoiceflowConstants.IntentName.NONE,
-      },
-      query,
-      entities: [],
-    },
-  };
-
   const nlcPrediction: IIntentFullfilment & { confidence: number } = {
     intent: 'abcedfg',
     slots: [],
@@ -311,37 +300,6 @@ describe('predictor unit tests', () => {
       expect(result).to.eql('llm');
       expect(config.axios.post.callCount).to.eql(1);
       expect(prediction?.predictedIntent).to.eql(mlGatewayPrediction.output);
-    });
-
-    it('fills slots if prediction different than NLU', async () => {
-      const utterance = 'query-val';
-      const predictionWithSlots = {
-        ...mlGatewayPrediction,
-        output: orderPizzaIntentWithSlots.name,
-      };
-      const { config, props, settings, options } = setup({
-        props: {
-          intents: [orderPizzaIntent, orderPizzaIntentWithSlots],
-          slots: [pizzaAmountSlot],
-        },
-        axios: { data: { ...nluGatewayPrediction, predictionIntent: 'womp' } },
-        mlGateway: predictionWithSlots,
-        settings: {
-          type: 'llm',
-          params: { model: 'gpt-4-turbo', temperature: 0.7 },
-        },
-      });
-
-      const predictor = new Predictor(config, props, settings.intentClassification, options);
-      const handleNLCCommandStub = sinon.stub(NLC, 'handleNLCCommand');
-      handleNLCCommandStub.returns(null);
-
-      const prediction = await predictor.predict(utterance);
-      const { result } = predictor.predictions;
-
-      expect(result).to.eql('llm');
-      expect(config.axios.post.callCount).to.eql(2);
-      expect(prediction?.predictedIntent).to.eql(predictionWithSlots.output);
     });
 
     it('skips NLC', async () => {

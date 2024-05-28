@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/cognitive-complexity */
 import { Utils } from '@voiceflow/common';
 import { DEFAULT_INTENT_CLASSIFICATION_PROMPT_WRAPPER_CODE } from '@voiceflow/default-prompt-wrappers';
 import { IntentClassificationSettings } from '@voiceflow/dtos';
@@ -6,7 +5,6 @@ import { ISlotFullfilment } from '@voiceflow/natural-language-commander';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import type { AxiosStatic } from 'axios';
 import { EventEmitter } from 'node:events';
-import { match } from 'ts-pattern';
 
 import MLGateway from '@/lib/clients/ml-gateway';
 import logger from '@/logger';
@@ -360,31 +358,9 @@ export class Predictor extends EventEmitter {
 
       this.predictions.result = 'llm';
 
-      if (!(llmPrediction.predictedIntent in this.intentNameMap)) {
-        return {
-          ...llmPrediction,
-          predictedSlots: [],
-        };
-      }
-
-      // STEP 4: retrieve intent from intent map
-      const intent = this.intentNameMap[llmPrediction.predictedIntent];
-
-      // slot filling
-      const slots = await match({
-        predicted: llmPrediction.predictedIntent === nluPrediction.predictedIntent,
-        hasSlots: !!intent.slots?.length,
-      })
-        .with({ hasSlots: true }, () =>
-          this.fillSlots(utterance, {
-            filteredIntents: [llmPrediction.predictedIntent],
-          })
-        )
-        .otherwise(() => []);
-
       return {
         ...llmPrediction,
-        predictedSlots: slots ?? [],
+        predictedSlots: [],
       };
     }
 
