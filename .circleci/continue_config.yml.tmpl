@@ -141,6 +141,7 @@ jobs:
   initial-setup:
     executor: vfcommon/default-executor
     steps:
+       - checkout
        - run:
           name: initial-setup
           command: |
@@ -150,6 +151,7 @@ jobs:
   mock-e2e-run:
     executor: vfcommon/default-executor
     steps:
+      - checkout
       - run:
           name: mock e2e run
           command: |
@@ -159,6 +161,7 @@ jobs:
   mock-log-collection:
     executor: vfcommon/default-executor
     steps:
+      - checkout
       - run:
           name: mock log collection
           command: |
