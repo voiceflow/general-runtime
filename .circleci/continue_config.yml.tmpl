@@ -181,12 +181,15 @@ workflows:
   {{- end }}
     jobs:
       - initial-setup:
+          context: dev-test
           filters: *bors_branches_filters
       - mock-e2e-run:
+          context: dev-test
           requires:
             - initial-setup
           filters: *bors_branches_filters
       - mock-log-collection:
+          context: dev-test
           requires:
             - initial-setup
           filters: *bors_branches_filters
