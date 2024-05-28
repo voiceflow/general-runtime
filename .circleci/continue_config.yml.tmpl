@@ -138,6 +138,41 @@ jobs:
           enable_cache_to: true
           extra_build_args: *node_version_arg
 
+  initial-setup:
+    executor: vfcommon/default-executor
+    steps:
+       - checkout
+       - run:
+          name: initial-setup
+          command: |
+            sleep 30
+            echo "Initial Setup done"
+
+  mock-e2e-run:
+    executor: vfcommon/default-executor
+    steps:
+      - checkout
+      - run:
+          name: mock e2e run
+          command: |
+            sleep 60
+            echo "mock-e2e-run done"
+
+  mock-log-collection:
+    executor: vfcommon/default-executor
+    steps:
+      - checkout
+      - run:
+          name: mock log collection
+          command: |
+            job_status=$(circleci-agent job status mock-e2e-run)
+            if [ "$job_status" == "success" ] || [ "$job_status" == "failed" ]; then
+              echo "Job has finished executing"
+            else
+              echo "Job is still running with status $job_status"
+            fi
+            echo "mock-log-collection done"
+
 
 workflows:
   {{- if has $masterProdBranches .values.branch }}
@@ -148,122 +183,141 @@ workflows:
   test:
   {{- end }}
     jobs:
-      - install_and_buildx:
-          <<: *slack-fail-post-step
+      - initial-setup:
           context: dev-test
-
-      - test:
-          <<: *slack-fail-post-step
-          context: dev-test
-          requires:
-            - install_and_buildx
-          filters:
-            branches:
-              ignore:
-                - production
-                - /^break-glass.*$/
-
-      - vfcommon/release:
-          <<: *slack-fail-post-step
-          context: dev-test
-          requires:
-            - install_and_buildx
-            - test
-          filters:
-            branches:
-              only: master
-
-      - vfcommon/update_track:
-          context: dev-test
-          image_repo: << pipeline.parameters.container-image-url >>
-          component: << pipeline.parameters.track-component >>
-          remote_docker_version: default
-          extra_build_args: *node_version_arg
-          enable_cache_to: {{ eq .values.branch "master" }}
-          requires:
-            {{- if eq .values.branch "master" }}
-            - test
-            {{- end }}
-            - install_and_buildx
-            - vfcommon/release
-          filters:
-            branches:
-              ignore:
-                - /^break-glass.*$/
-
-      - vfcommon/provision-env:
-          context: dev-test
-          env-name: {{ .values.e2e_env_name }}
-          pool-type: e2e
           filters: *bors_branches_filters
-      - vfcommon/prepare-env:
+      - mock-e2e-run:
           context: dev-test
-          env-name: {{ .values.e2e_env_name }}
-          branch: {{ .values.branch }}
-          tracked-components: << pipeline.parameters.track-component >>
+          requires:
+            - initial-setup
           filters: *bors_branches_filters
-          requires:
-            - vfcommon/provision-env
-            - vfcommon/update_track
-      - vfcommon/run-smoke-tests:
+      - mock-log-collection:
           context: dev-test
-          e2e-env-name: {{ .values.e2e_env_name }}
           requires:
-            # - vfcommon/build-e2e-tests
-            - vfcommon/prepare-env
+            - initial-setup
           filters: *bors_branches_filters
-      - vfcommon/release-env:
-          context: dev-test
-          env-name: {{ .values.e2e_env_name }}
-          requires:
-            - vfcommon/run-smoke-tests
-          filters: *bors_branches_filters
+      # - install_and_buildx:
+      #     <<: *slack-fail-post-step
+      #     context: dev-test
 
-      - vfcommon/sync_branches:
-          check_commit_message: "[bugfix]"
-          ssh_key: << pipeline.parameters.ssh-fingerprint >>
-          checkout: true
-          context: dev-test
-          name: sync-branches-bugfix
-          requires:
-            - install_and_buildx
-            - test
-            - vfcommon/release
-          filters:
-            branches:
-              only: master
+      # - test:
+      #     <<: *slack-fail-post-step
+      #     context: dev-test
+      #     requires:
+      #       - install_and_buildx
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - production
+      #           - /^break-glass.*$/
 
-      - vfcommon/sync_branches:
-          check_commit_message: "[breakglass]"
-          ssh_key: << pipeline.parameters.ssh-fingerprint >>
-          checkout: true
-          context: dev-test
-          name: sync-branches-break-glass
-          requires:
-            - install_and_buildx
-          filters:
-            branches:
-              only: master
+      # - vfcommon/release:
+      #     <<: *slack-fail-post-step
+      #     context: dev-test
+      #     requires:
+      #       - install_and_buildx
+      #       - test
+      #     filters:
+      #       branches:
+      #         only: master
 
-      - vfcommon/generate_technical_documentation:
-          <<: *slack-fail-post-step
-          context: dev-test
-          requires:
-            - test
-            - vfcommon/release
-          filters:
-            branches:
-              only: master
+      # - vfcommon/update_track:
+      #     context: dev-test
+      #     image_repo: << pipeline.parameters.container-image-url >>
+      #     component: << pipeline.parameters.track-component >>
+      #     remote_docker_version: default
+      #     extra_build_args: *node_version_arg
+      #     enable_cache_to: {{ eq .values.branch "master" }}
+      #     requires:
+      #       {{- if eq .values.branch "master" }}
+      #       - test
+      #       {{- end }}
+      #       - install_and_buildx
+      #       - vfcommon/release
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - /^break-glass.*$/
+
+      # - vfcommon/provision-env:
+      #     context: dev-test
+      #     env-name: {{ .values.e2e_env_name }}
+      #     pool-type: e2e
+      #     filters: *bors_branches_filters
+      # - vfcommon/prepare-env:
+      #     context: dev-test
+      #     env-name: {{ .values.e2e_env_name }}
+      #     branch: {{ .values.branch }}
+      #     tracked-components: << pipeline.parameters.track-component >>
+      #     filters: *bors_branches_filters
+      #     requires:
+      #       - vfcommon/provision-env
+      #       - vfcommon/update_track
+      # - vfcommon/run-smoke-tests:
+      #     context: dev-test
+      #     e2e-env-name: {{ .values.e2e_env_name }}
+      #     requires:
+      #       # - vfcommon/build-e2e-tests
+      #       - vfcommon/prepare-env
+      #     filters: *bors_branches_filters
+      # - collect-logs:
+      #     context: dev-test
+      #     requires:
+      #       - vfcommon/prepare-env
+      #     filters: *bors_branches_filters
+      # - vfcommon/release-env:
+      #     context: dev-test
+      #     env-name: {{ .values.e2e_env_name }}
+      #     requires:
+      #       - vfcommon/run-smoke-tests
+      #     filters: *bors_branches_filters
+
+      # - vfcommon/sync_branches:
+      #     check_commit_message: "[bugfix]"
+      #     ssh_key: << pipeline.parameters.ssh-fingerprint >>
+      #     checkout: true
+      #     context: dev-test
+      #     name: sync-branches-bugfix
+      #     requires:
+      #       - install_and_buildx
+      #       - test
+      #       - vfcommon/release
+      #     filters:
+      #       branches:
+      #         only: master
+
+      # - vfcommon/sync_branches:
+      #     check_commit_message: "[breakglass]"
+      #     ssh_key: << pipeline.parameters.ssh-fingerprint >>
+      #     checkout: true
+      #     context: dev-test
+      #     name: sync-branches-break-glass
+      #     requires:
+      #       - install_and_buildx
+      #     filters:
+      #       branches:
+      #         only: master
+
+      # - vfcommon/generate_technical_documentation:
+      #     <<: *slack-fail-post-step
+      #     context: dev-test
+      #     requires:
+      #       - test
+      #       - vfcommon/release
+      #     filters:
+      #       branches:
+      #         only: master
 
       # Update Production branch
-      - vfcommon/post_image_push_actions:
-          namespace: << pipeline.parameters.k8s-namespace >>
-          component: << pipeline.parameters.track-component >>
-          tagged: true
-          context: dev-test
-          requires:
-            - vfcommon/update_track
-          filters:
-            branches:
-              only:
-                - production
+      # - vfcommon/post_image_push_actions:
+      #     namespace: << pipeline.parameters.k8s-namespace >>
+      #     component: << pipeline.parameters.track-component >>
+      #     tagged: true
+      #     context: dev-test
+      #     requires:
+      #       - vfcommon/update_track
+      #     filters:
+      #       branches:
+      #         only:
+      #           - production
+
