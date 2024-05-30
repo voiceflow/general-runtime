@@ -19,7 +19,9 @@ import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
 import { Predictor } from '../classification';
+import { DEFAULT_NLU_INTENT_CLASSIFICATION } from '../classification/classification.const';
 import { castToDTO } from '../classification/classification.utils';
+import { getIntentRequest } from '../nlu';
 import { getNoneIntentRequest } from '../nlu/utils';
 import { isIntentRequest, StorageType } from '../runtime/types';
 import { addOutputTrace, getOutputTrace } from '../runtime/utils';
@@ -176,30 +178,20 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               dmRequest: dmStateStore.intentRequest.payload,
               isTrained,
             },
-            {
-              type: 'nlu',
-              params: { confidence: 0.6 },
-            },
+            DEFAULT_NLU_INTENT_CLASSIFICATION,
             {
               locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
               hasChannelIntents: project?.platformData?.hasChannelIntents,
               platform: version.prototype.platform as VoiceflowConstants.PlatformType,
+              filteredIntents: [
+                dmPrefixedResult.payload.intent.name,
+                ...(slots?.map((slot) => `capture_${slot.name}_${prefix}`) ?? []),
+              ],
+              excludeFilteredIntents: false,
             }
           );
 
-          const filledSlots = await predictor.fillSlots(`${prefix} ${query}`, {
-            filteredIntents: [dmPrefixedResult.payload.intent.name],
-          });
-
-          dmPrefixedResult = !filledSlots
-            ? dmPrefixedResult
-            : {
-                ...dmPrefixedResult,
-                payload: {
-                  ...dmPrefixedResult.payload,
-                  entities: filledSlots,
-                },
-              };
+          dmPrefixedResult = getIntentRequest(await predictor.predict(`${prefix} ${query}`));
         }
 
         // Remove the dmPrefix from entity values that it has accidentally been attached to

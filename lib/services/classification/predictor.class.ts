@@ -128,26 +128,6 @@ export class Predictor extends EventEmitter {
     return response;
   }
 
-  public async fillSlots(utterance: string, options: Partial<NLUPredictOptions>): Promise<PredictedSlot[] | null> {
-    const prediction = await this.nluGatewayPrediction(utterance, {
-      excludeFilteredIntents: false,
-      ...options,
-    });
-
-    if (!prediction) {
-      this.predictions.fillSlots = {
-        error: {
-          message: 'Something went wrong filling slots',
-        },
-      };
-      return null;
-    }
-
-    this.predictions.fillSlots = prediction.predictedSlots;
-
-    return prediction.predictedSlots;
-  }
-
   private async nluGatewayPrediction(utterance: string, options: Partial<NLUPredictOptions>) {
     const { limit } = options;
 
