@@ -87,4 +87,5 @@ export interface NLUPredictOptions {
   filteredEntities?: string[];
   excludeFilteredIntents?: boolean;
   excludeFilteredEntities?: boolean;
+  limit?: number;
 }

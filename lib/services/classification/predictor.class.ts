@@ -149,16 +149,14 @@ export class Predictor extends EventEmitter {
   }
 
   private async nluGatewayPrediction(utterance: string, options: Partial<NLUPredictOptions>) {
-    const { filteredIntents = [], excludeFilteredIntents = true } = options;
+    const { limit } = options;
 
     const { data: prediction } = await this.config.axios
       .post<NLUIntentPrediction | null>(`${this.nluGatewayURL}/v1/predict/${this.props.versionID}`, {
         utterance,
         tag: this.props.tag,
         workspaceID: this.props.workspaceID,
-        filteredIntents,
-        excludeFilteredIntents,
-        limit: 10,
+        ...(limit ? { limit } : {}),
       })
       .catch((err: Error) => {
         logger.error(err, 'Something went wrong with NLU prediction');
@@ -315,7 +313,7 @@ export class Predictor extends EventEmitter {
       return nlcPrediction;
     }
 
-    const nluPrediction = this.props.isTrained && (await this.nlu(utterance, this.options));
+    const nluPrediction = this.props.isTrained && (await this.nlu(utterance, { limit: 10 }));
 
     if (!nluPrediction) {
       if (isIntentClassificationLLMSettings(this.settings)) {

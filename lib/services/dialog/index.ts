@@ -154,7 +154,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
       try {
         const prefix = dmPrefix(dmStateStore.intentRequest.payload.intent.name);
-        const { intentClassificationSettings, intents, isTrained, slots } = castToDTO(version, project);
+        const { intents, isTrained, slots } = castToDTO(version, project);
 
         let dmPrefixedResult = incomingRequest;
 
@@ -176,7 +176,10 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               dmRequest: dmStateStore.intentRequest.payload,
               isTrained,
             },
-            intentClassificationSettings,
+            {
+              type: 'nlu',
+              params: { confidence: 0.6 },
+            },
             {
               locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
               hasChannelIntents: project?.platformData?.hasChannelIntents,
