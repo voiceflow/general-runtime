@@ -16,7 +16,6 @@ import {
   ClassificationResult,
   NLUIntentPrediction,
   NLUPredictOptions,
-  PredictedSlot,
   Prediction,
   PredictOptions,
   PredictRequest,
