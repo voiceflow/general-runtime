@@ -183,11 +183,6 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
               hasChannelIntents: project?.platformData?.hasChannelIntents,
               platform: version.prototype.platform as VoiceflowConstants.PlatformType,
-              filteredIntents: [
-                dmPrefixedResult.payload.intent.name,
-                ...(slots?.map((slot) => `capture_${slot.name}_${prefix}`) ?? []),
-              ],
-              excludeFilteredIntents: false,
             }
           );
 
