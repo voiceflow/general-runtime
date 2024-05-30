@@ -74,6 +74,10 @@ export interface PredictRequest {
 }
 
 export interface PredictOptions {
+  filteredIntents?: string[];
+  filteredEntities?: string[];
+  excludeFilteredIntents?: boolean;
+  excludeFilteredEntities?: boolean;
   // Legacy options for NLC
   hasChannelIntents?: boolean;
   locale: VoiceflowConstants.Locale;
@@ -81,5 +85,9 @@ export interface PredictOptions {
 }
 
 export interface NLUPredictOptions {
+  filteredIntents?: string[];
+  filteredEntities?: string[];
+  excludeFilteredIntents?: boolean;
+  excludeFilteredEntities?: boolean;
   limit?: number;
 }

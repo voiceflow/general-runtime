@@ -181,6 +181,8 @@ class TestController extends AbstractController {
         locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
         hasChannelIntents: project?.platformData?.hasChannelIntents,
         platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
+        filteredIntents: Array.from(extraIntentNames),
+        excludeFilteredIntents: true,
       }
     );
 

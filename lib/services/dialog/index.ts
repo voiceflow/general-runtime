@@ -1,3 +1,4 @@
+// eslint-disable max-depth
 /**
  * [[include:dialog.md]]
  * @packageDocumentation
@@ -21,7 +22,6 @@ import { Context, ContextHandler, VersionTag } from '@/types';
 import { Predictor } from '../classification';
 import { DEFAULT_NLU_INTENT_CLASSIFICATION } from '../classification/classification.const';
 import { castToDTO } from '../classification/classification.utils';
-import { getIntentRequest } from '../nlu';
 import { getNoneIntentRequest } from '../nlu/utils';
 import { isIntentRequest, StorageType } from '../runtime/types';
 import { addOutputTrace, getOutputTrace } from '../runtime/utils';
@@ -138,9 +138,11 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     };
     const { query } = incomingRequest.payload;
 
+    const slotFillingRequest = dmStateStore.priorIntent ?? incomingRequest;
+
     // when capturing multiple intents on alexa, the currentStore.payload.entities only has the latest entity
     // not the previous ones, we need to add them here since the dfes request has all
-    incomingRequest.payload.entities.forEach((requestEntity) => {
+    slotFillingRequest.payload.entities.forEach((requestEntity) => {
       const dmRequestHasEntity = dmStateStore.intentRequest?.payload.entities.find(
         (storeEntity) => requestEntity.name === storeEntity.name
       );
@@ -158,7 +160,13 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         const prefix = dmPrefix(dmStateStore.intentRequest.payload.intent.name);
         const { intents, isTrained, slots } = castToDTO(version, project);
 
-        let dmPrefixedResult = incomingRequest;
+        const scopedIntent = intents?.find((intent) => intent.name === dmStateStore.intentRequest!.payload.intent.name);
+        const scopedSlots = scopedIntent?.slots?.map((slot) => slots?.find((entity) => entity.key === slot.id));
+
+        const filteredIntents = scopedIntent ? [scopedIntent.name] : undefined;
+        const filteredEntities = scopedSlots
+          ? scopedSlots.map((slot) => slot?.name).filter((name): name is string => typeof name === 'string')
+          : undefined;
 
         if (this.isNluGatwayEndpointConfigured()) {
           const predictor = new Predictor(
@@ -183,18 +191,37 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
               hasChannelIntents: project?.platformData?.hasChannelIntents,
               platform: version.prototype.platform as VoiceflowConstants.PlatformType,
+              filteredIntents,
+              excludeFilteredIntents: filteredIntents ? false : undefined,
+              filteredEntities,
+              excludeFilteredEntities: filteredEntities ? false : undefined,
             }
           );
 
-          dmPrefixedResult = getIntentRequest(await predictor.predict(`${prefix} ${query}`));
+          const prediction = await predictor.predict(`${prefix} ${query}`);
+
+          (prediction?.predictedSlots ?? []).forEach((predictedSlot) => {
+            const slot = scopedSlots?.find((scopedSlot) => scopedSlot?.name === predictedSlot.name);
+            if (!slot) return;
+
+            const existingEntity = slotFillingRequest.payload.entities.find((entity) => entity.name === slot.name);
+            if (existingEntity) {
+              existingEntity.value = predictedSlot.value;
+            } else {
+              slotFillingRequest.payload.entities.push({
+                name: slot.name,
+                value: predictedSlot.value,
+              });
+            }
+          });
         }
 
         // Remove the dmPrefix from entity values that it has accidentally been attached to
-        dmPrefixedResult.payload.entities.forEach((entity) => {
+        slotFillingRequest.payload.entities.forEach((entity) => {
           entity.value = typeof entity.value === 'string' ? entity.value.replace(prefix, '').trim() : entity.value;
         });
 
-        this.handleDMContext(dmStateStore, dmPrefixedResult, incomingRequest, version.prototype.model);
+        this.handleDMContext(dmStateStore, slotFillingRequest, incomingRequest, version.prototype.model);
 
         if (dmStateStore.intentRequest.payload.intent.name === VoiceflowConstants.IntentName.NONE) {
           return {
