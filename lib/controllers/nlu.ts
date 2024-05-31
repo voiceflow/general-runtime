@@ -6,8 +6,8 @@ import { ObjectId } from 'mongodb';
 import { shallowObjectIdToString } from '@/runtime/lib/DataAPI/mongoDataAPI';
 import { Request, VersionTag } from '@/types';
 
-import { Predictor } from '../services/classification';
-import { castToDTO } from '../services/classification/classification.utils';
+import { Predictor } from '../services/predictor';
+import { castToDTO } from '../services/predictor/predictor.utils';
 import { validate } from '../utils';
 import { AbstractController } from './utils';
 

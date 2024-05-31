@@ -6,7 +6,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 
-import { Predictor, PredictorConfig } from '@/lib/services/classification';
+import { Predictor, PredictorConfig } from '@/lib/services/predictor';
 import {
   NLUIntentPrediction,
   PredictOptions,

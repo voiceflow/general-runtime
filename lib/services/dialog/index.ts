@@ -19,9 +19,9 @@ import { Store } from '@/runtime';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
-import { Predictor } from '../classification';
-import { DEFAULT_NLU_INTENT_CLASSIFICATION } from '../classification/classification.const';
-import { castToDTO } from '../classification/classification.utils';
+import { Predictor } from '../predictor';
+import { DEFAULT_NLU_INTENT_CLASSIFICATION } from '../predictor/predictor.const';
+import { castToDTO } from '../predictor/predictor.utils';
 import { getNoneIntentRequest } from '../nlu/utils';
 import { isIntentRequest, StorageType } from '../runtime/types';
 import { addOutputTrace, getOutputTrace } from '../runtime/utils';

@@ -1,7 +1,7 @@
 import * as BaseTypes from '@voiceflow/base-types';
 import { PlanType } from '@voiceflow/internal';
 
-import { FrameType } from '@/lib/services/runtime/types';
+import { FrameType, StorageType } from '@/lib/services/runtime/types';
 import Handler from '@/runtime/lib/Handler';
 import Lifecycle, { AbstractLifecycle, Event, EventType } from '@/runtime/lib/Lifecycle';
 import cycleStack from '@/runtime/lib/Runtime/cycleStack';
@@ -11,7 +11,7 @@ import { DataAPI as AnyDataAPI } from '../DataAPI';
 import DebugLogging from './DebugLogging';
 import OutgoingApiLimiter from './OutgoingApiLimiter';
 import Stack, { Frame, FrameState } from './Stack';
-import Store, { State as StorageState } from './Store';
+import Store, { State as GenericState } from './Store';
 import Trace from './Trace';
 import ProgramManager from './utils/programManager';
 
@@ -26,11 +26,21 @@ export interface Options<
   services?: Services;
 }
 
+export interface DMStorage {
+  intentRequest?: BaseTypes.BaseRequest.IntentRequest;
+  priorIntent?: BaseTypes.BaseRequest.IntentRequest
+}
+
+export interface StateStorage {
+  [StorageType.DM]: DMStorage;
+  [key: string]: Record<string, any>;
+}
+
 export interface State {
-  turn?: StorageState;
+  turn?: GenericState;
   stack: FrameState[];
-  storage: StorageState;
-  variables: StorageState;
+  storage: StateStorage;
+  variables: GenericState;
 }
 
 export interface RuntimeOptions<

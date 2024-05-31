@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { ZodError } from 'zod';
 
-import { executePromptWrapper } from '@/lib/services/classification/prompt-wrapper-executor';
+import { executePromptWrapper } from '@/lib/services/predictor/prompt-wrapper-executor';
 
 describe('exec', () => {
   it('works', async () => {

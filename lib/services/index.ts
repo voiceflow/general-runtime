@@ -21,6 +21,7 @@ import StateManagement from './stateManagement';
 import { TestService } from './test';
 import Transcript from './transcript';
 import TTS from './tts';
+import { ClassificationManager } from './classification/classification-manager';
 
 export interface ServiceMap {
   runtime: Runtime;
@@ -42,6 +43,7 @@ export interface ServiceMap {
   transcript: Transcript;
   stateManagement: StateManagement;
   mergeCompletion: MergeCompletion;
+  classification: ClassificationManager
 }
 
 export interface FullServiceMap extends ClientMap, ServiceMap {}
@@ -68,6 +70,7 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.nlu = new NLU(services, config);
   services.tts = new TTS(services, config);
   services.dialog = new Dialog(services, config);
+  services.classification = new ClassificationManager(services, config);
   services.slots = new Slots(services, config);
   services.filter = new Filter(services, config);
   services.analytics = new Analytics(services, config);

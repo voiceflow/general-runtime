@@ -9,7 +9,7 @@ import {
 } from '@voiceflow/dtos';
 import { VoiceflowProject, VoiceflowVersion } from '@voiceflow/voiceflow-types';
 
-import { DEFAULT_NLU_INTENT_CLASSIFICATION, LEGACY_LLM_INTENT_CLASSIFICATION } from './classification.const';
+import { DEFAULT_NLU_INTENT_CLASSIFICATION, LEGACY_LLM_INTENT_CLASSIFICATION } from './predictor.const';
 
 export const isIntentClassificationNLUSettings = (
   settings: IntentClassificationSettings

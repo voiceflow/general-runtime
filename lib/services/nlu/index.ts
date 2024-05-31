@@ -9,9 +9,9 @@ import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { isTextRequest } from '@/lib/services/runtime/types';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
-import { DebugEvent, Predictor } from '../classification';
-import { castToDTO } from '../classification/classification.utils';
-import { Prediction } from '../classification/interfaces/nlu.interface';
+import { DebugEvent, Predictor } from '../predictor';
+import { castToDTO } from '../predictor/predictor.utils';
+import { Prediction } from '../predictor/interfaces/nlu.interface';
 import { AbstractManager } from '../utils';
 import { getNoneIntentRequest } from './utils';
 

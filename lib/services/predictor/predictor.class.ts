@@ -11,8 +11,8 @@ import logger from '@/logger';
 
 import { handleNLCCommand } from '../nlu/nlc';
 import { mapChannelIntent } from '../nlu/utils';
-import { NLU_LIMIT } from './classification.const';
-import { isIntentClassificationLLMSettings, isIntentClassificationNLUSettings } from './classification.utils';
+import { NLU_LIMIT } from './predictor.const';
+import { isIntentClassificationLLMSettings, isIntentClassificationNLUSettings } from './predictor.utils';
 import {
   ClassificationResult,
   NLUIntentPrediction,
