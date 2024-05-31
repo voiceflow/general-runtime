@@ -11,6 +11,7 @@ import logger from '@/logger';
 
 import { handleNLCCommand } from '../nlu/nlc';
 import { mapChannelIntent } from '../nlu/utils';
+import { NLU_LIMIT } from './classification.const';
 import { isIntentClassificationLLMSettings, isIntentClassificationNLUSettings } from './classification.utils';
 import {
   ClassificationResult,
@@ -127,7 +128,7 @@ export class Predictor extends EventEmitter {
     return response;
   }
 
-  private async nluGatewayPrediction(utterance: string, options: Partial<NLUPredictOptions>) {
+  private async nluGatewayPrediction(utterance: string, options: NLUPredictOptions) {
     const { limit, excludeFilteredEntities, excludeFilteredIntents, filteredEntities, filteredIntents } = options;
 
     const { data: prediction } = await this.config.axios
@@ -135,11 +136,11 @@ export class Predictor extends EventEmitter {
         utterance,
         tag: this.props.tag,
         workspaceID: this.props.workspaceID,
+        limit: limit ?? NLU_LIMIT,
         ...(excludeFilteredEntities ? { excludeFilteredEntities } : {}),
         ...(excludeFilteredIntents ? { excludeFilteredIntents } : {}),
         ...(filteredEntities ? { filteredEntities } : {}),
         ...(filteredIntents ? { filteredIntents } : {}),
-        ...(limit ? { limit } : {}),
       })
       .catch((err: Error) => {
         logger.error(err, 'Something went wrong with NLU prediction');
@@ -148,7 +149,7 @@ export class Predictor extends EventEmitter {
     return prediction;
   }
 
-  public async nlu(utterance: string, options: Partial<NLUPredictOptions>): Promise<NLUIntentPrediction | null> {
+  public async nlu(utterance: string, options: NLUPredictOptions): Promise<NLUIntentPrediction | null> {
     const prediction = await this.nluGatewayPrediction(utterance, options);
     if (!prediction) {
       this.predictions.nlu = {
@@ -296,7 +297,7 @@ export class Predictor extends EventEmitter {
       return nlcPrediction;
     }
 
-    const nluPrediction = this.props.isTrained && (await this.nlu(utterance, { limit: 10 }));
+    const nluPrediction = this.props.isTrained && (await this.nlu(utterance, this.options));
 
     if (!nluPrediction) {
       if (isIntentClassificationLLMSettings(this.settings)) {
@@ -357,7 +358,11 @@ export class Predictor extends EventEmitter {
   }
 
   public hasErrors() {
-    return this.predictions.nlc?.error || this.predictions.nlu?.error || this.predictions.llm?.error;
+    return (
+      (this.predictions.nlc && 'error' in this.predictions.nlc) ||
+      (this.predictions.nlu && 'error' in this.predictions.nlu) ||
+      (this.predictions.llm && 'error' in this.predictions.llm)
+    );
   }
 
   public get classificationType() {
