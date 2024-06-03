@@ -196,7 +196,26 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
             }
           );
 
+          context.trace?.push({
+            type: BaseNode.Utils.TraceType.DEBUG,
+            payload: {
+              message: `<b>Slot filling</b><br/>Filtered Intents:<br/><pre>${filteredIntents?.join(
+                ', '
+              )}</pre><br/>Filtered Entities:<br/><pre>${filteredEntities?.join(', ')}</pre>`,
+            },
+          });
+
           const prediction = await predictor.predict(`${prefix} ${query}`);
+
+          context.trace?.push({
+            type: BaseNode.Utils.TraceType.DEBUG,
+            payload: {
+              message: `Filled slots:<br/><pre>${
+                // eslint-disable-next-line sonarjs/no-nested-template-literals
+                prediction?.predictedSlots?.map((slot) => `${slot.name} = ${slot.value}`).join(', ')
+              }</pre>`,
+            },
+          });
 
           (prediction?.predictedSlots ?? []).forEach((predictedSlot) => {
             const slot = scopedSlots?.find((scopedSlot) => scopedSlot?.name === predictedSlot.name);
