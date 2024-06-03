@@ -138,11 +138,9 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     };
     const { query } = incomingRequest.payload;
 
-    const slotFillingRequest = dmStateStore.priorIntent ?? incomingRequest;
-
     // when capturing multiple intents on alexa, the currentStore.payload.entities only has the latest entity
     // not the previous ones, we need to add them here since the dfes request has all
-    slotFillingRequest.payload.entities.forEach((requestEntity) => {
+    incomingRequest.payload.entities.forEach((requestEntity) => {
       const dmRequestHasEntity = dmStateStore.intentRequest?.payload.entities.find(
         (storeEntity) => requestEntity.name === storeEntity.name
       );
@@ -204,11 +202,11 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
             const slot = scopedSlots?.find((scopedSlot) => scopedSlot?.name === predictedSlot.name);
             if (!slot) return;
 
-            const existingEntity = slotFillingRequest.payload.entities.find((entity) => entity.name === slot.name);
+            const existingEntity = incomingRequest.payload.entities.find((entity) => entity.name === slot.name);
             if (existingEntity) {
               existingEntity.value = predictedSlot.value;
             } else {
-              slotFillingRequest.payload.entities.push({
+              incomingRequest.payload.entities.push({
                 name: slot.name,
                 value: predictedSlot.value,
               });
@@ -217,11 +215,11 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
         }
 
         // Remove the dmPrefix from entity values that it has accidentally been attached to
-        slotFillingRequest.payload.entities.forEach((entity) => {
+        incomingRequest.payload.entities.forEach((entity) => {
           entity.value = typeof entity.value === 'string' ? entity.value.replace(prefix, '').trim() : entity.value;
         });
 
-        this.handleDMContext(dmStateStore, slotFillingRequest, incomingRequest, version.prototype.model);
+        this.handleDMContext(dmStateStore, incomingRequest, incomingRequest, version.prototype.model);
 
         if (dmStateStore.intentRequest.payload.intent.name === VoiceflowConstants.IntentName.NONE) {
           return {
