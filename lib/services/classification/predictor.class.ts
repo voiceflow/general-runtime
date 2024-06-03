@@ -342,7 +342,7 @@ export class Predictor extends EventEmitter {
 
       return {
         ...llmPrediction,
-        predictedSlots: [],
+        predictedSlots: nluPrediction.predictedSlots,
       };
     }
 
