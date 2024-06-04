@@ -7,7 +7,8 @@ import {
   BaseVersion,
   RuntimeLogs,
 } from '@voiceflow/base-types';
-import { replaceVariables, sanitizeVariables, transformStringVariableToNumber, Utils } from '@voiceflow/common';
+import { isRequestWithActionPayload, isRequestWithLabelPayload } from '@voiceflow/base-types/build/cjs/request';
+import { replaceVariables, sanitizeVariables, transformStringVariableToNumber } from '@voiceflow/common';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import cuid from 'cuid';
 import _ from 'lodash';
@@ -134,10 +135,8 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
             },
           };
         }
-
-        const actions = processActions(request.payload?.actions, variables);
-
         if (BaseRequest.isIntentRequest(request)) {
+          const actions = processActions(request.payload?.actions, variables);
           return {
             name: processedName,
             request: {
@@ -151,8 +150,8 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
             },
           };
         }
-
-        if (typeof request.payload?.label === 'string') {
+        if (isRequestWithLabelPayload(request)) {
+          const actions = processActions(request.payload?.actions, variables);
           return {
             name: processedName,
             request: {
@@ -165,12 +164,20 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
             },
           };
         }
-
+        if (isRequestWithActionPayload(request)) {
+          const actions = processActions(request.payload?.actions, variables);
+          return {
+            name: processedName,
+            request: {
+              ...request,
+              payload: { ...request.payload, actions },
+            },
+          };
+        }
         return {
           name: processedName,
           request: {
             ...request,
-            payload: !Utils.object.isObject(request.payload) ? request.payload : { ...request.payload, actions },
           },
         };
       });
