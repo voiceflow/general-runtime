@@ -149,7 +149,7 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
             },
           };
         }
-        if (BaseRequest.isRequestWithLabelPayload(request)) {
+        if (BaseRequest.hasLabelPayload(request)) {
           const actions = processActions(request.payload?.actions, variables);
           return {
             name: processedName,
@@ -163,7 +163,7 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
             },
           };
         }
-        if (BaseRequest.isRequestWithActionPayload(request)) {
+        if (BaseRequest.hasActionPayload(request)) {
           const actions = processActions(request.payload?.actions, variables);
           return {
             name: processedName,
