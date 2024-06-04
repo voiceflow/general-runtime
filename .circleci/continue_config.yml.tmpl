@@ -145,6 +145,9 @@ jobs:
           type: string
           description: Name of the cluster in which the environment exists
           default: "cm4-vf-dev-br-2-0-p1"
+        e2e-env-name:
+          type: string
+          description: Name of the environment to collect logs from
     steps:
       - vfcommon/install-vfcli:
           init-cluster: << parameters.cluster >>
