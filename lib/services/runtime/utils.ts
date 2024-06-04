@@ -7,7 +7,6 @@ import {
   BaseVersion,
   RuntimeLogs,
 } from '@voiceflow/base-types';
-import { isRequestWithActionPayload, isRequestWithLabelPayload } from '@voiceflow/base-types/build/cjs/request';
 import { replaceVariables, sanitizeVariables, transformStringVariableToNumber } from '@voiceflow/common';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import cuid from 'cuid';
@@ -150,7 +149,7 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
             },
           };
         }
-        if (isRequestWithLabelPayload(request)) {
+        if (BaseRequest.isRequestWithLabelPayload(request)) {
           const actions = processActions(request.payload?.actions, variables);
           return {
             name: processedName,
@@ -164,7 +163,7 @@ export const addButtonsIfExists = <N extends BaseRequest.NodeButton>(
             },
           };
         }
-        if (isRequestWithActionPayload(request)) {
+        if (BaseRequest.isRequestWithActionPayload(request)) {
           const actions = processActions(request.payload?.actions, variables);
           return {
             name: processedName,
