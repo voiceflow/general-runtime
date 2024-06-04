@@ -20,7 +20,7 @@ export abstract class AbstractController {
 }
 
 export function logMalformedRequest(request: Record<string, any> | null | undefined, type: 'action' | 'request') {
-  if (!!request && validateRuntimeRequest(request)) {
+  if (!!request && !isRuntimeRequest(request)) {
     logger.info(
       `malformed request object [${type}], [type]=${request?.type}, [json]=${JSON.stringify(request, null, 2)}`
     );
@@ -59,7 +59,7 @@ export function adaptMalformedRequest(request?: RuntimeRequest): undefined | Run
   return request;
 }
 
-export function validateRuntimeRequest(request?: unknown) {
+export function isRuntimeRequest(request?: unknown) {
   if (typeof request !== 'object' || request === null) {
     return false;
   }
