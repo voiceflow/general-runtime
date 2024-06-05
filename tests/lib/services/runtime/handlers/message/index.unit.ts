@@ -1,21 +1,21 @@
-import { CompiledResponseNode, TraceType, Version } from '@voiceflow/dtos';
+import { CompiledMessageNode, TraceType, Version } from '@voiceflow/dtos';
 import { expect } from 'chai';
 import { NodeEventHandler } from 'rxjs/internal/observable/fromEvent';
 import sinon from 'sinon';
 
-import ResponseHandler from '@/lib/services/runtime/handlers/response/index';
+import MessageHandler from '@/lib/services/runtime/handlers/message/index';
 import { Program, Runtime, Store } from '@/runtime';
-import { mockResponseNode } from '@/tests/mocks/node/response.node.mock';
+import { mockMessageNode } from '@/tests/mocks/node/message.node.mock';
 import { ID, mockVersion } from '@/tests/mocks/version/version.mock';
 
-describe('Response handler', () => {
-  const handler = ResponseHandler();
+describe('Message handler', () => {
+  const handler = MessageHandler();
 
   let version: Version;
   let runtime: Runtime;
   let variables: Store;
   let program: Program;
-  let responseNode: CompiledResponseNode;
+  let messageNode: CompiledMessageNode;
   let eventHandler: NodeEventHandler;
 
   beforeEach(() => {
@@ -33,20 +33,20 @@ describe('Response handler', () => {
     variables = new Store({});
     program = null as unknown as Program;
 
-    responseNode = mockResponseNode();
+    messageNode = mockMessageNode();
 
     eventHandler = null as unknown as NodeEventHandler;
   });
 
   describe('can handle', () => {
-    it('does not handle - non-response node', () => {
-      const data1 = mockResponseNode({
+    it('does not handle - non-message node', () => {
+      const data1 = mockMessageNode({
         type: 'wrong-type',
       } as any);
-      const data2 = mockResponseNode({
+      const data2 = mockMessageNode({
         data: 1,
       } as any);
-      const data3 = mockResponseNode({
+      const data3 = mockMessageNode({
         ports: 1,
       } as any);
 
@@ -59,10 +59,10 @@ describe('Response handler', () => {
       expect(result3).to.eql(false);
     });
 
-    it('handles - response node', () => {
-      const responseNode = mockResponseNode();
+    it('handles - message node', () => {
+      const messageNode = mockMessageNode();
 
-      const result = handler.canHandle(responseNode, runtime, variables, program);
+      const result = handler.canHandle(messageNode, runtime, variables, program);
 
       expect(result).to.eql(true);
     });
@@ -72,23 +72,23 @@ describe('Response handler', () => {
     it('throws an error if version does not exist', async () => {
       delete runtime.version;
 
-      const promise = handler.handle(responseNode, runtime, variables, program, eventHandler);
+      const promise = handler.handle(messageNode, runtime, variables, program, eventHandler);
 
-      await expect(promise).to.eventually.rejectedWith(`[response-handler]: Runtime was not loaded with a version`);
+      await expect(promise).to.eventually.rejectedWith(`[message-handler]: Runtime was not loaded with a version`);
     });
 
     it('throws an error if programResources does not exist', async () => {
       delete version.programResources;
 
-      const promise = handler.handle(responseNode, runtime, variables, program, eventHandler);
+      const promise = handler.handle(messageNode, runtime, variables, program, eventHandler);
 
-      await expect(promise).to.eventually.rejectedWith(`[response-handler]: Version was not compiled`);
+      await expect(promise).to.eventually.rejectedWith(`[message-handler]: Version was not compiled`);
     });
 
     it('throws an error if variants does not exist', async () => {
-      delete version.programResources!.responses[ID.responseID].variants['default:en-us'];
+      delete version.programResources!.messages[ID.messageID].variants['default:en-us'];
 
-      const promise = handler.handle(responseNode, runtime, variables, program, eventHandler);
+      const promise = handler.handle(messageNode, runtime, variables, program, eventHandler);
 
       await expect(promise).to.eventually.rejectedWith(
         `[response-handler]: could not resolve response step, missing variants list for 'default:en-us'`
@@ -96,9 +96,9 @@ describe('Response handler', () => {
     });
 
     it('outputs text trace for each text variant', async () => {
-      const result = await handler.handle(responseNode, runtime, variables, program, eventHandler);
+      const result = await handler.handle(messageNode, runtime, variables, program, eventHandler);
 
-      await expect(result).to.eql(responseNode.ports.default);
+      await expect(result).to.eql(messageNode.ports.default);
       await expect((runtime.trace.addTrace as sinon.SinonStub).callCount).to.eql(1);
 
       const addTraceArgs = (runtime.trace.addTrace as sinon.SinonStub).args[0][0];
