@@ -153,8 +153,8 @@ jobs:
           description: Path to the env_name file
           default: "/home/circleci/voiceflow/env_name.txt"
     steps:
-      - attach_workspace:
-          at: ~/voiceflow
+      - restore_cache:
+          key: env_name_cache-{{ .Environment.CIRCLE_PROJECT_REPONAME }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}
       - vfcommon/install-vfcli:
           init-cluster: << parameters.cluster >>
       - run:
