@@ -166,11 +166,12 @@ jobs:
           background: true
           command: |
             function capture_logs() {
-                if [ -f workspace/env_name ] && [ "$(cat workspace/env_name)" != "null" ]; then
-                    DEV_ENV_NAME=$(cat workspace/env_name)
+                if [ -n "$ENV_NAME" ]; then
+                    DEV_ENV_NAME=$ENV_NAME
                 else
                     DEV_ENV_NAME=<< parameters.e2e-env-name >>
                 fi
+                echo "Capturing logs for environment $DEV_ENV_NAME"
                 # Read components into an array directly from the command output
                 components=($(vfcli component list -n "${DEV_ENV_NAME:?}" | awk 'NR>3 {print $1}'))
                 # Iterate over the first n-1 components.Process log collection in parallel as background processes
