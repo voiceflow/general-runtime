@@ -6,7 +6,7 @@ import { Config, Request } from '@/types';
 import { FullServiceMap } from '../services';
 
 const LOCAL_DEVELOPEMENT = [
-  'https://creator-local.development.voiceflow.com:3002',
+  'https://creator-local.development.voiceflow.com:3000',
   'https://creator-local.development.voiceflow.com',
 ];
 
