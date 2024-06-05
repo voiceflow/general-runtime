@@ -149,6 +149,8 @@ jobs:
           type: string
           description: Name of the environment to collect logs from
     steps:
+      - attach_workspace:
+          at: ~/voiceflow
       - vfcommon/install-vfcli:
           init-cluster: << parameters.cluster >>
       - run:
