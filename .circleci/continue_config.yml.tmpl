@@ -148,6 +148,10 @@ jobs:
         e2e-env-name:
           type: string
           description: Name of the environment to collect logs from
+        env-name-path:
+          type: string
+          description: Path to the env_name file
+          default: "/home/circleci/voiceflow/env_name.txt"
     steps:
       - attach_workspace:
           at: ~/voiceflow
@@ -166,8 +170,10 @@ jobs:
           background: true
           command: |
             function capture_logs() {
-                if [ -n "$ENV_NAME" ]; then
-                    DEV_ENV_NAME=$ENV_NAME
+                echo "Contents of << parameters.env-name-path >>:"
+                 cat << parameters.env-name-path >>
+                if [[ -f << parameters.env-name-path >> ]]; then
+                   DEV_ENV_NAME=$(cat << parameters.env-name-path >>)
                 else
                     DEV_ENV_NAME=<< parameters.e2e-env-name >>
                 fi
