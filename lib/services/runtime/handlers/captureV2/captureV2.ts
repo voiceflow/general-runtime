@@ -8,7 +8,9 @@ import { addButtonsIfExists, addOutputTrace, getOutputTrace, isConfidenceScoreAb
 import CommandHandler from '../command';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
 import RepeatHandler from '../repeat';
-import { EntityFillingNoMatchHandler, entityFillingRequest, setElicit } from '../utils/entity';
+import { EntityFillingNoMatchHandler, entityFillingRequest } from '../utils/entity';
+import { EntityClassificationHandler } from '../classification/entity.handler';
+import { EntitySlotFillingHandler } from '../classification/entity-slot-filling.handler';
 
 const ENTIRE_RESPONSE_CONFIDENCE_THRESHOLD = 0.6;
 
@@ -29,7 +31,9 @@ export const utilsObj = {
   commandHandler: CommandHandler(),
   addButtonsIfExists,
   addNoReplyTimeoutIfExists,
+  entityClassificationHandler: EntityClassificationHandler(),
   entityFillingNoMatchHandler: EntityFillingNoMatchHandler(),
+  entitySlotFillingHandler: EntitySlotFillingHandler(),
 };
 type utilsObjType = typeof utilsObj & {
   addPromptIfExists?: (node: VoiceflowNode.CaptureV2.Node, runtime: Runtime, variables: Store) => void;
@@ -38,23 +42,13 @@ type utilsObjType = typeof utilsObj & {
 export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, utilsObjType> = (utils) => ({
   canHandle: (node) => node.type === BaseNode.NodeType.CAPTURE_V2,
   // eslint-disable-next-line sonarjs/cognitive-complexity
-  handle: (node, runtime, variables) => {
-    const request = runtime.getRequest();
-    const captureIntentName = node.intent?.name;
-
+  handle: async (node, runtime, variables) => {
     if (runtime.getAction() === Action.RUNNING) {
       utils.addNoReplyTimeoutIfExists(node, runtime);
 
       // when it is an alexa project, we should return the prompt for the unfulfilled entity
       if (node.platform === VoiceflowConstants.PlatformType.ALEXA && utils.addPromptIfExists) {
         utils.addPromptIfExists(node, runtime, variables);
-      }
-
-      if (captureIntentName) {
-        runtime.trace.addTrace<BaseTrace.GoToTrace>({
-          type: BaseTrace.TraceType.GOTO,
-          payload: { request: setElicit(entityFillingRequest(captureIntentName, node.intent?.entities ?? []), true) },
-        });
       }
 
       // clean up no-matches and no-replies counters on new interaction
@@ -68,6 +62,20 @@ export const CaptureV2Handler: HandlerFactory<VoiceflowNode.CaptureV2.Node, util
     if (utils.noReplyHandler.canHandle(runtime)) {
       return utils.noReplyHandler.handle(node, runtime, variables);
     }
+
+    if (utils.entityClassificationHandler.canHandle(runtime)) {
+      utils.entityClassificationHandler.handle(node, runtime, variables);
+    }
+
+    if (utils.entitySlotFillingHandler.canHandle(runtime)) {
+      const slotFillingResult = await utils.entitySlotFillingHandler.handle(node, runtime, variables);
+      if (slotFillingResult != null) {
+        return slotFillingResult;
+      }
+    }
+
+    const request = runtime.getRequest();
+    const captureIntentName = node.intent?.name;
 
     // If capturing the entire user response, we need a high confidence to leave to another capture step
     const lowConfidence =

@@ -1,4 +1,4 @@
-import { IntentRequest, isIntentRequest, isTextRequest } from '@voiceflow/dtos';
+import { IntentRequest, PrototypeModel, isIntentRequest, isTextRequest } from '@voiceflow/dtos';
 import { VoiceflowConstants, VoiceflowUtils } from '@voiceflow/voiceflow-types';
 import { ChatModels } from '@voiceflow/chat-types';
 import { VoiceModels } from '@voiceflow/voice-types';
@@ -66,12 +66,12 @@ export const IntentSlotFillingHandler = () => ({
     const { intents, isTrained, slots } = castToDTO(version as any, project as any);
 
     const scopedIntent = intents?.find((intent) => intent.name === slotFillingRequest.payload.intent.name);
-    const scopedSlots = scopedIntent?.slots?.map((slot) => slots?.find((entity) => entity.key === slot.id));
+    const scopedSlots = scopedIntent?.slots
+      ?.map((slot) => slots?.find((entity) => entity.key === slot.id))
+      .filter((slot): slot is PrototypeModel['slots'][number] => slot != null);
 
     const filteredIntents = scopedIntent ? [scopedIntent.name] : undefined;
-    const filteredEntities = scopedSlots
-      ? scopedSlots.map((slot) => slot?.name).filter((name): name is string => typeof name === 'string')
-      : undefined;
+    const filteredEntities = scopedSlots ? scopedSlots.map((slot) => slot.name) : undefined;
 
     const predictor = new Predictor(
       {
@@ -127,9 +127,13 @@ export const IntentSlotFillingHandler = () => ({
       if (existingEntity) {
         existingEntity.value = predictedSlot.value;
         return existingEntity.name;
+      } else {
+        slotFillingRequest.payload.entities.push({
+          name: slot.name,
+          value: predictedSlot.value,
+        });
+        return slot.name;
       }
-
-      return [];
     });
 
     if (slotsMatched.length === 0) {
@@ -143,9 +147,10 @@ export const IntentSlotFillingHandler = () => ({
       previousIntentRequest: slotFillingRequest
     });
 
-    if (IntentSlotFillingHandler().canHandle(runtime)) {
+    const slotFillingHandler = IntentSlotFillingHandler();
+    if (slotFillingHandler.canHandle(runtime)) {
       runtime.setAction(Action.RUNNING)
-      const slotFillingResult = await IntentSlotFillingHandler().handle(node, runtime, variables);
+      const slotFillingResult = await slotFillingHandler.handle(node, runtime, variables);
       if (slotFillingResult != null) {
         return slotFillingResult;
       }
