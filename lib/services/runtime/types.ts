@@ -1,12 +1,13 @@
 import { BaseNode, BaseRequest, BaseText } from '@voiceflow/base-types';
 
 import type { DataAPI, Runtime } from '@/runtime';
+import { Config } from '@/types';
 
 import type { FullServiceMap } from '..';
 
 export type RuntimeRequest = BaseRequest.BaseRequest | null;
 
-export type GeneralRuntime = Runtime<RuntimeRequest, DataAPI, FullServiceMap>;
+export type GeneralRuntime<TRequest = RuntimeRequest> = Runtime<TRequest, DataAPI, FullServiceMap, Config>;
 
 export interface Prompt {
   content: BaseText.SlateTextValue | string;

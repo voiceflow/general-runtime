@@ -7,11 +7,13 @@ import Runtime, {
   State as RuntimeState,
   SubscriptionEntitlements,
 } from '@/runtime/lib/Runtime';
+import { Config } from '@/types';
 
 export interface CreateRuntimeOptions<
   Request,
   DataAPI extends AnyDataAPI,
   Services extends BaseTypes.AnyRecord,
+  Config extends any,
   Version extends BaseTypes.BaseVersion.Version,
   Project extends BaseTypes.BaseProject.Project
 > {
@@ -24,12 +26,14 @@ export interface CreateRuntimeOptions<
   plan?: string;
   subscriptionEntitlements?: SubscriptionEntitlements;
   timeout: number;
+  config: Config;
 }
 
 class Controller<
   Request = any,
   DataAPI extends AnyDataAPI = AnyDataAPI,
   Services extends BaseTypes.AnyRecord = any,
+  Config extends any = any,
   Version extends BaseTypes.BaseVersion.Version = BaseTypes.BaseVersion.Version,
   Project extends BaseTypes.BaseProject.Project = BaseTypes.BaseProject.Project
 > extends AbstractLifecycle {
@@ -55,8 +59,9 @@ class Controller<
     plan,
     subscriptionEntitlements,
     timeout,
-  }: CreateRuntimeOptions<Request, DataAPI, Services, Version, Project>): Runtime<Request, DataAPI, Services> {
-    return new Runtime<Request, DataAPI, Services, Version, Project>({
+    config,
+  }: CreateRuntimeOptions<Request, DataAPI, Services, Config, Version, Project>): Runtime<Request, DataAPI, Services> {
+    return new Runtime<Request, DataAPI, Services, Config, Version, Project>({
       request,
       versionID,
       state,
@@ -67,6 +72,7 @@ class Controller<
       plan,
       subscriptionEntitlements,
       timeout,
+      config,
     });
   }
 }

@@ -6,8 +6,8 @@ import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { z } from 'zod';
 
 import { Predictor } from '@/lib/services/predictor';
-import { castToDTO } from '@/lib/services/predictor/classification.utils';
-import { PredictedIntent } from '@/lib/services/classification/interfaces/nlu.interface';
+import { castToDTO } from '@/lib/services/predictor/predictor.utils';
+import { PredictedIntent } from '@/lib/services/predictor/interfaces/nlu.interface';
 import { getAPIBlockHandlerOptions } from '@/lib/services/runtime/handlers/api';
 import { callAPI } from '@/runtime/lib/Handlers/api/utils';
 import { ivmExecute } from '@/runtime/lib/Handlers/code/utils';

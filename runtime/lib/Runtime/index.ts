@@ -47,8 +47,9 @@ export interface RuntimeOptions<
   Request = any,
   DataAPI extends AnyDataAPI = AnyDataAPI,
   Services extends BaseTypes.AnyRecord = BaseTypes.AnyRecord,
+  Config extends any = any,
   Version extends BaseTypes.BaseVersion.Version = BaseTypes.BaseVersion.Version,
-  Project extends BaseTypes.BaseProject.Project = BaseTypes.BaseProject.Project
+  Project extends BaseTypes.BaseProject.Project = BaseTypes.BaseProject.Project,
 > {
   versionID: string;
   state: State;
@@ -60,6 +61,7 @@ export interface RuntimeOptions<
   plan?: string;
   subscriptionEntitlements?: SubscriptionEntitlements;
   timeout: number;
+  config: Config;
 }
 
 export enum Action {
@@ -73,8 +75,9 @@ class Runtime<
   Request = any,
   DataAPI extends AnyDataAPI = AnyDataAPI,
   Services extends BaseTypes.AnyRecord = any,
+  Config extends any = any,
   Version extends BaseTypes.BaseVersion.Version = BaseTypes.BaseVersion.Version,
-  Project extends BaseTypes.BaseProject.Project = BaseTypes.BaseProject.Project
+  Project extends BaseTypes.BaseProject.Project = BaseTypes.BaseProject.Project,
 > extends AbstractLifecycle {
   public turn: Store;
 
@@ -90,6 +93,8 @@ class Runtime<
 
   // services
   public services: Services;
+
+  public config: Config;
 
   public api: DataAPI;
 
@@ -130,7 +135,8 @@ class Runtime<
     plan,
     subscriptionEntitlements,
     timeout,
-  }: RuntimeOptions<Request, DataAPI, Services, Version, Project>) {
+    config,
+  }: RuntimeOptions<Request, DataAPI, Services, Config, Version, Project>) {
     super(events);
 
     this.versionID = versionID;
@@ -140,6 +146,7 @@ class Runtime<
     this.plan = plan as PlanType;
     this.subscriptionEntitlements = subscriptionEntitlements;
     this.timeout = timeout;
+    this.config = config;
 
     const { services = {} as Services, handlers = [], api } = options;
 
@@ -183,6 +190,10 @@ class Runtime<
 
   getRequest(): Request | null {
     return this.request;
+  }
+
+  setRequest(request: any): void {
+    this.request = request;
   }
 
   public setAction(type: Action): void {
