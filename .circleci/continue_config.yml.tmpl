@@ -43,7 +43,7 @@ defaults:
 
   executor: &node-executor
     name: vfcommon/node-executor-node-20
-    tag: {{ .values.node_version }}-vf-1
+    tag: {{ .values.node_version }}-vf-2
 
   code-test-executor: &code-test-node-executor
     name: vfcommon/code-test-executor-node-20
@@ -138,7 +138,6 @@ jobs:
           enable_cache_to: true
           extra_build_args: *node_version_arg
 
-
 workflows:
   {{- if has $masterProdBranches .values.branch }}
   test-and-release:
@@ -205,6 +204,13 @@ workflows:
           requires:
             - vfcommon/provision-env
             - vfcommon/update_track
+      - vfcommon/collect-e2e-logs:
+          context: dev-test
+          executor: *node-executor
+          e2e-env-name: {{ .values.e2e_env_name }}
+          requires:
+            - vfcommon/prepare-env
+          filters: *bors_branches_filters
       - vfcommon/run-smoke-tests:
           context: dev-test
           e2e-env-name: {{ .values.e2e_env_name }}
@@ -217,6 +223,7 @@ workflows:
           env-name: {{ .values.e2e_env_name }}
           requires:
             - vfcommon/run-smoke-tests
+            - vfcommon/collect-e2e-logs
           filters: *bors_branches_filters
 
       - vfcommon/sync_branches:
