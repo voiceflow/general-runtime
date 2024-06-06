@@ -91,7 +91,7 @@ describe('Message handler', () => {
       const promise = handler.handle(messageNode, runtime, variables, program, eventHandler);
 
       await expect(promise).to.eventually.rejectedWith(
-        `[response-handler]: could not resolve response step, missing variants list for 'default:en-us'`
+        `[message-handler]: could not resolve message step, missing variants list for 'default:en-us'`
       );
     });
 
