@@ -4594,15 +4594,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/dtos@npm:1.76.1":
-  version: 1.76.1
-  resolution: "@voiceflow/dtos@npm:1.76.1"
+"@voiceflow/dtos@npm:1.85.0":
+  version: 1.85.0
+  resolution: "@voiceflow/dtos@npm:1.85.0"
   dependencies:
     "@voiceflow/default-prompt-wrappers": 1.3.2
-    "@voiceflow/internal": 3.2.3
   peerDependencies:
     zod: ^3
-  checksum: 78b3be01e7c49254215c4a2505c603ebf6aaee92ba22167acd3443a0c5e27c9853b00c12112eeeda16ba20924702c9fb6b3aebccb03a7970088a1bb0a10aea27
+  checksum: 4707efd496a3a8c922337a3e299d1a1fda84bf6a1b8b8daaeae34159dea41947b54c7f2f938906bba05fe055a79073b48f67c17676159e52cc7fdec26472ffbf
   languageName: node
   linkType: hard
 
@@ -4724,7 +4723,7 @@ __metadata:
     "@voiceflow/commitlint-config": 2.0.0
     "@voiceflow/common": 8.2.8
     "@voiceflow/default-prompt-wrappers": ^1.1.1
-    "@voiceflow/dtos": 1.76.1
+    "@voiceflow/dtos": 1.85.0
     "@voiceflow/eslint-config": 6.1.0
     "@voiceflow/event-ingestion-service": 1.5.1
     "@voiceflow/exception": ^1.5.1
