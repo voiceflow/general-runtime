@@ -1,13 +1,5 @@
 import { BaseRequest } from '@voiceflow/base-types';
-import {
-  ActionRequestDTO,
-  GeneralRequestDTO,
-  IntentRequestDTO,
-  LaunchRequestDTO,
-  NoReplyRequestDTO,
-  RequestType,
-  TextRequestDTO,
-} from '@voiceflow/dtos';
+import { AnyRequestDTO } from '@voiceflow/dtos';
 
 import logger from '@/logger';
 import { Config } from '@/types';
@@ -20,7 +12,7 @@ export abstract class AbstractController {
 }
 
 export function logMalformedRequest(request: Record<string, any> | null | undefined, type: 'action' | 'request') {
-  if (!!request && !isRuntimeRequest(request)) {
+  if (!!request && !AnyRequestDTO.safeParse(request).success) {
     logger.info(
       `malformed request object [${type}], [type]=${request?.type}, [json]=${JSON.stringify(request, null, 2)}`
     );
@@ -57,27 +49,4 @@ export function adaptMalformedRequest(request?: RuntimeRequest): undefined | Run
   if (BaseRequest.isLaunchRequest(request)) return adaptMalformedReactChatRequest(request);
   if (BaseRequest.isGeneralRequest(request)) return adaptMalformedReactChatRequest(request);
   return request;
-}
-
-export function isRuntimeRequest(request?: unknown) {
-  if (typeof request !== 'object' || request === null) {
-    return false;
-  }
-  if (!('type' in request)) {
-    return false;
-  }
-  switch (request.type) {
-    case RequestType.ACTION:
-      return ActionRequestDTO.safeParse(request).success;
-    case RequestType.INTENT:
-      return IntentRequestDTO.safeParse(request).success;
-    case RequestType.LAUNCH:
-      return LaunchRequestDTO.safeParse(request).success;
-    case RequestType.NO_REPLY:
-      return NoReplyRequestDTO.safeParse(request).success;
-    case RequestType.TEXT:
-      return TextRequestDTO.safeParse(request).success;
-    default:
-      return GeneralRequestDTO.safeParse(request).success;
-  }
 }
