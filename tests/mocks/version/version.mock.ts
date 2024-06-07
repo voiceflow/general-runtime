@@ -2,15 +2,16 @@ import { Version } from '@voiceflow/dtos';
 
 import { mockCreatorFactory } from '@/tests/utils/createMock';
 
-import { mockResponseResource } from '../cms-resource/response.mock';
+import { mockMessageResource } from '../cms-resource/message.mock';
 
 export const ID = {
   versionID: '664cc26e33c3a959f67ca54e',
-  responseID: '664cc26e33c3a959f67ca549',
+  messageID: '664cc26e33c3a959f67ca549',
 };
 
 const defaultVersion: Version = {
   _id: ID.versionID,
+  _version: 1,
   name: 'Version name',
   creatorID: 1,
   projectID: '643872531e80120007759e05',
@@ -23,10 +24,9 @@ const defaultVersion: Version = {
     publishing: {},
   },
   programResources: {
-    responses: {
-      [ID.responseID]: mockResponseResource(),
+    messages: {
+      [ID.messageID]: mockMessageResource(),
     },
-    attachments: {},
   },
 };
 
