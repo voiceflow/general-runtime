@@ -12,9 +12,9 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.use(middlewares.rateLimit.verify);
 
   const statefulAPIMiddleware = [
+    middlewares.rateLimit.versionConsume,
     middlewares.project.resolveVersionAlias,
     middlewares.project.attachProjectID,
-    middlewares.rateLimit.versionConsume,
   ];
 
   const legacyAPIMiddleware = [middlewares.project.unifyVersionID, ...statefulAPIMiddleware];
