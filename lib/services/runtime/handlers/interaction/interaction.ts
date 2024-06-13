@@ -10,12 +10,13 @@ import { findEventMatcher } from '../event';
 import NoMatchHandler from '../noMatch';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
 import RepeatHandler from '../repeat';
-import { IntentClassificationHandler } from '../classification/intent.handler';
-import { IntentSlotFillingHandler } from '../classification/intent-slot-filling.handler';
+import { IntentClassificationHandler } from '../classificationV2/intent-classification';
+// import { IntentClassificationHandler } from '../classification/intent.handler';
+// import { IntentSlotFillingHandler } from '../classification/intent-slot-filling.handler';
 
 export const utilsObj = {
-  intentSlotFillingHandler: IntentSlotFillingHandler(),
-  intentClassificationHandler: IntentClassificationHandler(),
+  // intentSlotFillingHandler: IntentSlotFillingHandler(),
+  // intentClassificationHandler: IntentClassificationHandler(),
   repeatHandler: RepeatHandler(),
   commandHandler: CommandHandler(),
   noMatchHandler: NoMatchHandler(),
@@ -34,12 +35,12 @@ export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, 
   handle: async (node, runtime, variables) => {
     const runtimeAction = runtime.getAction();
 
-    if (utils.intentSlotFillingHandler.canHandle(runtime)) {
-      const slotFillingResult = await utils.intentSlotFillingHandler.handle(node, runtime, variables);
-      if (slotFillingResult != null) {
-        return slotFillingResult;
-      }
-    }
+    // if (utils.intentSlotFillingHandler.canHandle(runtime)) {
+    //   const slotFillingResult = await utils.intentSlotFillingHandler.handle(node, runtime, variables);
+    //   if (slotFillingResult != null) {
+    //     return slotFillingResult;
+    //   }
+    // }
 
     if (runtimeAction === Action.RUNNING) {
       utils.addButtonsIfExists(node, runtime, variables);
@@ -62,12 +63,16 @@ export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, 
       return utils.noReplyHandler.handle(node, runtime, variables);
     }
 
-    if (utils.intentClassificationHandler.canHandle(runtime)) {
-      const classificationResult = await utils.intentClassificationHandler.handle(node, runtime, variables);
-      if (classificationResult != null) {
-        return classificationResult;
-      }
+    if (IntentClassificationHandler.canHandle(runtime)) {
+      const intentClassificationHandler = new IntentClassificationHandler(runtime);
     }
+
+    // if (utils.intentClassificationHandler.canHandle(runtime)) {
+    //   const classificationResult = await utils.intentClassificationHandler.handle(node, runtime, variables);
+    //   if (classificationResult != null) {
+    //     return classificationResult;
+    //   }
+    // }
 
     for (let i = 0; i < node.interactions.length; i++) {
       const { event, nextId } = node.interactions[i];

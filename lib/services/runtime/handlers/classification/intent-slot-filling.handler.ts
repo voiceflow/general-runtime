@@ -29,35 +29,35 @@ export const IntentSlotFillingHandler = () => ({
 
     let slotFillingRequest = runtime.storage.get<any>(StorageType.DM)?.previousIntentRequest as IntentRequest;
 
-    if (runtimeAction === Action.RUNNING) {
-      const unfulfilledEntities = getUnfulfilledEntities(slotFillingRequest, runtime.version?.prototype?.model);
-      const firstUnfulfilledEntity = unfulfilledEntities[0];
+    // if (runtimeAction === Action.RUNNING) {
+    //   const unfulfilledEntities = getUnfulfilledEntities(slotFillingRequest, runtime.version?.prototype?.model);
+    //   const firstUnfulfilledEntity = unfulfilledEntities[0];
 
-      const prompt = sample(firstUnfulfilledEntity.dialog.prompt)! as
-        | ChatModels.Prompt
-        | VoiceModels.IntentPrompt<VoiceflowConstants.Voice>;
+    //   const prompt = sample(firstUnfulfilledEntity.dialog.prompt)! as
+    //     | ChatModels.Prompt
+    //     | VoiceModels.IntentPrompt<VoiceflowConstants.Voice>;
 
-      const output = VoiceflowUtils.prompt.isIntentVoicePrompt(prompt)
-          ? fillStringEntities(
-              slotFillingRequest as any,
-              inputToString(prompt, (version?.platformData.settings as any).defaultVoice)
-            )
-          : prompt.content;
+    //   const output = VoiceflowUtils.prompt.isIntentVoicePrompt(prompt)
+    //       ? fillStringEntities(
+    //           slotFillingRequest as any,
+    //           inputToString(prompt, (version?.platformData.settings as any).defaultVoice)
+    //         )
+    //       : prompt.content;
 
-        const variableStore = new Store(variables);
-        addOutputTrace(
-          runtime,
-          getOutputTrace({
-            output,
-            version,
-            variables,
-            isPrompt: true,
-          }),
-          { variables: variableStore }
-        );
+    //     const variableStore = new Store(variables);
+    //     addOutputTrace(
+    //       runtime,
+    //       getOutputTrace({
+    //         output,
+    //         version,
+    //         variables,
+    //         isPrompt: true,
+    //       }),
+    //       { variables: variableStore }
+    //     );
 
-      return node.id;
-    }
+    //   return node.id;
+    // }
 
     const request = runtime.getRequest();
     const query = isTextRequest(request) ? request.payload : null;

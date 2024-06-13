@@ -74,11 +74,11 @@ export const IntentClassificationHandler = (utils: typeof utilsObj = utilsObj) =
       });
 
       if (utils.intentSlotFillingHandler.canHandle(runtime)) {
-        runtime.setAction(Action.RUNNING)
-        const slotFillingResult = await utils.intentSlotFillingHandler.handle(node, runtime, variables);
-        if (slotFillingResult != null) {
-          return slotFillingResult;
-        }
+        // runtime.setAction(Action.RUNNING)
+        // const slotFillingResult = await utils.intentSlotFillingHandler.handle(node, runtime, variables);
+        // if (slotFillingResult != null) {
+        //   return slotFillingResult;
+        // }
       } else {
         delete (runtime.storage.get(StorageType.DM) as any).previousIntentRequest;
 

@@ -10,7 +10,7 @@ export const EntityClassificationHandler = () => ({
   handle: (node: VoiceflowNode.CaptureV2.Node, runtime: GeneralRuntime<TextRequest>, _variables: Store): void => {
     const request = runtime.getRequest()!;
 
-    let entityCaptureRequest = runtime.storage.get<any>(StorageType.DM)?.previousEntityRequest as IntentRequest | undefined;
+    let entityCaptureRequest = runtime.storage.get<any>(StorageType.DM)?.previousIntentRequest as IntentRequest | undefined;
 
     // Capture entire response
     if (!node.intent?.name) {
@@ -43,7 +43,7 @@ export const EntityClassificationHandler = () => ({
 
       runtime.storage.set(StorageType.DM, {
         ...runtime.storage.get(StorageType.DM) ?? {},
-        previousEntityRequest: entityCaptureRequest
+        previousIntentRequest: entityCaptureRequest
       });
     }
   }

@@ -20,7 +20,7 @@ import { getUnfulfilledEntities } from './intent-slot-filling.utils';
 
 export const EntitySlotFillingHandler = () => ({
   canHandle: (runtime: GeneralRuntime) => {
-    const request = runtime.storage.get<any>(StorageType.DM)?.previousEntityRequest;
+    const request = runtime.storage.get<any>(StorageType.DM)?.previousIntentRequest;
     return isIntentRequest(request) && getUnfulfilledEntities(request, runtime.version?.prototype?.model).length > 0;
   },
   handle: async (
@@ -31,7 +31,7 @@ export const EntitySlotFillingHandler = () => ({
     const versionID = runtime.getVersionID();
     const { version, project } = runtime;
 
-    const slotFillingRequest = runtime.storage.get<any>(StorageType.DM)?.previousEntityRequest as IntentRequest;
+    const slotFillingRequest = runtime.storage.get<any>(StorageType.DM)?.previousIntentRequest as IntentRequest;
 
     const request = runtime.getRequest();
     const query = isTextRequest(request) ? request.payload : null;
@@ -135,7 +135,7 @@ export const EntitySlotFillingHandler = () => ({
 
     runtime.storage.set(StorageType.DM, {
       ...(runtime.storage.get(StorageType.DM) ?? {}),
-      previousEntityRequest: slotFillingRequest,
+      previousIntentRequest: slotFillingRequest,
     });
 
     const slotFillingHandler = EntitySlotFillingHandler();
@@ -168,7 +168,7 @@ export const EntitySlotFillingHandler = () => ({
 
       return node.id;
     }
-    delete (runtime.storage.get(StorageType.DM) as any).previousEntityRequest;
+    delete (runtime.storage.get(StorageType.DM) as any).previousIntentRequest;
 
     runtime.setRequest(slotFillingRequest);
 
