@@ -11,7 +11,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.use(bodyParser.json({ limit: BODY_PARSER_SIZE_LIMIT }));
   router.use(middlewares.rateLimit.verify);
 
-  const interactMiddleware = [middlewares.project.resolveVersionAlias, middlewares.rateLimit.versionConsume];
+  const interactMiddleware = [middlewares.rateLimit.versionConsume, middlewares.project.resolveVersionAlias];
 
   const legacyMiddleware = [middlewares.project.unifyVersionID, ...interactMiddleware];
 
