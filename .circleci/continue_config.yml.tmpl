@@ -218,12 +218,14 @@ workflows:
             # - vfcommon/build-e2e-tests
             - vfcommon/prepare-env
           filters: *bors_branches_filters
+      - vfcommon/waiter:
+          context: dev-test
+          filters: *bors_branches_filters
       - vfcommon/release-env:
           context: dev-test
           env-name: {{ .values.e2e_env_name }}
           requires:
-            - vfcommon/run-smoke-tests
-            - vfcommon/collect-e2e-logs
+            - vfcommon/waiter
           filters: *bors_branches_filters
 
       - vfcommon/sync_branches:
