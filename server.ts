@@ -62,16 +62,16 @@ class Server {
 
   /**
    * Stop server
-   * - Stops services first, then server
+   * - stops accepting new connections, wait for all existing ones to drain, then stop services
    */
   async stop() {
-    // Stop services
-    await this.serviceManager.stop();
-
     if (this.server) {
       this.server.close();
       await once(this.server, 'close');
     }
+
+    // Stop services
+    await this.serviceManager.stop();
   }
 }
 
