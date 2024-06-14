@@ -1,3 +1,5 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
 import { CompiledResponseMessage } from '@voiceflow/dtos';
 
 import { BaseCondition } from './conditions/base.condition';
@@ -7,7 +9,15 @@ interface VariantConditionPair {
   conditions: BaseCondition[] | undefined;
 }
 
-export function selectVariant(variants: VariantConditionPair[]): CompiledResponseMessage {
+async function evaluateConditions(pair: VariantConditionPair): Promise<boolean> {
+  if (!pair.conditions) return true;
+
+  const conditionResults = await Promise.all(pair.conditions.map((cond) => cond.evaluate()));
+
+  return conditionResults.every((val) => val);
+}
+
+export async function selectVariant(variants: VariantConditionPair[]): Promise<CompiledResponseMessage> {
   const conditionedVariants: VariantConditionPair[] = [];
   const unconditionedVariants: VariantConditionPair[] = [];
 
@@ -19,12 +29,13 @@ export function selectVariant(variants: VariantConditionPair[]): CompiledRespons
     }
   });
 
-  const matchingConditionedVariant = conditionedVariants.find((pair) =>
-    pair.conditions!.every((cond) => cond.evaluate())
-  );
+  // !TODO! - Can this be optimized by only evaluating one variant a time?
+  for (const pair of conditionedVariants) {
+    const isMatching = await evaluateConditions(pair);
 
-  if (matchingConditionedVariant) {
-    return matchingConditionedVariant.variant;
+    if (isMatching) {
+      return pair.variant;
+    }
   }
 
   const randomIndex = Math.floor(Math.random() * unconditionedVariants.length);

@@ -1,41 +1,87 @@
-import { CompiledConditionAssertion, CompiledExpressionCondition } from '@voiceflow/dtos';
-import { NotImplementedException } from '@voiceflow/exception';
+import { CompiledConditionAssertion, CompiledExpressionCondition, ConditionOperation } from '@voiceflow/dtos';
 
 import { BaseCondition } from './base.condition';
 
 export class ExpressionCondition extends BaseCondition<CompiledExpressionCondition> {
-  private evaluateAssertion(_assertion: CompiledConditionAssertion): boolean {
-    // 1 - Substitute variables in lhs, rhs
-    // 2 - Execute JavaScript `eval()` on lhs, rhs
-    // 3 - Execute boolean operand
-    // 4 - Return result
-    this.runtime.trace.debug('--- evaluated assertion --- assertion = [], arguments = [], evaluated to true');
-    throw new NotImplementedException('expression condition is not implemented');
+  private compileJITAssertion(assertion: CompiledConditionAssertion): string {
+    switch (assertion.operation) {
+      case ConditionOperation.CONTAINS:
+        return `String(${assertion.lhs}).toLowerCase().includes(String(${assertion.rhs}).toLowerCase())`;
+      case ConditionOperation.NOT_CONTAINS:
+        return `!(String(${assertion.lhs}).toLowerCase().includes(String(${assertion.rhs}).toLowerCase()))`;
+      case ConditionOperation.STARTS_WITH:
+        return `String(${assertion.lhs}).toLowerCase().startsWith(String(${assertion.rhs}).toLowerCase())`;
+      case ConditionOperation.ENDS_WITH:
+        return `String(${assertion.lhs}).toLowerCase().endsWith(String(${assertion.rhs}).toLowerCase())`;
+      case ConditionOperation.GREATER_OR_EQUAL:
+        return `${assertion.lhs} >= ${assertion.rhs}`;
+      case ConditionOperation.GREATER_THAN:
+        return `${assertion.lhs} > ${assertion.rhs}`;
+      case ConditionOperation.LESS_OR_EQUAL:
+        return `${assertion.lhs} <= ${assertion.rhs}`;
+      case ConditionOperation.LESS_THAN:
+        return `${assertion.lhs} < ${assertion.rhs}`;
+      case ConditionOperation.IS:
+        return `${assertion.lhs} == ${assertion.rhs}`;
+      case ConditionOperation.IS_NOT:
+        return `${assertion.lhs} != ${assertion.rhs}`;
+      case ConditionOperation.IS_EMPTY:
+        return `${assertion.lhs} == 0`;
+      case ConditionOperation.IS_NOT_EMPTY:
+        return `${assertion.lhs} != 0`;
+      default:
+        throw new Error('expression condition received an unexpected operator');
+    }
   }
 
-  every(): boolean {
+  private async evaluateAssertion(assertion: CompiledConditionAssertion): Promise<boolean> {
+    const result: unknown = await this.resources.executeCode(this.compileJITAssertion(assertion));
+    return !!result;
+  }
+
+  private formatAssertion(assertion: CompiledConditionAssertion): string {
+    return `${assertion.lhs} ${assertion.operation} ${assertion.rhs}`;
+  }
+
+  private async every(): Promise<boolean> {
     this.runtime.trace.debug('--- evaluating expression, matchAll = true ---');
 
-    const result = this.condition.data.assertions.every((assert) => this.evaluateAssertion(assert));
+    const assertionResults = await Promise.all(
+      this.condition.data.assertions.map((assert) => this.evaluateAssertion(assert))
+    );
+    const result = assertionResults.every((val) => val);
 
-    this.runtime.trace.debug('--- evaluated expression, result = true');
+    this.runtime.trace.debug(`--- evaluated expression, result = ${result} ---`);
+
+    if (!result) {
+      const firstFalse = assertionResults.findIndex((val) => !val);
+      const assertion = this.condition.data.assertions[firstFalse];
+      this.runtime.trace.debug(`- assertion '${this.formatAssertion(assertion)}' was false`);
+    }
 
     return result;
   }
 
-  some(): boolean {
+  private async some(): Promise<boolean> {
     this.runtime.trace.debug('--- evaluating expression, matchAll = false ---');
 
-    const firstTrueAssertion = this.condition.data.assertions.find((assert) => this.evaluateAssertion(assert));
-
-    this.runtime.trace.debug(
-      `--- evaluated expression, result = ${!firstTrueAssertion}${!firstTrueAssertion}` ? `, assertion = {}` : ''
+    const assertionResults = await Promise.all(
+      this.condition.data.assertions.map((assert) => this.evaluateAssertion(assert))
     );
+    const result = assertionResults.some((val) => val);
 
-    return !firstTrueAssertion;
+    this.runtime.trace.debug(`--- evaluated expression, result = ${result}`);
+
+    if (result) {
+      const firstTrue = assertionResults.findIndex((val) => val);
+      const assertion = this.condition.data.assertions[firstTrue];
+      this.runtime.trace.debug(`- assertion '${this.formatAssertion(assertion)}' was true`);
+    }
+
+    return result;
   }
 
-  evaluate(): boolean {
+  async evaluate(): Promise<boolean> {
     return this.condition.data.matchAll ? this.every() : this.some();
   }
 }
