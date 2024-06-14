@@ -1,3 +1,4 @@
+// !TODO! - How to get rid of this
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import { CompiledResponseMessage } from '@voiceflow/dtos';
@@ -29,7 +30,6 @@ export async function selectVariant(variants: VariantConditionPair[]): Promise<C
     }
   });
 
-  // !TODO! - Can this be optimized by only evaluating one variant a time?
   for (const pair of conditionedVariants) {
     const isMatching = await evaluateConditions(pair);
 
