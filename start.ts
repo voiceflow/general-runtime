@@ -29,6 +29,7 @@ import Server from './server';
 
   try {
     await server.start();
+    await server.stop();
   } catch (error) {
     log.error(`[app] [http] failed to start server ${log.vars({ error })}`);
   }

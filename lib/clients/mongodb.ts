@@ -20,6 +20,11 @@ class MongoDB extends AbstractClient {
 
   async stop() {
     await this.client!.close();
+    await new Promise<void>((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 30000);
+    });
   }
 }
 
