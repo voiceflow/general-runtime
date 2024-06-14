@@ -24,7 +24,7 @@ function outputVariant(
   variables: Store
 ) {
   const trace = textOutputTrace({
-    output: variant.data.text,
+    output: variant.data.text.content,
     ...(variant.data.delay && { delay: variant.data.delay }),
     variables,
     version: runtime.version,
