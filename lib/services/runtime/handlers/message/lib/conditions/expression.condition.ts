@@ -1,8 +1,11 @@
 import { CompiledConditionAssertion, CompiledExpressionCondition, ConditionOperation } from '@voiceflow/dtos';
 
 import { BaseCondition } from './base.condition';
+import { ConditionIsolate } from './conditionIsolate';
 
 export class ExpressionCondition extends BaseCondition<CompiledExpressionCondition> {
+  private isolate: ConditionIsolate | null = null;
+
   private compileJITAssertion(assertion: CompiledConditionAssertion): string {
     switch (assertion.operation) {
       case ConditionOperation.CONTAINS:
@@ -35,7 +38,10 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
   }
 
   private async evaluateAssertion(assertion: CompiledConditionAssertion): Promise<boolean> {
-    const result: unknown = await this.resources.executeCode(this.compileJITAssertion(assertion));
+    if (!this.isolate) {
+      throw new Error('expected isolate to be initialized in expression condition but it was not');
+    }
+    const result: unknown = await this.isolate.executeCode(this.compileJITAssertion(assertion));
     return !!result;
   }
 
@@ -82,6 +88,7 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
   }
 
   async evaluate(): Promise<boolean> {
+    this.isolate = new ConditionIsolate(this.variables);
     return this.condition.data.matchAll ? this.every() : this.some();
   }
 }

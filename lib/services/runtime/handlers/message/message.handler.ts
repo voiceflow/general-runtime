@@ -12,7 +12,6 @@ import { HandlerFactory, Runtime, Store } from '@/runtime';
 
 import { addOutputTrace, textOutputTrace } from '../../utils';
 import { createCondition } from './lib/conditions/condition';
-import { ConditionResources } from './lib/conditions/conditionResources';
 import { selectDiscriminator } from './lib/selectDiscriminator';
 import { selectVariant } from './lib/selectVariant';
 
@@ -52,26 +51,6 @@ function getResponse(runtime: Runtime, messageID: string) {
   return version.programResources.messages[messageID];
 }
 
-async function evaluateDiscriminator(discriminator: CompiledResponseMessage[], runtime: Runtime, variables: Store) {
-  let conditionResources: ConditionResources | null = null;
-
-  try {
-    conditionResources = new ConditionResources(variables);
-    await conditionResources.initialize();
-
-    const preprocessedVariants = discriminator.map((variant) => ({
-      variant,
-      condition: variant.condition ? createCondition(variant.condition, runtime, variables, conditionResources!) : null,
-    }));
-
-    // WARNING - Must explicitly `await` for `selectVariant` before returning, otherwise, the cleanup in
-    // `finally` will interfere with returning the result.
-    return await selectVariant(preprocessedVariants);
-  } finally {
-    conditionResources?.cleanup();
-  }
-}
-
 export const MessageHandler: HandlerFactory<CompiledMessageNode> = () => ({
   canHandle: (node) => CompiledMessageNodeDTO.safeParse(node).success,
 
@@ -90,7 +69,12 @@ export const MessageHandler: HandlerFactory<CompiledMessageNode> = () => ({
       );
     }
 
-    const chosenVariant = await evaluateDiscriminator(chosenDiscriminator, runtime, variables);
+    const preprocessedVariants = chosenDiscriminator.map((variant) => ({
+      variant,
+      condition: variant.condition ? createCondition(variant.condition, runtime, variables) : null,
+    }));
+
+    const chosenVariant = await selectVariant(preprocessedVariants);
 
     outputVariant(chosenVariant, node, runtime, variables);
 

@@ -2,7 +2,7 @@ import ivm from 'isolated-vm';
 
 import { Store } from '@/runtime';
 
-export class ConditionResources {
+export class ConditionIsolate {
   private isolate!: ivm.Isolate;
 
   private context!: ivm.Context;
