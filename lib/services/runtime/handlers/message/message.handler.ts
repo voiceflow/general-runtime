@@ -61,7 +61,7 @@ async function evaluateDiscriminator(discriminator: CompiledResponseMessage[], r
 
     const preprocessedVariants = discriminator.map((variant) => ({
       variant,
-      conditions: variant.conditions?.map((cond) => createCondition(cond, runtime, variables, conditionResources!)),
+      condition: variant.condition ? createCondition(variant.condition, runtime, variables, conditionResources!) : null,
     }));
 
     // WARNING - Must explicitly `await` for `selectVariant` before returning, otherwise, the cleanup in
