@@ -86,7 +86,10 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
     const isolate = new ConditionIsolate(this.variables);
     try {
       await isolate.initialize();
-      return this.condition.data.matchAll ? this.every(isolate) : this.some(isolate);
+
+      // WARNING - Must explicitly await the code execution, otherwise, isolate cleanup in `finally`
+      //           executes before the evaluated condition is fully computed.
+      return await (this.condition.data.matchAll ? this.every(isolate) : this.some(isolate));
     } catch (err) {
       if (err instanceof Error) {
         throw new Error(`an error occurred executing an expression condition, msg = ${err.message}`);
