@@ -18,6 +18,7 @@ describe('runtime handler utils unit tests', () => {
       expect(canUseModel(AIModel.GPT_4 as any, { plan: PlanType.PRO } as Runtime)).to.eql(true);
       expect(canUseModel(AIModel.GPT_4O as any, { plan: PlanType.PRO } as Runtime)).to.eql(true);
       expect(canUseModel(AIModel.GPT_4_TURBO as any, { plan: PlanType.PRO } as Runtime)).to.eql(true);
+      expect(canUseModel(AIModel.GEMINI_PRO_1_5 as any, { plan: PlanType.PRO } as Runtime)).to.eql(true);
     });
 
     it("returns false if runtime subscription entitlements doesn't supports GPT-4", () => {
@@ -26,6 +27,7 @@ describe('runtime handler utils unit tests', () => {
       expect(canUseModel(AIModel.GPT_4 as any, runtime)).to.eql(false);
       expect(canUseModel(AIModel.GPT_4O as any, runtime)).to.eql(false);
       expect(canUseModel(AIModel.GPT_4_TURBO as any, runtime)).to.eql(false);
+      expect(canUseModel(AIModel.GEMINI_PRO_1_5 as any, runtime)).to.eql(false);
     });
 
     it('returns true if runtime subscription entitlements support GPT-4', () => {
@@ -40,9 +42,14 @@ describe('runtime handler utils unit tests', () => {
         subscriptionEntitlements: [{ feature_id: 'feat-model-gpt-4o', value: 'true' }],
       } as Runtime;
 
+      const geminiPro15EnabledRuntime = {
+        subscriptionEntitlements: [{ feature_id: 'feat-model-gemini-pro-1-5', value: 'true' }],
+      } as Runtime;
+
       expect(canUseModel(AIModel.GPT_4 as any, gpt4EnabledRuntime)).to.eql(true);
       expect(canUseModel(AIModel.GPT_4_TURBO as any, gpt4TurboEnabledRuntime)).to.eql(true);
       expect(canUseModel(AIModel.GPT_4O as any, gpt4OEnabledRuntime)).to.eql(true);
+      expect(canUseModel(AIModel.GEMINI_PRO_1_5 as any, geminiPro15EnabledRuntime)).to.eql(true);
     });
   });
 });
