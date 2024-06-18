@@ -1,4 +1,3 @@
-import { BaseNode } from '@voiceflow/base-types';
 import {
   Channel,
   CompiledMessageNode,
