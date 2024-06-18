@@ -31,7 +31,7 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
       case ConditionOperation.IS_NOT_EMPTY:
         return `${assertion.lhs} != 0`;
       default:
-        throw new Error('expression condition received an unexpected operator');
+        throw new Error(`expression condition received an unexpected operator "${assertion.operation}"`);
     }
   }
 
@@ -87,6 +87,17 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
     try {
       await isolate.initialize();
       return this.condition.data.matchAll ? this.every(isolate) : this.some(isolate);
+    } catch (err) {
+      if (err instanceof Error) {
+        throw new Error(`an error occurred executing an expression condition, msg = ${err.message}`);
+      }
+      throw new Error(
+        `an unknown error occurred executing an expression condition, details = ${JSON.stringify(
+          err,
+          null,
+          2
+        ).substring(0, 300)}`
+      );
     } finally {
       isolate.cleanup();
     }

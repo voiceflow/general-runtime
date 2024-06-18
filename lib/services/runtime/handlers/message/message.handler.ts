@@ -13,8 +13,7 @@ import { addOutputTrace, textOutputTrace } from '../../utils';
 import { createCondition } from './lib/conditions/condition';
 import { selectDiscriminator } from './lib/selectDiscriminator';
 import { selectVariant } from './lib/selectVariant';
-
-const MESSAGE_HANDLER_ERROR_TAG = 'message-handler';
+import { raiseMessageHandlerError } from './lib/utils';
 
 function outputVariant(
   variant: CompiledResponseMessage,
@@ -34,7 +33,7 @@ function outputVariant(
 
 function getMessageData(runtime: Runtime, messageID: string) {
   if (!runtime.version) {
-    throw new Error(`[${MESSAGE_HANDLER_ERROR_TAG}]: Runtime was not loaded with a version`);
+    throw raiseMessageHandlerError('Runtime was not loaded with a version');
   }
 
   /**
@@ -44,7 +43,7 @@ function getMessageData(runtime: Runtime, messageID: string) {
   const version = runtime.version as unknown as Version;
 
   if (!version.programResources) {
-    throw new Error(`[${MESSAGE_HANDLER_ERROR_TAG}]: Version was not compiled`);
+    throw raiseMessageHandlerError('Version was not compiled');
   }
 
   return version.programResources.messages[messageID];
@@ -54,28 +53,41 @@ export const MessageHandler: HandlerFactory<CompiledMessageNode> = () => ({
   canHandle: (node) => CompiledMessageNodeDTO.safeParse(node).success,
 
   handle: async (node, runtime, variables): Promise<string | null> => {
-    const message = getMessageData(runtime, node.data.messageID);
+    try {
+      const message = getMessageData(runtime, node.data.messageID);
 
-    const currentLanguage = Language.ENGLISH_US;
-    const currentChannel = Channel.DEFAULT;
-    const chosenDiscriminator = selectDiscriminator(message, currentChannel, currentLanguage);
+      const currentLanguage = Language.ENGLISH_US;
+      const currentChannel = Channel.DEFAULT;
+      const chosenDiscriminator = selectDiscriminator(message, currentChannel, currentLanguage);
 
-    if (!chosenDiscriminator) {
-      throw new Error(
-        `[${MESSAGE_HANDLER_ERROR_TAG}]: could not resolve response step, missing variants list for channel='${currentChannel}', language='${currentLanguage}'`
-      );
+      if (!chosenDiscriminator) {
+        throw raiseMessageHandlerError(
+          `could not resolve response step, missing variants list for channel='${currentChannel}', language='${currentLanguage}'`
+        );
+      }
+
+      const preprocessedVariants = chosenDiscriminator.map((variant) => ({
+        variant,
+        condition: variant.condition ? createCondition(variant.condition, runtime, variables) : null,
+      }));
+
+      const chosenVariant = await selectVariant(preprocessedVariants);
+
+      outputVariant(chosenVariant, node, runtime, variables);
+
+      return node.ports.default;
+    } catch (err) {
+      const prefix = `message step execution for versionID="${runtime.versionID}" failed due to `;
+      const suffix =
+        err instanceof Error
+          ? `error = "${err.message}"`
+          : `unknown error, recovered details = "${JSON.stringify(err, null, 2).substring(0, 300)}"`;
+      const errorMessage = prefix + suffix;
+
+      runtime.trace.debug(errorMessage);
+
+      throw raiseMessageHandlerError(errorMessage);
     }
-
-    const preprocessedVariants = chosenDiscriminator.map((variant) => ({
-      variant,
-      condition: variant.condition ? createCondition(variant.condition, runtime, variables) : null,
-    }));
-
-    const chosenVariant = await selectVariant(preprocessedVariants);
-
-    outputVariant(chosenVariant, node, runtime, variables);
-
-    return node.ports.default;
   },
 });
 

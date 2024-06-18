@@ -13,6 +13,6 @@ export function createCondition(condition: AnyCompiledCondition, runtime: Runtim
     case ConditionType.SCRIPT:
       return new ScriptCondition(condition, runtime, variables);
     default:
-      throw new Error('[createCondition]: received unexpected condition type');
+      throw new Error(`received unexpected condition type "${condition.type}"`);
   }
 }

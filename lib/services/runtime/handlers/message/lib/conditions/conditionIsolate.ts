@@ -37,7 +37,7 @@ export class ConditionIsolate {
 
   async executeCode(code: string) {
     if (!this.context) {
-      throw new Error('isolated was not initialized');
+      throw new Error(`condition isolate was not initialized before an attempt to execute code`);
     }
     return this.context.eval(code, {
       timeout: this.ISOLATED_VM_LIMITS.maxExecutionTimeMs,
