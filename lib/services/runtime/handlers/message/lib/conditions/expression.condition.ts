@@ -4,8 +4,6 @@ import { BaseCondition } from './base.condition';
 import { ConditionIsolate } from './conditionIsolate';
 
 export class ExpressionCondition extends BaseCondition<CompiledExpressionCondition> {
-  private isolate: ConditionIsolate | null = null;
-
   private compileJITAssertion(assertion: CompiledConditionAssertion): string {
     switch (assertion.operation) {
       case ConditionOperation.CONTAINS:
@@ -37,11 +35,8 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
     }
   }
 
-  private async evaluateAssertion(assertion: CompiledConditionAssertion): Promise<boolean> {
-    if (!this.isolate) {
-      throw new Error('expected isolate to be initialized in expression condition but it was not');
-    }
-    const result: unknown = await this.isolate.executeCode(this.compileJITAssertion(assertion));
+  private async evaluateAssertion(isolate: ConditionIsolate, assertion: CompiledConditionAssertion): Promise<boolean> {
+    const result: unknown = await isolate.executeCode(this.compileJITAssertion(assertion));
     return !!result;
   }
 
@@ -49,11 +44,11 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
     return `${assertion.lhs} ${assertion.operation} ${assertion.rhs}`;
   }
 
-  private async every(): Promise<boolean> {
+  private async every(isolate: ConditionIsolate): Promise<boolean> {
     this.runtime.trace.debug('--- evaluating expression, matchAll = true ---');
 
     const assertionResults = await Promise.all(
-      this.condition.data.assertions.map((assert) => this.evaluateAssertion(assert))
+      this.condition.data.assertions.map((assert) => this.evaluateAssertion(isolate, assert))
     );
     const result = assertionResults.every((val) => val);
 
@@ -68,11 +63,11 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
     return result;
   }
 
-  private async some(): Promise<boolean> {
+  private async some(isolate: ConditionIsolate): Promise<boolean> {
     this.runtime.trace.debug('--- evaluating expression, matchAll = false ---');
 
     const assertionResults = await Promise.all(
-      this.condition.data.assertions.map((assert) => this.evaluateAssertion(assert))
+      this.condition.data.assertions.map((assert) => this.evaluateAssertion(isolate, assert))
     );
     const result = assertionResults.some((val) => val);
 
@@ -88,7 +83,12 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
   }
 
   async evaluate(): Promise<boolean> {
-    this.isolate = new ConditionIsolate(this.variables);
-    return this.condition.data.matchAll ? this.every() : this.some();
+    const isolate = new ConditionIsolate(this.variables);
+    try {
+      await isolate.initialize();
+      return this.condition.data.matchAll ? this.every(isolate) : this.some(isolate);
+    } finally {
+      isolate.cleanup();
+    }
   }
 }

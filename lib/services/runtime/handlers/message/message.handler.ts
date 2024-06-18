@@ -33,7 +33,7 @@ function outputVariant(
   addOutputTrace(runtime, trace, { node, variables });
 }
 
-function getResponse(runtime: Runtime, messageID: string) {
+function getMessageData(runtime: Runtime, messageID: string) {
   if (!runtime.version) {
     throw new Error(`[${MESSAGE_HANDLER_ERROR_TAG}]: Runtime was not loaded with a version`);
   }
@@ -55,9 +55,7 @@ export const MessageHandler: HandlerFactory<CompiledMessageNode> = () => ({
   canHandle: (node) => CompiledMessageNodeDTO.safeParse(node).success,
 
   handle: async (node, runtime, variables): Promise<string | null> => {
-    runtime.trace.debug('__response__ - entered', node.type as BaseNode.NodeType);
-
-    const message = getResponse(runtime, node.data.messageID);
+    const message = getMessageData(runtime, node.data.messageID);
 
     const currentLanguage = Language.ENGLISH_US;
     const currentChannel = Channel.DEFAULT;

@@ -3,9 +3,9 @@ import ivm from 'isolated-vm';
 import { Store } from '@/runtime';
 
 export class ConditionIsolate {
-  private isolate!: ivm.Isolate;
+  private isolate?: ivm.Isolate;
 
-  private context!: ivm.Context;
+  private context?: ivm.Context;
 
   constructor(private readonly variables: Store) {}
 
@@ -31,11 +31,14 @@ export class ConditionIsolate {
   }
 
   async cleanup() {
-    this.context.release();
-    this.isolate.dispose();
+    this.context?.release();
+    this.isolate?.dispose();
   }
 
   async executeCode(code: string) {
+    if (!this.context) {
+      throw new Error('isolated was not initialized');
+    }
     return this.context.eval(code, {
       timeout: this.ISOLATED_VM_LIMITS.maxExecutionTimeMs,
     });
