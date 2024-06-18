@@ -82,7 +82,7 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
     return result;
   }
 
-  async evaluate(): Promise<boolean> {
+  public async evaluate(): Promise<boolean> {
     const isolate = new ConditionIsolate(this.variables);
     try {
       await isolate.initialize();

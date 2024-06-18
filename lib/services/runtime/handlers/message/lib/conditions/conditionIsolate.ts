@@ -10,11 +10,11 @@ export class ConditionIsolate {
   constructor(private readonly variables: Store) {}
 
   private readonly ISOLATED_VM_LIMITS = {
-    maxMemoryMB: 10,
+    maxMemoryMB: 8,
     maxExecutionTimeMs: 1 * 1000,
   };
 
-  async initialize() {
+  public async initialize(): Promise<void> {
     this.isolate = new ivm.Isolate({
       memoryLimit: this.ISOLATED_VM_LIMITS.maxMemoryMB,
     });
@@ -30,12 +30,12 @@ export class ConditionIsolate {
     );
   }
 
-  async cleanup() {
+  public async cleanup(): Promise<void> {
     this.context?.release();
     this.isolate?.dispose();
   }
 
-  async executeCode(code: string) {
+  public async executeCode(code: string): Promise<unknown> {
     if (!this.context) {
       throw new Error(`condition isolate was not initialized before an attempt to execute code`);
     }

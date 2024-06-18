@@ -4,6 +4,7 @@ import { Runtime, Store } from '@/runtime';
 
 import { BaseCondition } from './base.condition';
 import { ExpressionCondition } from './expression.condition';
+import { PromptCondition } from './prompt.condition';
 import { ScriptCondition } from './script.condition';
 
 export function createCondition(condition: AnyCompiledCondition, runtime: Runtime, variables: Store): BaseCondition {
@@ -12,7 +13,9 @@ export function createCondition(condition: AnyCompiledCondition, runtime: Runtim
       return new ExpressionCondition(condition, runtime, variables);
     case ConditionType.SCRIPT:
       return new ScriptCondition(condition, runtime, variables);
+    case ConditionType.PROMPT:
+      return new PromptCondition(condition, runtime, variables);
     default:
-      throw new Error(`received unexpected condition type "${condition.type}"`);
+      throw new Error(`received unexpected condition type`);
   }
 }
