@@ -1,6 +1,3 @@
-// !TODO! - How to get rid of this
-/* eslint-disable no-await-in-loop */
-/* eslint-disable no-restricted-syntax */
 import { CompiledResponseMessage } from '@voiceflow/dtos';
 
 import { BaseCondition } from './conditions/base.condition';
@@ -22,6 +19,8 @@ export async function selectVariant(variants: VariantConditionPair[]): Promise<C
     }
   });
 
+  /* eslint-disable no-await-in-loop */
+  // eslint-disable-next-line no-restricted-syntax
   for (const pair of conditionedVariants) {
     const isMatching = await pair.condition!.evaluate();
 
@@ -29,6 +28,7 @@ export async function selectVariant(variants: VariantConditionPair[]): Promise<C
       return pair.variant;
     }
   }
+  /* eslint-enable no-await-in-loop */
 
   const randomIndex = Math.floor(Math.random() * unconditionedVariants.length);
   return unconditionedVariants[randomIndex].variant;
