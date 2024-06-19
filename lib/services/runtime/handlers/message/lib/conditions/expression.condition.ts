@@ -27,9 +27,9 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
       case ConditionOperation.IS_NOT:
         return `${assertion.lhs} != ${assertion.rhs}`;
       case ConditionOperation.IS_EMPTY:
-        return `${assertion.lhs} == 0`;
+        return `${assertion.lhs} == ''`;
       case ConditionOperation.IS_NOT_EMPTY:
-        return `${assertion.lhs} != 0`;
+        return `${assertion.lhs} != ''`;
       default:
         throw new Error(`expression condition received an unexpected operator "${assertion.operation}"`);
     }

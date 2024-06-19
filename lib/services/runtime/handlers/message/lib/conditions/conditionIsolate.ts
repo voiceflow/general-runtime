@@ -22,7 +22,7 @@ export class ConditionIsolate {
     this.context = await this.isolate.createContext();
 
     await Promise.all(
-      Object.keys(this.variables).map(async (key) => {
+      Object.keys(this.variables.getState()).map(async (key) => {
         await this.context!.global.set(key, this.variables.get(key), {
           copy: true,
         });
