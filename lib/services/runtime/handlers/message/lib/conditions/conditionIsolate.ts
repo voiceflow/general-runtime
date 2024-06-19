@@ -1,13 +1,11 @@
 import ivm from 'isolated-vm';
 
-import { Store } from '@/runtime';
-
 export class ConditionIsolate {
   private isolate?: ivm.Isolate;
 
   private context?: ivm.Context;
 
-  constructor(private readonly variables: Store) {}
+  constructor(private readonly variables: Record<string, unknown>) {}
 
   private readonly ISOLATED_VM_LIMITS = {
     maxMemoryMB: 8,
@@ -22,8 +20,8 @@ export class ConditionIsolate {
     this.context = await this.isolate.createContext();
 
     await Promise.all(
-      Object.keys(this.variables.getState()).map(async (key) => {
-        await this.context!.global.set(key, this.variables.get(key), {
+      Object.keys(this.variables).map(async (key) => {
+        await this.context!.global.set(key, this.variables[key], {
           copy: true,
         });
       })

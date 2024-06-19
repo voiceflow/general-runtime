@@ -1,20 +1,22 @@
 import { AnyCompiledCondition, ConditionType } from '@voiceflow/dtos';
 
-import { Runtime, Store } from '@/runtime';
-
-import { BaseCondition } from './base.condition';
+import { BaseCondition, BaseConditionLogger } from './base.condition';
 import { ExpressionCondition } from './expression.condition';
 import { PromptCondition } from './prompt.condition';
 import { ScriptCondition } from './script.condition';
 
-export function createCondition(condition: AnyCompiledCondition, runtime: Runtime, variables: Store): BaseCondition {
+export function createCondition(
+  condition: AnyCompiledCondition,
+  variables: Record<string, unknown>,
+  log: BaseConditionLogger
+): BaseCondition {
   switch (condition.type) {
     case ConditionType.EXPRESSION:
-      return new ExpressionCondition(condition, runtime, variables);
+      return new ExpressionCondition(condition, variables, log);
     case ConditionType.SCRIPT:
-      return new ScriptCondition(condition, runtime, variables);
+      return new ScriptCondition(condition, variables, log);
     case ConditionType.PROMPT:
-      return new PromptCondition(condition, runtime, variables);
+      return new PromptCondition(condition, variables, log);
     default:
       throw new Error(`received unexpected condition type`);
   }

@@ -68,7 +68,9 @@ export const MessageHandler: HandlerFactory<CompiledMessageNode> = () => ({
 
       const preprocessedVariants = chosenDiscriminator.map((variant) => ({
         variant,
-        condition: variant.condition ? createCondition(variant.condition, runtime, variables) : null,
+        condition: variant.condition
+          ? createCondition(variant.condition, variables.getState(), (message: string) => runtime.trace.debug(message))
+          : null,
       }));
 
       const chosenVariant = await selectVariant(preprocessedVariants);
