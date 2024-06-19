@@ -11,7 +11,10 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
 
   router.use(bodyParser.json({ limit: BODY_PARSER_SIZE_LIMIT }));
 
-  const interactMiddleware = [middlewares.project.resolvePublicProjectID, middlewares.rateLimit.versionConsume];
+  const interactMiddleware = [
+    middlewares.rateLimit.consumeResource((req) => req.params.projectID),
+    middlewares.project.resolvePublicProjectID,
+  ];
 
   // full route: /public/:projectID/state/user/:userID/interact
   router.post('/:projectID/state/user/:userID/interact', interactMiddleware, controllers.public.interact);
