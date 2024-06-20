@@ -19,6 +19,7 @@ const MODEL_TO_ENTITLEMENT = new Map<AIModel, string>([
   [AIModel.CLAUDE_3_SONNET, 'feat-model-claude-sonnet'],
   [AIModel.CLAUDE_3_OPUS, 'feat-model-claude-opus'],
   [AIModel.GPT_4O, 'feat-model-gpt-4o'],
+  [AIModel.GEMINI_PRO_1_5, 'feat-model-gemini-pro-1-5'],
 ]);
 
 export const getMemoryMessages = (variablesState: Record<string, unknown>) => [
@@ -28,9 +29,14 @@ export const getMemoryMessages = (variablesState: Record<string, unknown>) => [
 export const canUseModel = (model: BaseUtils.ai.GPT_MODEL, runtime: Runtime) => {
   // TODO remove once we remove teams table
   if (
-    ![AIModel.GPT_4, AIModel.GPT_4_TURBO, AIModel.GPT_4O, AIModel.CLAUDE_3_SONNET, AIModel.CLAUDE_3_OPUS].includes(
-      model as any
-    )
+    ![
+      AIModel.GPT_4,
+      AIModel.GPT_4_TURBO,
+      AIModel.GPT_4O,
+      AIModel.GEMINI_PRO_1_5,
+      AIModel.CLAUDE_3_SONNET,
+      AIModel.CLAUDE_3_OPUS,
+    ].includes(model as any)
   ) {
     return true;
   }
@@ -38,9 +44,14 @@ export const canUseModel = (model: BaseUtils.ai.GPT_MODEL, runtime: Runtime) => 
   if (runtime.plan) {
     // if not restricted models
     if (
-      ![AIModel.GPT_4, AIModel.GPT_4_TURBO, AIModel.GPT_4O, AIModel.CLAUDE_3_SONNET, AIModel.CLAUDE_3_OPUS].includes(
-        model as any
-      )
+      ![
+        AIModel.GPT_4,
+        AIModel.GPT_4_TURBO,
+        AIModel.GPT_4O,
+        AIModel.GEMINI_PRO_1_5,
+        AIModel.CLAUDE_3_SONNET,
+        AIModel.CLAUDE_3_OPUS,
+      ].includes(model as any)
     ) {
       return true;
     }

@@ -40,8 +40,8 @@ export const MessageHandler: HandlerFactory<CompiledMessageNode, typeof handlerU
 
     variants.forEach((val) => {
       const trace = utils.textOutputTrace({
-        output: val.text,
-        ...(val.delay && { delay: val.delay }),
+        output: val.data?.text,
+        ...(val.data?.delay && { delay: val.data.delay }),
         variables,
         version: runtime.version,
       });
