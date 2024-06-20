@@ -6,12 +6,15 @@ const defaultMessage: CompiledMessage = {
   variants: {
     'default:en-us': [
       {
-        text: [
-          {
-            text: 'Hello, world!',
-          },
-        ],
-        delay: 100,
+        data: {
+          text: [
+            {
+              text: 'Hello, world!',
+            },
+          ],
+          delay: 100,
+        },
+        condition: null,
       },
     ],
   },
