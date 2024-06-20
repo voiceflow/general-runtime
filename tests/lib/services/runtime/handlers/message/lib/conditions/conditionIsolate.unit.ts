@@ -1,17 +1,16 @@
 import { expect } from 'chai';
 
 import { ConditionIsolate } from '@/lib/services/runtime/handlers/message/lib/conditions/conditionIsolate';
-import { Store } from '@/runtime';
 
 describe('ConditionIsolate', () => {
-  let variables: Store;
+  let variables: Record<string, unknown>;
 
   beforeEach(() => {
-    variables = new Store({
+    variables = {
       propA: 1,
       propB: 'hello',
       propC: true,
-    });
+    };
   });
 
   describe('executeCode', () => {

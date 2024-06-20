@@ -12,15 +12,12 @@ import { createCondition } from '@/lib/services/runtime/handlers/message/lib/con
 import { ExpressionCondition } from '@/lib/services/runtime/handlers/message/lib/conditions/expression.condition';
 import { PromptCondition } from '@/lib/services/runtime/handlers/message/lib/conditions/prompt.condition';
 import { ScriptCondition } from '@/lib/services/runtime/handlers/message/lib/conditions/script.condition';
-import { Runtime, Store } from '@/runtime';
 
 describe('createCondition', () => {
-  let runtime: Runtime;
-  let variables: Store;
+  let variables: Record<string, unknown>;
 
   beforeEach(() => {
-    runtime = {} as unknown as Runtime;
-    variables = new Store({});
+    variables = {};
   });
 
   describe('is a factory for conditions', () => {
@@ -33,7 +30,7 @@ describe('createCondition', () => {
         },
       };
 
-      const result = createCondition(expressionCondition, runtime, variables);
+      const result = createCondition(expressionCondition, variables);
 
       expect(result).to.instanceOf(ExpressionCondition);
     });
@@ -46,7 +43,7 @@ describe('createCondition', () => {
         },
       };
 
-      const result = createCondition(scriptCondition, runtime, variables);
+      const result = createCondition(scriptCondition, variables);
 
       expect(result).to.instanceOf(ScriptCondition);
     });
@@ -78,7 +75,7 @@ describe('createCondition', () => {
         },
       };
 
-      const result = createCondition(promptCondition, runtime, variables);
+      const result = createCondition(promptCondition, variables);
 
       expect(result).to.instanceOf(PromptCondition);
     });
@@ -90,7 +87,7 @@ describe('createCondition', () => {
         data: {},
       } as unknown as AnyCompiledCondition;
 
-      const operation = () => createCondition(invalidCondition, runtime, variables);
+      const operation = () => createCondition(invalidCondition, variables);
 
       expect(operation).to.throw(`received unexpected condition type`);
     });

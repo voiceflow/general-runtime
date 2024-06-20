@@ -8,7 +8,7 @@ import { ScriptCondition } from './script.condition';
 export function createCondition(
   condition: AnyCompiledCondition,
   variables: Record<string, unknown>,
-  log: BaseConditionLogger
+  log?: BaseConditionLogger
 ): BaseCondition {
   switch (condition.type) {
     case ConditionType.EXPRESSION:

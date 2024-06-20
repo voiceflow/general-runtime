@@ -1,26 +1,18 @@
 import { CompiledExpressionCondition, ConditionOperation, ConditionType } from '@voiceflow/dtos';
 import { expect } from 'chai';
-import Sinon from 'sinon';
 
 import { ExpressionCondition } from '@/lib/services/runtime/handlers/message/lib/conditions/expression.condition';
 import { selectVariant } from '@/lib/services/runtime/handlers/message/lib/selectVariant';
-import { Runtime, Store } from '@/runtime';
 
 describe('selectVariant', () => {
-  let runtime: Runtime;
-  let variables: Store;
+  let variables: Record<string, unknown>;
 
   before(() => {
-    runtime = {
-      trace: {
-        debug: Sinon.stub(),
-      },
-    } as unknown as Runtime;
-    variables = new Store({
+    variables = {
       propA: 1,
       propB: 'hello',
       propC: true,
-    });
+    };
   });
 
   it('selects a random unconditioned variant, if no matching conditioned variant exists', async () => {
@@ -162,7 +154,7 @@ describe('selectVariant', () => {
           },
           condition: falseCondition,
         },
-        condition: new ExpressionCondition(falseCondition, runtime, variables),
+        condition: new ExpressionCondition(falseCondition, variables),
       },
       {
         variant: {
@@ -204,7 +196,7 @@ describe('selectVariant', () => {
           },
           condition: trueConditionA,
         },
-        condition: new ExpressionCondition(trueConditionA, runtime, variables),
+        condition: new ExpressionCondition(trueConditionA, variables),
       },
       {
         variant: {
@@ -246,7 +238,7 @@ describe('selectVariant', () => {
           },
           condition: trueConditionB,
         },
-        condition: new ExpressionCondition(trueConditionB, runtime, variables),
+        condition: new ExpressionCondition(trueConditionB, variables),
       },
     ];
 
