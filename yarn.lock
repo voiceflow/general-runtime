@@ -4723,15 +4723,7 @@ __metadata:
     "@voiceflow/commitlint-config": 2.0.0
     "@voiceflow/common": 8.2.8
     "@voiceflow/default-prompt-wrappers": ^1.1.1
-<<<<<<< HEAD
-<<<<<<< HEAD
     "@voiceflow/dtos": 1.98.0
-=======
-    "@voiceflow/dtos": 1.94.1
->>>>>>> 4c11f058 (refactor: clean up code)
-=======
-    "@voiceflow/dtos": 1.97.1
->>>>>>> d6a63026 (feat: updated dtos to latest)
     "@voiceflow/eslint-config": 6.1.0
     "@voiceflow/event-ingestion-service": 1.5.1
     "@voiceflow/exception": ^1.5.1
