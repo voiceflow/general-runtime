@@ -7,7 +7,7 @@ parameters:
     default: "SHA256:7FhWIIg1mYzFjcATPWZB3H9VVpUQihp2rQh1HFhPdks"
 
 orbs:
-  vfcommon: voiceflow/common@0.67.0
+  vfcommon: voiceflow/common@0.73.3
   gomplate: xavientois/gomplate@0.2.0
 
 workflows:
@@ -20,7 +20,10 @@ workflows:
     jobs:
       - gomplate/render-config:
           context: dev-test
-          executor: vfcommon/node-executor
+          install-gomplate: false
+          executor:
+            name: vfcommon/node-executor-node-20
+            tag: '20.11.1-vf-3'
           pre-steps:
             - checkout
             - vfcommon/set-env-name: # On bors branches, we will be running the e2e tests in a dev environment
