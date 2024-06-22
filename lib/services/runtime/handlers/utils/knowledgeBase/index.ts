@@ -148,7 +148,9 @@ export const fetchKnowledgeBase = async (
   workspaceID: string | undefined,
   question: string,
   settings?: BaseModels.Project.KnowledgeBaseSettings,
-  tags?: BaseModels.Project.KnowledgeBaseTagsFilter
+  tags?: BaseModels.Project.KnowledgeBaseTagsFilter,
+  filters?: Record<string, any>
+  // eslint-disable-next-line max-params
 ): Promise<KnowledgeBaseResponse | null> => {
   try {
     const cloudEnv = Config.CLOUD_ENV || '';
@@ -162,6 +164,7 @@ export const fetchKnowledgeBase = async (
       question,
       settings,
       tags,
+      filters,
     });
 
     if (!data?.chunks?.length) return null;

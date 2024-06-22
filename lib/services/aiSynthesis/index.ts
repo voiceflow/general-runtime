@@ -1,4 +1,6 @@
+/* eslint-disable max-depth,no-restricted-syntax,no-prototype-builtins */
 import { BaseModels, BaseUtils } from '@voiceflow/base-types';
+import VError from '@voiceflow/verror';
 import _merge from 'lodash/merge';
 
 import { AIModelContext } from '@/lib/clients/ai/ai-model.interface';
@@ -25,12 +27,79 @@ class AISynthesis extends AbstractManager {
 
   private readonly DEFAULT_QUESTION_SYNTHESIS_RETRIES = 2;
 
+  private readonly VALID_OPERATORS: Set<string> = new Set([
+    '$eq',
+    '$ne',
+    '$gt',
+    '$gte',
+    '$lt',
+    '$lte',
+    '$in',
+    '$nin',
+    '$and',
+    '$or',
+    '$not',
+  ]);
+
   private filterNotFound(output: string) {
     const upperCase = output?.toUpperCase();
     if (upperCase?.includes('NOT_FOUND') || upperCase?.startsWith("I'M SORRY,") || upperCase?.includes('AS AN AI')) {
       return null;
     }
     return output;
+  }
+
+  // eslint-disable-next-line sonarjs/cognitive-complexity
+  private validateMetadataFilters(filters?: Record<string, any>) {
+    if (!filters) return;
+
+    for (const key in filters) {
+      if (filters.hasOwnProperty(key)) {
+        const value = filters[key];
+
+        // If key starts with a $, it must be a valid operator
+        if (key.startsWith('$')) {
+          if (!this.VALID_OPERATORS.has(key)) {
+            throw new VError(
+              'The filter criteria provided are invalid. Please check the filter syntax and values.',
+              VError.HTTP_STATUS.UNPROCESSABLE_ENTITY
+            );
+          }
+
+          // Recursively validate objects and arrays
+          if (Array.isArray(value)) {
+            for (const subValue of value) {
+              if (typeof subValue === 'object' && subValue !== null) {
+                this.validateMetadataFilters(subValue);
+              }
+            }
+          } else if (typeof value === 'object' && value !== null) {
+            this.validateMetadataFilters(value);
+          }
+        }
+        // If key does not start with $, ensure nested objects are validated
+        else if (typeof value === 'object' && value !== null) {
+          for (const nestedKey in value) {
+            if (value.hasOwnProperty(nestedKey)) {
+              if (nestedKey.startsWith('$')) {
+                if (!this.VALID_OPERATORS.has(nestedKey)) {
+                  throw new VError(
+                    'The filter criteria provided are invalid. Please check the filter syntax and values.',
+                    VError.HTTP_STATUS.UNPROCESSABLE_ENTITY
+                  );
+                }
+              } else {
+                throw new VError(
+                  `Invalid operator "${nestedKey}". Operators must start with a $.`,
+                  VError.HTTP_STATUS.UNPROCESSABLE_ENTITY
+                );
+              }
+            }
+          }
+          this.validateMetadataFilters(value);
+        }
+      }
+    }
   }
 
   async answerSynthesis({
@@ -162,6 +231,7 @@ class AISynthesis extends AbstractManager {
     synthesis = true,
     options,
     tags,
+    filters,
   }: {
     project: BaseModels.Project.Model<any, any>;
     version?: BaseModels.Version.Model<any> | null;
@@ -173,8 +243,11 @@ class AISynthesis extends AbstractManager {
       summarization?: Partial<BaseModels.Project.KnowledgeBaseSettings['summarization']>;
     };
     tags?: BaseModels.Project.KnowledgeBaseTagsFilter;
+    filters?: Record<string, any>;
   }): Promise<AIResponse & Partial<KnowledgeBaseResponse> & { faqSet?: KnowledgeBaseFaqSet }> {
     let tagsFilter: BaseModels.Project.KnowledgeBaseTagsFilter = {};
+
+    this.validateMetadataFilters(filters);
 
     if (tags) {
       const tagLabelMap = generateTagLabelMap(project.knowledgeBase?.tags ?? {});
@@ -202,7 +275,14 @@ class AISynthesis extends AbstractManager {
     );
     if (faq?.answer) return { ...EMPTY_AI_RESPONSE, output: faq.answer, faqSet: faq.faqSet };
 
-    const data = await fetchKnowledgeBase(project._id, project.teamID, question, settingsWithoutModel, tagsFilter);
+    const data = await fetchKnowledgeBase(
+      project._id,
+      project.teamID,
+      question,
+      settingsWithoutModel,
+      tagsFilter,
+      filters
+    );
     if (!data) return { ...EMPTY_AI_RESPONSE, chunks: [] };
 
     // attach metadata to chunks
