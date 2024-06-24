@@ -20,11 +20,7 @@ export class ConditionIsolate {
     this.context = await this.isolate.createContext();
 
     await Promise.all(
-      Object.keys(this.variables).map(async (key) => {
-        await this.context!.global.set(key, this.variables[key], {
-          copy: true,
-        });
-      })
+      Object.entries(this.variables).map(([name, value]) => this.context?.global.set(name, value, { copy: true }))
     );
   }
 

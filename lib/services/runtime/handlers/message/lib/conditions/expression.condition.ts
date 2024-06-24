@@ -4,16 +4,28 @@ import { BaseCondition } from './base.condition';
 import { ConditionIsolate } from './conditionIsolate';
 
 export class ExpressionCondition extends BaseCondition<CompiledExpressionCondition> {
+  private compileJITContains(lhs: string, rhs: string, negate: boolean) {
+    const negateOperator = negate ? '!' : '';
+    return `${negateOperator}String(${lhs}).toLowerCase().includes(String(${rhs}).toLowerCase())`;
+  }
+
+  private compileJITSubstring(lhs: string, rhs: string, operation: ConditionOperation) {
+    const methodName = operation === ConditionOperation.STARTS_WITH ? `startsWith` : `endsWith`;
+    return `String(${lhs}).toLowerCase().${methodName}(String(${rhs}).toLowerCase())`;
+  }
+
   private compileJITAssertion(assertion: CompiledConditionAssertion): string {
     switch (assertion.operation) {
       case ConditionOperation.CONTAINS:
-        return `String(${assertion.lhs}).toLowerCase().includes(String(${assertion.rhs}).toLowerCase())`;
       case ConditionOperation.NOT_CONTAINS:
-        return `!(String(${assertion.lhs}).toLowerCase().includes(String(${assertion.rhs}).toLowerCase()))`;
+        return this.compileJITContains(
+          assertion.lhs,
+          assertion.rhs,
+          assertion.operation === ConditionOperation.NOT_CONTAINS
+        );
       case ConditionOperation.STARTS_WITH:
-        return `String(${assertion.lhs}).toLowerCase().startsWith(String(${assertion.rhs}).toLowerCase())`;
       case ConditionOperation.ENDS_WITH:
-        return `String(${assertion.lhs}).toLowerCase().endsWith(String(${assertion.rhs}).toLowerCase())`;
+        return this.compileJITSubstring(assertion.lhs, assertion.rhs, assertion.operation);
       case ConditionOperation.GREATER_OR_EQUAL:
         return `${assertion.lhs} >= ${assertion.rhs}`;
       case ConditionOperation.GREATER_THAN:
@@ -50,7 +62,7 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
     const assertionResults = await Promise.all(
       this.condition.data.assertions.map((assert) => this.evaluateAssertion(isolate, assert))
     );
-    const result = assertionResults.every((val) => val);
+    const result = assertionResults.every(Boolean);
 
     this.log(`--- evaluated expression, result = ${result} ---`);
 
@@ -69,7 +81,7 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
     const assertionResults = await Promise.all(
       this.condition.data.assertions.map((assert) => this.evaluateAssertion(isolate, assert))
     );
-    const result = assertionResults.some((val) => val);
+    const result = assertionResults.some(Boolean);
 
     this.log(`--- evaluated expression, result = ${result}`);
 

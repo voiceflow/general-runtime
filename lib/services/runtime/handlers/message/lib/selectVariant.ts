@@ -8,16 +8,18 @@ interface VariantConditionPair {
 }
 
 export async function selectVariant(variants: VariantConditionPair[]): Promise<CompiledResponseMessage> {
-  const conditionedVariants: VariantConditionPair[] = [];
-  const unconditionedVariants: VariantConditionPair[] = [];
-
-  variants.forEach((pair) => {
-    if (pair.condition) {
-      conditionedVariants.push(pair);
-    } else {
-      unconditionedVariants.push(pair);
-    }
-  });
+  const [conditionedVariants, unconditionedVariants]: [VariantConditionPair[], VariantConditionPair[]] =
+    variants.reduce(
+      ([conditioned, unconditioned], pair) => {
+        if (pair.condition) {
+          conditioned.push(pair);
+        } else {
+          unconditioned.push(pair);
+        }
+        return [conditioned, unconditioned];
+      },
+      [[], []] as [VariantConditionPair[], VariantConditionPair[]]
+    );
 
   /* eslint-disable no-await-in-loop */
   // eslint-disable-next-line no-restricted-syntax

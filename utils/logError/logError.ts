@@ -7,6 +7,16 @@ interface RaiseErrorOptions {
   logLevel?: LogLevel;
 }
 
+// listed in order of most to least fatality
+const levelToLog = {
+  [LogLevel.FATAL]: log.fatal,
+  [LogLevel.ERROR]: log.error,
+  [LogLevel.WARN]: log.error,
+  [LogLevel.INFO]: log.info,
+  [LogLevel.DEBUG]: log.debug,
+  [LogLevel.TRACE]: log.trace,
+};
+
 export type ErrorRaiser = (message: string, options?: RaiseErrorOptions) => Error;
 
 export const createErrorRaiser =
@@ -17,29 +27,10 @@ export const createErrorRaiser =
     const errorMessage = `[${context}]: ${message}`;
 
     if (shouldLog) {
-      switch (logLevel) {
-        // listed in order of most to least fatality
-        case LogLevel.FATAL:
-          log.fatal(errorMessage);
-          break;
-        case LogLevel.ERROR:
-          log.error(errorMessage);
-          break;
-        case LogLevel.WARN:
-          log.error(errorMessage);
-          break;
-        case LogLevel.INFO:
-          log.info(errorMessage);
-          break;
-        case LogLevel.DEBUG:
-          log.debug(errorMessage);
-          break;
-        case LogLevel.TRACE:
-          log.trace(errorMessage);
-          break;
-        default:
-          throw new Error('unknown log level recevied');
+      if (!(logLevel in levelToLog)) {
+        throw new Error('unknown log level received');
       }
+      levelToLog[logLevel](errorMessage);
     }
 
     return new Error(errorMessage);
