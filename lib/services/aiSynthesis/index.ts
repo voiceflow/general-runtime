@@ -1,4 +1,4 @@
-/* eslint-disable max-depth,no-restricted-syntax,no-prototype-builtins */
+/* eslint-disable ,no-restricted-syntax,no-prototype-builtins */
 import { BaseModels, BaseUtils } from '@voiceflow/base-types';
 import VError from '@voiceflow/verror';
 import _merge from 'lodash/merge';
@@ -39,6 +39,7 @@ class AISynthesis extends AbstractManager {
     '$and',
     '$or',
     '$not',
+    '$all',
   ]);
 
   private filterNotFound(output: string) {
@@ -49,57 +50,71 @@ class AISynthesis extends AbstractManager {
     return output;
   }
 
-  // eslint-disable-next-line sonarjs/cognitive-complexity
   private validateMetadataFilters(filters?: Record<string, any>) {
     if (!filters) return;
 
-    for (const key in filters) {
-      if (filters.hasOwnProperty(key)) {
-        const value = filters[key];
+    for (const [key, value] of Object.entries(filters)) {
+      this.validateKeyAndValue(key, value);
+    }
+  }
 
-        // If key starts with a $, it must be a valid operator
-        if (key.startsWith('$')) {
-          if (!this.VALID_OPERATORS.has(key)) {
-            throw new VError(
-              'The filter criteria provided are invalid. Please check the filter syntax and values.',
-              VError.HTTP_STATUS.UNPROCESSABLE_ENTITY
-            );
-          }
+  private validateKeyAndValue(key: string, value: any) {
+    if (key.startsWith('$')) {
+      this.validateOperatorKey(key, value);
+    } else if (typeof value === 'object' && value !== null) {
+      this.validateObjectValue(value);
+    }
+  }
 
-          // Recursively validate objects and arrays
-          if (Array.isArray(value)) {
-            for (const subValue of value) {
-              if (typeof subValue === 'object' && subValue !== null) {
-                this.validateMetadataFilters(subValue);
-              }
-            }
-          } else if (typeof value === 'object' && value !== null) {
-            this.validateMetadataFilters(value);
-          }
-        }
-        // If key does not start with $, ensure nested objects are validated
-        else if (typeof value === 'object' && value !== null) {
-          for (const nestedKey in value) {
-            if (value.hasOwnProperty(nestedKey)) {
-              if (nestedKey.startsWith('$')) {
-                if (!this.VALID_OPERATORS.has(nestedKey)) {
-                  throw new VError(
-                    'The filter criteria provided are invalid. Please check the filter syntax and values.',
-                    VError.HTTP_STATUS.UNPROCESSABLE_ENTITY
-                  );
-                }
-              } else {
-                throw new VError(
-                  `Invalid operator "${nestedKey}". Operators must start with a $.`,
-                  VError.HTTP_STATUS.UNPROCESSABLE_ENTITY
-                );
-              }
-            }
-          }
-          this.validateMetadataFilters(value);
-        }
+  private validateOperatorKey(key: string, value: any) {
+    if (!this.VALID_OPERATORS.has(key)) {
+      this.throwInvalidFilterError();
+    }
+    this.validateNestedValues(value);
+  }
+
+  private validateObjectValue(value: any) {
+    for (const nestedKey in value) {
+      if (value.hasOwnProperty(nestedKey)) {
+        this.validateNestedKey(nestedKey);
       }
     }
+    this.validateNestedValues(value);
+  }
+
+  private validateNestedKey(nestedKey: string) {
+    if (!nestedKey.startsWith('$')) {
+      this.throwInvalidOperatorError(nestedKey);
+    }
+    if (!this.VALID_OPERATORS.has(nestedKey)) {
+      this.throwInvalidFilterError();
+    }
+  }
+
+  private validateNestedValues(value: any) {
+    if (Array.isArray(value)) {
+      for (const subValue of value) {
+        if (typeof subValue === 'object' && subValue !== null) {
+          this.validateMetadataFilters(subValue);
+        }
+      }
+    } else if (typeof value === 'object' && value !== null) {
+      this.validateMetadataFilters(value);
+    }
+  }
+
+  private throwInvalidFilterError() {
+    throw new VError(
+      'The filter criteria provided are invalid. Please check the filter syntax and values.',
+      VError.HTTP_STATUS.UNPROCESSABLE_ENTITY
+    );
+  }
+
+  private throwInvalidOperatorError(operator: string) {
+    throw new VError(
+      `Invalid operator "${operator}". Operators must start with a $.`,
+      VError.HTTP_STATUS.UNPROCESSABLE_ENTITY
+    );
   }
 
   async answerSynthesis({
