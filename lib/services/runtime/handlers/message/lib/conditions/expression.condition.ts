@@ -9,8 +9,8 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
     return `${negateOperator}String(${lhs}).toLowerCase().includes(String(${rhs}).toLowerCase())`;
   }
 
-  private compileJITSubstring(lhs: string, rhs: string, operation: ConditionOperation) {
-    const methodName = operation === ConditionOperation.STARTS_WITH ? `startsWith` : `endsWith`;
+  private compileJITSubstring(lhs: string, rhs: string, isStartsWith: boolean) {
+    const methodName = isStartsWith ? `startsWith` : `endsWith`;
     return `String(${lhs}).toLowerCase().${methodName}(String(${rhs}).toLowerCase())`;
   }
 
@@ -25,7 +25,11 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
         );
       case ConditionOperation.STARTS_WITH:
       case ConditionOperation.ENDS_WITH:
-        return this.compileJITSubstring(assertion.lhs, assertion.rhs, assertion.operation);
+        return this.compileJITSubstring(
+          assertion.lhs,
+          assertion.rhs,
+          assertion.operation === ConditionOperation.STARTS_WITH
+        );
       case ConditionOperation.GREATER_OR_EQUAL:
         return `${assertion.lhs} >= ${assertion.rhs}`;
       case ConditionOperation.GREATER_THAN:
