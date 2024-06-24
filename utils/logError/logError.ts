@@ -9,12 +9,12 @@ interface RaiseErrorOptions {
 
 // listed in order of most to least fatality
 const levelToLog = {
-  [LogLevel.FATAL]: log.fatal,
-  [LogLevel.ERROR]: log.error,
-  [LogLevel.WARN]: log.error,
-  [LogLevel.INFO]: log.info,
-  [LogLevel.DEBUG]: log.debug,
-  [LogLevel.TRACE]: log.trace,
+  [LogLevel.FATAL]: (message: string) => log.fatal(message),
+  [LogLevel.ERROR]: (message: string) => log.error(message),
+  [LogLevel.WARN]: (message: string) => log.error(message),
+  [LogLevel.INFO]: (message: string) => log.info(message),
+  [LogLevel.DEBUG]: (message: string) => log.debug(message),
+  [LogLevel.TRACE]: (message: string) => log.trace(message),
 };
 
 export type ErrorRaiser = (message: string, options?: RaiseErrorOptions) => Error;
