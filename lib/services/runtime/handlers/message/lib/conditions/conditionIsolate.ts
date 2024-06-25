@@ -66,7 +66,11 @@ export class ConditionIsolate {
    * @returns
    */
   private async compileMainModule() {
-    // Removes injected user variables from the `global` object to keep this namespace clean.
+    // Injects user variables into `globalThis`
+    await this.setupUserVariables();
+
+    // Removes injected user variables from the `globalThis` object t clean the namespace and avoid
+    // user variables from being accessible from user code through `globalThis`.
     const sanitizeVarsFromGlobal = `
             const ${ConditionIsolate.userVariablesName} = globalThis.${ConditionIsolate.userVariablesName};
             delete globalThis.${ConditionIsolate.userVariablesName};
@@ -110,7 +114,6 @@ export class ConditionIsolate {
 
     const userModule = await this.compileUserModule(code);
     const mainModule = await this.compileMainModule();
-    await this.setupUserVariables();
 
     const executeCode = async (resolve: (val: unknown) => void, reject: (reason?: unknown) => void) => {
       try {
