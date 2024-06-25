@@ -19,8 +19,8 @@ describe('ScriptCondition', () => {
         {
           type: ConditionType.SCRIPT,
           data: {
-            code: `export default function main({ inputVars }) { 
-            const { propA, propB } = inputVars;
+            code: `export default function main({ variables }) { 
+            const { propA, propB } = variables;
             return propA + propB === "1hello";
           }`,
           },

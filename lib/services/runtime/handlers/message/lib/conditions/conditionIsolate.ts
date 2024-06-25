@@ -9,7 +9,7 @@ export class ConditionIsolate {
 
   private static readonly userModuleName = `userModule`;
 
-  private static readonly userVariablesName = `inputVars`;
+  private static readonly userVariablesName = `variables`;
 
   private static readonly resolveFuncName = `__resolve__`;
 
