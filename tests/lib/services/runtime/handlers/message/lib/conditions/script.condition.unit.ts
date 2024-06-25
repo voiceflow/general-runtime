@@ -32,5 +32,23 @@ describe('ScriptCondition', () => {
 
       expect(result).to.eql(true);
     });
+
+    it('always produces a boolean', async () => {
+      const condition = new ScriptCondition(
+        {
+          type: ConditionType.SCRIPT,
+          data: {
+            code: `export default function main() { 
+            return "this is not a boolean";
+          }`,
+          },
+        },
+        variables
+      );
+
+      const result = await condition.evaluate();
+
+      expect(result).to.eql(true);
+    });
   });
 });
