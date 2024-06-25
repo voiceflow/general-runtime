@@ -29,7 +29,11 @@ export class ConditionIsolate {
    * it does the same for thrown exceptions with the `reject` function
    */
   private async setupResolve(resolve: (value: any) => void, reject: (reason?: any) => void) {
-    await this.context!.evalClosure(
+    if (!this.context) {
+      throw new Error('sandbox did not initialize context');
+    }
+
+    await this.context.evalClosure(
       `
             ${ConditionIsolate.resolveFuncName} = function(...args) {
                 return $0.apply(undefined, args, { arguments: { copy: true }});
@@ -47,7 +51,10 @@ export class ConditionIsolate {
    * Injects all given user variables into the execution environment.
    */
   private async setupUserVariables() {
-    await this.context!.global.set(ConditionIsolate.userVariablesName, this.variables, { copy: true });
+    if (!this.context) {
+      throw new Error('sandbox did not initialize context');
+    }
+    await this.context.global.set(ConditionIsolate.userVariablesName, this.variables, { copy: true });
   }
 
   /**
@@ -57,7 +64,10 @@ export class ConditionIsolate {
    * @returns `ivm.Module` containing the user code
    */
   private async compileUserModule(code: string) {
-    return this.isolate!.compileModule(code);
+    if (!this.isolate) {
+      throw new Error('sandbox did not initialize isolate');
+    }
+    return this.isolate.compileModule(code);
   }
 
   /**
@@ -66,6 +76,10 @@ export class ConditionIsolate {
    * @returns
    */
   private async compileMainModule() {
+    if (!this.isolate) {
+      throw new Error('sandbox did not initialize isolate');
+    }
+
     // Injects user variables into `globalThis`
     await this.setupUserVariables();
 
@@ -76,7 +90,7 @@ export class ConditionIsolate {
             delete globalThis.${ConditionIsolate.userVariablesName};
         `;
 
-    return this.isolate!.compileModule(`
+    return this.isolate.compileModule(`
         import ${ConditionIsolate.userFunctionName} from '${ConditionIsolate.userModuleName}';
         ${sanitizeVarsFromGlobal}
         (function () {
@@ -108,25 +122,25 @@ export class ConditionIsolate {
   }
 
   public async executeUserModule(code: string) {
-    if (!this.isolate || !this.context) {
-      throw new Error(`condition isolate was not initialized before an attempt to execute code`);
-    }
-
     const userModule = await this.compileUserModule(code);
     const mainModule = await this.compileMainModule();
 
     const executeCode = async (resolve: (val: unknown) => void, reject: (reason?: unknown) => void) => {
       try {
+        if (!this.context) {
+          throw new Error(`condition isolate was not initialized before an attempt to execute code`);
+        }
+
         // inject the `Promise`'s resolve and reject functions as proxied functions in the sandbox
         await this.setupResolve(resolve, reject);
 
         // forbid user-submitted code from importing any modules
-        await userModule.instantiate(this.context!, () => {
+        await userModule.instantiate(this.context, () => {
           throw new Error(`User code cannot import modules.`);
         });
 
         // allow entrypoint module to import the user-submitted code.
-        await mainModule.instantiate(this.context!, (specifier: string) => {
+        await mainModule.instantiate(this.context, (specifier: string) => {
           if (specifier === ConditionIsolate.userModuleName) {
             return userModule;
           }
