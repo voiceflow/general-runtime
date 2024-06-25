@@ -22,6 +22,12 @@ export class ConditionIsolate {
     maxExecutionTimeMs: 1 * 1000,
   };
 
+  /**
+   * Given the `resolve` and `reject` function instantiated by a `Promise` constructor, injects
+   * these functions into the `isolated-vm` environment as a proxied function. The `isolated-vm`
+   * entrypoint module will propagate values outside the sandbox through the `resolve` function,
+   * it does the same for thrown exceptions with the `reject` function
+   */
   private async setupResolve(resolve: (value: any) => void, reject: (reason?: any) => void) {
     await this.context!.evalClosure(
       `
@@ -37,15 +43,30 @@ export class ConditionIsolate {
     );
   }
 
+  /**
+   * Injects all given user variables into the execution environment.
+   */
   private async setupUserVariables() {
     await this.context!.global.set(ConditionIsolate.userVariablesName, this.variables, { copy: true });
   }
 
+  /**
+   * Compiles user-submitted code into an ESM module, which is later imported and executed by the
+   * entrypoint module
+   * @param code User-submitted code
+   * @returns `ivm.Module` containing the user code
+   */
   private async compileUserModule(code: string) {
     return this.isolate!.compileModule(code);
   }
 
+  /**
+   * Compiles the entrypoint module, which imports the default member of the user code module, executes
+   * it, and propagates the return value outside the sandbox using `resolve()`.
+   * @returns
+   */
   private async compileMainModule() {
+    // Removes injected user variables from the `global` object to keep this namespace clean.
     const sanitizeVarsFromGlobal = `
             const ${ConditionIsolate.userVariablesName} = globalThis.${ConditionIsolate.userVariablesName};
             delete globalThis.${ConditionIsolate.userVariablesName};
@@ -93,12 +114,15 @@ export class ConditionIsolate {
 
     const executeCode = async (resolve: (val: unknown) => void, reject: (reason?: unknown) => void) => {
       try {
+        // inject the `Promise`'s resolve and reject functions as proxied functions in the sandbox
         await this.setupResolve(resolve, reject);
 
+        // forbid user-submitted code from importing any modules
         await userModule.instantiate(this.context!, () => {
           throw new Error(`User code cannot import modules.`);
         });
 
+        // allow entrypoint module to import the user-submitted code.
         await mainModule.instantiate(this.context!, (specifier: string) => {
           if (specifier === ConditionIsolate.userModuleName) {
             return userModule;
@@ -106,6 +130,8 @@ export class ConditionIsolate {
           throw new Error(`Module '${specifier}' does not exist.`);
         });
 
+        // execute the entrypoint code - the result of the entrypoint code is passed into `resolve()` which
+        // we injected into the environment earlier.
         await mainModule.evaluate({
           timeout: this.ISOLATED_VM_LIMITS.maxExecutionTimeMs,
         });
