@@ -9,6 +9,7 @@ import {
 
 import { HandlerFactory, Runtime, Store } from '@/runtime';
 
+import { GeneralRuntime } from '../../types';
 import { addOutputTrace, textOutputTrace } from '../../utils';
 import { createCondition } from './lib/conditions/condition';
 import { selectDiscriminator } from './lib/selectDiscriminator';
@@ -49,7 +50,7 @@ function getMessageData(runtime: Runtime, messageID: string) {
   return version.programResources.messages[messageID];
 }
 
-export const MessageHandler: HandlerFactory<CompiledMessageNode> = () => ({
+export const MessageHandler: HandlerFactory<CompiledMessageNode, void, GeneralRuntime> = () => ({
   canHandle: (node) => CompiledMessageNodeDTO.safeParse(node).success,
 
   handle: async (node, runtime, variables): Promise<string | null> => {
@@ -69,7 +70,9 @@ export const MessageHandler: HandlerFactory<CompiledMessageNode> = () => ({
       const logMessage = (message: string) => runtime.trace.debug(message);
       const preprocessedVariants = chosenDiscriminator.map((variant) => ({
         variant,
-        condition: variant.condition ? createCondition(variant.condition, variables.getState(), logMessage) : null,
+        condition: variant.condition
+          ? createCondition(variant.condition, variables.getState(), runtime.services, logMessage)
+          : null,
       }));
 
       const chosenVariant = await selectVariant(preprocessedVariants);

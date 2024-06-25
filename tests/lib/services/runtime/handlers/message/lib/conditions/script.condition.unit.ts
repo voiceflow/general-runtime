@@ -2,15 +2,20 @@ import { ConditionType } from '@voiceflow/dtos';
 import { expect } from 'chai';
 
 import { ScriptCondition } from '@/lib/services/runtime/handlers/message/lib/conditions/script.condition';
+import { GeneralRuntime } from '@/lib/services/runtime/types';
 
 describe('ScriptCondition', () => {
   let variables: Record<string, unknown>;
+  let runtime: GeneralRuntime;
 
   before(() => {
     variables = {
       propA: 1,
       propB: 'hello',
     };
+    runtime = {
+      services: {},
+    } as unknown as GeneralRuntime;
   });
 
   describe('evaluate', () => {
@@ -25,7 +30,8 @@ describe('ScriptCondition', () => {
           }`,
           },
         },
-        variables
+        variables,
+        runtime.services
       );
 
       const result = await condition.evaluate();
@@ -43,7 +49,8 @@ describe('ScriptCondition', () => {
           }`,
           },
         },
-        variables
+        variables,
+        runtime.services
       );
 
       const result = await condition.evaluate();
