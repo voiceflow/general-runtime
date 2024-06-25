@@ -3,12 +3,25 @@ import axios from 'axios';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
+import log from '@/logger';
 import IntegrationsHandler from '@/runtime/lib/Handlers/integrations';
 import { ENDPOINTS_MAP } from '@/runtime/lib/Handlers/integrations/utils';
 
 const DEFAULT_OPTIONS = { integrationsEndpoint: '' };
 
 describe('integrationsHandler unit tests', () => {
+  const PREVIOUS_LOG_LEVEL = log.level;
+
+  before(() => {
+    // disable logging for unit testing
+    log.level = 'silent';
+  });
+
+  after(() => {
+    // re-enable logging after unit testing is complete
+    log.level = PREVIOUS_LOG_LEVEL;
+  });
+
   describe('canHandle', () => {
     it('false', () => {
       const integrationsHandler = IntegrationsHandler(DEFAULT_OPTIONS);

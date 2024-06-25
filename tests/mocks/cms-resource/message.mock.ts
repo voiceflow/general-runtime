@@ -7,11 +7,18 @@ const defaultMessage: CompiledMessage = {
     'default:en-us': [
       {
         data: {
-          text: [
-            {
-              text: 'Hello, world!',
-            },
-          ],
+          text: {
+            id: 'su9b3lcm',
+            content: [
+              {
+                children: [
+                  {
+                    text: 'Hello, world!',
+                  },
+                ],
+              },
+            ],
+          },
           delay: 100,
         },
         condition: null,

@@ -3,7 +3,8 @@ import { expect } from 'chai';
 import { NodeEventHandler } from 'rxjs/internal/observable/fromEvent';
 import sinon from 'sinon';
 
-import MessageHandler from '@/lib/services/runtime/handlers/message/index';
+import MessageHandler from '@/lib/services/runtime/handlers/message/message.handler';
+import log from '@/logger';
 import { Program, Runtime, Store } from '@/runtime';
 import { mockMessageNode } from '@/tests/mocks/node/message.node.mock';
 import { ID, mockVersion } from '@/tests/mocks/version/version.mock';
@@ -18,12 +19,26 @@ describe('Message handler', () => {
   let messageNode: CompiledMessageNode;
   let eventHandler: NodeEventHandler;
 
+  const PREVIOUS_LOG_LEVEL = log.level;
+
+  before(() => {
+    // disable logging for unit testing
+    log.level = 'silent';
+  });
+
+  after(() => {
+    // re-enable logging after unit testing is complete
+    log.level = PREVIOUS_LOG_LEVEL;
+  });
+
   beforeEach(() => {
     version = mockVersion();
     runtime = {
       version,
+      versionID: version._id,
       trace: {
         addTrace: sinon.stub(),
+        debug: sinon.stub(),
       },
       debugLogging: {
         recordStepLog: sinon.stub(),
@@ -91,7 +106,7 @@ describe('Message handler', () => {
       const promise = handler.handle(messageNode, runtime, variables, program, eventHandler);
 
       await expect(promise).to.eventually.rejectedWith(
-        `[message-handler]: could not resolve message step, missing variants list for 'default:en-us'`
+        `[message-handler]: message step execution for versionID="${ID.versionID}" failed due to error = "[message-handler]: could not resolve response step, missing variants list for channel='default', language='en-us'"`
       );
     });
 
@@ -111,7 +126,11 @@ describe('Message handler', () => {
           slate: {
             content: [
               {
-                text: 'Hello, world!',
+                children: [
+                  {
+                    text: 'Hello, world!',
+                  },
+                ],
               },
             ],
             messageDelayMilliseconds: 100,
