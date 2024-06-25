@@ -161,7 +161,11 @@ export class ConditionIsolate {
       try {
         executeCode(resolve, reject);
       } catch (err) {
-        reject(err);
+        if (err instanceof Error) {
+          reject(err);
+        } else {
+          reject(new Error(JSON.stringify(err)));
+        }
       }
     });
   }
