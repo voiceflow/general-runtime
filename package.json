@@ -18,7 +18,7 @@
     "@types/workerpool": "^5.0.1",
     "@voiceflow/alexa-types": "2.15.0",
     "@voiceflow/backend-utils": "4.8.5",
-    "@voiceflow/base-types": "2.111.0",
+    "@voiceflow/base-types": "2.111.3",
     "@voiceflow/body-parser": "^1.21.1",
     "@voiceflow/chat-types": "2.14.1",
     "@voiceflow/common": "8.2.8",

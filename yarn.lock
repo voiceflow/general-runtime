@@ -4368,6 +4368,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@voiceflow/base-types@npm:2.111.3":
+  version: 2.111.3
+  resolution: "@voiceflow/base-types@npm:2.111.3"
+  dependencies:
+    "@voiceflow/common": 8.3.0
+    slate: 0.94.1
+  checksum: b56f9ca0dabb7a012a19d7028d8f7c8b8f25ec89155e0e99022aca7c443c65c031b8f09ee2d7a0f9acda9ce48b5ec7877e733f214ecfd0f6987fc28744b25f68
+  languageName: node
+  linkType: hard
+
 "@voiceflow/base-types@npm:2.90.1":
   version: 2.90.1
   resolution: "@voiceflow/base-types@npm:2.90.1"
@@ -4717,7 +4727,7 @@ __metadata:
     "@types/workerpool": ^5.0.1
     "@voiceflow/alexa-types": 2.15.0
     "@voiceflow/backend-utils": 4.8.5
-    "@voiceflow/base-types": 2.111.0
+    "@voiceflow/base-types": 2.111.3
     "@voiceflow/body-parser": ^1.21.1
     "@voiceflow/chat-types": 2.14.1
     "@voiceflow/commitlint-config": 2.0.0

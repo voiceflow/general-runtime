@@ -1,3 +1,4 @@
+import { BaseUtils } from '@voiceflow/base-types';
 import {
   Channel,
   CompiledMessageNode,
@@ -11,6 +12,8 @@ import { HandlerFactory, Runtime, Store } from '@/runtime';
 
 import { GeneralRuntime } from '../../types';
 import { addOutputTrace, textOutputTrace } from '../../utils';
+import { fetchPrompt } from '../utils/ai';
+import { ConditionServices } from './lib/conditions/base.condition';
 import { createCondition } from './lib/conditions/condition';
 import { selectDiscriminator } from './lib/selectDiscriminator';
 import { selectVariant } from './lib/selectVariant';
@@ -67,11 +70,27 @@ export const MessageHandler: HandlerFactory<CompiledMessageNode, void, GeneralRu
         );
       }
 
+      const conditionServices: ConditionServices = {
+        llm: {
+          generate: (prompt, settings) =>
+            fetchPrompt(
+              { ...settings, prompt, mode: BaseUtils.ai.PROMPT_MODE.MEMORY_PROMPT },
+              runtime.services.mlGateway,
+              {
+                context: {
+                  projectID: runtime.project?._id,
+                  workspaceID: runtime.project?.teamID ?? '',
+                },
+              },
+              runtime.variables.getState()
+            ),
+        },
+      };
       const logMessage = (message: string) => runtime.trace.debug(message);
       const preprocessedVariants = chosenDiscriminator.map((variant) => ({
         variant,
         condition: variant.condition
-          ? createCondition(variant.condition, variables.getState(), runtime.services, logMessage)
+          ? createCondition(variant.condition, variables.getState(), conditionServices, logMessage)
           : null,
       }));
 
