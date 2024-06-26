@@ -4,6 +4,7 @@ import VError from '@voiceflow/verror';
 import _merge from 'lodash/merge';
 
 import { AIModelContext } from '@/lib/clients/ai/ai-model.interface';
+import { FeatureFlag } from '@/lib/feature-flags';
 import { AIResponse, EMPTY_AI_RESPONSE, fetchChat } from '@/lib/services/runtime/handlers/utils/ai';
 import { getCurrentTime } from '@/lib/services/runtime/handlers/utils/generativeNoMatch';
 import {
@@ -27,7 +28,7 @@ class AISynthesis extends AbstractManager {
 
   private readonly DEFAULT_QUESTION_SYNTHESIS_RETRIES = 2;
 
-  private readonly VALID_OPERATORS: Set<string> = new Set([
+  private readonly VALID_FILTERS_OPERATORS: Set<string> = new Set([
     '$eq',
     '$ne',
     '$gt',
@@ -67,7 +68,7 @@ class AISynthesis extends AbstractManager {
   }
 
   private validateOperatorKey(key: string, value: any) {
-    if (!this.VALID_OPERATORS.has(key)) {
+    if (!this.VALID_FILTERS_OPERATORS.has(key)) {
       this.throwInvalidFilterError();
     }
     this.validateNestedValues(value);
@@ -86,7 +87,7 @@ class AISynthesis extends AbstractManager {
     if (!nestedKey.startsWith('$')) {
       this.throwInvalidOperatorError(nestedKey);
     }
-    if (!this.VALID_OPERATORS.has(nestedKey)) {
+    if (!this.VALID_FILTERS_OPERATORS.has(nestedKey)) {
       this.throwInvalidFilterError();
     }
   }
@@ -261,8 +262,16 @@ class AISynthesis extends AbstractManager {
     filters?: Record<string, any>;
   }): Promise<AIResponse & Partial<KnowledgeBaseResponse> & { faqSet?: KnowledgeBaseFaqSet }> {
     let tagsFilter: BaseModels.Project.KnowledgeBaseTagsFilter = {};
+    let metadataFilters: Record<string, any> | undefined;
 
-    this.validateMetadataFilters(filters);
+    const metadataFiltersEnabled = this.services.unleash.client.isEnabled(FeatureFlag.KB_JSON_METADATA_FILTERS, {
+      workspaceID: Number(project.teamID),
+    });
+
+    if (metadataFiltersEnabled) {
+      this.validateMetadataFilters(filters);
+      metadataFilters = filters;
+    }
 
     if (tags) {
       const tagLabelMap = generateTagLabelMap(project.knowledgeBase?.tags ?? {});
@@ -296,7 +305,7 @@ class AISynthesis extends AbstractManager {
       question,
       settingsWithoutModel,
       tagsFilter,
-      filters
+      metadataFilters
     );
     if (!data) return { ...EMPTY_AI_RESPONSE, chunks: [] };
 
