@@ -1,7 +1,10 @@
+/* eslint-disable ,no-restricted-syntax,no-prototype-builtins */
 import { BaseModels, BaseUtils } from '@voiceflow/base-types';
+import VError from '@voiceflow/verror';
 import _merge from 'lodash/merge';
 
 import { AIModelContext } from '@/lib/clients/ai/ai-model.interface';
+import { FeatureFlag } from '@/lib/feature-flags';
 import { AIResponse, EMPTY_AI_RESPONSE, fetchChat } from '@/lib/services/runtime/handlers/utils/ai';
 import { getCurrentTime } from '@/lib/services/runtime/handlers/utils/generativeNoMatch';
 import {
@@ -25,12 +28,94 @@ class AISynthesis extends AbstractManager {
 
   private readonly DEFAULT_QUESTION_SYNTHESIS_RETRIES = 2;
 
+  private readonly VALID_FILTERS_OPERATORS: Set<string> = new Set([
+    '$eq',
+    '$ne',
+    '$gt',
+    '$gte',
+    '$lt',
+    '$lte',
+    '$in',
+    '$nin',
+    '$and',
+    '$or',
+    '$not',
+    '$all',
+  ]);
+
   private filterNotFound(output: string) {
     const upperCase = output?.toUpperCase();
     if (upperCase?.includes('NOT_FOUND') || upperCase?.startsWith("I'M SORRY,") || upperCase?.includes('AS AN AI')) {
       return null;
     }
     return output;
+  }
+
+  private validateMetadataFilters(filters?: Record<string, any>) {
+    if (!filters) return;
+
+    for (const [key, value] of Object.entries(filters)) {
+      this.validateKeyAndValue(key, value);
+    }
+  }
+
+  private validateKeyAndValue(key: string, value: any) {
+    if (key.startsWith('$')) {
+      this.validateOperatorKey(key, value);
+    } else if (typeof value === 'object' && value !== null) {
+      this.validateObjectValue(value);
+    }
+  }
+
+  private validateOperatorKey(key: string, value: any) {
+    if (!this.VALID_FILTERS_OPERATORS.has(key)) {
+      this.throwInvalidFilterError();
+    }
+    this.validateNestedValues(value);
+  }
+
+  private validateObjectValue(value: any) {
+    for (const nestedKey in value) {
+      if (value.hasOwnProperty(nestedKey)) {
+        this.validateNestedKey(nestedKey);
+      }
+    }
+    this.validateNestedValues(value);
+  }
+
+  private validateNestedKey(nestedKey: string) {
+    if (!nestedKey.startsWith('$')) {
+      this.throwInvalidOperatorError(nestedKey);
+    }
+    if (!this.VALID_FILTERS_OPERATORS.has(nestedKey)) {
+      this.throwInvalidFilterError();
+    }
+  }
+
+  private validateNestedValues(value: any) {
+    if (Array.isArray(value)) {
+      for (const subValue of value) {
+        if (typeof subValue === 'object' && subValue !== null) {
+          this.validateMetadataFilters(subValue);
+        }
+      }
+    } else if (typeof value === 'object' && value !== null) {
+      this.validateMetadataFilters(value);
+    }
+  }
+
+  private throwInvalidFilterError() {
+    throw new VError(
+      'The filter criteria provided are invalid. Please check the filter syntax and values.',
+      VError.HTTP_STATUS.UNPROCESSABLE_ENTITY
+    );
+  }
+
+  private throwInvalidOperatorError(operator: string) {
+    throw new VError(
+      `Invalid operator "${operator}". Operators must start with a $.`,
+      VError.HTTP_STATUS.UNPROCESSABLE_ENTITY
+    );
   }
 
   async answerSynthesis({
@@ -162,6 +247,7 @@ class AISynthesis extends AbstractManager {
     synthesis = true,
     options,
     tags,
+    filters,
   }: {
     project: BaseModels.Project.Model<any, any>;
     version?: BaseModels.Version.Model<any> | null;
@@ -173,8 +259,19 @@ class AISynthesis extends AbstractManager {
       summarization?: Partial<BaseModels.Project.KnowledgeBaseSettings['summarization']>;
     };
     tags?: BaseModels.Project.KnowledgeBaseTagsFilter;
+    filters?: Record<string, any>;
   }): Promise<AIResponse & Partial<KnowledgeBaseResponse> & { faqSet?: KnowledgeBaseFaqSet }> {
     let tagsFilter: BaseModels.Project.KnowledgeBaseTagsFilter = {};
+    let metadataFilters: Record<string, any> | undefined;
+
+    const metadataFiltersEnabled = this.services.unleash.client.isEnabled(FeatureFlag.KB_JSON_METADATA_FILTERS, {
+      workspaceID: Number(project.teamID),
+    });
+
+    if (metadataFiltersEnabled) {
+      this.validateMetadataFilters(filters);
+      metadataFilters = filters;
+    }
 
     if (tags) {
       const tagLabelMap = generateTagLabelMap(project.knowledgeBase?.tags ?? {});
@@ -202,7 +299,14 @@ class AISynthesis extends AbstractManager {
     );
     if (faq?.answer) return { ...EMPTY_AI_RESPONSE, output: faq.answer, faqSet: faq.faqSet };
 
-    const data = await fetchKnowledgeBase(project._id, project.teamID, question, settingsWithoutModel, tagsFilter);
+    const data = await fetchKnowledgeBase(
+      project._id,
+      project.teamID,
+      question,
+      settingsWithoutModel,
+      tagsFilter,
+      metadataFilters
+    );
     if (!data) return { ...EMPTY_AI_RESPONSE, chunks: [] };
 
     // attach metadata to chunks

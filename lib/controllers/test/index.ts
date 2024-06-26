@@ -84,10 +84,11 @@ class TestController extends AbstractController {
         chunkLimit?: number;
         settings?: Partial<BaseUtils.ai.AIModelParams>;
         tags?: BaseModels.Project.KnowledgeBaseTagsFilter;
+        filters?: Record<string, any>;
       }
     >
   ) {
-    const { question, instruction, synthesis, chunkLimit, settings, tags } = req.body;
+    const { question, instruction, synthesis, chunkLimit, settings, tags, filters } = req.body;
 
     const api = await this.services.dataAPI.get();
     // if DM API key infer project from header
@@ -109,6 +110,7 @@ class TestController extends AbstractController {
         instruction,
         options: { search: { limit: chunkLimit }, summarization: settings },
         tags,
+        filters,
       })
       .catch((err) => {
         if (err?.message?.includes('Quota exceeded')) {
