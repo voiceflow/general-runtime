@@ -4,6 +4,19 @@ import { BaseCondition } from './base.condition';
 import { ConditionIsolate } from './conditionIsolate';
 
 export class PromptCondition extends BaseCondition<CompiledPromptCondition> {
+  private parseValue(value: string) {
+    if (value === 'true' || value === 'false' || value === 'null') {
+      // If value is a `boolean` or `null`, then we embed this value into the code string without modification
+      return value;
+    }
+    if (Number.isNaN(parseFloat(value))) {
+      // If `value` is neither `number` nor `boolean`, then embed it as a `string``.
+      return `"${value.replace(/"/g, '\\"')}"`;
+    }
+    // If value is `number`, then we should directly embed this value into the code string without modification
+    return value;
+  }
+
   private formatPredicate(assertion: CompiledConditionPredicate): string {
     return super.formatAssertion({
       lhs: 'value',
@@ -35,9 +48,11 @@ export class PromptCondition extends BaseCondition<CompiledPromptCondition> {
   }
 
   private async applyAssertions(isolate: ConditionIsolate, rawAnswer: string): Promise<boolean> {
+    const parsedAnswer = this.parseValue(rawAnswer);
+
     const allResults = await Promise.all(
       this.condition.data.assertions.map((assertion) =>
-        isolate.executeCode(this.compileJITPredicate(rawAnswer, assertion))
+        isolate.executeCode(this.compileJITPredicate(parsedAnswer, assertion))
       )
     );
     const finalResult = allResults.every(Boolean);

@@ -1,9 +1,9 @@
 import { CompiledConditionAssertion, ConditionOperation, ConditionType } from '@voiceflow/dtos';
 import { expect } from 'chai';
+import Sinon from 'sinon';
 
 import { ConditionServices } from '@/lib/services/runtime/handlers/message/lib/conditions/base.condition';
 import { ExpressionCondition } from '@/lib/services/runtime/handlers/message/lib/conditions/expression.condition';
-import { GeneralRuntime } from '@/lib/services/runtime/types';
 
 const createSingleExpression = (
   variables: Record<string, unknown>,
@@ -24,7 +24,7 @@ const createSingleExpression = (
 
 describe('ExpressionCondition', () => {
   let variables: Record<string, unknown>;
-  let runtime: GeneralRuntime;
+  let services: ConditionServices;
 
   before(() => {
     variables = {
@@ -32,9 +32,12 @@ describe('ExpressionCondition', () => {
       propB: 'hello',
       propC: true,
     };
-    runtime = {
-      services: {},
-    } as unknown as GeneralRuntime;
+
+    services = {
+      llm: {
+        generate: Sinon.stub(),
+      },
+    };
   });
 
   describe('evaluate', () => {
@@ -59,7 +62,7 @@ describe('ExpressionCondition', () => {
           },
         },
         variables,
-        runtime.services
+        services
       );
 
       const result = await condition.evaluate();
@@ -88,7 +91,7 @@ describe('ExpressionCondition', () => {
           },
         },
         variables,
-        runtime.services
+        services
       );
 
       const result = await condition.evaluate();
@@ -117,7 +120,7 @@ describe('ExpressionCondition', () => {
           },
         },
         variables,
-        runtime.services
+        services
       );
 
       const result = await condition.evaluate();
@@ -146,7 +149,7 @@ describe('ExpressionCondition', () => {
           },
         },
         variables,
-        runtime.services
+        services
       );
 
       const result = await condition.evaluate();
@@ -157,7 +160,7 @@ describe('ExpressionCondition', () => {
 
   describe("'IS' operator", async () => {
     it('true if types and values are equal', async () => {
-      const condition = createSingleExpression(variables, runtime.services, [
+      const condition = createSingleExpression(variables, services, [
         {
           lhs: '1',
           operation: ConditionOperation.IS,
@@ -171,7 +174,7 @@ describe('ExpressionCondition', () => {
     });
 
     it('true if values are "intuitively" equal', async () => {
-      const condition = createSingleExpression(variables, runtime.services, [
+      const condition = createSingleExpression(variables, services, [
         {
           lhs: '1',
           operation: ConditionOperation.IS,
@@ -185,7 +188,7 @@ describe('ExpressionCondition', () => {
     });
 
     it('false if values are not equal', async () => {
-      const condition = createSingleExpression(variables, runtime.services, [
+      const condition = createSingleExpression(variables, services, [
         {
           lhs: '1',
           operation: ConditionOperation.IS,
@@ -201,7 +204,7 @@ describe('ExpressionCondition', () => {
 
   describe("'IS_NOT' operator", async () => {
     it('true if types and values are unequal', async () => {
-      const condition = createSingleExpression(variables, runtime.services, [
+      const condition = createSingleExpression(variables, services, [
         {
           lhs: '1',
           operation: ConditionOperation.IS_NOT,
@@ -215,7 +218,7 @@ describe('ExpressionCondition', () => {
     });
 
     it('false if values are "intuitively" equal', async () => {
-      const condition = createSingleExpression(variables, runtime.services, [
+      const condition = createSingleExpression(variables, services, [
         {
           lhs: '1',
           operation: ConditionOperation.IS_NOT,
@@ -229,7 +232,7 @@ describe('ExpressionCondition', () => {
     });
 
     it('false if values are equal', async () => {
-      const condition = createSingleExpression(variables, runtime.services, [
+      const condition = createSingleExpression(variables, services, [
         {
           lhs: '1',
           operation: ConditionOperation.IS_NOT,
@@ -245,7 +248,7 @@ describe('ExpressionCondition', () => {
 
   describe("'IS_EMPTY' operator", async () => {
     it('true iff number is zero', async () => {
-      const condition1 = createSingleExpression(variables, runtime.services, [
+      const condition1 = createSingleExpression(variables, services, [
         {
           lhs: '0',
           operation: ConditionOperation.IS_EMPTY,
@@ -253,7 +256,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition2 = createSingleExpression(variables, runtime.services, [
+      const condition2 = createSingleExpression(variables, services, [
         {
           lhs: '1',
           operation: ConditionOperation.IS_EMPTY,
@@ -269,7 +272,7 @@ describe('ExpressionCondition', () => {
     });
 
     it('true iff string is empty', async () => {
-      const condition1 = createSingleExpression(variables, runtime.services, [
+      const condition1 = createSingleExpression(variables, services, [
         {
           lhs: '""',
           operation: ConditionOperation.IS_EMPTY,
@@ -277,7 +280,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition2 = createSingleExpression(variables, runtime.services, [
+      const condition2 = createSingleExpression(variables, services, [
         {
           lhs: '"0"',
           operation: ConditionOperation.IS_EMPTY,
@@ -293,7 +296,7 @@ describe('ExpressionCondition', () => {
     });
 
     it('true iff boolean is false', async () => {
-      const condition1 = createSingleExpression(variables, runtime.services, [
+      const condition1 = createSingleExpression(variables, services, [
         {
           lhs: 'false',
           operation: ConditionOperation.IS_EMPTY,
@@ -301,7 +304,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition2 = createSingleExpression(variables, runtime.services, [
+      const condition2 = createSingleExpression(variables, services, [
         {
           lhs: 'true',
           operation: ConditionOperation.IS_EMPTY,
@@ -317,7 +320,7 @@ describe('ExpressionCondition', () => {
     });
 
     it('true iff array is empty', async () => {
-      const condition1 = createSingleExpression(variables, runtime.services, [
+      const condition1 = createSingleExpression(variables, services, [
         {
           lhs: '[]',
           operation: ConditionOperation.IS_EMPTY,
@@ -325,7 +328,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition2 = createSingleExpression(variables, runtime.services, [
+      const condition2 = createSingleExpression(variables, services, [
         {
           lhs: '[1]',
           operation: ConditionOperation.IS_EMPTY,
@@ -343,7 +346,7 @@ describe('ExpressionCondition', () => {
 
   describe("'IS_NOT_EMPTY' operator", async () => {
     it('true iff number is not zero', async () => {
-      const condition1 = createSingleExpression(variables, runtime.services, [
+      const condition1 = createSingleExpression(variables, services, [
         {
           lhs: '1',
           operation: ConditionOperation.IS_NOT_EMPTY,
@@ -351,7 +354,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition2 = createSingleExpression(variables, runtime.services, [
+      const condition2 = createSingleExpression(variables, services, [
         {
           lhs: '0',
           operation: ConditionOperation.IS_NOT_EMPTY,
@@ -367,7 +370,7 @@ describe('ExpressionCondition', () => {
     });
 
     it('true iff string is not empty', async () => {
-      const condition1 = createSingleExpression(variables, runtime.services, [
+      const condition1 = createSingleExpression(variables, services, [
         {
           lhs: '"example"',
           operation: ConditionOperation.IS_NOT_EMPTY,
@@ -375,7 +378,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition2 = createSingleExpression(variables, runtime.services, [
+      const condition2 = createSingleExpression(variables, services, [
         {
           lhs: '""',
           operation: ConditionOperation.IS_NOT_EMPTY,
@@ -391,7 +394,7 @@ describe('ExpressionCondition', () => {
     });
 
     it('true iff boolean is true', async () => {
-      const condition1 = createSingleExpression(variables, runtime.services, [
+      const condition1 = createSingleExpression(variables, services, [
         {
           lhs: 'true',
           operation: ConditionOperation.IS_NOT_EMPTY,
@@ -399,7 +402,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition2 = createSingleExpression(variables, runtime.services, [
+      const condition2 = createSingleExpression(variables, services, [
         {
           lhs: 'false',
           operation: ConditionOperation.IS_NOT_EMPTY,
@@ -415,7 +418,7 @@ describe('ExpressionCondition', () => {
     });
 
     it('true iff array is non-empty', async () => {
-      const condition1 = createSingleExpression(variables, runtime.services, [
+      const condition1 = createSingleExpression(variables, services, [
         {
           lhs: '[1]',
           operation: ConditionOperation.IS_NOT_EMPTY,
@@ -423,7 +426,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition2 = createSingleExpression(variables, runtime.services, [
+      const condition2 = createSingleExpression(variables, services, [
         {
           lhs: '[]',
           operation: ConditionOperation.IS_NOT_EMPTY,
@@ -441,7 +444,7 @@ describe('ExpressionCondition', () => {
 
   describe("'GREATER_THAN' operator", async () => {
     it('works', async () => {
-      const condition1 = createSingleExpression(variables, runtime.services, [
+      const condition1 = createSingleExpression(variables, services, [
         {
           lhs: '2',
           operation: ConditionOperation.GREATER_THAN,
@@ -449,7 +452,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition2 = createSingleExpression(variables, runtime.services, [
+      const condition2 = createSingleExpression(variables, services, [
         {
           lhs: '1',
           operation: ConditionOperation.GREATER_THAN,
@@ -457,7 +460,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition3 = createSingleExpression(variables, runtime.services, [
+      const condition3 = createSingleExpression(variables, services, [
         {
           lhs: '0',
           operation: ConditionOperation.GREATER_THAN,
@@ -477,7 +480,7 @@ describe('ExpressionCondition', () => {
 
   describe("'GREATER_OR_EQUAL' operator", async () => {
     it('works', async () => {
-      const condition1 = createSingleExpression(variables, runtime.services, [
+      const condition1 = createSingleExpression(variables, services, [
         {
           lhs: '3',
           operation: ConditionOperation.GREATER_OR_EQUAL,
@@ -485,7 +488,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition2 = createSingleExpression(variables, runtime.services, [
+      const condition2 = createSingleExpression(variables, services, [
         {
           lhs: '1',
           operation: ConditionOperation.GREATER_OR_EQUAL,
@@ -493,7 +496,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition3 = createSingleExpression(variables, runtime.services, [
+      const condition3 = createSingleExpression(variables, services, [
         {
           lhs: '0',
           operation: ConditionOperation.GREATER_OR_EQUAL,
@@ -513,7 +516,7 @@ describe('ExpressionCondition', () => {
 
   describe("'LESS_THAN' operator", async () => {
     it('works', async () => {
-      const condition1 = createSingleExpression(variables, runtime.services, [
+      const condition1 = createSingleExpression(variables, services, [
         {
           lhs: '3',
           operation: ConditionOperation.LESS_THAN,
@@ -521,7 +524,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition2 = createSingleExpression(variables, runtime.services, [
+      const condition2 = createSingleExpression(variables, services, [
         {
           lhs: '1',
           operation: ConditionOperation.LESS_THAN,
@@ -529,7 +532,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition3 = createSingleExpression(variables, runtime.services, [
+      const condition3 = createSingleExpression(variables, services, [
         {
           lhs: '0',
           operation: ConditionOperation.LESS_THAN,
@@ -549,7 +552,7 @@ describe('ExpressionCondition', () => {
 
   describe("'LESS_OR_EQUAL' operator", async () => {
     it('works', async () => {
-      const condition1 = createSingleExpression(variables, runtime.services, [
+      const condition1 = createSingleExpression(variables, services, [
         {
           lhs: '3',
           operation: ConditionOperation.LESS_OR_EQUAL,
@@ -557,7 +560,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition2 = createSingleExpression(variables, runtime.services, [
+      const condition2 = createSingleExpression(variables, services, [
         {
           lhs: '1',
           operation: ConditionOperation.LESS_OR_EQUAL,
@@ -565,7 +568,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition3 = createSingleExpression(variables, runtime.services, [
+      const condition3 = createSingleExpression(variables, services, [
         {
           lhs: '0',
           operation: ConditionOperation.LESS_OR_EQUAL,
@@ -585,7 +588,7 @@ describe('ExpressionCondition', () => {
 
   describe("'CONTAINS' operator", async () => {
     it('works', async () => {
-      const condition1 = createSingleExpression(variables, runtime.services, [
+      const condition1 = createSingleExpression(variables, services, [
         {
           lhs: '"andRABBITbread"',
           operation: ConditionOperation.CONTAINS,
@@ -593,7 +596,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition2 = createSingleExpression(variables, runtime.services, [
+      const condition2 = createSingleExpression(variables, services, [
         {
           lhs: '"andRABBITbread"',
           operation: ConditionOperation.CONTAINS,
@@ -611,7 +614,7 @@ describe('ExpressionCondition', () => {
 
   describe("'NOT_CONTAINS' operator", async () => {
     it('works', async () => {
-      const condition1 = createSingleExpression(variables, runtime.services, [
+      const condition1 = createSingleExpression(variables, services, [
         {
           lhs: '"andRABBITbread"',
           operation: ConditionOperation.NOT_CONTAINS,
@@ -619,7 +622,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition2 = createSingleExpression(variables, runtime.services, [
+      const condition2 = createSingleExpression(variables, services, [
         {
           lhs: '"andRABBITbread"',
           operation: ConditionOperation.NOT_CONTAINS,
@@ -637,7 +640,7 @@ describe('ExpressionCondition', () => {
 
   describe("'STARTS_WITH' operator", async () => {
     it('works', async () => {
-      const condition1 = createSingleExpression(variables, runtime.services, [
+      const condition1 = createSingleExpression(variables, services, [
         {
           lhs: '"andRABBITbread"',
           operation: ConditionOperation.STARTS_WITH,
@@ -645,7 +648,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition2 = createSingleExpression(variables, runtime.services, [
+      const condition2 = createSingleExpression(variables, services, [
         {
           lhs: '"andRABBITbread"',
           operation: ConditionOperation.STARTS_WITH,
@@ -663,7 +666,7 @@ describe('ExpressionCondition', () => {
 
   describe("'ENDS_WITH' operator", async () => {
     it('works', async () => {
-      const condition1 = createSingleExpression(variables, runtime.services, [
+      const condition1 = createSingleExpression(variables, services, [
         {
           lhs: '"andRABBITbread"',
           operation: ConditionOperation.ENDS_WITH,
@@ -671,7 +674,7 @@ describe('ExpressionCondition', () => {
         },
       ]);
 
-      const condition2 = createSingleExpression(variables, runtime.services, [
+      const condition2 = createSingleExpression(variables, services, [
         {
           lhs: '"andRABBITbread"',
           operation: ConditionOperation.ENDS_WITH,

@@ -5,7 +5,8 @@ import { ConditionIsolate } from './conditionIsolate';
 
 export class ExpressionCondition extends BaseCondition<CompiledExpressionCondition> {
   private async evaluateAssertion(isolate: ConditionIsolate, assertion: CompiledConditionAssertion): Promise<boolean> {
-    const result: unknown = await isolate.executeCode(this.compileJITAssertion(assertion));
+    const code = this.compileJITAssertion(assertion);
+    const result: unknown = await isolate.executeCode(code);
     return !!result;
   }
 

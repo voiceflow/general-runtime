@@ -1,21 +1,24 @@
 import { ConditionType } from '@voiceflow/dtos';
 import { expect } from 'chai';
+import Sinon from 'sinon';
 
+import { ConditionServices } from '@/lib/services/runtime/handlers/message/lib/conditions/base.condition';
 import { ScriptCondition } from '@/lib/services/runtime/handlers/message/lib/conditions/script.condition';
-import { GeneralRuntime } from '@/lib/services/runtime/types';
 
 describe('ScriptCondition', () => {
   let variables: Record<string, unknown>;
-  let runtime: GeneralRuntime;
+  let services: ConditionServices;
 
   before(() => {
     variables = {
       propA: 1,
       propB: 'hello',
     };
-    runtime = {
-      services: {},
-    } as unknown as GeneralRuntime;
+    services = {
+      llm: {
+        generate: Sinon.stub(),
+      },
+    };
   });
 
   describe('evaluate', () => {
@@ -31,7 +34,7 @@ describe('ScriptCondition', () => {
           },
         },
         variables,
-        runtime.services
+        services
       );
 
       const result = await condition.evaluate();
@@ -50,7 +53,7 @@ describe('ScriptCondition', () => {
           },
         },
         variables,
-        runtime.services
+        services
       );
 
       const result = await condition.evaluate();
