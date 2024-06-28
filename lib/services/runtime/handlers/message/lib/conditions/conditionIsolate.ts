@@ -127,20 +127,23 @@ export class ConditionIsolate {
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
+      // Need to disable `no-async-promise-executor` because we are injecting a `resolve`, `reject`
+      // callback into the code sandbox to "retrieve" the results of the user code and an `async`
+      // function is necessary to execute the code sandbox without blocking the event loop.
       try {
         if (!this.context) {
           throw new Error(`condition isolate was not initialized before an attempt to execute code`);
         }
 
-        // inject the `Promise`'s resolve and reject functions as proxied functions in the sandbox
+        // Inject the `Promise`'s resolve and reject functions as proxied functions in the sandbox
         await this.setupResolve(resolve, reject);
 
-        // forbid user-submitted code from importing any modules
+        // Forbid user-submitted code from importing any modules
         await userModule.instantiate(this.context, () => {
           throw new Error(`User code cannot import modules.`);
         });
 
-        // allow entrypoint module to import the user-submitted code.
+        // Allow entrypoint module to import the user-submitted code.
         await mainModule.instantiate(this.context, (specifier: string) => {
           if (specifier === ConditionIsolate.userModuleName) {
             return userModule;
@@ -148,12 +151,15 @@ export class ConditionIsolate {
           throw new Error(`Module '${specifier}' does not exist.`);
         });
 
-        // execute the entrypoint code - the result of the entrypoint code is passed into `resolve()` which
-        // we injected into the environment earlier.
+        // Execute the entrypoint code, which executes the user-submitted code. When the user-submitted
+        // code returns or throws, we push the result into the injected `resolve()` or the exception
+        // into the injected `reject()`.
         await mainModule.evaluate({
           timeout: this.ISOLATED_VM_LIMITS.maxExecutionTimeMs,
         });
       } catch (err) {
+        // Required to propagate thrown exceptions in this executor callback into the scope that
+        // instantiated the `Promise`.
         reject(err);
       }
     });
