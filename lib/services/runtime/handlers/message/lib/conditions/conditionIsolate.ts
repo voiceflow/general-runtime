@@ -154,11 +154,7 @@ export class ConditionIsolate {
           timeout: this.ISOLATED_VM_LIMITS.maxExecutionTimeMs,
         });
       } catch (err) {
-        if (err instanceof Error) {
-          reject(err);
-        } else {
-          reject(new Error(JSON.stringify(err)));
-        }
+        reject(err);
       }
     });
   }
