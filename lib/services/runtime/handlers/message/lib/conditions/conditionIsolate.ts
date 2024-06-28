@@ -125,7 +125,8 @@ export class ConditionIsolate {
     const userModule = await this.compileUserModule(code);
     const mainModule = await this.compileMainModule();
 
-    const executeCode = async (resolve: (val: unknown) => void, reject: (reason?: unknown) => void) => {
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise(async (resolve, reject) => {
       try {
         if (!this.context) {
           throw new Error(`condition isolate was not initialized before an attempt to execute code`);
@@ -152,14 +153,6 @@ export class ConditionIsolate {
         await mainModule.evaluate({
           timeout: this.ISOLATED_VM_LIMITS.maxExecutionTimeMs,
         });
-      } catch (err) {
-        reject(err);
-      }
-    };
-
-    return new Promise((resolve, reject) => {
-      try {
-        executeCode(resolve, reject);
       } catch (err) {
         if (err instanceof Error) {
           reject(err);
