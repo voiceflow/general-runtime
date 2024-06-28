@@ -125,11 +125,7 @@ export class ConditionIsolate {
     const userModule = await this.compileUserModule(code);
     const mainModule = await this.compileMainModule();
 
-    // eslint-disable-next-line no-async-promise-executor
-    return new Promise(async (resolve, reject) => {
-      // Need to disable `no-async-promise-executor` because we are injecting a `resolve`, `reject`
-      // callback into the code sandbox to "retrieve" the results of the user code and an `async`
-      // function is necessary to execute the code sandbox without blocking the event loop.
+    const executeCode = async (resolve: (value: unknown) => void, reject: (value: unknown) => void) => {
       try {
         if (!this.context) {
           throw new Error(`condition isolate was not initialized before an attempt to execute code`);
@@ -162,6 +158,10 @@ export class ConditionIsolate {
         // instantiated the `Promise`.
         reject(err);
       }
+    };
+
+    return new Promise((resolve, reject) => {
+      executeCode(resolve, reject);
     });
   }
 
