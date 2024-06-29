@@ -182,6 +182,7 @@ class TestController extends AbstractController {
         hasChannelIntents: project?.platformData?.hasChannelIntents,
         platform: version?.prototype?.platform as VoiceflowConstants.PlatformType,
         filteredIntents: Array.from(extraIntentNames),
+        excludeFilteredIntents: true,
       }
     );
 

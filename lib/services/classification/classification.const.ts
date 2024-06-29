@@ -22,3 +22,5 @@ export const LEGACY_LLM_INTENT_CLASSIFICATION: IntentClassificationLLMSettings =
     content: DEFAULT_INTENT_CLASSIFICATION_PROMPT_WRAPPER_CODE,
   },
 };
+
+export const NLU_LIMIT = 10;
