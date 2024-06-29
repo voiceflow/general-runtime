@@ -38,11 +38,13 @@ export const isAlexaEventIntentRequest = (request?: RuntimeRequest | null): requ
 export const isActionRequest = (request?: RuntimeRequest | null): request is BaseRequest.ActionRequest =>
   !!request && BaseRequest.isActionRequest(request);
 
-export const isPathRequest = (request?: RuntimeRequest | null): request is BaseRequest.GeneralRequest =>
+export const isPathRequest = (request?: RuntimeRequest | null): request is BaseRequest.PathRequest =>
   !!request &&
-  BaseRequest.isGeneralRequest(request) &&
-  request.type.startsWith('path-') &&
-  typeof request.payload?.label === 'string';
+  BaseRequest.isPathRequest(request) &&
+  typeof request.payload === 'object' &&
+  request.payload !== null &&
+  'label' in request.payload &&
+  typeof request.payload.label === 'string';
 
 export const isRuntimeRequest = (request: any): request is RuntimeRequest => {
   return request === null || !!(typeof request.type === 'string' && !!request.type);
