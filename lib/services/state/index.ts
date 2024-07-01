@@ -27,15 +27,13 @@ const getSubscriptionEntitlements = async (billingClientFactory: BillingClient, 
   const billingClient = await billingClientFactory.getClient();
   if (billingClient) {
     const subscriptionResponse = await billingClient.resourcesPrivate
-      .getResourceSubscription('workspace', workspaceID)
+      .getResourceSubscriptionEntitlements('workspace', workspaceID)
       .catch((error) => {
         logger.debug(`Failed to get subscription entitlements for workspace ${workspaceID}: ${logger.vars({ error })}`);
         return undefined;
       });
 
-    if (subscriptionResponse) {
-      return subscriptionResponse.subscription?.subscription_entitlements;
-    }
+    return subscriptionResponse?.subscription_entitlements;
   }
   return undefined;
 };
