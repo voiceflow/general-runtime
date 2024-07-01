@@ -14,7 +14,7 @@ workflows:
   generate-config:
     when:
       and:
-        - << pipeline.git.branch >> # Run nothing on tags
+        - << pipeline.git.branch >> # Run nothing on tags.
         - not:
             equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
