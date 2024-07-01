@@ -7,7 +7,7 @@ parameters:
     default: "SHA256:7FhWIIg1mYzFjcATPWZB3H9VVpUQihp2rQh1HFhPdks"
 
 orbs:
-  vfcommon: voiceflow/common@0.73.3
+  vfcommon: voiceflow/common@0.74.1
   gomplate: xavientois/gomplate@0.2.0
 
 workflows:
@@ -25,7 +25,8 @@ workflows:
             name: vfcommon/node-executor-node-20
             tag: '20.11.1-vf-3'
           pre-steps:
-            - checkout
+            - vfcommon/checkout_clone:
+                clone_type: treeless
             - vfcommon/set-env-name: # On bors branches, we will be running the e2e tests in a dev environment
                 target_env_var: &env_name ENV_NAME
             - vfcommon/set-json-string-from-env:
