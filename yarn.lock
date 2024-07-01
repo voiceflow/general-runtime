@@ -4735,7 +4735,7 @@ __metadata:
     "@voiceflow/prettier-config": 1.2.1
     "@voiceflow/sdk-analytics": ^1.26.0
     "@voiceflow/sdk-auth": ^2.7.5
-    "@voiceflow/sdk-billing": ^1.26.55
+    "@voiceflow/sdk-billing": ^1.25.0
     "@voiceflow/sdk-http-ml-gateway": 2.19.3
     "@voiceflow/test-common": ^1.8.1
     "@voiceflow/utils-designer": 1.9.3
@@ -4966,15 +4966,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/orval-fetch@npm:1.6.2":
-  version: 1.6.2
-  resolution: "@voiceflow/orval-fetch@npm:1.6.2"
+"@voiceflow/orval-fetch@npm:1.5.8":
+  version: 1.5.8
+  resolution: "@voiceflow/orval-fetch@npm:1.5.8"
   peerDependencies:
     "@orval/core": ^6
   peerDependenciesMeta:
     "@orval/core":
       optional: true
-  checksum: 614f0baff30a16dc4c377a53acbe79fc35d23ac08a922904ff5c435938b8329cbcf19ef8baedace3e39a6702f3bc6acd79aeda6eecfa4d638021d5990e02e914
+  checksum: 59ad55c887de4cf6b9495038e63ea52602808a790a20d793195a6aadcb18a1a16ed192a23764da43357491f5012520e4993d51de5ad717aa53f6005a60cf12b4
   languageName: node
   linkType: hard
 
@@ -5083,12 +5083,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/sdk-billing@npm:^1.26.55":
-  version: 1.26.55
-  resolution: "@voiceflow/sdk-billing@npm:1.26.55"
+"@voiceflow/sdk-billing@npm:^1.25.0":
+  version: 1.25.0
+  resolution: "@voiceflow/sdk-billing@npm:1.25.0"
   dependencies:
-    "@voiceflow/orval-fetch": 1.6.2
-    "@voiceflow/sdk-common": 1.12.2
+    "@voiceflow/orval-fetch": 1.5.8
+    "@voiceflow/sdk-common": 1.11.10
     "@voiceflow/verror": 1.1.2
     rxjs: 7.5.7
   peerDependencies:
@@ -5105,7 +5105,28 @@ __metadata:
       optional: true
     undici:
       optional: true
-  checksum: 3f1457355cccd95218ee3287ab9acb52a6fb91dceb73f6495171475bc1bda151c4470ed6fe863adf93e0d9a741d773d1c15dc672c06ec0b0214f5bfb6ee7f9bb
+  checksum: f909503440fddfdd84279d4fe2d0cd2a1913903f31e633aed1f06e220d6a0150e17f9a104d3cd1493cb571e8c8f6273c0d8e409ecffd3c6b20a8a2418b1ee00a
+  languageName: node
+  linkType: hard
+
+"@voiceflow/sdk-common@npm:1.11.10":
+  version: 1.11.10
+  resolution: "@voiceflow/sdk-common@npm:1.11.10"
+  dependencies:
+    "@voiceflow/exception": 1.5.1
+    "@voiceflow/fetch": 1.5.2
+  peerDependencies:
+    "@nestjs/common": ^9
+    "@nestjs/core": ^9
+    undici: ^5
+  peerDependenciesMeta:
+    "@nestjs/common":
+      optional: true
+    "@nestjs/core":
+      optional: true
+    undici:
+      optional: true
+  checksum: ffcf8370828634fbd8432d3b51b08e0bcea919bcdcf04d39f1269fc189ad7538c3aad68e46fa4ce189aafbc84d3b940c476b26b8316f19f4a9cc412e0096424d
   languageName: node
   linkType: hard
 
