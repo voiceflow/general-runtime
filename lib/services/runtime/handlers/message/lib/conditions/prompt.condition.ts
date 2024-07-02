@@ -25,9 +25,13 @@ export class PromptCondition extends BaseCondition<CompiledPromptCondition> {
   }
 
   private compileJITPredicate(lhs: string, assertion: CompiledConditionPredicate): string {
+    const parsedLHS = this.parseValue(lhs);
+    const parsedRHS = this.parseValue(assertion.rhs);
+
     return super.compileJITAssertion({
-      lhs,
       ...assertion,
+      lhs: parsedLHS,
+      rhs: parsedRHS,
     });
   }
 
@@ -48,11 +52,9 @@ export class PromptCondition extends BaseCondition<CompiledPromptCondition> {
   }
 
   private async applyAssertions(isolate: ConditionIsolate, rawAnswer: string): Promise<boolean> {
-    const parsedAnswer = this.parseValue(rawAnswer);
-
     const allResults = await Promise.all(
       this.condition.data.assertions.map((assertion) =>
-        isolate.executeCode(this.compileJITPredicate(parsedAnswer, assertion))
+        isolate.executeCode(this.compileJITPredicate(rawAnswer, assertion))
       )
     );
     const finalResult = allResults.every(Boolean);
