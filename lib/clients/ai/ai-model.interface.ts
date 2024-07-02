@@ -11,11 +11,15 @@ export interface AIModelContext {
   workspaceID: string;
   projectID?: string;
 }
+
+export const MAX_TURNS = -1 as const;
+
 export interface CompletionOptions {
   context: AIModelContext;
   timeout?: number;
   retries?: number;
   retryDelay?: number;
+  maxTurns?: number;
 }
 
 export const GPT4_ABLE_PLAN = new Set([

@@ -7,7 +7,7 @@ export type BaseConditionLogger = (message: string) => void;
 
 export interface ConditionServices {
   llm: {
-    generate: (prompt: string, settings: AIModelParams) => Promise<AIResponse>;
+    generate: (prompt: string, settings: AIModelParams, maxTurns: number) => Promise<AIResponse>;
   };
 }
 

@@ -72,7 +72,7 @@ export const MessageHandler: HandlerFactory<CompiledMessageNode, void, GeneralRu
 
       const conditionServices: ConditionServices = {
         llm: {
-          generate: (prompt, settings) =>
+          generate: (prompt, settings, maxTurns) =>
             fetchPrompt(
               { ...settings, prompt, mode: BaseUtils.ai.PROMPT_MODE.MEMORY_PROMPT },
               runtime.services.mlGateway,
@@ -81,6 +81,7 @@ export const MessageHandler: HandlerFactory<CompiledMessageNode, void, GeneralRu
                   projectID: runtime.project?._id,
                   workspaceID: runtime.project?.teamID ?? '',
                 },
+                maxTurns,
               },
               runtime.variables.getState()
             ),

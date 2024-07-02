@@ -34,9 +34,13 @@ export class PromptCondition extends BaseCondition<CompiledPromptCondition> {
   }
 
   private async generate(): Promise<string> {
-    const { output } = await this.services.llm.generate(this.condition.data.prompt.text, {
-      ...this.condition.data.prompt.settings,
-    });
+    const { output } = await this.services.llm.generate(
+      this.condition.data.prompt.text,
+      {
+        ...this.condition.data.prompt.settings,
+      },
+      this.condition.data.turns
+    );
 
     // !TODO! - Add debug statement stating the number of consumed tokens;
 
