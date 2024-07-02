@@ -26,12 +26,10 @@ export class PromptCondition extends BaseCondition<CompiledPromptCondition> {
 
   private compileJITPredicate(lhs: string, assertion: CompiledConditionPredicate): string {
     const parsedLHS = this.parseValue(lhs);
-    const parsedRHS = this.parseValue(assertion.rhs);
 
     return super.compileJITAssertion({
       ...assertion,
       lhs: parsedLHS,
-      rhs: parsedRHS,
     });
   }
 
