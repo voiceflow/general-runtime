@@ -3,9 +3,11 @@ import { expect } from 'chai';
 
 import { ExpressionCondition } from '@/lib/services/runtime/handlers/message/lib/conditions/expression.condition';
 import { selectVariant } from '@/lib/services/runtime/handlers/message/lib/selectVariant';
+import { GeneralRuntime } from '@/lib/services/runtime/types';
 
 describe('selectVariant', () => {
   let variables: Record<string, unknown>;
+  let runtime: GeneralRuntime;
 
   before(() => {
     variables = {
@@ -13,6 +15,9 @@ describe('selectVariant', () => {
       propB: 'hello',
       propC: true,
     };
+    runtime = {
+      services: {},
+    } as unknown as GeneralRuntime;
   });
 
   it('selects a random unconditioned variant, if no matching conditioned variant exists', async () => {
@@ -154,7 +159,7 @@ describe('selectVariant', () => {
           },
           condition: falseCondition,
         },
-        condition: new ExpressionCondition(falseCondition, variables),
+        condition: new ExpressionCondition(falseCondition, variables, runtime.services),
       },
       {
         variant: {
@@ -196,7 +201,7 @@ describe('selectVariant', () => {
           },
           condition: trueConditionA,
         },
-        condition: new ExpressionCondition(trueConditionA, variables),
+        condition: new ExpressionCondition(trueConditionA, variables, runtime.services),
       },
       {
         variant: {
@@ -238,7 +243,7 @@ describe('selectVariant', () => {
           },
           condition: trueConditionB,
         },
-        condition: new ExpressionCondition(trueConditionB, variables),
+        condition: new ExpressionCondition(trueConditionB, variables, runtime.services),
       },
     ];
 

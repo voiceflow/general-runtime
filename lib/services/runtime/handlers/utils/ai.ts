@@ -91,8 +91,15 @@ export const EMPTY_AI_RESPONSE: AIResponse = {
   multiplier: 1,
 };
 
+export interface AIModelParams {
+  model?: AIModel;
+  temperature?: number;
+  maxTokens?: number;
+  system?: string;
+}
+
 export const fetchChat = async (
-  params: BaseUtils.ai.AIModelParams & { messages: BaseUtils.ai.Message[] },
+  params: AIModelParams & { messages: BaseUtils.ai.Message[] },
   mlGateway: MLGateway,
   options: CompletionOptions,
   variablesState: Record<string, unknown> = {}
@@ -120,7 +127,7 @@ export const fetchChat = async (
 };
 
 export async function* fetchPromptStream(
-  params: BaseUtils.ai.AIModelParams & { mode?: BaseUtils.ai.PROMPT_MODE; prompt?: string },
+  params: AIModelParams & { mode?: BaseUtils.ai.PROMPT_MODE; prompt?: string },
   mlGateway: MLGateway,
   options: CompletionOptions,
   variablesState: Record<string, unknown> = {}
@@ -163,7 +170,7 @@ export async function* fetchPromptStream(
 }
 
 export const fetchPrompt = async (
-  params: BaseUtils.ai.AIModelParams & { mode: BaseUtils.ai.PROMPT_MODE; prompt: string },
+  params: AIModelParams & { mode: BaseUtils.ai.PROMPT_MODE; prompt: string },
   mlGateway: MLGateway,
   options: CompletionOptions,
   variablesState: Record<string, unknown> = {}

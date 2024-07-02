@@ -12,12 +12,17 @@ import { createCondition } from '@/lib/services/runtime/handlers/message/lib/con
 import { ExpressionCondition } from '@/lib/services/runtime/handlers/message/lib/conditions/expression.condition';
 import { PromptCondition } from '@/lib/services/runtime/handlers/message/lib/conditions/prompt.condition';
 import { ScriptCondition } from '@/lib/services/runtime/handlers/message/lib/conditions/script.condition';
+import { GeneralRuntime } from '@/lib/services/runtime/types';
 
 describe('createCondition', () => {
   let variables: Record<string, unknown>;
+  let runtime: GeneralRuntime;
 
   beforeEach(() => {
     variables = {};
+    runtime = {
+      services: {},
+    } as unknown as GeneralRuntime;
   });
 
   describe('is a factory for conditions', () => {
@@ -30,7 +35,7 @@ describe('createCondition', () => {
         },
       };
 
-      const result = createCondition(expressionCondition, variables);
+      const result = createCondition(expressionCondition, variables, runtime.services);
 
       expect(result).to.instanceOf(ExpressionCondition);
     });
@@ -43,7 +48,7 @@ describe('createCondition', () => {
         },
       };
 
-      const result = createCondition(scriptCondition, variables);
+      const result = createCondition(scriptCondition, variables, runtime.services);
 
       expect(result).to.instanceOf(ScriptCondition);
     });
@@ -75,7 +80,7 @@ describe('createCondition', () => {
         },
       };
 
-      const result = createCondition(promptCondition, variables);
+      const result = createCondition(promptCondition, variables, runtime.services);
 
       expect(result).to.instanceOf(PromptCondition);
     });
@@ -87,7 +92,7 @@ describe('createCondition', () => {
         data: {},
       } as unknown as AnyCompiledCondition;
 
-      const operation = () => createCondition(invalidCondition, variables);
+      const operation = () => createCondition(invalidCondition, variables, runtime.services);
 
       expect(operation).to.throw(`received unexpected condition type`);
     });
