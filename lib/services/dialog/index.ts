@@ -21,7 +21,7 @@ import { Context, ContextHandler, VersionTag } from '@/types';
 import { Predictor } from '../classification';
 import { castToDTO } from '../classification/classification.utils';
 import { getIntentRequest } from '../nlu';
-import { getNoneIntentRequest } from '../nlu/utils';
+import { getNoneIntentRequest, shouldBypassNLU } from '../nlu/utils';
 import { isIntentRequest, StorageType } from '../runtime/types';
 import { addOutputTrace, getOutputTrace } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
@@ -120,6 +120,8 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     if (!isIntentRequest(context.request)) {
       return context;
     }
+
+    if (await shouldBypassNLU(context)) return context;
 
     const version = await context.data.api.getVersion(context.versionID);
 
