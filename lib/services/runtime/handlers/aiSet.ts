@@ -1,9 +1,7 @@
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { deepVariableSubstitution } from '@voiceflow/common';
-import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import _cloneDeep from 'lodash/cloneDeep';
 
-import { FeatureFlag } from '@/lib/feature-flags';
 import { HandlerFactory } from '@/runtime';
 
 import { GeneralRuntime } from '../types';
@@ -38,13 +36,6 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = 
                 instruction: settings.instruction,
                 options: node.overrideParams ? { summarization: settings } : {},
               });
-
-              const chunks = response?.chunks?.map((chunk) => JSON.stringify(chunk)) ?? [];
-              const workspaceID = Number(runtime.project?.teamID);
-
-              if (runtime.services.unleash.client.isEnabled(FeatureFlag.VF_CHUNKS_VARIABLE, { workspaceID })) {
-                variables.set(VoiceflowConstants.BuiltInVariable.VF_CHUNKS, chunks);
-              }
 
               if (response.output === null) response.output = BaseUtils.ai.KNOWLEDGE_BASE_NOT_FOUND;
 
