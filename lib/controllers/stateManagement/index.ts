@@ -1,5 +1,6 @@
 import { Validator } from '@voiceflow/backend-utils';
 import { RuntimeLogs } from '@voiceflow/base-types';
+import { Response } from 'express';
 
 import { SharedValidations } from '@/lib/validations';
 import { State } from '@/runtime';
@@ -39,8 +40,11 @@ class StateManagementController extends AbstractController {
       any,
       { projectID: string; authorization: string; versionID: string },
       { verbose?: boolean; logs?: RuntimeLogs.LogLevel }
-    >
+    >,
+    res: Response
   ) {
+    res.destroy();
+
     if (req.body.request) req.body.request = adaptMalformedRequest(req.body.request);
     if (req.body.action) req.body.action = adaptMalformedRequest(req.body.action);
     logMalformedRequest(req.body.request, 'request');
