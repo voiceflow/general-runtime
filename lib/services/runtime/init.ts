@@ -80,6 +80,8 @@ const init = (client: Client, eventHandler: HandleContextEventHandler) => {
       trace: frame,
     });
   });
+
+  return client;
 };
 
 export default init;
