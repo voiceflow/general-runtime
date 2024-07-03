@@ -19,7 +19,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
 
   const legacyAPIMiddleware = [middlewares.project.unifyVersionID, ...statefulAPIMiddleware];
 
-  router.post('/user/:userID/interact', statefulAPIMiddleware, controllers.stateManagement.interact);
+  router.post('/user/:userID/interact', statefulAPIMiddleware, controllers.stateManagement.testDestroy);
   router.get('/user/:userID', statefulAPIMiddleware, controllers.stateManagement.get);
   router.put('/user/:userID', statefulAPIMiddleware, controllers.stateManagement.update);
   router.delete('/user/:userID', statefulAPIMiddleware, controllers.stateManagement.delete);
@@ -27,7 +27,7 @@ export default (middlewares: MiddlewareMap, controllers: ControllerMap) => {
   router.patch('/user/:userID/variables', statefulAPIMiddleware, controllers.stateManagement.updateVariables);
 
   // Legacy 1.0.0 routes with versionID in params
-  router.post('/:versionID/user/:userID/interact', legacyAPIMiddleware, controllers.stateManagement.interact);
+  router.post('/:versionID/user/:userID/interact', legacyAPIMiddleware, controllers.stateManagement.testDestroy);
   router.get('/:versionID/user/:userID', legacyAPIMiddleware, controllers.stateManagement.get);
   router.put('/:versionID/user/:userID', legacyAPIMiddleware, controllers.stateManagement.update);
   router.delete('/:versionID/user/:userID', legacyAPIMiddleware, controllers.stateManagement.delete);

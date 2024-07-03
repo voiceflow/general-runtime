@@ -1,10 +1,9 @@
 import { Validator } from '@voiceflow/backend-utils';
 import { RuntimeLogs } from '@voiceflow/base-types';
-import { Response } from 'express';
 
 import { SharedValidations } from '@/lib/validations';
 import { State } from '@/runtime';
-import { Request } from '@/types';
+import { Request, Response } from '@/types';
 
 import { customAJV, validate } from '../../utils';
 import { AbstractController, adaptMalformedRequest, logMalformedRequest } from '../utils';
@@ -28,6 +27,10 @@ const VALIDATIONS = {
 class StateManagementController extends AbstractController {
   static VALIDATIONS = VALIDATIONS;
 
+  async testDestroy(_req: Request, res: Response) {
+    res.destroy();
+  }
+
   @validate({
     HEADERS_PROJECT_ID: VALIDATIONS.HEADERS.PROJECT_ID,
     HEADERS_VERSION_ID: VALIDATIONS.HEADERS.VERSION_ID,
@@ -40,11 +43,8 @@ class StateManagementController extends AbstractController {
       any,
       { projectID: string; authorization: string; versionID: string },
       { verbose?: boolean; logs?: RuntimeLogs.LogLevel }
-    >,
-    res: Response
+    >
   ) {
-    res.destroy();
-
     if (req.body.request) req.body.request = adaptMalformedRequest(req.body.request);
     if (req.body.action) req.body.action = adaptMalformedRequest(req.body.action);
     logMalformedRequest(req.body.request, 'request');
