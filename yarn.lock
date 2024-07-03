@@ -4585,23 +4585,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@voiceflow/dtos@npm:1.106.0":
+  version: 1.106.0
+  resolution: "@voiceflow/dtos@npm:1.106.0"
+  dependencies:
+    "@voiceflow/default-prompt-wrappers": 1.4.0
+  peerDependencies:
+    zod: ^3
+  checksum: fca63146b1a3fd5e51a958cbb9b6a73195135ebad5eeb319e523d6c985fa1e0d56f7e393bfcff5c774e4bd63cfad001f8eca99a841e145c64fda61f72aa22ee9
+  languageName: node
+  linkType: hard
+
 "@voiceflow/dtos@npm:1.33.2":
   version: 1.33.2
   resolution: "@voiceflow/dtos@npm:1.33.2"
   peerDependencies:
     zod: ^3.20.0
   checksum: 7b47dcab653066e79671f6904fcafbce31e823ee41b7f28a3bb13bc9a74e25eba6d95de51e3d4cfbdd5c00cff38d9ead5f071844f93914cac8941edd14167f07
-  languageName: node
-  linkType: hard
-
-"@voiceflow/dtos@npm:1.98.0":
-  version: 1.98.0
-  resolution: "@voiceflow/dtos@npm:1.98.0"
-  dependencies:
-    "@voiceflow/default-prompt-wrappers": 1.4.0
-  peerDependencies:
-    zod: ^3
-  checksum: f9a89cf4ea74e62d60224105ceccce1d3062c430e4a08ce8ce2c30d9d971308488a7b00e2295a9f22ae0f6064d0af86f312cee0f2106ad3cc28f72a674290000
   languageName: node
   linkType: hard
 
@@ -4723,7 +4723,7 @@ __metadata:
     "@voiceflow/commitlint-config": 2.0.0
     "@voiceflow/common": 8.2.8
     "@voiceflow/default-prompt-wrappers": ^1.1.1
-    "@voiceflow/dtos": 1.98.0
+    "@voiceflow/dtos": 1.106.0
     "@voiceflow/eslint-config": 6.1.0
     "@voiceflow/event-ingestion-service": 1.5.1
     "@voiceflow/exception": ^1.5.1
@@ -4736,7 +4736,7 @@ __metadata:
     "@voiceflow/sdk-analytics": ^1.26.0
     "@voiceflow/sdk-auth": ^2.7.5
     "@voiceflow/sdk-billing": ^1.25.0
-    "@voiceflow/sdk-http-ml-gateway": 2.19.3
+    "@voiceflow/sdk-http-ml-gateway": 2.19.20
     "@voiceflow/test-common": ^1.8.1
     "@voiceflow/utils-designer": 1.9.3
     "@voiceflow/verror": ^1.1.3
@@ -5172,9 +5172,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/sdk-http-ml-gateway@npm:2.19.3":
-  version: 2.19.3
-  resolution: "@voiceflow/sdk-http-ml-gateway@npm:2.19.3"
+"@voiceflow/sdk-http-ml-gateway@npm:2.19.20":
+  version: 2.19.20
+  resolution: "@voiceflow/sdk-http-ml-gateway@npm:2.19.20"
   dependencies:
     "@voiceflow/orval-fetch": 1.5.2
     "@voiceflow/sdk-common": 1.12.2
@@ -5190,7 +5190,7 @@ __metadata:
       optional: true
     undici:
       optional: true
-  checksum: 46472e47c650a55e90a7b3284d98885ecadf293cb1b83734f2c26c7c49a72a9a1e81ad2f86b21328221373de7b5749339978cb453231ab3bff419b01c37b3c75
+  checksum: 6541ebb93e7d57df21db7ab39ba8a1ee7448c971483d3692dabc1d40247cce47e46313c0c151153f8fce9ec13e63cecd3e3b24a23d115093272eff1e2c475797
   languageName: node
   linkType: hard
 
