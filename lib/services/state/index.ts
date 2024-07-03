@@ -5,16 +5,19 @@ import axios from 'axios';
 import _ from 'lodash';
 
 import { BillingClient } from '@/lib/clients/billing-client';
-import { FrameType } from '@/lib/services/runtime/types';
+import { FrameType, GeneralRuntime } from '@/lib/services/runtime/types';
 import logger from '@/logger';
-import { PartialContext, State, SubscriptionEntitlements } from '@/runtime';
+import Client, { PartialContext, State, SubscriptionEntitlements } from '@/runtime';
 import { Context, InitContextHandler } from '@/types';
 
+import Handlers from '../runtime/handlers';
 import { AbstractManager, injectServices } from '../utils';
 import CacheDataAPI from './cacheDataAPI';
 
 export const utils = {
   getTime: () => Math.floor(Date.now() / 1000),
+  Client,
+  Handlers,
 };
 
 const initializeStore = (variables: string[], defaultValue = 0) =>
@@ -150,7 +153,7 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
       state = this.generate(version, state, context.userID);
     }
 
-    return {
+    const updatedContext: Omit<Context, 'runtime' | 'client'> = {
       ...context,
       state: this.initializeVariables(version, state),
       trace: [] as BaseTrace.AnyTrace[],
@@ -163,6 +166,47 @@ class StateManager extends AbstractManager<{ utils: typeof utils }> implements I
       plan,
       subscriptionEntitlements,
     };
+
+    const client = this.createClient(api);
+    const runtime = this.getRuntimeForContext(client, updatedContext);
+
+    return {
+      ...updatedContext,
+      client,
+      runtime,
+    };
+  }
+
+  private getRuntimeForContext(client: Client, context: Omit<Context, 'runtime' | 'client'>): GeneralRuntime {
+    if (context.request && BaseRequest.isLaunchRequest(context.request)) {
+      context.request = null;
+    }
+
+    const runtime = client.createRuntime({
+      versionID: context.versionID,
+      state: context.state,
+      request: context.request,
+      version: context.version,
+      project: context.project,
+      plan: context.plan,
+      subscriptionEntitlements: context.subscriptionEntitlements,
+      timeout: Math.max(this.config.ERROR_RESPONSE_MS - 5000, 0),
+    });
+
+    runtime.debugLogging.refreshContext(context);
+
+    // Import any traces already present in the context
+    context.trace?.forEach((trace) => runtime.trace.addTrace(trace));
+
+    return runtime;
+  }
+
+  private createClient(api: CacheDataAPI) {
+    return new this.services.utils.Client({
+      api,
+      services: this.services,
+      handlers: this.services.utils.Handlers(this.config),
+    });
   }
 }
 
