@@ -49,7 +49,7 @@ defaults:
     tag: {{ .values.node_version }}-vf-1
 
 orbs:
-  vfcommon: voiceflow/common@dev:72887b5fc8fdef489e6b5633e111a7621660be62
+  vfcommon: voiceflow/common@{{ .values.common_orb_version }}
   sonarcloud: sonarsource/sonarcloud@2.0.0
 
 
