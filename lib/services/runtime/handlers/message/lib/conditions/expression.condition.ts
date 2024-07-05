@@ -58,7 +58,7 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
       lhs: replaceVariables(assertion.lhs, this.variables),
       rhs: replaceVariables(assertion.rhs, this.variables),
     };
-    const result: unknown = await isolate.executeCode(this.compileJITAssertion(assertion));
+    const result: unknown = await isolate.executeCode(this.compileJITAssertion(resolvedAssertion));
     return !!result;
   }
 
