@@ -8,9 +8,14 @@ import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 import * as Frame from '@/runtime/lib/Runtime/Stack/Frame';
 import * as Utils from '@/runtime/lib/Runtime/utils/variables';
+import { mockTime } from '@/tests/lib/services/dialog/fixture';
 
 describe('flowHandler unit tests', () => {
   const flowHandler = FlowHandler();
+
+  beforeEach(() => sinon.useFakeTimers(mockTime));
+
+  afterEach(() => sinon.restore());
 
   describe('canHandle', () => {
     it('false', () => {
@@ -95,6 +100,7 @@ describe('flowHandler unit tests', () => {
               },
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);
@@ -181,6 +187,7 @@ describe('flowHandler unit tests', () => {
               },
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);

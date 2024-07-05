@@ -9,12 +9,16 @@ import { addOutputTrace, speakOutputTrace } from '@/lib/services/runtime/utils';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
+import { mockTime } from '../../dialog/fixture';
+
 describe('speak handler unit tests', async () => {
   const speakHandler = SpeakHandler({
     _sample: sinon.stub().callsFake((arr: any[]) => arr[0]),
     addOutputTrace,
     speakOutputTrace,
   });
+
+  beforeEach(() => sinon.useFakeTimers(mockTime));
 
   afterEach(() => sinon.restore());
 
@@ -67,6 +71,7 @@ describe('speak handler unit tests', async () => {
               type: 'message',
             },
             type: 'speak',
+            time: mockTime,
           },
         ],
         [
@@ -82,6 +87,7 @@ describe('speak handler unit tests', async () => {
               timestamp: getISO8601Timestamp(),
             },
             type: 'log',
+            time: mockTime,
           },
         ],
       ]);
@@ -117,7 +123,7 @@ describe('speak handler unit tests', async () => {
       // output has vars replaced and numbers turned to 2digits floats
       expect(topFrame.storage.set.args).to.eql([[FrameType.OUTPUT, 'random 1.23 or here']]);
       expect(runtime.trace.addTrace.args).to.eql([
-        [{ type: 'speak', payload: { message: 'random 1.23 or here', type: 'message' } }],
+        [{ type: 'speak', payload: { message: 'random 1.23 or here', type: 'message' }, time: mockTime }],
         [
           {
             type: 'log',
@@ -131,6 +137,7 @@ describe('speak handler unit tests', async () => {
               },
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);

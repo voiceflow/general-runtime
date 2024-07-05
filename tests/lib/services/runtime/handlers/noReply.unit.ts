@@ -7,11 +7,17 @@ import { addOutputTrace, EMPTY_AUDIO_STRING, getOutputTrace } from '@/lib/servic
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
+import { mockTime } from '../../dialog/fixture';
+
 const RepromptPathTrace = { type: 'path', payload: { path: 'reprompt' } };
 const NoReplyPathTrace = { type: 'path', payload: { path: 'choice:noReply' } };
 const GlobalNoReply = { prompt: { content: 'Still there?' } };
 
 describe('noReply handler unit tests', () => {
+  beforeEach(() => sinon.useFakeTimers(mockTime));
+
+  afterEach(() => sinon.restore());
+
   describe('handle', () => {
     it('with noReply', () => {
       const node = {
@@ -53,6 +59,7 @@ describe('noReply handler unit tests', () => {
               message: 'the counter is 5.23',
               type: 'message',
             },
+            time: mockTime,
           },
         ],
         [
@@ -68,6 +75,7 @@ describe('noReply handler unit tests', () => {
               },
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);
@@ -339,6 +347,7 @@ describe('noReply handler unit tests', () => {
               message: 'the counter is 5.23',
               type: 'message',
             },
+            time: mockTime,
           },
         ],
         [
@@ -354,6 +363,7 @@ describe('noReply handler unit tests', () => {
               },
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);

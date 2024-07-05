@@ -9,6 +9,8 @@ import { addOutputTrace, EMPTY_AUDIO_STRING, getOutputTrace } from '@/lib/servic
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
+import { mockTime } from '../../dialog/fixture';
+
 const RepromptPathTrace = { type: 'path', payload: { path: 'reprompt' } };
 const NoMatchPathTrace = { type: 'path', payload: { path: 'choice:else' } };
 
@@ -17,6 +19,10 @@ const GlobalNoMatch = { prompt: { content: 'Sorry, could not understand what you
 // force rebuild
 
 describe('noMatch handler unit tests', async () => {
+  beforeEach(() => sinon.useFakeTimers(mockTime));
+
+  afterEach(() => sinon.restore());
+
   describe('handle', async () => {
     it('with noMatch', async () => {
       const node = {
@@ -58,6 +64,7 @@ describe('noMatch handler unit tests', async () => {
               message: 'the counter is 5.23',
               type: 'message',
             },
+            time: mockTime,
           },
         ],
         [
@@ -73,6 +80,7 @@ describe('noMatch handler unit tests', async () => {
               },
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);
@@ -195,6 +203,7 @@ describe('noMatch handler unit tests', async () => {
               message: 'the counter is {counter}',
               type: 'message',
             },
+            time: mockTime,
           },
         ],
         [
@@ -210,6 +219,7 @@ describe('noMatch handler unit tests', async () => {
               },
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);
@@ -260,6 +270,7 @@ describe('noMatch handler unit tests', async () => {
               message: 'the counter is {counter}',
               type: 'message',
             },
+            time: mockTime,
           },
         ],
         [
@@ -275,6 +286,7 @@ describe('noMatch handler unit tests', async () => {
               },
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);
@@ -521,6 +533,7 @@ describe('noMatch handler unit tests', async () => {
               message: 'the counter is 5.23',
               type: 'message',
             },
+            time: mockTime,
           },
         ],
         [
@@ -536,6 +549,7 @@ describe('noMatch handler unit tests', async () => {
               },
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);

@@ -8,10 +8,12 @@ import { EventType } from '@/runtime';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
+import { mockTime } from '../dialog/fixture';
+
 describe('runtime init service unit tests', () => {
-  afterEach(() => {
-    sinon.restore();
-  });
+  beforeEach(() => sinon.useFakeTimers(mockTime));
+
+  afterEach(() => sinon.restore());
 
   describe('EventType.stackDidChange', () => {
     it('no top frame', () => {
@@ -148,6 +150,7 @@ describe('runtime init service unit tests', () => {
             {
               type: BaseNode.Utils.TraceType.SPEAK,
               payload: { message: output, type: BaseNode.Speak.TraceSpeakType.MESSAGE },
+              time: mockTime,
             },
           ],
           [
@@ -163,6 +166,7 @@ describe('runtime init service unit tests', () => {
                 },
                 timestamp: getISO8601Timestamp(),
               },
+              time: mockTime,
             },
           ],
         ]);

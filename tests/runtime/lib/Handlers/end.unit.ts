@@ -5,9 +5,14 @@ import sinon from 'sinon';
 import EndHandler from '@/runtime/lib/Handlers/end';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
+import { mockTime } from '@/tests/lib/services/dialog/fixture';
 
 describe('EndHandler unit tests', () => {
   const endHandler = EndHandler();
+
+  beforeEach(() => sinon.useFakeTimers(mockTime));
+
+  afterEach(() => sinon.restore());
 
   describe('canHandle', () => {
     it('false', () => {
@@ -63,6 +68,7 @@ describe('EndHandler unit tests', () => {
               level: RuntimeLogs.LogLevel.VERBOSE,
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);
