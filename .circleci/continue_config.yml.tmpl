@@ -43,14 +43,13 @@ defaults:
 
   executor: &node-executor
     name: vfcommon/node-executor-node-20
-    tag: {{ .values.node_version }}-vf-4
 
   code-test-executor: &code-test-node-executor
     name: vfcommon/code-test-executor-node-20
     tag: {{ .values.node_version }}-vf-1
 
 orbs:
-  vfcommon: voiceflow/common@dev:c7cff05384bb1aefe2213040686d0e7e2117eddd
+  vfcommon: voiceflow/common@dev:72887b5fc8fdef489e6b5633e111a7621660be62
   sonarcloud: sonarsource/sonarcloud@2.0.0
 
 
