@@ -5,6 +5,11 @@ import { BaseCondition } from './base.condition';
 import { ConditionIsolate } from './conditionIsolate';
 
 export class ExpressionCondition extends BaseCondition<CompiledExpressionCondition> {
+  private parseString(value: unknown) {
+    if (typeof value !== 'string') return value;
+    return `"${value.replace(/"/g, '\\"')}"`;
+  }
+
   private compileJITContains(lhs: string, rhs: string, negate: boolean) {
     const negateOperator = negate ? '!' : '';
     return `${negateOperator}String(${lhs}).toLowerCase().includes(String(${rhs}).toLowerCase())`;
@@ -55,8 +60,8 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
   private async evaluateAssertion(isolate: ConditionIsolate, assertion: CompiledConditionAssertion): Promise<boolean> {
     const resolvedAssertion = {
       ...assertion,
-      lhs: replaceVariables(assertion.lhs, this.variables),
-      rhs: replaceVariables(assertion.rhs, this.variables),
+      lhs: replaceVariables(assertion.lhs, this.variables, this.parseString),
+      rhs: replaceVariables(assertion.rhs, this.variables, this.parseString),
     };
     const result: unknown = await isolate.executeCode(this.compileJITAssertion(resolvedAssertion));
     return !!result;
