@@ -26,6 +26,7 @@ export const completionToStartTrace = (
       total: completion.tokens,
     },
   },
+  time: Date.now(),
 });
 
 export const completionToContinueTrace = (
@@ -40,9 +41,11 @@ export const completionToContinueTrace = (
       total: completion.tokens,
     },
   },
+  time: Date.now(),
 });
 
 export const endTrace = (): BaseTrace.CompletionEndTrace => ({
   type: BaseTrace.TraceType.COMPLETION_END,
   payload: {},
+  time: Date.now(),
 });

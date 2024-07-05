@@ -1,4 +1,5 @@
 import { BaseNode } from '@voiceflow/base-types';
+import type { WithOptional } from '@voiceflow/common';
 import _truncate from 'lodash/truncate';
 
 import { EventType } from '@/runtime/lib/Lifecycle';
@@ -10,8 +11,13 @@ export default class Trace {
 
   constructor(private runtime: Runtime) {}
 
-  addTrace<TF extends BaseNode.Utils.BaseTraceFrame>(frame: TF) {
+  addTrace<TF extends BaseNode.Utils.BaseTraceFrame>(frameWithOptionalTime: WithOptional<TF, 'time'>): void {
     let stop = false;
+
+    const frame = {
+      time: Date.now(),
+      ...frameWithOptionalTime,
+    };
 
     this.runtime.callEvent(EventType.traceWillAdd, {
       frame,

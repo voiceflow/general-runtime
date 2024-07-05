@@ -52,7 +52,7 @@ function applyTraceCommand(command: TraceCommand, runtime: Runtime): void {
   command.forEach((trace) => {
     // !TODO! - Revamp `general-runtime` types to allow users to modify the built-in
     //          trace types and avoid this `as` cast.
-    runtime.trace.addTrace(trace as BaseTraceFrame);
+    runtime.trace.addTrace(trace as Omit<BaseTraceFrame, 'time'>);
   });
 }
 
@@ -265,7 +265,7 @@ export const FunctionHandler: HandlerFactory<CompiledFunctionNode, typeof utilsO
     } catch (err) {
       // !TODO! - Revamp `general-runtime` types to allow users to modify the built-in
       //          trace types and avoid this `as` cast.
-      runtime.trace.addTrace(createFunctionExceptionDebugTrace(err) as BaseTrace.DebugTrace);
+      runtime.trace.addTrace(createFunctionExceptionDebugTrace(err) as Omit<BaseTrace.DebugTrace, 'time'>);
 
       return null;
     }

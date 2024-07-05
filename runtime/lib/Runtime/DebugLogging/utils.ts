@@ -4,6 +4,7 @@ import { Environment } from '@voiceflow/common';
 export const createLogTrace = (log: RuntimeLogs.Log): Trace.LogTrace => ({
   type: Trace.TraceType.LOG,
   payload: log,
+  time: Date.now(),
 });
 
 export const getISO8601Timestamp: () => RuntimeLogs.Iso8601Timestamp =

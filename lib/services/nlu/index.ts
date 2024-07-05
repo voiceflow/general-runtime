@@ -99,6 +99,7 @@ const debugTrace = (message: string): BaseTrace.DebugTrace => ({
   payload: {
     message,
   },
+  time: Date.now(),
 });
 
 export default NLU;

@@ -15,12 +15,12 @@ export const utils = {};
 
 @injectServices({ utils })
 class TTS extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  fetchTTS = async (node: BaseNode.Speak.TraceFrame, locale?: string): Promise<BaseTrace.SpeakTrace[]> => {
+  fetchTTS = async (trace: BaseNode.Speak.TraceFrame, locale?: string): Promise<BaseTrace.SpeakTrace[]> => {
     try {
       const { data } = await this.services.axios.post<BaseTrace.SpeakTrace['payload'][]>(
         `${this.config.GENERAL_SERVICE_ENDPOINT}/tts/convert`,
         {
-          ssml: node.payload.message,
+          ssml: trace.payload.message,
         },
         {
           params: { ...(locale && { locale }) },
@@ -28,15 +28,17 @@ class TTS extends AbstractManager<{ utils: typeof utils }> implements ContextHan
       );
 
       return data.map((payload) => ({
+        ...trace,
         type: BaseNode.Utils.TraceType.SPEAK,
-        payload: { ...node.payload, ...payload },
+        payload: { ...trace.payload, ...payload },
       }));
     } catch (error) {
       log.error(`[app] [runtime] [${TTS.name}] failed to fetch TTS ${log.vars({ error })}`);
       return [
         {
+          ...trace,
           type: BaseNode.Utils.TraceType.SPEAK,
-          payload: { message: node.payload.message, type: BaseNode.Speak.TraceSpeakType.AUDIO },
+          payload: { message: trace.payload.message, type: BaseNode.Speak.TraceSpeakType.AUDIO },
         },
       ];
     }
