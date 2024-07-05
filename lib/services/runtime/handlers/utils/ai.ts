@@ -2,7 +2,7 @@ import { BaseUtils } from '@voiceflow/base-types';
 import { replaceVariables, sanitizeVariables } from '@voiceflow/common';
 import { AIModel } from '@voiceflow/dtos';
 
-import { CompletionOptions, GPT4_ABLE_PLAN } from '@/lib/clients/ai/ai-model.interface';
+import { CompletionOptions, GPT4_ABLE_PLAN, MAX_TURNS } from '@/lib/clients/ai/ai-model.interface';
 import MLGateway from '@/lib/clients/ml-gateway';
 import { Runtime } from '@/runtime';
 
@@ -91,8 +91,15 @@ export const EMPTY_AI_RESPONSE: AIResponse = {
   multiplier: 1,
 };
 
+export interface AIModelParams {
+  model?: AIModel;
+  temperature?: number;
+  maxTokens?: number;
+  system?: string;
+}
+
 export const fetchChat = async (
-  params: BaseUtils.ai.AIModelParams & { messages: BaseUtils.ai.Message[] },
+  params: AIModelParams & { messages: BaseUtils.ai.Message[] },
   mlGateway: MLGateway,
   options: CompletionOptions,
   variablesState: Record<string, unknown> = {}
@@ -120,7 +127,7 @@ export const fetchChat = async (
 };
 
 export async function* fetchPromptStream(
-  params: BaseUtils.ai.AIModelParams & { mode?: BaseUtils.ai.PROMPT_MODE; prompt?: string },
+  params: AIModelParams & { mode?: BaseUtils.ai.PROMPT_MODE; prompt?: string },
   mlGateway: MLGateway,
   options: CompletionOptions,
   variablesState: Record<string, unknown> = {}
@@ -162,8 +169,16 @@ export async function* fetchPromptStream(
   });
 }
 
+const getPastNTurns = (messages: BaseUtils.ai.Message[], maxTurns = 10) => {
+  if (maxTurns === MAX_TURNS) {
+    return messages;
+  }
+
+  return messages.slice(Math.max(messages.length - maxTurns, 0), messages.length);
+};
+
 export const fetchPrompt = async (
-  params: BaseUtils.ai.AIModelParams & { mode: BaseUtils.ai.PROMPT_MODE; prompt: string },
+  params: AIModelParams & { mode: BaseUtils.ai.PROMPT_MODE; prompt: string },
   mlGateway: MLGateway,
   options: CompletionOptions,
   variablesState: Record<string, unknown> = {}
@@ -186,6 +201,8 @@ export const fetchPrompt = async (
   } else {
     messages = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
   }
+
+  messages = getPastNTurns(messages, options.maxTurns);
 
   const { output, tokens, queryTokens, answerTokens, model, multiplier } =
     (await mlGateway.private.completion.generateChatCompletion({

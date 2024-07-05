@@ -1,3 +1,4 @@
+import { BaseUtils } from '@voiceflow/base-types';
 import {
   Channel,
   CompiledMessageNode,
@@ -9,7 +10,10 @@ import {
 
 import { HandlerFactory, Runtime, Store } from '@/runtime';
 
+import { GeneralRuntime } from '../../types';
 import { addOutputTrace, textOutputTrace } from '../../utils';
+import { fetchPrompt } from '../utils/ai';
+import { ConditionServices } from './lib/conditions/base.condition';
 import { createCondition } from './lib/conditions/condition';
 import { selectDiscriminator } from './lib/selectDiscriminator';
 import { selectVariant } from './lib/selectVariant';
@@ -49,7 +53,7 @@ function getMessageData(runtime: Runtime, messageID: string) {
   return version.programResources.messages[messageID];
 }
 
-export const MessageHandler: HandlerFactory<CompiledMessageNode> = () => ({
+export const MessageHandler: HandlerFactory<CompiledMessageNode, void, GeneralRuntime> = () => ({
   canHandle: (node) => CompiledMessageNodeDTO.safeParse(node).success,
 
   handle: async (node, runtime, variables): Promise<string | null> => {
@@ -66,10 +70,29 @@ export const MessageHandler: HandlerFactory<CompiledMessageNode> = () => ({
         );
       }
 
+      const conditionServices: ConditionServices = {
+        llm: {
+          generate: (prompt, settings, maxTurns) =>
+            fetchPrompt(
+              { ...settings, prompt, mode: BaseUtils.ai.PROMPT_MODE.MEMORY_PROMPT },
+              runtime.services.mlGateway,
+              {
+                context: {
+                  projectID: runtime.project?._id,
+                  workspaceID: runtime.project?.teamID ?? '',
+                },
+                maxTurns,
+              },
+              runtime.variables.getState()
+            ),
+        },
+      };
       const logMessage = (message: string) => runtime.trace.debug(message);
       const preprocessedVariants = chosenDiscriminator.map((variant) => ({
         variant,
-        condition: variant.condition ? createCondition(variant.condition, variables.getState(), logMessage) : null,
+        condition: variant.condition
+          ? createCondition(variant.condition, variables.getState(), conditionServices, logMessage)
+          : null,
       }));
 
       const chosenVariant = await selectVariant(preprocessedVariants);
