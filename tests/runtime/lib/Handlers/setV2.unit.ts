@@ -7,11 +7,12 @@ import SetV2Handler from '@/runtime/lib/Handlers/setV2';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 import Store from '@/runtime/lib/Runtime/Store';
+import { mockTime } from '@/tests/lib/services/dialog/fixture';
 
 describe('setV2 handler unit tests', () => {
-  afterEach(() => {
-    sinon.restore();
-  });
+  beforeEach(() => sinon.useFakeTimers(mockTime));
+
+  afterEach(() => sinon.restore());
 
   describe('canHandle', () => {
     it('false', () => {
@@ -112,6 +113,7 @@ describe('setV2 handler unit tests', () => {
               level: RuntimeLogs.LogLevel.INFO,
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);
@@ -168,6 +170,7 @@ describe('setV2 handler unit tests', () => {
               level: RuntimeLogs.LogLevel.INFO,
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);

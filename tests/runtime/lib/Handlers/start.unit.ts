@@ -6,8 +6,13 @@ import { Store } from '@/runtime';
 import StartHandler from '@/runtime/lib/Handlers/start';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
+import { mockTime } from '@/tests/lib/services/dialog/fixture';
 
 describe('startHandler unit tests', () => {
+  beforeEach(() => sinon.useFakeTimers(mockTime));
+
+  afterEach(() => sinon.restore());
+
   const startHandler = StartHandler();
 
   describe('canHandle', () => {
@@ -51,6 +56,7 @@ describe('startHandler unit tests', () => {
               level: RuntimeLogs.LogLevel.INFO,
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
         [
@@ -65,6 +71,7 @@ describe('startHandler unit tests', () => {
               level: RuntimeLogs.LogLevel.INFO,
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);
@@ -95,6 +102,7 @@ describe('startHandler unit tests', () => {
               level: RuntimeLogs.LogLevel.INFO,
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
         [
@@ -109,6 +117,7 @@ describe('startHandler unit tests', () => {
               level: RuntimeLogs.LogLevel.INFO,
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);

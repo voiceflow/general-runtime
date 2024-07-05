@@ -21,6 +21,7 @@ import {
   mockRegularNoEntityResult,
   mockRegularSingleEntityResult,
   mockRegularUnrelatedResult,
+  mockTime,
   mockUnfulfilledIntentRequest,
 } from './fixture';
 
@@ -33,9 +34,9 @@ const createDM = () => {
 };
 
 describe('dialog manager unit tests', () => {
-  afterEach(() => {
-    sinon.restore();
-  });
+  beforeEach(() => sinon.useFakeTimers(mockTime));
+
+  afterEach(() => sinon.restore());
 
   describe('general handler', () => {
     it('fails if version is not found', async () => {
@@ -172,6 +173,7 @@ describe('dialog manager unit tests', () => {
               type: 'message',
               isPrompt: true,
             },
+            time: mockTime,
           },
           mockEntityFillingTrace,
         ];

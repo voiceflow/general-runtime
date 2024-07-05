@@ -5,14 +5,19 @@ import sinon from 'sinon';
 
 import { EventType } from '@/runtime/lib/Lifecycle';
 import Trace from '@/runtime/lib/Runtime/Trace';
+import { mockTime } from '@/tests/lib/services/dialog/fixture';
 
 describe('Runtime Trace unit tests', () => {
+  beforeEach(() => sinon.useFakeTimers(mockTime));
+
+  afterEach(() => sinon.restore());
+
   describe('addTrace', () => {
     it('adds frame', () => {
       const runtime = { callEvent: sinon.stub() };
 
       const trace = new Trace(runtime as any);
-      const frame = { foo: 'bar' };
+      const frame = { foo: 'bar', time: mockTime };
       trace.addTrace(frame as any);
 
       expect(_.get(trace, 'trace')).to.eql([frame]);

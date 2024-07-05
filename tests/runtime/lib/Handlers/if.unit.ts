@@ -7,9 +7,14 @@ import * as Utils from '@/runtime/lib/Handlers/utils/shuntingYard';
 import { EventType } from '@/runtime/lib/Lifecycle';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
+import { mockTime } from '@/tests/lib/services/dialog/fixture';
 
 describe('ifHandler unit tests', () => {
   const ifHandler = IfHandler();
+
+  beforeEach(() => sinon.useFakeTimers(mockTime));
+
+  afterEach(() => sinon.restore());
 
   describe('canHandle', () => {
     it('false', () => {
@@ -89,6 +94,7 @@ describe('ifHandler unit tests', () => {
               },
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);
@@ -146,6 +152,7 @@ describe('ifHandler unit tests', () => {
               },
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);
@@ -201,6 +208,7 @@ describe('ifHandler unit tests', () => {
                 },
                 timestamp: getISO8601Timestamp(),
               },
+              time: mockTime,
             },
           ],
         ]);
@@ -240,6 +248,7 @@ describe('ifHandler unit tests', () => {
                 },
                 timestamp: getISO8601Timestamp(),
               },
+              time: mockTime,
             },
           ],
         ]);

@@ -4,13 +4,19 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { CaptureHandler } from '@/lib/services/runtime/handlers/capture';
-import runtime, { Action, Store } from '@/runtime';
+import { Action, Store } from '@/runtime';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
+
+import { mockTime } from '../../dialog/fixture';
 
 const CapturePathTrace = { type: 'path', payload: { path: 'capture' } };
 
 describe('Capture handler', () => {
+  beforeEach(() => sinon.useFakeTimers(mockTime));
+
+  afterEach(() => sinon.restore());
+
   describe('canHandle', () => {
     it('false', () => {
       expect(CaptureHandler(null as any).canHandle({} as any, null as any, null as any, null as any)).to.eql(false);
@@ -279,6 +285,7 @@ describe('Capture handler', () => {
                       },
                       timestamp: getISO8601Timestamp(),
                     },
+                    time: mockTime,
                   },
                 ],
                 [CapturePathTrace],
@@ -340,6 +347,7 @@ describe('Capture handler', () => {
                       },
                       timestamp: getISO8601Timestamp(),
                     },
+                    time: mockTime,
                   },
                 ],
                 [CapturePathTrace],
@@ -404,6 +412,7 @@ describe('Capture handler', () => {
                       },
                       timestamp: getISO8601Timestamp(),
                     },
+                    time: mockTime,
                   },
                 ],
                 [CapturePathTrace],

@@ -4,6 +4,8 @@ import sinon from 'sinon';
 import CacheDataAPI from '@/lib/services/state/cacheDataAPI';
 import { Context } from '@/types';
 
+export const mockTime = new Date('2020-01-01T00:00:00Z').getTime();
+
 export const mockUnfulfilledIntentRequest: BaseRequest.IntentRequest = {
   type: BaseRequest.RequestType.INTENT,
   payload: {
@@ -533,6 +535,7 @@ export const mockEntityFillingTrace: BaseTrace.EntityFillingTrace = {
     entityToFill: 'flavor',
     intent: mockUnfulfilledIntentRequest,
   },
+  time: mockTime,
 };
 
 export const mockEntityFillingTraceWithElicit: BaseTrace.EntityFillingTrace = {
@@ -541,4 +544,5 @@ export const mockEntityFillingTraceWithElicit: BaseTrace.EntityFillingTrace = {
     entityToFill: 'flavor',
     intent: { ...mockUnfulfilledIntentRequest, ELICIT: true } as any,
   },
+  time: mockTime,
 };

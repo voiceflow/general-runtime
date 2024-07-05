@@ -8,6 +8,7 @@ import APIHandler, { USER_AGENT, USER_AGENT_KEY } from '@/runtime/lib/Handlers/a
 import * as APIUtils from '@/runtime/lib/Handlers/api/utils';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
+import { mockTime } from '@/tests/lib/services/dialog/fixture';
 
 const ACTION_DATA = { foo: 'bar', url: 'http://test.com/test' };
 const AGENT_ACTION_DATA = {
@@ -22,6 +23,10 @@ const config = {
 };
 
 describe('API Handler unit tests', () => {
+  beforeEach(() => sinon.useFakeTimers(mockTime));
+
+  afterEach(() => sinon.restore());
+
   describe('canHandle', () => {
     it('false', () => {
       const apiHandler = APIHandler(config);
@@ -286,6 +291,7 @@ describe('API Handler unit tests', () => {
                 },
                 timestamp: getISO8601Timestamp(),
               },
+              time: mockTime,
             },
           ],
         ]);
@@ -369,6 +375,7 @@ describe('API Handler unit tests', () => {
                 },
                 timestamp: getISO8601Timestamp(),
               },
+              time: mockTime,
             },
           ],
         ]);

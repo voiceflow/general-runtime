@@ -7,9 +7,14 @@ import RandomHandler from '@/runtime/lib/Handlers/random';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 import Store from '@/runtime/lib/Runtime/Store';
+import { mockTime } from '@/tests/lib/services/dialog/fixture';
 
 describe('randomHandler unit tests', () => {
   const randomHandler = RandomHandler();
+
+  beforeEach(() => sinon.useFakeTimers(mockTime));
+
+  afterEach(() => sinon.restore());
 
   describe('canHandle', () => {
     it('false', () => {
@@ -45,6 +50,7 @@ describe('randomHandler unit tests', () => {
               level: 'info',
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);
@@ -81,6 +87,7 @@ describe('randomHandler unit tests', () => {
               level: 'info',
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);
@@ -120,6 +127,7 @@ describe('randomHandler unit tests', () => {
                 level: 'info',
                 timestamp: getISO8601Timestamp(),
               },
+              time: mockTime,
             },
           ],
         ]);
@@ -161,6 +169,7 @@ describe('randomHandler unit tests', () => {
                   level: 'info',
                   timestamp: getISO8601Timestamp(),
                 },
+                time: mockTime,
               },
             ],
           ]);
@@ -202,6 +211,7 @@ describe('randomHandler unit tests', () => {
                   level: 'info',
                   timestamp: getISO8601Timestamp(),
                 },
+                time: mockTime,
               },
             ],
           ]);
@@ -243,6 +253,7 @@ describe('randomHandler unit tests', () => {
                   level: 'info',
                   timestamp: getISO8601Timestamp(),
                 },
+                time: mockTime,
               },
             ],
           ]);

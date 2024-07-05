@@ -6,11 +6,12 @@ import * as CodeHandler from '@/runtime/lib/Handlers/code';
 import IfV2Handler from '@/runtime/lib/Handlers/ifV2';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
+import { mockTime } from '@/tests/lib/services/dialog/fixture';
 
 describe('ifV2 handler unit tests', () => {
-  afterEach(() => {
-    sinon.restore();
-  });
+  beforeEach(() => sinon.useFakeTimers(mockTime));
+
+  afterEach(() => sinon.restore());
 
   describe('canHandle', () => {
     it('false', () => {
@@ -121,6 +122,7 @@ describe('ifV2 handler unit tests', () => {
                 },
                 timestamp: getISO8601Timestamp(),
               },
+              time: mockTime,
             },
           ],
         ]);
@@ -156,6 +158,7 @@ describe('ifV2 handler unit tests', () => {
                 },
                 timestamp: getISO8601Timestamp(),
               },
+              time: mockTime,
             },
           ],
         ]);
@@ -218,6 +221,7 @@ describe('ifV2 handler unit tests', () => {
                 },
                 timestamp: getISO8601Timestamp(),
               },
+              time: mockTime,
             },
           ],
         ]);

@@ -7,9 +7,14 @@ import * as Utils from '@/runtime/lib/Handlers/utils/shuntingYard';
 import { EventType } from '@/runtime/lib/Lifecycle';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
+import { mockTime } from '@/tests/lib/services/dialog/fixture';
 
 describe('setHandler unit tests', () => {
   const setHandler = SetHandler();
+
+  beforeEach(() => sinon.useFakeTimers(mockTime));
+
+  afterEach(() => sinon.restore());
 
   describe('canHandle', () => {
     it('false', () => {
@@ -105,6 +110,7 @@ describe('setHandler unit tests', () => {
               level: RuntimeLogs.LogLevel.INFO,
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);
@@ -142,6 +148,7 @@ describe('setHandler unit tests', () => {
               level: RuntimeLogs.LogLevel.INFO,
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);

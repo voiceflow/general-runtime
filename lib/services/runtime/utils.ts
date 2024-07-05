@@ -289,6 +289,7 @@ export function textOutputTrace({
       ...(ai && { ai }),
       ...(isPrompt && { isPrompt }),
     },
+    time: Date.now(),
   };
 
   variables?.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, plainContent);
@@ -309,6 +310,7 @@ export function speakOutputTrace({ variables, output, isPrompt, ai }: OutputPara
       ...(ai && { ai }),
       ...(isPrompt && { isPrompt }),
     },
+    time: Date.now(),
   };
 
   variables?.set(VoiceflowConstants.BuiltInVariable.LAST_RESPONSE, message);

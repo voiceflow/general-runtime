@@ -9,6 +9,8 @@ import { Program, Runtime, Store } from '@/runtime';
 import { mockMessageNode } from '@/tests/mocks/node/message.node.mock';
 import { ID, mockVersion } from '@/tests/mocks/version/version.mock';
 
+import { mockTime } from '../../../dialog/fixture';
+
 describe('Message handler', () => {
   const handler = MessageHandler();
 
@@ -32,6 +34,8 @@ describe('Message handler', () => {
   });
 
   beforeEach(() => {
+    sinon.useFakeTimers(mockTime);
+
     version = mockVersion();
     runtime = {
       version,
@@ -51,6 +55,10 @@ describe('Message handler', () => {
     messageNode = mockMessageNode();
 
     eventHandler = null as unknown as NodeEventHandler;
+  });
+
+  afterEach(() => {
+    sinon.restore();
   });
 
   describe('can handle', () => {
@@ -136,6 +144,7 @@ describe('Message handler', () => {
             messageDelayMilliseconds: 100,
           },
         },
+        time: mockTime,
       });
     });
   });

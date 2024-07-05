@@ -7,7 +7,11 @@ import { addOutputTrace } from '@/lib/services/runtime/utils';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { getISO8601Timestamp } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
+import { mockTime } from '../../dialog/fixture';
+
 describe('text handler unit tests', async () => {
+  beforeEach(() => sinon.useFakeTimers(mockTime));
+
   afterEach(() => sinon.restore());
 
   describe('canHandle', () => {
@@ -77,6 +81,7 @@ describe('text handler unit tests', async () => {
               },
               timestamp: getISO8601Timestamp(),
             },
+            time: mockTime,
           },
         ],
       ]);

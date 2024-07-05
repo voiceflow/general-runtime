@@ -273,6 +273,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
             entityToFill: unfulfilledEntity.name,
             intent: dmStateStore.intentRequest,
           },
+          time: Date.now(),
         });
 
         debugLogging.recordGlobalLog(RuntimeLogs.Kinds.GlobalLogKind.NLU_INTENT_RESOLVED, {
