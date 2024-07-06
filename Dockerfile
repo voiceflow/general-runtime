@@ -1,5 +1,5 @@
 ARG NODE_VERSION=20.10
-FROM node:${NODE_VERSION}-alpine as base
+FROM node:${NODE_VERSION}-alpine AS base
 WORKDIR /src
 
 RUN \
@@ -8,7 +8,7 @@ RUN \
 
 
 ## STAGE: deps
-FROM base as deps
+FROM base AS deps
 ARG NPM_TOKEN
 
 COPY --link package.json yarn.lock .yarnrc.yml ./
@@ -23,21 +23,21 @@ RUN \
 
 
 ## STAGE: sourced
-FROM deps as sourced
+FROM deps AS sourced
 COPY --link . ./
 
-FROM sourced as testing
+FROM sourced AS testing
 
-FROM testing as linter
+FROM testing AS linter
 RUN yarn lint:report 2>&1 | tee /var/log/eslint.log
 
-FROM testing as dep-check
+FROM testing AS dep-check
 RUN yarn test:dependencies 2>&1 | tee /var/log/dep-check.log
 
-FROM testing as unit-tests
+FROM testing AS unit-tests
 RUN yarn test:unit:ci 2>&1 | tee /var/log/unit-tests.log
 
-FROM scratch as checks
+FROM scratch AS checks
 COPY --link --from=linter /src/reports/eslint.xml /
 COPY --link --from=linter /var/log/eslint.log /
 COPY --link --from=linter /src/sonar/report.json /
@@ -47,18 +47,18 @@ COPY --link --from=unit-tests /var/log/unit-tests.log /
 
 
 ## STAGE: build
-FROM sourced as build
+FROM sourced AS build
 RUN yarn build
 
 ## STAGE: prune
-FROM build as prune
+FROM build AS prune
 RUN \
   --mount=type=cache,id=yarn,target=/src/.yarn/cache \
   yarn config unset -H npmRegistries && \
   yarn cache clean
 
 
-FROM base as prod
+FROM base AS prod
 WORKDIR /usr/src/app
 
 ARG build_SEM_VER
