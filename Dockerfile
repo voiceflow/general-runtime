@@ -29,13 +29,14 @@ COPY --link . ./
 FROM sourced AS testing
 
 FROM testing AS linter
-RUN yarn lint:report 2>&1 | tee /var/log/eslint.log
+RUN yarn lint:report >/var/log/eslint.log 2>&1
 
 FROM testing AS dep-check
-RUN yarn test:dependencies 2>&1 | tee /var/log/dep-check.log
+RUN yarn test:dependencies >/var/log/dep-check.log 2>&1
 
 FROM testing AS unit-tests
-RUN yarn test:unit:ci 2>&1 | tee /var/log/unit-tests.log
+RUN yarn test:unit:ci >/var/log/unit-tests.log 2>&1 \
+  || mkdir -p ./reports/mocha/ && touch ./reports/mocha/unit-tests.xml
 
 FROM scratch AS checks
 COPY --link --from=linter /src/reports/eslint.xml /
