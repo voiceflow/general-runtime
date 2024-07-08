@@ -49,6 +49,7 @@ class Server {
 
     // nodeJS keepAliveTimeout has to be higher than downstream nginx keepAliveTimeout (default 75s)
     this.server.keepAliveTimeout = 76 * 1000;
+    this.server.headersTimeout = 77 * 1000;
 
     const { middlewares, controllers } = this.serviceManager;
 
