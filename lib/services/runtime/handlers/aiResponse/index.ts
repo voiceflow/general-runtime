@@ -22,7 +22,6 @@ import {
   switchMap,
 } from 'rxjs';
 
-import { FeatureFlag } from '@/lib/feature-flags';
 import AIAssist from '@/lib/services/aiAssist';
 import { HandlerFactory } from '@/runtime';
 
@@ -53,13 +52,6 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
           instruction: settings.instruction,
           options: { summarization },
         });
-
-        const chunks = answer?.chunks?.map((chunk) => JSON.stringify(chunk)) ?? [];
-        const workspaceID = Number(runtime.project?.teamID);
-
-        if (runtime.services.unleash.client.isEnabled(FeatureFlag.VF_CHUNKS_VARIABLE, { workspaceID })) {
-          variables.set(VoiceflowConstants.BuiltInVariable.VF_CHUNKS, chunks);
-        }
 
         await consumeResources('AI Response KB', runtime, answer);
 
