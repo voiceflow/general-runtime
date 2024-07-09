@@ -74,7 +74,9 @@ export const MessageHandler: HandlerFactory<CompiledMessageNode> = () => ({
 
       const chosenVariant = await selectVariant(preprocessedVariants);
 
-      outputVariant(chosenVariant, node, runtime, variables);
+      if (chosenVariant.data.text.trim()) {
+        outputVariant(chosenVariant, node, runtime, variables);
+      }
 
       return node.ports.default;
     } catch (err) {
