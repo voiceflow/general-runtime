@@ -15,6 +15,8 @@ export class ConditionIsolate {
 
   private static readonly rejectFuncName = `__reject__`;
 
+  private static readonly userConditionName = `condition`;
+
   constructor(private readonly variables: Record<string, unknown>) {}
 
   private readonly ISOLATED_VM_LIMITS = {
@@ -162,6 +164,27 @@ export class ConditionIsolate {
 
     return new Promise((resolve, reject) => {
       executeCode(resolve, reject);
+    });
+  }
+
+  public async executeFunction(code: string): Promise<unknown> {
+    await this.setupUserVariables();
+
+    const sanitizeVarsFromGlobal = `
+        const ${ConditionIsolate.userVariablesName} = globalThis.${ConditionIsolate.userVariablesName};
+        delete globalThis.${ConditionIsolate.userVariablesName};
+    `;
+
+    const completeCode = `
+      ${sanitizeVarsFromGlobal}
+
+      ${code}
+
+      ${ConditionIsolate.userConditionName}({ variables })
+    `;
+
+    return this.context?.eval(completeCode, {
+      timeout: this.ISOLATED_VM_LIMITS.maxExecutionTimeMs,
     });
   }
 
