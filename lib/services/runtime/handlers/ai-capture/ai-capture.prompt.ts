@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 /* eslint-disable sonarjs/no-nested-template-literals */
 import { BaseUtils } from '@voiceflow/base-types';
 import dedent from 'dedent';
@@ -5,7 +6,7 @@ import dedent from 'dedent';
 import { EntityCache, EntityRef } from './ai-capture.types';
 
 export const getExtractionSystemPrompt = (utterance: string, rules: string[], entityRef: EntityRef) => dedent`
-You're a support agent gathering data from a user, 
+You're a support agent gathering data from a user,
     You will be given a user statement, which is a request or question from the user that often pertains to a certain type of entity.
     You might be provided a set of rules (guidelines) to understand the entity to be provided in response to the user statement or assess the user provided entity.
     You might be provided with example entities for reference to understand the entity_name and sample values.
@@ -79,7 +80,7 @@ You're a support agent gathering data from a user,
 `;
 
 export const getExtractionPrompt = (utterance: string, rules: string[], entityRef: EntityRef) => dedent`
-    
+
     User Statement: ${utterance}
 
     Rules: ${rules.map((rule) => `- ${rule}`).join('\n')}
@@ -132,7 +133,7 @@ Response: Reply that provides requested information or politely asks user to re-
 
 ###
 
-Transcript: 
+Transcript:
 user_statement : I'm researching the history of artificial intelligence.
 assistant : That's a fascinating subject. Are there specific keyphrases or figures in AI history you're focusing on?
 user_statement : Yes, I'm particularly interested in 'Alan Turing' and 'Turing Test'.
@@ -147,7 +148,7 @@ Response: Great choice! Alan Turing's contributions to AI history are significan
 
 ###
 
-Transcript: 
+Transcript:
 user_statement : I'd like to place a large order for donuts.
 assistant : Of course! We offer chocolate, glazed, jelly, sprinkles, and powdered donuts. You can order them by the single, half dozen, or dozen. How many and what type would you like?
 user_statement : I need 6 dozen chocolate donuts.
@@ -162,7 +163,7 @@ Response: Great choice! Your order for 6 dozen chocolate donuts is all set. Woul
 
 ###
 
-Transcript: 
+Transcript:
 user_statement : I need dowels for our live performance
 
 Captured Entity State:: {'quantity': 'null'}
@@ -184,13 +185,13 @@ export const getCaptureUserPrompt = (
 
   Rules:
   ${rules.map((rule) => `- ${rule}`).join('\n')}
-  Exit Scenarios: 
+  Exit Scenarios:
   ${
     exitScenerios.length
       ? `\nExit Scenarios:\n${exitScenerios.map((exitScenerio, index) => `${index + 1}. ${exitScenerio}`).join('\n')}\n`
       : ''
   }
-  
+
   Transcript:
   ${messages.map(({ role, content }) => `${role}: ${content}`).join('\n')}
 
@@ -202,7 +203,7 @@ export const getCaptureUserPrompt = (
 
   Type:
 
-  Response: 
+  Response:
 `;
 
 export const getEntityProcessingSystemPrompt = (
@@ -245,12 +246,12 @@ export const getEntityProcessingSystemPrompt = (
   Response: Reply that provides requested information or politely asks user to provide all null inputs
 
   ###
-  
+
   User Statement: I am John.
   Prev User Statements: []
   Prev Responses: []
   Rules: User should provide their full name including first and last name. User should provide company name.
-  Exit Scenarios: 
+  Exit Scenarios:
   Example Entities: {'Customer_name': {'examples': ["First name,John,Mary,Jacob","Last name,Smith,Jane,J"]},'Company': {'examples': ['google,Microsoft, ABN Tech']},'Location': {'examples': ["State,Ontario,NewYork,Texas","City,Toronto,Vancouver","Country,Canada,USA"]}}
   Rationale: User did not provide their full name and company name yet. So, we ask for it.
   Entity State: {'Customer_name': null, 'Company': null}
@@ -263,7 +264,7 @@ export const getEntityProcessingSystemPrompt = (
   Prev User Statements: ['I am John']
   Prev Responses: ['Thank you John, Could you please provide your full name and your company name?']
   Rules: User should provide their full name including first and last name. User should provide company name.
-  Exit Scenarios: 
+  Exit Scenarios:
   Example Entities: {'Customer_name': {'examples': ["First name,John,Mary,Jacob","Last name,Smith,Jane,J"]},'Company': {'examples': ['google,Microsoft, ABN Tech']},'Location': {'examples': ["State,Ontario,NewYork,Texas","City,Toronto,Vancouver","Country,Canada,USA"]}}
   Rationale: User did not provide company name yet. So, we ask for it.
   Entity State: {'Customer_name': 'John Smith', 'Company': null}
@@ -276,12 +277,12 @@ export const getEntityProcessingSystemPrompt = (
   Prev User Statements: ['I am John', 'I am John Smith']
   Prev Responses: ['Thank you John, Could you please provide your full name and your company name?', "Thank you for providing your full name John Smith. Could you also provide your Company name."]
   Rules: User should provide their full name including first and last name. User should provide company name.
-  Exit Scenarios: 
+  Exit Scenarios:
   Example Entities: {'Customer_name': {'examples': ["First name,John,Mary,Jacob","Last name,Smith,Jane,J"]},'Company': {'examples': ['google,Microsoft, ABN Tech']},'Location': {'examples': ["State,Ontario,NewYork,Texas","City,Toronto,Vancouver","Country,Canada,USA"]}}
   Rationale: Required entities are captured and fulfills all the rules. Now we ask user on how we can assist.
   Entity State: {'Customer_name': 'John Smith', 'Company': 'ABC Tech Corp'}
   Type: fulfilled
-  Response: Thank you John for providing your full name and your company name. How can I assit you today?
+  Response: Thank you John for providing your full name and your company name. How can I assist you today?
 
   ###
 
@@ -295,7 +296,7 @@ export const getEntityProcessingSystemPrompt = (
   Entity State: {'Customer_name': 'John Smith', 'Company': 'ABC Tech Corp'}
   Type: exit1
   Response:
-  
+
   ###
 `;
 
@@ -327,5 +328,5 @@ export const getEntityProcessingUserPrompt = (
 
   Type:
 
-  Response: 
+  Response:
 `;

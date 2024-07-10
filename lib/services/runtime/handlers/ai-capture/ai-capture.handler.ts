@@ -99,7 +99,7 @@ function extractBracedStrings(input: string): string[] {
 const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRuntime> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_CAPTURE,
   handle: async (node, runtime, variables) => {
-    const entityProcessingType = variables.get('entity_processing_type') || 'extract_and_capture';
+    const entityProcessingType = variables.get('entity_processing_type') || 'single_prompt';
     // determine exit path
     const exitPath = (node.exitPath && node.elseId) || node.nextId || null;
     // required entities to be filled - fetch this from runtime
@@ -201,7 +201,7 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
               Object.fromEntries(requiredEntities.map((entity) => [entity.name, entityCache[entity.name]]))
             );
             runtime.storage.delete(StorageType.AI_CAPTURE_ENTITY_CACHE);
-            return node.nextId;
+            return node.nextId || null;
           }
         }
         // we still need to process the entities captured for exit scenarios.
