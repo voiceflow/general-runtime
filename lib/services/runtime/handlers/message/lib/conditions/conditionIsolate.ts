@@ -178,7 +178,9 @@ export class ConditionIsolate {
     const completeCode = `
       ${sanitizeVarsFromGlobal}
 
-      ${code}
+      function condition({ variables }) {
+        ${code}
+      }
 
       ${ConditionIsolate.userConditionName}({ variables })
     `;
