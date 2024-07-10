@@ -194,6 +194,15 @@ const AICaptureHandler: HandlerFactory<BaseNode.AICapture.Node, void, GeneralRun
           );
 
           runtime.storage.set(StorageType.AI_CAPTURE_ENTITY_CACHE, entityCache);
+
+          // if there are no null values in the entity cache, we can proceed to the next node
+          if (Object.values(entityCache).every(Boolean)) {
+            variables.merge(
+              Object.fromEntries(requiredEntities.map((entity) => [entity.name, entityCache[entity.name]]))
+            );
+            runtime.storage.delete(StorageType.AI_CAPTURE_ENTITY_CACHE);
+            return node.nextId;
+          }
         }
         // we still need to process the entities captured for exit scenarios.
         const captureResult = await fetchChat(
