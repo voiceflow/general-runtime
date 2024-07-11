@@ -36,9 +36,7 @@ describe('ConditionIsolate', () => {
       const isolate = new ConditionIsolate(variables);
       await isolate.initialize();
 
-      const result = await isolate.executeUserModule(
-        'export default function main({ variables }) { return propA + propB + propC }'
-      );
+      const result = await isolate.executeFunction('return propA + propB + propC');
       await isolate.cleanup();
 
       expect(result).to.eql('1hellotrue');
