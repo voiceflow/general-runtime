@@ -7,24 +7,12 @@ export class ConditionIsolate {
 
   private static readonly userVariablesName = `variables`;
 
-  private static readonly userConditionName = `condition`;
-
   constructor(private readonly variables: Record<string, unknown>) {}
 
   private readonly ISOLATED_VM_LIMITS = {
     maxMemoryMB: 8,
     maxExecutionTimeMs: 1 * 1000,
   };
-
-  /**
-   * Injects all given user variables into the execution environment.
-   */
-  private async setupUserVariables() {
-    if (!this.context) {
-      throw new Error('sandbox did not initialize context');
-    }
-    await this.context.global.set(ConditionIsolate.userVariablesName, this.variables, { copy: true });
-  }
 
   public async initialize(): Promise<void> {
     this.isolate = new ivm.Isolate({
@@ -44,25 +32,14 @@ export class ConditionIsolate {
   }
 
   public async executeFunction(code: string): Promise<unknown> {
-    await this.setupUserVariables();
-
-    const sanitizeVarsFromGlobal = `
-        const ${ConditionIsolate.userVariablesName} = globalThis.${ConditionIsolate.userVariablesName};
-        delete globalThis.${ConditionIsolate.userVariablesName};
+    const functionBody = `
+      const { ${ConditionIsolate.userVariablesName} } = $0;
+      ${code}
     `;
 
-    const completeCode = `
-      ${sanitizeVarsFromGlobal}
-
-      function condition({ variables }) {
-        ${code}
-      }
-
-      ${ConditionIsolate.userConditionName}({ variables })
-    `;
-
-    return this.context?.eval(completeCode, {
+    return this.context?.evalClosure(functionBody, [{ [ConditionIsolate.userVariablesName]: this.variables }], {
       timeout: this.ISOLATED_VM_LIMITS.maxExecutionTimeMs,
+      arguments: { copy: true },
     });
   }
 
