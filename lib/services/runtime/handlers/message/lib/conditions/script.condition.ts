@@ -5,7 +5,7 @@ import { ConditionIsolate } from './conditionIsolate';
 
 export class ScriptCondition extends BaseCondition<CompiledScriptCondition> {
   private async evaluateCode(isolate: ConditionIsolate, code: string): Promise<boolean> {
-    const result = await isolate.executeUserModule(code);
+    const result = await isolate.executeFunction(code);
     return !!result;
   }
 
