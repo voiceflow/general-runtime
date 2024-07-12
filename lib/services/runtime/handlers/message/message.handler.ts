@@ -74,7 +74,7 @@ export const MessageHandler: HandlerFactory<CompiledMessageNode> = () => ({
 
       const chosenVariant = await selectVariant(preprocessedVariants);
 
-      if (chosenVariant.data.text.trim()) {
+      if (chosenVariant.data.text.length) {
         outputVariant(chosenVariant, node, runtime, variables);
       }
 
