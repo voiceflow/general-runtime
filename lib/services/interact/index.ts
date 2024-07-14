@@ -30,7 +30,19 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
   }
 
   async interact(request: InteractRequest, eventHandler: HandleContextEventHandler): Promise<ResponseContext> {
-    const { analytics, runtime, nlu, dialog, asr, speak, state: stateManager, filter, aiAssist } = this.services;
+    const {
+      aiAssist,
+      analytics,
+      asr,
+      dialog,
+      extraction,
+      filter,
+      nlu,
+      // reprompt,
+      runtime,
+      speak,
+      state: stateManager,
+    } = this.services;
 
     const stateID = request.userID + request.sessionID;
     let storedState = await this.services.session.getFromDb<State>(request.projectID, stateID);
@@ -51,7 +63,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
 
     const turn = new this.services.utils.TurnBuilder<Context>(stateManager);
 
-    turn.addHandlers(asr, nlu, aiAssist, dialog, runtime);
+    turn.addHandlers(asr, nlu, aiAssist, extraction, dialog, runtime);
     turn.addHandlers(analytics);
     turn.addHandlers(speak, filter);
 
@@ -64,7 +76,12 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
 
   async handler(req: {
     params: { userID?: string };
-    body: { state?: State; action?: RuntimeRequest; request?: RuntimeRequest; config?: BaseRequest.RequestConfig };
+    body: {
+      state?: State;
+      action?: RuntimeRequest;
+      request?: RuntimeRequest;
+      config?: BaseRequest.RequestConfig;
+    };
     query: { locale?: string; logs?: RuntimeLogs.LogLevel };
     headers: {
       authorization?: string;
@@ -81,6 +98,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       nlu,
       tts,
       dialog,
+      extraction,
       asr,
       speak,
       state: stateManager,
@@ -116,7 +134,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
 
     const turn = new this.services.utils.TurnBuilder<Context>(stateManager);
 
-    turn.addHandlers(asr, nlu, aiAssist, dialog, runtime, mergeCompletion);
+    turn.addHandlers(asr, nlu, aiAssist, extraction, dialog, runtime, mergeCompletion);
     turn.addHandlers(analytics);
 
     if (config.tts) {
