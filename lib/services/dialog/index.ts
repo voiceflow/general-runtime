@@ -21,7 +21,7 @@ import { Context, ContextHandler, VersionTag } from '@/types';
 import { Predictor } from '../classification';
 import { castToDTO } from '../classification/classification.utils';
 import { getIntentRequest } from '../nlu';
-import { getNoneIntentRequest, shouldBypassNLU } from '../nlu/utils';
+import { getNoneIntentRequest, shouldDoLLMExtraction, shouldDoLLMReprompt } from '../nlu/utils';
 import { isIntentRequest, StorageType } from '../runtime/types';
 import { addOutputTrace, getOutputTrace } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
@@ -121,8 +121,6 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
       return context;
     }
 
-    if (await shouldBypassNLU(context)) return context;
-
     const version = await context.data.api.getVersion(context.versionID);
 
     if (!version.prototype?.model) {
@@ -152,7 +150,11 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
     // if there is an existing entity filling request
     // AND there are slots to be filled, call predict
-    if (dmStateStore?.intentRequest && getUnfulfilledEntity(dmStateStore.intentRequest, version.prototype.model)) {
+    if (
+      dmStateStore?.intentRequest &&
+      getUnfulfilledEntity(dmStateStore.intentRequest, version.prototype.model) &&
+      !(await shouldDoLLMExtraction(context))
+    ) {
       log.debug('[app] [runtime] [dm] in entity filling context');
 
       try {
@@ -224,96 +226,98 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
     // Set the DM state store without modifying the source context
     context = DialogManagement.setDMStore(context, dmStateStore);
 
-    // Are there any unfulfilled required entities?
-    // We need to use the stored DM state here to ensure that previously fulfilled entities are also considered!
-    const unfulfilledEntity = getUnfulfilledEntity(dmStateStore!.intentRequest, version.prototype.model);
+    if (!(await shouldDoLLMReprompt(context))) {
+      // Are there any unfulfilled required entities?
+      // We need to use the stored DM state here to ensure that previously fulfilled entities are also considered!
+      const unfulfilledEntity = getUnfulfilledEntity(dmStateStore!.intentRequest, version.prototype.model);
 
-    if (unfulfilledEntity) {
-      // There are unfulfilled required entities -> return dialog management prompt
-      // Assemble return string by populating the inline entity values
-      const trace: BaseTrace.AnyTrace[] = context.trace ? [...context.trace] : [];
+      if (unfulfilledEntity) {
+        // There are unfulfilled required entities -> return dialog management prompt
+        // Assemble return string by populating the inline entity values
+        const trace: BaseTrace.AnyTrace[] = context.trace ? [...context.trace] : [];
 
-      const prompt = _.sample(unfulfilledEntity.dialog.prompt)! as
-        | ChatModels.Prompt
-        | VoiceModels.IntentPrompt<VoiceflowConstants.Voice>;
+        const prompt = _.sample(unfulfilledEntity.dialog.prompt)! as
+          | ChatModels.Prompt
+          | VoiceModels.IntentPrompt<VoiceflowConstants.Voice>;
 
-      const addTrace = (traceFrame: BaseNode.Utils.BaseTraceFrame): void => {
-        trace.push(traceFrame as any);
-      };
-      const debugLogging = new DebugLogging(addTrace);
-      debugLogging.refreshContext(context);
+        const addTrace = (traceFrame: BaseNode.Utils.BaseTraceFrame): void => {
+          trace.push(traceFrame as any);
+        };
+        const debugLogging = new DebugLogging(addTrace);
+        debugLogging.refreshContext(context);
 
-      if (!hasElicit(incomingRequest) && prompt) {
-        const variables = new Store(getEntitiesMap(dmStateStore!.intentRequest));
+        if (!hasElicit(incomingRequest) && prompt) {
+          const variables = new Store(getEntitiesMap(dmStateStore!.intentRequest));
 
-        const output = VoiceflowUtils.prompt.isIntentVoicePrompt(prompt)
-          ? fillStringEntities(
-              dmStateStore!.intentRequest,
-              inputToString(prompt, (version as VoiceflowVersion.VoiceVersion).platformData.settings.defaultVoice)
-            )
-          : prompt.content;
+          const output = VoiceflowUtils.prompt.isIntentVoicePrompt(prompt)
+            ? fillStringEntities(
+                dmStateStore!.intentRequest,
+                inputToString(prompt, (version as VoiceflowVersion.VoiceVersion).platformData.settings.defaultVoice)
+              )
+            : prompt.content;
 
-        const variableStore = new Store(context.state.variables);
-        utils.addOutputTrace(
-          { trace: { addTrace }, debugLogging },
-          // isPrompt is useful for adapters where we give the control of the capture to the NLU (like alexa)
-          // this way the adapter can ignore this prompt trace because the NLU will take care of it
-          utils.getOutputTrace({
-            output,
-            version,
-            variables,
-            isPrompt: true,
-          }),
-          { variables: variableStore }
-        );
-        context.state.variables = variableStore.getState();
-      }
-      if (prompt || hasElicit(incomingRequest)) {
-        trace.push({
-          type: BaseTrace.TraceType.ENTITY_FILLING,
-          payload: {
-            entityToFill: unfulfilledEntity.name,
-            intent: dmStateStore.intentRequest,
-          },
-          time: Date.now(),
-        });
+          const variableStore = new Store(context.state.variables);
+          utils.addOutputTrace(
+            { trace: { addTrace }, debugLogging },
+            // isPrompt is useful for adapters where we give the control of the capture to the NLU (like alexa)
+            // this way the adapter can ignore this prompt trace because the NLU will take care of it
+            utils.getOutputTrace({
+              output,
+              version,
+              variables,
+              isPrompt: true,
+            }),
+            { variables: variableStore }
+          );
+          context.state.variables = variableStore.getState();
+        }
+        if (prompt || hasElicit(incomingRequest)) {
+          trace.push({
+            type: BaseTrace.TraceType.ENTITY_FILLING,
+            payload: {
+              entityToFill: unfulfilledEntity.name,
+              intent: dmStateStore.intentRequest,
+            },
+            time: Date.now(),
+          });
 
-        debugLogging.recordGlobalLog(RuntimeLogs.Kinds.GlobalLogKind.NLU_INTENT_RESOLVED, {
-          confidence: dmStateStore.intentRequest.payload.confidence ?? 1,
-          resolvedIntent: dmStateStore.intentRequest.payload.intent.name,
-          utterance: dmStateStore.intentRequest.payload.query,
-          entities: Object.fromEntries(
-            dmStateStore.intentRequest.payload.entities.map((entity) => [entity.name, { value: entity.value }])
-          ),
-        });
+          debugLogging.recordGlobalLog(RuntimeLogs.Kinds.GlobalLogKind.NLU_INTENT_RESOLVED, {
+            confidence: dmStateStore.intentRequest.payload.confidence ?? 1,
+            resolvedIntent: dmStateStore.intentRequest.payload.intent.name,
+            utterance: dmStateStore.intentRequest.payload.query,
+            entities: Object.fromEntries(
+              dmStateStore.intentRequest.payload.entities.map((entity) => [entity.name, { value: entity.value }])
+            ),
+          });
+          return {
+            ...context,
+            end: true,
+            trace,
+          };
+        }
         return {
-          ...context,
-          end: true,
-          trace,
+          ...DialogManagement.setDMStore(context, {
+            ...dmStateStore,
+            intentRequest: undefined,
+          }),
+          request: getNoneIntentRequest({ query }),
         };
       }
-      return {
-        ...DialogManagement.setDMStore(context, {
-          ...dmStateStore,
-          intentRequest: undefined,
-        }),
-        request: getNoneIntentRequest({ query }),
-      };
+
+      // No more unfulfilled required entities -> populate the request object with
+      // the final intent and extracted entities from the DM state store
+      let intentRequest = rectifyEntityValue(dmStateStore!.intentRequest, version.prototype.model);
+
+      // to show correct query in the transcripts
+      intentRequest.payload.query = query;
+
+      if (!unfulfilledEntity) {
+        // removing elicit from the request to show the last intent in the transcript
+        intentRequest = setElicit(intentRequest, false);
+      }
+
+      context.request = intentRequest;
     }
-
-    // No more unfulfilled required entities -> populate the request object with
-    // the final intent and extracted entities from the DM state store
-    let intentRequest = rectifyEntityValue(dmStateStore!.intentRequest, version.prototype.model);
-
-    // to show correct query in the transcripts
-    intentRequest.payload.query = query;
-
-    if (!unfulfilledEntity) {
-      // removing elicit from the request to show the last intent in the transcript
-      intentRequest = setElicit(intentRequest, false);
-    }
-
-    context.request = intentRequest;
 
     // Clear the DM state store
     return DialogManagement.setDMStore(context, undefined);

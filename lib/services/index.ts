@@ -6,6 +6,7 @@ import AISynthesis from './aiSynthesis';
 import Analytics from './analytics';
 import ASR from './asr';
 import Dialog from './dialog';
+import Extraction from './extraction';
 import Feedback from './feedback';
 import Filter from './filter';
 import Interact from './interact';
@@ -23,25 +24,26 @@ import Transcript from './transcript';
 import TTS from './tts';
 
 export interface ServiceMap {
-  runtime: Runtime;
-  state: State;
   aiAssist: AIAssist;
   aiSynthesis: AISynthesis;
-  asr: ASR;
-  speak: Speak;
-  nlu: NLU;
-  dialog: Dialog;
-  tts: TTS;
-  slots: Slots;
-  filter: Filter;
-  session: Session;
-  interact: Interact;
-  feedback: Feedback;
   analytics: Analytics;
+  asr: ASR;
+  dialog: Dialog;
+  extraction: Extraction;
+  feedback: Feedback;
+  filter: Filter;
+  interact: Interact;
+  mergeCompletion: MergeCompletion;
+  nlu: NLU;
+  runtime: Runtime;
+  session: Session;
+  slots: Slots;
+  speak: Speak;
+  state: State;
+  stateManagement: StateManagement;
   test: TestService;
   transcript: Transcript;
-  stateManagement: StateManagement;
-  mergeCompletion: MergeCompletion;
+  tts: TTS;
 }
 
 export interface FullServiceMap extends ClientMap, ServiceMap {}

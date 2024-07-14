@@ -105,3 +105,21 @@ export const shouldBypassNLU = async (context: Context) => {
   // TODO: update with actual node type checks, probably via DTOs
   return node?.type === 'interaction';
 };
+
+export const shouldDoLLMExtraction = async (context: Context) => {
+  const currentFrame = context.runtime.stack.top();
+  const program = await context.runtime.getProgram(context.runtime.getVersionID(), currentFrame.getDiagramID());
+  const node = program.getNode(currentFrame.getNodeID());
+
+  // TODO: update with actual node type checks, probably via DTOs
+  return node?.type === 'interaction';
+};
+
+export const shouldDoLLMReprompt = async (context: Context) => {
+  const currentFrame = context.runtime.stack.top();
+  const program = await context.runtime.getProgram(context.runtime.getVersionID(), currentFrame.getDiagramID());
+  const node = program.getNode(currentFrame.getNodeID());
+
+  // TODO: update with actual node type checks, probably via DTOs
+  return node?.type === 'interaction';
+};
