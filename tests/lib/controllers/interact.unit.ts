@@ -22,7 +22,7 @@ describe('interact controller unit tests.', () => {
     });
   });
 
-  describe('handler', () => {
+  describe('handler.', () => {
     it('works', async () => {
       const output = { foo: 'bar' };
       const services = { interact: { handler: sinon.stub().resolves(output) } };
