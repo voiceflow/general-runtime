@@ -124,7 +124,7 @@
     "lint-staged": "^10.5.3",
     "mocha": "^6.2.3",
     "mocha-junit-reporter": "^2.2.1",
-    "nyc": "^15.2.0",
+    "nyc": "^15.1.0",
     "pino": "8.17.2",
     "prettier": "2.8.8",
     "prettier-eslint-cli": "^5.0.0",
