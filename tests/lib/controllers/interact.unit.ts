@@ -3,7 +3,7 @@ import sinon from 'sinon';
 
 import Interact from '@/lib/controllers/interact';
 
-describe('interact controller unit tests', () => {
+describe('interact controller unit tests.', () => {
   const versionID = 'some-version-id';
 
   describe('state', () => {
