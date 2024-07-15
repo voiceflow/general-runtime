@@ -21,7 +21,7 @@ import { Context, ContextHandler, VersionTag } from '@/types';
 import { Predictor } from '../classification';
 import { castToDTO } from '../classification/classification.utils';
 import { getIntentRequest } from '../nlu';
-import { getNoneIntentRequest } from '../nlu/utils';
+import { getNoneIntentRequest, isUsedIntent } from '../nlu/utils';
 import { isIntentRequest, StorageType } from '../runtime/types';
 import { addOutputTrace, getOutputTrace } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
@@ -184,7 +184,13 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               platform: version.prototype.platform as VoiceflowConstants.PlatformType,
             }
           );
-          dmPrefixedResult = getIntentRequest(await predictor.predict(`${prefix} ${query}`));
+
+          const prediction = await predictor.predict(`${prefix} ${query}`);
+
+          dmPrefixedResult =
+            prediction && isUsedIntent(version.prototype?.surveyorContext.usedIntentsSet, prediction.predictedIntent)
+              ? getIntentRequest(prediction)
+              : getNoneIntentRequest(prediction ?? { query });
         }
 
         // Remove the dmPrefix from entity values that it has accidentally been attached to

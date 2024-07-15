@@ -13,13 +13,9 @@ import { DebugEvent, Predictor } from '../classification';
 import { castToDTO } from '../classification/classification.utils';
 import { Prediction } from '../classification/interfaces/nlu.interface';
 import { AbstractManager } from '../utils';
-import { getNoneIntentRequest } from './utils';
+import { getNoneIntentRequest, isUsedIntent } from './utils';
 
-export const getIntentRequest = (prediction: Prediction | null): BaseRequest.IntentRequest => {
-  if (!prediction) {
-    return getNoneIntentRequest();
-  }
-
+export const getIntentRequest = (prediction: Prediction): BaseRequest.IntentRequest => {
   return {
     type: BaseRequest.RequestType.INTENT,
     payload: {
@@ -84,9 +80,13 @@ class NLU extends AbstractManager implements ContextHandler {
       predictor.on('debug', addDebug);
     }
 
-    const prediction = await predictor.predict(context.request.payload);
+    const query = context.request.payload;
+    const prediction = await predictor.predict(query);
 
-    const request = getIntentRequest(prediction);
+    const request =
+      prediction && isUsedIntent(version.prototype?.surveyorContext.usedIntentsSet, prediction.predictedIntent)
+        ? getIntentRequest(prediction)
+        : getNoneIntentRequest(prediction ?? { query });
 
     predictor.removeListener('debug', addDebug);
 
