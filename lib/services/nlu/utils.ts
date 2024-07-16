@@ -89,8 +89,8 @@ export const mapChannelData = (data: any, platform?: VoiceflowConstants.Platform
 };
 
 export const isUsedIntent = (usedIntents: string[] | undefined, intent: string | undefined) =>
-  /* If we don't have any used intents, consider it "used" for compatibility */
-  !Array.isArray(usedIntents) || (intent && usedIntents.includes(intent));
+  /* If we don't have a used intents array, consider it "used" for compatibility */
+  !Array.isArray(usedIntents) || (!!intent && usedIntents.includes(intent));
 
 export const isHybridLLMStrategy = (nluSettings?: BaseModels.Project.NLUSettings) =>
   nluSettings?.classifyStrategy === BaseModels.Project.ClassifyStrategy.VF_NLU_LLM_HYBRID;
