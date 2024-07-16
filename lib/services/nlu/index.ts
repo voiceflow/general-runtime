@@ -85,7 +85,7 @@ class NLU extends AbstractManager implements ContextHandler {
 
     // LATER: look into using the `filteredIntents` field in the Predictor class instead
     const request =
-      prediction && isUsedIntent(version.prototype?.surveyorContext.usedIntentsSet, prediction.predictedIntent)
+      prediction && isUsedIntent(version.prototype?.surveyorContext?.usedIntentsSet, prediction.predictedIntent)
         ? getIntentRequest(prediction)
         : getNoneIntentRequest(prediction ?? { query });
 
