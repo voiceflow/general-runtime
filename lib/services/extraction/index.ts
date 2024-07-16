@@ -1,4 +1,4 @@
-import { BaseNode, BaseUtils } from '@voiceflow/base-types';
+import { BaseUtils } from '@voiceflow/base-types';
 import { CaptureV3Node, CaptureV3NodeDTO, isIntentRequest } from '@voiceflow/dtos';
 
 import AIAssist from '@/lib/services/aiAssist';
@@ -10,6 +10,11 @@ import { GeneralRuntime, StorageType } from '../runtime/types';
 import { AbstractManager } from '../utils';
 import { getExtractionPrompt, getExtractionSystemPrompt } from './ai-capture.prompt';
 import { EntityCache } from './ai-capture.types';
+
+// const mocks = {
+//   node: {},
+//   intentRequest: {},
+// };
 
 const getRequiredEntities = (node: CaptureV3Node, runtime: GeneralRuntime) => {
   if (node.data.capture.type !== 'entity') {
@@ -94,6 +99,7 @@ class Extraction extends AbstractManager implements ContextHandler {
       ])
     );
     const result = await fetchChat(
+      // @ts-ignore
       {
         messages: [
           {
@@ -141,7 +147,7 @@ class Extraction extends AbstractManager implements ContextHandler {
     context.runtime.storage.delete(StorageType.AI_CAPTURE_ENTITY_CACHE);
 
     // TODO: context not nodes
-    return { ...context, request: newStuff };
+    // return { ...context, request: newStuff };
 
     // if exitScenario -> create GoTo (exitPath) + autoDelegate
 

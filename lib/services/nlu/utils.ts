@@ -1,5 +1,5 @@
 import { AlexaConstants } from '@voiceflow/alexa-types';
-import { BaseModels, BaseRequest } from '@voiceflow/base-types';
+import { BaseModels, BaseNode, BaseRequest } from '@voiceflow/base-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { match } from 'ts-pattern';
 
@@ -103,7 +103,7 @@ export const shouldBypassNLU = async (context: Context) => {
   const node = program.getNode(currentFrame.getNodeID());
 
   // TODO: update with actual node type checks, probably via DTOs
-  return node?.type === 'interaction';
+  return node?.type === BaseNode.NodeType.AI_CAPTURE;
 };
 
 export const shouldDoLLMExtraction = async (context: Context) => {
@@ -112,7 +112,7 @@ export const shouldDoLLMExtraction = async (context: Context) => {
   const node = program.getNode(currentFrame.getNodeID());
 
   // TODO: update with actual node type checks, probably via DTOs
-  return node?.type === 'interaction';
+  return node?.type === BaseNode.NodeType.AI_CAPTURE;
 };
 
 export const shouldDoLLMReprompt = async (context: Context) => {
