@@ -41,7 +41,7 @@ describe('nlu manager utils unit tests', () => {
 
   describe('isUsedIntent', () => {
     it('returns true if intent array is undefined', () => {
-      expect(isUsedIntent(undefined, 'intent')).to.eql(true);
+      expect(isUsedIntent(undefined, { key: 'abc', name: 'test' })).to.eql(true);
     });
 
     it('returns false if intent name is undefined', () => {
@@ -49,11 +49,15 @@ describe('nlu manager utils unit tests', () => {
     });
 
     it('returns true if intent name is in array', () => {
-      expect(isUsedIntent(['test'], 'test')).to.eql(true);
+      expect(isUsedIntent(['test'], { key: 'abc', name: 'test' })).to.eql(true);
     });
 
-    it('returns false if intent name is not in array', () => {
-      expect(isUsedIntent(['test'], 'nope')).to.eql(false);
+    it('returns true if intent key is in array', () => {
+      expect(isUsedIntent(['abc'], { key: 'abc', name: 'test' })).to.eql(true);
+    });
+
+    it('returns false if intent name and key are not in array', () => {
+      expect(isUsedIntent(['nope'], { key: 'abc', name: 'test' })).to.eql(false);
     });
   });
 });

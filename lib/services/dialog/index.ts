@@ -187,9 +187,13 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
           const prediction = await predictor.predict(`${prefix} ${query}`);
 
+          const predictedIntent = prediction?.predictedIntent
+            ? intents?.find((intent) => intent.name === prediction?.predictedIntent)
+            : undefined;
+
           // LATER: look into using the `filteredIntents` field in the Predictor class instead
           dmPrefixedResult =
-            prediction && isUsedIntent(version.prototype?.surveyorContext?.usedIntentsSet, prediction.predictedIntent)
+            prediction && isUsedIntent(version.prototype?.surveyorContext?.usedIntentsSet, predictedIntent)
               ? getIntentRequest(prediction)
               : getNoneIntentRequest(prediction ?? { query });
         }

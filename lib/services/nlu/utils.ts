@@ -88,9 +88,12 @@ export const mapChannelData = (data: any, platform?: VoiceflowConstants.Platform
   };
 };
 
-export const isUsedIntent = (usedIntents: string[] | undefined, intent: string | undefined) =>
+export const isUsedIntent = (usedIntents: string[] | undefined, intent: { key: string; name: string } | undefined) =>
   /* If we don't have a used intents array, consider it "used" for compatibility */
-  !Array.isArray(usedIntents) || (!!intent && usedIntents.includes(intent));
+  !Array.isArray(usedIntents) ||
+  (!!intent &&
+    /* The used intent set contains both keys and names :confused: */
+    usedIntents.findIndex((used) => used === intent.key || used === intent.name) >= 0);
 
 export const isHybridLLMStrategy = (nluSettings?: BaseModels.Project.NLUSettings) =>
   nluSettings?.classifyStrategy === BaseModels.Project.ClassifyStrategy.VF_NLU_LLM_HYBRID;
