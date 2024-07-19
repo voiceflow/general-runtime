@@ -227,6 +227,16 @@ workflows:
             - vfcommon/waiter
           filters: *bors_branches_filters
 
+      - vfcommon/report_smoke_failures:
+          context: dev-test
+          e2e-env-name: {{ .values.e2e_env_name }}
+          requires:
+            - vfcommon/waiter
+          filters:
+            branches:
+              only:
+                - staging
+
       - vfcommon/sync_branches:
           check_commit_message: "[bugfix]"
           ssh_key: << pipeline.parameters.ssh-fingerprint >>

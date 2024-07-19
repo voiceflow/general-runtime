@@ -2,8 +2,8 @@ status = [
   "ci/circleci: update_track",
   "ci/circleci: install_and_buildx",
   "ci/circleci: test",
-  # "ci/circleci: run-e2e-tests",
   "ci/circleci: run-smoke-tests",
+  "ci/circleci: report_smoke_failures",
   "ci/circleci: provision-env",
   "ci/circleci: prepare-env",
 ]
