@@ -1,3 +1,4 @@
+// eslint-disable max-depth
 /**
  * [[include:dialog.md]]
  * @packageDocumentation
@@ -19,8 +20,8 @@ import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { Context, ContextHandler, VersionTag } from '@/types';
 
 import { Predictor } from '../classification';
+import { DEFAULT_NLU_INTENT_CLASSIFICATION } from '../classification/classification.const';
 import { castToDTO } from '../classification/classification.utils';
-import { getIntentRequest } from '../nlu';
 import { getNoneIntentRequest } from '../nlu/utils';
 import { isIntentRequest, StorageType } from '../runtime/types';
 import { addOutputTrace, getOutputTrace } from '../runtime/utils';
@@ -155,9 +156,17 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
       try {
         const prefix = dmPrefix(dmStateStore.intentRequest.payload.intent.name);
-        const { intentClassificationSettings, intents, isTrained, slots } = castToDTO(version, project);
+        const { intents, isTrained, slots } = castToDTO(version, project);
 
-        let dmPrefixedResult = incomingRequest;
+        const scopedIntent = intents?.find((intent) => intent.name === dmStateStore.intentRequest.payload.intent.name);
+        const scopedSlots = scopedIntent?.slots?.map((slot) => slots?.find((entity) => entity.key === slot.id));
+
+        const filteredIntents = scopedIntent ? [scopedIntent.name] : undefined;
+        const filteredEntities = scopedSlots
+          ? scopedSlots.map((slot) => slot?.name).filter((name): name is string => typeof name === 'string')
+          : undefined;
+
+        const dmPrefixedResult = incomingRequest;
 
         if (this.isNluGatwayEndpointConfigured()) {
           const predictor = new Predictor(
@@ -174,17 +183,56 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
               tag: project.liveVersion === context.versionID ? VersionTag.PRODUCTION : VersionTag.DEVELOPMENT,
               intents: intents ?? [],
               slots: slots ?? [],
-              dmRequest: dmStateStore.intentRequest.payload,
+              dmRequest: dmPrefixedResult.payload,
               isTrained,
             },
-            intentClassificationSettings,
+            DEFAULT_NLU_INTENT_CLASSIFICATION,
             {
               locale: version.prototype?.data.locales[0] as VoiceflowConstants.Locale,
               hasChannelIntents: project?.platformData?.hasChannelIntents,
               platform: version.prototype.platform as VoiceflowConstants.PlatformType,
+              filteredIntents,
+              excludeFilteredIntents: filteredIntents ? false : undefined,
+              filteredEntities,
+              excludeFilteredEntities: filteredEntities ? false : undefined,
             }
           );
-          dmPrefixedResult = getIntentRequest(await predictor.predict(`${prefix} ${query}`));
+
+          context.trace?.push({
+            type: BaseNode.Utils.TraceType.DEBUG,
+            payload: {
+              message: `<b>Slot filling</b><br/>Filtered Intents:<br/><pre>${filteredIntents?.join(
+                ', '
+              )}</pre><br/>Filtered Entities:<br/><pre>${filteredEntities?.join(', ')}</pre>`,
+            },
+          });
+
+          const prediction = await predictor.predict(`${prefix} ${query}`);
+
+          context.trace?.push({
+            type: BaseNode.Utils.TraceType.DEBUG,
+            payload: {
+              message: `Filled slots:<br/><pre>${
+                // eslint-disable-next-line sonarjs/no-nested-template-literals
+                prediction?.predictedSlots?.map((slot) => `${slot.name} = ${slot.value}`).join(', ')
+              }</pre>`,
+            },
+          });
+
+          (prediction?.predictedSlots ?? []).forEach((predictedSlot) => {
+            const slot = scopedSlots?.find((scopedSlot) => scopedSlot?.name === predictedSlot.name);
+            if (!slot) return;
+
+            const existingEntity = dmPrefixedResult.payload.entities.find((entity) => entity.name === slot.name);
+            if (existingEntity) {
+              existingEntity.value = predictedSlot.value;
+            } else {
+              dmPrefixedResult.payload.entities.push({
+                name: slot.name,
+                value: predictedSlot.value,
+              });
+            }
+          });
         }
 
         // Remove the dmPrefix from entity values that it has accidentally been attached to
@@ -194,7 +242,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
         this.handleDMContext(dmStateStore, dmPrefixedResult, incomingRequest, version.prototype.model);
 
-        if (dmStateStore.intentRequest.payload.intent.name === VoiceflowConstants.IntentName.NONE) {
+        if (incomingRequest.payload.intent.name === VoiceflowConstants.IntentName.NONE) {
           return {
             ...DialogManagement.setDMStore(context, {
               ...dmStateStore,

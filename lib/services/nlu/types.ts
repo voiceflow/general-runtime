@@ -27,10 +27,6 @@ export interface PredictProps {
   dmRequest?: BaseRequest.IntentRequestPayload;
   workspaceID: string;
   intentConfidence?: number;
-  filteredIntents?: Set<string>;
-  filteredEntities?: Set<string>;
-  excludeFilteredIntents?: boolean;
-  excludeFilteredEntities?: boolean;
   nluSettings?: BaseModels.Project.NLUSettings;
   trace?: BaseTrace.AnyTrace[];
 }

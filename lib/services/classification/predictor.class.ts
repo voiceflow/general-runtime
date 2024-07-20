@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/cognitive-complexity */
 import { Utils } from '@voiceflow/common';
 import { DEFAULT_INTENT_CLASSIFICATION_PROMPT_WRAPPER_CODE } from '@voiceflow/default-prompt-wrappers';
 import { IntentClassificationSettings } from '@voiceflow/dtos';
@@ -6,19 +5,18 @@ import { ISlotFullfilment } from '@voiceflow/natural-language-commander';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import type { AxiosStatic } from 'axios';
 import { EventEmitter } from 'node:events';
-import { match } from 'ts-pattern';
 
 import MLGateway from '@/lib/clients/ml-gateway';
 import logger from '@/logger';
 
 import { handleNLCCommand } from '../nlu/nlc';
 import { mapChannelIntent } from '../nlu/utils';
+import { NLU_LIMIT } from './classification.const';
 import { isIntentClassificationLLMSettings, isIntentClassificationNLUSettings } from './classification.utils';
 import {
   ClassificationResult,
   NLUIntentPrediction,
   NLUPredictOptions,
-  PredictedSlot,
   Prediction,
   PredictOptions,
   PredictRequest,
@@ -130,37 +128,19 @@ export class Predictor extends EventEmitter {
     return response;
   }
 
-  public async fillSlots(utterance: string, options: Partial<NLUPredictOptions>): Promise<PredictedSlot[] | null> {
-    const prediction = await this.nluGatewayPrediction(utterance, {
-      excludeFilteredIntents: false,
-      ...options,
-    });
-
-    if (!prediction) {
-      this.predictions.fillSlots = {
-        error: {
-          message: 'Something went wrong filling slots',
-        },
-      };
-      return null;
-    }
-
-    this.predictions.fillSlots = prediction.predictedSlots;
-
-    return prediction.predictedSlots;
-  }
-
-  private async nluGatewayPrediction(utterance: string, options: Partial<NLUPredictOptions>) {
-    const { filteredIntents = [], excludeFilteredIntents = true } = options;
+  private async nluGatewayPrediction(utterance: string, options: NLUPredictOptions) {
+    const { limit, excludeFilteredEntities, excludeFilteredIntents, filteredEntities, filteredIntents } = options;
 
     const { data: prediction } = await this.config.axios
       .post<NLUIntentPrediction | null>(`${this.nluGatewayURL}/v1/predict/${this.props.versionID}`, {
         utterance,
         tag: this.props.tag,
         workspaceID: this.props.workspaceID,
-        filteredIntents,
-        excludeFilteredIntents,
-        limit: 10,
+        limit: limit ?? NLU_LIMIT,
+        ...(excludeFilteredEntities ? { excludeFilteredEntities } : {}),
+        ...(excludeFilteredIntents ? { excludeFilteredIntents } : {}),
+        ...(filteredEntities ? { filteredEntities } : {}),
+        ...(filteredIntents ? { filteredIntents } : {}),
       })
       .catch((err: Error) => {
         logger.error(err, 'Something went wrong with NLU prediction');
@@ -169,7 +149,7 @@ export class Predictor extends EventEmitter {
     return prediction;
   }
 
-  public async nlu(utterance: string, options: Partial<NLUPredictOptions>): Promise<NLUIntentPrediction | null> {
+  public async nlu(utterance: string, options: NLUPredictOptions): Promise<NLUIntentPrediction | null> {
     const prediction = await this.nluGatewayPrediction(utterance, options);
     if (!prediction) {
       this.predictions.nlu = {
@@ -360,31 +340,9 @@ export class Predictor extends EventEmitter {
 
       this.predictions.result = 'llm';
 
-      if (!(llmPrediction.predictedIntent in this.intentNameMap)) {
-        return {
-          ...llmPrediction,
-          predictedSlots: [],
-        };
-      }
-
-      // STEP 4: retrieve intent from intent map
-      const intent = this.intentNameMap[llmPrediction.predictedIntent];
-
-      // slot filling
-      const slots = await match({
-        predicted: llmPrediction.predictedIntent === nluPrediction.predictedIntent,
-        hasSlots: !!intent.slots?.length,
-      })
-        .with({ hasSlots: true }, () =>
-          this.fillSlots(utterance, {
-            filteredIntents: [llmPrediction.predictedIntent],
-          })
-        )
-        .otherwise(() => []);
-
       return {
         ...llmPrediction,
-        predictedSlots: slots ?? [],
+        predictedSlots: nluPrediction.predictedSlots,
       };
     }
 
@@ -400,7 +358,11 @@ export class Predictor extends EventEmitter {
   }
 
   public hasErrors() {
-    return this.predictions.nlc?.error || this.predictions.nlu?.error || this.predictions.llm?.error;
+    return (
+      (this.predictions.nlc && 'error' in this.predictions.nlc) ||
+      (this.predictions.nlu && 'error' in this.predictions.nlu) ||
+      (this.predictions.llm && 'error' in this.predictions.llm)
+    );
   }
 
   public get classificationType() {

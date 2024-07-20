@@ -73,18 +73,19 @@ export interface PredictRequest {
   dmRequest?: BaseRequest.IntentRequestPayload;
 }
 
-export interface PredictOptions {
-  filteredIntents?: string[];
-  filteredEntities?: string[];
-  // Legacy options for NLC
-  hasChannelIntents?: boolean;
-  locale: VoiceflowConstants.Locale;
-  platform: VoiceflowConstants.PlatformType;
-}
+export type PredictOptions = NLUPredictOptions & NLCPredictOptions;
 
 export interface NLUPredictOptions {
   filteredIntents?: string[];
   filteredEntities?: string[];
   excludeFilteredIntents?: boolean;
   excludeFilteredEntities?: boolean;
+  limit?: number;
+}
+
+/** @deprecated */
+export interface NLCPredictOptions {
+  hasChannelIntents?: boolean;
+  locale: VoiceflowConstants.Locale;
+  platform: VoiceflowConstants.PlatformType;
 }
