@@ -3,15 +3,14 @@
  * @packageDocumentation
  */
 
-import { BaseNode, BaseRequest } from '@voiceflow/base-types';
+import { BaseNode } from '@voiceflow/base-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
-import Client, { Action as RuntimeAction, Runtime } from '@/runtime';
+import Client, { Action as RuntimeAction } from '@/runtime';
 import { HandleContextEventHandler } from '@/runtime/lib/Context/types';
 import { Config, Context, ContextHandler } from '@/types';
 
 import { FullServiceMap } from '../index';
-import CacheDataAPI from '../state/cacheDataAPI';
 import { AbstractManager, injectServices } from '../utils';
 import Handlers from './handlers';
 import init from './init';
@@ -25,32 +24,15 @@ export const utils = {
 
 @injectServices({ utils })
 class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
-  private handlers: ReturnType<typeof Handlers>;
-
   constructor(services: FullServiceMap, config: Config) {
     super(services, config);
-    this.handlers = this.services.utils.Handlers(config);
-  }
-
-  createClient(api: CacheDataAPI, eventHandler: HandleContextEventHandler) {
-    const client = new this.services.utils.Client({
-      api,
-      services: this.services,
-      handlers: this.handlers,
-    });
-
-    init(client, eventHandler);
-
-    return client;
   }
 
   public async handle(
-    { versionID, userID, state, request, ...context }: Context,
+    { versionID, userID, state, request, runtime, client, ...context }: Context,
     eventHandler: HandleContextEventHandler
   ): Promise<Context> {
     if (!isRuntimeRequest(request)) throw new Error(`invalid runtime request type: ${JSON.stringify(request)}`);
-
-    const runtime = this.getRuntimeForContext({ versionID, userID, state, request, ...context }, eventHandler);
 
     if (isIntentRequest(request)) {
       const confidence = getReadableConfidence(request.payload.confidence);
@@ -97,36 +79,14 @@ class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements
 
     return {
       ...context,
+      client: init(client, eventHandler),
+      runtime,
       request,
       userID,
       versionID,
       state: runtime.getFinalState(),
       trace: runtime.trace.get(),
     };
-  }
-
-  private getRuntimeForContext(context: Context, eventHandler: HandleContextEventHandler): Runtime {
-    if (context.request && BaseRequest.isLaunchRequest(context.request)) {
-      context.request = null;
-    }
-
-    const runtime = this.createClient(context.data.api, eventHandler).createRuntime({
-      versionID: context.versionID,
-      state: context.state,
-      request: context.request,
-      version: context.version,
-      project: context.project,
-      plan: context.plan,
-      subscriptionEntitlements: context.subscriptionEntitlements,
-      timeout: Math.max(this.config.ERROR_RESPONSE_MS - 5000, 0),
-    });
-
-    runtime.debugLogging.refreshContext(context);
-
-    // Import any traces already present in the context
-    context.trace?.forEach((trace) => runtime.trace.addTrace(trace));
-
-    return runtime;
   }
 }
 

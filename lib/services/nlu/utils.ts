@@ -1,14 +1,10 @@
 import { AlexaConstants } from '@voiceflow/alexa-types';
-import { BaseModels, BaseNode, BaseRequest } from '@voiceflow/base-types';
-import { CommandType, EventType } from '@voiceflow/base-types/build/cjs/node/utils';
-import { VoiceflowConstants, VoiceflowUtils } from '@voiceflow/voiceflow-types';
+import { BaseModels, BaseRequest } from '@voiceflow/base-types';
+import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { match } from 'ts-pattern';
 
-import { Stack } from '@/runtime';
 import { Context } from '@/types';
 
-import { isIntentInInteraction, isIntentScopeInNode, isInteractionsInNode } from '../dialog/utils';
-import RuntimeManager from '../runtime';
 import { isConfidenceScoreAbove } from '../runtime/utils';
 import { NLUGatewayPredictResponse, PredictProps } from './types';
 
@@ -94,107 +90,18 @@ export const mapChannelData = (data: any, platform?: VoiceflowConstants.Platform
   };
 };
 
-const setIntersect = (set1: Set<any>, set2: Set<any>) => new Set([...set1].filter((i) => set2.has(i)));
-
-const getCommandLevelIntentsAndEntities = (
-  stack: Stack
-): { commandIntentNames: Set<string>; commandEntityNames: Set<string> } => {
-  const intentCommands = stack
-    .getFrames()
-    .flatMap((frame) => frame.getCommands<BaseNode.Utils.AnyCommand<BaseNode.Utils.IntentEvent>>())
-    .filter((command) => command.type === CommandType.JUMP && command.event.type === EventType.INTENT);
-
-  const commandIntentNames = new Set(intentCommands.map((command) => command.event.intent));
-
-  const commandEntityNames = new Set(
-    intentCommands.flatMap((command) => command.event?.mappings ?? []).flatMap((mapping) => mapping.slot ?? [])
-  );
-
-  return { commandIntentNames, commandEntityNames };
-};
-
-const getNodeLevelIntentsAndEntities = (
-  node: BaseNode.Utils.BaseNode | null
-): {
-  nodeInteractionIntentNames: Set<string>;
-  nodeInteractionEntityNames: Set<string>;
-} => {
-  const nodeInteractionIntentNames: Set<string> = new Set();
-  const nodeInteractionEntityNames: Set<string> = new Set();
-  if (node && isInteractionsInNode(node)) {
-    const intentInteractions = node.interactions.filter(isIntentInInteraction);
-
-    intentInteractions
-      .flatMap((interaction) => interaction.event.intent)
-      .forEach((intent) => nodeInteractionIntentNames.add(intent));
-
-    intentInteractions
-      .flatMap((interaction) => interaction.event.mappings)
-      .flatMap((mapping) => mapping?.slot || [])
-      .forEach((entity) => nodeInteractionEntityNames.add(entity));
-  }
-
-  return { nodeInteractionIntentNames, nodeInteractionEntityNames };
-};
-
-export const getAvailableIntentsAndEntities = async (
-  runtimeManager: RuntimeManager,
-  context: Context
-): Promise<{
-  availableIntents: Set<string>;
-  availableEntities: Set<string>;
-  bypass?: boolean;
-}> => {
-  const runtime = runtimeManager
-    .createClient(context.data.api, () => undefined)
-    .createRuntime({
-      versionID: context.versionID,
-      state: context.state,
-      request: context.request,
-      version: context.version,
-      project: context.project,
-      timeout: 0,
-    });
-
-  // get command-level scope
-  const { commandIntentNames, commandEntityNames } = getCommandLevelIntentsAndEntities(runtime.stack);
-
-  const currentFrame = runtime.stack.top();
-  const program = await runtime.getProgram(runtime.getVersionID(), currentFrame.getDiagramID());
-  const node = program.getNode(currentFrame.getNodeID());
-
-  // TODO: temporary bypass for locally scoped capture step
-  // please remove this and properly fix the getAvailableIntentsAndEntities function/intent scoping
-  if (
-    node &&
-    VoiceflowUtils.node.isCaptureV2(node) &&
-    !node.intent?.name &&
-    node.variable &&
-    node.intentScope === BaseNode.Utils.IntentScope.NODE
-  ) {
-    return {
-      availableIntents: new Set(),
-      availableEntities: new Set(),
-      bypass: true,
-    };
-  }
-
-  // get node-level scope
-  const { nodeInteractionIntentNames, nodeInteractionEntityNames } = getNodeLevelIntentsAndEntities(node);
-
-  // intersect scopes if necessary
-  if (node && isIntentScopeInNode(node) && node.intentScope === BaseNode.Utils.IntentScope.NODE) {
-    return {
-      availableIntents: setIntersect(commandIntentNames, nodeInteractionIntentNames),
-      availableEntities: setIntersect(commandEntityNames, nodeInteractionEntityNames),
-    };
-  }
-
-  return {
-    availableIntents: commandIntentNames,
-    availableEntities: commandEntityNames,
-  };
-};
-
 export const isHybridLLMStrategy = (nluSettings?: BaseModels.Project.NLUSettings) =>
   nluSettings?.classifyStrategy === BaseModels.Project.ClassifyStrategy.VF_NLU_LLM_HYBRID;
+
+/**
+ * The newer listen steps have their own classification logic,
+ * so we shouldn't run the NLU or DialogManagement turn handlers.
+ */
+export const shouldBypassNLU = async (context: Context) => {
+  const currentFrame = context.runtime.stack.top();
+  const program = await context.runtime.getProgram(context.runtime.getVersionID(), currentFrame.getDiagramID());
+  const node = program.getNode(currentFrame.getNodeID());
+
+  // TODO: update with actual node type checks, probably via DTOs
+  return node?.type === 'interaction';
+};

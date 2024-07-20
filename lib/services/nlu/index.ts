@@ -13,7 +13,7 @@ import { DebugEvent, Predictor } from '../classification';
 import { castToDTO } from '../classification/classification.utils';
 import { Prediction } from '../classification/interfaces/nlu.interface';
 import { AbstractManager } from '../utils';
-import { getNoneIntentRequest } from './utils';
+import { getNoneIntentRequest, shouldBypassNLU } from './utils';
 
 export const getIntentRequest = (prediction: Prediction | null): BaseRequest.IntentRequest => {
   if (!prediction) {
@@ -46,6 +46,8 @@ class NLU extends AbstractManager implements ContextHandler {
         request: getNoneIntentRequest(),
       };
     }
+
+    if (await shouldBypassNLU(context)) return context;
 
     const version = await context.data.api.getVersion(context.versionID);
     const project = await context.data.api.getProject(version.projectID);
