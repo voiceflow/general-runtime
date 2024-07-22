@@ -1,3 +1,4 @@
+import { sanitizeVariables } from '@voiceflow/common';
 import { AnyCompiledCondition } from '@voiceflow/dtos';
 import noop from 'lodash/noop';
 
@@ -8,7 +9,9 @@ export abstract class BaseCondition<Condition extends AnyCompiledCondition = Any
     protected readonly condition: Condition,
     protected readonly variables: Record<string, unknown>,
     protected readonly log: BaseConditionLogger = noop
-  ) {}
+  ) {
+    this.variables = sanitizeVariables(variables);
+  }
 
   abstract evaluate(): Promise<boolean> | boolean;
 }

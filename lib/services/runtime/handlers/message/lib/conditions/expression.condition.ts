@@ -1,3 +1,4 @@
+import { replaceVariables } from '@voiceflow/common';
 import { CompiledConditionAssertion, CompiledExpressionCondition, ConditionOperation } from '@voiceflow/dtos';
 
 import { BaseCondition } from './base.condition';
@@ -52,7 +53,12 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
   }
 
   private async evaluateAssertion(isolate: ConditionIsolate, assertion: CompiledConditionAssertion): Promise<boolean> {
-    const result: unknown = await isolate.executeCode(this.compileJITAssertion(assertion));
+    const resolvedAssertion = {
+      ...assertion,
+      lhs: replaceVariables(assertion.lhs, this.variables, JSON.stringify),
+      rhs: replaceVariables(assertion.rhs, this.variables, JSON.stringify),
+    };
+    const result: unknown = await isolate.executeCode(this.compileJITAssertion(resolvedAssertion));
     return !!result;
   }
 
