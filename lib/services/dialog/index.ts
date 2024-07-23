@@ -195,7 +195,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
           dmPrefixedResult =
             prediction && isUsedIntent(version.prototype?.surveyorContext?.usedIntentsSet, predictedIntent)
               ? getIntentRequest(prediction)
-              : getNoneIntentRequest(prediction ?? { query });
+              : getNoneIntentRequest({ query });
         }
 
         // Remove the dmPrefix from entity values that it has accidentally been attached to

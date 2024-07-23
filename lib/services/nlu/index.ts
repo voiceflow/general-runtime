@@ -91,7 +91,7 @@ class NLU extends AbstractManager implements ContextHandler {
     const request =
       prediction && isUsedIntent(version.prototype?.surveyorContext?.usedIntentsSet, predictedIntent)
         ? getIntentRequest(prediction)
-        : getNoneIntentRequest(prediction ?? { query });
+        : getNoneIntentRequest({ query });
 
     predictor.removeListener('debug', addDebug);
 
