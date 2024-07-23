@@ -1,13 +1,9 @@
 import { AlexaConstants } from '@voiceflow/alexa-types';
-import { BaseNode } from '@voiceflow/base-types';
-import { CommandType, EventType } from '@voiceflow/base-types/build/cjs/node/utils';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import chai from 'chai';
 import sinon from 'sinon';
 
-import { getAvailableIntentsAndEntities, mapChannelData } from '@/lib/services/nlu/utils';
-
-import { getMockRuntime } from './fixture';
+import { isUsedIntent, mapChannelData } from '@/lib/services/nlu/utils';
 
 const { expect } = chai;
 
@@ -43,100 +39,25 @@ describe('nlu manager utils unit tests', () => {
     });
   });
 
-  describe('getAvailableIntentsAndEntities', () => {
-    const mockContext = { data: { api: sinon.stub() } };
-    const mockPizzaIntent = { type: EventType.INTENT, intent: 'Pizza', mappings: [{ slot: 'foo' }, { slot: 'bar' }] };
-    const mockYesIntent = { type: EventType.INTENT, intent: 'VF.YES', mappings: [{ slot: 'baz' }] };
-    const mockNoIntent = { type: EventType.INTENT, intent: 'VF.NO', mappings: [{ slot: 'qux' }] };
-
-    it('takes intersection when node is scoped', async () => {
-      const mockNodeInteractions = [{ event: mockPizzaIntent }, { event: mockYesIntent }, { event: mockNoIntent }];
-
-      const mockNode = {
-        interactions: mockNodeInteractions,
-        intentScope: BaseNode.Utils.IntentScope.NODE,
-      };
-
-      const mockCommands = [
-        {
-          type: CommandType.JUMP,
-          event: mockYesIntent,
-        },
-        {
-          type: CommandType.JUMP,
-          event: mockPizzaIntent,
-        },
-      ];
-
-      const runtimeClient = {
-        createRuntime: sinon.stub().returns(getMockRuntime(mockCommands, mockNode)),
-      };
-
-      const mockRuntimeManager = {
-        createClient: sinon.stub().returns(runtimeClient),
-      };
-
-      const { availableIntents, availableEntities } = await getAvailableIntentsAndEntities(
-        mockRuntimeManager as any,
-        mockContext as any
-      );
-
-      expect(availableIntents).to.eql(new Set(['VF.YES', 'Pizza']));
-      expect(availableEntities).to.eql(new Set(['baz', 'foo', 'bar']));
+  describe('isUsedIntent', () => {
+    it('returns true if intent array is undefined', () => {
+      expect(isUsedIntent(undefined, { key: 'abc', name: 'test' })).to.eql(true);
     });
 
-    it('ignores node level when intentScope is global', async () => {
-      const mockNodeInteractions = [
-        {
-          event: mockYesIntent,
-        },
-      ];
-
-      const mockNode = {
-        interactions: mockNodeInteractions,
-        intentScope: BaseNode.Utils.IntentScope.GLOBAL,
-      };
-
-      const mockCommands = [
-        {
-          type: CommandType.JUMP,
-          event: mockNoIntent,
-        },
-      ];
-
-      const runtimeClient = {
-        createRuntime: sinon.stub().returns(getMockRuntime(mockCommands, mockNode)),
-      };
-
-      const mockRuntimeManager = {
-        createClient: sinon.stub().returns(runtimeClient),
-      };
-
-      const { availableIntents, availableEntities } = await getAvailableIntentsAndEntities(
-        mockRuntimeManager as any,
-        mockContext as any
-      );
-
-      expect(availableIntents).to.eql(new Set(['VF.NO']));
-      expect(availableEntities).to.eql(new Set(['qux']));
+    it('returns false if intent name is undefined', () => {
+      expect(isUsedIntent(['test'], undefined)).to.eql(false);
     });
 
-    it('works with empty params', async () => {
-      const runtimeClient = {
-        createRuntime: sinon.stub().returns(getMockRuntime()),
-      };
+    it('returns true if intent name is in array', () => {
+      expect(isUsedIntent(['test'], { key: 'abc', name: 'test' })).to.eql(true);
+    });
 
-      const mockRuntimeManager = {
-        createClient: sinon.stub().returns(runtimeClient),
-      };
+    it('returns true if intent key is in array', () => {
+      expect(isUsedIntent(['abc'], { key: 'abc', name: 'test' })).to.eql(true);
+    });
 
-      const { availableIntents, availableEntities } = await getAvailableIntentsAndEntities(
-        mockRuntimeManager as any,
-        mockContext as any
-      );
-
-      expect(availableIntents).to.eql(new Set([]));
-      expect(availableEntities).to.eql(new Set([]));
+    it('returns false if intent name and key are not in array', () => {
+      expect(isUsedIntent(['nope'], { key: 'abc', name: 'test' })).to.eql(false);
     });
   });
 });
