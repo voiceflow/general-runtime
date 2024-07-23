@@ -13,7 +13,7 @@ import { DebugEvent, Predictor } from '../classification';
 import { castToDTO } from '../classification/classification.utils';
 import { Prediction } from '../classification/interfaces/nlu.interface';
 import { AbstractManager } from '../utils';
-import { getNoneIntentRequest, isUsedIntent } from './utils';
+import { findIntent, getNoneIntentRequest, isUsedIntent } from './utils';
 
 export const getIntentRequest = (prediction: Prediction): BaseRequest.IntentRequest => {
   return {
@@ -83,9 +83,7 @@ class NLU extends AbstractManager implements ContextHandler {
     const query = context.request.payload;
     const prediction = await predictor.predict(query);
 
-    const predictedIntent = prediction?.predictedIntent
-      ? intents?.find((intent) => intent.name === prediction?.predictedIntent)
-      : undefined;
+    const predictedIntent = findIntent(intents, prediction?.predictedIntent);
 
     // LATER: look into using the `filteredIntents` field in the Predictor class instead
     const request =

@@ -21,7 +21,7 @@ import { Context, ContextHandler, VersionTag } from '@/types';
 import { Predictor } from '../classification';
 import { castToDTO } from '../classification/classification.utils';
 import { getIntentRequest } from '../nlu';
-import { getNoneIntentRequest, isUsedIntent } from '../nlu/utils';
+import { findIntent, getNoneIntentRequest, isUsedIntent } from '../nlu/utils';
 import { isIntentRequest, StorageType } from '../runtime/types';
 import { addOutputTrace, getOutputTrace } from '../runtime/utils';
 import { AbstractManager, injectServices } from '../utils';
@@ -187,9 +187,7 @@ class DialogManagement extends AbstractManager<{ utils: typeof utils }> implemen
 
           const prediction = await predictor.predict(`${prefix} ${query}`);
 
-          const predictedIntent = prediction?.predictedIntent
-            ? intents?.find((intent) => intent.name === prediction?.predictedIntent)
-            : undefined;
+          const predictedIntent = findIntent(intents, prediction?.predictedIntent);
 
           // LATER: look into using the `filteredIntents` field in the Predictor class instead
           dmPrefixedResult =

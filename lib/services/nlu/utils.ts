@@ -1,5 +1,6 @@
 import { AlexaConstants } from '@voiceflow/alexa-types';
 import { BaseModels, BaseRequest } from '@voiceflow/base-types';
+import { PrototypeModel } from '@voiceflow/dtos';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { match } from 'ts-pattern';
 
@@ -88,12 +89,46 @@ export const mapChannelData = (data: any, platform?: VoiceflowConstants.Platform
   };
 };
 
-export const isUsedIntent = (usedIntents: string[] | undefined, intent: { key: string; name: string } | undefined) =>
+export const findIntent = (
+  intents: PrototypeModel['intents'] | undefined,
+  intentName: string | undefined
+): PrototypeModel['intents'][number] | undefined => {
+  const intent = intentName ? intents?.find((intent) => intent.name === intentName) : undefined;
+
+  // Create a "None" intent if we don't have one
+  if (!intent && intentName === VoiceflowConstants.IntentName.NONE) {
+    return {
+      inputs: [],
+      name: VoiceflowConstants.IntentName.NONE,
+      key: VoiceflowConstants.IntentName.NONE,
+    };
+  }
+
+  return intent;
+};
+
+export const isUsedIntent = (
+  usedIntents: string[] | undefined,
+  intent: { key: string; name: string } | undefined
+): boolean => {
   /* If we don't have a used intents array, consider it "used" for compatibility */
-  !Array.isArray(usedIntents) ||
-  (!!intent &&
-    /* The used intent set contains both keys and names :confused: */
-    usedIntents.findIndex((used) => used === intent.key || used === intent.name) >= 0);
+  const used =
+    !Array.isArray(usedIntents) ||
+    (!!intent &&
+      /* The used intent set contains both keys and names :confused: */
+      usedIntents.findIndex((used) => used === intent.key || used === intent.name) >= 0);
+
+  // The "None" intent is considered used if it's not already in the used intents array
+  if (
+    !used &&
+    intent?.key === VoiceflowConstants.IntentName.NONE &&
+    intent?.name === VoiceflowConstants.IntentName.NONE
+  ) {
+    return true;
+  }
+
+  return used;
+};
 
 export const isHybridLLMStrategy = (nluSettings?: BaseModels.Project.NLUSettings) =>
   nluSettings?.classifyStrategy === BaseModels.Project.ClassifyStrategy.VF_NLU_LLM_HYBRID;
