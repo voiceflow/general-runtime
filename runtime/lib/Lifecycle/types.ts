@@ -60,7 +60,9 @@ interface HandlerDidHandleEvent extends BaseEvent {
   variables: Storage;
 }
 
-interface HandlerDidCatchEvent extends BaseEvent, BaseErrorEvent {}
+interface HandlerDidCatchEvent extends BaseEvent, BaseErrorEvent {
+  node?: BaseModels.BaseNode;
+}
 
 interface StateWillExecute extends BaseEvent {
   program: Program;
