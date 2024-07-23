@@ -151,7 +151,7 @@ export async function* fetchPromptStream(
     messages = [{ role: BaseUtils.ai.Role.USER, content: prompt }];
   }
 
-  yield* mlGateway.private.completion.generateChatCompletionStream({
+  const stream = mlGateway.private.completion.generateChatCompletionStream({
     messages,
     params: {
       ...params,
@@ -163,6 +163,13 @@ export async function* fetchPromptStream(
     billing: true,
     options,
   });
+
+  // eslint-disable-next-line no-restricted-syntax
+  for await (const event of stream) {
+    if (event.event === 'error') throw event.data;
+
+    yield event.data;
+  }
 }
 
 export const fetchPrompt = async (

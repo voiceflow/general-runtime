@@ -197,22 +197,23 @@ const AIResponseHandler: HandlerFactory<VoiceNode.AIResponse.Node, void, General
 
       return nextID;
     } catch (err) {
-      if (err?.message?.includes('[moderation error]')) {
+      if (err?.name === 'ContentModerationError') {
         addOutputTrace(
           runtime,
           getOutputTrace({
-            output: generateOutput(err.message, runtime.project),
+            output: generateOutput(err.response.message, runtime.project),
             version: runtime.version,
             ai: true,
           })
         );
+        runtime.trace.debug('moderation failed', node.type);
         return nextID;
       }
-      if (err?.message?.includes('Quota exceeded')) {
+      if (err?.message?.includes('Cannot access addon-tokens') || err?.message?.includes('Quota exceeded')) {
         addOutputTrace(
           runtime,
           getOutputTrace({
-            output: generateOutput('[token quota exceeded]', runtime.project),
+            output: generateOutput('Exceeded token usage, skipping step.', runtime.project),
             version: runtime.version,
             ai: true,
           })
