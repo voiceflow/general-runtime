@@ -1,5 +1,6 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { CaptureV3Node, CaptureV3NodeDTO, isIntentRequest } from '@voiceflow/dtos';
+import { z } from 'nestjs-zod/z';
 
 import AIAssist from '@/lib/services/aiAssist';
 import { Context, ContextHandler } from '@/types';
@@ -16,7 +17,38 @@ import { EntityCache } from './ai-capture.types';
 //   intentRequest: {},
 // };
 
-const getRequiredEntities = (node: CaptureV3Node, runtime: GeneralRuntime) => {
+const ExtractableNodeDTO = z.object({
+  intents: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      entities: z.array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+        })
+      ),
+    })
+  ),
+  // new fields for extraction / reprompt
+  renameMe: z.object({
+    rules: z.array(z.string()),
+    exitScenarios: z.array(z.string()),
+    // TODO: set at compile time with defaults?
+    params: z
+      .object({
+        model: z.string(),
+        system: z.string(),
+        maxTokens: z.number(),
+        temperature: z.number(),
+      })
+      .optional(),
+  }),
+});
+
+type ExtractableNode = z.infer<typeof ExtractableNodeDTO>;
+
+const getRequiredEntities = (node: ExtractableNode, runtime: GeneralRuntime) => {
   if (node.data.capture.type !== 'entity') {
     return [];
   }
@@ -54,10 +86,12 @@ class Extraction extends AbstractManager implements ContextHandler {
     // const version = await context.data.api.getVersion(context.versionID);
     // const project = await context.data.api.getProject(version.projectID);
 
-    const parsedNode = CaptureV3NodeDTO.safeParse(node);
+    const parsedNode = ExtractableNodeDTO.safeParse(node);
     if (!parsedNode.success) {
       return context;
     }
+
+    const curIntent = parsedNode.data.intents.find((id) => context.request.intent);
 
     const { data } = parsedNode.data;
     if (data.capture.type !== 'entity') {
@@ -83,11 +117,6 @@ class Extraction extends AbstractManager implements ContextHandler {
       return { ...context };
     }
 
-    /**
-     * NoReply stuff
-     * if (NoReplyHandler().canHandle(context.runtime))
-     *   // stuff
-     */
     // capture entities
     const entityRefs = Object.fromEntries(
       requiredEntities.map(({ name, type: { value: type }, inputs }) => [
