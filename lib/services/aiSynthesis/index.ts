@@ -8,10 +8,8 @@ import { FeatureFlag } from '@/lib/feature-flags';
 import { AIResponse, EMPTY_AI_RESPONSE, fetchChat } from '@/lib/services/runtime/handlers/utils/ai';
 import { getCurrentTime } from '@/lib/services/runtime/handlers/utils/generativeNoMatch';
 import {
-  fetchFaq,
   fetchKnowledgeBase,
   getKBSettings,
-  KnowledgeBaseFaqSet,
   KnowledgeBaseResponse,
 } from '@/lib/services/runtime/handlers/utils/knowledgeBase';
 
@@ -260,7 +258,7 @@ class AISynthesis extends AbstractManager {
     };
     tags?: BaseModels.Project.KnowledgeBaseTagsFilter;
     filters?: Record<string, any>;
-  }): Promise<AIResponse & Partial<KnowledgeBaseResponse> & { faqSet?: KnowledgeBaseFaqSet }> {
+  }): Promise<AIResponse & Partial<KnowledgeBaseResponse>> {
     let tagsFilter: BaseModels.Project.KnowledgeBaseTagsFilter = {};
     let metadataFilters: Record<string, any> | undefined;
 
@@ -289,15 +287,6 @@ class AISynthesis extends AbstractManager {
     const settings = _merge({}, globalKBSettings, options);
     // ML team needs to not have a hard model check
     const settingsWithoutModel = { ...settings, summarization: { ...settings.summarization, model: undefined } };
-
-    const faq = await fetchFaq(
-      project._id,
-      project.teamID,
-      question,
-      project?.knowledgeBase?.faqSets,
-      settingsWithoutModel
-    );
-    if (faq?.answer) return { ...EMPTY_AI_RESPONSE, output: faq.answer, faqSet: faq.faqSet };
 
     const data = await fetchKnowledgeBase(
       project._id,

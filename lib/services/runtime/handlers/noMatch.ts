@@ -2,7 +2,6 @@ import { BaseNode, BaseRequest, BaseText, BaseTrace, BaseVersion } from '@voicef
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
-import { FeatureFlag } from '@/lib/feature-flags';
 import { Runtime, Store } from '@/runtime';
 
 import { isPrompt, NoMatchCounterStorage, Output, StorageType } from '../types';
@@ -75,11 +74,8 @@ const getOutput = async (
   if (runtime.project?.aiAssistSettings?.aiPlayground) {
     let result: AIResponse | null = null;
     try {
-      // use knowledge base if it exists OR if the user has FAQs
-      if (
-        (await runtime.api.hasKBDocuments(runtime.project._id)) ||
-        runtime.services.unleash.client.isEnabled(FeatureFlag.FAQ_FF, { workspaceID: Number(runtime.project?.teamID) })
-      ) {
+      // use knowledge base if it exists
+      if (Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0) {
         result = await knowledgeBaseNoMatch(runtime);
         await consumeResources('KB Fallback', runtime, result);
       }
