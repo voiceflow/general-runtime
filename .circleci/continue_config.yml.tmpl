@@ -112,6 +112,7 @@ jobs:
           image_tag: build
           target: build
           platforms: linux/amd64,linux/arm64
+          output: type=image,name=<< pipeline.parameters.container-image-url >>
           enable_cache_to: true
           extra_build_args: *node_version_arg
       - vfcommon/docker_run_networked:
@@ -137,12 +138,14 @@ jobs:
           platforms: linux/amd64,linux/arm64
           enable_cache_to: false
           extra_build_args: *node_version_arg
+          output: type=image,name=<< pipeline.parameters.container-image-url >>-deps
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
           target: "build"
           platforms: linux/amd64,linux/arm64
           enable_cache_to: true
           extra_build_args: *node_version_arg
+          output: type=image,name=<< pipeline.parameters.container-image-url >>-build
 
 workflows:
   {{- if has $masterProdBranches .values.branch }}
