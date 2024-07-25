@@ -75,6 +75,7 @@ jobs:
           image_repo: << pipeline.parameters.container-image-url >>
           target: checks
           no_cache_filter: checks
+          platforms: linux/amd64,linux/arm64
           # OR output: ci-reports
           output: type=local,dest=ci-reports
           extra_build_args: &node_version_arg NODE_VERSION={{ .values.node_version }}
@@ -110,6 +111,7 @@ jobs:
           image_repo: << pipeline.parameters.container-image-url >>
           image_tag: build
           target: build
+          platforms: linux/amd64,linux/arm64
           enable_cache_to: true
           extra_build_args: *node_version_arg
       - vfcommon/docker_run_networked:
@@ -132,11 +134,13 @@ jobs:
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
           target: "deps"
+          platforms: linux/amd64,linux/arm64
           enable_cache_to: false
           extra_build_args: *node_version_arg
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
           target: "build"
+          platforms: linux/amd64,linux/arm64
           enable_cache_to: true
           extra_build_args: *node_version_arg
 
@@ -180,7 +184,7 @@ workflows:
           component: << pipeline.parameters.track-component >>
           remote_docker_version: default
           extra_build_args: *node_version_arg
-          enable_cache_to: {{ eq .values.branch "master" }}
+          enable_cache_to: true
           {{- if $isMasterProd }}
           platform: linux/amd64,linux/arm64
           {{- else }}
