@@ -184,7 +184,7 @@ workflows:
           {{- if $isMasterProd }}
           platform: linux/amd64,linux/arm64
           {{- else }}
-          platform: linux/amd64
+          platform: linux/amd64,linux/arm64
           {{- end }}
           requires:
             {{- if eq .values.branch "master" }}
