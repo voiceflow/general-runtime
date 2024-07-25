@@ -23,14 +23,14 @@
     "@voiceflow/chat-types": "2.14.9",
     "@voiceflow/common": "8.2.8",
     "@voiceflow/default-prompt-wrappers": "^1.1.1",
-    "@voiceflow/dtos": "1.107.1",
+    "@voiceflow/dtos": "1.116.0",
     "@voiceflow/event-ingestion-service": "1.5.1",
     "@voiceflow/exception": "^1.5.1",
     "@voiceflow/internal": "3.2.3",
     "@voiceflow/logger": "2.2.0",
     "@voiceflow/metrics": "1.4.1",
     "@voiceflow/natural-language-commander": "^0.5.1",
-    "@voiceflow/sdk-http-ml-gateway": "2.19.20",
+    "@voiceflow/sdk-http-ml-gateway": "2.19.38",
     "@voiceflow/utils-designer": "1.9.3",
     "@voiceflow/verror": "^1.1.3",
     "@voiceflow/voice-types": "2.10.9",
@@ -155,7 +155,7 @@
   "optionalDependencies": {
     "@voiceflow/sdk-analytics": "^1.26.0",
     "@voiceflow/sdk-auth": "^2.7.5",
-    "@voiceflow/sdk-billing": "^1.25.0"
+    "@voiceflow/sdk-billing": "^1.26.69"
   },
   "packageManager": "yarn@3.2.1",
   "repository": {

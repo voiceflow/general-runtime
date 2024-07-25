@@ -118,6 +118,37 @@ describe('Message handler', () => {
       );
     });
 
+    it('outputs nothing if an empty text variant is given', async () => {
+      version = mockVersion({
+        programResources: {
+          messages: {
+            [ID.messageID]: {
+              variants: {
+                'default:en-us': [
+                  {
+                    data: {
+                      text: [],
+                      delay: 100,
+                    },
+                    condition: null,
+                  },
+                ],
+              },
+            },
+          },
+        },
+      });
+      runtime = {
+        ...runtime,
+        version,
+      } as unknown as Runtime;
+
+      const result = await handler.handle(messageNode, runtime, variables, program, eventHandler);
+
+      await expect(result).to.eql(messageNode.ports.default);
+      await expect((runtime.trace.addTrace as sinon.SinonStub).callCount).to.eql(0);
+    });
+
     it('outputs text trace for each text variant', async () => {
       const result = await handler.handle(messageNode, runtime, variables, program, eventHandler);
 

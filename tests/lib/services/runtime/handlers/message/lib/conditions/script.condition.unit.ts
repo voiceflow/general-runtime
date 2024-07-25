@@ -19,10 +19,10 @@ describe('ScriptCondition', () => {
         {
           type: ConditionType.SCRIPT,
           data: {
-            code: `export default function main({ variables }) { 
+            code: `
             const { propA, propB } = variables;
             return propA + propB === "1hello";
-          }`,
+          `,
           },
         },
         variables
@@ -38,9 +38,9 @@ describe('ScriptCondition', () => {
         {
           type: ConditionType.SCRIPT,
           data: {
-            code: `export default function main() { 
+            code: `
             return "this is not a boolean";
-          }`,
+          `,
           },
         },
         variables

@@ -20,6 +20,7 @@ const MODEL_TO_ENTITLEMENT = new Map<AIModel, string>([
   [AIModel.CLAUDE_3_OPUS, 'feat-model-claude-opus'],
   [AIModel.GPT_4O, 'feat-model-gpt-4o'],
   [AIModel.GEMINI_PRO_1_5, 'feat-model-gemini-pro-1-5'],
+  [AIModel.GPT_4O_MINI, 'feat-model-gpt-4o-mini'],
 ]);
 
 export const getMemoryMessages = (variablesState: Record<string, unknown>) => [
@@ -33,6 +34,7 @@ export const canUseModel = (model: BaseUtils.ai.GPT_MODEL, runtime: Runtime) => 
       AIModel.GPT_4,
       AIModel.GPT_4_TURBO,
       AIModel.GPT_4O,
+      AIModel.GPT_4O_MINI,
       AIModel.GEMINI_PRO_1_5,
       AIModel.CLAUDE_3_SONNET,
       AIModel.CLAUDE_3_OPUS,
@@ -48,6 +50,7 @@ export const canUseModel = (model: BaseUtils.ai.GPT_MODEL, runtime: Runtime) => 
         AIModel.GPT_4,
         AIModel.GPT_4_TURBO,
         AIModel.GPT_4O,
+        AIModel.GPT_4O_MINI,
         AIModel.GEMINI_PRO_1_5,
         AIModel.CLAUDE_3_SONNET,
         AIModel.CLAUDE_3_OPUS,
