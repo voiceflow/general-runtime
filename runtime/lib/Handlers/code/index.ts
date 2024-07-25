@@ -2,7 +2,7 @@
 import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 import safeJSONStringify from 'json-stringify-safe';
 import _ from 'lodash';
-import ObjectId from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { isDeepStrictEqual } from 'util';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
@@ -40,7 +40,7 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({ e
       }
 
       let newVariableState: Record<string, any>;
-      if (endpoint && date < CUTOFF_DATE.getTime()) {
+      if (endpoint && date < CUTOFF_DATE) {
         newVariableState = await utils.remoteVMExecute(endpoint, reqData);
       } else {
         newVariableState = await utils.ivmExecute(reqData, callbacks);
