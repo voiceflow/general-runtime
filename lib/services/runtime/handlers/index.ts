@@ -21,6 +21,7 @@ import AISetHandler from './aiSet';
 import APIHandler from './api';
 import CaptureHandler from './capture';
 import CaptureV2Handler from './captureV2';
+import CaptureV3Handler from './captureV3/captureV3.handler';
 import CardV2Handler from './cardV2';
 import CarouselHandler from './carousel';
 import ChannelActionHandler from './channelAction';
@@ -40,6 +41,7 @@ export default (config: Config) => [
   SpeakHandler(),
   ...GoToHandler(),
   ...InteractionHandler(),
+  CaptureV3Handler(),
   ...CaptureV2Handler(),
   CaptureHandler(),
   ResetHandler(),

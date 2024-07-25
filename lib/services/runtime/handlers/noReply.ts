@@ -1,4 +1,5 @@
 import { BaseNode, BaseRequest, BaseText, BaseTrace } from '@voiceflow/base-types';
+import { BaseCompiledNode, WithNoReply } from '@voiceflow/dtos';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
@@ -15,6 +16,7 @@ import {
   isPromptContentEmpty,
   removeEmptyPrompts,
 } from '../utils';
+import { getMessageData } from '../utils/cms/message';
 import { generateOutput } from './utils/output';
 
 type NoReplyNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoReplyNode;
@@ -31,7 +33,7 @@ const getDelay = (node: NoReplyNode, runtime: Runtime) => {
 
   /** if there's no no-reply configured to the step,
    * but we have a global no-reply, we should use global no-reply delay
-   * */
+   */
   const globalNoReplyPrompt = getGlobalNoReplyPrompt(runtime);
   if (!isPromptContentEmpty(globalNoReplyPrompt?.content)) {
     return (
@@ -52,6 +54,38 @@ export const addNoReplyTimeoutIfExists = (node: NoReplyNode, runtime: Runtime, f
     type: BaseNode.Utils.TraceType.NO_REPLY,
     payload: { timeout: delay },
   });
+};
+
+export const addNoReplyTimeoutIfExistsV2 = (
+  node: BaseCompiledNode & { fallback: WithNoReply },
+  runtime: Runtime,
+  forceDelay?: number
+) => {
+  if (!node.fallback.noReply) return;
+
+  const { noReply } = node.fallback;
+
+  if (!noReply.responseID) return;
+
+  const message = getMessageData(runtime, noReply.responseID);
+  const variantsList = message.variants['default:en-us'];
+
+  if (!variantsList) {
+    throw new Error(`could not retrieve variants list for versionID=${runtime.versionID}, nodeID= ${node.id}`);
+  }
+
+  const prompts: BaseText.SlateTextValue[] = variantsList.map((variant) => variant.data.text);
+
+  const adaptedNode: NoReplyNode = {
+    ...node,
+    noReply: {
+      prompts,
+      timeout: noReply.inactivityTimeSec,
+      randomize: true,
+    },
+  };
+
+  addNoReplyTimeoutIfExists(adaptedNode, runtime, forceDelay);
 };
 
 const getOutput = (runtime: Runtime, node: NoReplyNode, noReplyCounter: number) => {

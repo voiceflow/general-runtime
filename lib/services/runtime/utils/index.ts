@@ -20,7 +20,7 @@ import { Runtime, Store } from '@/runtime';
 import DebugLogging from '@/runtime/lib/Runtime/DebugLogging';
 import { AddTraceFn } from '@/runtime/lib/Runtime/DebugLogging/utils';
 
-import { isPrompt, Output } from './types';
+import { isPrompt, Output } from '../types';
 
 export const EMPTY_AUDIO_STRING = '<audio src=""/>';
 
