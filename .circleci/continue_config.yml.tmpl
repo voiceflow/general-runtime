@@ -23,6 +23,9 @@ parameters:
 {{- $borsBranches := coll.Slice "trying" "staging" }}
 {{- $masterProdBranches := coll.Slice "master" "prod" }}
 
+{{/* isMasterProd denotes whether we are on a master/production branch */}}
+{{- $isMasterProd := has $masterProdBranches .values.branch }}
+
 # Reusable YAML chunks
 defaults:
   bors_branches_filters: &bors_branches_filters
@@ -173,7 +176,6 @@ workflows:
 
       - vfcommon/update_track:
           context: dev-test
-          name: vfcommon/update_track
           image_repo: << pipeline.parameters.container-image-url >>
           component: << pipeline.parameters.track-component >>
           remote_docker_version: default
