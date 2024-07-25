@@ -179,25 +179,6 @@ workflows:
           remote_docker_version: default
           extra_build_args: *node_version_arg
           enable_cache_to: {{ eq .values.branch "master" }}
-          requires:
-            {{- if eq .values.branch "master" }}
-            - test
-            {{- end }}
-            - install_and_buildx
-            - vfcommon/release
-          filters:
-            branches:
-              ignore:
-                - /^break-glass.*$/
-      - vfcommon/update_track:
-          context: dev-test
-          name: vfcommon/update_track-arm64
-          image_repo: << pipeline.parameters.container-image-url >>
-          component: << pipeline.parameters.track-component >>
-          remote_docker_version: default
-          extra_build_args: *node_version_arg
-          enable_cache_to: {{ eq .values.branch "master" }}
-          # In order to build for arm64, we need to use buildkit
           {{- if $isMasterProd }}
           platform: linux/amd64,linux/arm64
           {{- else }}
@@ -213,7 +194,6 @@ workflows:
             branches:
               ignore:
                 - /^break-glass.*$/
-
       - vfcommon/provision-env:
           context: dev-test
           env-name: {{ .values.e2e_env_name }}
