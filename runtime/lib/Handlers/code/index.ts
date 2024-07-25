@@ -2,6 +2,7 @@
 import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 import safeJSONStringify from 'json-stringify-safe';
 import _ from 'lodash';
+import ObjectId from 'mongodb';
 import { isDeepStrictEqual } from 'util';
 
 import { HandlerFactory } from '@/runtime/lib/Handler';
@@ -17,10 +18,15 @@ export const GENERATED_CODE_NODE_ID = 'PROGRAMMATICALLY-GENERATED-CODE-NODE';
 
 const RESOLVED_PATH = '__RESOLVED_PATH__';
 
+// Cutoff date where all Code Node created after will use the new IVM
+const CUTOFF_DATE = new Date('2024-07-30T00:00:00.000Z');
+
 const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({ endpoint, callbacks } = {}) => ({
   canHandle: (node) => typeof node.code === 'string',
   handle: async (node, runtime, variables) => {
     try {
+      const objectId = new ObjectId(node.id);
+      const date = objectId.getTimestamp();
       const variablesState = variables.getState();
 
       const reqData = {
@@ -34,7 +40,7 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({ e
       }
 
       let newVariableState: Record<string, any>;
-      if (endpoint) {
+      if (endpoint && date < CUTOFF_DATE.getTime()) {
         newVariableState = await utils.remoteVMExecute(endpoint, reqData);
       } else {
         newVariableState = await utils.ivmExecute(reqData, callbacks);
