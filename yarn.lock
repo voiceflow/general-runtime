@@ -4545,14 +4545,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/dtos@npm:1.107.1":
-  version: 1.107.1
-  resolution: "@voiceflow/dtos@npm:1.107.1"
+"@voiceflow/dtos@npm:1.116.0":
+  version: 1.116.0
+  resolution: "@voiceflow/dtos@npm:1.116.0"
   dependencies:
     "@voiceflow/default-prompt-wrappers": 1.4.0
   peerDependencies:
     zod: ^3
-  checksum: 6a6a689e9ada55921560d8ea0236742454887de503da7bda6ebd2f94718efc88cfb85cf4280457a446f7169a90dbac411784697edd942c0ac0f1a14fbe509e99
+  checksum: 4c3112605bdd00e71348cc4e9d098d4334c0d0813f49aa566622d804e48fe815889e4a138c71bda8882051ce6fdcd49cbf8c73119597e76df707068ef30c2d3c
   languageName: node
   linkType: hard
 
@@ -4683,7 +4683,7 @@ __metadata:
     "@voiceflow/commitlint-config": 2.0.0
     "@voiceflow/common": 8.2.8
     "@voiceflow/default-prompt-wrappers": ^1.1.1
-    "@voiceflow/dtos": 1.107.1
+    "@voiceflow/dtos": 1.116.0
     "@voiceflow/eslint-config": 6.1.0
     "@voiceflow/event-ingestion-service": 1.5.1
     "@voiceflow/exception": ^1.5.1
@@ -4696,7 +4696,7 @@ __metadata:
     "@voiceflow/sdk-analytics": ^1.26.0
     "@voiceflow/sdk-auth": ^2.7.5
     "@voiceflow/sdk-billing": ^1.26.69
-    "@voiceflow/sdk-http-ml-gateway": 2.19.20
+    "@voiceflow/sdk-http-ml-gateway": 2.19.38
     "@voiceflow/test-common": ^1.8.1
     "@voiceflow/utils-designer": 1.9.3
     "@voiceflow/verror": ^1.1.3
@@ -5111,9 +5111,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/sdk-http-ml-gateway@npm:2.19.20":
-  version: 2.19.20
-  resolution: "@voiceflow/sdk-http-ml-gateway@npm:2.19.20"
+"@voiceflow/sdk-http-ml-gateway@npm:2.19.38":
+  version: 2.19.38
+  resolution: "@voiceflow/sdk-http-ml-gateway@npm:2.19.38"
   dependencies:
     "@voiceflow/orval-fetch": 1.5.2
     "@voiceflow/sdk-common": 1.12.2
@@ -5129,7 +5129,7 @@ __metadata:
       optional: true
     undici:
       optional: true
-  checksum: 6541ebb93e7d57df21db7ab39ba8a1ee7448c971483d3692dabc1d40247cce47e46313c0c151153f8fce9ec13e63cecd3e3b24a23d115093272eff1e2c475797
+  checksum: efadc87c79357fc65739a7dd5fdba48350ebf9259bf7577d926c3bf333f80fce596d5bf8da5b5b68b324c830dfdbf3e5067789b45bac281fa4abedf46cde1846
   languageName: node
   linkType: hard
 
