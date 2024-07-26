@@ -165,10 +165,11 @@ export async function* fetchPromptStream(
   });
 
   // eslint-disable-next-line no-restricted-syntax
-  for await (const event of stream) {
-    if (event.event === 'error') throw event.data;
+  for await (const message of stream) {
+    if (message.event === 'error') throw message.data;
+    if (message.event !== 'completion') continue;
 
-    yield event.data;
+    yield message.data;
   }
 }
 

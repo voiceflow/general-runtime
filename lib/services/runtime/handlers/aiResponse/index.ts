@@ -1,7 +1,7 @@
 /* eslint-disable sonarjs/cognitive-complexity */
 import { BaseNode, BaseUtils } from '@voiceflow/base-types';
 import { deepVariableSubstitution } from '@voiceflow/common';
-import { CompletionPrivateHTTPControllerGenerateChatCompletionStream200 as ChatCompletionStream } from '@voiceflow/sdk-http-ml-gateway/generated';
+import { CompletionPrivateHTTPControllerGenerateChatCompletionStream200OneOfData as ChatCompletionStream } from '@voiceflow/sdk-http-ml-gateway/generated';
 import { VoiceNode } from '@voiceflow/voice-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import _cloneDeep from 'lodash/cloneDeep';

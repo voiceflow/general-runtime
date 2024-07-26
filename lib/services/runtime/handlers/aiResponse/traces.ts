@@ -1,5 +1,5 @@
 import { BaseTrace } from '@voiceflow/base-types';
-import { CompletionPrivateHTTPControllerGenerateChatCompletionStream200 } from '@voiceflow/sdk-http-ml-gateway/generated';
+import { CompletionPrivateHTTPControllerGenerateChatCompletionStream200OneOfData as ChatCompletionStream } from '@voiceflow/sdk-http-ml-gateway/generated';
 import { VoiceNode } from '@voiceflow/voice-types';
 
 import { Runtime } from '@/runtime';
@@ -10,7 +10,7 @@ import { getVersionDefaultVoice } from '../utils/version';
 export const completionToStartTrace = (
   runtime: Runtime,
   node: VoiceNode.AIResponse.Node,
-  completion: CompletionPrivateHTTPControllerGenerateChatCompletionStream200
+  completion: ChatCompletionStream
 ): BaseTrace.CompletionStartTrace => ({
   type: BaseTrace.TraceType.COMPLETION_START,
   payload: {
@@ -29,9 +29,7 @@ export const completionToStartTrace = (
   time: Date.now(),
 });
 
-export const completionToContinueTrace = (
-  completion: CompletionPrivateHTTPControllerGenerateChatCompletionStream200
-): BaseTrace.CompletionContinueTrace => ({
+export const completionToContinueTrace = (completion: ChatCompletionStream): BaseTrace.CompletionContinueTrace => ({
   type: BaseTrace.TraceType.COMPLETION_CONTINUE,
   payload: {
     completion: completion.output!,
