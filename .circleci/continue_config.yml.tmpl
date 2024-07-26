@@ -132,13 +132,13 @@ jobs:
           docker_layer_caching: true
       - vfcommon/docker_login
       - vfcommon/authenticate_npm
-      - vfcommon/staged_buildx:
-          image_repo: << pipeline.parameters.container-image-url >>
-          target: "deps"
-          platforms: linux/amd64,linux/arm64
-          enable_cache_to: false
-          extra_build_args: *node_version_arg
-          output: type=image,name=<< pipeline.parameters.container-image-url >>-deps
+      ## - vfcommon/staged_buildx:
+      ##     image_repo: << pipeline.parameters.container-image-url >>
+      ##     target: "deps"
+      ##     platforms: linux/amd64,linux/arm64
+      ##     enable_cache_to: false
+      ##     extra_build_args: *node_version_arg
+      ##     output: type=image,name=<< pipeline.parameters.container-image-url >>-deps
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
           target: "build"
