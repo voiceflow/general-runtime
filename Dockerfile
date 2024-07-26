@@ -9,7 +9,6 @@ RUN \
 
 ## STAGE: deps
 FROM base AS deps
-ARG NPM_TOKEN
 
 COPY --link package.json yarn.lock .yarnrc.yml ./
 COPY --link .yarn/ ./.yarn/
