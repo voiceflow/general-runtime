@@ -125,6 +125,7 @@ jobs:
 
   install_and_buildx:
     executor: *node-executor
+    resource_class: arm.large
     steps:
       - checkout
       - setup_remote_docker:
