@@ -138,6 +138,7 @@ jobs:
           target: "deps"
           platforms: linux/amd64,linux/arm64
           enable_cache_to: false
+          no_cache_filter: deps
           extra_build_args: *node_version_arg
           output: type=image,name=<< pipeline.parameters.container-image-url >>-deps
       - vfcommon/staged_buildx:
@@ -145,6 +146,7 @@ jobs:
           target: "build"
           platforms: linux/amd64,linux/arm64
           enable_cache_to: true
+          no_cache_filter: build
           extra_build_args: *node_version_arg
           output: type=image,name=<< pipeline.parameters.container-image-url >>-build
 
