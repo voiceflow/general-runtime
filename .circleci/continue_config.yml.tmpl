@@ -21,7 +21,7 @@ parameters:
     default: "general-runtime"
 
 {{- $borsBranches := coll.Slice "trying" "staging" }}
-{{- $masterProdBranches := coll.Slice "master" "prod" }}
+{{- $masterProdBranches := coll.Slice "master" "production" }}
 
 {{/* isMasterProd denotes whether we are on a master/production branch */}}
 {{- $isMasterProd := has $masterProdBranches .values.branch }}
