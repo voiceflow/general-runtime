@@ -4,12 +4,13 @@ import { CaptureType, CompiledCaptureV3Node, NodeType, PrototypeIntent } from '@
 import { Action, HandlerFactory, Runtime } from '@/runtime';
 
 import { StorageType } from '../../types';
-import { addNoReplyTimeoutIfExistsV2 } from '../noReply';
+import { addNoReplyTimeoutIfExistsV2, NoReplyHandler } from '../noReply';
 import { entityFillingRequest, setElicit } from '../utils/entity';
 import { raiseCaptureV3HandlerError } from './lib/utils';
 
 const utils = {
   addNoReplyTimeoutIfExistsV2,
+  noReplyHandler: NoReplyHandler(),
 };
 
 function getIntent(intentID: string, runtime: Runtime): PrototypeIntent {
@@ -37,7 +38,7 @@ function getEntityNamesOfIntent(intent: PrototypeIntent, runtime: Runtime): stri
 
 export const CaptureV3Handler: HandlerFactory<CompiledCaptureV3Node, typeof utils> = (utils) => ({
   canHandle: (node) => node.type === NodeType.CAPTURE_V3,
-  handle: (node, runtime, _variables) => {
+  handle: (node, runtime, variables) => {
     if (runtime.getAction() === Action.RUNNING) {
       utils.addNoReplyTimeoutIfExistsV2(node, runtime);
 
@@ -66,6 +67,10 @@ export const CaptureV3Handler: HandlerFactory<CompiledCaptureV3Node, typeof util
       }
 
       return node.id;
+    }
+
+    if (utils.noReplyHandler.canHandle(runtime)) {
+      return utils.noReplyHandler.handle(node, runtime, variables);
     }
 
     return null;
