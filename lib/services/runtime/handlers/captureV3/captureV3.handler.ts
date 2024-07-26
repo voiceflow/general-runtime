@@ -4,13 +4,16 @@ import { CaptureType, CompiledCaptureV3Node, NodeType, PrototypeIntent } from '@
 import { Action, HandlerFactory, Runtime } from '@/runtime';
 
 import { StorageType } from '../../types';
-import { addNoReplyTimeoutIfExistsV2, NoReplyHandler } from '../noReply';
+import CommandHandler from '../command';
+import NoReplyHandler, { addNoReplyTimeoutIfExistsV2 } from '../noReply';
 import { entityFillingRequest, setElicit } from '../utils/entity';
+import { handleListenForGlobalTriggers } from './lib/handleListenForGlobalTriggers';
 import { raiseCaptureV3HandlerError } from './lib/utils';
 
 const utils = {
   addNoReplyTimeoutIfExistsV2,
   noReplyHandler: NoReplyHandler(),
+  commandHandler: CommandHandler(),
 };
 
 function getIntent(intentID: string, runtime: Runtime): PrototypeIntent {
@@ -71,6 +74,13 @@ export const CaptureV3Handler: HandlerFactory<CompiledCaptureV3Node, typeof util
 
     if (utils.noReplyHandler.canHandle(runtime)) {
       return utils.noReplyHandler.handle(node, runtime, variables);
+    }
+
+    if (node.fallback.listensForGlobalTriggers) {
+      const result = handleListenForGlobalTriggers(node, runtime, variables, utils.commandHandler);
+      if (result.shouldTransfer) {
+        return result.nextStepID;
+      }
     }
 
     return null;
