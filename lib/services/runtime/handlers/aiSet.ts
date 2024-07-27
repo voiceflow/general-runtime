@@ -105,7 +105,7 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = 
         addOutputTrace(
           runtime,
           getOutputTrace({
-            output: generateOutput('Exceeded token usage, skipping step.', runtime.project),
+            output: generateOutput('Exceeded token usage', runtime.project),
             version: runtime.version,
             ai: true,
           })
