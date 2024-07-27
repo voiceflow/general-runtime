@@ -74,7 +74,7 @@ export class UnleashClient extends AbstractClient {
     try {
       await awaitInstanceReady(this.instance!);
     } catch (e) {
-      if (process.env.NODE_ENV !== 'local') {
+      if (this.instance) {
         throw new Error();
       }
 
