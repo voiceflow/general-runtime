@@ -40,36 +40,66 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({ e
       }
       let remoteVMVariableState = null;
       let ivmExecuteVariableState = null;
+      let remoteVMError = null;
+      let ivmExecuteError = null;
+      const useIvm = date > CUTOFF_DATE;
+      if (useIvm) {
+        // eslint-disable-next-line no-console
+        console.log('Using new IVM');
+      } else {
+        // eslint-disable-next-line no-console
+        console.log('Using remote VM');
+      }
+
       try {
         remoteVMVariableState = await utils.remoteVMExecute(endpoint!, reqData);
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
+      } catch (e) {
+        remoteVMError = e;
       }
       try {
         ivmExecuteVariableState = await utils.ivmExecute(reqData, callbacks);
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
+      } catch (e) {
+        ivmExecuteError = e;
       }
+
+      // at least one of the execution methods failed
       if (!remoteVMVariableState || !ivmExecuteVariableState) {
-        throw new Error('Both remoteVM and ivm execution failed');
+        //
+        if (!remoteVMVariableState && !useIvm) {
+          throw remoteVMError;
+        }
+        if (!ivmExecuteVariableState && useIvm) {
+          throw ivmExecuteError;
+        }
+        const currentMethod = useIvm ? 'ivm' : 'remoteVM';
+        // eslint-disable-next-line no-console
+        console.error(`Current execution method ${currentMethod} succeeded, but the other failed with an error`);
+        if (remoteVMError) {
+          // eslint-disable-next-line no-console
+          console.error('remoteVMError:', remoteVMError);
+        }
+        if (ivmExecuteError) {
+          // eslint-disable-next-line no-console
+          console.error('ivmExecuteError:', ivmExecuteError);
+        }
       }
 
-      const allEqual = Object.keys(remoteVMVariableState).every((key) =>
-        isDeepStrictEqual(remoteVMVariableState[key], ivmExecuteVariableState[key])
-      );
-
-      if (!allEqual) {
-        // eslint-disable-next-line no-console
-        console.error('remoteVM and ivm execution results are different');
-        // eslint-disable-next-line no-console
-        console.error('remoteVM:', remoteVMVariableState);
-        // eslint-disable-next-line no-console
-        console.error('ivm:', ivmExecuteVariableState);
+      // both execution methods succeeded
+      if (remoteVMVariableState && ivmExecuteVariableState) {
+        const allEqual = Object.keys(remoteVMVariableState).every((key) =>
+          isDeepStrictEqual(remoteVMVariableState[key], ivmExecuteVariableState[key])
+        );
+        if (!allEqual) {
+          // eslint-disable-next-line no-console
+          console.error('remoteVM and ivm execution results both succeeded, but returned different results');
+          // eslint-disable-next-line no-console
+          console.error('remoteVM:', remoteVMVariableState);
+          // eslint-disable-next-line no-console
+          console.error('ivm:', ivmExecuteVariableState);
+        }
       }
 
-      const newVariableState = date < CUTOFF_DATE ? remoteVMVariableState : ivmExecuteVariableState;
+      const newVariableState = useIvm ? ivmExecuteVariableState! : remoteVMVariableState!;
 
       // The changes (a diff) that the execution of this code made to the variables
       const changes: Record<string, RuntimeLogs.ValueChange<unknown>> = Object.fromEntries(
