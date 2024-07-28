@@ -1,4 +1,4 @@
-> [!WARNING]  
+> [!WARNING]
 > Update April 24, 2024: the open-source general-runtime deployment will no longer be actively supported. A longer term sunset plan will be provided. It is not recommended to create dependencies or references to this respository.
 
 ----
@@ -48,6 +48,25 @@ Add the following file to the local repository:
 Use `yarn start:local` to run the development version.
 
 For the production version, run `yarn build` followed by `yarn start` (this checks against `.env.production` instead of `.env.local`)
+
+## Docker
+> [!WARNING]\
+> There are private npm dependencies required to build this image that the
+> general public does not have access to
+
+> [!IMPORTANT]
+> We rely on BuildKit features such as `COPY --link` and therefore require Docker version >= 24
+
+There is a provided script for building the Docker image locally at `./local-build.sh`. It will read from the following environment variables:
+| EnvVar Name     | Default     | Required | Description                                                                                                          |
+| --------------- | ----------- | -------- | -------------------------------------------------------------------------------------------------------------------- |
+| NPM_TOKEN       |             | x        | Required for private voiceflow package dependencies                                                                  |
+| TARGET          | prod        |          | Stage to target in the Dockerfile                                                                                    |
+| IMAGE_TAG       | TARGET      |          | Resulting image tag (general-runtime:<IMAGE_TAG>)                                                                    |
+| PLATFORMS       | linux/amd64 |          | [buildx build flag](https://docs.docker.com/reference/cli/docker/buildx/build/#platform)                             |
+| DOCKERFILE      | Dockerfile  |          | Location of the Dockerfile                                                                                           |
+| BUILDER         | buildy      |          | Name of docker-container builder to use                                                                              |
+| NO_CACHE_FILTER |             |          | [Ignore build cache for specific stages](https://docs.docker.com/reference/cli/docker/buildx/build/#no-cache-filter) |
 
 # Notable Code Locations
 
