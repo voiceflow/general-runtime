@@ -18,7 +18,7 @@ describe('Runtime cycleHandler unit tests', () => {
     const program = { getNode: sinon.stub().returns(null) };
     const variableState = {};
 
-    await cycleHandler(runtime as any, program as any, variableState as any);
+    await cycleHandler(runtime as any, program as any, variableState as any, () => undefined);
     expect(program.getNode.args).to.eql([[nodeID]]);
   });
 
@@ -36,7 +36,7 @@ describe('Runtime cycleHandler unit tests', () => {
     const program = { getNode: sinon.stub().returns(node) };
     const variableState = {};
 
-    await cycleHandler(runtime as any, program as any, variableState as any);
+    await cycleHandler(runtime as any, program as any, variableState as any, () => undefined);
     expect(program.getNode.args).to.eql([[nodeID]]);
   });
 
@@ -57,7 +57,7 @@ describe('Runtime cycleHandler unit tests', () => {
     const program = { getNode: sinon.stub().returns(node) };
     const variableState = {};
 
-    await cycleHandler(runtime as any, program as any, variableState as any);
+    await cycleHandler(runtime as any, program as any, variableState as any, () => undefined);
     expect(runtime.callEvent.args).to.eql([
       [EventType.handlerWillHandle, { node, variables: variableState }],
       [EventType.handlerDidHandle, { node, variables: variableState }],
@@ -82,10 +82,10 @@ describe('Runtime cycleHandler unit tests', () => {
     const program = { getNode: sinon.stub().returns(node) };
     const variableState = {};
 
-    await cycleHandler(runtime as any, program as any, variableState as any);
+    await cycleHandler(runtime as any, program as any, variableState as any, () => undefined);
     expect(runtime.callEvent.args).to.eql([
       [EventType.handlerWillHandle, { node, variables: variableState }],
-      [EventType.handlerDidCatch, { error }],
+      [EventType.handlerDidCatch, { error, node: {} }],
     ]);
   });
 
@@ -108,7 +108,7 @@ describe('Runtime cycleHandler unit tests', () => {
     const program = { getNode: sinon.stub().returns(node) };
     const variableState = {};
 
-    await cycleHandler(runtime as any, program as any, variableState as any);
+    await cycleHandler(runtime as any, program as any, variableState as any, () => undefined);
     expect(runtime.stack.getFrames.callCount).to.eql(2);
   });
 
@@ -134,7 +134,7 @@ describe('Runtime cycleHandler unit tests', () => {
     const variableState = {};
 
     // the fact that finishes means that i > HANDLER_OVERFLOW was hit
-    await cycleHandler(runtime as any, program as any, variableState as any);
+    await cycleHandler(runtime as any, program as any, variableState as any, () => undefined);
     expect(runtime.hasEnded.callCount).to.eql(cyclesLimit + 1);
     expect(referenceFrame.setNodeID.args[0]).to.eql(['next-id']);
   });
@@ -160,7 +160,7 @@ describe('Runtime cycleHandler unit tests', () => {
     const variableState = {};
 
     // the fact that finishes means that i > HANDLER_OVERFLOW was hit
-    await cycleHandler(runtime as any, program as any, variableState as any);
+    await cycleHandler(runtime as any, program as any, variableState as any, () => undefined);
     expect(runtime.setAction.args).to.eql([[Action.RUNNING]]);
   });
 });

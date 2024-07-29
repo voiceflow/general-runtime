@@ -51,7 +51,7 @@ const cycleHandler = async (
           await runtime.callEvent(EventType.handlerDidHandle, { node, variables: variableState });
         }
       } catch (error) {
-        await runtime.callEvent(EventType.handlerDidCatch, { error });
+        await runtime.callEvent(EventType.handlerDidCatch, { error, node });
       }
 
       // after the first handler, the request is processed
