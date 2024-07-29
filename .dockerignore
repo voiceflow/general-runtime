@@ -9,6 +9,8 @@ Dockerfile
 /certs
 
 /build
+/ci-reports
+/reports
 
 # dev files
 /tags*
