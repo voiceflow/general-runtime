@@ -60,7 +60,15 @@ const init = (client: Client, eventHandler: HandleContextEventHandler) => {
     }
   });
 
-  client.setEvent(EventType.handlerDidCatch, ({ error }) => log.debug(error));
+  client.setEvent(EventType.handlerDidCatch, ({ runtime, error, node }) => {
+    delete error.stack;
+    log.error(
+      `[handlerDidCatch] ${log.vars({ projectID: runtime.project?._id, versionID: runtime.versionID, error, node })}`
+    );
+
+    runtime.trace.debug('An internal error occurred.');
+    runtime.end();
+  });
 
   client.setEvent(EventType.timeout, ({ runtime }) => {
     runtime.trace.debug('ERROR: turn timeout - check for infinite loops');

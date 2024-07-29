@@ -4696,7 +4696,7 @@ __metadata:
     "@voiceflow/sdk-analytics": ^1.26.0
     "@voiceflow/sdk-auth": ^2.7.5
     "@voiceflow/sdk-billing": ^1.26.69
-    "@voiceflow/sdk-http-ml-gateway": 2.19.38
+    "@voiceflow/sdk-http-ml-gateway": 2.20.1
     "@voiceflow/test-common": ^1.8.1
     "@voiceflow/utils-designer": 1.9.3
     "@voiceflow/verror": ^1.1.3
@@ -4914,18 +4914,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/orval-fetch@npm:1.5.2":
-  version: 1.5.2
-  resolution: "@voiceflow/orval-fetch@npm:1.5.2"
-  peerDependencies:
-    "@orval/core": ^6
-  peerDependenciesMeta:
-    "@orval/core":
-      optional: true
-  checksum: d654d19f8e8f9bd4a012823449b8cb524bfa477b3309896998a3b35074993708b21d9d0a01015cd6012ec84911984c068a3a7f1d82a69050bf19074d88e028e7
-  languageName: node
-  linkType: hard
-
 "@voiceflow/orval-fetch@npm:1.6.2":
   version: 1.6.2
   resolution: "@voiceflow/orval-fetch@npm:1.6.2"
@@ -4935,6 +4923,21 @@ __metadata:
     "@orval/core":
       optional: true
   checksum: 614f0baff30a16dc4c377a53acbe79fc35d23ac08a922904ff5c435938b8329cbcf19ef8baedace3e39a6702f3bc6acd79aeda6eecfa4d638021d5990e02e914
+  languageName: node
+  linkType: hard
+
+"@voiceflow/orval-fetch@npm:1.7.2":
+  version: 1.7.2
+  resolution: "@voiceflow/orval-fetch@npm:1.7.2"
+  peerDependencies:
+    "@orval/core": ^6
+    eventsource-parser: ^1.1
+  peerDependenciesMeta:
+    "@orval/core":
+      optional: true
+    eventsource-parser:
+      optional: true
+  checksum: 654ffb38ecf16e9302db71d226632304d7bb5c28f03ce3338f9bb5f374db1d3020a0cf4772db8255343453bd9b0491e33c6007339ac5abb55d5dbb4ab5a9c3c2
   languageName: node
   linkType: hard
 
@@ -5111,11 +5114,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@voiceflow/sdk-http-ml-gateway@npm:2.19.38":
-  version: 2.19.38
-  resolution: "@voiceflow/sdk-http-ml-gateway@npm:2.19.38"
+"@voiceflow/sdk-http-ml-gateway@npm:2.20.1":
+  version: 2.20.1
+  resolution: "@voiceflow/sdk-http-ml-gateway@npm:2.20.1"
   dependencies:
-    "@voiceflow/orval-fetch": 1.5.2
+    "@voiceflow/orval-fetch": 1.7.2
     "@voiceflow/sdk-common": 1.12.2
     eventsource-parser: ^1.1.2
   peerDependencies:
@@ -5129,7 +5132,7 @@ __metadata:
       optional: true
     undici:
       optional: true
-  checksum: efadc87c79357fc65739a7dd5fdba48350ebf9259bf7577d926c3bf333f80fce596d5bf8da5b5b68b324c830dfdbf3e5067789b45bac281fa4abedf46cde1846
+  checksum: c0c36ab3bd844707bfb7aa26d536215026f416d45c1f2ea7ac4442cad111812b95365e9900701f0bbebd6c91d0fe84a3c2a8ffe4f82051036562df4f3f3d5ccd
   languageName: node
   linkType: hard
 

@@ -5,7 +5,9 @@ import _cloneDeep from 'lodash/cloneDeep';
 import { HandlerFactory } from '@/runtime';
 
 import { GeneralRuntime } from '../types';
+import { addOutputTrace, getOutputTrace } from '../utils';
 import { AIResponse, canUseModel, consumeResources, EMPTY_AI_RESPONSE, fetchPrompt } from './utils/ai';
+import { generateOutput } from './utils/output';
 
 const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = () => ({
   canHandle: (node) => node.type === BaseNode.NodeType.AI_SET,
@@ -87,10 +89,27 @@ const AISetHandler: HandlerFactory<BaseNode.AISet.Node, void, GeneralRuntime> = 
 
       return nextID;
     } catch (err) {
-      if (err?.message?.includes('[moderation error]')) {
+      if (err?.name === 'ContentModerationError') {
+        addOutputTrace(
+          runtime,
+          getOutputTrace({
+            output: generateOutput(err.response.message, runtime.project),
+            version: runtime.version,
+            ai: true,
+          })
+        );
+        runtime.trace.debug('moderation failed', node.type);
         return nextID;
       }
-      if (err?.message?.includes('Quota exceeded')) {
+      if (err?.message?.includes('Cannot access addon-tokens') || err?.message?.includes('Quota exceeded')) {
+        addOutputTrace(
+          runtime,
+          getOutputTrace({
+            output: generateOutput('Exceeded token usage', runtime.project),
+            version: runtime.version,
+            ai: true,
+          })
+        );
         runtime.trace.debug('token quota exceeded', node.type);
         return nextID;
       }
