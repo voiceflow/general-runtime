@@ -33,7 +33,7 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions> = ({ endpoint
         const date = objectId.getTimestamp();
         useStrictVM = date > CUTOFF_DATE;
       } catch (error) {
-        // do nothing
+        log.warn(`unable to parse node id: ${node.id}`);
       }
       const variablesState = variables.getState();
 
