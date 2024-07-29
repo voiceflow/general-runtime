@@ -2,6 +2,8 @@
 /.gitignore
 /.circleci
 
+Dockerfile
+
 /node_modules
 /log
 /certs
