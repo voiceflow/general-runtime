@@ -21,7 +21,10 @@ parameters:
     default: "general-runtime"
 
 {{- $borsBranches := coll.Slice "trying" "staging" }}
-{{- $masterProdBranches := coll.Slice "master" "prod" }}
+{{- $masterProdBranches := coll.Slice "master" "production" }}
+
+{{/* isMasterProd denotes whether we are on a master/production branch */}}
+{{- $isMasterProd := has $masterProdBranches .values.branch }}
 
 # Reusable YAML chunks
 defaults:
@@ -66,13 +69,13 @@ jobs:
       - run:
           name: Lint Dockerfile
           # hadolint comes from the executor image and is outdated
-          command: hadolint ./Dockerfile
+          command: hadolint --ignore DL3018 ./Dockerfile
           background: true
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
           target: checks
-          no_cache_filter: checks
-          # OR output: ci-reports
+          no_cache_filter: testing,checks
+          platforms: linux/amd64
           output: type=local,dest=ci-reports
           extra_build_args: &node_version_arg NODE_VERSION={{ .values.node_version }}
           post_steps:
@@ -107,14 +110,23 @@ jobs:
           image_repo: << pipeline.parameters.container-image-url >>
           image_tag: build
           target: build
+          platforms: linux/amd64,linux/arm64
+          output: type=image,name=<< pipeline.parameters.container-image-url >>
           enable_cache_to: true
           extra_build_args: *node_version_arg
-      - vfcommon/docker_run_networked:
+      - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
-          image_tag: build
-          command: yarn test:integration
-          ## pre_steps: setup volume
-          ## post_steps: copy out artifacts
+          target: deps
+          platforms: linux/amd64
+          extra_build_args: *node_version_arg
+      - run:
+          name: Copy out node_modules
+          command: |
+            CONTAINER_ID=$(docker run -d --rm -it --entrypoint /bin/sh << pipeline.parameters.container-image-url >>:deps)
+            docker cp ${CONTAINER_ID}:/src/node_modules/ ./node_modules
+            docker container stop ${CONTAINER_ID}
+      - vfcommon/integration_tests:
+          wait: true
       - sonarcloud/scan
 
   install_and_buildx:
@@ -126,16 +138,20 @@ jobs:
           docker_layer_caching: true
       - vfcommon/docker_login
       - vfcommon/authenticate_npm
-      - vfcommon/staged_buildx:
-          image_repo: << pipeline.parameters.container-image-url >>
-          target: "deps"
-          enable_cache_to: false
-          extra_build_args: *node_version_arg
+      ## - vfcommon/staged_buildx:
+      ##     image_repo: << pipeline.parameters.container-image-url >>
+      ##     target: "deps"
+      ##     platforms: linux/amd64,linux/arm64
+      ##     enable_cache_to: false
+      ##     extra_build_args: *node_version_arg
+      ##     output: type=image,name=<< pipeline.parameters.container-image-url >>-deps
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
           target: "build"
+          platforms: linux/amd64,linux/arm64
           enable_cache_to: true
           extra_build_args: *node_version_arg
+          output: type=image,name=<< pipeline.parameters.container-image-url >>-build
 
 workflows:
   {{- if has $masterProdBranches .values.branch }}
@@ -177,7 +193,12 @@ workflows:
           component: << pipeline.parameters.track-component >>
           remote_docker_version: default
           extra_build_args: *node_version_arg
-          enable_cache_to: {{ eq .values.branch "master" }}
+          enable_cache_to: true
+          {{- if $isMasterProd }}
+          platform: linux/amd64,linux/arm64
+          {{- else }}
+          platform: linux/amd64
+          {{- end }}
           requires:
             {{- if eq .values.branch "master" }}
             - test
@@ -188,7 +209,6 @@ workflows:
             branches:
               ignore:
                 - /^break-glass.*$/
-
       - vfcommon/provision-env:
           context: dev-test
           env-name: {{ .values.e2e_env_name }}

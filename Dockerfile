@@ -1,22 +1,26 @@
 ARG NODE_VERSION=20.10
 FROM node:${NODE_VERSION}-alpine AS base
 WORKDIR /src
+ARG TARGETARCH
+ARG TARGETVARIANT
 
 RUN \
-  --mount=type=cache,id=apk,target=/var/cache/apk,sharing=locked \
+  --mount=type=cache,sharing=locked,id=apk-$TARGETARCH$TARGETVARIANT,target=/var/cache/apk \
   apk add --no-cache dumb-init python3 make g++
 
 
 ## STAGE: deps
 FROM base AS deps
+ARG TARGETARCH
+ARG TARGETVARIANT
 
 COPY --link package.json yarn.lock .yarnrc.yml ./
 COPY --link .yarn/ ./.yarn/
 
 RUN \
   --mount=type=secret,id=NPM_TOKEN \
-  --mount=type=cache,id=yarn,target=/src/.yarn/cache \
-  --mount=type=cache,id=home-yarn,target=/root/.yarn/berry \
+  --mount=type=cache,sharing=locked,id=yarn-$TARGETARCH$TARGETVARIANT,target=/src/.yarn/cache \
+  --mount=type=cache,sharing=locked,id=yarn-home-$TARGETARCH$TARGETVARIANT,target=/root/.yarn/berry \
   yarn config set -H 'npmRegistries["https://registry.yarnpkg.com"].npmAuthToken' "$(cat /run/secrets/NPM_TOKEN)" && \
   yarn install --immutable
 
@@ -50,13 +54,8 @@ COPY --link --from=unit-tests /var/log/unit-tests.log /
 FROM sourced AS build
 RUN yarn build
 
-## STAGE: prune
-FROM build AS prune
-RUN \
-  --mount=type=cache,id=yarn,target=/src/.yarn/cache \
-  yarn config unset -H npmRegistries && \
-  yarn cache clean
-
+FROM scratch AS integration
+COPY --link --from=build /src/node_modules/ ./
 
 FROM base AS prod
 WORKDIR /usr/src/app
@@ -71,8 +70,8 @@ ENV BUILD_NUM=${build_BUILD_NUM}
 ENV GIT_SHA=${build_GIT_SHA}
 ENV BUILD_URL=${build_BUILD_URL}
 
-COPY --link --from=prune /src/build/ ./
-COPY --link --from=prune /src/node_modules ./node_modules/
+COPY --link --from=build /src/build/ ./
+COPY --link --from=build /src/node_modules ./node_modules/
 
 ENTRYPOINT [ "dumb-init" ]
 CMD ["node", "--no-node-snapshot", "start.js"]

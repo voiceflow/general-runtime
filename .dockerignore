@@ -2,11 +2,15 @@
 /.gitignore
 /.circleci
 
+Dockerfile
+
 /node_modules
 /log
 /certs
 
 /build
+/ci-reports
+/reports
 
 # dev files
 /tags*
