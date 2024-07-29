@@ -116,10 +116,15 @@ jobs:
           extra_build_args: *node_version_arg
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
-          target: integration
+          target: deps
           platforms: linux/amd64
-          output: type=local,dest=./node_modules/
           extra_build_args: *node_version_arg
+      - run:
+          name: Copy out node_modules
+          command: |
+            CONTAINER_ID=$(docker run -d --rm -it --entrypoint /bin/sh << pipeline.parameters.container-image-url >>:deps)
+            docker cp ${CONTAINER_ID}:/src/node_modules/ ./node_modules
+            docker container stop ${CONTAINER_ID}
       - vfcommon/integration_tests:
           wait: true
       - sonarcloud/scan
