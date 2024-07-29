@@ -38,8 +38,8 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({ e
         reqData.variables = { ...reqData.variables, [RESOLVED_PATH]: null };
         reqData.code = `${RESOLVED_PATH} = (function(){\n${reqData.code}\n})()`;
       }
-      let remoteVMVariableState = null;
-      let ivmExecuteVariableState = null;
+      let remoteVMVariableState: Record<string, any> | null = null;
+      let ivmExecuteVariableState: Record<string, any> | null = null;
       let remoteVMError = null;
       let ivmExecuteError = null;
       const useIvm = date > CUTOFF_DATE;
@@ -87,7 +87,7 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({ e
       // both execution methods succeeded
       if (remoteVMVariableState && ivmExecuteVariableState) {
         const allEqual = Object.keys(remoteVMVariableState).every((key) =>
-          isDeepStrictEqual(remoteVMVariableState[key], ivmExecuteVariableState[key])
+          isDeepStrictEqual(remoteVMVariableState![key], ivmExecuteVariableState![key])
         );
         if (!allEqual) {
           // eslint-disable-next-line no-console
