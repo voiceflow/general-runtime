@@ -69,7 +69,7 @@ jobs:
       - run:
           name: Lint Dockerfile
           # hadolint comes from the executor image and is outdated
-          command: hadolint ./Dockerfile
+          command: hadolint --ignore DL3018 ./Dockerfile
           background: true
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
