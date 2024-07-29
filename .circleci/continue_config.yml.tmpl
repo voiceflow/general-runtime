@@ -117,9 +117,8 @@ jobs:
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
           target: integration
-          no_cache_filter: integration
           platforms: linux/amd64
-          output: type=local,dest=./
+          output: type=local,dest=./node_modules/
           extra_build_args: *node_version_arg
       - vfcommon/integration_tests:
           wait: true
