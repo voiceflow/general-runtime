@@ -55,6 +55,9 @@ COPY --link --from=unit-tests /var/log/unit-tests.log /
 FROM sourced AS build
 RUN yarn build
 
+FROM scratch AS integration
+COPY --link --from=build /src/node_modules/ ./node_modules/
+
 FROM base AS prod
 WORKDIR /usr/src/app
 

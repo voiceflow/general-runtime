@@ -115,12 +115,15 @@ jobs:
           output: type=image,name=<< pipeline.parameters.container-image-url >>
           enable_cache_to: true
           extra_build_args: *node_version_arg
-      - vfcommon/docker_run_networked:
+      - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
-          image_tag: build
-          command: yarn test:integration
-          ## pre_steps: setup volume
-          ## post_steps: copy out artifacts
+          target: integration
+          no_cache_filter: integration
+          platforms: linux/amd64
+          output: type=local,dest=./
+          extra_build_args: *node_version_arg
+      - vfcommon/integration_tests:
+          wait: true
       - sonarcloud/scan
 
   install_and_buildx:
