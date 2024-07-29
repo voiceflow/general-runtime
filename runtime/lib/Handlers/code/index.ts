@@ -2,6 +2,7 @@
 import { BaseNode, RuntimeLogs } from '@voiceflow/base-types';
 import safeJSONStringify from 'json-stringify-safe';
 import _ from 'lodash';
+import { ObjectId } from 'mongodb';
 import { isDeepStrictEqual } from 'util';
 
 import log from '@/logger';
@@ -19,14 +20,21 @@ export const GENERATED_CODE_NODE_ID = 'PROGRAMMATICALLY-GENERATED-CODE-NODE';
 
 const RESOLVED_PATH = '__RESOLVED_PATH__';
 
-const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions> = ({
-  endpoint,
-  callbacks,
-  useStrictVM = false,
-}) => ({
+// Cutoff date where all Code Node created after will use the new IVM
+const CUTOFF_DATE = new Date('2024-07-30T00:00:00.000Z');
+
+const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions> = ({ endpoint, callbacks }) => ({
   canHandle: (node) => typeof node.code === 'string',
   handle: async (node, runtime, variables) => {
     try {
+      let useStrictVM = false;
+      try {
+        const objectId = new ObjectId(node.id);
+        const date = objectId.getTimestamp();
+        useStrictVM = date > CUTOFF_DATE;
+      } catch (error) {
+        // do nothing
+      }
       const variablesState = variables.getState();
 
       const reqData = {
