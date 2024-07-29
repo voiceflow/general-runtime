@@ -75,6 +75,7 @@ jobs:
           image_repo: << pipeline.parameters.container-image-url >>
           target: checks
           no_cache_filter: checks
+          platforms: linux/amd64,linux/arm64
           # OR output: ci-reports
           output: type=local,dest=ci-reports
           extra_build_args: &node_version_arg NODE_VERSION={{ .values.node_version }}
@@ -110,14 +111,19 @@ jobs:
           image_repo: << pipeline.parameters.container-image-url >>
           image_tag: build
           target: build
+          platforms: linux/amd64,linux/arm64
+          output: type=image,name=<< pipeline.parameters.container-image-url >>
           enable_cache_to: true
           extra_build_args: *node_version_arg
-      - vfcommon/docker_run_networked:
+      - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
-          image_tag: build
-          command: yarn test:integration
-          ## pre_steps: setup volume
-          ## post_steps: copy out artifacts
+          target: integration
+          no_cache_filter: integration
+          platforms: linux/amd64
+          output: type=local,dest=./
+          extra_build_args: *node_version_arg
+      - vfcommon/integration_tests:
+          wait: true
       - sonarcloud/scan
 
   install_and_buildx:
@@ -129,16 +135,20 @@ jobs:
           docker_layer_caching: true
       - vfcommon/docker_login
       - vfcommon/authenticate_npm
-      - vfcommon/staged_buildx:
-          image_repo: << pipeline.parameters.container-image-url >>
-          target: "deps"
-          enable_cache_to: false
-          extra_build_args: *node_version_arg
+      ## - vfcommon/staged_buildx:
+      ##     image_repo: << pipeline.parameters.container-image-url >>
+      ##     target: "deps"
+      ##     platforms: linux/amd64,linux/arm64
+      ##     enable_cache_to: false
+      ##     extra_build_args: *node_version_arg
+      ##     output: type=image,name=<< pipeline.parameters.container-image-url >>-deps
       - vfcommon/staged_buildx:
           image_repo: << pipeline.parameters.container-image-url >>
           target: "build"
+          platforms: linux/amd64,linux/arm64
           enable_cache_to: true
           extra_build_args: *node_version_arg
+          output: type=image,name=<< pipeline.parameters.container-image-url >>-build
 
 workflows:
   {{- if has $masterProdBranches .values.branch }}
@@ -180,7 +190,7 @@ workflows:
           component: << pipeline.parameters.track-component >>
           remote_docker_version: default
           extra_build_args: *node_version_arg
-          enable_cache_to: {{ eq .values.branch "master" }}
+          enable_cache_to: true
           {{- if $isMasterProd }}
           platform: linux/amd64,linux/arm64
           {{- else }}
