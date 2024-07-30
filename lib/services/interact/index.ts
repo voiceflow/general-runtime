@@ -142,7 +142,8 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       asr,
       nlu,
       aiAssist,
-      version.settings?.entityExtraction.type === 'llm' && extraction,
+      // @ts-ignore
+      version.settings?.entityExtraction?.type === 'llm' && extraction,
       dialog,
       runtime,
       mergeCompletion
