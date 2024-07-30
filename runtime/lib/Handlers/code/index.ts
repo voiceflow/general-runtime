@@ -11,13 +11,18 @@ import * as utils from './utils';
 export interface CodeOptions {
   endpoint?: string | null;
   callbacks?: Record<string, (...args: any) => any>;
+  useStrictVM?: boolean;
 }
 
 export const GENERATED_CODE_NODE_ID = 'PROGRAMMATICALLY-GENERATED-CODE-NODE';
 
 const RESOLVED_PATH = '__RESOLVED_PATH__';
 
-const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({ endpoint, callbacks } = {}) => ({
+const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({
+  endpoint,
+  callbacks,
+  useStrictVM = false,
+} = {}) => ({
   canHandle: (node) => typeof node.code === 'string',
   handle: async (node, runtime, variables) => {
     try {
@@ -34,7 +39,9 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({ e
       }
 
       let newVariableState: Record<string, any>;
-      if (endpoint) {
+      if (useStrictVM) {
+        newVariableState = await utils.ivmExecute(reqData, callbacks);
+      } else if (endpoint) {
         newVariableState = await utils.remoteVMExecute(endpoint, reqData);
       } else {
         newVariableState = await utils.ivmExecute(reqData, callbacks);
@@ -92,7 +99,6 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions | void> = ({ e
       if (node.paths?.length && resolvedPath) {
         // eslint-disable-next-line no-restricted-syntax
         for (const path of node.paths) {
-          // eslint-disable-next-line max-depth
           if (path.label === resolvedPath) {
             return path.nextId ?? null;
           }
