@@ -13,7 +13,6 @@ const buildServices = (context: any) => ({
   asr: { handle: sinon.stub().resolves(output(context, 'asr')) },
   nlu: { handle: sinon.stub().resolves(output(context, 'nlu')) },
   aiAssist: { handle: sinon.stub().resolves(output(context, 'aiAssist')) },
-  slots: { handle: sinon.stub().resolves(output(context, 'slots')) },
   tts: { handle: sinon.stub().resolves(output(context, 'tts')) },
   speak: { handle: sinon.stub().resolves(output(context, 'speak')) },
   runtime: { handle: sinon.stub().resolves(output(context, 'runtime')) },
@@ -76,7 +75,6 @@ describe('interact service unit tests', () => {
         'asr',
         'nlu',
         'aiAssist',
-        'slots',
         'dialog',
         'runtime',
         'mergeCompletion',
@@ -214,15 +212,7 @@ describe('interact service unit tests', () => {
     expect(await interactController.handler(data as any)).to.eql('resolved-state');
     expect(services.utils.TurnBuilder.args[0][0]).to.eql(services.state);
     expect(turnBuilder.addHandlers.args).to.eql([
-      [
-        services.asr,
-        services.nlu,
-        services.aiAssist,
-        services.slots,
-        services.dialog,
-        services.runtime,
-        services.mergeCompletion,
-      ],
+      [services.asr, services.nlu, services.aiAssist, services.dialog, services.runtime, services.mergeCompletion],
       [services.analytics],
       [services.speak, services.filter],
     ]);
