@@ -1,5 +1,6 @@
-import dedent from "dedent";
-import { PromptWrapperSlotMap } from "./prompt-wrapper.interface";
+import dedent from 'dedent';
+
+import { PromptWrapperSlotMap } from './prompt-wrapper.interface';
 
 export const getEntityProcessingSystemPrompt = (
   utterance: string,

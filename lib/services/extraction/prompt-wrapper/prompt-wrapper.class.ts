@@ -1,22 +1,34 @@
-import { BaseUtils } from "@voiceflow/base-types";
-import { Slot } from "@voiceflow/base-types/build/cjs/models";
-import { fetchChat } from "../../runtime/handlers/utils/ai"; // TODO: where should this live? it's a weird import
-import { getEntityProcessingSystemPrompt, getEntityProcessingUserPrompt } from "./prompt-wrapper.const";
-import { PromptWrapperContext, PromptWrapperExtractionResult, PromptWrapperModelParams, PromptWrapperSideEffects, PromptWrapperSlotMap } from "./prompt-wrapper.interface";
+import { BaseUtils } from '@voiceflow/base-types';
+import { Slot } from '@voiceflow/base-types/build/cjs/models';
+
+import { fetchChat } from '../../runtime/handlers/utils/ai'; // TODO: where should this live? it's a weird import
+import { getEntityProcessingSystemPrompt, getEntityProcessingUserPrompt } from './prompt-wrapper.const';
+import {
+  PromptWrapperContext,
+  PromptWrapperExtractionResult,
+  PromptWrapperModelParams,
+  PromptWrapperSideEffects,
+  PromptWrapperSlotMap,
+} from './prompt-wrapper.interface';
 
 export class PromptWrapper {
-
   private modelParams?: PromptWrapperModelParams;
+
   private userTranscripts?: string[];
+
   private assistantTranscripts?: string[];
+
   private rules?: string[];
+
   private exitScenarios?: string[];
+
   private slotMap?: PromptWrapperSlotMap;
+
   private utterance?: string;
+
   private context?: PromptWrapperContext;
 
-  constructor(private mlGateway: any) {
-  }
+  constructor(private mlGateway: any) {}
 
   withModelParams(params: PromptWrapperModelParams) {
     this.modelParams = params;
@@ -27,9 +39,9 @@ export class PromptWrapper {
     // TODO: optimize to not go through array twice?
 
     this.userTranscripts = messages
-        .filter((message) => message.role === 'user')
-        .slice(0, -1)
-        .map((message) => message.content)
+      .filter((message) => message.role === 'user')
+      .slice(0, -1)
+      .map((message) => message.content);
 
     this.assistantTranscripts = messages
       .filter((message) => message.role === 'assistant')
@@ -49,12 +61,11 @@ export class PromptWrapper {
   }
 
   withSlots(slots: Slot[]) {
-    this.slotMap =  Object.fromEntries(
+    this.slotMap = Object.fromEntries(
       slots.map(({ name, type: { value: type }, inputs }) => [
         name,
         {
-          ...(type &&
-            type?.toLowerCase() !== 'custom' && { type: type.replace('VF.', '').toLowerCase() }),
+          ...(type && type?.toLowerCase() !== 'custom' && { type: type.replace('VF.', '').toLowerCase() }),
           ...(inputs.length > 0 && { examples: inputs }),
         },
       ])
@@ -115,8 +126,8 @@ export class PromptWrapper {
       },
       this.mlGateway,
       {
-        context: this.context
-      },
+        context: this.context,
+      }
     );
 
     const sideEffects = {
@@ -124,13 +135,10 @@ export class PromptWrapper {
       answerTokens: response.answerTokens,
       queryTokens: response.queryTokens,
       multiplier: response.multiplier,
-    }
+    };
 
     const result = this.parseOutput(response.output);
-    return [
-      result,
-      sideEffects
-    ];
+    return [result, sideEffects];
   }
 
   private parseOutput(output: string | null): PromptWrapperExtractionResult {
