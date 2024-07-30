@@ -9,7 +9,6 @@ export { default as FunctionHandler } from './function';
 export { default as GoToNodeHandler } from './gotoNode';
 export { default as IfHandler } from './if';
 export { default as IfV2Handler } from './ifV2';
-export { default as IntegrationsHandler } from './integrations';
 export { default as NextHandler } from './next';
 export { default as RandomHandler } from './random';
 export { default as ResetHandler } from './reset';

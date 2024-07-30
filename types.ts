@@ -32,7 +32,6 @@ export interface Config extends RateLimitConfig {
   S3_ENDPOINT: string | null;
 
   CODE_HANDLER_ENDPOINT: string | null;
-  INTEGRATIONS_HANDLER_ENDPOINT: string;
   API_REQUEST_TIMEOUT_MS: number | null;
   API_MAX_CONTENT_LENGTH_BYTES: number | null;
   API_MAX_BODY_LENGTH_BYTES: number | null;
