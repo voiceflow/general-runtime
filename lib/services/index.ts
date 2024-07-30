@@ -14,7 +14,6 @@ import NLU from './nlu';
 import Runtime from './runtime';
 import { LocalSession, MongoSession, Session } from './session';
 import { Source } from './session/constants';
-import Slots from './slots';
 import Speak from './speak';
 import State from './state';
 import StateManagement from './stateManagement';
@@ -32,7 +31,6 @@ export interface ServiceMap {
   nlu: NLU;
   dialog: Dialog;
   tts: TTS;
-  slots: Slots;
   filter: Filter;
   session: Session;
   interact: Interact;
@@ -68,7 +66,6 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   services.nlu = new NLU(services, config);
   services.tts = new TTS(services, config);
   services.dialog = new Dialog(services, config);
-  services.slots = new Slots(services, config);
   services.filter = new Filter(services, config);
   services.analytics = new Analytics(services, config);
   services.stateManagement = new StateManagement(services, config);
