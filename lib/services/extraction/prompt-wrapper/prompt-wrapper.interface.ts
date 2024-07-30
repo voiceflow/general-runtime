@@ -1,10 +1,18 @@
-import { AIModel } from "@voiceflow/dtos";
+import { AIModel } from '@voiceflow/dtos';
 
-export type PromptWrapperModelParams = {temperature: number; model: AIModel; system: string; maxTokens: number};
+export interface PromptWrapperModelParams {
+  temperature: number;
+  model: AIModel;
+  system: string;
+  maxTokens: number;
+}
 
-export type PromptWrapperSlotMap = Record<string,{type?: string; examples?: string[]}>;
+export type PromptWrapperSlotMap = Record<string, { type?: string; examples?: string[] }>;
 
-export type PromptWrapperContext = { projectID: string; workspaceID: string };
+export interface PromptWrapperContext {
+  projectID: string;
+  workspaceID: string;
+}
 
 export interface PromptWrapperExtractionResult {
   type: string;
