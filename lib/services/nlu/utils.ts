@@ -1,6 +1,6 @@
 import { AlexaConstants } from '@voiceflow/alexa-types';
 import { BaseModels, BaseNode, BaseRequest } from '@voiceflow/base-types';
-import { PrototypeModel } from '@voiceflow/dtos';
+import { PrototypeModel, Version } from '@voiceflow/dtos';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { match } from 'ts-pattern';
 
@@ -148,13 +148,9 @@ export const shouldBypassNLU = async (context: Context) => {
   return node?.type === BaseNode.NodeType.AI_CAPTURE;
 };
 
-export const shouldDoLLMExtraction = async (context: Context) => {
-  const currentFrame = context.runtime.stack.top();
-  const program = await context.runtime.getProgram(context.runtime.getVersionID(), currentFrame.getDiagramID());
-  const node = program.getNode(currentFrame.getNodeID());
-
-  // TODO: update with actual node type checks, probably via DTOs
-  return node?.type === BaseNode.NodeType.AI_CAPTURE;
+export const shouldDoLLMExtraction = async (context: Context): Promise<boolean> => {
+  const version = (await context.data.api.getVersion(context.versionID)) as unknown as Version;
+  return version.settings?.entityExtraction?.type === 'llm';
 };
 
 export const shouldDoLLMReprompt = async (context: Context) => {
