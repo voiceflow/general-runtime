@@ -1,4 +1,5 @@
 import { BaseRequest, BaseTrace, RuntimeLogs } from '@voiceflow/base-types';
+import { Version } from '@voiceflow/dtos';
 import { isEmpty, merge } from 'lodash';
 
 import { RuntimeRequest } from '@/lib/services/runtime/types';
@@ -132,9 +133,20 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       maxLogLevel: maxLogLevel ?? RuntimeLogs.LogLevel.OFF,
     };
 
+    const api = await this.services.dataAPI.get();
+    const version = (await api.getVersion(versionID)) as unknown as Version;
+
     const turn = new this.services.utils.TurnBuilder<Context>(stateManager);
 
-    turn.addHandlers(asr, nlu, aiAssist, extraction, dialog, runtime, mergeCompletion);
+    turn.addHandlers(
+      asr,
+      nlu,
+      aiAssist,
+      version.settings?.entityExtraction.type === 'llm' && extraction,
+      dialog,
+      runtime,
+      mergeCompletion
+    );
     turn.addHandlers(analytics);
 
     if (config.tts) {
