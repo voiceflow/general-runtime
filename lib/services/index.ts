@@ -6,7 +6,7 @@ import AISynthesis from './aiSynthesis';
 import Analytics from './analytics';
 import ASR from './asr';
 import Dialog from './dialog';
-import Extraction from './extraction';
+import { ExtractionTurnHandler } from './extraction/extraction.service';
 import Feedback from './feedback';
 import Filter from './filter';
 import Interact from './interact';
@@ -28,7 +28,7 @@ export interface ServiceMap {
   analytics: Analytics;
   asr: ASR;
   dialog: Dialog;
-  extraction: Extraction;
+  extraction: ExtractionTurnHandler;
   feedback: Feedback;
   filter: Filter;
   interact: Interact;
@@ -61,6 +61,7 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
     services.session = new MongoSession(services, config);
   }
   services.aiSynthesis = new AISynthesis(services, config);
+  services.extraction = new ExtractionTurnHandler(services, config);
   services.runtime = new Runtime(services, config);
   services.state = new State(services, config);
   services.asr = new ASR(services, config);
