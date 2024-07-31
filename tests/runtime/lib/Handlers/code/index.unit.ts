@@ -19,7 +19,6 @@ describe('CodeHandler', () => {
 
   let mockLog: sinon.SinonMock;
   let mockRuntime: DeepMocked<Runtime>;
-  let mockNode: DeepMocked<BaseNode.Code.Node>;
   let mockProgram: DeepMocked<ProgramModel>;
 
   beforeEach(() => {
@@ -31,12 +30,6 @@ describe('CodeHandler', () => {
       trace: createMock<Trace>(),
       debugLogging: createMock<DebugLogging>(),
       stack: createMock<Stack>(),
-    });
-    mockNode = createMock<BaseNode.Code.Node>({
-      id: 'node-id',
-      success_id: 'success-id',
-      fail_id: 'fail-id',
-      code: 'a = 1',
     });
     mockProgram = createMock<ProgramModel>();
   });
@@ -56,19 +49,12 @@ describe('CodeHandler', () => {
       mockLog.expects('warn').never();
       sandbox.stub(axios, 'post').resolves({ data: { a: 1 } });
 
-      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
-      expect(result).to.eql(mockNode.success_id);
-      expect(store.get('a')).to.eq(1);
-      mockLog.verify();
-    });
-
-    it('remote succeeds, ivm succeeds, differing results', async () => {
-      const variables = { a: 0 };
-      const store = new Store(variables);
-
-      mockLog.expects('warn').calledWithMatch('Code execution results between remote and isolated-vm are different');
-      sandbox.stub(axios, 'post').resolves({ data: { a: 1 } });
-      sandbox.stub(mockNode, 'code').get(() => 'a = 2');
+      const mockNode = createMock<BaseNode.Code.Node>({
+        id: '66cb7b390000000000000000',
+        success_id: 'success-id',
+        fail_id: 'fail-id',
+        code: 'a = 1',
+      });
 
       const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
       expect(result).to.eql(mockNode.success_id);
@@ -76,41 +62,39 @@ describe('CodeHandler', () => {
       mockLog.verify();
     });
 
-    it('remote succeeds, ivm fails', async () => {
+    it('ivm fails', async () => {
       const variables = { a: 0 };
       const store = new Store(variables);
 
-      mockLog.expects('warn').calledWithMatch('Code execution remote succeeded when isolated-vm rejected');
-      sandbox.stub(axios, 'post').resolves({ data: { a: 1 } });
-      sandbox.stub(mockNode, 'code').get(() => 'throw new Error("error")');
-
-      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
-      expect(result).to.eql(mockNode.success_id);
-      expect(store.get('a')).to.eq(1);
-      mockLog.verify();
-    });
-
-    it('remote fails, ivm succeeds', async () => {
-      const variables = { a: 0 };
-      const store = new Store(variables);
-
-      mockLog.expects('warn').calledWithMatch('Code execution remote rejected when isolated-vm succeeded');
-      sandbox.stub(axios, 'post').rejects(new Error('error'));
+      const mockNode = createMock<BaseNode.Code.Node>({
+        // dated 2024-08-25
+        id: '66cb7b390000000000000000',
+        success_id: 'success-id',
+        fail_id: 'fail-id',
+        code: `let buff = new Buffer(user_id, 'base64');`,
+      });
 
       const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
       expect(result).to.eql(mockNode.fail_id);
+      expect(store.get('a')).to.eq(0);
       mockLog.verify();
     });
 
-    it('remote fails, ivm fails', async () => {
+    it('remote succeed', async () => {
       const variables = { a: 0 };
       const store = new Store(variables);
 
-      sandbox.stub(axios, 'post').rejects(new Error('error'));
-      sandbox.stub(mockNode, 'code').get(() => 'throw new Error("error")');
+      const mockNode = createMock<BaseNode.Code.Node>({
+        // dated 2024-07-25
+        id: '66a29cb90000000000000000',
+        success_id: 'success-id',
+        fail_id: 'fail-id',
+        code: `let buff = new Buffer(user_id, 'base64');`,
+      });
 
       const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
       expect(result).to.eql(mockNode.fail_id);
+      expect(store.get('a')).to.eq(0);
       mockLog.verify();
     });
   });
