@@ -30,7 +30,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
   }
 
   async interact(request: InteractRequest, eventHandler: HandleContextEventHandler): Promise<ResponseContext> {
-    const { analytics, runtime, nlu, dialog, asr, speak, slots, state: stateManager, filter, aiAssist } = this.services;
+    const { analytics, runtime, nlu, dialog, asr, speak, state: stateManager, filter, aiAssist } = this.services;
 
     const stateID = request.userID + request.sessionID;
     let storedState = await this.services.session.getFromDb<State>(request.projectID, stateID);
@@ -51,7 +51,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
 
     const turn = new this.services.utils.TurnBuilder<Context>(stateManager);
 
-    turn.addHandlers(asr, nlu, aiAssist, slots, dialog, runtime);
+    turn.addHandlers(asr, nlu, aiAssist, dialog, runtime);
     turn.addHandlers(analytics);
     turn.addHandlers(speak, filter);
 
@@ -83,7 +83,6 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       dialog,
       asr,
       speak,
-      slots,
       state: stateManager,
       filter,
       aiAssist,
@@ -117,7 +116,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
 
     const turn = new this.services.utils.TurnBuilder<Context>(stateManager);
 
-    turn.addHandlers(asr, nlu, aiAssist, slots, dialog, runtime, mergeCompletion);
+    turn.addHandlers(asr, nlu, aiAssist, dialog, runtime, mergeCompletion);
     turn.addHandlers(analytics);
 
     if (config.tts) {
