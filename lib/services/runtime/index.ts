@@ -6,24 +6,17 @@
 import { BaseNode } from '@voiceflow/base-types';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
-import Client, { Action as RuntimeAction } from '@/runtime';
+import { Action as RuntimeAction } from '@/runtime';
 import { HandleContextEventHandler } from '@/runtime/lib/Context/types';
 import { Config, Context, ContextHandler } from '@/types';
 
 import { FullServiceMap } from '../index';
-import { AbstractManager, injectServices } from '../utils';
-import Handlers from './handlers';
+import { AbstractManager } from '../utils';
 import init from './init';
 import { isActionRequest, isIntentRequest, isPathRequest, isRuntimeRequest, TurnType } from './types';
 import { getReadableConfidence } from './utils';
 
-export const utils = {
-  Client,
-  Handlers,
-};
-
-@injectServices({ utils })
-class RuntimeManager extends AbstractManager<{ utils: typeof utils }> implements ContextHandler {
+class RuntimeManager extends AbstractManager implements ContextHandler {
   constructor(services: FullServiceMap, config: Config) {
     super(services, config);
   }
