@@ -8,7 +8,7 @@ export class ContextBuilder<C extends Context<any, any, any>> {
   private pipes: ContextHandler<C>[][] = [];
 
   addHandlers(...handlers: ContextHandler<C>[]): this {
-    this.pipes.push(handlers.filter(Boolean));
+    this.pipes.push(handlers);
     return this;
   }
 

@@ -155,6 +155,8 @@ export const shouldDoLLMExtraction = async (context: Context): Promise<boolean> 
 
 export const shouldDoLLMReprompt = async (context: Context) => {
   const currentFrame = context.runtime.stack.top();
+  if (!currentFrame) return false;
+
   const program = await context.runtime.getProgram(context.runtime.getVersionID(), currentFrame.getDiagramID());
   const node = program.getNode(currentFrame.getNodeID());
 
