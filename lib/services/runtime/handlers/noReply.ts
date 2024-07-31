@@ -1,5 +1,5 @@
 import { BaseNode, BaseRequest, BaseText, BaseTrace } from '@voiceflow/base-types';
-import { BaseCompiledNode, WithNoReply } from '@voiceflow/dtos';
+import { BaseCompiledNode, WithCompiledNoReply } from '@voiceflow/dtos';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
@@ -57,7 +57,7 @@ export const addNoReplyTimeoutIfExists = (node: NoReplyNode, runtime: Runtime, f
 };
 
 export const addNoReplyTimeoutIfExistsV2 = (
-  node: BaseCompiledNode & { fallback: WithNoReply },
+  node: BaseCompiledNode & { fallback: WithCompiledNoReply },
   runtime: Runtime,
   forceDelay?: number
 ) => {
