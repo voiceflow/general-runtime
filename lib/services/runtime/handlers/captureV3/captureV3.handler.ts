@@ -1,5 +1,5 @@
 import { BaseTrace } from '@voiceflow/base-types';
-import { CaptureType, CompiledCaptureV3Node, NodeType, PrototypeIntent } from '@voiceflow/dtos';
+import { CompiledCaptureV3Node, CompiledNodeCaptureType, NodeType, PrototypeIntent } from '@voiceflow/dtos';
 
 import { Action, HandlerFactory, Runtime } from '@/runtime';
 
@@ -7,7 +7,7 @@ import { StorageType } from '../../types';
 import CommandHandler from '../command';
 import NoReplyHandler, { addNoReplyTimeoutIfExistsV2 } from '../noReply';
 import { entityFillingRequest, setElicit } from '../utils/entity';
-import { handleListenForGlobalTriggers } from './lib/handleListenForGlobalTriggers';
+import { handleListenForOtherTriggers } from './lib/handleListenForGlobalTriggers';
 import { raiseCaptureV3HandlerError } from './lib/utils';
 
 const utils = {
@@ -48,7 +48,7 @@ export const CaptureV3Handler: HandlerFactory<CompiledCaptureV3Node, typeof util
       runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);
       runtime.storage.delete(StorageType.NO_REPLIES_COUNTER);
 
-      if (node.data.type === CaptureType.SyntheticIntent) {
+      if (node.data.type === CompiledNodeCaptureType.SyntheticIntent) {
         const entry = Object.entries(node.data.intentCaptures)[0];
 
         if (!entry) {
@@ -76,8 +76,8 @@ export const CaptureV3Handler: HandlerFactory<CompiledCaptureV3Node, typeof util
       return utils.noReplyHandler.handle(node, runtime, variables);
     }
 
-    if (node.fallback.listensForGlobalTriggers) {
-      const result = handleListenForGlobalTriggers(node, runtime, variables, utils.commandHandler);
+    if (node.fallback.listensForOtherTriggers) {
+      const result = handleListenForOtherTriggers(node, runtime, variables, utils.commandHandler);
       if (result.shouldTransfer) {
         return result.nextStepID;
       }
