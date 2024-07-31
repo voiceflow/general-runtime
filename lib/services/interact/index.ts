@@ -105,6 +105,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
       filter,
       aiAssist,
       mergeCompletion,
+      exitScenario,
     } = this.services;
 
     const {
@@ -134,7 +135,7 @@ class Interact extends AbstractManager<{ utils: typeof utils }> {
 
     const turn = new this.services.utils.TurnBuilder<Context>(stateManager);
 
-    turn.addHandlers(asr, nlu, aiAssist, extraction, dialog, runtime, mergeCompletion);
+    turn.addHandlers(asr, nlu, aiAssist, extraction, dialog, exitScenario, runtime, mergeCompletion);
     turn.addHandlers(analytics);
 
     if (config.tts) {

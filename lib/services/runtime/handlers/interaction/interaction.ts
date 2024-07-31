@@ -47,6 +47,15 @@ export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, 
       return node.id;
     }
 
+    if (runtime.getRequest()?.type === 'exit-scenario') {
+      runtime.trace.addTrace<BaseTrace.PathTrace>({
+        type: BaseNode.Utils.TraceType.PATH,
+        payload: { path: 'choice:else' },
+      });
+
+      return '66a2ce9c853d0b588e1cb5ae';
+    }
+
     if (utils.noReplyHandler.canHandle(runtime)) {
       return utils.noReplyHandler.handle(node, runtime, variables);
     }
