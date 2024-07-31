@@ -39,14 +39,14 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions> = ({ endpoint
       const remoteVMPromise = async () => {
         const now = Date.now();
         const ret = utils.remoteVMExecute(endpoint!, reqData);
-        log.debug(`remote vm execution time: ${Date.now() - now}ms`);
+        runtime.trace.debug(`remote vm execution time: ${Date.now() - now}ms`);
         return ret;
       };
 
       const ivmPromise = async () => {
         const now = Date.now();
         const ret = utils.ivmExecute(reqData, callbacks);
-        log.debug(`ivm execution time: ${Date.now() - now}ms`);
+        runtime.trace.debug(`ivm execution time: ${Date.now() - now}ms`);
         return ret;
       };
 
