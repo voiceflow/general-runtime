@@ -1,7 +1,6 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { GPT_MODEL, Message } from '@voiceflow/base-types/build/cjs/utils/ai';
 import { CompiledCaptureV3NodeDTO, IntentRequest, isIntentRequest } from '@voiceflow/dtos';
-import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import logger from '@/logger';
 import { Context, ContextHandler } from '@/types';
@@ -62,12 +61,14 @@ const captureIntent = {
   fallback: {}, // should be optional
 };
 
-const isNoneIntent = (request: IntentRequest): boolean =>
-  request!.payload.intent.name !== VoiceflowConstants.IntentName.NONE;
+// const isNoneIntent = (request: IntentRequest): boolean =>
+//   request!.payload.intent.name !== VoiceflowConstants.IntentName.NONE;
 
 export class ExtractionTurnHandler extends AbstractManager implements ContextHandler {
   canHandle = async (context: Context): Promise<boolean> =>
-    isIntentRequest(context.request) && !isNoneIntent(context.request) && shouldDoLLMExtraction(context);
+    // TODO: the case where it's NoneIntent but has slots filled or we know we're in the middle of filling
+    // && !isNoneIntent(context.request)
+    isIntentRequest(context.request) && shouldDoLLMExtraction(context);
 
   async handle(context: Context) {
     const can = await this.canHandle(context);
