@@ -52,7 +52,7 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions> = ({ endpoint
 
       let newVariableState: Record<string, any>;
       // useStrictVM used for IfV2 and SetV2 to use isolated-vm
-      if (endpoint && !utils.ivmCutoffStatus(node.id)) {
+      if (endpoint && utils.ivmCutoffStatus(node.id)) {
         // Execute code in each environment and compare results
         // Goal is to ensure that the code execution is consistent across environments
         //  so the remote executor can be removed, leaving only isolated-vm
