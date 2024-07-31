@@ -52,7 +52,23 @@ const state = {
   storage: {},
 };
 
-const defaultUtils = { ...utils, getTime: sinon.stub().returns(defaultTimestamp) };
+const mockRuntime = {
+  debugLogging: {
+    refreshContext: () => undefined,
+  },
+};
+
+class MockClient {
+  createRuntime() {
+    return mockRuntime;
+  }
+}
+
+const defaultUtils = {
+  ...utils,
+  getTime: sinon.stub().returns(defaultTimestamp),
+  Client: MockClient,
+};
 
 describe('state manager unit tests', () => {
   afterEach(() => {
@@ -135,6 +151,8 @@ describe('state manager unit tests', () => {
           locale: version.prototype.data.locales[0],
           api: newContext.data.api,
         },
+        client: {},
+        runtime: mockRuntime,
       });
       expect(await newContext.data.api.getVersion(VERSION_ID)).to.eql(version);
       expect(getVersionStub.args).to.eql([[VERSION_ID]]);
@@ -198,6 +216,8 @@ describe('state manager unit tests', () => {
           locale: version.prototype.data.locales[0],
           api: newContext.data.api,
         },
+        client: {},
+        runtime: mockRuntime,
       });
       expect(await newContext.data.api.getVersion(VERSION_ID)).to.eql(version);
       expect(getVersionStub.args).to.eql([[VERSION_ID]]);
@@ -242,6 +262,8 @@ describe('state manager unit tests', () => {
           locale: version.prototype.data.locales[0],
           api: newContext.data.api,
         },
+        client: {},
+        runtime: mockRuntime,
       });
       expect(await newContext.data.api.getVersion(VERSION_ID)).to.eql(version);
       expect(getVersionStub.args).to.eql([[VERSION_ID]]);

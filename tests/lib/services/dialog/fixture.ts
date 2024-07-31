@@ -2,6 +2,8 @@ import { BaseRequest, BaseTrace } from '@voiceflow/base-types';
 import sinon from 'sinon';
 
 import CacheDataAPI from '@/lib/services/state/cacheDataAPI';
+import { Runtime, Stack } from '@/runtime';
+import Lifecycle from '@/runtime/lib/Lifecycle';
 import { Context } from '@/types';
 
 export const mockTime = new Date('2020-01-01T00:00:00Z').getTime();
@@ -443,6 +445,26 @@ export const mockFulfilledIntentRequest: BaseRequest.IntentRequest = {
   },
 };
 
+// export const mockRuntime = sinon.createStubInstance(Runtime);
+// mockRuntime.stack = new Stack([{ diagramID: 'diagramID', storage: {}, variables: {} }], {});
+// mockRuntime.getProgram = (async () => ({
+//   getNode: () => {}
+// })) as any
+
+export const mockRuntime = new Runtime({
+  events: new Lifecycle(),
+  options: {
+    api: mockDataAPI,
+  },
+  state: {
+    stack: [],
+    storage: {},
+    variables: {},
+  },
+  timeout: 0,
+  versionID: 'versionID',
+});
+
 export const mockDMContext: Context = {
   state: {
     stack: [],
@@ -479,6 +501,7 @@ export const mockDMContext: Context = {
   data: {
     api: mockDataAPI,
   },
+  runtime: mockRuntime,
 };
 
 export const mockRegularContext: Context = {
@@ -495,6 +518,7 @@ export const mockRegularContext: Context = {
   data: {
     api: mockDataAPI,
   },
+  runtime: mockRuntime,
 };
 
 export const mockEntitySynonymRequest: BaseRequest.IntentRequest = {

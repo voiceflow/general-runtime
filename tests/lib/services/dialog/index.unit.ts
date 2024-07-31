@@ -5,6 +5,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import DialogManager, { utils as defaultUtils } from '@/lib/services/dialog';
+import { Runtime } from '@/runtime';
 
 import {
   mockDMPrefixedMultipleEntityResult,
@@ -66,6 +67,7 @@ describe('dialog manager unit tests', () => {
         request: { type: 'intent', payload: { entities: [], intent: { name: 'intent_name' } } },
         state: { storage: {} },
         data: { api: services.dataAPI },
+        runtime: sinon.createStubInstance(Runtime),
       };
       const result = await dm.handle(context as any);
 

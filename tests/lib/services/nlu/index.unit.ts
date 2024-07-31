@@ -137,6 +137,7 @@ describe('nlu manager unit tests', () => {
             getProject: sinon.stub().resolves(project),
           },
         },
+        runtime: getMockRuntime(),
       };
       const result = await nlu.handle(context as any);
 
@@ -174,6 +175,7 @@ describe('nlu manager unit tests', () => {
             }),
           },
         },
+        runtime: getMockRuntime(),
       };
 
       const result = await nlu.handle(context as any);
@@ -206,6 +208,7 @@ describe('nlu manager unit tests', () => {
         state: { foo: 'bar' },
         versionID: 'version-id',
         data: { api: { getVersion: sinon.stub().rejects() } },
+        runtime: getMockRuntime(),
       };
       await expect(nlu.handle(context as any)).to.eventually.be.rejectedWith();
     });
@@ -229,6 +232,7 @@ describe('nlu manager unit tests', () => {
         request: oldRequest,
         state: { foo: 'bar' },
         versionID: 'version-id',
+        runtime: getMockRuntime(),
       };
       expect(await nlu.handle(context as any)).to.eql(context);
     });
@@ -241,7 +245,7 @@ describe('nlu manager unit tests', () => {
 
       const nlu = new NLUManager({ utils: {} } as any, config as any);
 
-      const context = { request: oldRequest };
+      const context = { request: oldRequest, runtime: getMockRuntime() };
 
       const result = await nlu.handle(context as any);
 
@@ -274,6 +278,7 @@ describe('nlu manager unit tests', () => {
             getVersion: sinon.stub().resolves(version),
           },
         },
+        runtime: getMockRuntime(),
       };
 
       const result = nlu.handle(context as any);
