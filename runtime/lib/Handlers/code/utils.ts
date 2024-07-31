@@ -3,14 +3,30 @@ import { Utils } from '@voiceflow/common';
 import type { Logger } from '@voiceflow/logger';
 import axios from 'axios';
 import ivm from 'isolated-vm';
+import { ObjectId } from 'mongodb';
 import { isDeepStrictEqual } from 'node:util';
 
+import log from '@/logger';
 import Store from '@/runtime/lib/Runtime/Store';
 
 // Reduced limits for IFV2/SETV2 use only
 const ISOLATED_VM_LIMITS = {
   maxMemoryMB: 10,
   maxExecutionTimeMs: 1 * 1000,
+};
+
+// Cutoff date where all Code Node created after will use the new IVM
+const CUTOFF_DATE = new Date('2024-07-30T00:00:00.000Z');
+
+export const ivmCutoffStatus = (id: string) => {
+  try {
+    const objectId = new ObjectId(id);
+    const date = objectId.getTimestamp();
+    return date > CUTOFF_DATE;
+  } catch (error) {
+    log.warn(`unable to parse node id: ${id}`);
+    return false;
+  }
 };
 
 export const ivmExecute = async (
