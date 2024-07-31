@@ -97,5 +97,24 @@ describe('CodeHandler', () => {
       expect(store.get('a')).to.eq(0);
       mockLog.verify();
     });
+
+    it('bad node id', async () => {
+      const variables = { a: 0 };
+      const store = new Store(variables);
+
+      mockLog.expects('warn').once().calledOnceWith('unable to parse node id: garbage');
+      const mockNode = createMock<BaseNode.Code.Node>({
+        // dated 2024-07-25
+        id: 'garbage',
+        success_id: 'success-id',
+        fail_id: 'fail-id',
+        code: `1 + 5;`,
+      });
+
+      const result = await handler.handle(mockNode, mockRuntime, store, mockProgram);
+      expect(result).to.eql(mockNode.success_id);
+      expect(store.get('a')).to.eq(0);
+      mockLog.verify();
+    });
   });
 });
