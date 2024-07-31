@@ -63,6 +63,9 @@ class RuntimeManager extends AbstractManager implements ContextHandler {
       runtime.variables.set(VoiceflowConstants.BuiltInVariable.USER_ID, userID);
     }
 
+    // Request may have changed in other turn handlers since created, update the runtime reference
+    runtime.setRequest(request);
+
     // skip runtime for the action request, since it do not have any effects
     if (!isActionRequest(request)) {
       await runtime.update(eventHandler);

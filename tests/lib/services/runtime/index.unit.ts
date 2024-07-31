@@ -35,6 +35,7 @@ describe('runtime manager unit tests', () => {
         getFinalState: sinon.stub().returns(rawState),
         variables: { set: sinon.stub() },
         debugLogging: null as unknown as DebugLogging,
+        setRequest: sinon.stub(),
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
@@ -119,6 +120,7 @@ describe('runtime manager unit tests', () => {
         trace: { get: sinon.stub().returns(trace), addTrace: sinon.stub() },
         variables: { set: sinon.stub() },
         debugLogging: null as unknown as DebugLogging,
+        setRequest: sinon.stub(),
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
@@ -158,7 +160,10 @@ describe('runtime manager unit tests', () => {
         versionID: VERSION_ID,
         version: { id: VERSION_ID },
         project: { id: PROJECT_ID },
-        data: { api: { getProgram: 'api' }, config: { stopTypes: ['t1', 't2'] } },
+        data: {
+          api: { getProgram: 'api' },
+          config: { stopTypes: ['t1', 't2'] },
+        },
         runtime,
         client,
       } as any;
@@ -171,7 +176,10 @@ describe('runtime manager unit tests', () => {
         versionID: VERSION_ID,
         version: { id: VERSION_ID },
         project: { id: PROJECT_ID },
-        data: { api: { getProgram: 'api' }, config: { stopTypes: ['t1', 't2'] } },
+        data: {
+          api: { getProgram: 'api' },
+          config: { stopTypes: ['t1', 't2'] },
+        },
         runtime,
         client,
       });
@@ -205,6 +213,7 @@ describe('runtime manager unit tests', () => {
         getFinalState: sinon.stub().returns(rawState),
         variables: { set: sinon.stub() },
         debugLogging: null as unknown as DebugLogging,
+        setRequest: sinon.stub(),
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
@@ -270,10 +279,15 @@ describe('runtime manager unit tests', () => {
       const runtime = {
         update: sinon.stub(),
         getRawState: sinon.stub().returns(rawState),
-        trace: { get: sinon.stub().returns(trace), addTrace: sinon.stub(), debug: sinon.stub() },
+        trace: {
+          get: sinon.stub().returns(trace),
+          addTrace: sinon.stub(),
+          debug: sinon.stub(),
+        },
         variables: { set: sinon.stub() },
         getFinalState: sinon.stub().returns(rawState),
         debugLogging: null as unknown as DebugLogging,
+        setRequest: sinon.stub(),
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
@@ -342,6 +356,7 @@ describe('runtime manager unit tests', () => {
         getFinalState: sinon.stub().returns(rawState),
         variables: { set: sinon.stub() },
         debugLogging: null as unknown as DebugLogging,
+        setRequest: sinon.stub(),
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
