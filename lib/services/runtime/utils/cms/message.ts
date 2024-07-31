@@ -1,11 +1,12 @@
+import { BaseText } from '@voiceflow/base-types';
 import { Version } from '@voiceflow/dtos';
 
 import { Runtime } from '@/runtime';
 import { ErrorRaiser } from '@/utils/logError/logError';
 
-export function getMessageData(runtime: Runtime, messageID: string, errorRaiser?: ErrorRaiser) {
+export function getMessageData(runtime: Runtime, messageID: string, errorRaiser: ErrorRaiser = Error) {
   if (!runtime.version) {
-    throw errorRaiser?.('Runtime was not loaded with a version');
+    throw errorRaiser('Runtime was not loaded with a version');
   }
 
   /**
@@ -19,4 +20,21 @@ export function getMessageData(runtime: Runtime, messageID: string, errorRaiser?
   }
 
   return version.programResources.messages[messageID];
+}
+
+export function getMessageText(
+  runtime: Runtime,
+  messageID: string,
+  errorRaiser: ErrorRaiser = Error
+): BaseText.SlateTextValue[] {
+  const message = getMessageData(runtime, messageID);
+  const variantsList = message.variants['default:en-us'];
+
+  if (!variantsList) {
+    throw errorRaiser(`could not retrieve variants list for versionID=${runtime.versionID}, messageID=${messageID}`);
+  }
+
+  const prompts: BaseText.SlateTextValue[] = variantsList.map((variant) => variant.data.text);
+
+  return prompts;
 }

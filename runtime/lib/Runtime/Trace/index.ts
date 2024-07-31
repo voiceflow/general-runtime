@@ -1,5 +1,6 @@
 import { BaseNode } from '@voiceflow/base-types';
 import type { WithOptional } from '@voiceflow/common';
+import { NodeType } from '@voiceflow/dtos';
 import _truncate from 'lodash/truncate';
 
 import { EventType } from '@/runtime/lib/Lifecycle';
@@ -35,7 +36,7 @@ export default class Trace {
     return this.trace as TF[];
   }
 
-  debug(message: string, type?: BaseNode.NodeType): void {
+  debug(message: string, type?: BaseNode.NodeType | NodeType): void {
     this.addTrace({
       type: BaseNode.Utils.TraceType.DEBUG,
       payload: { type, message: _truncate(message, { length: 500 }) },

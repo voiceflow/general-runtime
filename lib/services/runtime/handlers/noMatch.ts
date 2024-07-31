@@ -1,4 +1,5 @@
 import { BaseNode, BaseRequest, BaseText, BaseTrace, BaseVersion } from '@voiceflow/base-types';
+import { NodeType } from '@voiceflow/dtos';
 import { VoiceflowConstants, VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
@@ -21,7 +22,8 @@ import { generateNoMatch } from './utils/generativeNoMatch';
 import { knowledgeBaseNoMatch } from './utils/knowledgeBase';
 import { generateOutput } from './utils/output';
 
-export type NoMatchNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoMatchNode & { type: BaseNode.NodeType };
+export type NoMatchNode = BaseRequest.NodeButton &
+  VoiceflowNode.Utils.NoMatchNode & { type: BaseNode.NodeType | NodeType };
 
 export const utilsObj = {
   getOutputTrace,

@@ -4,6 +4,7 @@ import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
 import { Runtime, Store } from '@/runtime';
+import { ErrorRaiser } from '@/utils/logError/logError';
 
 import { NoReplyCounterStorage, StorageType } from '../types';
 import {
@@ -16,7 +17,7 @@ import {
   isPromptContentEmpty,
   removeEmptyPrompts,
 } from '../utils';
-import { getMessageData } from '../utils/cms/message';
+import { getMessageText } from '../utils/cms/message';
 import { generateOutput } from './utils/output';
 
 type NoReplyNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoReplyNode;
@@ -56,25 +57,24 @@ export const addNoReplyTimeoutIfExists = (node: NoReplyNode, runtime: Runtime, f
   });
 };
 
-export const addNoReplyTimeoutIfExistsV2 = (
-  node: BaseCompiledNode & { fallback: WithCompiledNoReply },
-  runtime: Runtime,
-  forceDelay?: number
-) => {
+export const addNoReplyTimeoutIfExistsV2 = ({
+  node,
+  runtime,
+  raiseError = Error,
+  forceDelay,
+}: {
+  node: BaseCompiledNode & { fallback: WithCompiledNoReply };
+  runtime: Runtime;
+  raiseError: ErrorRaiser;
+  forceDelay?: number;
+}) => {
   if (!node.fallback.noReply) return;
 
   const { noReply } = node.fallback;
 
   if (!noReply.responseID) return;
 
-  const message = getMessageData(runtime, noReply.responseID);
-  const variantsList = message.variants['default:en-us'];
-
-  if (!variantsList) {
-    throw new Error(`could not retrieve variants list for versionID=${runtime.versionID}, nodeID= ${node.id}`);
-  }
-
-  const prompts: BaseText.SlateTextValue[] = variantsList.map((variant) => variant.data.text);
+  const prompts: BaseText.SlateTextValue[] = getMessageText(runtime, noReply.responseID, raiseError);
 
   const adaptedNode: NoReplyNode = {
     ...node,

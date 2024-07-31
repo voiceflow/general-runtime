@@ -1,8 +1,8 @@
-import { CompiledCaptureV3Node, CompiledNodeCaptureType } from '@voiceflow/dtos';
+import { CompiledNodeCaptureType, WithCompiledListensForOtherTriggers } from '@voiceflow/dtos';
 
 import { Runtime, Store } from '@/runtime';
 
-import { isConfidenceScoreAbove } from '../../../utils';
+import { isConfidenceScoreAbove } from '../../utils';
 
 interface CommandHandler {
   canHandle: (runtime: Runtime) => boolean;
@@ -21,7 +21,7 @@ type ListenForOtherTriggersReturn =
 const ENTIRE_RESPONSE_CONFIDENCE_THRESHOLD = 0.6;
 
 export function handleListenForOtherTriggers(
-  node: CompiledCaptureV3Node,
+  node: { data: { type: CompiledNodeCaptureType }; fallback: WithCompiledListensForOtherTriggers },
   runtime: Runtime,
   variables: Store,
   commandHandler: CommandHandler
