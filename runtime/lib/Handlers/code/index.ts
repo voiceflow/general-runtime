@@ -33,21 +33,22 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions> = ({ endpoint
       if (node.paths?.length) {
         reqData.variables = { ...reqData.variables, [RESOLVED_PATH]: null };
         reqData.code = `${RESOLVED_PATH} = (function(){\n${reqData.code}\n})()`;
+      }
 
-      // time 
+      // time
       const remoteVMPromise = async () => {
         const now = Date.now();
         const ret = utils.remoteVMExecute(endpoint!, reqData);
         log.debug(`remote vm execution time: ${Date.now() - now}ms`);
         return ret;
-      }
+      };
 
       const ivmPromise = async () => {
         const now = Date.now();
         const ret = utils.ivmExecute(reqData, callbacks);
         log.debug(`ivm execution time: ${Date.now() - now}ms`);
         return ret;
-      }
+      };
 
       let newVariableState: Record<string, any>;
       // useStrictVM used for IfV2 and SetV2 to use isolated-vm
@@ -55,10 +56,7 @@ const CodeHandler: HandlerFactory<BaseNode.Code.Node, CodeOptions> = ({ endpoint
         // Execute code in each environment and compare results
         // Goal is to ensure that the code execution is consistent across environments
         //  so the remote executor can be removed, leaving only isolated-vm
-        const [endpointResult, ivmResult] = await Promise.allSettled([
-          remoteVMPromise(),
-          ivmPromise(),
-        ]);
+        const [endpointResult, ivmResult] = await Promise.allSettled([remoteVMPromise(), ivmPromise()]);
 
         const logExecutionResult = utils.createExecutionResultLogger(log, {
           projectID: runtime.project?._id,
