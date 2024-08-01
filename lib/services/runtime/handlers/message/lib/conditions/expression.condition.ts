@@ -67,38 +67,38 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
   }
 
   private async every(isolate: ConditionIsolate): Promise<boolean> {
-    this.log('--- evaluating expression, matchAll = true ---');
+    this.emitTraceMessage('--- evaluating expression, matchAll = true ---');
 
     const assertionResults = await Promise.all(
       this.condition.data.assertions.map((assert) => this.evaluateAssertion(isolate, assert))
     );
     const result = assertionResults.every(Boolean);
 
-    this.log(`--- evaluated expression, result = ${result} ---`);
+    this.emitTraceMessage(`--- evaluated expression, result = ${result} ---`);
 
     if (!result) {
       const firstFalse = assertionResults.findIndex((val) => !val);
       const assertion = this.condition.data.assertions[firstFalse];
-      this.log(`- assertion '${this.formatAssertion(assertion)}' was false`);
+      this.emitTraceMessage(`- assertion '${this.formatAssertion(assertion)}' was false`);
     }
 
     return result;
   }
 
   private async some(isolate: ConditionIsolate): Promise<boolean> {
-    this.log('--- evaluating expression, matchAll = false ---');
+    this.emitTraceMessage('--- evaluating expression, matchAll = false ---');
 
     const assertionResults = await Promise.all(
       this.condition.data.assertions.map((assert) => this.evaluateAssertion(isolate, assert))
     );
     const result = assertionResults.some(Boolean);
 
-    this.log(`--- evaluated expression, result = ${result}`);
+    this.emitTraceMessage(`--- evaluated expression, result = ${result}`);
 
     if (result) {
       const firstTrue = assertionResults.findIndex((val) => val);
       const assertion = this.condition.data.assertions[firstTrue];
-      this.log(`- assertion '${this.formatAssertion(assertion)}' was true`);
+      this.emitTraceMessage(`- assertion '${this.formatAssertion(assertion)}' was true`);
     }
 
     return result;
@@ -114,15 +114,24 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
       return await (this.condition.data.matchAll ? this.every(isolate) : this.some(isolate));
     } catch (err) {
       if (err instanceof Error) {
-        throw new Error(`an error occurred executing an expression condition, msg = ${err.message}`);
+        this.logError(
+          `an unknown error occurred executing an expression condition, msg = ${err.message.substring(0, 200)}`
+        );
+      } else {
+        this.logError(
+          `an unknown error occurred executing an expression condition, details = ${JSON.stringify(
+            err,
+            null,
+            2
+          ).substring(0, 200)}`
+        );
       }
-      throw new Error(
-        `an unknown error occurred executing an expression condition, details = ${JSON.stringify(
-          err,
-          null,
-          2
-        ).substring(0, 300)}`
+
+      this.emitTraceMessage(
+        `expression condition encountered an unexpected error and automatically resolved to 'false'`
       );
+
+      return false;
     } finally {
       isolate.cleanup();
     }

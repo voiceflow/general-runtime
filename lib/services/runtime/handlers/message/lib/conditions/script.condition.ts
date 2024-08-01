@@ -10,26 +10,31 @@ export class ScriptCondition extends BaseCondition<CompiledScriptCondition> {
   }
 
   public async evaluate(): Promise<boolean> {
-    this.log('--- evaluating script ---');
+    this.emitTraceMessage('--- evaluating script ---');
 
     const isolate = new ConditionIsolate(this.variables);
     try {
       await isolate.initialize();
       const result = await this.evaluateCode(isolate, this.condition.data.code);
 
-      this.log(`--- script evaluated to ${result} ---`);
+      this.emitTraceMessage(`--- script evaluated to ${result} ---`);
 
       return result;
     } catch (err) {
       if (err instanceof Error) {
-        throw new Error(`an error occurred executing a script condition, msg = ${err.message}`);
+        this.logError(`an error occurred executing a script condition, msg = ${err.message}`);
+      } else {
+        this.logError(
+          `an unknown error occurred executing a script condition, details = ${JSON.stringify(err, null, 2).substring(
+            0,
+            300
+          )}`
+        );
       }
-      throw new Error(
-        `an unknown error occurred executing a script condition, details = ${JSON.stringify(err, null, 2).substring(
-          0,
-          300
-        )}`
-      );
+
+      this.emitTraceMessage(`script condition encountered an unexpected error and automatically resolved to 'false'`);
+
+      return false;
     } finally {
       isolate.cleanup();
     }

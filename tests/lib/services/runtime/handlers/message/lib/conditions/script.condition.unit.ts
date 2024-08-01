@@ -51,4 +51,24 @@ describe('ScriptCondition', () => {
       expect(result).to.eql(true);
     });
   });
+
+  describe('returns false if exception occurs', async () => {
+    it('works', async () => {
+      const condition = new ScriptCondition(
+        {
+          type: ConditionType.SCRIPT,
+          data: {
+            code: `
+            throw new Error("exception")
+          `,
+          },
+        },
+        variables
+      );
+
+      const result = await condition.evaluate();
+
+      expect(result).to.eql(false);
+    });
+  });
 });
