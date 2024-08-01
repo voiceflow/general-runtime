@@ -91,6 +91,8 @@ export class ExtractionTurnHandler extends AbstractManager implements ContextHan
       .withModelParams(llmParams)
       .withTranscripts(transcript)
       .withUtterance(utterance)
+      // TODO: should always be slots or we skip this handler
+      .withSlots(context.runtime.version?.prototype?.model?.slots ?? [])
       .withContext({
         projectID: context.runtime.project!._id,
         workspaceID: context.runtime.project!.teamID,
@@ -98,10 +100,6 @@ export class ExtractionTurnHandler extends AbstractManager implements ContextHan
 
     if (intent.entitiesExtraction.rules?.length > 0) {
       llmWrapper.withRules(intent.entitiesExtraction.rules);
-    }
-
-    if (context.runtime.version?.prototype?.model?.slots?.length) {
-      llmWrapper.withSlots(context.runtime.version.prototype.model.slots);
     }
 
     if (intent.exitScenarios.scenarios.length > 0) {
