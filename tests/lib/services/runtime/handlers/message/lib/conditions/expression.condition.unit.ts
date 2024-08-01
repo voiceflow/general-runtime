@@ -671,4 +671,24 @@ describe('ExpressionCondition', () => {
       expect(result2).to.eql(false);
     });
   });
+
+  describe('returns false if exception occurs', async () => {
+    it('works', async () => {
+      /**
+       * This expression fails because it compiles to the javascript `hello == hello`
+       * where `hello` is an undefined variable.
+       */
+      const condition = createSingleExpression(variables, [
+        {
+          lhs: 'hello',
+          operation: ConditionOperation.IS,
+          rhs: 'hello',
+        },
+      ]);
+
+      const result = await condition.evaluate();
+
+      expect(result).to.eql(false);
+    });
+  });
 });
