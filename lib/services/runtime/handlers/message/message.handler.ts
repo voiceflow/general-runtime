@@ -1,3 +1,4 @@
+import { Utils } from '@voiceflow/common';
 import {
   Channel,
   CompiledMessageNode,
@@ -67,8 +68,10 @@ export const MessageHandler: HandlerFactory<CompiledMessageNode> = () => ({
         );
       }
 
-      const logToPrototype = (message: string) => runtime.trace.debug(message);
-      const logToObservability = (message: string) => log.error(message);
+      const executionId = Utils.id.cuid();
+      const composeMessage = (message: string) => `[${executionId}]: ${message}`;
+      const logToPrototype = (message: string) => runtime.trace.debug(composeMessage(message));
+      const logToObservability = (message: string) => log.error(composeMessage(message));
       const preprocessedVariants = chosenDiscriminator.map((variant) => ({
         variant,
         condition: variant.condition
