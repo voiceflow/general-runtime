@@ -67,38 +67,30 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
   }
 
   private async every(isolate: ConditionIsolate): Promise<boolean> {
-    this.emitTraceMessage('--- evaluating expression, matchAll = true ---');
-
     const assertionResults = await Promise.all(
       this.condition.data.assertions.map((assert) => this.evaluateAssertion(isolate, assert))
     );
     const result = assertionResults.every(Boolean);
 
-    this.emitTraceMessage(`--- evaluated expression, result = ${result} ---`);
-
     if (!result) {
       const firstFalse = assertionResults.findIndex((val) => !val);
       const assertion = this.condition.data.assertions[firstFalse];
-      this.emitTraceMessage(`- assertion '${this.formatAssertion(assertion)}' was false`);
+      this.emitTraceMessage(`Expression was false because '${this.formatAssertion(assertion)}' was false`);
     }
 
     return result;
   }
 
   private async some(isolate: ConditionIsolate): Promise<boolean> {
-    this.emitTraceMessage('--- evaluating expression, matchAll = false ---');
-
     const assertionResults = await Promise.all(
       this.condition.data.assertions.map((assert) => this.evaluateAssertion(isolate, assert))
     );
     const result = assertionResults.some(Boolean);
 
-    this.emitTraceMessage(`--- evaluated expression, result = ${result}`);
-
     if (result) {
       const firstTrue = assertionResults.findIndex((val) => val);
       const assertion = this.condition.data.assertions[firstTrue];
-      this.emitTraceMessage(`- assertion '${this.formatAssertion(assertion)}' was true`);
+      this.emitTraceMessage(`Expression was true because '${this.formatAssertion(assertion)}' was true`);
     }
 
     return result;
@@ -128,7 +120,7 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
       }
 
       this.emitTraceMessage(
-        `expression condition encountered an unexpected error and automatically resolved to 'false'`
+        `Expression condition encountered an unexpected error and automatically resolved to 'false'`
       );
 
       return false;
