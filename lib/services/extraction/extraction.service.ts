@@ -111,32 +111,6 @@ export class ExtractionTurnHandler extends AbstractManager implements ContextHan
 
     logger.info({ result, sideEffects });
 
-    //   * [23:42:13.721] INFO (20140):
-    // dd: {
-    //   "trace_id": "2925428439380738725",
-    //   "span_id": "8464410633773814607",
-    //   "service": "general-runtime",
-    //   "version": "0.1.0"
-    // }
-    // result: {
-    //   "type": "exit1",
-    //   "entityState": {
-    //     "email": null,
-    //     "name_a": null,
-    //     "name_b": null
-    //   },
-    //   "rationale": "The user statement \"moving on\" indicates a wish to end or move past the current topic. This matches the provided exit scenario of \"i am the first exit scenario.\"",
-    //   "response": ""
-    // }
-    // sideEffects: {
-    //   "tokens": 7782,
-    //   "answerTokens": 390,
-    //   "queryTokens": 7392,
-    //   "multiplier": 6
-    // }
-
-    // const parsedData = llmWrapper.exec();
-
     // TODO: exit scenarios, reprompt, etc
 
     return context;
