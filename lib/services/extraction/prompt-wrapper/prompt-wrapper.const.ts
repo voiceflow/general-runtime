@@ -27,9 +27,9 @@ export const getEntityProcessingSystemPrompt = (
 
   Prev Responses: ${prev_responses}
 
-  Rules: ${rules.map((rule) => `${rule}`).join('\n')}
+  Rules: ${rules.join('\n')}
 
-  Exit Scenarios: ${exitScenerios.map((exitScenerios) => `${exitScenerios}`).join('\n')}
+  Exit Scenarios: ${exitScenerios.join('\n')}
 
   Example Entities: ${entityRef}
 
