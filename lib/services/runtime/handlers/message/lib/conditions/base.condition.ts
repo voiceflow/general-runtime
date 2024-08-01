@@ -8,8 +8,8 @@ export abstract class BaseCondition<Condition extends AnyCompiledCondition = Any
   constructor(
     protected readonly condition: Condition,
     protected readonly variables: Record<string, unknown>,
-    protected readonly log: BaseConditionLogger = noop,
-    protected readonly onError: BaseConditionLogger = noop
+    protected readonly emitTraceMessage: BaseConditionLogger = noop,
+    protected readonly logError: BaseConditionLogger = noop
   ) {
     this.variables = sanitizeVariables(variables);
   }
