@@ -3,9 +3,9 @@ import { Slot } from '@voiceflow/base-types/build/cjs/models';
 
 import { fetchChat } from '../../runtime/handlers/utils/ai'; // TODO: where should this live? it's a weird import
 import { getEntityProcessingSystemPrompt, getEntityProcessingUserPrompt } from './prompt-wrapper.const';
+import { PromptWrapperExtractionResult } from './prompt-wrapper.dto';
 import {
   PromptWrapperContext,
-  PromptWrapperExtractionResult,
   PromptWrapperModelParams,
   PromptWrapperSideEffects,
   PromptWrapperSlotMap,
@@ -83,7 +83,7 @@ export class PromptWrapper {
     return this;
   }
 
-  async exec(): Promise<[PromptWrapperExtractionResult, PromptWrapperSideEffects]> {
+  async exec(): Promise<[PromptWrapperExtractionResult | null, PromptWrapperSideEffects]> {
     if (!this.modelParams) throw new Error('Model params are required');
     if (!this.utterance) throw new Error('Utterance is required');
     if (!this.rules) throw new Error('Rules are required');
@@ -141,38 +141,45 @@ export class PromptWrapper {
     return [result, sideEffects];
   }
 
-  private parseOutput(output: string | null): PromptWrapperExtractionResult {
-    const data: PromptWrapperExtractionResult = {
-      type: '',
-      entityState: null,
-      rationale: '',
-      response: '',
-    };
+  private parseOutput(output: string | null): PromptWrapperExtractionResult | null {
+    let type: unknown | null = null;
+    let entityState: unknown | null = null;
+    let rationale: unknown | null = null;
+    let response: unknown | null = null;
+
     if (output === null) {
-      return data;
+      return null;
     }
 
     const lines = output.split(/\n+/); // Assuming each section is separated by a double newline
     lines.forEach((line) => {
       if (line.startsWith('Type:')) {
-        data.type = line.substring('Type: '.length);
+        type = line.substring('Type: '.length);
       } else if (line.startsWith('Entity State:')) {
         // Assuming Entity State is JSON-like but using single quotes
         const entityStateJson = line.substring('Entity State: '.length).replace(/'/g, '"').replace(/null/g, 'null');
         try {
-          data.entityState = JSON.parse(entityStateJson);
+          entityState = JSON.parse(entityStateJson);
         } catch (error) {
-          data.entityState = null;
+          entityState = null;
         }
       } else if (line.startsWith('Rationale:')) {
-        data.rationale = line.substring('Rationale: '.length);
+        rationale = line.substring('Rationale: '.length);
       } else if (line.startsWith('Response:')) {
-        data.response = line.substring('Response: '.length);
+        response = line.substring('Response: '.length);
       } else {
-        data.response = line;
+        response = line;
       }
     });
 
-    return data;
+    const result = PromptWrapperExtractionResult.safeParse({
+      type,
+      entityState,
+      rationale,
+      response,
+    });
+    if (!result.success) return null;
+
+    return result.data;
   }
 }

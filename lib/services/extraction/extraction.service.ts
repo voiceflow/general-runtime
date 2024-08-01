@@ -1,6 +1,6 @@
 import { BaseUtils } from '@voiceflow/base-types';
 import { GPT_MODEL, Message } from '@voiceflow/base-types/build/cjs/utils/ai';
-import { CompiledCaptureV3NodeDTO, IntentRequest, isIntentRequest } from '@voiceflow/dtos';
+import { CompiledCaptureV3NodeDTO, IntentRequest, isIntentRequest, RequestType } from '@voiceflow/dtos';
 
 import logger from '@/logger';
 import { Context, ContextHandler } from '@/types';
@@ -112,6 +112,17 @@ export class ExtractionTurnHandler extends AbstractManager implements ContextHan
     logger.info({ result, sideEffects });
 
     // TODO: exit scenarios, reprompt, etc
+
+    if (!result) {
+      // TODO: how to handle no result
+      throw new Error();
+    }
+
+    if (result.type === 'exit') {
+      context.request = {
+        type: RequestType.EXIT_SCENARIO,
+      };
+    }
 
     return context;
   }

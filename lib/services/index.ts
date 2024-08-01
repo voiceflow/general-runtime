@@ -21,7 +21,6 @@ import StateManagement from './stateManagement';
 import { TestService } from './test';
 import Transcript from './transcript';
 import TTS from './tts';
-import ExitScenarioManager from './exitScenario';
 
 export interface ServiceMap {
   aiAssist: AIAssist;
@@ -29,7 +28,6 @@ export interface ServiceMap {
   analytics: Analytics;
   asr: ASR;
   dialog: Dialog;
-  exitScenario: ExitScenarioManager;
   extraction: ExtractionTurnHandler;
   feedback: Feedback;
   filter: Filter;
@@ -62,7 +60,6 @@ const buildServices = (config: Config, clients: ClientMap): FullServiceMap => {
   } else if (config.SESSIONS_SOURCE === Source.MONGO) {
     services.session = new MongoSession(services, config);
   }
-  services.exitScenario = new ExitScenarioManager(services, config);
   services.aiSynthesis = new AISynthesis(services, config);
   services.extraction = new ExtractionTurnHandler(services, config);
   services.runtime = new Runtime(services, config);
