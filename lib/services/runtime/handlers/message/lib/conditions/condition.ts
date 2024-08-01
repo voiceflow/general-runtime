@@ -7,14 +7,14 @@ import { ScriptCondition } from './script.condition';
 export function createCondition(
   condition: AnyCompiledCondition,
   variables: Record<string, unknown>,
-  logToPrototype?: BaseConditionLogger,
-  logToObservability?: BaseConditionLogger
+  log?: BaseConditionLogger,
+  onError?: BaseConditionLogger
 ): BaseCondition {
   switch (condition.type) {
     case ConditionType.EXPRESSION:
-      return new ExpressionCondition(condition, variables, logToPrototype, logToObservability);
+      return new ExpressionCondition(condition, variables, log, onError);
     case ConditionType.SCRIPT:
-      return new ScriptCondition(condition, variables, logToPrototype, logToObservability);
+      return new ScriptCondition(condition, variables, log, onError);
     default:
       throw new Error(`received unexpected condition type`);
   }
