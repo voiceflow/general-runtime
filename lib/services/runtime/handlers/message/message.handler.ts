@@ -7,6 +7,7 @@ import {
   Version,
 } from '@voiceflow/dtos';
 
+import log from '@/logger';
 import { HandlerFactory, Runtime, Store } from '@/runtime';
 
 import { addOutputTrace, textOutputTrace } from '../../utils';
@@ -66,10 +67,13 @@ export const MessageHandler: HandlerFactory<CompiledMessageNode> = () => ({
         );
       }
 
-      const logMessage = (message: string) => runtime.trace.debug(message);
+      const logToPrototype = (message: string) => runtime.trace.debug(message);
+      const logToObservability = (message: string) => log.error(message);
       const preprocessedVariants = chosenDiscriminator.map((variant) => ({
         variant,
-        condition: variant.condition ? createCondition(variant.condition, variables.getState(), logMessage) : null,
+        condition: variant.condition
+          ? createCondition(variant.condition, variables.getState(), logToPrototype, logToObservability)
+          : null,
       }));
 
       const chosenVariant = await selectVariant(preprocessedVariants);
