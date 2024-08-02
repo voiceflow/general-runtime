@@ -33,7 +33,12 @@ export async function selectVariant(
   for (const pair of conditionedVariants) {
     const isMatching = await pair.condition!.evaluate();
 
-    log(`Condition for variant with text '${slateToPlaintext(pair.variant.data.text)}' evaluated to '${isMatching}'`);
+    const notToken = isMatching ? '' : ' not';
+    log(
+      `Variant '${slateToPlaintext(pair.variant.data.text)}' was${notToken} used because its '${
+        pair.variant.condition?.type
+      }' condition evaluated to '${isMatching}'`
+    );
 
     if (isMatching) {
       return pair.variant;

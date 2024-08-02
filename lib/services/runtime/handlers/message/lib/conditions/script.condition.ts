@@ -7,9 +7,7 @@ export class ScriptCondition extends BaseCondition<CompiledScriptCondition> {
   private async evaluateCode(isolate: ConditionIsolate, code: string): Promise<boolean> {
     const result = await isolate.executeFunctionOrScript(code);
 
-    if (result !== true && result !== false) {
-      this.emitTraceMessage(`Script for condition returned value '${JSON.stringify(result)}'`);
-    }
+    this.emitTraceMessage(`Script for condition returned value '${JSON.stringify(result)}'`);
 
     return !!result;
   }
