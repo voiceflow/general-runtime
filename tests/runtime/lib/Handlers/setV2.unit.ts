@@ -70,7 +70,7 @@ describe('setV2 handler unit tests', () => {
       );
 
       expect(CodeHandlerStub.calledOnce).to.eql(true);
-      expect(CodeHandlerStub.args).to.eql([[{ useStrictVM: true }]]);
+      expect(CodeHandlerStub.args).to.eql([[]]);
 
       expect(codeHandler.handle.args).to.eql([
         [
