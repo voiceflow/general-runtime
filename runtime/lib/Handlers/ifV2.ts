@@ -34,7 +34,8 @@ const IfV2Handler: HandlerFactory<BaseNode.IfV2.Node, IfV2Options> = ({ _v1 }) =
       debugErrors.push(err);
     };
 
-    const codeHandler = CodeHandler({ callbacks: { setOutputPort, addDebugError } });
+    // use isolated-vm
+    const codeHandler = CodeHandler({ callbacks: { setOutputPort, addDebugError }, useStrictVM: true });
 
     let code = '';
     for (let i = 0; i < node.payload.expressions.length; i++) {

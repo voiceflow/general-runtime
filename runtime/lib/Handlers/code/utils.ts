@@ -1,12 +1,32 @@
+/* eslint-disable sonarjs/cognitive-complexity */
+import { Utils } from '@voiceflow/common';
+import type { Logger } from '@voiceflow/logger';
 import axios from 'axios';
 import ivm from 'isolated-vm';
+import { ObjectId } from 'mongodb';
+import { isDeepStrictEqual } from 'node:util';
 
+import log from '@/logger';
 import Store from '@/runtime/lib/Runtime/Store';
 
 // Reduced limits for IFV2/SETV2 use only
 const ISOLATED_VM_LIMITS = {
   maxMemoryMB: 10,
   maxExecutionTimeMs: 1 * 1000,
+};
+
+// Cutoff date where all Code Node created after will use the new IVM
+const CUTOFF_DATE = new Date('2024-07-30T00:00:00.000Z');
+
+export const ivmCutoffStatus = (id: string) => {
+  try {
+    const objectId = new ObjectId(id);
+    const date = objectId.getTimestamp();
+    return date > CUTOFF_DATE;
+  } catch (error) {
+    log.warn(`unable to parse node id: ${id}`);
+    return false;
+  }
 };
 
 export const ivmExecute = async (
@@ -77,3 +97,64 @@ export const remoteVMExecute = async (endpoint: string, reqData: { code: string;
 
 export const getUndefinedKeys = (variables: Record<string, unknown>) =>
   Object.keys(variables).filter((key) => variables[key] === undefined);
+
+const isFulfilled = <T>(input: PromiseSettledResult<T>): input is PromiseFulfilledResult<T> =>
+  input.status === 'fulfilled';
+
+const isRejected = (input: PromiseSettledResult<unknown>): input is PromiseRejectedResult =>
+  input.status === 'rejected';
+
+export const createExecutionResultLogger =
+  (log: Logger, context: Record<string, any>) =>
+  (
+    methodA: { name: string; result: PromiseSettledResult<any> },
+    methodB: { name: string; result: PromiseSettledResult<any> }
+  ) => {
+    // for typescript
+    const resultA = methodA.result;
+    const resultB = methodB.result;
+
+    if (isRejected(resultA)) {
+      if (isFulfilled(resultB)) {
+        log.warn(
+          { ...context, [methodA.name]: resultA.reason },
+          `Code execution ${methodA.name} rejected when ${methodB.name} succeeded`
+        );
+      }
+    } else if (isRejected(resultB)) {
+      log.warn(
+        { ...context, [methodB.name]: resultB.reason },
+        `Code execution ${methodA.name} succeeded when ${methodB.name} rejected`
+      );
+    } else if (Utils.object.isObject(resultA.value) && Utils.object.isObject(resultB.value)) {
+      const differentPropertiesA: Record<string, string> = {};
+      const differentPropertiesB: Record<string, string> = {};
+
+      Utils.array.unique([...Object.keys(resultA.value), ...Object.keys(resultB.value)]).forEach((key) => {
+        if (!isDeepStrictEqual(resultA.value[key], resultB.value[key])) {
+          const JSONValueA = JSON.stringify(resultA.value[key]);
+          const JSONValueB = JSON.stringify(resultB.value[key]);
+          if (JSONValueA !== JSONValueB) {
+            differentPropertiesA[key] = JSON.stringify(resultA.value[key]);
+            differentPropertiesB[key] = JSON.stringify(resultB.value[key]);
+          }
+        }
+      });
+
+      if (Object.keys(differentPropertiesA).length || Object.keys(differentPropertiesB).length) {
+        log.warn(
+          {
+            ...context,
+            [methodA.name]: differentPropertiesA,
+            [methodB.name]: differentPropertiesB,
+          },
+          `Code execution results between ${methodA.name} and ${methodB.name} are different`
+        );
+      }
+    } else if (!isDeepStrictEqual(resultA.value, resultB.value)) {
+      log.warn(
+        { ...context, [methodA.name]: resultA.value, [methodB.name]: resultB.value },
+        `Code execution results between ${methodA.name} and ${methodB.name} are high-level different`
+      );
+    }
+  };
