@@ -105,23 +105,17 @@ export class ExpressionCondition extends BaseCondition<CompiledExpressionConditi
       //           executes before the evaluated condition is fully computed.
       return await (this.condition.data.matchAll ? this.every(isolate) : this.some(isolate));
     } catch (err) {
-      if (err instanceof Error) {
-        this.logError(
-          `an unknown error occurred executing an expression condition, msg = ${err.message.substring(0, 200)}`
-        );
-      } else {
-        this.logError(
-          `an unknown error occurred executing an expression condition, details = ${JSON.stringify(
-            err,
-            null,
-            2
-          ).substring(0, 200)}`
-        );
-      }
+      const errMessage =
+        err instanceof Error
+          ? `Expression condition encountered an error and automatically resolved to 'false'. Details: ${err.message}`
+          : `Expression condition encountered an unexpected error and automatically resolved to 'false'. Details: ${JSON.stringify(
+              err,
+              null,
+              2
+            ).substring(0, 300)}`;
 
-      this.emitTraceMessage(
-        `Expression condition encountered an unexpected error and automatically resolved to 'false'`
-      );
+      this.logError(errMessage);
+      this.emitTraceMessage(errMessage);
 
       return false;
     } finally {
