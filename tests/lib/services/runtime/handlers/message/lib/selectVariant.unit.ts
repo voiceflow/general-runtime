@@ -20,18 +20,15 @@ describe('selectVariant', () => {
       {
         variant: {
           data: {
-            text: {
-              id: 'su9b3lcm',
-              content: [
-                {
-                  children: [
-                    {
-                      text: 'Unconditioned variant A',
-                    },
-                  ],
-                },
-              ],
-            },
+            text: [
+              {
+                children: [
+                  {
+                    text: 'Unconditioned variant A',
+                  },
+                ],
+              },
+            ],
             delay: 137,
           },
           condition: null,
@@ -41,18 +38,15 @@ describe('selectVariant', () => {
       {
         variant: {
           data: {
-            text: {
-              id: 'su9b3lcm',
-              content: [
-                {
-                  children: [
-                    {
-                      text: 'Unconditioned variant B',
-                    },
-                  ],
-                },
-              ],
-            },
+            text: [
+              {
+                children: [
+                  {
+                    text: 'Unconditioned variant B',
+                  },
+                ],
+              },
+            ],
             delay: 137,
           },
           condition: null,
@@ -62,18 +56,15 @@ describe('selectVariant', () => {
       {
         variant: {
           data: {
-            text: {
-              id: 'su9b3lcm',
-              content: [
-                {
-                  children: [
-                    {
-                      text: 'Unconditioned variant C',
-                    },
-                  ],
-                },
-              ],
-            },
+            text: [
+              {
+                children: [
+                  {
+                    text: 'Unconditioned variant C',
+                  },
+                ],
+              },
+            ],
             delay: 137,
           },
           condition: null,
@@ -84,7 +75,7 @@ describe('selectVariant', () => {
 
     const selectedVariant = await selectVariant(variants);
 
-    expect(selectedVariant.data.text.content[0].children[0].text).to.oneOf([
+    expect(selectedVariant.data.text[0].children[0].text).to.oneOf([
       'Unconditioned variant A',
       'Unconditioned variant B',
       'Unconditioned variant C',
@@ -138,18 +129,15 @@ describe('selectVariant', () => {
       {
         variant: {
           data: {
-            text: {
-              id: 'su9b3lcm',
-              content: [
-                {
-                  children: [
-                    {
-                      text: 'Conditioned variant A',
-                    },
-                  ],
-                },
-              ],
-            },
+            text: [
+              {
+                children: [
+                  {
+                    text: 'Conditioned variant A',
+                  },
+                ],
+              },
+            ],
             delay: 137,
           },
           condition: falseCondition,
@@ -159,18 +147,15 @@ describe('selectVariant', () => {
       {
         variant: {
           data: {
-            text: {
-              id: 'su9b3lcm',
-              content: [
-                {
-                  children: [
-                    {
-                      text: 'Unconditioned variant A',
-                    },
-                  ],
-                },
-              ],
-            },
+            text: [
+              {
+                children: [
+                  {
+                    text: 'Unconditioned variant A',
+                  },
+                ],
+              },
+            ],
             delay: 137,
           },
           condition: null,
@@ -180,18 +165,15 @@ describe('selectVariant', () => {
       {
         variant: {
           data: {
-            text: {
-              id: 'su9b3lcm',
-              content: [
-                {
-                  children: [
-                    {
-                      text: 'Conditioned variant B',
-                    },
-                  ],
-                },
-              ],
-            },
+            text: [
+              {
+                children: [
+                  {
+                    text: 'Conditioned variant B',
+                  },
+                ],
+              },
+            ],
             delay: 137,
           },
           condition: trueConditionA,
@@ -201,18 +183,15 @@ describe('selectVariant', () => {
       {
         variant: {
           data: {
-            text: {
-              id: 'su9b3lcm',
-              content: [
-                {
-                  children: [
-                    {
-                      text: 'Unconditioned variant B',
-                    },
-                  ],
-                },
-              ],
-            },
+            text: [
+              {
+                children: [
+                  {
+                    text: 'Unconditioned variant B',
+                  },
+                ],
+              },
+            ],
             delay: 137,
           },
           condition: null,
@@ -222,18 +201,15 @@ describe('selectVariant', () => {
       {
         variant: {
           data: {
-            text: {
-              id: 'su9b3lcm',
-              content: [
-                {
-                  children: [
-                    {
-                      text: 'Conditioned variant C',
-                    },
-                  ],
-                },
-              ],
-            },
+            text: [
+              {
+                children: [
+                  {
+                    text: 'Conditioned variant C',
+                  },
+                ],
+              },
+            ],
             delay: 137,
           },
           condition: trueConditionB,
@@ -244,6 +220,6 @@ describe('selectVariant', () => {
 
     const selectedVariant = await selectVariant(variants);
 
-    expect(selectedVariant.data.text.content[0].children[0].text).to.eq('Conditioned variant B');
+    expect(selectedVariant.data.text[0].children[0].text).to.eq('Conditioned variant B');
   });
 });

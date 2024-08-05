@@ -31,10 +31,24 @@ export class ConditionIsolate {
     this.isolate?.dispose();
   }
 
-  public async executeFunction(code: string): Promise<unknown> {
+  public async executeFunctionOrScript(code: string): Promise<unknown> {
     const functionBody = `
       const { ${ConditionIsolate.userVariablesName} } = $0;
-      ${code}
+      try {
+        // evaluate 'code' as though it's a top-level script and get last evaluated value
+        return eval(${JSON.stringify(code)});
+      } catch (err) {
+        // evaluate 'code' as though it's the function body and execute it within a function
+        if (err.message.includes('Illegal return statement')) {
+          return eval(\`
+            function main() {
+              ${code}
+            }
+            main()
+          \`)
+        }
+        throw err;
+      }
     `;
 
     return this.context?.evalClosure(functionBody, [{ [ConditionIsolate.userVariablesName]: this.variables }], {
