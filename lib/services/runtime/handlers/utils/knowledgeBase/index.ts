@@ -1,5 +1,4 @@
-import { BaseModels, BaseNode, BaseTrace } from '@voiceflow/base-types';
-import { KnowledgeBaseCtxType } from '@voiceflow/base-types/build/cjs/node/knowledgeBase';
+import { BaseModels } from '@voiceflow/base-types';
 import axios from 'axios';
 
 import Config from '@/config';
@@ -22,28 +21,6 @@ export interface KnowledegeBaseChunk {
 
 export interface KnowledgeBaseResponse {
   chunks: KnowledegeBaseChunk[];
-}
-
-export interface KnowledgeBaseFaqSet {
-  faqSetID?: string;
-  name?: string;
-}
-
-export interface KnowledgeBaseFaqGeneral {
-  question?: string;
-  answer?: string;
-}
-
-export interface KnowledgeBaseFaq extends KnowledgeBaseFaqGeneral {
-  faqSetID?: string;
-}
-
-export interface KnowledgeFaqRetrieve extends KnowledgeBaseFaqGeneral {
-  faqSet?: KnowledgeBaseFaqSet;
-}
-
-export interface KnowledgeBaseFaqResponse {
-  faq: KnowledgeBaseFaq | null;
 }
 
 const FLAGGED_WORKSPACES_MAP = new Map<string, string[]>([
@@ -71,7 +48,6 @@ const { KL_RETRIEVER_SERVICE_URI: host, KL_RETRIEVER_SERVICE_PORT: port } = Conf
 const scheme = process.env.NODE_ENV === 'e2e' ? 'https' : 'http';
 const baseApiUrl = host && port ? `${scheme}://${host}:${port}` : null;
 export const RETRIEVE_ENDPOINT = baseApiUrl ? new URL(`${baseApiUrl}/retrieve`).href : null;
-export const FAQ_RETRIEVAL_ENDPOINT = baseApiUrl ? new URL(`${baseApiUrl}/api/v1/retrieve/faq`).href : null;
 export const { KNOWLEDGE_BASE_LAMBDA_ENDPOINT } = Config;
 
 export const getAnswerEndpoint = (cloudEnv: string, workspaceID: string): string | null => {
@@ -85,38 +61,6 @@ export const getAnswerEndpoint = (cloudEnv: string, workspaceID: string): string
   return `${KNOWLEDGE_BASE_LAMBDA_ENDPOINT}/answer`;
 };
 
-export const fetchFaq = async (
-  projectID: string,
-  workspaceID: string | undefined,
-  question: string,
-  faqSets?: Record<string, BaseModels.Project.KnowledgeBaseSetFaq>,
-  settings?: BaseModels.Project.KnowledgeBaseSettings
-): Promise<KnowledgeFaqRetrieve | null> => {
-  if (FAQ_RETRIEVAL_ENDPOINT) {
-    const { data } = await axios.post<KnowledgeBaseFaqResponse>(FAQ_RETRIEVAL_ENDPOINT, {
-      projectID,
-      workspaceID,
-      question,
-      settings,
-    });
-
-    const faq = data?.faq;
-
-    if (faq?.answer) {
-      let faqSetData: KnowledgeBaseFaqSet = {};
-
-      if (faq?.faqSetID) {
-        const faqSet: BaseModels.Project.KnowledgeBaseSetFaq | undefined = faqSets?.[faq?.faqSetID];
-        faqSetData = { faqSetID: faqSet?.faqSetID, name: faqSet?.name };
-      }
-
-      return { answer: faq.answer, question: faq.question, faqSet: faqSetData };
-    }
-  }
-
-  return null;
-};
-
 export const getKBSettings = (
   unleashClient: UnleashClient,
   teamID?: string,
@@ -127,19 +71,6 @@ export const getKBSettings = (
     workspaceID: Number(teamID),
   });
   return (useVersionedSettings && versionSettings) || projectSettings;
-};
-
-export const addFaqTrace = (runtime: Runtime, faqQuestion: string, faqAnswer: string, query: string) => {
-  runtime.trace.addTrace<BaseTrace.KnowledgeBase>({
-    type: BaseNode.Utils.TraceType.KNOWLEDGE_BASE,
-    payload: {
-      contextType: KnowledgeBaseCtxType.FAQ,
-      faqQuestion,
-      faqAnswer,
-      query,
-      message: faqAnswer,
-    },
-  });
 };
 
 export const fetchKnowledgeBase = async (
@@ -194,26 +125,6 @@ export const knowledgeBaseNoMatch = async (runtime: Runtime): Promise<AIResponse
       runtime?.project?.knowledgeBase?.settings
     );
     const question = input;
-
-    // before checking KB, check if it is an FAQ
-    const faq = await fetchFaq(
-      runtime.project._id,
-      runtime.project.teamID,
-      question,
-      runtime.project?.knowledgeBase?.faqSets,
-      kbSettings
-    );
-    if (faq?.answer) {
-      addFaqTrace(runtime, faq.question || '', faq.answer, question);
-      return {
-        model: 'faq',
-        multiplier: 1,
-        output: faq.answer,
-        tokens: 0,
-        queryTokens: 0,
-        answerTokens: 0,
-      };
-    }
 
     const data = await fetchKnowledgeBase(runtime.project._id, runtime.project.teamID, question, kbSettings);
     if (!data) return null;
