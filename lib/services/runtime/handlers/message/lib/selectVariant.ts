@@ -41,7 +41,9 @@ export async function selectVariant(
   }
   /* eslint-enable no-await-in-loop */
 
-  log(`All conditioned variants evaluated to false, selecting a random unconditioned variant`);
+  if (conditionedVariants.length > 0) {
+    log(`All conditioned variants evaluated to false, selecting a random unconditioned variant`);
+  }
 
   const randomIndex = Math.floor(Math.random() * unconditionedVariants.length);
   return unconditionedVariants[randomIndex].variant;
