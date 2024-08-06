@@ -75,7 +75,7 @@ const getOutput = async (
     let result: AIResponse | null = null;
     try {
       // use knowledge base if it exists
-      if (Object.values(runtime.project?.knowledgeBase?.documents || {}).length > 0) {
+      if (await runtime.api.hasKBDocuments(runtime.project._id)) {
         result = await knowledgeBaseNoMatch(runtime);
         await consumeResources('KB Fallback', runtime, result);
       }
