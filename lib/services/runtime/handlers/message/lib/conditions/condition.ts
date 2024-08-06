@@ -1,8 +1,8 @@
 import { AnyCompiledCondition, ConditionType } from '@voiceflow/dtos';
 
 import { BaseCondition, BaseConditionLogger } from './base.condition';
-import { ExpressionCondition } from './expression.condition';
 import { ScriptCondition } from './script.condition';
+import { ValueVariableCondition } from './value-variable.condition';
 
 export function createCondition(
   condition: AnyCompiledCondition,
@@ -11,8 +11,8 @@ export function createCondition(
   onError?: BaseConditionLogger
 ): BaseCondition {
   switch (condition.type) {
-    case ConditionType.EXPRESSION:
-      return new ExpressionCondition(condition, variables, log, onError);
+    case ConditionType.VALUE_VARIABLE:
+      return new ValueVariableCondition(condition, variables, log, onError);
     case ConditionType.SCRIPT:
       return new ScriptCondition(condition, variables, log, onError);
     default:
