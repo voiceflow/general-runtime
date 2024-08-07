@@ -3,10 +3,10 @@ import sinon from 'sinon';
 
 import Interact from '@/lib/controllers/interact';
 
-describe('interact controller unit tests', () => {
+describe('interact controller unit tests.', () => {
   const versionID = 'some-version-id';
 
-  describe('state', () => {
+  describe('state...', () => {
     it('works', async () => {
       const output = { foo: 'bar' };
       const services = { interact: { state: sinon.stub().resolves(output) } };
@@ -22,7 +22,7 @@ describe('interact controller unit tests', () => {
     });
   });
 
-  describe('handler', () => {
+  describe('handler.', () => {
     it('works', async () => {
       const output = { foo: 'bar' };
       const services = { interact: { handler: sinon.stub().resolves(output) } };
