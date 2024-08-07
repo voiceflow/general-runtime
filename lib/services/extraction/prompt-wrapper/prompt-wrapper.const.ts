@@ -90,7 +90,7 @@ export const getEntityProcessingSystemPrompt = (
   Example Entities: {'Customer_name': {'examples': ["First name,John,Mary,Jacob","Last name,Smith,Jane,J"]},'Company': {'examples': ['google,Microsoft, ABN Tech']},'Location': {'examples': ["State,Ontario,NewYork,Texas","City,Toronto,Vancouver","Country,Canada,USA"]}}
   Rationale: User mentions company name as XYZ so we exit as per exit scenario specified.
   Entity State: {'Customer_name': 'John Smith', 'Company': 'ABC Tech Corp'}
-  Type: exit1
+  Type: exit
   Response:
 
   ###

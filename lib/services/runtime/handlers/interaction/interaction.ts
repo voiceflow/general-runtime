@@ -7,6 +7,7 @@ import { StorageType } from '../../types';
 import { addButtonsIfExists } from '../../utils';
 import CommandHandler from '../command';
 import { findEventMatcher } from '../event';
+import { ExitScenarioHandler } from '../exitScenario';
 import NoMatchHandler from '../noMatch';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
 import RepeatHandler from '../repeat';
@@ -16,6 +17,7 @@ export const utilsObj = {
   commandHandler: CommandHandler(),
   noMatchHandler: NoMatchHandler(),
   noReplyHandler: NoReplyHandler(),
+  exitScenarioHandler: ExitScenarioHandler(),
   findEventMatcher,
   addButtonsIfExists,
   addNoReplyTimeoutIfExists,
@@ -27,6 +29,7 @@ type utilsObjType = typeof utilsObj & {
 
 export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, utilsObjType> = (utils) => ({
   canHandle: (node) => !!node.interactions,
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (node, runtime, variables) => {
     const runtimeAction = runtime.getAction();
 
@@ -45,6 +48,10 @@ export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, 
 
       // quit cycleStack without ending session by stopping on itself
       return node.id;
+    }
+
+    if (utils.exitScenarioHandler.canHandle(runtime)) {
+      return utils.exitScenarioHandler.handle(node);
     }
 
     if (utils.noReplyHandler.canHandle(runtime)) {

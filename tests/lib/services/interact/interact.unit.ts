@@ -21,6 +21,7 @@ const buildServices = (context: any) => ({
   dialog: { handle: sinon.stub().resolves(output(context, 'dialog')) },
   filter: { handle: sinon.stub().resolves(output(context, 'filter', { trace: 'trace' })) },
   extraction: { handle: sinon.stub().resolves(output(context, 'extraction')) },
+  exitScenario: { handle: sinon.stub().resolves(output(context, 'exitScenario')) },
   metrics: { generalRequest: sinon.stub() },
   utils: { TurnBuilder },
 });
@@ -78,6 +79,7 @@ describe('interact service unit tests', () => {
         'aiAssist',
         'extraction',
         'dialog',
+        'exitScenario',
         'runtime',
         'mergeCompletion',
         'analytics',
@@ -220,6 +222,7 @@ describe('interact service unit tests', () => {
         services.aiAssist,
         services.extraction,
         services.dialog,
+        services.exitScenario,
         services.runtime,
         services.mergeCompletion,
       ],

@@ -14,13 +14,6 @@ export interface PromptWrapperContext {
   workspaceID: string;
 }
 
-export interface PromptWrapperExtractionResult {
-  type: string;
-  entityState: any;
-  rationale: string;
-  response: string;
-}
-
 export interface PromptWrapperSideEffects {
   tokens: number;
   answerTokens: number;
