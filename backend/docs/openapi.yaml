@@ -1607,8 +1607,8 @@ components:
           description: Remove all SSML tags in the response message.
         stopAll:
           type: boolean
-          default: true
-          description: Stop on all custom traces
+          default: false
+          description: Forcibly stop on all custom traces, ignoring the "Stop on action" setting
         stopTypes:
           type: array
           description: Specifies trace types to prematurely return on. Used to define your own path.
