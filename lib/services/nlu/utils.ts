@@ -1,8 +1,10 @@
 import { AlexaConstants } from '@voiceflow/alexa-types';
-import { BaseModels, BaseRequest } from '@voiceflow/base-types';
-import { PrototypeModel } from '@voiceflow/dtos';
+import { BaseModels, BaseNode, BaseRequest } from '@voiceflow/base-types';
+import { PrototypeModel, Version } from '@voiceflow/dtos';
 import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { match } from 'ts-pattern';
+
+import { Context } from '@/types';
 
 import { isConfidenceScoreAbove } from '../runtime/utils';
 import { NLUGatewayPredictResponse, PredictProps } from './types';
@@ -132,3 +134,32 @@ export const isUsedIntent = (
 
 export const isHybridLLMStrategy = (nluSettings?: BaseModels.Project.NLUSettings) =>
   nluSettings?.classifyStrategy === BaseModels.Project.ClassifyStrategy.VF_NLU_LLM_HYBRID;
+
+/**
+ * The newer listen steps have their own classification logic,
+ * so we shouldn't run the NLU or DialogManagement turn handlers.
+ */
+export const shouldBypassNLU = async (context: Context) => {
+  const currentFrame = context.runtime.stack.top();
+  const program = await context.runtime.getProgram(context.runtime.getVersionID(), currentFrame.getDiagramID());
+  const node = program.getNode(currentFrame.getNodeID());
+
+  // TODO: update with actual node type checks, probably via DTOs
+  return node?.type === BaseNode.NodeType.AI_CAPTURE;
+};
+
+export const shouldDoLLMExtraction = async (context: Context): Promise<boolean> => {
+  const version = (await context.data.api.getVersion(context.versionID)) as unknown as Version;
+  return version.settings?.entityExtraction?.type === 'llm';
+};
+
+export const shouldDoLLMReprompt = async (context: Context) => {
+  const currentFrame = context.runtime.stack.top();
+  if (!currentFrame) return false;
+
+  const program = await context.runtime.getProgram(context.runtime.getVersionID(), currentFrame.getDiagramID());
+  const node = program.getNode(currentFrame.getNodeID());
+
+  // TODO: update with actual node type checks, probably via DTOs
+  return node?.type === 'interaction';
+};
