@@ -8,6 +8,7 @@ import { Context, ContextHandler } from '@/types';
 import { shouldDoLLMExtraction } from '../nlu/utils';
 import { AbstractManager } from '../utils';
 import { PromptWrapper } from './prompt-wrapper/prompt-wrapper.class';
+import { PromptWrapperExtractionResultType } from './prompt-wrapper/prompt-wrapper.dto';
 import { PromptWrapperModelParams } from './prompt-wrapper/prompt-wrapper.interface';
 
 /**
@@ -118,9 +119,13 @@ export class ExtractionTurnHandler extends AbstractManager implements ContextHan
       throw new Error();
     }
 
-    if (result.type === 'exit') {
-      context.request = {
-        type: RequestType.EXIT_SCENARIO,
+    if (result.type === PromptWrapperExtractionResultType.enum.exit) {
+      logger.info(result.rationale);
+      return {
+        ...context,
+        request: {
+          type: RequestType.EXIT_SCENARIO,
+        },
       };
     }
 

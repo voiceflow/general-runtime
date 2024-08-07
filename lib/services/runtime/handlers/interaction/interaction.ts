@@ -7,6 +7,7 @@ import { StorageType } from '../../types';
 import { addButtonsIfExists } from '../../utils';
 import CommandHandler from '../command';
 import { findEventMatcher } from '../event';
+import { ExitScenarioHandler } from '../exitScenario';
 import NoMatchHandler from '../noMatch';
 import NoReplyHandler, { addNoReplyTimeoutIfExists } from '../noReply';
 import RepeatHandler from '../repeat';
@@ -16,6 +17,7 @@ export const utilsObj = {
   commandHandler: CommandHandler(),
   noMatchHandler: NoMatchHandler(),
   noReplyHandler: NoReplyHandler(),
+  exitScenarioHandler: ExitScenarioHandler(),
   findEventMatcher,
   addButtonsIfExists,
   addNoReplyTimeoutIfExists,
@@ -27,6 +29,7 @@ type utilsObjType = typeof utilsObj & {
 
 export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, utilsObjType> = (utils) => ({
   canHandle: (node) => !!node.interactions,
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   handle: (node, runtime, variables) => {
     const runtimeAction = runtime.getAction();
 
@@ -47,13 +50,8 @@ export const InteractionHandler: HandlerFactory<VoiceflowNode.Interaction.Node, 
       return node.id;
     }
 
-    if (runtime.getRequest()?.type === 'exit-scenario') {
-      runtime.trace.addTrace<BaseTrace.PathTrace>({
-        type: BaseNode.Utils.TraceType.PATH,
-        payload: { path: 'choice:else' },
-      });
-
-      return '66a2ce9c853d0b588e1cb5ae';
+    if (utils.exitScenarioHandler.canHandle(runtime)) {
+      return utils.exitScenarioHandler.handle(node);
     }
 
     if (utils.noReplyHandler.canHandle(runtime)) {
