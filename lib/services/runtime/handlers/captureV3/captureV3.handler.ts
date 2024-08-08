@@ -8,7 +8,7 @@ import CommandHandler from '../command';
 import { getEntityNamesOfIntent } from '../lib/getEntityNamesOfIntent';
 import { getSyntheticIntent } from '../lib/getSyntheticIntent';
 import { handleListenForOtherTriggers } from '../lib/handleListenForGlobalTriggers';
-import { handleNoReply } from '../lib/handleNoReply';
+import { handleNoReplyV2 } from '../lib/handleNoReply';
 import NoReplyHandler, { addNoReplyTimeoutIfExistsV2 } from '../noReply';
 import { EntityFillingNoMatchHandler, entityFillingRequest, setElicit } from '../utils/entity';
 import { raiseCaptureV3HandlerError } from './lib/utils';
@@ -29,7 +29,7 @@ export const CaptureV3Handler: HandlerFactory<CompiledCaptureV3Node, typeof util
       runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);
       runtime.storage.delete(StorageType.NO_REPLIES_COUNTER);
 
-      if (node.data.type === CompiledNodeCaptureType.SyntheticIntent) {
+      if (node.data.type === CompiledNodeCaptureType.SYNTHETIC_INTENT) {
         const { id, data } = node;
         const { intent } = getSyntheticIntent({ id, data }, runtime);
         const entityNames = getEntityNamesOfIntent(intent, runtime, raiseCaptureV3HandlerError);
@@ -46,7 +46,7 @@ export const CaptureV3Handler: HandlerFactory<CompiledCaptureV3Node, typeof util
     }
 
     if (utils.noReplyHandler.canHandle(runtime)) {
-      const result = await handleNoReply({
+      const result = await handleNoReplyV2({
         node,
         runtime,
         variables,
@@ -58,18 +58,18 @@ export const CaptureV3Handler: HandlerFactory<CompiledCaptureV3Node, typeof util
       }
     }
 
-    if (node.fallback.listensForOtherTriggers) {
+    if (node.fallback.listenForOtherTriggers) {
       const result = handleListenForOtherTriggers(node, runtime, variables, utils.commandHandler);
       if (result.shouldTransfer) {
         return result.nextStepID;
       }
     }
 
-    if (node.data.type === CompiledNodeCaptureType.SyntheticIntent) {
+    if (node.data.type === CompiledNodeCaptureType.SYNTHETIC_INTENT) {
       const request = runtime.getRequest();
       const intentName = request.payload.intent.name;
       const intentCapture = node.data.intentCaptures[intentName];
-      return intentCapture.nextStepID;
+      return intentCapture.nextStepID ?? null;
     }
 
     return null;

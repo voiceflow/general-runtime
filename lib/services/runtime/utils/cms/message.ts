@@ -1,10 +1,13 @@
 import { BaseText } from '@voiceflow/base-types';
-import { Version } from '@voiceflow/dtos';
+import { CompiledMessage, Version } from '@voiceflow/dtos';
 
 import { Runtime } from '@/runtime';
 import { ErrorRaiser } from '@/utils/logError/logError';
 
-export function getMessageData(runtime: Runtime, messageID: string, raiseError: ErrorRaiser = Error) {
+/**
+ * Retrieves the message data with id `messageID` as a compiled message object.
+ */
+export function getMessageData(runtime: Runtime, messageID: string, raiseError: ErrorRaiser = Error): CompiledMessage {
   if (!runtime.version) {
     throw raiseError('Runtime was not loaded with a version');
   }
@@ -22,6 +25,9 @@ export function getMessageData(runtime: Runtime, messageID: string, raiseError: 
   return version.programResources.messages[messageID];
 }
 
+/**
+ * Retrieves the message data with id `messageID` as a list of text from the variant.
+ */
 export function getMessageText(
   runtime: Runtime,
   messageID: string,

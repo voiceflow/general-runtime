@@ -5,8 +5,8 @@ import { Action, HandlerFactory } from '@/runtime';
 import { StorageType } from '../../types';
 import CommandHandler from '../command';
 import { handleListenForOtherTriggers } from '../lib/handleListenForGlobalTriggers';
-import { handleNoMatch } from '../lib/handleNoMatch';
-import { handleNoReply } from '../lib/handleNoReply';
+import { handleNoMatchV2 } from '../lib/handleNoMatch';
+import { handleNoReplyV2 } from '../lib/handleNoReply';
 import NoReplyHandler, { addNoReplyTimeoutIfExistsV2 } from '../noReply';
 import { EntityFillingNoMatchHandler } from '../utils/entity';
 import { raiseChoiceV2HandlerError } from './lib/utils';
@@ -35,7 +35,7 @@ export const ChoiceV2Handler: HandlerFactory<CompiledChoiceV2Node, typeof utils>
     }
 
     if (utils.noReplyHandler.canHandle(runtime)) {
-      const result = await handleNoReply({
+      const result = await handleNoReplyV2({
         node,
         runtime,
         variables,
@@ -47,7 +47,7 @@ export const ChoiceV2Handler: HandlerFactory<CompiledChoiceV2Node, typeof utils>
       }
     }
 
-    if (node.fallback.listensForOtherTriggers) {
+    if (node.fallback.listenForOtherTriggers) {
       const result = handleListenForOtherTriggers(node, runtime, variables, utils.commandHandler);
       if (result.shouldTransfer) {
         return result.nextStepID;
@@ -58,10 +58,10 @@ export const ChoiceV2Handler: HandlerFactory<CompiledChoiceV2Node, typeof utils>
     const intentName = request.payload.intent.name;
     const intentCapture = node.data.intentCaptures[intentName];
     if (!intentCapture) {
-      const { id, type, fallback } = node;
-      const result = await handleNoMatch({
+      const { id, type, fallback, data } = node;
+      const result = await handleNoMatchV2({
         intentName,
-        node: { id, type, fallback },
+        node: { id, type, fallback, data },
         runtime,
         variables,
         entityFillingNoMatchHandler: utils.entityFillingNoMatchHandler,
@@ -72,6 +72,6 @@ export const ChoiceV2Handler: HandlerFactory<CompiledChoiceV2Node, typeof utils>
       }
     }
 
-    return intentCapture.nextStepID;
+    return intentCapture.nextStepID ?? null;
   },
 });

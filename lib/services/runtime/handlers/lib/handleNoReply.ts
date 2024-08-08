@@ -1,11 +1,10 @@
 import { NodeType, WithCompiledNoReply } from '@voiceflow/dtos';
-import { NoReplyNode } from '@voiceflow/voiceflow-types/build/cjs/node/utils';
 
 import { Runtime, Store } from '@/runtime';
 import { ErrorRaiser } from '@/utils/logError/logError';
 
-import { getMessageText } from '../../utils/cms/message';
 import { NoReplyHandler } from '../noReply';
+import { adaptNodeToV1 } from './adaptNode';
 
 type NoReplyReturn =
   | {
@@ -16,14 +15,14 @@ type NoReplyReturn =
       nextStepID: string | null;
     };
 
-export async function handleNoReply({
+export async function handleNoReplyV2({
   node,
   runtime,
   variables,
   noReplyHandler,
   raiseError = Error,
 }: {
-  node: { id: string; type: NodeType; fallback: WithCompiledNoReply };
+  node: { id: string; type: NodeType; fallback: WithCompiledNoReply; data: unknown };
   runtime: Runtime;
   variables: Store;
   noReplyHandler: ReturnType<typeof NoReplyHandler>;
@@ -35,14 +34,7 @@ export async function handleNoReply({
     };
   }
 
-  const prompts = getMessageText(runtime, node.fallback.noReply.responseID, raiseError);
-  const adaptedNode: NoReplyNode = {
-    id: 'dummy',
-    type: node.type,
-    noReply: {
-      prompts,
-    },
-  };
+  const adaptedNode = adaptNodeToV1(node, runtime, raiseError);
 
   const nextStepID = noReplyHandler.handle(adaptedNode, runtime, variables);
 

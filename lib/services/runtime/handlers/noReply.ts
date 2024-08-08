@@ -57,6 +57,10 @@ export const addNoReplyTimeoutIfExists = (node: NoReplyNode, runtime: Runtime, f
   });
 };
 
+/**
+ * Outputs a no-reply trace if the node supports no reply functionality in
+ * `node.fallback.noReply`.
+ */
 export const addNoReplyTimeoutIfExistsV2 = ({
   node,
   runtime,
@@ -82,6 +86,7 @@ export const addNoReplyTimeoutIfExistsV2 = ({
       prompts,
       timeout: noReply.inactivityTimeSec,
       randomize: true,
+      nodeID: node.fallback.noReply.nextStepID,
     },
   };
 
