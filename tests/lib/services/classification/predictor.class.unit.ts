@@ -120,7 +120,6 @@ describe('predictor unit tests', () => {
     },
   };
   const defaultOptions: PredictOptions = {
-    locale: VoiceflowConstants.Locale.EN_US,
     hasChannelIntents: false,
     platform: VoiceflowConstants.PlatformType.VOICEFLOW,
   };

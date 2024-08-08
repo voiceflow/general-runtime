@@ -78,7 +78,6 @@ export interface PredictOptions {
   filteredEntities?: string[];
   // Legacy options for NLC
   hasChannelIntents?: boolean;
-  locale: VoiceflowConstants.Locale;
   platform: VoiceflowConstants.PlatformType;
 }
 
