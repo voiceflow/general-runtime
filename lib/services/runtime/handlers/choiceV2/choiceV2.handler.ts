@@ -3,13 +3,13 @@ import { CompiledChoiceV2Node, NodeType } from '@voiceflow/dtos';
 import { Action, HandlerFactory } from '@/runtime';
 
 import { StorageType } from '../../types';
-import { raiseCaptureV3HandlerError } from '../captureV3/lib/utils';
 import CommandHandler from '../command';
 import { handleListenForOtherTriggers } from '../lib/handleListenForGlobalTriggers';
 import { handleNoMatch } from '../lib/handleNoMatch';
 import { handleNoReply } from '../lib/handleNoReply';
 import NoReplyHandler, { addNoReplyTimeoutIfExistsV2 } from '../noReply';
 import { EntityFillingNoMatchHandler } from '../utils/entity';
+import { raiseChoiceV2HandlerError } from './lib/utils';
 
 const utils = {
   addNoReplyTimeoutIfExistsV2,
@@ -25,7 +25,7 @@ export const ChoiceV2Handler: HandlerFactory<CompiledChoiceV2Node, typeof utils>
       utils.addNoReplyTimeoutIfExistsV2({
         node,
         runtime,
-        raiseError: raiseCaptureV3HandlerError,
+        raiseError: raiseChoiceV2HandlerError,
       });
 
       runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);
@@ -35,7 +35,13 @@ export const ChoiceV2Handler: HandlerFactory<CompiledChoiceV2Node, typeof utils>
     }
 
     if (utils.noReplyHandler.canHandle(runtime)) {
-      const result = await handleNoReply(node, runtime, variables, utils.noReplyHandler, raiseCaptureV3HandlerError);
+      const result = await handleNoReply({
+        node,
+        runtime,
+        variables,
+        noReplyHandler: utils.noReplyHandler,
+        raiseError: raiseChoiceV2HandlerError,
+      });
       if (result.shouldTransfer) {
         return result.nextStepID;
       }
@@ -53,13 +59,14 @@ export const ChoiceV2Handler: HandlerFactory<CompiledChoiceV2Node, typeof utils>
     const intentCapture = node.data.intentCaptures[intentName];
     if (!intentCapture) {
       const { id, type, fallback } = node;
-      const result = await handleNoMatch(
+      const result = await handleNoMatch({
         intentName,
-        { id, type, fallback },
+        node: { id, type, fallback },
         runtime,
         variables,
-        utils.entityFillingNoMatchHandler
-      );
+        entityFillingNoMatchHandler: utils.entityFillingNoMatchHandler,
+        raiseError: raiseChoiceV2HandlerError,
+      });
       if (result.shouldTransfer) {
         return result.nextStepID;
       }

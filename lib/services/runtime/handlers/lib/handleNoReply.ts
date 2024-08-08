@@ -16,20 +16,26 @@ type NoReplyReturn =
       nextStepID: string | null;
     };
 
-export async function handleNoReply(
-  node: { id: string; type: NodeType; fallback: WithCompiledNoReply },
-  runtime: Runtime,
-  variables: Store,
-  noReplyHandler: ReturnType<typeof NoReplyHandler>,
-  errorRaiser: ErrorRaiser = Error
-): Promise<NoReplyReturn> {
+export async function handleNoReply({
+  node,
+  runtime,
+  variables,
+  noReplyHandler,
+  raiseError = Error,
+}: {
+  node: { id: string; type: NodeType; fallback: WithCompiledNoReply };
+  runtime: Runtime;
+  variables: Store;
+  noReplyHandler: ReturnType<typeof NoReplyHandler>;
+  raiseError: ErrorRaiser;
+}): Promise<NoReplyReturn> {
   if (!node.fallback.noReply || !node.fallback.noReply.responseID) {
     return {
       shouldTransfer: false,
     };
   }
 
-  const prompts = getMessageText(runtime, node.fallback.noReply.responseID, errorRaiser);
+  const prompts = getMessageText(runtime, node.fallback.noReply.responseID, raiseError);
   const adaptedNode: NoReplyNode = {
     id: 'dummy',
     type: node.type,
