@@ -104,6 +104,7 @@ jobs:
                 command: |
                   set +o pipefail
                   cat ./ci-reports/unit-tests.log
+                  cat ./ci-reports/unit-tests.log | ( ! grep -qE "(Error: Cannot find module|Require stack:)" )
                   cat ./ci-reports/unit-tests.xml | grep 'failures="' | ( ! grep -qE 'failures="[1-9]+' )
                   set -o pipefail
       - vfcommon/staged_buildx:
