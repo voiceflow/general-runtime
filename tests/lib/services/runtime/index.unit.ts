@@ -35,6 +35,7 @@ describe('runtime manager unit tests', () => {
         getFinalState: sinon.stub().returns(rawState),
         variables: { set: sinon.stub() },
         debugLogging: null as unknown as DebugLogging,
+        setRequest: sinon.stub(),
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
@@ -74,6 +75,8 @@ describe('runtime manager unit tests', () => {
         version: { id: VERSION_ID },
         project: { id: PROJECT_ID },
         data: { api: { getProgram: 'api' } },
+        client,
+        runtime,
       } as any;
       expect(await runtimeManager.handle(context)).to.eql({
         state: rawState,
@@ -84,22 +87,24 @@ describe('runtime manager unit tests', () => {
         version: { id: VERSION_ID },
         project: { id: PROJECT_ID },
         data: { api: { getProgram: 'api' } },
+        runtime,
+        client,
       });
-      expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
-      expect(client.createRuntime.args).to.eql([
-        [
-          {
-            versionID: VERSION_ID,
-            state,
-            request,
-            version: { id: VERSION_ID },
-            project: { id: PROJECT_ID },
-            plan: undefined,
-            subscriptionEntitlements: undefined,
-            timeout: 5000,
-          },
-        ],
-      ]);
+      // expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
+      // expect(client.createRuntime.args).to.eql([
+      //   [
+      //     {
+      //       versionID: VERSION_ID,
+      //       state,
+      //       request,
+      //       version: { id: VERSION_ID },
+      //       project: { id: PROJECT_ID },
+      //       plan: undefined,
+      //       subscriptionEntitlements: undefined,
+      //       timeout: 5000,
+      //     },
+      //   ],
+      // ]);
       expect(runtime.update.callCount).to.eql(1);
     });
 
@@ -115,6 +120,7 @@ describe('runtime manager unit tests', () => {
         trace: { get: sinon.stub().returns(trace), addTrace: sinon.stub() },
         variables: { set: sinon.stub() },
         debugLogging: null as unknown as DebugLogging,
+        setRequest: sinon.stub(),
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
@@ -154,7 +160,12 @@ describe('runtime manager unit tests', () => {
         versionID: VERSION_ID,
         version: { id: VERSION_ID },
         project: { id: PROJECT_ID },
-        data: { api: { getProgram: 'api' }, config: { stopTypes: ['t1', 't2'] } },
+        data: {
+          api: { getProgram: 'api' },
+          config: { stopTypes: ['t1', 't2'] },
+        },
+        runtime,
+        client,
       } as any;
 
       expect(await runtimeManager.handle(context)).to.eql({
@@ -165,24 +176,29 @@ describe('runtime manager unit tests', () => {
         versionID: VERSION_ID,
         version: { id: VERSION_ID },
         project: { id: PROJECT_ID },
-        data: { api: { getProgram: 'api' }, config: { stopTypes: ['t1', 't2'] } },
+        data: {
+          api: { getProgram: 'api' },
+          config: { stopTypes: ['t1', 't2'] },
+        },
+        runtime,
+        client,
       });
-      expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
+      // expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
 
-      expect(client.createRuntime.args).to.eql([
-        [
-          {
-            versionID: VERSION_ID,
-            state,
-            request,
-            version: { id: VERSION_ID },
-            project: { id: PROJECT_ID },
-            plan: undefined,
-            subscriptionEntitlements: undefined,
-            timeout: 5000,
-          },
-        ],
-      ]);
+      // expect(client.createRuntime.args).to.eql([
+      //   [
+      //     {
+      //       versionID: VERSION_ID,
+      //       state,
+      //       request,
+      //       version: { id: VERSION_ID },
+      //       project: { id: PROJECT_ID },
+      //       plan: undefined,
+      //       subscriptionEntitlements: undefined,
+      //       timeout: 5000,
+      //     },
+      //   ],
+      // ]);
       expect(runtime.update.callCount).to.eql(1);
       expect(runtime.turn.set.args).to.eql([[TurnType.STOP_TYPES, context.data.config.stopTypes]]);
     });
@@ -197,6 +213,7 @@ describe('runtime manager unit tests', () => {
         getFinalState: sinon.stub().returns(rawState),
         variables: { set: sinon.stub() },
         debugLogging: null as unknown as DebugLogging,
+        setRequest: sinon.stub(),
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
@@ -237,6 +254,8 @@ describe('runtime manager unit tests', () => {
         version: { id: VERSION_ID },
         project: { id: PROJECT_ID },
         data: { api: { getProgram: 'api' } },
+        runtime,
+        client,
       } as any;
 
       expect(await runtimeManager.handle(context)).to.eql({
@@ -248,23 +267,9 @@ describe('runtime manager unit tests', () => {
         version: { id: VERSION_ID },
         project: { id: PROJECT_ID },
         data: { api: { getProgram: 'api' } },
+        runtime,
+        client,
       });
-      expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
-      expect(client.createRuntime.args).to.eql([
-        [
-          {
-            versionID: VERSION_ID,
-            state,
-            request,
-            version: { id: VERSION_ID },
-            project: { id: PROJECT_ID },
-            plan: undefined,
-            subscriptionEntitlements: undefined,
-            timeout: 5000,
-          },
-        ],
-      ]);
-      expect(utils.Handlers.callCount).to.eql(1);
     });
 
     it('matched intent debug trace', async () => {
@@ -274,10 +279,15 @@ describe('runtime manager unit tests', () => {
       const runtime = {
         update: sinon.stub(),
         getRawState: sinon.stub().returns(rawState),
-        trace: { get: sinon.stub().returns(trace), addTrace: sinon.stub(), debug: sinon.stub() },
+        trace: {
+          get: sinon.stub().returns(trace),
+          addTrace: sinon.stub(),
+          debug: sinon.stub(),
+        },
         variables: { set: sinon.stub() },
         getFinalState: sinon.stub().returns(rawState),
         debugLogging: null as unknown as DebugLogging,
+        setRequest: sinon.stub(),
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
@@ -318,6 +328,8 @@ describe('runtime manager unit tests', () => {
         request,
         versionID: VERSION_ID,
         data: { api: { getProgram: 'api' } },
+        runtime,
+        client,
       } as any;
 
       await runtimeManager.handle(context);
@@ -344,6 +356,7 @@ describe('runtime manager unit tests', () => {
         getFinalState: sinon.stub().returns(rawState),
         variables: { set: sinon.stub() },
         debugLogging: null as unknown as DebugLogging,
+        setRequest: sinon.stub(),
       };
       runtime.debugLogging = new DebugLogging(runtime.trace.addTrace);
 
@@ -384,6 +397,8 @@ describe('runtime manager unit tests', () => {
         version: { id: VERSION_ID },
         project: { id: PROJECT_ID },
         data: { api: { getProgram: 'api' } },
+        runtime,
+        client,
       } as any;
 
       expect(await runtimeManager.handle(context)).to.eql({
@@ -395,22 +410,24 @@ describe('runtime manager unit tests', () => {
         version: { id: VERSION_ID },
         project: { id: PROJECT_ID },
         data: { api: { getProgram: 'api' } },
+        runtime,
+        client,
       });
-      expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
-      expect(client.createRuntime.args).to.eql([
-        [
-          {
-            versionID: VERSION_ID,
-            state,
-            request,
-            version: { id: VERSION_ID },
-            project: { id: PROJECT_ID },
-            plan: undefined,
-            subscriptionEntitlements: undefined,
-            timeout: 5000,
-          },
-        ],
-      ]);
+      // expect(utils.Client.firstCall.args[0].api).to.eql({ getProgram: 'api' });
+      // expect(client.createRuntime.args).to.eql([
+      //   [
+      //     {
+      //       versionID: VERSION_ID,
+      //       state,
+      //       request,
+      //       version: { id: VERSION_ID },
+      //       project: { id: PROJECT_ID },
+      //       plan: undefined,
+      //       subscriptionEntitlements: undefined,
+      //       timeout: 5000,
+      //     },
+      //   ],
+      // ]);
       expect(runtime.update.callCount).to.eql(1);
       expect(runtime.variables.set.args).to.eql([
         [VoiceflowConstants.BuiltInVariable.LAST_EVENT, request],

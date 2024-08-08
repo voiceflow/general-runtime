@@ -1,6 +1,7 @@
 import { BaseNode, BaseProject, BaseVersion, RuntimeLogs } from '@voiceflow/base-types';
 
-import { State, SubscriptionEntitlements } from '@/runtime/lib/Runtime';
+import { GeneralRuntime } from '@/lib/services/runtime/types';
+import Client, { State, SubscriptionEntitlements } from '@/runtime';
 
 export interface Context<
   Request = Record<string, unknown>,
@@ -23,6 +24,8 @@ export interface Context<
   subscriptionEntitlements?: SubscriptionEntitlements;
   /** The most verbose logs to receive in runtime logging. */
   maxLogLevel: RuntimeLogs.LogLevel;
+  client: Client;
+  runtime: GeneralRuntime;
 }
 
 export type ContextHandle<C extends Context<any, any, any, any, any>> = (
