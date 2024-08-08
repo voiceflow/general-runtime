@@ -47,7 +47,7 @@ export const ChoiceV2Handler: HandlerFactory<CompiledChoiceV2Node, typeof utils>
       }
     }
 
-    if (node.fallback.listenForOtherTriggers) {
+    if (node.fallback.listensForOtherTriggers) {
       const result = handleListenForOtherTriggers(node, runtime, variables, utils.commandHandler);
       if (result.shouldTransfer) {
         return result.nextStepID;

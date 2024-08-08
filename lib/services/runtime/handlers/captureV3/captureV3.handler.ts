@@ -29,7 +29,7 @@ export const CaptureV3Handler: HandlerFactory<CompiledCaptureV3Node, typeof util
       runtime.storage.delete(StorageType.NO_MATCHES_COUNTER);
       runtime.storage.delete(StorageType.NO_REPLIES_COUNTER);
 
-      if (node.data.type === CompiledNodeCaptureType.SYNTHETIC_INTENT) {
+      if (node.data.type === CompiledNodeCaptureType.SyntheticIntent) {
         const { id, data } = node;
         const { intent } = getSyntheticIntent({ id, data }, runtime);
         const entityNames = getEntityNamesOfIntent(intent, runtime, raiseCaptureV3HandlerError);
@@ -58,14 +58,14 @@ export const CaptureV3Handler: HandlerFactory<CompiledCaptureV3Node, typeof util
       }
     }
 
-    if (node.fallback.listenForOtherTriggers) {
+    if (node.fallback.listensForOtherTriggers) {
       const result = handleListenForOtherTriggers(node, runtime, variables, utils.commandHandler);
       if (result.shouldTransfer) {
         return result.nextStepID;
       }
     }
 
-    if (node.data.type === CompiledNodeCaptureType.SYNTHETIC_INTENT) {
+    if (node.data.type === CompiledNodeCaptureType.SyntheticIntent) {
       const request = runtime.getRequest();
       const intentName = request.payload.intent.name;
       const intentCapture = node.data.intentCaptures[intentName];
