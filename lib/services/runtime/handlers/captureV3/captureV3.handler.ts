@@ -46,7 +46,13 @@ export const CaptureV3Handler: HandlerFactory<CompiledCaptureV3Node, typeof util
     }
 
     if (utils.noReplyHandler.canHandle(runtime)) {
-      const result = await handleNoReply(node, runtime, variables, utils.noReplyHandler, raiseCaptureV3HandlerError);
+      const result = await handleNoReply({
+        node,
+        runtime,
+        variables,
+        noReplyHandler: utils.noReplyHandler,
+        raiseError: raiseCaptureV3HandlerError,
+      });
       if (result.shouldTransfer) {
         return result.nextStepID;
       }
