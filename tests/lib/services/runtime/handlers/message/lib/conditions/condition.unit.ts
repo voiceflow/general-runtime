@@ -1,13 +1,7 @@
-import {
-  AnyCompiledCondition,
-  CompiledExpressionCondition,
-  CompiledScriptCondition,
-  ConditionType,
-} from '@voiceflow/dtos';
+import { AnyCompiledCondition, CompiledScriptCondition, ConditionType } from '@voiceflow/dtos';
 import { expect } from 'chai';
 
 import { createCondition } from '@/lib/services/runtime/handlers/message/lib/conditions/condition';
-import { ExpressionCondition } from '@/lib/services/runtime/handlers/message/lib/conditions/expression.condition';
 import { ScriptCondition } from '@/lib/services/runtime/handlers/message/lib/conditions/script.condition';
 
 describe('createCondition', () => {
@@ -19,17 +13,16 @@ describe('createCondition', () => {
 
   describe('is a factory for conditions', () => {
     it('creates expression condition', () => {
-      const expressionCondition: CompiledExpressionCondition = {
-        type: ConditionType.EXPRESSION,
+      const scriptCondition: CompiledScriptCondition = {
+        type: ConditionType.SCRIPT,
         data: {
-          matchAll: false,
-          assertions: [],
+          code: 'return true;',
         },
       };
 
-      const result = createCondition(expressionCondition, variables);
+      const result = createCondition(scriptCondition, variables);
 
-      expect(result).to.instanceOf(ExpressionCondition);
+      expect(result).to.instanceOf(ScriptCondition);
     });
 
     it('creates script condition', () => {

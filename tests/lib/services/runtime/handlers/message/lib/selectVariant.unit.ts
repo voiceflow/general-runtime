@@ -1,7 +1,7 @@
-import { CompiledExpressionCondition, ConditionOperation, ConditionType } from '@voiceflow/dtos';
+import { CompiledValueVariableCondition, ConditionOperation, ConditionType } from '@voiceflow/dtos';
 import { expect } from 'chai';
 
-import { ExpressionCondition } from '@/lib/services/runtime/handlers/message/lib/conditions/expression.condition';
+import { ValueVariableCondition } from '@/lib/services/runtime/handlers/message/lib/conditions/value-variable.condition';
 import { selectVariant } from '@/lib/services/runtime/handlers/message/lib/selectVariant';
 
 describe('selectVariant', () => {
@@ -83,8 +83,8 @@ describe('selectVariant', () => {
   });
 
   it('selects the first matching conditioned variant', async () => {
-    const falseCondition: CompiledExpressionCondition = {
-      type: ConditionType.EXPRESSION,
+    const falseCondition: CompiledValueVariableCondition = {
+      type: ConditionType.VALUE_VARIABLE,
       data: {
         matchAll: true,
         assertions: [
@@ -97,8 +97,8 @@ describe('selectVariant', () => {
       },
     };
 
-    const trueConditionA: CompiledExpressionCondition = {
-      type: ConditionType.EXPRESSION,
+    const trueConditionA: CompiledValueVariableCondition = {
+      type: ConditionType.VALUE_VARIABLE,
       data: {
         matchAll: true,
         assertions: [
@@ -111,8 +111,8 @@ describe('selectVariant', () => {
       },
     };
 
-    const trueConditionB: CompiledExpressionCondition = {
-      type: ConditionType.EXPRESSION,
+    const trueConditionB: CompiledValueVariableCondition = {
+      type: ConditionType.VALUE_VARIABLE,
       data: {
         matchAll: true,
         assertions: [
@@ -142,7 +142,7 @@ describe('selectVariant', () => {
           },
           condition: falseCondition,
         },
-        condition: new ExpressionCondition(falseCondition, variables),
+        condition: new ValueVariableCondition(falseCondition, variables),
       },
       {
         variant: {
@@ -178,7 +178,7 @@ describe('selectVariant', () => {
           },
           condition: trueConditionA,
         },
-        condition: new ExpressionCondition(trueConditionA, variables),
+        condition: new ValueVariableCondition(trueConditionA, variables),
       },
       {
         variant: {
@@ -214,7 +214,7 @@ describe('selectVariant', () => {
           },
           condition: trueConditionB,
         },
-        condition: new ExpressionCondition(trueConditionB, variables),
+        condition: new ValueVariableCondition(trueConditionB, variables),
       },
     ];
 
