@@ -81,6 +81,8 @@ jobs:
           post_steps:
             - store_test_results:
                 path: ci-reports
+            - store_artifacts:
+                path: ci-reports
             - run:
                 name: ESLint
                 when: always
