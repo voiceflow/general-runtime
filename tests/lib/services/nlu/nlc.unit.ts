@@ -1,18 +1,10 @@
 import { BaseRequest } from '@voiceflow/base-types';
 import * as NLC from '@voiceflow/natural-language-commander';
-import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import * as nlc from '@/lib/services/nlu/nlc';
-import {
-  createNLC,
-  handleNLCCommand,
-  nlcToIntent,
-  registerBuiltInIntents,
-  registerIntents,
-  registerSlots,
-} from '@/lib/services/nlu/nlc';
+import { createNLC, handleNLCCommand, nlcToIntent, registerIntents, registerSlots } from '@/lib/services/nlu/nlc';
 import * as utils from '@/lib/services/nlu/utils';
 
 import { customTypeSlots, regexMatcherSlots } from './fixture';
@@ -28,18 +20,15 @@ describe('nlu nlc service unit tests', () => {
       const NLCStub = sinon.stub(NLC, 'default').returns(nlcObj);
       const registerSlotsStub = sinon.stub(nlc, 'registerSlots');
       const registerIntentsStub = sinon.stub(nlc, 'registerIntents');
-      const registerBuiltInIntentsStub = sinon.stub(nlc, 'registerBuiltInIntents');
 
       const model = 'model';
-      const locale = 'locale';
       const openSlot = 'openSlot';
       const dmRequest = 'dmRequest';
 
-      expect(createNLC({ model, locale, openSlot, dmRequest } as any)).to.eql(nlcObj);
+      expect(createNLC({ model, openSlot, dmRequest } as any)).to.eql(nlcObj);
       expect(NLCStub.callCount).to.eql(1);
       expect(registerSlotsStub.args).to.eql([[nlcObj, model, openSlot]]);
       expect(registerIntentsStub.args).to.eql([[nlcObj, model, dmRequest]]);
-      expect(registerBuiltInIntentsStub.args).to.eql([[nlcObj, locale]]);
     });
   });
 
@@ -51,16 +40,14 @@ describe('nlu nlc service unit tests', () => {
 
       const query = 'query';
       const model = 'model';
-      const locale = 'locale';
       const dmRequest = 'dmRequest';
       const output = { ...commandRes, confidence: 0.5 };
 
-      expect(handleNLCCommand({ query, model, locale, dmRequest } as any)).to.eql(output);
+      expect(handleNLCCommand({ query, model, dmRequest } as any)).to.eql(output);
       expect(createNLCStub.args).to.eql([
         [
           {
             model,
-            locale,
             openSlot: true,
             dmRequest,
           },
@@ -76,17 +63,15 @@ describe('nlu nlc service unit tests', () => {
 
       const query = 'query';
       const model = 'model';
-      const locale = 'locale';
       const dmRequest = 'dmRequest';
 
       const output = { ...commandRes, confidence: 1 };
 
-      expect(handleNLCCommand({ query, model, locale, openSlot: false, dmRequest } as any)).to.eql(output);
+      expect(handleNLCCommand({ query, model, openSlot: false, dmRequest } as any)).to.eql(output);
       expect(createNLCStub.args).to.eql([
         [
           {
             model,
-            locale,
             openSlot: false,
             dmRequest,
           },
@@ -122,48 +107,6 @@ describe('nlu nlc service unit tests', () => {
           confidence,
         },
       });
-    });
-  });
-
-  describe('registerBuiltInIntents', () => {
-    it('language not supported', () => {
-      const locale = '00xx';
-      const nlcObj = {
-        registerIntent: sinon.stub().onFirstCall().throws('first call error'),
-      };
-
-      registerBuiltInIntents(nlcObj as any, locale as any);
-      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.en.map(({ name, samples }) => [
-        { intent: name, utterances: samples },
-      ]);
-      expect(nlcObj.registerIntent.args).to.eql(registerIntentArgs);
-    });
-
-    it('no language', () => {
-      const nlcObj = {
-        registerIntent: sinon.stub().onFirstCall().throws('first call error'),
-      };
-
-      registerBuiltInIntents(nlcObj as any);
-      // eslint-disable-next-line sonarjs/no-identical-functions
-      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.en.map(({ name, samples }) => [
-        { intent: name, utterances: samples },
-      ]);
-      expect(nlcObj.registerIntent.args).to.eql(registerIntentArgs);
-    });
-
-    it('language supported', () => {
-      const locale = 'español';
-      const nlcObj = {
-        registerIntent: sinon.stub().onFirstCall().throws('first call error'),
-      };
-
-      registerBuiltInIntents(nlcObj as any, locale as any);
-      // eslint-disable-next-line sonarjs/no-identical-functions
-      const registerIntentArgs = VoiceflowConstants.DEFAULT_INTENTS_MAP.es.map(({ name, samples }) => [
-        { intent: name, utterances: samples },
-      ]);
-      expect(nlcObj.registerIntent.args).to.eql(registerIntentArgs);
     });
   });
 

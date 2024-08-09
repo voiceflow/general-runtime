@@ -1,7 +1,6 @@
 import { BaseModels, BaseRequest } from '@voiceflow/base-types';
 import { getUtterancesWithSlotNames } from '@voiceflow/common';
 import NLC, { IIntentFullfilment, IIntentSlot } from '@voiceflow/natural-language-commander';
-import { VoiceflowConstants } from '@voiceflow/voiceflow-types';
 
 import log from '@/logger';
 
@@ -95,29 +94,12 @@ export const registerIntents = (
   });
 };
 
-export const registerBuiltInIntents = (nlc: NLC, locale = VoiceflowConstants.Locale.EN_US) => {
-  const lang = locale.slice(0, 2);
-  const builtInIntents = VoiceflowConstants.DEFAULT_INTENTS_MAP[lang] || VoiceflowConstants.DEFAULT_INTENTS_MAP.en;
-
-  builtInIntents.forEach((intent) => {
-    const { name, samples } = intent;
-
-    try {
-      nlc.registerIntent({ intent: name, utterances: samples });
-    } catch (error) {
-      log.debug(`[app] [runtime] [nlc] unable to register built-in intent ${log.vars({ intent: name, error })}`);
-    }
-  });
-};
-
 export const createNLC = ({
   model,
-  locale,
   openSlot,
   dmRequest,
 }: {
   model: BaseModels.PrototypeModel;
-  locale: VoiceflowConstants.Locale;
   openSlot: boolean;
   dmRequest?: BaseRequest.IntentRequestPayload;
 }) => {
@@ -125,7 +107,6 @@ export const createNLC = ({
 
   registerSlots(nlc, model, openSlot);
   registerIntents(nlc, model, dmRequest);
-  registerBuiltInIntents(nlc, locale);
 
   return nlc;
 };
@@ -149,17 +130,15 @@ export const nlcToIntent = (intent: IIntentFullfilment | null, query = '', confi
 export const handleNLCCommand = ({
   query,
   model,
-  locale,
   openSlot = true,
   dmRequest,
 }: {
   query: string;
   model: BaseModels.PrototypeModel;
-  locale: VoiceflowConstants.Locale;
   openSlot: boolean;
   dmRequest?: BaseRequest.IntentRequestPayload;
 }): (IIntentFullfilment & { confidence: number }) | null => {
-  const nlc = createNLC({ model, locale, openSlot, dmRequest });
+  const nlc = createNLC({ model, openSlot, dmRequest });
 
   // ensure open slot is lower than the capture step threshold
   const confidence = openSlot ? 0.5 : 1;

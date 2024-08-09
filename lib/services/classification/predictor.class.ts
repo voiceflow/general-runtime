@@ -99,7 +99,6 @@ export class Predictor extends EventEmitter {
         intents: this.props.intents,
         slots: this.props.slots ?? [],
       },
-      locale: this.options.locale,
       openSlot,
       dmRequest: this.props.dmRequest,
     });
