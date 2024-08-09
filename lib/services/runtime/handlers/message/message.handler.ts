@@ -4,13 +4,13 @@ import {
   CompiledMessageNodeDTO,
   CompiledResponseMessage,
   Language,
-  Version,
 } from '@voiceflow/dtos';
 
 import log from '@/logger';
 import { HandlerFactory, Runtime, Store } from '@/runtime';
 
 import { addOutputTrace, textOutputTrace } from '../../utils';
+import { getMessageData } from '../../utils/cms/message';
 import { createCondition } from './lib/conditions/condition';
 import { selectDiscriminator } from './lib/selectDiscriminator';
 import { selectVariant } from './lib/selectVariant';
@@ -32,30 +32,12 @@ function outputVariant(
   addOutputTrace(runtime, trace, { node, variables });
 }
 
-function getMessageData(runtime: Runtime, messageID: string) {
-  if (!runtime.version) {
-    throw raiseMessageHandlerError('Runtime was not loaded with a version');
-  }
-
-  /**
-   * !TODO! - Need to replace this `as Version` cast by refactoring `general-runtime` to use the
-   *          `Version` from the DTOs.
-   */
-  const version = runtime.version as unknown as Version;
-
-  if (!version.programResources) {
-    throw raiseMessageHandlerError('Version was not compiled');
-  }
-
-  return version.programResources.messages[messageID];
-}
-
 export const MessageHandler: HandlerFactory<CompiledMessageNode> = () => ({
   canHandle: (node) => CompiledMessageNodeDTO.safeParse(node).success,
 
   handle: async (node, runtime, variables): Promise<string | null> => {
     try {
-      const message = getMessageData(runtime, node.data.messageID);
+      const message = getMessageData(runtime, node.data.messageID, raiseMessageHandlerError);
 
       const currentLanguage = Language.ENGLISH_US;
       const currentChannel = Channel.DEFAULT;

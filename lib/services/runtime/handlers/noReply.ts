@@ -1,8 +1,10 @@
 import { BaseNode, BaseRequest, BaseText, BaseTrace } from '@voiceflow/base-types';
+import { BaseCompiledNode, WithCompiledNoReply } from '@voiceflow/dtos';
 import { VoiceflowNode } from '@voiceflow/voiceflow-types';
 import _ from 'lodash';
 
 import { Runtime, Store } from '@/runtime';
+import { ErrorRaiser } from '@/utils/logError/logError';
 
 import { NoReplyCounterStorage, StorageType } from '../types';
 import {
@@ -15,6 +17,7 @@ import {
   isPromptContentEmpty,
   removeEmptyPrompts,
 } from '../utils';
+import { getMessageText } from '../utils/cms/message';
 import { generateOutput } from './utils/output';
 
 type NoReplyNode = BaseRequest.NodeButton & VoiceflowNode.Utils.NoReplyNode;
@@ -31,7 +34,7 @@ const getDelay = (node: NoReplyNode, runtime: Runtime) => {
 
   /** if there's no no-reply configured to the step,
    * but we have a global no-reply, we should use global no-reply delay
-   * */
+   */
   const globalNoReplyPrompt = getGlobalNoReplyPrompt(runtime);
   if (!isPromptContentEmpty(globalNoReplyPrompt?.content)) {
     return (
@@ -52,6 +55,42 @@ export const addNoReplyTimeoutIfExists = (node: NoReplyNode, runtime: Runtime, f
     type: BaseNode.Utils.TraceType.NO_REPLY,
     payload: { timeout: delay },
   });
+};
+
+/**
+ * Outputs a no-reply trace if the node supports no reply functionality in
+ * `node.fallback.noReply`.
+ */
+export const addNoReplyTimeoutIfExistsV2 = ({
+  node,
+  runtime,
+  raiseError = Error,
+  forceDelay,
+}: {
+  node: BaseCompiledNode & { fallback: WithCompiledNoReply };
+  runtime: Runtime;
+  raiseError: ErrorRaiser;
+  forceDelay?: number;
+}) => {
+  if (!node.fallback.noReply) return;
+
+  const { noReply } = node.fallback;
+
+  if (!noReply.responseID) return;
+
+  const prompts: BaseText.SlateTextValue[] = getMessageText(runtime, noReply.responseID, raiseError);
+
+  const adaptedNode: NoReplyNode = {
+    ...node,
+    noReply: {
+      prompts,
+      timeout: noReply.inactivityTimeSec,
+      randomize: true,
+      nodeID: node.fallback.noReply.nextStepID,
+    },
+  };
+
+  addNoReplyTimeoutIfExists(adaptedNode, runtime, forceDelay);
 };
 
 const getOutput = (runtime: Runtime, node: NoReplyNode, noReplyCounter: number) => {
